@@ -47,6 +47,9 @@ class zh_CN {
       'networkError': "网络错误",
       'failToGetThumbnails': "获取画廊缩略图数据失败",
 
+      ///EHImage
+      'reloadImage': "重新加载图片",
+
       /// read page
       'parsingPage': "解析页面中",
       'parsingURL': "解析URL中",

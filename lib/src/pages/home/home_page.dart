@@ -29,12 +29,6 @@ class HomePage extends StatelessWidget {
               // Get.toNamed(Routes.test);
               // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
               // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-              FittedSizes fittedSizes = applyBoxFit(
-                BoxFit.contain,
-                Size(100, 500),
-                Size(300, double.infinity),
-              );
-              print(fittedSizes.destination);
             },
           ),
         );

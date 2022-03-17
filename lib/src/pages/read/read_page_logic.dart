@@ -15,55 +15,33 @@ class ReadPageLogic extends GetxController {
     state.initialIndex = int.parse(Get.parameters['initialIndex']!);
     state.pageCount = int.parse(Get.parameters['pageCount']!);
     state.galleryUrl = Get.parameters['galleryUrl']!;
+
     if (Get.arguments == null) {
-      state.thumbnails = List.empty(growable: true);
-    } else {
       state.thumbnails = List.generate(
-          state.pageCount,
-          (index) => index < (Get.arguments as List<GalleryThumbnail>).length
-              ? (Get.arguments as List<GalleryThumbnail>)[index]
-              : null,
-          growable: true);
+        state.pageCount,
+        (index) => Rxn(null),
+        growable: true,
+      );
+    } else {
+      List<GalleryThumbnail> parsedThumbnails = Get.arguments as List<GalleryThumbnail>;
+      state.thumbnails = List.generate(
+        state.pageCount,
+        (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
+        growable: true,
+      );
     }
 
-    state.images = List.filled(state.pageCount, null);
-    state.imageParsingStates = List.filled(state.pageCount, LoadingState.idle);
+    state.images = List.generate(state.pageCount, (index) => Rxn(null));
+    state.imageParsingStates = List.generate(state.pageCount, (index) => LoadingState.idle.obs);
   }
 
-  Future<void> beginParseGalleryImage(int index) async {
-    if (state.imageParsingStates[index] == LoadingState.loading ||
-        state.imageParsingStates[index] == LoadingState.error) {
+  Future<void> beginParseThumbnails(int index) async {
+    if (state.thumbnailsParsingState.value == LoadingState.loading) {
       return;
-    }
-
-    LoadingState prevState = state.imageParsingStates[index]!;
-    state.imageParsingStates[index] = LoadingState.loading;
-    if (prevState == LoadingState.error) {
-      update([index]);
-    }
-
-    EHRequest.getGalleryImage(state.thumbnails[index]!.href).then((image) {
-      state.images[index] = image;
-      state.imageParsingStates[index] = LoadingState.success;
-      update([index]);
-    }).catchError((error) {
-      Log.shout('parse gallery image failed, index: ${index.toString()}', error);
-      state.imageParsingStates[index] = LoadingState.error;
-      update([index]);
-    });
-    // GalleryImage galleryImage = await EHRequest.getGalleryImage(state.thumbnails[index]!.href);
-    // state.images[index] = galleryImage;
-    // update([index]);
-  }
-
-  Future<bool> beginParseThumbnails(int index) async {
-    if (state.thumbnailsParsingState == LoadingState.loading) {
-      return false;
     }
     Log.info('begin to load Thumbnails from $index');
 
-    state.thumbnailsParsingState = LoadingState.loading;
-    update(List.generate(40, (i) => index + i));
+    state.thumbnailsParsingState.value = LoadingState.loading;
 
     List<GalleryThumbnail> newThumbnails;
     try {
@@ -73,14 +51,33 @@ class ReadPageLogic extends GetxController {
       );
     } on DioError catch (e) {
       Log.shout('get thumbnails error!', e);
-      state.thumbnailsParsingState = LoadingState.error;
-      update(List.generate(40, (i) => index + i));
-      return false;
+      state.thumbnailsParsingState.value = LoadingState.error;
+      return;
     }
-    state.thumbnails.addAll(newThumbnails);
-    state.thumbnailsParsingState = LoadingState.success;
 
-    update(List.generate(40, (i) => index + i));
-    return true;
+    for (int i = 0; i < newThumbnails.length; i++) {
+      state.thumbnails[index + i].value = newThumbnails[i];
+    }
+    state.thumbnailsParsingState.value = LoadingState.success;
+    return;
+  }
+
+  Future<void> beginParseGalleryImage(int index) async {
+    if (state.imageParsingStates[index].value == LoadingState.loading) {
+      return;
+    }
+
+    state.imageParsingStates[index].value = LoadingState.loading;
+
+    EHRequest.getGalleryImage(state.thumbnails[index].value!.href).then((image) {
+      state.images[index].value = image;
+      state.imageParsingStates[index].value = LoadingState.success;
+    }).catchError((error) {
+      Log.shout('parse gallery image failed, index: ${index.toString()}', error);
+      state.imageParsingStates[index].value = LoadingState.error;
+    });
+    // GalleryImage galleryImage = await EHRequest.getGalleryImage(state.thumbnails[index]!.href);
+    // state.images[index] = galleryImage;
+    // update([index]);
   }
 }

@@ -1,9 +1,8 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
-
-import 'package:jhentai/src/utils/log.dart';
 
 /// responsible for all network and local images, depends on :
 /// 1. ExtendedImage:
@@ -24,7 +23,7 @@ import 'package:jhentai/src/utils/log.dart';
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
 
-class EHImage extends StatelessWidget {
+class EHImage extends StatefulWidget {
   final GalleryImage galleryImage;
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -32,7 +31,7 @@ class EHImage extends StatelessWidget {
   final BoxFit? fit;
   final ExtendedImageMode mode;
   final InitGestureConfigHandler? initGestureConfigHandler;
-  final CancellationToken? cancelToken;
+  final bool enableLongPressToRefresh;
 
   /// used to listen progress when loading network image
 
@@ -45,46 +44,91 @@ class EHImage extends StatelessWidget {
     this.fit,
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
-    this.cancelToken,
+    this.enableLongPressToRefresh = false,
   }) : super(key: key);
 
   @override
+  _EHImageState createState() => _EHImageState();
+}
+
+class _EHImageState extends State<EHImage> {
+  late Key key;
+  late CancellationToken cancelToken;
+
+  @override
+  void initState() {
+    key = UniqueKey();
+    cancelToken = CancellationToken();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (galleryImage.status != ImageStatus.none) {
+    if (widget.galleryImage.status != ImageStatus.none) {
       return ExtendedImage.file(
-        io.File(galleryImage.path!),
-        height: adaptive ? null : galleryImage.height,
-        width: adaptive ? null : galleryImage.width,
-        fit: fit,
-        mode: mode,
+        io.File(widget.galleryImage.path!),
+        height: widget.adaptive ? null : widget.galleryImage.height,
+        width: widget.adaptive ? null : widget.galleryImage.width,
+        fit: widget.fit,
+        mode: widget.mode,
       );
     }
 
     return GestureDetector(
+      onLongPress: widget.enableLongPressToRefresh
+          ? () => showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) => CupertinoActionSheet(
+                  actions: <CupertinoActionSheetAction>[
+                    CupertinoActionSheetAction(
+                      child: Text('reloadImage'.tr),
+                      onPressed: () async {
+                        cancelToken.cancel();
+                        await clearDiskCachedImage(widget.galleryImage.url);
+                        clearMemoryImageCache(widget.galleryImage.url);
+                        setState(() {
+                          /// lead to rebuilding
+                          key = UniqueKey();
+                          cancelToken = CancellationToken();
+                        });
+                        Get.back();
+                      },
+                    ),
+                  ],
+                  cancelButton: CupertinoActionSheetAction(
+                    child: Text('cancel'.tr),
+                    onPressed: Get.back,
+                  ),
+                ),
+              )
+          : null,
       child: ExtendedImage.network(
-        galleryImage.url,
-        height: adaptive ? null : galleryImage.height,
-        width: adaptive ? null : galleryImage.width,
-        fit: fit,
-        mode: mode,
-        initGestureConfigHandler: initGestureConfigHandler,
+        widget.galleryImage.url,
+        key: key,
+        height: widget.adaptive ? null : widget.galleryImage.height,
+        width: widget.adaptive ? null : widget.galleryImage.width,
+        fit: widget.fit,
+        mode: widget.mode,
+        initGestureConfigHandler: widget.initGestureConfigHandler,
         cancelToken: cancelToken,
-        handleLoadingProgress: true,
+        imageCacheName: widget.galleryImage.url,
+        handleLoadingProgress: widget.loadingWidgetBuilder != null,
         loadStateChanged: (ExtendedImageState state) {
-          if (state.extendedImageLoadState == LoadState.loading && loadingWidgetBuilder != null) {
+          if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
             if (state.loadingProgress == null) {
-              return loadingWidgetBuilder!(0.01);
+              return widget.loadingWidgetBuilder!(0.01);
             }
 
             int cur = state.loadingProgress!.cumulativeBytesLoaded;
             int? total = state.extendedImageInfo?.sizeBytes;
             int? compressed = state.loadingProgress!.expectedTotalBytes;
-            return loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
+            return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
           }
 
           if (state.extendedImageLoadState == LoadState.failed) {
-            return failedWidgetBuilder == null ? null : failedWidgetBuilder!(state);
+            return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
           }
+
           return null;
         },
       ),

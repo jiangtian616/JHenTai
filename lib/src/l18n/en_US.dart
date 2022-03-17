@@ -47,6 +47,10 @@ class en {
       'networkError': "network error",
       'failToGetThumbnails': "fail to get thumbnails",
 
+
+      ///EHImage
+      'reloadImage': "reload image",
+
       /// read page
       'parsingPage': "parsing page",
       'parsingURL': "parsing URL",
