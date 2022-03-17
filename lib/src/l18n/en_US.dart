@@ -50,6 +50,8 @@ class en {
       /// read page
       'parsingPage': "parsing page",
       'parsingURL': "parsing URL",
+      'parsePageFailed': "parse page failed",
+      'parseURLFailed': "parse URL failed",
       'loading': "loading",
 
       /// setting page

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_state.dart';
-import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
-
-import '../../config/theme_config.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
@@ -34,7 +29,12 @@ class HomePage extends StatelessWidget {
               // Get.toNamed(Routes.test);
               // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
               // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-              Get.find<StorageService>().erase();
+              FittedSizes fittedSizes = applyBoxFit(
+                BoxFit.contain,
+                Size(100, 500),
+                Size(300, double.infinity),
+              );
+              print(fittedSizes.destination);
             },
           ),
         );

@@ -50,6 +50,8 @@ class zh_CN {
       /// read page
       'parsingPage': "解析页面中",
       'parsingURL': "解析URL中",
+      'parsePageFailed': "解析页面错误",
+      'parseURLFailed': "解析URL错误",
       'loading': "加载中",
 
       /// setting page

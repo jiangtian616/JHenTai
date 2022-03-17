@@ -61,10 +61,6 @@ class EHImage extends StatelessWidget {
     }
 
     return GestureDetector(
-      onLongPress: () {
-        cancelToken?.cancel();
-        Log.warning('cancel token!');
-      },
       child: ExtendedImage.network(
         galleryImage.url,
         height: adaptive ? null : galleryImage.height,

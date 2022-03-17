@@ -30,15 +30,11 @@ class ReadPageLogic extends GetxController {
     state.imageParsingStates = List.filled(state.pageCount, LoadingState.idle);
   }
 
-  /// step 1: check thumbnail info whether exists, if not, [parse] one page of thumbnails
-  /// step 2: [parse] one image's raw data
-  /// step 3：use raw data to [load] image
   Future<void> beginParseGalleryImage(int index) async {
-    if (state.imageParsingStates[index] == LoadingState.loading || state.imageParsingStates[index] == LoadingState.error) {
+    if (state.imageParsingStates[index] == LoadingState.loading ||
+        state.imageParsingStates[index] == LoadingState.error) {
       return;
     }
-
-    Log.info('begin to load image $index');
 
     LoadingState prevState = state.imageParsingStates[index]!;
     state.imageParsingStates[index] = LoadingState.loading;
@@ -64,10 +60,10 @@ class ReadPageLogic extends GetxController {
     if (state.thumbnailsParsingState == LoadingState.loading) {
       return false;
     }
-    Log.info('begin to load Thumbnails begin at $index');
+    Log.info('begin to load Thumbnails from $index');
 
     state.thumbnailsParsingState = LoadingState.loading;
-    update(List.generate(40, (index) => index));
+    update(List.generate(40, (i) => index + i));
 
     List<GalleryThumbnail> newThumbnails;
     try {
@@ -76,15 +72,15 @@ class ReadPageLogic extends GetxController {
         thumbnailsPageNo: index ~/ 40,
       );
     } on DioError catch (e) {
-      Log.shout('get thumbnails while reading error!', e);
+      Log.shout('get thumbnails error!', e);
       state.thumbnailsParsingState = LoadingState.error;
-      update(List.generate(40, (index) => index));
+      update(List.generate(40, (i) => index + i));
       return false;
     }
     state.thumbnails.addAll(newThumbnails);
     state.thumbnailsParsingState = LoadingState.success;
 
-    update(List.generate(40, (index) => index));
+    update(List.generate(40, (i) => index + i));
     return true;
   }
 }
