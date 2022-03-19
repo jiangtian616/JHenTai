@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/home/navigation_view/gallerys/gallerys_view_lo
 
 import '../../config/global_config.dart';
 import 'home_page_state.dart';
+import 'navigation_view/gallerys/gallerys_view.dart';
 
 class HomePageLogic extends GetxController {
   final HomePageState state = HomePageState();
@@ -23,7 +24,9 @@ class HomePageLogic extends GetxController {
     if (index != 0) {
       return;
     }
-    state.galleryViewScrollController.animateTo(0, duration: const Duration(milliseconds: 400), curve: Curves.ease);
+
+    galleryListkey.currentState?.innerController
+        .animateTo(0, duration: const Duration(milliseconds: 400), curve: Curves.ease);
 
     if (state.lastTapTime == null) {
       state.lastTapTime = DateTime.now();
@@ -32,8 +35,8 @@ class HomePageLogic extends GetxController {
 
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
       /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
-      state.galleryViewScrollController
-          .animateTo(-GlobalConfig.refreshTriggerPullDistance, duration: const Duration(milliseconds: 400), curve: Curves.ease);
+      galleryListkey.currentState?.innerController.animateTo(-GlobalConfig.refreshTriggerPullDistance,
+          duration: const Duration(milliseconds: 400), curve: Curves.ease);
     }
 
     state.lastTapTime = DateTime.now();

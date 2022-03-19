@@ -24,6 +24,8 @@ import '../../../../widget/loading_state_indicator.dart';
 import 'gallerys_view_logic.dart';
 import 'gallerys_view_state.dart';
 
+final GlobalKey<ExtendedNestedScrollViewState> galleryListkey = GlobalKey<ExtendedNestedScrollViewState>();
+
 class GallerysView extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
   final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
@@ -33,6 +35,8 @@ class GallerysView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExtendedNestedScrollView(
+      /// use this GlobalKey to get innerController to implement 'scroll to top'
+      key: galleryListkey,
       /// this property is needed for TabBar in ExtendedNestedScrollView.
       onlyOneScrollInBody: true,
       floatHeaderSlivers: true,
@@ -52,6 +56,7 @@ class GallerysView extends StatelessWidget {
         sliver: SliverPersistentHeader(
           pinned: true,
           floating: true,
+
           /// build AppBar and TabBar.
           /// i used a handy class to avoid write a separate [SliverPersistentHeaderDelegate] class
           delegate: EHSliverHeaderDelegate(
@@ -176,7 +181,6 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           )
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            controller: Get.find<HomePageLogic>().state.galleryViewScrollController,
             slivers: <Widget>[
               /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
               /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just

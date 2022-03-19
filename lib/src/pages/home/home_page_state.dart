@@ -10,9 +10,6 @@ class HomePageState {
   late List<BottomNavigationBarItem> navigationBarItems;
   late List<Widget> navigationBarViews;
 
-  /// use this manual controller to implement 'scroll to top'
-  late ScrollController galleryViewScrollController;
-
   /// record tap time to implement 'double tap to refresh'
   DateTime? lastTapTime;
 
@@ -24,6 +21,5 @@ class HomePageState {
       BottomNavigationBarItem(icon: const Icon(Icons.settings), label: 'setting'.tr),
     ];
     navigationBarViews = [GallerysView(), DownloadView(), SettingView()];
-    galleryViewScrollController = ScrollController();
   }
 }
