@@ -25,8 +25,19 @@ class HomePageLogic extends GetxController {
       return;
     }
 
-    galleryListkey.currentState?.innerController
-        .animateTo(0, duration: const Duration(milliseconds: 400), curve: Curves.ease);
+    ScrollController? scrollController = galleryListkey.currentState?.innerController;
+
+    /// no gallerys data
+    if (scrollController?.hasClients == false) {
+      return;
+    }
+
+    /// scroll to top
+    scrollController?.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.ease,
+    );
 
     if (state.lastTapTime == null) {
       state.lastTapTime = DateTime.now();
@@ -35,8 +46,11 @@ class HomePageLogic extends GetxController {
 
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
       /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
-      galleryListkey.currentState?.innerController.animateTo(-GlobalConfig.refreshTriggerPullDistance,
-          duration: const Duration(milliseconds: 400), curve: Curves.ease);
+      scrollController?.animateTo(
+        -GlobalConfig.refreshTriggerPullDistance,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
+      );
     }
 
     state.lastTapTime = DateTime.now();

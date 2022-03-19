@@ -5,6 +5,8 @@ import 'package:jhentai/src/pages/home/home_page_state.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 
+import '../../config/theme_config.dart';
+
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
 
@@ -28,9 +30,9 @@ class HomePage extends StatelessWidget {
             child: Text('change'),
             onPressed: () {
               // Get.toNamed(Routes.test);
-              // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
+              Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
               // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-              Log.info(Get.find<StorageService>().getKeys(), false);
+              // Log.info(Get.find<StorageService>().getKeys(), false);
             },
           ),
         );

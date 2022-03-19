@@ -57,12 +57,10 @@ Future<void> beforeInit() async {
   await Log.init();
   UserSetting.init();
 
-  await DownloadService.init();
-
   await EHRequest.init();
+  await DownloadService.init();
 }
 
 Future<void> onInit() async {
   FavoriteSetting.init();
-  await DownloadService.init();
 }

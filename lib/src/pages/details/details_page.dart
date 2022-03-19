@@ -69,7 +69,7 @@ class DetailsPage extends StatelessWidget {
           // Get.toNamed(Routes.test);
           // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
           // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-          Get.find<DownloadService>().downloadGallery(Get.find<DetailsPageLogic>().state.gallery!);
+          Get.find<DownloadService>().downloadGallery(Get.find<DetailsPageLogic>().state.gallery!.toGalleryDownloadedData());
         },
       ),
     );

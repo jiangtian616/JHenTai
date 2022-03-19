@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/service/download_service.dart';
 
 import '../../../../config/global_config.dart';
@@ -31,7 +33,7 @@ class DownloadView extends StatelessWidget {
       body: Obx(() {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          children: downloadService.gid2gallery.value.values
+          children: downloadService.gallerys
               .map(
                 (gallery) => GestureDetector(
                   onTap: () => Get.toNamed(Routes.details, arguments: gallery),
@@ -56,7 +58,9 @@ class DownloadView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       child: Row(
                         children: [
-                          _buildCover(gallery.cover),
+                          _buildCover(downloadService.gid2Images[gallery.gid]!.isNotEmpty
+                              ? downloadService.gid2Images[gallery.gid]![0].value
+                              : null),
                           _buildInfo(gallery),
                         ],
                       ),
@@ -70,7 +74,15 @@ class DownloadView extends StatelessWidget {
     );
   }
 
-  Widget _buildCover(GalleryImage image) {
+  Widget _buildCover(GalleryImage? image) {
+    /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
+    if (image == null) {
+      return const SizedBox(
+        height: 130,
+        width: 110,
+        child: CupertinoActivityIndicator(),
+      );
+    }
     return EHImage(
       containerHeight: 130,
       containerWidth: 110,
@@ -80,117 +92,42 @@ class DownloadView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfo(Gallery gallery) {
+  Widget _buildInfo(GalleryDownloadedData gallery) {
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTitleAndUploader(gallery.title, gallery.uploader),
-          _buildFooter(gallery),
-          _buildProgressIndicator(gallery),
+          _buildHeader(gallery),
+          const Expanded(child: SizedBox()),
+          _buildCenter(gallery),
+          _buildFooter(gallery).marginOnly(top: 4),
         ],
       ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
     );
   }
 
-  Widget _buildTitleAndUploader(String title, String uploader) {
+  Widget _buildHeader(GalleryDownloadedData gallery) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          gallery.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 15, height: 1.2),
         ),
-        Text(
-          uploader,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ).marginOnly(top: 5),
-      ],
-    );
-  }
-
-  Widget _buildFooter(Gallery gallery) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (gallery.isFavorite)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
-                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.favorite,
-                        size: 10,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        gallery.favoriteTagName!,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
-                      ).marginOnly(left: 2),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            GalleryCategoryTag(category: gallery.category),
-            const Expanded(child: SizedBox()),
-            if (gallery.language != null)
-              Text(
-                LocaleConsts.languageCode[gallery.language] ?? '',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-              ).marginOnly(right: 4),
-            Icon(
-              Icons.panorama,
-              size: 12,
-              color: Colors.grey.shade600,
-            ).marginOnly(right: 2),
             Text(
-              gallery.pageCount.toString(),
-              style: TextStyle(
+              gallery.uploader,
+              style: const TextStyle(
                 fontSize: 12,
-                color: Colors.grey.shade600,
+                color: Colors.grey,
               ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            RatingBar.builder(
-              unratedColor: Colors.grey.shade300,
-              initialRating: gallery.rating,
-              itemCount: 5,
-              allowHalfRating: true,
-              itemSize: 16,
-              ignoreGestures: true,
-              itemBuilder: (context, _) => Icon(
-                Icons.star,
-                color: gallery.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
-              ),
-              onRatingUpdate: (rating) {},
-            ),
+            ).marginOnly(top: 5),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
               style: TextStyle(
@@ -199,19 +136,73 @@ class DownloadView extends StatelessWidget {
               ),
             ),
           ],
-        ).marginOnly(top: 2),
+        )
       ],
     );
   }
 
-  Widget _buildProgressIndicator(Gallery gallery) {
-    DownloadProgress downloadProgress = downloadService.gid2downloadProgress.value[gallery.gid]!;
-    return SizedBox(
-      height: 3,
-      child: LinearProgressIndicator(
-        value: downloadProgress.curCount / downloadProgress.totalCount,
-        color: Get.theme.primaryColorLight,
-      ),
+  Widget _buildCenter(GalleryDownloadedData gallery) {
+    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GalleryCategoryTag(category: gallery.category),
+            GestureDetector(
+              onTap: () => {},
+              child: Icon(
+                downloadStatus == DownloadStatus.paused
+                    ? Icons.play_arrow
+                    : downloadStatus == DownloadStatus.downloading
+                        ? Icons.pause
+                        : Icons.done,
+                size: 26,
+                color: Get.theme.primaryColorLight,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFooter(GalleryDownloadedData gallery) {
+    DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              downloadProgress.speed,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const Expanded(child: SizedBox()),
+            Text(
+              '${downloadProgress.curCount}/${downloadProgress.totalCount}',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
+        if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
+          SizedBox(
+            height: 3,
+            child: LinearProgressIndicator(
+              value: downloadProgress.curCount / downloadProgress.totalCount,
+              color: Get.theme.primaryColorLight,
+            ),
+          ).marginOnly(top: 4),
+      ],
     );
   }
 }

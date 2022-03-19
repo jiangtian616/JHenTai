@@ -23,11 +23,11 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'eh_cookie_manager.dart';
 
 class EHRequest {
-  static late final Dio dio;
+  static late final Dio _dio;
   static late final PersistCookieJar _cookieJar;
 
   static Future<void> init() async {
-    dio = Dio(BaseOptions(
+    _dio = Dio(BaseOptions(
       connectTimeout: 3000,
       receiveTimeout: 5000,
     ));
@@ -41,10 +41,10 @@ class EHRequest {
     ]);
 
     /// cookies
-    dio.interceptors.add(EHCookieManager(_cookieJar));
+    _dio.interceptors.add(EHCookieManager(_cookieJar));
 
     /// domain fronting
-    dio.interceptors.add(InterceptorsWrapper(
+    _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
         if (AdvancedSetting.enableDomainFronting.isFalse) {
           handler.next(options);
@@ -64,14 +64,14 @@ class EHRequest {
         handler.next(options.copyWith(path: newUri.toString(), headers: newHeaders));
       },
     ));
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
         return EHConsts.host2Ip.containsValue(host);
       };
     };
 
     /// error handler
-    dio.interceptors.add(InterceptorsWrapper(
+    _dio.interceptors.add(InterceptorsWrapper(
       onResponse: (response, handler) {
         if ((response.data.toString()).isEmpty) {
           return handler.reject(
@@ -109,7 +109,7 @@ class EHRequest {
   static Future<String?> login(String userName, String passWord) async {
     await logout();
 
-    Response<String> response = await dio.post(
+    Response<String> response = await _dio.post(
       EHConsts.EHForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {'act': 'Login', 'CODE': '01'},
@@ -152,7 +152,7 @@ class EHRequest {
 
   /// return null if cookie is wrong
   static Future<List<String?>?> getUserInfoByCookieAndMemberId(int ipbMemberId) async {
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       EHConsts.EHForums,
       queryParameters: {
         'showuser': ipbMemberId,
@@ -162,7 +162,7 @@ class EHRequest {
   }
 
   static Future<List<dynamic>> getHomeGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       EHConsts.EHHome,
       queryParameters: {
         'page': pageNo,
@@ -173,7 +173,7 @@ class EHRequest {
 
   static Future<Map<String, dynamic>> getGalleryDetailsAndApikey(
       {required String galleryUrl, int thumbnailsPageNo = 0}) async {
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
     );
@@ -183,7 +183,7 @@ class EHRequest {
   /// only parse Thumbnails
   static Future<List<GalleryThumbnail>> getGalleryDetailsThumbnailByPageNo(
       {required String galleryUrl, int thumbnailsPageNo = 0}) async {
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
     );
@@ -191,7 +191,7 @@ class EHRequest {
   }
 
   static Future<String> submitRating(int gid, String token, int apiuid, String apikey, int rating) async {
-    Response<String> response = await dio.post(
+    Response<String> response = await _dio.post(
       EHConsts.EHApi,
       data: {
         'apikey': apikey,
@@ -207,7 +207,7 @@ class EHRequest {
 
   static Future<T> getPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       EHConsts.EHPopup,
       queryParameters: {
         'gid': gid,
@@ -220,7 +220,7 @@ class EHRequest {
 
   static Future<LinkedHashMap<String, int>> getFavoriteTags() async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await dio.get(
+    Response<String> response = await _dio.get(
       EHConsts.EHFavorite,
     );
     return EHSpiderParser.parseFavoriteTags(response.data!);
@@ -229,7 +229,7 @@ class EHRequest {
   /// favcat: the favorite tag index
   static Future<bool> addFavorite(int gid, String token, int favcat) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await dio.post(
+    Response<String> response = await _dio.post(
       EHConsts.EHPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
@@ -249,7 +249,7 @@ class EHRequest {
 
   static Future<bool> removeFavorite(int gid, String token) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await dio.post(
+    Response<String> response = await _dio.post(
       EHConsts.EHPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
@@ -268,7 +268,7 @@ class EHRequest {
   }
 
   static Future<GalleryImage> getGalleryImage(String href) async {
-    Response<String> response = await dio.post(href);
+    Response<String> response = await _dio.post(href);
     return EHSpiderParser.parseGalleryImage(response.data!);
   }
 
@@ -278,7 +278,7 @@ class EHRequest {
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
   }) async {
-    await dio.download(
+    await _dio.download(
       url,
       path,
       onReceiveProgress: onReceiveProgress,

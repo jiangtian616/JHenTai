@@ -16,7 +16,7 @@ class DownloadProgress {
   String speed;
 
   DownloadProgress({
-    this.downloadStatus = DownloadStatus.none,
+    this.downloadStatus = DownloadStatus.downloading,
     required this.totalCount,
     required this.curCount,
     required this.speed,

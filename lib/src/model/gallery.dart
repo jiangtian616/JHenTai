@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 
 class Gallery {
@@ -32,6 +33,20 @@ class Gallery {
     favoriteTagName = null;
   }
 
+  GalleryDownloadedData toGalleryDownloadedData() {
+    return GalleryDownloadedData(
+      gid: gid,
+      token: token,
+      title: title,
+      category: category,
+      pageCount: pageCount,
+      galleryUrl: galleryUrl,
+      uploader: uploader,
+      publishTime: publishTime,
+      downloadStatusIndex: DownloadStatus.downloading.index
+    );
+  }
+
   Gallery({
     required this.gid,
     required this.token,
@@ -42,8 +57,8 @@ class Gallery {
     required this.rating,
     required this.hasRated,
     required this.isFavorite,
-    this.favoriteTagIndex,
-    this.favoriteTagName,
+    required this.favoriteTagIndex,
+    required this.favoriteTagName,
     required this.galleryUrl,
     required this.tags,
     this.language,

@@ -1,5 +1,6 @@
 enum DownloadStatus {
   none,
+  paused,
   downloading,
   downloaded,
   downloadFailed,
@@ -12,6 +13,8 @@ class GalleryImage {
 
   String? path;
   DownloadStatus downloadStatus;
+
+//<editor-fold desc="Data Methods">
 
   GalleryImage({
     required this.url,
@@ -42,7 +45,7 @@ class GalleryImage {
         ' height: $height,' +
         ' width: $width,' +
         ' path: $path,' +
-        ' status: $downloadStatus,' +
+        ' downloadStatus: $downloadStatus,' +
         '}';
   }
 
@@ -51,14 +54,14 @@ class GalleryImage {
     double? height,
     double? width,
     String? path,
-    DownloadStatus? status,
+    DownloadStatus? downloadStatus,
   }) {
     return GalleryImage(
       url: url ?? this.url,
       height: height ?? this.height,
       width: width ?? this.width,
       path: path ?? this.path,
-      downloadStatus: status ?? this.downloadStatus,
+      downloadStatus: downloadStatus ?? this.downloadStatus,
     );
   }
 
@@ -68,7 +71,7 @@ class GalleryImage {
       'height': this.height,
       'width': this.width,
       'path': this.path,
-      'status': this.downloadStatus,
+      'downloadStatus': this.downloadStatus,
     };
   }
 
@@ -78,7 +81,9 @@ class GalleryImage {
       height: map['height'] as double,
       width: map['width'] as double,
       path: map['path'] as String,
-      downloadStatus: map['status'] as DownloadStatus,
+      downloadStatus: map['downloadStatus'] as DownloadStatus,
     );
   }
+
+//</editor-fold>
 }

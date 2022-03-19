@@ -1,0 +1,81 @@
+CREATE TABLE gallery_downloaded
+(
+    gid                 INT  NOT NULL PRIMARY KEY,
+    token               TEXT NOT NULL,
+    title               TEXT NOT NULL,
+    category            TEXT NOT NULL,
+    pageCount           INT  NOT NULL,
+    galleryUrl          TEXT NOT NULL,
+    uploader            TEXT NOT NULL,
+    publishTime         TEXT NOT NULL,
+    downloadStatusIndex INT  NOT NULL
+);
+
+CREATE TABLE image
+(
+    url                 TEXT NOT NULL PRIMARY KEY,
+    serialNo            INT  NOT NULL,
+    gid                 INT  NOT NULL REFERENCES gallery_downloaded (gid),
+    height              REAL NOT NULL,
+    width               REAL NOT NULL,
+    path                TEXT NOT NULL,
+    downloadStatusIndex INT  NOT NULL
+);
+
+selectGallerysWithImages:
+SELECT g.gid,
+       token,
+       title,
+       category,
+       pageCount,
+       galleryUrl,
+       uploader,
+       publishTime,
+       g.downloadStatusIndex as galleryDownloadStatusIndex,
+       url,
+       i.serialNo,
+       height,
+       width,
+       path,
+       i.downloadStatusIndex as imageDownloadStatusIndex
+FROM gallery_downloaded g
+         left join image i on g.gid = i.gid;
+
+selectGallerys:
+SELECT *
+FROM gallery_downloaded;
+
+insertGallery:
+insert into gallery_downloaded
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex);
+
+deleteGallery:
+delete
+from gallery_downloaded
+where gid = :gid;
+
+updateGallery:
+update gallery_downloaded
+set downloadStatusIndex = :downloadStatusIndex
+where gid = :gid;
+
+
+
+selectImagesByGalleryId:
+SELECT *
+FROM gallery_downloaded
+where gid = ?;
+
+insertImage:
+insert into image
+values (:url, :serialNo, :gid, :height, :width, :path, :downloadStatusIndex);
+
+updateImage:
+update image
+set downloadStatusIndex = :downloadStatusIndex
+where url = :url;
+
+deleteImage:
+delete
+from image
+where url = :url;
