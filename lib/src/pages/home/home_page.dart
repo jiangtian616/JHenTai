@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_state.dart';
+import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/utils/log.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
@@ -29,6 +32,7 @@ class HomePage extends StatelessWidget {
               // Get.toNamed(Routes.test);
               // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
               // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
+              Log.info(Get.find<StorageService>().getKeys(), false);
             },
           ),
         );

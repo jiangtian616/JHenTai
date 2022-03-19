@@ -1,6 +1,5 @@
 import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:loading_more_list/loading_more_list.dart';
 
 import '../../../../model/gallery.dart';
 

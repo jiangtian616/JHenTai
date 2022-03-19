@@ -40,7 +40,7 @@ class DetailsPageLogic extends GetxController {
       update();
     }
 
-    Log.info('获取画廊详情');
+    Log.info('get gallery details', false);
     Map<String, dynamic> galleryDetailsAndApikey;
     try {
       galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(galleryUrl: state.gallery!.galleryUrl);
@@ -57,7 +57,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleRefresh() async {
-    Log.info('刷新画廊详情');
+    Log.info('refresh gallery details', false);
 
     Map<String, dynamic> galleryDetailsAndApikey;
     try {

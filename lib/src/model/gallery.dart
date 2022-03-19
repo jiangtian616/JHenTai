@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 
 class Gallery {

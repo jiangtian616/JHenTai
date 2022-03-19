@@ -1,11 +1,14 @@
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
+import '../utils/log.dart';
+
 class StorageService extends GetxService {
   final GetStorage _storage = GetStorage();
 
   static void init() {
-    Get.lazyPut(() => StorageService());
+    Get.put(StorageService());
+    Log.info('init StorageService success', false);
   }
 
   Future<void> write(String key, dynamic value) {

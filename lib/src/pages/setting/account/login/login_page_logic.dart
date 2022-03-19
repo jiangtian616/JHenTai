@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -51,7 +52,7 @@ class LoginPageLogic extends GetxController {
     try {
       errorMsg = await EHRequest.login(state.userName!, state.password!);
     } on DioError catch (e) {
-      Log.shout(e);
+      Log.error(e);
       Get.snackbar('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       update();
@@ -61,6 +62,7 @@ class LoginPageLogic extends GetxController {
     if (errorMsg == null) {
       state.loginState = LoadingState.success;
 
+      FavoriteSetting.init();
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 700));
       Get.back();
@@ -114,7 +116,7 @@ class LoginPageLogic extends GetxController {
     try {
       userNameAndAvatarUrl = await EHRequest.getUserInfoByCookieAndMemberId(ipbMemberId);
     } on DioError catch (e) {
-      Log.shout(e);
+      Log.error(e);
       Get.snackbar('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       await EHRequest.removeAllCookies();

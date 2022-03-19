@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:extended_image/extended_image.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +14,6 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
-import 'package:loading_more_list/loading_more_list.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../../../../config/global_config.dart';

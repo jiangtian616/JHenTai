@@ -8,11 +8,13 @@ import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 
 import 'config/theme_config.dart';
 
@@ -50,12 +52,17 @@ Future<void> beforeInit() async {
 
   await GetStorage.init();
   StorageService.init();
-  UserSetting.init();
+
   AdvancedSetting.init();
+  await Log.init();
+  UserSetting.init();
+
+  await DownloadService.init();
 
   await EHRequest.init();
 }
 
 Future<void> onInit() async {
   FavoriteSetting.init();
+  await DownloadService.init();
 }

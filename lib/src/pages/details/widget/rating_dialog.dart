@@ -121,7 +121,7 @@ class _RatingDialogState extends State<RatingDialog> {
         (rating * 2).toInt(),
       );
     } on DioError catch (e) {
-      Log.shout(e);
+      Log.error(e);
       Get.snackbar('评分错误', e.message, snackPosition: SnackPosition.BOTTOM);
       setState(() {
         submitState = LoadingState.error;

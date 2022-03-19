@@ -23,7 +23,6 @@ class zh_CN {
       'afterRating': '您评分后',
       'submit': '提交',
       'chooseFavorite': '选择收藏夹',
-      'cancel': '取消',
       'account': '账户',
       'EH': 'EH',
       'advanced': '高级',
@@ -47,6 +46,9 @@ class zh_CN {
       'networkError': "网络错误",
       'failToGetThumbnails': "获取画廊缩略图数据失败",
 
+      /// gallery page
+      'getGallerysFailed': "获取画廊数据失败",
+
       ///EHImage
       'reloadImage': "重新加载图片",
 
@@ -62,7 +64,9 @@ class zh_CN {
       'advancedSetting': '高级设置',
 
       /// advanced setting page
-      'enableDomainFronting': '开启域名前置'
+      'enableDomainFronting': '开启域名前置',
+      'enableLogging': '开启日志(需要重启)',
+      'clearLogs': '清除日志',
     };
   }
 }

@@ -80,8 +80,8 @@ class _LogoutDialog extends StatelessWidget {
             ),
             TextButton(
               child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
-              onPressed: () {
-                EHRequest.logout();
+              onPressed: () async {
+                await EHRequest.logout();
                 Get.back();
               },
             ),

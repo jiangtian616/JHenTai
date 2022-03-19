@@ -5,17 +5,23 @@ import '../service/storage_service.dart';
 
 class AdvancedSetting {
   static RxBool enableDomainFronting = false.obs;
+  static RxBool enableLogging = false.obs;
 
   static saveEnableDomainFronting(bool enableDomainFronting) {
     AdvancedSetting.enableDomainFronting.value = enableDomainFronting;
     _save();
   }
 
-  static Future<void> init() async {
+  static saveEnableLogging(bool enableLogging) {
+    AdvancedSetting.enableLogging.value = enableLogging;
+    _save();
+  }
+
+  static void init()  {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('load AdvancedSetting success');
+      Log.info('init AdvancedSetting success', false);
     }
   }
 
@@ -31,10 +37,12 @@ class AdvancedSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enableDomainFronting': enableDomainFronting.value,
+      'enableLogging': enableLogging.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableDomainFronting.value = map['enableDomainFronting'];
+    enableLogging.value = map['enableLogging'];
   }
 }

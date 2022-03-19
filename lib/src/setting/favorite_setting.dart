@@ -25,8 +25,8 @@ class FavoriteSetting {
       favoriteTagNames2Count = await EHRequest.getFavoriteTags();
       favoriteTagNames = favoriteTagNames2Count?.keys.toList();
     } on DioError catch (e) {
-      Log.shout('FavoriteSetting init fail');
-      Log.shout(e);
+      Log.error('FavoriteSetting init fail');
+      Log.error(e);
       return false;
     }
     Log.info('FavoriteSetting init success');

@@ -1,7 +1,8 @@
-enum ImageStatus {
+enum DownloadStatus {
   none,
   downloading,
   downloaded,
+  downloadFailed,
 }
 
 class GalleryImage {
@@ -10,14 +11,14 @@ class GalleryImage {
   double width;
 
   String? path;
-  ImageStatus status;
+  DownloadStatus downloadStatus;
 
   GalleryImage({
     required this.url,
     required this.height,
     required this.width,
     this.path,
-    this.status = ImageStatus.none,
+    this.downloadStatus = DownloadStatus.none,
   });
 
   @override
@@ -29,10 +30,10 @@ class GalleryImage {
           height == other.height &&
           width == other.width &&
           path == other.path &&
-          status == other.status);
+          downloadStatus == other.downloadStatus);
 
   @override
-  int get hashCode => url.hashCode ^ height.hashCode ^ width.hashCode ^ path.hashCode ^ status.hashCode;
+  int get hashCode => url.hashCode ^ height.hashCode ^ width.hashCode ^ path.hashCode ^ downloadStatus.hashCode;
 
   @override
   String toString() {
@@ -41,7 +42,7 @@ class GalleryImage {
         ' height: $height,' +
         ' width: $width,' +
         ' path: $path,' +
-        ' status: $status,' +
+        ' status: $downloadStatus,' +
         '}';
   }
 
@@ -50,14 +51,14 @@ class GalleryImage {
     double? height,
     double? width,
     String? path,
-    ImageStatus? status,
+    DownloadStatus? status,
   }) {
     return GalleryImage(
       url: url ?? this.url,
       height: height ?? this.height,
       width: width ?? this.width,
       path: path ?? this.path,
-      status: status ?? this.status,
+      downloadStatus: status ?? this.downloadStatus,
     );
   }
 
@@ -67,7 +68,7 @@ class GalleryImage {
       'height': this.height,
       'width': this.width,
       'path': this.path,
-      'status': this.status,
+      'status': this.downloadStatus,
     };
   }
 
@@ -77,7 +78,7 @@ class GalleryImage {
       height: map['height'] as double,
       width: map['width'] as double,
       path: map['path'] as String,
-      status: map['status'] as ImageStatus,
+      downloadStatus: map['status'] as DownloadStatus,
     );
   }
 }

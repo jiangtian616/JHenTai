@@ -47,8 +47,10 @@ class en {
       'networkError': "network error",
       'failToGetThumbnails': "fail to get thumbnails",
 
+      /// gallery page
+      'getGallerysFailed': "get gallerys failed",
 
-      ///EHImage
+      /// EHImage
       'reloadImage': "reload image",
 
       /// read page
@@ -63,7 +65,9 @@ class en {
       'advancedSetting': 'Advanced Setting',
 
       /// advanced setting page
-      'enableDomainFronting': 'enable Domain Fronting'
+      'enableDomainFronting': 'enable Domain Fronting',
+      'enableLogging': 'enable logging(need reboot)',
+      'clearLogs': 'clear logs',
     };
   }
 }

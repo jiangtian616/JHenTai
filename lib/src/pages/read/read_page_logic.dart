@@ -50,7 +50,7 @@ class ReadPageLogic extends GetxController {
         thumbnailsPageNo: index ~/ 40,
       );
     } on DioError catch (e) {
-      Log.shout('get thumbnails error!', e);
+      Log.error('get thumbnails error!', e);
       state.thumbnailsParsingState.value = LoadingState.error;
       return;
     }
@@ -73,7 +73,7 @@ class ReadPageLogic extends GetxController {
       state.images[index].value = image;
       state.imageParsingStates[index].value = LoadingState.success;
     }).catchError((error) {
-      Log.shout('parse gallery image failed, index: ${index.toString()}', error);
+      Log.error('parse gallery image failed, index: ${index.toString()}', error);
       state.imageParsingStates[index].value = LoadingState.error;
     });
     // GalleryImage galleryImage = await EHRequest.getGalleryImage(state.thumbnails[index]!.href);

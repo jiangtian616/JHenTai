@@ -64,7 +64,7 @@ class _EHImageState extends State<EHImage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.galleryImage.status != ImageStatus.none) {
+    if (widget.galleryImage.downloadStatus != DownloadStatus.none) {
       return ExtendedImage.file(
         io.File(widget.galleryImage.path!),
         height: widget.adaptive ? null : widget.galleryImage.height,
@@ -75,6 +75,7 @@ class _EHImageState extends State<EHImage> {
     }
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onLongPress: widget.enableLongPressToRefresh
           ? () => showCupertinoModalPopup(
                 context: context,

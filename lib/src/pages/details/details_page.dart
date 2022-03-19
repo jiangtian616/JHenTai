@@ -18,6 +18,7 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../model/gallery_thumbnail.dart';
+import '../../service/download_service.dart';
 import '../../utils/date_util.dart';
 import '../../widget/gallery_category_tag.dart';
 import 'details_page_logic.dart';
@@ -62,6 +63,15 @@ class DetailsPage extends StatelessWidget {
           ).paddingOnly(top: 10, left: 15, right: 15),
         );
       }),
+      floatingActionButton: FloatingActionButton(
+        child: Text('change'),
+        onPressed: () {
+          // Get.toNamed(Routes.test);
+          // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
+          // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
+          Get.find<DownloadService>().downloadGallery(Get.find<DetailsPageLogic>().state.gallery!);
+        },
+      ),
     );
   }
 
