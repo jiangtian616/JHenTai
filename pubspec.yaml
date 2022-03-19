@@ -42,9 +42,10 @@ dependencies:
   collection: 1.15.0
   clipboard: ^0.1.3
   flutter_list_view: ^1.1.4
-  worker_manager: ^4.2.6
-  async_task: ^1.0.18
-  squadron: ^3.2.1
+  executor: ^2.2.2
+  retry: ^3.1.0
+  path: ^1.8.0
+  liquid_progress_indicator: ^0.4.0
 
 dev_dependencies:
   flutter_test:

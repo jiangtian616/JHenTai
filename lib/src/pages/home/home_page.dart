@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_state.dart';
-import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 

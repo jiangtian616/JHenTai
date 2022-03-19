@@ -52,7 +52,6 @@ class GallerysView extends StatelessWidget {
         sliver: SliverPersistentHeader(
           pinned: true,
           floating: true,
-
           /// build AppBar and TabBar.
           /// i used a handy class to avoid write a separate [SliverPersistentHeaderDelegate] class
           delegate: EHSliverHeaderDelegate(
@@ -249,7 +248,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
                 borderRadius: BorderRadius.circular(15),
                 child: Row(
                   children: [
-                    _buildCover(gallerys[index].cover.url),
+                    _buildCover(gallerys[index].cover),
                     _buildInfo(gallerys[index]),
                   ],
                 ),
@@ -258,6 +257,16 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           ),
         );
       }, childCount: gallerysViewState.gallerys[tabIndex].length),
+    );
+  }
+
+  Widget _buildCover(GalleryImage image) {
+    return EHImage(
+      containerHeight: 200,
+      containerWidth: 140,
+      adaptive: true,
+      galleryImage: image,
+      fit: BoxFit.cover,
     );
   }
 
@@ -281,20 +290,6 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
       mergedList.addAll(tagNames);
     }
     return mergedList;
-  }
-
-  Widget _buildCover(String coverUrl) {
-    return Hero(
-      tag: coverUrl,
-      child: EHImage(
-        galleryImage: GalleryImage(
-          url: coverUrl,
-          height: 240,
-          width: 140,
-        ),
-        fit: BoxFit.cover,
-      ),
-    );
   }
 
   Widget _buildTitleAndUploader(String title, String uploader) {

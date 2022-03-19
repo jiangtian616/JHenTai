@@ -20,17 +20,14 @@ class SingleImagePage extends StatelessWidget {
       body: Container(
         constraints: const BoxConstraints.expand(),
         color: Colors.white,
-        child: Hero(
-          tag: image.url,
-          child: EHImage(
-            galleryImage: image,
-            adaptive: true,
-            fit: BoxFit.contain,
-            mode: ExtendedImageMode.gesture,
-            initGestureConfigHandler: (ExtendedImageState state) {
-              return GestureConfig();
-            },
-          ),
+        child: EHImage(
+          galleryImage: image,
+          adaptive: true,
+          fit: BoxFit.contain,
+          mode: ExtendedImageMode.gesture,
+          initGestureConfigHandler: (ExtendedImageState state) {
+            return GestureConfig();
+          },
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
+import 'package:path/path.dart' as path;
 
 class Log {
   static final Logger _log = Logger(printer: PrettyPrinter(stackTraceBeginIndex: 1));
@@ -13,8 +14,7 @@ class Log {
     if (AdvancedSetting.enableLogging.value == false) {
       return;
     }
-
-    File logFile = File('${PathSetting.getVisiblePath().uri.toFilePath()}logs/${DateTime.now().toString()}');
+    File logFile = File(path.join(PathSetting.getVisiblePath().path, 'logs', DateTime.now().toString()));
     await logFile.create(recursive: true);
 
     _logFile = Logger(
@@ -33,9 +33,9 @@ class Log {
     _logFile?.w(msg, null, withStack ? null : StackTrace.empty);
   }
 
-  static void error(Object? msg, [Object? errorMsg, bool withStack = true]) {
-    _log.e(msg, errorMsg, withStack ? null : StackTrace.empty);
-    _logFile?.e(msg, errorMsg, withStack ? null : StackTrace.empty);
+  static void error(Object? msg, [Object? errorMsg]) {
+    _log.e(msg, errorMsg);
+    _logFile?.e(msg, errorMsg);
   }
 
   static String getSizeInKB() {

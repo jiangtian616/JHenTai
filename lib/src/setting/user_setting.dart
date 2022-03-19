@@ -13,7 +13,7 @@ class UserSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init UserSetting success');
+      Log.info('init UserSetting success', false);
     }
   }
 

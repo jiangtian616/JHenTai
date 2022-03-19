@@ -86,12 +86,12 @@ class DetailsPage extends StatelessWidget {
               GestureDetector(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Hero(
-                    tag: gallery.cover.url,
-                    child: EHImage(
-                      galleryImage: GalleryImage(url: gallery.cover.url, height: 200, width: 140),
-                      fit: BoxFit.cover,
-                    ),
+                  child: EHImage(
+                    containerHeight: 200,
+                    containerWidth: 140,
+                    galleryImage: gallery.cover,
+                    adaptive: true,
+                    fit: BoxFit.cover,
                   ),
                 ),
                 onTap: () {
@@ -555,7 +555,7 @@ class DetailsPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               GestureDetector(
-                onTap:()=> detailsPageLogic.goToReadPage(index),
+                onTap: () => detailsPageLogic.goToReadPage(index),
                 child: ConstrainedBox(
                   /// 220-16-4
                   constraints: const BoxConstraints(maxHeight: 200),
@@ -617,7 +617,7 @@ class DetailsPage extends StatelessWidget {
 
   Widget _buildLoadingThumbnailIndicator() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 8, bottom: 36),
+      padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
         child: LoadingStateIndicator(
           errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},

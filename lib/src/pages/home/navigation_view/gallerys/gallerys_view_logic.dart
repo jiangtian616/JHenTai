@@ -93,8 +93,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// click the card and enter details page
   void handleTapCard(Gallery gallery) async {
-    await Get.toNamed(Routes.details, arguments: gallery);
-    // Get.find<DetailsPageLogic>().state.clear();
+    Get.toNamed(Routes.details, arguments: gallery);
   }
 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {

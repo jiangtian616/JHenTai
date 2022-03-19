@@ -46,10 +46,10 @@ class EHRequest {
     /// domain fronting
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-        // if (AdvancedSetting.enableDomainFronting.isFalse) {
-        //   handler.next(options);
-        //   return;
-        // }
+        if (AdvancedSetting.enableDomainFronting.isFalse) {
+          handler.next(options);
+          return;
+        }
 
         Uri rawUri = options.uri;
         String host = rawUri.host;
@@ -95,69 +95,6 @@ class EHRequest {
 
     Log.info('EHRequest init success', false);
   }
-
-  static Future<void> initInIsolate() async {
-    dio = Dio(BaseOptions(
-      connectTimeout: 3000,
-      receiveTimeout: 5000,
-    ));
-
-
-    /// domain fronting
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-        // if (AdvancedSetting.enableDomainFronting.isFalse) {
-        //   handler.next(options);
-        //   return;
-        // }
-
-        Uri rawUri = options.uri;
-        String host = rawUri.host;
-        if (!EHConsts.host2Ip.containsKey(host)) {
-          handler.next(options);
-          return;
-        }
-
-        String ip = EHConsts.host2Ip[host]!;
-        Uri newUri = rawUri.replace(host: ip);
-        Map<String, dynamic> newHeaders = {...options.headers, 'host': host};
-        handler.next(options.copyWith(path: newUri.toString(), headers: newHeaders));
-      },
-    ));
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return EHConsts.host2Ip.containsValue(host);
-      };
-    };
-
-    /// error handler
-    dio.interceptors.add(InterceptorsWrapper(
-      onResponse: (response, handler) {
-        if ((response.data.toString()).isEmpty) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.blankBody, msg: "IP限制"),
-            ),
-          );
-        }
-        if (response.data.toString().startsWith('Your IP address')) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.banned, msg: response.data),
-            ),
-          );
-        }
-        handler.next(response);
-      },
-    ));
-
-    Log.info('EHRequest init success', false);
-    inited = true;
-  }
-
-  static bool inited = false;
 
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
@@ -346,7 +283,7 @@ class EHRequest {
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
-      options: Options(responseType: ResponseType.stream),
+      options: Options(responseType: ResponseType.stream, receiveTimeout: 8000),
     );
     return true;
   }

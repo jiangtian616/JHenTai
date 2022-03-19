@@ -29,20 +29,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.8.2"
-  async_extension:
-    dependency: transitive
-    description:
-      name: async_extension
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.9"
-  async_task:
-    dependency: "direct main"
-    description:
-      name: async_task
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.18"
   boolean_selector:
     dependency: transitive
     description:
@@ -148,6 +134,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
+  executor:
+    dependency: "direct main"
+    description:
+      name: executor
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.2"
   extended_image:
     dependency: "direct main"
     description:
@@ -340,6 +333,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
+  liquid_progress_indicator:
+    dependency: "direct main"
+    description:
+      name: liquid_progress_indicator
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.0"
   logger:
     dependency: "direct main"
     description:
@@ -397,7 +397,7 @@ packages:
     source: hosted
     version: "2.0.2"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.flutter-io.cn"
@@ -494,6 +494,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.1"
+  retry:
+    dependency: "direct main"
+    description:
+      name: retry
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0"
   shelf:
     dependency: transitive
     description:
@@ -548,13 +555,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.1"
-  squadron:
-    dependency: "direct main"
-    description:
-      name: squadron
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.2.1"
   stack_trace:
     dependency: transitive
     description:
@@ -660,13 +660,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.4.1"
-  worker_manager:
-    dependency: "direct main"
-    description:
-      name: worker_manager
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "4.2.6"
   xdg_directories:
     dependency: transitive
     description:
