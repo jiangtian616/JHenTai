@@ -19,6 +19,7 @@ import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
+  final DownloadService downloadService = Get.find();
 
   @override
   void onInit() async {
@@ -196,17 +197,31 @@ class DetailsPageLogic extends GetxController {
   }
 
   void goToReadPage(int index) {
-    Get.toNamed(
-      Routes.read,
-
-      /// parsed thumbnails, don't need to parse again
-      arguments: state.galleryDetails?.thumbnails,
-      parameters: {
-        'type': 'online',
-        'initialIndex': index.toString(),
-        'pageCount': state.gallery!.pageCount.toString(),
-        'galleryUrl': state.gallery!.galleryUrl,
-      },
-    );
+    if (downloadService.gid2downloadProgress[state.gallery!.gid] != null) {
+      Get.toNamed(
+        Routes.read,
+        arguments: state.gallery!.toGalleryDownloadedData(),
+        parameters: {
+          'type': 'local',
+          'gid': state.gallery!.gid.toString(),
+          'initialIndex': '0',
+          'pageCount': state.gallery!.pageCount.toString(),
+          'galleryUrl': state.gallery!.galleryUrl,
+        },
+      );
+    } else {
+      Get.toNamed(
+        Routes.read,
+        /// parsed thumbnails, don't need to parse again
+        arguments: state.galleryDetails?.thumbnails,
+        parameters: {
+          'type': 'online',
+          'gid': state.gallery!.gid.toString(),
+          'initialIndex': index.toString(),
+          'pageCount': state.gallery!.pageCount.toString(),
+          'galleryUrl': state.gallery!.galleryUrl,
+        },
+      );
+    }
   }
 }

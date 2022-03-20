@@ -5,14 +5,18 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class ReadPageState {
+  /// local / online
+  late String type;
+
   late int initialIndex;
   late int pageCount;
 
+  late int gid;
   late String galleryUrl;
   late List<Rxn<GalleryThumbnail>> thumbnails;
-  late Rx<LoadingState> thumbnailsParsingState = LoadingState.idle.obs;
+  late Rx<LoadingState> imageHrefParsingState = LoadingState.idle.obs;
   late List<Rxn<GalleryImage>> images;
-  late List<Rx<LoadingState>> imageParsingStates;
+   List<Rx<LoadingState>>? imageUrlParsingStates;
 
   FlutterListViewController listViewController = FlutterListViewController();
 

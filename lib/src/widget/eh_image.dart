@@ -23,6 +23,7 @@ import 'dart:io' as io;
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
+typedef DownloadingWidgetBuilder = Widget Function();
 
 class EHImage extends StatefulWidget {
   final GalleryImage galleryImage;
@@ -30,6 +31,7 @@ class EHImage extends StatefulWidget {
   final double? containerWidth;
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
+  final DownloadingWidgetBuilder? downloadingWidgetBuilder;
   final bool adaptive;
   final BoxFit? fit;
   final ExtendedImageMode mode;
@@ -41,10 +43,11 @@ class EHImage extends StatefulWidget {
   const EHImage({
     Key? key,
     required this.galleryImage,
-    this.loadingWidgetBuilder,
     this.containerHeight,
     this.containerWidth,
+    this.loadingWidgetBuilder,
     this.failedWidgetBuilder,
+    this.downloadingWidgetBuilder,
     this.adaptive = false,
     this.fit,
     this.mode = ExtendedImageMode.none,
@@ -72,7 +75,9 @@ class _EHImageState extends State<EHImage> {
     Widget child;
     if (widget.galleryImage.path != null) {
       if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
-        child = const Center(child: CircularProgressIndicator());
+        child = widget.downloadingWidgetBuilder != null
+            ? widget.downloadingWidgetBuilder!()
+            : const Center(child: CircularProgressIndicator());
       } else {
         child = ExtendedImage.file(
           io.File(widget.galleryImage.path!),
@@ -83,42 +88,42 @@ class _EHImageState extends State<EHImage> {
           mode: widget.mode,
         );
       }
-    }
+    } else {
+      child = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
+        child: ExtendedImage.network(
+          widget.galleryImage.url,
+          key: key,
+          height: widget.adaptive ? null : widget.galleryImage.height,
+          width: widget.adaptive ? null : widget.galleryImage.width,
+          fit: widget.fit,
+          mode: widget.mode,
+          initGestureConfigHandler: widget.initGestureConfigHandler,
+          cancelToken: cancelToken,
+          imageCacheName: widget.galleryImage.url,
+          handleLoadingProgress: widget.loadingWidgetBuilder != null,
+          loadStateChanged: (ExtendedImageState state) {
+            if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
+              if (state.loadingProgress == null) {
+                return widget.loadingWidgetBuilder!(0.01);
+              }
 
-    child = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
-      child: ExtendedImage.network(
-        widget.galleryImage.url,
-        key: key,
-        height: widget.adaptive ? null : widget.galleryImage.height,
-        width: widget.adaptive ? null : widget.galleryImage.width,
-        fit: widget.fit,
-        mode: widget.mode,
-        initGestureConfigHandler: widget.initGestureConfigHandler,
-        cancelToken: cancelToken,
-        imageCacheName: widget.galleryImage.url,
-        handleLoadingProgress: widget.loadingWidgetBuilder != null,
-        loadStateChanged: (ExtendedImageState state) {
-          if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
-            if (state.loadingProgress == null) {
-              return widget.loadingWidgetBuilder!(0.01);
+              int cur = state.loadingProgress!.cumulativeBytesLoaded;
+              int? total = state.extendedImageInfo?.sizeBytes;
+              int? compressed = state.loadingProgress!.expectedTotalBytes;
+              return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
             }
 
-            int cur = state.loadingProgress!.cumulativeBytesLoaded;
-            int? total = state.extendedImageInfo?.sizeBytes;
-            int? compressed = state.loadingProgress!.expectedTotalBytes;
-            return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
-          }
+            if (state.extendedImageLoadState == LoadState.failed) {
+              return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
+            }
 
-          if (state.extendedImageLoadState == LoadState.failed) {
-            return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
-          }
-
-          return null;
-        },
-      ),
-    );
+            return null;
+          },
+        ),
+      );
+    }
 
     return SizedBox(
       height: widget.containerHeight,

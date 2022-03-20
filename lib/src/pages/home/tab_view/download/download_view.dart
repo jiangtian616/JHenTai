@@ -105,12 +105,14 @@ class DownloadView extends StatelessWidget {
   Widget _buildInfo(GalleryDownloadedData gallery) {
     return Expanded(
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           Get.toNamed(
             Routes.read,
             arguments: gallery,
             parameters: {
               'type': 'local',
+              'gid': gallery.gid.toString(),
               'initialIndex': '0',
               'pageCount': gallery.pageCount.toString(),
               'galleryUrl': gallery.galleryUrl,

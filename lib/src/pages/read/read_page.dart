@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,9 +14,12 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../service/download_service.dart';
+
 class ReadPage extends StatelessWidget {
   final logic = Get.put(ReadPageLogic());
   final state = Get.find<ReadPageLogic>().state;
+  final DownloadService downloadService = Get.find();
 
   ReadPage({Key? key}) : super(key: key);
 
@@ -21,44 +27,49 @@ class ReadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Center(
-        child: FlutterListView(
-          controller: state.listViewController,
-          delegate: FlutterListViewDelegate(
-            (BuildContext context, int index) {
-              /// too complicated, so i use Obx()
-              return Obx(() {
-                /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
-                if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
-                  if (state.thumbnailsParsingState.value == LoadingState.idle) {
-                    logic.beginParseThumbnails(index);
-                  }
+      child: FlutterListView(
+        controller: state.listViewController,
+        delegate: FlutterListViewDelegate(
+          (BuildContext context, int index) {
+            return Obx(() {
+              /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
+              if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
+                if (state.imageHrefParsingState.value == LoadingState.idle) {
+                  logic.beginParsingImageHref(index);
+                }
+                if (state.type == 'online' || state.images[index].value == null) {
                   return _buildParsingThumbnailsIndicator(context, index);
                 }
+              }
 
-                /// step 2: parsing image url. [parse] one image's raw data
-                if (state.images[index].value == null) {
-                  if (state.imageParsingStates[index].value == LoadingState.idle) {
-                    logic.beginParseGalleryImage(index);
-                  }
-                  return _buildParsingImageIndicator(context, index);
+              /// step 2: parsing image url. [parse] one image's raw data
+              if (state.images[index].value == null) {
+                if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
+                  logic.beginParsingImageUrl(index);
                 }
 
-                /// step 3 load image : use url to [load] image
-                return EHImage(
-                  galleryImage: state.images[index].value!,
-                  adaptive: true,
-                  fit: BoxFit.contain,
-                  enableLongPressToRefresh: true,
-                  loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-                  failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-                );
-              });
-            },
-            initIndex: state.initialIndex,
-            childCount: state.pageCount,
-            preferItemHeight: context.height,
-          ),
+                /// just like a listener
+                downloadService.gid2Images[state.gid]![index].value;
+
+                return _buildParsingImageIndicator(context, index);
+              }
+
+              /// step 3 load image : use url to [load] image
+              return EHImage(
+                galleryImage: state.images[index].value!,
+                adaptive: true,
+                fit: BoxFit.contain,
+                enableLongPressToRefresh: true,
+                loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+                failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+                downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+              );
+            });
+          },
+          initIndex: state.initialIndex,
+          childCount: state.pageCount,
+          preferItemHeight: context.height,
+          onIsPermanent: (keyOrIndex) => true,
         ),
       ),
     );
@@ -72,12 +83,12 @@ class ReadPage extends StatelessWidget {
         children: [
           LoadingStateIndicator(
             userCupertinoIndicator: false,
-            loadingState: state.thumbnailsParsingState.value,
+            loadingState: state.imageHrefParsingState.value,
             idleWidget: const CircularProgressIndicator(),
-            errorTapCallback: () => logic.beginParseThumbnails(index),
+            errorTapCallback: () => logic.beginParsingImageHref(index),
           ),
           Text(
-            state.thumbnailsParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
+            state.imageHrefParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
             style: _readPageTextStyle(),
           ).marginOnly(top: 8),
           Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
@@ -92,14 +103,16 @@ class ReadPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          LoadingStateIndicator(
-            userCupertinoIndicator: false,
-            loadingState: state.imageParsingStates[index].value,
-            idleWidget: const CircularProgressIndicator(),
-            errorTapCallback: () => logic.beginParseGalleryImage(index),
-          ),
+          if (state.type == 'online')
+            LoadingStateIndicator(
+              userCupertinoIndicator: false,
+              loadingState: state.imageUrlParsingStates![index].value,
+              idleWidget: const CircularProgressIndicator(),
+              errorTapCallback: () => logic.beginParsingImageUrl(index),
+            ),
+          if (state.type == 'local') const CircularProgressIndicator(),
           Text(
-            state.imageParsingStates[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
+            state.imageUrlParsingStates?[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
             style: _readPageTextStyle(),
           ).marginOnly(top: 8),
           Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
@@ -146,6 +159,31 @@ class ReadPage extends StatelessWidget {
             text: Text('networkError'.tr, style: _readPageTextStyle()),
             onPressed: state.reLoadImage,
           ),
+          Text(index.toString(), style: _readPageTextStyle()),
+        ],
+      ),
+    );
+  }
+
+  Widget _downloadingWidgetBuilder(BuildContext context, int index) {
+    FittedSizes fittedSizes = applyBoxFit(
+      BoxFit.contain,
+      Size(state.images[index].value!.width, state.images[index].value!.height),
+      Size(context.width, double.infinity),
+    );
+
+    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
+    int downloadedBytes = speedComputer.imageDownloadedBytes[index];
+    int totalBytes = speedComputer.imageTotalBytes[index];
+
+    return SizedBox(
+      height: fittedSizes.destination.height,
+      width: fittedSizes.destination.width,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
+          Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
           Text(index.toString(), style: _readPageTextStyle()),
         ],
       ),
