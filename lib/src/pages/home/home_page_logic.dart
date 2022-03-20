@@ -30,7 +30,7 @@ class HomePageLogic extends GetxController {
     }
 
     /// scroll to top
-    if (scrollController?.offset != 0) {
+    if ((scrollController?.positions as List<ScrollPosition>)[index].pixels != 0) {
       scrollController?.animateTo(
         0,
         duration: const Duration(milliseconds: 400),
