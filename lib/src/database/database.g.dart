@@ -926,10 +926,11 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
-  Selectable<GalleryDownloadedData> selectImagesByGalleryId(int var1) {
-    return customSelect('SELECT *\r\nFROM gallery_downloaded\r\nwhere gid = ?',
+  Selectable<GalleryDownloadedData> selectImagesByGalleryId(int gid) {
+    return customSelect(
+        'SELECT *\r\nFROM gallery_downloaded\r\nwhere gid = :gid',
         variables: [
-          Variable<int>(var1)
+          Variable<int>(gid)
         ],
         readsFrom: {
           galleryDownloaded,
@@ -966,6 +967,15 @@ abstract class _$AppDb extends GeneratedDatabase {
     return customUpdate(
       'delete\r\nfrom image\r\nwhere url = :url',
       variables: [Variable<String>(url)],
+      updates: {image},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
+  Future<int> deleteImagesWithGid(int gid) {
+    return customUpdate(
+      'delete\r\nfrom image\r\nwhere gid = :gid',
+      variables: [Variable<int>(gid)],
       updates: {image},
       updateKind: UpdateKind.delete,
     );

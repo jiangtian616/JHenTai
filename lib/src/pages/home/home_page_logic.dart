@@ -33,11 +33,13 @@ class HomePageLogic extends GetxController {
     }
 
     /// scroll to top
-    scrollController?.animateTo(
-      0,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.ease,
-    );
+    if (scrollController?.offset != 0) {
+      scrollController?.animateTo(
+        0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
+      );
+    }
 
     if (state.lastTapTime == null) {
       state.lastTapTime = DateTime.now();

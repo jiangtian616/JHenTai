@@ -64,7 +64,7 @@ where gid = :gid;
 selectImagesByGalleryId:
 SELECT *
 FROM gallery_downloaded
-where gid = ?;
+where gid = :gid;
 
 insertImage:
 insert into image
@@ -79,3 +79,9 @@ deleteImage:
 delete
 from image
 where url = :url;
+
+deleteImagesWithGid:
+delete
+from image
+where gid = :gid;
+

@@ -21,7 +21,7 @@ import '../model/gallery_image.dart';
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxService {
   final AppDb appDb = AppDb();
-  final executor = Executor(concurrency: 4);
+  final executor = Executor(concurrency: 4, rate: const Rate(10, Duration(seconds: 10)));
 
   RxList<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[].obs;
   LinkedHashMap<int, Rx<DownloadProgress>> gid2downloadProgress = LinkedHashMap();
@@ -64,7 +64,7 @@ class DownloadService extends GetxService {
 
       /// no image in this gallery has been downloaded
       if (result.url == null) {
-        return;
+        continue;
       }
 
       GalleryImage image = GalleryImage(
@@ -84,6 +84,17 @@ class DownloadService extends GetxService {
       }
     }
 
+
+    /// when successfully download last image of a gallery, and app exit before we updateDownloadedGalleryStatus,
+    /// then the gallery's status remains [downloading] with all its images downloaded. so everytime app launches,
+    /// we check it.
+    gid2downloadProgress.forEach((gid, progress) {
+      if (progress.value.curCount == progress.value.totalCount &&
+          progress.value.downloadStatus != DownloadStatus.downloaded) {
+        _updateDownloadedGalleryStatus(gid);
+      }
+    });
+
     /// resume if status is [downloading]
     for (GalleryDownloadedData g in gallerys) {
       if (g.downloadStatusIndex == DownloadStatus.downloading.index) {
@@ -94,6 +105,9 @@ class DownloadService extends GetxService {
   }
 
   /// begin or resume downloading all images of a gallery
+  /// step 1: get image href from its thumbnail, if thumbnail haven't been parsed, parse thumbnail first.
+  /// step 2: get image url by parsing page (with href parsed last step)
+  /// step 3: download image
   Future<void> downloadGallery(GalleryDownloadedData gallery,
       {bool isFirstDownload = true, ProgressCallback? onReceiveProgress, CancelToken? cancelToken}) async {
     if (isFirstDownload && gid2downloadProgress.containsKey(gallery.gid)) {
@@ -122,17 +136,15 @@ class DownloadService extends GetxService {
         await _getGalleryImageUrls(gallery, serialNo, downloadPath);
       }
 
-      /// this image has been downloaded (may be true at init stage)
-      if (gid2Images[gallery.gid]![serialNo].value?.downloadStatus == DownloadStatus.downloaded) {
-        /// last image has been downloaded
-        if (serialNo == gid2downloadProgress[gallery.gid]!.value.totalCount) {
-          await _updateDownloadedGalleryStatus(gallery.gid);
-        }
-        continue;
-      }
-
       _downloadGalleryImage(gallery, serialNo, downloadPath);
     }
+  }
+
+  Future<void> deleteGallery(GalleryDownloadedData gallery) async {
+    await cancelAllTasksOfGallery(gallery);
+    _clearGalleryInDatabase(gallery.gid);
+    _clearDownloadedImage(gallery);
+    _clearGalleryDownloadInfo(gallery);
   }
 
   Future<void> _getGalleryImageHrefs(GalleryDownloadedData gallery, int serialNo) async {
@@ -254,13 +266,27 @@ class DownloadService extends GetxService {
   }
 
   /// clear images in disk
-  void _clearDownloadedImage(GalleryDownloadedData gallery) {}
+  Future<FileSystemEntity> _clearDownloadedImage(GalleryDownloadedData gallery) {
+    String directoryPath = path.join(
+      PathSetting.getVisiblePath().path,
+      'download',
+      '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+    );
+
+    Directory directory = File(directoryPath) as Directory;
+    return directory.delete(recursive: true);
+  }
 
   /// clear table row in database
-  void _clearGalleryInDatabase(GalleryDownloadedData gallery) {}
+  Future<void> _clearGalleryInDatabase(int gid) {
+    return appDb.transaction(() async {
+      await appDb.deleteImagesWithGid(gid);
+      await appDb.deleteGallery(gid);
+    });
+  }
 
   /// record a new download task
-  Future<int> _saveNewGallery(GalleryDownloadedData gallery) async {
+  Future<int> _saveNewGallery(GalleryDownloadedData gallery)  {
     return appDb.insertGallery(
       gallery.gid,
       gallery.token,
@@ -275,7 +301,7 @@ class DownloadService extends GetxService {
   }
 
   /// parse a image's url successfully, need to record its info and with its status beginning at 'downloading'
-  Future<int> _saveNewImage(GalleryImage image, int serialNo, int gid) async {
+  Future<int> _saveNewImage(GalleryImage image, int serialNo, int gid) {
     return appDb.insertImage(
         image.url, serialNo, gid, image.height, image.width, image.path!, image.downloadStatus.index);
   }
@@ -288,5 +314,10 @@ class DownloadService extends GetxService {
   /// a image has been downloaded successfully, update its status
   Future<int> _updateDownloadedImageStatus(String url) {
     return appDb.updateImage(DownloadStatus.downloaded.index, url);
+  }
+
+  /// cancel all network tasks of a gallery
+  Future<void> cancelAllTasksOfGallery(GalleryDownloadedData gallery) async {
+
   }
 }
