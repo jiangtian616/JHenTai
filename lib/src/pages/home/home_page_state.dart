@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/home/navigation_view/download/download_view.dart';
+import 'package:jhentai/src/pages/home/tab_view/download/download_view.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
+import 'package:jhentai/src/pages/home/tab_view/setting/setting_view.dart';
 
-import 'navigation_view/gallerys/gallerys_view.dart';
-import 'navigation_view/setting/setting_view.dart';
 
 class HomePageState {
   late int currentIndex;

@@ -1,13 +1,11 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:core';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
-import 'package:collection/collection.dart';
 import 'package:executor/executor.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:retry/retry.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
@@ -21,15 +19,17 @@ import '../model/gallery_image.dart';
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxService {
   final AppDb appDb = AppDb();
-  final executor = Executor(concurrency: 8);
+  final executor = Executor(concurrency: 6);
 
   RxList<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[].obs;
   RxMap<int, Rx<DownloadProgress>> gid2downloadProgress = <int, Rx<DownloadProgress>>{}.obs;
   Map<int, CancelToken> gid2CancelToken = {};
-  Map<int, List<String?>> gid2ImageHrefs = {};
+  Map<int, List<Rxn<GalleryThumbnail>>> gid2ImageHrefs = {};
   Map<int, RxList<Rxn<GalleryImage>>> gid2Images = <int, RxList<Rxn<GalleryImage>>>{}.obs;
 
   Map<int, SpeedComputer> gid2SpeedComputer = {};
+
+  static const int downloadRetryTimes = 3;
 
   static Future<void> init() async {
     await Directory(path.join(PathSetting.getVisiblePath().path, 'download')).create(recursive: true);
@@ -61,7 +61,7 @@ class DownloadService extends GetxService {
           downloadStatus: DownloadStatus.values[result.galleryDownloadStatusIndex],
         ).obs;
         gid2Images[gallery.gid] = List.generate(gallery.pageCount, (index) => Rxn<GalleryImage>(null)).obs;
-        gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
+        gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => Rxn(null));
         gid2SpeedComputer[gallery.gid] = SpeedComputer(gid2downloadProgress[gallery.gid]!.value);
       }
 
@@ -133,7 +133,7 @@ class DownloadService extends GetxService {
     }
 
     gid2SpeedComputer[gallery.gid]!.start();
-    for (int serialNo = 0; serialNo < min(gid2downloadProgress[gallery.gid]!.value.totalCount, 30); serialNo++) {
+    for (int serialNo = 0; serialNo < gid2downloadProgress[gallery.gid]!.value.totalCount; serialNo++) {
       /// user has paused
       if (gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
         return;
@@ -146,7 +146,7 @@ class DownloadService extends GetxService {
       }
 
       /// no parsed href, parse from thumbnails first
-      if (gid2ImageHrefs[gallery.gid]![serialNo] == null) {
+      if (gid2ImageHrefs[gallery.gid]![serialNo].value == null) {
         await _getGalleryImageHref(gallery, serialNo);
       }
 
@@ -208,9 +208,10 @@ class DownloadService extends GetxService {
       )
           .then((newThumbnails) {
         Log.info('getMoreThumbnails success', false);
-        List<String> imageHrefs = newThumbnails.map((thumbnail) => thumbnail.href).toList();
-        gid2ImageHrefs[gallery.gid]!
-            .replaceRange(serialNo ~/ 40 * 40, serialNo ~/ 40 * 40 + imageHrefs.length, imageHrefs);
+        int from = serialNo ~/ 40 * 40;
+        for (int i = 0; i < newThumbnails.length; i++) {
+          gid2ImageHrefs[gallery.gid]![from + i].value = newThumbnails[i];
+        }
       }),
       retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
       onRetry: (e) {
@@ -231,7 +232,7 @@ class DownloadService extends GetxService {
       () => executor
           .scheduleTask(
         () => EHRequest.getGalleryImage(
-          gid2ImageHrefs[gallery.gid]![serialNo]!,
+          gid2ImageHrefs[gallery.gid]![serialNo].value!.href,
           cancelToken: gid2CancelToken[gallery.gid],
         ),
       )
@@ -273,7 +274,8 @@ class DownloadService extends GetxService {
             path: downloadPath,
             cancelToken: gid2CancelToken[gallery.gid],
             onReceiveProgress: (int count, int total) {
-              gid2SpeedComputer[gallery.gid]!.downloadedBytes -= gid2SpeedComputer[gallery.gid]!.downloadedBytesPerImage[serialNo];
+              gid2SpeedComputer[gallery.gid]!.downloadedBytes -=
+                  gid2SpeedComputer[gallery.gid]!.downloadedBytesPerImage[serialNo];
               gid2SpeedComputer[gallery.gid]!.downloadedBytesPerImage[serialNo] = count;
               gid2SpeedComputer[gallery.gid]!.downloadedBytes += count;
             }).then((success) async {
@@ -298,7 +300,7 @@ class DownloadService extends GetxService {
           }
         }),
       ),
-      maxAttempts: 4,
+      maxAttempts: downloadRetryTimes,
       retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
       onRetry: (e) async {
         Log.error('downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo].value!.url}',
@@ -312,7 +314,7 @@ class DownloadService extends GetxService {
         return;
       }
       Log.error(
-          'downloadImage: $serialNo failed 4 times, try re-parse. url:${gid2Images[gallery.gid]![serialNo].value!.url}');
+          'downloadImage: $serialNo failed $downloadRetryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo].value!.url}');
       _reParseImageUrlAndDownload(gallery, serialNo, downloadPath);
     });
   }
@@ -330,7 +332,7 @@ class DownloadService extends GetxService {
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2downloadProgress[gallery.gid] = DownloadProgress(totalCount: gallery.pageCount).obs;
     gid2Images[gallery.gid] = List.generate(gallery.pageCount, (index) => Rxn<GalleryImage>(null)).obs;
-    gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
+    gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => Rxn(null));
     gid2SpeedComputer[gallery.gid] = SpeedComputer(gid2downloadProgress[gallery.gid]!.value);
   }
 
@@ -401,7 +403,7 @@ class SpeedComputer {
   Timer? timer;
   final DownloadProgress downloadProgress;
 
-  RxString speed = '0 KB/s'.obs;
+  RxString speed = '0 B/s'.obs;
 
   late List<int> downloadedBytesPerImage;
   int downloadedBytesLastTime = 0;
@@ -416,6 +418,10 @@ class SpeedComputer {
       downloadedBytesLastTime = downloadedBytes;
 
       double difference = 0.0 + downloadedBytes - prevDownloadedBytesLast;
+      if (difference <= 0) {
+        speed.value = '0 B/s';
+        return;
+      }
       if (difference < 1024) {
         speed.value = '${difference.toStringAsFixed(2)} B/s';
         return;

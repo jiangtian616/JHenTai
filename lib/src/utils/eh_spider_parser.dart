@@ -40,6 +40,44 @@ class EHSpiderParser {
     return [gallerys, pageCount];
   }
 
+  static Gallery parseGalleryByUrl(String html, String galleryUrl) {
+    Document document = parse(html);
+
+    List<String>? parts = galleryUrl.split('/');
+    String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
+    RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
+    LinkedHashMap<String, List<String>> tags = _parseGalleryTagsByUrl(document);
+
+    Gallery gallery = Gallery(
+      gid: int.parse(parts[4]),
+      token: parts[5],
+      title: document.querySelector('#gn')?.text ?? '',
+      japaneseTitle: document.querySelector('#gj')?.text,
+      category: document.querySelector('#gdc > .cs')?.text ?? '',
+      cover: GalleryImage(
+        url: coverMatch.group(3)!,
+        height: double.parse(coverMatch.group(2)!),
+        width: double.parse(coverMatch.group(1)!),
+      ),
+      pageCount: int.parse(
+          (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
+      rating: _parseHomeGalleryRating(document.querySelector('#grt2')!),
+      hasRated: document.querySelector('#grt2 > #rating_image .ir.irg') != null ? true : false,
+      isFavorite: document.querySelector('#fav > .i') != null ? true : false,
+      favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
+      favoriteTagName: document.querySelector('#favoritelink')!.hasChildNodes()
+          ? null
+          : document.querySelector('#favoritelink')?.text,
+      galleryUrl: galleryUrl,
+      tags: tags,
+      language: tags['language']?[0],
+      uploader: document.querySelector('#gdn > a')?.text ?? '',
+      publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
+    );
+
+    return gallery;
+  }
+
   static Map<String, dynamic> parseGalleryDetails(String html) {
     Document document = parse(html);
     List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
@@ -61,6 +99,12 @@ class EHSpiderParser {
     );
 
     return {'galleryDetails': galleryDetails, 'apikey': _parseApikey(document)};
+  }
+
+  static Map<String, dynamic> getGalleryAndDetailsByUrl(String html, String galleryUrl) {
+    Gallery gallery = parseGalleryByUrl(html, galleryUrl);
+    Map<String, dynamic> map = parseGalleryDetails(html);
+    return map..['gallery'] = gallery;
   }
 
   static List<GalleryThumbnail> parseGalleryDetailsThumbnails(String html) {
@@ -161,6 +205,30 @@ class EHSpiderParser {
     return tags;
   }
 
+  static LinkedHashMap<String, List<String>> _parseGalleryTagsByUrl(Document document) {
+    LinkedHashMap<String, List<String>> tags = LinkedHashMap();
+
+    List<Element> trs = document.querySelectorAll('#taglist > table > tbody > tr').toList();
+    for (Element tr in trs) {
+      List<Element> tagDivs = tr.querySelectorAll('td:nth-child(1) > div').toList();
+      for (Element tagDiv in tagDivs) {
+        /// eg: language:english
+        String pair = tagDiv.attributes['id'] ?? '';
+        if (pair.isEmpty) {
+          continue;
+        }
+
+        /// some tag doesn't has a type
+        List<String> list = pair.split(':').toList();
+        String type = list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
+        String text = list[1];
+
+        tags.putIfAbsent(type, () => []).add(text);
+      }
+    }
+    return tags;
+  }
+
   static GalleryImage? _parseHomeGalleryCover(Element tr) {
     Element? img = tr.querySelector('.gl2c > .glthumb > div > img');
     if (img == null) {
@@ -233,6 +301,15 @@ class EHSpiderParser {
     }
     final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
     return ColorConsts.favoriteTagIndex[color]!;
+  }
+
+  static int? _parseFavoriteTagIndexByOffset(Document document) {
+    String? style = document.querySelector('#fav > .i')?.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+    int offset = int.parse(RegExp(r'background-position:0px -(\d+)px').firstMatch(style)!.group(1)!);
+    return (offset - 2) ~/ 19;
   }
 
   static double _parseGalleryDetailsRealRating(Document document) {

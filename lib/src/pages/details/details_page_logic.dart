@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
-import 'package:jhentai/src/pages/home/navigation_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -14,17 +14,33 @@ import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
+import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
 
   @override
-  void onInit() {
-    Gallery gallery = (Get.arguments as Gallery);
-    state.gallery = gallery;
-    state.thumbnailsPageCount = gallery.pageCount ~/ 40;
-    getDetails();
+  void onInit() async {
+    dynamic arg = Get.arguments;
+
+    /// enter from galleryPage
+    if (arg is Gallery) {
+      state.gallery = arg;
+      state.thumbnailsPageCount = arg.pageCount ~/ 40;
+      getDetails();
+    }
+
+    /// enter from downloadPage
+    else if (arg is GalleryDownloadedData) {
+      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg.galleryUrl);
+      state.gallery = galleryAndDetailsAndApikey['gallery']!;
+      state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
+      state.apikey = galleryAndDetailsAndApikey['apikey']!;
+      state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
+      state.loadingDetailsState = LoadingState.success;
+      update();
+    }
   }
 
   void showLoginSnack() {
@@ -186,6 +202,7 @@ class DetailsPageLogic extends GetxController {
       /// parsed thumbnails, don't need to parse again
       arguments: state.galleryDetails?.thumbnails,
       parameters: {
+        'type': 'online',
         'initialIndex': index.toString(),
         'pageCount': state.gallery!.pageCount.toString(),
         'galleryUrl': state.gallery!.galleryUrl,

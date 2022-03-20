@@ -2,18 +2,17 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flukit/flukit.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/pages/home/navigation_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+
+import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
 
 class RatingDialog extends StatefulWidget {
   const RatingDialog({Key? key}) : super(key: key);

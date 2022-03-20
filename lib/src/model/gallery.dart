@@ -7,6 +7,7 @@ class Gallery {
   int gid;
   String token;
   String title;
+  String? japaneseTitle;
   String category;
   GalleryImage cover;
   int pageCount;
@@ -51,14 +52,15 @@ class Gallery {
     required this.gid,
     required this.token,
     required this.title,
+    this.japaneseTitle,
     required this.category,
     required this.cover,
     required this.pageCount,
     required this.rating,
     required this.hasRated,
     required this.isFavorite,
-    required this.favoriteTagIndex,
-    required this.favoriteTagName,
+    this.favoriteTagIndex,
+    this.favoriteTagName,
     required this.galleryUrl,
     required this.tags,
     this.language,
@@ -70,6 +72,7 @@ class Gallery {
     int? gid,
     String? token,
     String? title,
+    String? japaneseTitle,
     String? category,
     GalleryImage? cover,
     int? pageCount,
@@ -88,6 +91,7 @@ class Gallery {
       gid: gid ?? this.gid,
       token: token ?? this.token,
       title: title ?? this.title,
+      japaneseTitle: japaneseTitle ?? this.japaneseTitle,
       category: category ?? this.category,
       cover: cover ?? this.cover,
       pageCount: pageCount ?? this.pageCount,

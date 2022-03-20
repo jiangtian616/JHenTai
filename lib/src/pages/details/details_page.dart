@@ -34,10 +34,19 @@ class DetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Gallery gallery = detailsPageState.gallery!;
+
     return Scaffold(
       appBar: AppBar(),
       body: GetBuilder<DetailsPageLogic>(builder: (logic) {
+        Gallery? gallery = detailsPageState.gallery;
+
+        if (gallery == null) {
+          return const Align(
+            child: CupertinoActivityIndicator(radius: 20),
+            alignment: Alignment(0, -0.25),
+          );
+        }
+
         return Container(
           decoration: BoxDecoration(
             border: Border(

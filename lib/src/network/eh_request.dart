@@ -4,12 +4,11 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/search_config.dart';
@@ -18,7 +17,6 @@ import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 import 'eh_cookie_manager.dart';
 
@@ -171,6 +169,11 @@ class EHRequest {
     return EHSpiderParser.parseHomeGallerysList(response.data!);
   }
 
+  static Future<Gallery> getGalleryByUrl(String galleryUrl) async {
+    Response<String> response = await _dio.get(galleryUrl);
+    return EHSpiderParser.parseGalleryByUrl(response.data!, galleryUrl);
+  }
+
   static Future<Map<String, dynamic>> getGalleryDetailsAndApikey(
       {required String galleryUrl, int thumbnailsPageNo = 0}) async {
     Response<String> response = await _dio.get(
@@ -178,6 +181,11 @@ class EHRequest {
       queryParameters: {'p': thumbnailsPageNo},
     );
     return EHSpiderParser.parseGalleryDetails(response.data!);
+  }
+
+  static Future<Map<String, dynamic>> getGalleryAndDetailsByUrl(String galleryUrl) async {
+    Response<String> response = await _dio.get(galleryUrl);
+    return EHSpiderParser.getGalleryAndDetailsByUrl(response.data!, galleryUrl);
   }
 
   /// only parse Thumbnails

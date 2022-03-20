@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
 
 import '../../config/global_config.dart';
 import 'home_page_state.dart';
-import 'navigation_view/gallerys/gallerys_view.dart';
 
 class HomePageLogic extends GetxController {
   final HomePageState state = HomePageState();

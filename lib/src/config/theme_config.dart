@@ -45,9 +45,6 @@ class ThemeConfig {
         ),
       ),
     ),
-    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Colors.white
-    ),
     cardColor: Colors.white,
   );
 

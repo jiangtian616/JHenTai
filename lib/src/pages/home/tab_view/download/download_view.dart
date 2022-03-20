@@ -33,11 +33,12 @@ class DownloadView extends StatelessWidget {
       body: Obx(() {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+
+          /// must assign controller
           controller: ScrollController(),
           children: downloadService.gallerys
               .map(
                 (gallery) => GestureDetector(
-                  onTap: () => Get.toNamed(Routes.details, arguments: gallery),
                   onLongPress: () => _showDeleteBottomSheet(gallery, context),
                   child: Container(
                     height: 130,
@@ -60,7 +61,7 @@ class DownloadView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       child: Row(
                         children: [
-                          _buildCover(gallery),
+                          _buildCover(gallery, context),
                           _buildInfo(gallery),
                         ],
                       ),
@@ -74,38 +75,59 @@ class DownloadView extends StatelessWidget {
     );
   }
 
-  Widget _buildCover(GalleryDownloadedData gallery) {
+  Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
+    Widget child;
     GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
 
     /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
     if (image == null) {
-      return const SizedBox(
+      child = const SizedBox(
         height: 130,
         width: 110,
         child: CupertinoActivityIndicator(),
       );
+    } else {
+      child = EHImage(
+        containerHeight: 130,
+        containerWidth: 110,
+        galleryImage: image,
+        adaptive: true,
+        fit: BoxFit.cover,
+      );
     }
-    return EHImage(
-      containerHeight: 130,
-      containerWidth: 110,
-      galleryImage: image,
-      adaptive: true,
-      fit: BoxFit.cover,
+
+    return GestureDetector(
+      onTap: () => Get.toNamed(Routes.details, arguments: gallery),
+      child: child,
     );
   }
 
   Widget _buildInfo(GalleryDownloadedData gallery) {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(gallery),
-          const Expanded(child: SizedBox()),
-          _buildCenter(gallery),
-          _buildFooter(gallery).marginOnly(top: 4),
-        ],
-      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+      child: GestureDetector(
+        onTap: () {
+          Get.toNamed(
+            Routes.read,
+            arguments: gallery,
+            parameters: {
+              'type': 'local',
+              'initialIndex': '0',
+              'pageCount': gallery.pageCount.toString(),
+              'galleryUrl': gallery.galleryUrl,
+            },
+          );
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(gallery),
+            const Expanded(child: SizedBox()),
+            _buildCenter(gallery),
+            _buildFooter(gallery).marginOnly(top: 4),
+          ],
+        ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+      ),
     );
   }
 
@@ -184,13 +206,14 @@ class DownloadView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              speedComputer.speed.value,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
+            if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
+              Text(
+                speedComputer.speed.value,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
             const Expanded(child: SizedBox()),
             Text(
               '${downloadProgress.curCount}/${downloadProgress.totalCount}',

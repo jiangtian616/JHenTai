@@ -4,8 +4,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_state.dart';
 
-import '../../config/theme_config.dart';
-
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
 

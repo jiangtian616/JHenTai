@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../setting/favorite_setting.dart';
-import '../../home/navigation_view/gallerys/gallerys_view_logic.dart';
+import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
 import '../details_page_logic.dart';
 import '../details_page_state.dart';
 
