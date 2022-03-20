@@ -71,7 +71,11 @@ class zh_CN {
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',
       'enableLogging': '开启日志(需要重启)',
+      'openLog': '查看日志',
       'clearLogs': '清除日志',
+
+      /// log page
+      'logList': '日志列表',
 
       /// download page
       'delete': '删除',

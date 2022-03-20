@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
-import 'package:jhentai/src/utils/date_util.dart';
 import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
@@ -12,15 +11,16 @@ class Log {
   static final Logger _log = Logger(printer: PrettyPrinter(stackTraceBeginIndex: 1));
   static Logger? _logFile;
 
+  static late final logPath;
+
   static Future<void> init() async {
     if (AdvancedSetting.enableLogging.value == false) {
       return;
     }
-    File logFile = File(path.join(
-      PathSetting.getVisiblePath().path,
-      'logs',
-      '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log',
-    ));
+
+    logPath = path.join(PathSetting.getVisiblePath().path, 'logs');
+
+    File logFile = File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
     await logFile.create(recursive: true);
 
     _logFile = Logger(

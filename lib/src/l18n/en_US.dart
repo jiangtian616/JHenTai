@@ -72,7 +72,11 @@ class en {
       /// advanced setting page
       'enableDomainFronting': 'enable Domain Fronting',
       'enableLogging': 'enable logging(need reboot)',
+      'openLog': 'open log',
       'clearLogs': 'clear logs',
+
+      /// log page
+      'logList': 'Log List',
 
       /// download page
       'delete': 'delete',

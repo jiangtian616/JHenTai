@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+
+import '../../../routes/routes.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -37,6 +41,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 value: AdvancedSetting.enableLogging.value,
                 onChanged: (value) => AdvancedSetting.saveEnableLogging(value),
               ),
+            ),
+            ListTile(
+              title: Text('openLog'.tr),
+              onTap: () => Get.toNamed(Routes.logList),
             ),
             ListTile(
               title: Text('clearLogs'.tr),
