@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
@@ -15,22 +16,19 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<HomePageLogic>(
       builder: (logic) {
-        return Scaffold(
-          bottomNavigationBar: BottomNavigationBar(
-            items: homePageState.navigationBarItems,
-            onTap: (index) {
-              homePageLogic.handleTapNavigationBar(index);
-            },
-            currentIndex: homePageState.currentNavigationIndex,
-          ),
-          body: homePageState.navigationBarViews[homePageState.currentNavigationIndex],
-          floatingActionButton: FloatingActionButton(
-            child: Text('change'),
-            onPressed: () {
-              // Get.toNamed(Routes.test);
-              Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
-              // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-              // Log.info(Get.find<StorageService>().getKeys(), false);
+        return Material(
+          child: CupertinoTabScaffold(
+            controller: homePageState.tabController,
+            tabBar: CupertinoTabBar(
+              items: homePageState.navigationBarItems,
+              onTap: (index) => homePageLogic.handleTapNavigationBar(index),
+            ),
+            tabBuilder: (BuildContext context, int index) {
+              return CupertinoTabView(
+                builder: (BuildContext context) {
+                  return homePageState.navigationBarViews[index];
+                },
+              );
             },
           ),
         );

@@ -37,7 +37,6 @@ class GallerysView extends StatelessWidget {
     return ExtendedNestedScrollView(
       /// use this GlobalKey to get innerController to implement 'scroll to top'
       key: galleryListkey,
-
       /// this property is needed for TabBar in ExtendedNestedScrollView.
       onlyOneScrollInBody: true,
       floatHeaderSlivers: true,

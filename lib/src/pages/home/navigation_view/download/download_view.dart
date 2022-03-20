@@ -33,6 +33,7 @@ class DownloadView extends StatelessWidget {
       body: Obx(() {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          controller: ScrollController(),
           children: downloadService.gallerys
               .map(
                 (gallery) => GestureDetector(
