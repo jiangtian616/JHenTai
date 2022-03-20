@@ -49,6 +49,11 @@ class zh_CN {
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
 
+      /// details page
+      'downloading': "下载中",
+      'resume': "继续下载",
+      'pause': '暂停',
+
       ///EHImage
       'reloadImage': "重新加载图片",
 
@@ -67,6 +72,9 @@ class zh_CN {
       'enableDomainFronting': '开启域名前置',
       'enableLogging': '开启日志(需要重启)',
       'clearLogs': '清除日志',
+
+      /// download page
+      'delete': '删除',
     };
   }
 }

@@ -182,10 +182,11 @@ class EHRequest {
 
   /// only parse Thumbnails
   static Future<List<GalleryThumbnail>> getGalleryDetailsThumbnailByPageNo(
-      {required String galleryUrl, int thumbnailsPageNo = 0}) async {
+      {required String galleryUrl, int thumbnailsPageNo = 0, CancelToken? cancelToken}) async {
     Response<String> response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
+      cancelToken: cancelToken,
     );
     return EHSpiderParser.parseGalleryDetailsThumbnails(response.data!);
   }
@@ -267,8 +268,8 @@ class EHRequest {
     return response.statusCode == 200;
   }
 
-  static Future<GalleryImage> getGalleryImage(String href) async {
-    Response<String> response = await _dio.post(href);
+  static Future<GalleryImage> getGalleryImage(String href, {CancelToken? cancelToken}) async {
+    Response<String> response = await _dio.post(href, cancelToken: cancelToken);
     return EHSpiderParser.parseGalleryImage(response.data!);
   }
 

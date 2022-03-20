@@ -50,6 +50,11 @@ class en {
       /// gallery page
       'getGallerysFailed': "get gallerys failed",
 
+      /// details page
+      'downloading': "downloading",
+      'resume': "resume",
+      'pause': 'pause',
+
       /// EHImage
       'reloadImage': "reload image",
 
@@ -68,6 +73,9 @@ class en {
       'enableDomainFronting': 'enable Domain Fronting',
       'enableLogging': 'enable logging(need reboot)',
       'clearLogs': 'clear logs',
+
+      /// download page
+      'delete': 'delete',
     };
   }
 }

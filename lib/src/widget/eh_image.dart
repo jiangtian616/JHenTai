@@ -1,5 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
@@ -68,77 +69,87 @@ class _EHImageState extends State<EHImage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.galleryImage.downloadStatus != DownloadStatus.none) {
-      return ExtendedImage.file(
-        io.File(widget.galleryImage.path!),
-        height: widget.adaptive ? null : widget.galleryImage.height,
-        width: widget.adaptive ? null : widget.galleryImage.width,
-        fit: widget.fit,
-        mode: widget.mode,
-      );
-    }
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: widget.enableLongPressToRefresh
-          ? () => showCupertinoModalPopup(
-                context: context,
-                builder: (BuildContext context) => CupertinoActionSheet(
-                  actions: <CupertinoActionSheetAction>[
-                    CupertinoActionSheetAction(
-                      child: Text('reloadImage'.tr),
-                      onPressed: () async {
-                        cancelToken.cancel();
-                        await clearDiskCachedImage(widget.galleryImage.url);
-                        clearMemoryImageCache(widget.galleryImage.url);
-                        setState(() {
-                          /// lead to rebuilding
-                          key = UniqueKey();
-                          cancelToken = CancellationToken();
-                        });
-                        Get.back();
-                      },
-                    ),
-                  ],
-                  cancelButton: CupertinoActionSheetAction(
-                    child: Text('cancel'.tr),
-                    onPressed: Get.back,
-                  ),
-                ),
-              )
-          : null,
-      child: SizedBox(
-        height: widget.containerHeight,
-        width: widget.containerWidth,
-        child: ExtendedImage.network(
-          widget.galleryImage.url,
+    Widget child;
+    if (widget.galleryImage.path != null) {
+      if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
+        child = const Center(child: CircularProgressIndicator());
+      } else {
+        child = ExtendedImage.file(
+          io.File(widget.galleryImage.path!),
           key: key,
           height: widget.adaptive ? null : widget.galleryImage.height,
           width: widget.adaptive ? null : widget.galleryImage.width,
           fit: widget.fit,
           mode: widget.mode,
-          initGestureConfigHandler: widget.initGestureConfigHandler,
-          cancelToken: cancelToken,
-          imageCacheName: widget.galleryImage.url,
-          handleLoadingProgress: widget.loadingWidgetBuilder != null,
-          loadStateChanged: (ExtendedImageState state) {
-            if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
-              if (state.loadingProgress == null) {
-                return widget.loadingWidgetBuilder!(0.01);
-              }
+        );
+      }
+    }
 
-              int cur = state.loadingProgress!.cumulativeBytesLoaded;
-              int? total = state.extendedImageInfo?.sizeBytes;
-              int? compressed = state.loadingProgress!.expectedTotalBytes;
-              return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
+    child = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
+      child: ExtendedImage.network(
+        widget.galleryImage.url,
+        key: key,
+        height: widget.adaptive ? null : widget.galleryImage.height,
+        width: widget.adaptive ? null : widget.galleryImage.width,
+        fit: widget.fit,
+        mode: widget.mode,
+        initGestureConfigHandler: widget.initGestureConfigHandler,
+        cancelToken: cancelToken,
+        imageCacheName: widget.galleryImage.url,
+        handleLoadingProgress: widget.loadingWidgetBuilder != null,
+        loadStateChanged: (ExtendedImageState state) {
+          if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
+            if (state.loadingProgress == null) {
+              return widget.loadingWidgetBuilder!(0.01);
             }
 
-            if (state.extendedImageLoadState == LoadState.failed) {
-              return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
-            }
+            int cur = state.loadingProgress!.cumulativeBytesLoaded;
+            int? total = state.extendedImageInfo?.sizeBytes;
+            int? compressed = state.loadingProgress!.expectedTotalBytes;
+            return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
+          }
 
-            return null;
-          },
+          if (state.extendedImageLoadState == LoadState.failed) {
+            return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
+          }
+
+          return null;
+        },
+      ),
+    );
+
+    return SizedBox(
+      height: widget.containerHeight,
+      width: widget.containerWidth,
+      child: child,
+    );
+  }
+
+  void _showReloadBottomSheet() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('reloadImage'.tr),
+            onPressed: () async {
+              cancelToken.cancel();
+              await clearDiskCachedImage(widget.galleryImage.url);
+              clearMemoryImageCache(widget.galleryImage.url);
+              setState(() {
+                /// lead to rebuilding
+                key = UniqueKey();
+                cancelToken = CancellationToken();
+              });
+              Get.back();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: Get.back,
         ),
       ),
     );

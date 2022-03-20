@@ -26,6 +26,7 @@ import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget {
   final DetailsPageLogic detailsPageLogic = Get.put(DetailsPageLogic());
+  final DownloadService downloadService = Get.find<DownloadService>();
 
   DetailsPage({Key? key}) : super(key: key);
 
@@ -69,7 +70,7 @@ class DetailsPage extends StatelessWidget {
           // Get.toNamed(Routes.test);
           // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
           // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-          Get.find<DownloadService>().downloadGallery(Get.find<DetailsPageLogic>().state.gallery!.toGalleryDownloadedData());
+          downloadService.pauseDownloadGallery(Get.find<DetailsPageLogic>().state.gallery!.toGalleryDownloadedData());
         },
       ),
     );
@@ -151,14 +152,21 @@ class DetailsPage extends StatelessWidget {
                                   color: Colors.white,
                                 ),
                                 CupertinoButton(
-                                  child: Text(
-                                    'download'.tr,
-                                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                                  ),
+                                  child: Obx(() {
+                                    return Text(
+                                      downloadService.gid2downloadProgress[gallery.gid] == null
+                                          ? 'download'.tr
+                                          : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
+                                                  DownloadStatus.paused
+                                              ? 'resume'.tr
+                                              : 'pause'.tr,
+                                      style: const TextStyle(fontSize: 14, color: Colors.white),
+                                    );
+                                  }),
                                   color: Get.theme.primaryColor,
                                   borderRadius: BorderRadius.circular(24),
-                                  padding: EdgeInsets.all(0),
-                                  onPressed: () => {},
+                                  padding: const EdgeInsets.all(0),
+                                  onPressed: () => detailsPageLogic.handleTapDownload(),
                                 ),
                               ],
                             ),

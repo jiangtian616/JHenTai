@@ -22,4 +22,5 @@
 1. -[ ] 图片放大：https://github.com/bluefireteam/photo_view
 2. -[ ] getBuilder 使用 id 范围优化 
 3. -[ ] keepalive原理优化
-4. -[ ] 点赞收藏动画 https://github.com/fluttercandies/like_button
+4. -[ ] 下载改为使用isolate实现
+5. -[ ] 下载item滑动删除，删除动画效果 

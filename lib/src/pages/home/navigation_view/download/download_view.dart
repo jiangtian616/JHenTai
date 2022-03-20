@@ -37,6 +37,7 @@ class DownloadView extends StatelessWidget {
               .map(
                 (gallery) => GestureDetector(
                   onTap: () => Get.toNamed(Routes.details, arguments: gallery),
+                  onLongPress: () => _showDeleteBottomSheet(gallery, context),
                   child: Container(
                     height: 130,
                     decoration: BoxDecoration(
@@ -58,9 +59,7 @@ class DownloadView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(15),
                       child: Row(
                         children: [
-                          _buildCover(downloadService.gid2Images[gallery.gid]!.isNotEmpty
-                              ? downloadService.gid2Images[gallery.gid]![0].value
-                              : null),
+                          _buildCover(gallery),
                           _buildInfo(gallery),
                         ],
                       ),
@@ -74,7 +73,9 @@ class DownloadView extends StatelessWidget {
     );
   }
 
-  Widget _buildCover(GalleryImage? image) {
+  Widget _buildCover(GalleryDownloadedData gallery) {
+    GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
+
     /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
     if (image == null) {
       return const SizedBox(
@@ -152,7 +153,11 @@ class DownloadView extends StatelessWidget {
           children: [
             GalleryCategoryTag(category: gallery.category),
             GestureDetector(
-              onTap: () => {},
+              onTap: () {
+                downloadStatus == DownloadStatus.paused
+                    ? downloadService.downloadGallery(gallery, isFirstDownload: false)
+                    : downloadService.pauseDownloadGallery(gallery);
+              },
               child: Icon(
                 downloadStatus == DownloadStatus.paused
                     ? Icons.play_arrow
@@ -171,6 +176,7 @@ class DownloadView extends StatelessWidget {
 
   Widget _buildFooter(GalleryDownloadedData gallery) {
     DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
+    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
 
     return Column(
       children: [
@@ -178,7 +184,7 @@ class DownloadView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              downloadProgress.speed,
+              speedComputer.speed.value,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey.shade600,
@@ -203,6 +209,27 @@ class DownloadView extends StatelessWidget {
             ),
           ).marginOnly(top: 4),
       ],
+    );
+  }
+
+  void _showDeleteBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr),
+            onPressed: () {
+              downloadService.deleteGallery(gallery);
+              Get.back();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: Get.back,
+        ),
+      ),
     );
   }
 }

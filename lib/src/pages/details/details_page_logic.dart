@@ -12,6 +12,8 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 
 import '../../model/gallery.dart';
+import '../../model/gallery_image.dart';
+import '../../service/download_service.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController {
@@ -159,6 +161,22 @@ class DetailsPageLogic extends GetxController {
       const RatingDialog(),
       barrierColor: Colors.black38,
     );
+  }
+
+  void handleTapDownload() {
+    DownloadService downloadService = Get.find<DownloadService>();
+    Gallery gallery = state.gallery!;
+
+    if (downloadService.gid2downloadProgress[gallery.gid] == null) {
+      downloadService.downloadGallery(gallery.toGalleryDownloadedData());
+      return;
+    }
+
+    if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
+      downloadService.downloadGallery(gallery.toGalleryDownloadedData(), isFirstDownload: false);
+      return;
+    }
+    downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
   }
 
   void goToReadPage(int index) {
