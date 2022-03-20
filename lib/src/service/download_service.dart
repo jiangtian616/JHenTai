@@ -191,7 +191,9 @@ class DownloadService extends GetxService {
   Future<void> deleteGallery(GalleryDownloadedData gallery) async {
     await pauseDownloadGallery(gallery);
     await _clearGalleryInDatabase(gallery.gid);
-    await _clearDownloadedImage(gallery);
+    if (gid2downloadProgress[gallery.gid]!.value.curCount > 0) {
+      await _clearDownloadedImage(gallery);
+    }
     _clearGalleryDownloadInfo(gallery);
     Log.info('delete download gallery: ${gallery.gid}', false);
   }
@@ -274,10 +276,10 @@ class DownloadService extends GetxService {
             path: downloadPath,
             cancelToken: gid2CancelToken[gallery.gid],
             onReceiveProgress: (int count, int total) {
-              gid2SpeedComputer[gallery.gid]!.imageTotalBytes[serialNo] = total;
+              gid2SpeedComputer[gallery.gid]!.imageTotalBytes[serialNo].value = total;
               gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes -=
-                  gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo];
-              gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo] = count;
+                  gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value;
+              gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = count;
               gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes += count;
             }).then((success) async {
           Log.info('downloadImage: $serialNo success', false);
@@ -307,8 +309,8 @@ class DownloadService extends GetxService {
         Log.error('downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo].value!.url}',
             (e as DioError).message);
         gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes -=
-            gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo];
-        gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo] = 0;
+            gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value;
+        gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = 0;
       },
     ).catchError((error, stack) {
       if (error is! DioError) {
@@ -409,14 +411,15 @@ class SpeedComputer {
 
   RxString speed = '0 B/s'.obs;
 
-  late List<int> imageDownloadedBytes;
-  late List<int> imageTotalBytes;
+  late List<RxInt> imageDownloadedBytes;
+  late List<RxInt> imageTotalBytes;
+
   int allImageDownloadedBytesLastTime = 0;
   int allImageDownloadedBytes = 0;
 
   SpeedComputer(this.downloadProgress)
-      : imageDownloadedBytes = List.generate(downloadProgress.hasDownloaded.length, (index) => 0),
-        imageTotalBytes = List.generate(downloadProgress.hasDownloaded.length, (index) => 1);
+      : imageDownloadedBytes = List.generate(downloadProgress.hasDownloaded.length, (index) => 0.obs),
+        imageTotalBytes = List.generate(downloadProgress.hasDownloaded.length, (index) => 1.obs);
 
   void start() {
     timer = Timer.periodic(const Duration(seconds: 1), (timer) {

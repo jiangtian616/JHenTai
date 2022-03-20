@@ -21,7 +21,6 @@ class ReadPageLogic extends GetxController {
     state.pageCount = int.parse(Get.parameters['pageCount']!);
     state.galleryUrl = Get.parameters['galleryUrl']!;
 
-
     if (state.type == 'local') {
       GalleryDownloadedData gallery = Get.arguments as GalleryDownloadedData;
       state.thumbnails = downloadService.gid2ImageHrefs[gallery.gid]!;
@@ -80,7 +79,7 @@ class ReadPageLogic extends GetxController {
       state.images[index].value = image;
       state.imageUrlParsingStates![index].value = LoadingState.success;
     }).catchError((error) {
-      Log.error('parse gallery image failed, index: ${index.toString()}', error);
+      Log.error('parse gallery image failed, index: ${index.toString()}', (error as DioError).message);
       state.imageUrlParsingStates![index].value = LoadingState.error;
     });
   }

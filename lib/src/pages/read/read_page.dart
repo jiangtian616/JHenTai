@@ -49,7 +49,7 @@ class ReadPage extends StatelessWidget {
                 }
 
                 /// just like a listener
-                downloadService.gid2Images[state.gid]![index].value;
+                downloadService.gid2Images[state.gid]?[index].value;
 
                 return _buildParsingImageIndicator(context, index);
               }
@@ -172,22 +172,25 @@ class ReadPage extends StatelessWidget {
       Size(context.width, double.infinity),
     );
 
-    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
-    int downloadedBytes = speedComputer.imageDownloadedBytes[index];
-    int totalBytes = speedComputer.imageTotalBytes[index];
 
-    return SizedBox(
-      height: fittedSizes.destination.height,
-      width: fittedSizes.destination.width,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
-          Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
-          Text(index.toString(), style: _readPageTextStyle()),
-        ],
-      ),
-    );
+    return Obx(() {
+      SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
+      int downloadedBytes = speedComputer.imageDownloadedBytes[index].value;
+      int totalBytes = speedComputer.imageTotalBytes[index].value;
+
+      return SizedBox(
+        height: fittedSizes.destination.height,
+        width: fittedSizes.destination.width,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
+            Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
+            Text(index.toString(), style: _readPageTextStyle()),
+          ],
+        ),
+      );
+    });
   }
 
   TextStyle _readPageTextStyle() {

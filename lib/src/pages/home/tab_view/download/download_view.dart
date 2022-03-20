@@ -244,7 +244,7 @@ class DownloadView extends StatelessWidget {
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr),
+            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
               downloadService.deleteGallery(gallery);
               Get.back();
