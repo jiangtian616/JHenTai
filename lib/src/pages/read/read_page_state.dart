@@ -10,18 +10,14 @@ class ReadPageState {
 
   late int initialIndex;
   late int pageCount;
+  late int readIndexRecord;
 
   late int gid;
   late String galleryUrl;
   late List<Rxn<GalleryThumbnail>> thumbnails;
   late Rx<LoadingState> imageHrefParsingState = LoadingState.idle.obs;
   late List<Rxn<GalleryImage>> images;
-   List<Rx<LoadingState>>? imageUrlParsingStates;
+  List<Rx<LoadingState>>? imageUrlParsingStates;
 
   FlutterListViewController listViewController = FlutterListViewController();
-
-  ReadPageState() {
-    listViewController.sliverController.onPaintItemPositionsCallback =
-        (double widgetHeight, List<FlutterListViewItemPosition> positions) {};
-  }
 }

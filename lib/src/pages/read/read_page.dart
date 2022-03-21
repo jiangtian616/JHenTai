@@ -1,15 +1,12 @@
 import 'dart:math';
 
-import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
-import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';

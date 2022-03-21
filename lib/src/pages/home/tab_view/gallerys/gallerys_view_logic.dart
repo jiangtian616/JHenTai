@@ -22,8 +22,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       newGallerys = gallerysAndPageCount[0];
       pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
-      Log.error(e);
-      Get.snackbar('error', '刷新画廊错误', snackPosition: SnackPosition.BOTTOM);
+      Log.error('refresh gallery failed', e.message);
+      Get.snackbar('refresh gallery failed', 'e.message', snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
@@ -93,7 +93,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
-    Log.info('请求Tab$tabIndex数据：第$pageNo页', false);
+    Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
     return await EHRequest.getHomeGallerysListAndPageCountByPageNo(pageNo, state.tabBarConfigs[tabIndex].searchConfig);
   }
 }

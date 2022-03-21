@@ -17,8 +17,10 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../database/database.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../service/download_service.dart';
+import '../../service/storage_service.dart';
 import '../../utils/date_util.dart';
 import '../../widget/gallery_category_tag.dart';
 import 'details_page_logic.dart';
@@ -26,15 +28,14 @@ import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget {
   final DetailsPageLogic detailsPageLogic = Get.put(DetailsPageLogic());
+  final DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
   final DownloadService downloadService = Get.find<DownloadService>();
+  final StorageService storageService = Get.find();
 
   DetailsPage({Key? key}) : super(key: key);
 
-  final DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(),
       body: GetBuilder<DetailsPageLogic>(builder: (logic) {
@@ -73,19 +74,12 @@ class DetailsPage extends StatelessWidget {
           ).paddingOnly(top: 10, left: 15, right: 15),
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        child: Text('change'),
-        onPressed: () {
-          // Get.toNamed(Routes.test);
-          // Get.changeTheme(Get.isDarkMode ? ThemeConfig.light : ThemeConfig.dark);
-          // EHRequest.getUserInfoByCookieAndMemberId(UserSetting.ipbMemberId!);
-          downloadService.pauseDownloadGallery(Get.find<DetailsPageLogic>().state.gallery!.toGalleryDownloadedData());
-        },
-      ),
     );
   }
 
   Widget _buildHeader(Gallery gallery, BuildContext context) {
+    int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
+
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 200,
@@ -148,7 +142,7 @@ class DetailsPage extends StatelessWidget {
                               children: [
                                 CupertinoButton(
                                   child: Text(
-                                    'read'.tr,
+                                    'read'.tr + (readIndexRecord > 0 ? ' P' + (readIndexRecord + 1).toString() : ''),
                                     style: const TextStyle(fontSize: 14, color: Colors.white),
                                   ),
                                   color: Get.theme.primaryColor,
@@ -168,7 +162,11 @@ class DetailsPage extends StatelessWidget {
                                           : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
                                                   DownloadStatus.paused
                                               ? 'resume'.tr
-                                              : 'pause'.tr,
+                                              : downloadService
+                                                          .gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
+                                                      DownloadStatus.downloaded
+                                                  ? 'finished'.tr
+                                                  : 'pause'.tr,
                                       style: const TextStyle(fontSize: 14, color: Colors.white),
                                     );
                                   }),

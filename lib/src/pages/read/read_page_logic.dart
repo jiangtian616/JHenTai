@@ -1,25 +1,30 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
+import '../../service/storage_service.dart';
 import 'read_page_state.dart';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
   final DownloadService downloadService = Get.find();
+  final StorageService storageService = Get.find();
 
   @override
   void onInit() {
     state.type = Get.parameters['type']!;
-    state.gid = int.parse(Get.parameters['gid']!);
     state.initialIndex = int.parse(Get.parameters['initialIndex']!);
     state.pageCount = int.parse(Get.parameters['pageCount']!);
+    state.gid = int.parse(Get.parameters['gid']!);
     state.galleryUrl = Get.parameters['galleryUrl']!;
+    state.readIndexRecord = storageService.read('readIndexRecord::${state.gid}') ?? 0;
 
     if (state.type == 'local') {
       GalleryDownloadedData gallery = Get.arguments as GalleryDownloadedData;
@@ -39,6 +44,12 @@ class ReadPageLogic extends GetxController {
       state.images = List.generate(state.pageCount, (index) => Rxn(null));
       state.imageUrlParsingStates = List.generate(state.pageCount, (index) => LoadingState.idle.obs);
     }
+
+    /// record reading progress
+    state.listViewController.sliverController.onPaintItemPositionsCallback =
+        (double widgetHeight, List<FlutterListViewItemPosition> positions) {
+      state.readIndexRecord = positions.last.index - 1;
+    };
   }
 
   Future<void> beginParsingImageHref(int index) async {
@@ -82,5 +93,12 @@ class ReadPageLogic extends GetxController {
       Log.error('parse gallery image failed, index: ${index.toString()}', (error as DioError).message);
       state.imageUrlParsingStates![index].value = LoadingState.error;
     });
+  }
+
+  @override
+  void onClose() {
+    storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
+    Get.find<DetailsPageLogic>().update();
+    super.onClose();
   }
 }

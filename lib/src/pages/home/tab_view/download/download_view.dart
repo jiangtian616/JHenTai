@@ -12,12 +12,14 @@ import '../../../../model/download_progress.dart';
 import '../../../../model/gallery.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
+import '../../../../service/storage_service.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/gallery_category_tag.dart';
 
 class DownloadView extends StatelessWidget {
   final DownloadService downloadService = Get.find();
+  final StorageService storageService = Get.find();
 
   DownloadView({Key? key}) : super(key: key);
 
@@ -106,19 +108,7 @@ class DownloadView extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          Get.toNamed(
-            Routes.read,
-            arguments: gallery,
-            parameters: {
-              'type': 'local',
-              'gid': gallery.gid.toString(),
-              'initialIndex': '0',
-              'pageCount': gallery.pageCount.toString(),
-              'galleryUrl': gallery.galleryUrl,
-            },
-          );
-        },
+        onTap: () => _goToReadPage(gallery),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,6 +246,22 @@ class DownloadView extends StatelessWidget {
           onPressed: Get.back,
         ),
       ),
+    );
+  }
+
+  void _goToReadPage(GalleryDownloadedData gallery) {
+    int readIndexRecord = storageService.read('readIndexRecord::${gallery.gid}') ?? 0;
+
+    Get.toNamed(
+      Routes.read,
+      arguments: gallery,
+      parameters: {
+        'type': 'local',
+        'gid': gallery.gid.toString(),
+        'initialIndex': readIndexRecord.toString(),
+        'pageCount': gallery.pageCount.toString(),
+        'galleryUrl': gallery.galleryUrl,
+      },
     );
   }
 }

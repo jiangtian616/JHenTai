@@ -14,15 +14,16 @@ import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
+import '../../service/storage_service.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
   final DownloadService downloadService = Get.find();
+  final StorageService storageService = Get.find();
 
-  @override
-  void onInit() async {
+  DetailsPageLogic() {
     dynamic arg = Get.arguments;
 
     /// enter from galleryPage
@@ -31,9 +32,14 @@ class DetailsPageLogic extends GetxController {
       state.thumbnailsPageCount = arg.pageCount ~/ 40;
       getDetails();
     }
+  }
 
+  @override
+  void onInit() async {
     /// enter from downloadPage
-    else if (arg is GalleryDownloadedData) {
+    dynamic arg = Get.arguments;
+
+    if (arg is GalleryDownloadedData) {
       Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg.galleryUrl);
       state.gallery = galleryAndDetailsAndApikey['gallery']!;
       state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
@@ -192,8 +198,9 @@ class DetailsPageLogic extends GetxController {
     if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData(), isFirstDownload: false);
       return;
+    } else if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.downloading) {
+      downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
     }
-    downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
   }
 
   void goToReadPage(int index) {
@@ -204,7 +211,7 @@ class DetailsPageLogic extends GetxController {
         parameters: {
           'type': 'local',
           'gid': state.gallery!.gid.toString(),
-          'initialIndex': '0',
+          'initialIndex': (storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),
           'galleryUrl': state.gallery!.galleryUrl,
         },
@@ -212,12 +219,13 @@ class DetailsPageLogic extends GetxController {
     } else {
       Get.toNamed(
         Routes.read,
+
         /// parsed thumbnails, don't need to parse again
         arguments: state.galleryDetails?.thumbnails,
         parameters: {
           'type': 'online',
           'gid': state.gallery!.gid.toString(),
-          'initialIndex': index.toString(),
+          'initialIndex': (storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),
           'galleryUrl': state.gallery!.galleryUrl,
         },

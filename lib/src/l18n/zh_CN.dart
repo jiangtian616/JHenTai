@@ -53,6 +53,7 @@ class zh_CN {
       'downloading': "下载中",
       'resume': "继续下载",
       'pause': '暂停',
+      'finished': '已完成',
 
       ///EHImage
       'reloadImage': "重新加载图片",

@@ -8,7 +8,7 @@
 6. -[x] 下载画廊、暂停、继续、删除任务、删除下载图片、初始化下载、失败过多重新解析
 7. -[x]  Log、Log size、Log clear
 8. - [x]  应用内查看Log
-9. - [ ]  记录阅读进度
+9. - [x]  记录阅读进度
 10. - [ ]  http cache
 11. - [ ] tag翻译
 12. - [ ] FavoriteSetting 默认值

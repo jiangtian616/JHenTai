@@ -54,6 +54,7 @@ class en {
       'downloading': "downloading",
       'resume': "resume",
       'pause': 'pause',
+      'finished': 'finished',
 
       /// EHImage
       'reloadImage': "reload image",
