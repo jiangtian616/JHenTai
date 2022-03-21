@@ -22,6 +22,16 @@ CREATE TABLE image
     downloadStatusIndex INT  NOT NULL
 );
 
+CREATE TABLE tag
+(
+    namespace TEXT NOT NULL,
+    _key      TEXT NOT NULL,
+    tagName   TEXT NOT NULL,
+    intro     TEXT NOT NULL,
+    links     TEXT NOT NULL,
+    primary key (namespace, _key)
+);
+
 selectGallerysWithImages:
 SELECT g.gid,
        token,
@@ -85,3 +95,26 @@ delete
 from image
 where gid = :gid;
 
+
+selectTagByNamespaceAndKey:
+select *
+from tag
+where namespace = :namespace
+  and _key = :key;
+
+selectTagsByKey:
+select *
+from tag
+where _key = :key;
+
+selectAllTags:
+select *
+from tag;
+
+insertTag:
+insert into tag
+values (:namespace, :key, :tagName, :intro, :links);
+
+deleteAllTags:
+delete
+from tag;

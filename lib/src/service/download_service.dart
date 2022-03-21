@@ -18,7 +18,6 @@ import '../model/gallery_image.dart';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxService {
-  final AppDb appDb = AppDb();
   final executor = Executor(concurrency: 6);
 
   RxList<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[].obs;
@@ -271,7 +270,7 @@ class DownloadService extends GetxService {
   Future<void> _downloadGalleryImage(GalleryDownloadedData gallery, int serialNo, String downloadPath) async {
     retry(
       () => executor.scheduleTask(
-        () => EHRequest.downloadGalleryImage(
+        () => EHRequest.download(
             url: gid2Images[gallery.gid]![serialNo].value!.url,
             path: downloadPath,
             cancelToken: gid2CancelToken[gallery.gid],

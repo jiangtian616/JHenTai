@@ -841,10 +841,307 @@ class Image extends Table with TableInfo<Image, ImageData> {
   bool get dontWriteConstraints => true;
 }
 
+class TagData extends DataClass implements Insertable<TagData> {
+  final String namespace;
+  final String key;
+  final String tagName;
+  final String intro;
+  final String links;
+  TagData(
+      {required this.namespace,
+      required this.key,
+      required this.tagName,
+      required this.intro,
+      required this.links});
+  factory TagData.fromData(Map<String, dynamic> data, {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return TagData(
+      namespace: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}namespace'])!,
+      key: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}_key'])!,
+      tagName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}tagName'])!,
+      intro: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}intro'])!,
+      links: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}links'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['namespace'] = Variable<String>(namespace);
+    map['_key'] = Variable<String>(key);
+    map['tagName'] = Variable<String>(tagName);
+    map['intro'] = Variable<String>(intro);
+    map['links'] = Variable<String>(links);
+    return map;
+  }
+
+  TagCompanion toCompanion(bool nullToAbsent) {
+    return TagCompanion(
+      namespace: Value(namespace),
+      key: Value(key),
+      tagName: Value(tagName),
+      intro: Value(intro),
+      links: Value(links),
+    );
+  }
+
+  factory TagData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TagData(
+      namespace: serializer.fromJson<String>(json['namespace']),
+      key: serializer.fromJson<String>(json['_key']),
+      tagName: serializer.fromJson<String>(json['tagName']),
+      intro: serializer.fromJson<String>(json['intro']),
+      links: serializer.fromJson<String>(json['links']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'namespace': serializer.toJson<String>(namespace),
+      '_key': serializer.toJson<String>(key),
+      'tagName': serializer.toJson<String>(tagName),
+      'intro': serializer.toJson<String>(intro),
+      'links': serializer.toJson<String>(links),
+    };
+  }
+
+  TagData copyWith(
+          {String? namespace,
+          String? key,
+          String? tagName,
+          String? intro,
+          String? links}) =>
+      TagData(
+        namespace: namespace ?? this.namespace,
+        key: key ?? this.key,
+        tagName: tagName ?? this.tagName,
+        intro: intro ?? this.intro,
+        links: links ?? this.links,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TagData(')
+          ..write('namespace: $namespace, ')
+          ..write('key: $key, ')
+          ..write('tagName: $tagName, ')
+          ..write('intro: $intro, ')
+          ..write('links: $links')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(namespace, key, tagName, intro, links);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TagData &&
+          other.namespace == this.namespace &&
+          other.key == this.key &&
+          other.tagName == this.tagName &&
+          other.intro == this.intro &&
+          other.links == this.links);
+}
+
+class TagCompanion extends UpdateCompanion<TagData> {
+  final Value<String> namespace;
+  final Value<String> key;
+  final Value<String> tagName;
+  final Value<String> intro;
+  final Value<String> links;
+  const TagCompanion({
+    this.namespace = const Value.absent(),
+    this.key = const Value.absent(),
+    this.tagName = const Value.absent(),
+    this.intro = const Value.absent(),
+    this.links = const Value.absent(),
+  });
+  TagCompanion.insert({
+    required String namespace,
+    required String key,
+    required String tagName,
+    required String intro,
+    required String links,
+  })  : namespace = Value(namespace),
+        key = Value(key),
+        tagName = Value(tagName),
+        intro = Value(intro),
+        links = Value(links);
+  static Insertable<TagData> custom({
+    Expression<String>? namespace,
+    Expression<String>? key,
+    Expression<String>? tagName,
+    Expression<String>? intro,
+    Expression<String>? links,
+  }) {
+    return RawValuesInsertable({
+      if (namespace != null) 'namespace': namespace,
+      if (key != null) '_key': key,
+      if (tagName != null) 'tagName': tagName,
+      if (intro != null) 'intro': intro,
+      if (links != null) 'links': links,
+    });
+  }
+
+  TagCompanion copyWith(
+      {Value<String>? namespace,
+      Value<String>? key,
+      Value<String>? tagName,
+      Value<String>? intro,
+      Value<String>? links}) {
+    return TagCompanion(
+      namespace: namespace ?? this.namespace,
+      key: key ?? this.key,
+      tagName: tagName ?? this.tagName,
+      intro: intro ?? this.intro,
+      links: links ?? this.links,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespace.present) {
+      map['namespace'] = Variable<String>(namespace.value);
+    }
+    if (key.present) {
+      map['_key'] = Variable<String>(key.value);
+    }
+    if (tagName.present) {
+      map['tagName'] = Variable<String>(tagName.value);
+    }
+    if (intro.present) {
+      map['intro'] = Variable<String>(intro.value);
+    }
+    if (links.present) {
+      map['links'] = Variable<String>(links.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TagCompanion(')
+          ..write('namespace: $namespace, ')
+          ..write('key: $key, ')
+          ..write('tagName: $tagName, ')
+          ..write('intro: $intro, ')
+          ..write('links: $links')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Tag extends Table with TableInfo<Tag, TagData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  Tag(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _namespaceMeta = const VerificationMeta('namespace');
+  late final GeneratedColumn<String?> namespace = GeneratedColumn<String?>(
+      'namespace', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _keyMeta = const VerificationMeta('key');
+  late final GeneratedColumn<String?> key = GeneratedColumn<String?>(
+      '_key', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _tagNameMeta = const VerificationMeta('tagName');
+  late final GeneratedColumn<String?> tagName = GeneratedColumn<String?>(
+      'tagName', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _introMeta = const VerificationMeta('intro');
+  late final GeneratedColumn<String?> intro = GeneratedColumn<String?>(
+      'intro', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _linksMeta = const VerificationMeta('links');
+  late final GeneratedColumn<String?> links = GeneratedColumn<String?>(
+      'links', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [namespace, key, tagName, intro, links];
+  @override
+  String get aliasedName => _alias ?? 'tag';
+  @override
+  String get actualTableName => 'tag';
+  @override
+  VerificationContext validateIntegrity(Insertable<TagData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('namespace')) {
+      context.handle(_namespaceMeta,
+          namespace.isAcceptableOrUnknown(data['namespace']!, _namespaceMeta));
+    } else if (isInserting) {
+      context.missing(_namespaceMeta);
+    }
+    if (data.containsKey('_key')) {
+      context.handle(
+          _keyMeta, key.isAcceptableOrUnknown(data['_key']!, _keyMeta));
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('tagName')) {
+      context.handle(_tagNameMeta,
+          tagName.isAcceptableOrUnknown(data['tagName']!, _tagNameMeta));
+    } else if (isInserting) {
+      context.missing(_tagNameMeta);
+    }
+    if (data.containsKey('intro')) {
+      context.handle(
+          _introMeta, intro.isAcceptableOrUnknown(data['intro']!, _introMeta));
+    } else if (isInserting) {
+      context.missing(_introMeta);
+    }
+    if (data.containsKey('links')) {
+      context.handle(
+          _linksMeta, links.isAcceptableOrUnknown(data['links']!, _linksMeta));
+    } else if (isInserting) {
+      context.missing(_linksMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {namespace, key};
+  @override
+  TagData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return TagData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  Tag createAlias(String alias) {
+    return Tag(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['primary key (namespace, _key)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
+  late final Tag tag = Tag(this);
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
         'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid',
@@ -981,11 +1278,63 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
+  Selectable<TagData> selectTagByNamespaceAndKey(String namespace, String key) {
+    return customSelect(
+        'select *\r\nfrom tag\r\nwhere namespace = :namespace\r\n  and _key = :key',
+        variables: [
+          Variable<String>(namespace),
+          Variable<String>(key)
+        ],
+        readsFrom: {
+          tag,
+        }).map(tag.mapFromRow);
+  }
+
+  Selectable<TagData> selectTagsByKey(String key) {
+    return customSelect('select *\r\nfrom tag\r\nwhere _key = :key',
+        variables: [
+          Variable<String>(key)
+        ],
+        readsFrom: {
+          tag,
+        }).map(tag.mapFromRow);
+  }
+
+  Selectable<TagData> selectAllTags() {
+    return customSelect('select *\r\nfrom tag', variables: [], readsFrom: {
+      tag,
+    }).map(tag.mapFromRow);
+  }
+
+  Future<int> insertTag(String namespace, String key, String tagName,
+      String intro, String links) {
+    return customInsert(
+      'insert into tag\r\nvalues (:namespace, :key, :tagName, :intro, :links)',
+      variables: [
+        Variable<String>(namespace),
+        Variable<String>(key),
+        Variable<String>(tagName),
+        Variable<String>(intro),
+        Variable<String>(links)
+      ],
+      updates: {tag},
+    );
+  }
+
+  Future<int> deleteAllTags() {
+    return customUpdate(
+      'delete\r\nfrom tag',
+      variables: [],
+      updates: {tag},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [galleryDownloaded, image];
+      [galleryDownloaded, image, tag];
 }
 
 class SelectGallerysWithImagesResult {

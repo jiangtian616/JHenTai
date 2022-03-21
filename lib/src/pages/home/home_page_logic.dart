@@ -22,7 +22,7 @@ class HomePageLogic extends GetxController {
       return;
     }
 
-    ScrollController? scrollController = galleryListkey.currentState?.innerController;
+    ScrollController? scrollController = galleryListKey.currentState?.innerController;
 
     /// no gallerys data
     if (scrollController?.hasClients == false) {

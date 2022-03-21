@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jhentai/src/config/global_config.dart';
 
 class ThemeConfig {
   static ThemeData light = ThemeData(

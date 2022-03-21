@@ -29,7 +29,6 @@ class DownloadView extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text('download'.tr),
-        toolbarHeight: GlobalConfig.appBarHeight,
         elevation: 1,
       ),
       body: Obx(() {

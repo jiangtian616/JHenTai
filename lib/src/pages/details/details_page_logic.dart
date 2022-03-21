@@ -206,7 +206,7 @@ class DetailsPageLogic extends GetxController {
     }
   }
 
-  void goToReadPage(int index) {
+  void goToReadPage([int? index]) {
     if (downloadService.gid2downloadProgress[state.gallery!.gid] != null) {
       Get.toNamed(
         Routes.read,
@@ -214,7 +214,7 @@ class DetailsPageLogic extends GetxController {
         parameters: {
           'type': 'local',
           'gid': state.gallery!.gid.toString(),
-          'initialIndex': (storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
+          'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),
           'galleryUrl': state.gallery!.galleryUrl,
         },
@@ -228,7 +228,7 @@ class DetailsPageLogic extends GetxController {
         parameters: {
           'type': 'online',
           'gid': state.gallery!.gid.toString(),
-          'initialIndex': (storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
+          'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),
           'galleryUrl': state.gallery!.galleryUrl,
         },

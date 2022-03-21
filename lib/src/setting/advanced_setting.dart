@@ -7,6 +7,14 @@ class AdvancedSetting {
   static RxBool enableDomainFronting = false.obs;
   static RxBool enableLogging = false.obs;
 
+  static void init() {
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
+    if (map != null) {
+      _initFromMap(map);
+      Log.info('init AdvancedSetting success', false);
+    }
+  }
+
   static saveEnableDomainFronting(bool enableDomainFronting) {
     AdvancedSetting.enableDomainFronting.value = enableDomainFronting;
     _save();
@@ -17,20 +25,12 @@ class AdvancedSetting {
     _save();
   }
 
-  static void init()  {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
-    if (map != null) {
-      _initFromMap(map);
-      Log.info('init AdvancedSetting success', false);
-    }
-  }
-
   static Future<void> _save() async {
     await Get.find<StorageService>().write('advancedSetting', _toMap());
   }
 
   static void clear() {
-    enableDomainFronting = false.obs;
+    enableDomainFronting.value = false;
     Get.find<StorageService>().remove('advancedSetting');
   }
 

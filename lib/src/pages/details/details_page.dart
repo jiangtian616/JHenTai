@@ -12,6 +12,7 @@ import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
@@ -148,7 +149,7 @@ class DetailsPage extends StatelessWidget {
                                   color: Get.theme.primaryColor,
                                   borderRadius: BorderRadius.circular(28),
                                   padding: const EdgeInsets.all(0),
-                                  onPressed: () => detailsPageLogic.goToReadPage(0),
+                                  onPressed: () => detailsPageLogic.goToReadPage(),
                                 ),
                                 Container(
                                   width: 0.4,

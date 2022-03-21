@@ -33,7 +33,6 @@ class _LogPageState extends State<LogPage> {
           color: Colors.black,
           fontWeight: FontWeight.bold,
         ),
-        toolbarHeight: GlobalConfig.appBarHeight,
       ),
       body: SingleChildScrollView(
         child: SingleChildScrollView(

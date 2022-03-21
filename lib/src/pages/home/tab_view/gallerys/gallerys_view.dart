@@ -24,7 +24,7 @@ import '../../../../widget/loading_state_indicator.dart';
 import 'gallerys_view_logic.dart';
 import 'gallerys_view_state.dart';
 
-final GlobalKey<ExtendedNestedScrollViewState> galleryListkey = GlobalKey<ExtendedNestedScrollViewState>();
+final GlobalKey<ExtendedNestedScrollViewState> galleryListKey = GlobalKey<ExtendedNestedScrollViewState>();
 
 class GallerysView extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
@@ -36,7 +36,7 @@ class GallerysView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExtendedNestedScrollView(
       /// use this GlobalKey to get innerController to implement 'scroll to top'
-      key: galleryListkey,
+      key: galleryListKey,
       /// this property is needed for TabBar in ExtendedNestedScrollView.
       onlyOneScrollInBody: true,
       floatHeaderSlivers: true,

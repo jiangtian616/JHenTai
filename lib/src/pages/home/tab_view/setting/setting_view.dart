@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
-import '../../../../config/global_config.dart';
-
 LinkedHashMap<String, IconData> items = LinkedHashMap.of({
   'account': Icons.account_circle,
   'EH': Icons.mood,
-  'home': Icons.home,
+  'gallery': Icons.collections,
   'read': Icons.local_library,
   'download': Icons.download,
   'advanced': Icons.settings_suggest,
@@ -25,7 +23,6 @@ class SettingView extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text('setting'.tr),
-        toolbarHeight: GlobalConfig.appBarHeight,
         elevation: 1,
       ),
       body: ListView(
@@ -33,11 +30,11 @@ class SettingView extends StatelessWidget {
         children: items.entries
             .map(
               (entry) => ListTile(
-            leading: Icon(entry.value),
-            title: Text(entry.key.tr),
-            onTap: () => Get.toNamed(Routes.settingPrefix + entry.key),
-          ),
-        )
+                leading: Icon(entry.value),
+                title: Text(entry.key.tr),
+                onTap: () => Get.toNamed(Routes.settingPrefix + entry.key),
+              ),
+            )
             .toList(),
       ).paddingSymmetric(vertical: 16),
     );

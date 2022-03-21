@@ -16,4 +16,19 @@ class EHConsts {
     'ehgt.org': '178.162.140.212',
     'raw.githubusercontent.com': '178.175.129.254',
   };
+
+  static const List<String> tagNamespaces = [
+    'rows',
+    'reclass',
+    'language',
+    'parody',
+    'character',
+    'group',
+    'artist',
+    'cosplayer',
+    'male',
+    'female',
+    'mixed',
+    'other',
+  ];
 }

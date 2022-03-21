@@ -68,7 +68,13 @@ class en {
 
       /// setting page
       'accountSetting': 'Account Setting',
+      'gallerySetting': 'Gallery Setting',
       'advancedSetting': 'Advanced Setting',
+
+      /// gallery setting page
+      'enableTagZHTranslation': 'translate tag name into chinese',
+      'version': 'version',
+      'downloadTagTranslationHint': 'downloading data..., may be a little slow',
 
       /// advanced setting page
       'enableDomainFronting': 'enable Domain Fronting',

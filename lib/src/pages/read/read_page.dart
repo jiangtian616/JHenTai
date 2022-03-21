@@ -56,7 +56,7 @@ class ReadPage extends StatelessWidget {
                 galleryImage: state.images[index].value!,
                 adaptive: true,
                 fit: BoxFit.contain,
-                enableLongPressToRefresh: true,
+                enableLongPressToRefresh: state.type == 'online',
                 loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
                 failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
                 downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),

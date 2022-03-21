@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/log/log_list_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/log/log_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
+import 'package:jhentai/src/pages/setting/gallery/setting_gallery_page.dart';
 import 'package:jhentai/src/pages/test.dart';
 
 import '../pages/setting/account/setting_account_page.dart';
@@ -19,7 +20,7 @@ class Routes {
 
   static const String settingAccount = "/setting_account";
   static const String settingEh = "/setting_account";
-  static const String settingHome = "/setting_home";
+  static const String settingGallery = "/setting_gallery";
   static const String settingRead = "/setting_read";
   static const String settingDownload = "/setting_download";
   static const String settingAdvanced = "/setting_advanced";
@@ -52,6 +53,11 @@ class Routes {
         GetPage(
           name: settingAccount,
           page: () => SettingAccountPage(),
+          transition: Transition.cupertino,
+        ),
+        GetPage(
+          name: settingGallery,
+          page: () => SettingGalleryPage(),
           transition: Transition.cupertino,
         ),
         GetPage(

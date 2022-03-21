@@ -9,16 +9,18 @@
 7. -[x]  Log、Log size、Log clear
 8. - [x]  应用内查看Log
 9. - [x]  记录阅读进度
-10. - [ ]  http cache
+10. - [x]  http cache
 11. - [ ] tag翻译
-12. - [ ] FavoriteSetting 默认值
-13. -[ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和超链接跳转
-14. - [ ] network retry、cache
-15. - [ ] webview登录
-16. -[ ] 搜索 search_choices
-17. -[ ] 点击标签搜索
-18. -[ ] 详情页拦截器缓存
-19. -[x] offensive gallery
+12. - [ ] tag投票
+13. - [ ] FavoriteSetting 默认值
+14. -[ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和超链接跳转
+15. - [ ] network retry、cache
+16. - [ ] webview登录
+17. -[ ] 搜索 search_choices
+18. -[ ] 点击标签搜索
+19. -[ ] 详情页拦截器缓存
+20. -[x] offensive gallery
+21. - [x] 增加EhTagTranslation中的描述页面
 
 ### 优化类
 1. -[ ] 图片放大：https://github.com/bluefireteam/photo_view

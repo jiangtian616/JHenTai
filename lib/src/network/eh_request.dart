@@ -41,8 +41,8 @@ class EHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: 3000,
-      receiveTimeout: 5000,
+      connectTimeout: 4000,
+      receiveTimeout: 6000,
     ));
 
     _cookieJar = PersistCookieJar(storage: FileStorage(PathSetting.appSupportDir.path + "/.cookies/"));
@@ -325,20 +325,20 @@ class EHRequest {
     return EHSpiderParser.parseGalleryImage(response.data!);
   }
 
-  static Future<bool> downloadGalleryImage({
+  static Future<bool> download({
     required String url,
     required String path,
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
+    Options? options,
   }) async {
     await _dio.download(
       url,
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
-      options: Options(
-        responseType: ResponseType.stream,
-        receiveTimeout: 8000,
+      options:options?? Options(
+        receiveTimeout: 10000,
         extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
       ),
     );
@@ -354,5 +354,15 @@ class EHRequest {
 
   static Future<void> _storeCookies(String uri, List<Cookie> cookies) async {
     await _cookieJar.saveFromResponse(Uri.parse(uri), cookies);
+  }
+
+  static Future<Response<T>> get<T>(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) {
+    return _dio.get<T>(url);
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -11,6 +13,7 @@ import '../../../../model/gallery.dart';
 
 class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin {
   final GallerysViewState state = GallerysViewState();
+  final TagTranslationService tagTranslationService = Get.find();
   late TabController tabController = TabController(length: state.tabBarConfigs.length, vsync: this);
 
   /// pull-down refresh
@@ -29,6 +32,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     state.nextPageIndexToLoad[tabIndex] = 1;
     state.gallerys[tabIndex].clear();
+    if (GallerySetting.enableTagZHTranslation.isTrue && tagTranslationService.hasData) {
+      replaceTranslatedTags(newGallerys);
+    }
     state.gallerys[tabIndex] = newGallerys;
     state.pageCount[tabIndex] = pageCount;
     update();
@@ -48,7 +54,11 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     try {
       List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]);
-      state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
+      List<Gallery> newGallerys = gallerysAndPageCount[0];
+      if (GallerySetting.enableTagZHTranslation.isTrue && tagTranslationService.hasData) {
+        replaceTranslatedTags(newGallerys);
+      }
+      state.gallerys[tabIndex].addAll(newGallerys);
       state.pageCount[tabIndex] = gallerysAndPageCount[1];
     } on DioError catch (e) {
       Log.error('get gallerys failed', e.message);
@@ -95,5 +105,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
     return await EHRequest.getHomeGallerysListAndPageCountByPageNo(pageNo, state.tabBarConfigs[tabIndex].searchConfig);
+  }
+
+  Future<List<Gallery>> replaceTranslatedTags(List<Gallery> gallerys) async {
+    for (Gallery gallery in gallerys) {
+      gallery.tags = await tagTranslationService.getTagMapTranslation(gallery.tags);
+    }
+    return gallerys;
   }
 }
