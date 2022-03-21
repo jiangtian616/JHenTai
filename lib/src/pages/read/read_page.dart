@@ -150,6 +150,7 @@ class ReadPage extends StatelessWidget {
       height: fittedSizes.destination.height,
       width: fittedSizes.destination.width,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconTextButton(
             iconData: Icons.error,

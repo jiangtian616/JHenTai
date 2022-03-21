@@ -26,9 +26,25 @@ class ColorConsts {
     'male': Color(0xfffdd7d7),
     'parody': Color(0xffeed4c5),
     'group': Color(0xffdfd6f7),
+    'mixed': Color(0xffd6e0f7),
     'cosplayer': Color(0xfff6dce9),
     'other': Color(0xfffadcdb),
   };
+
+  /// color for category tag
+  static const Map<String, Color> zhTagCategoryColor = {
+    '语言': Color(0xfff5dff5),
+    '艺术家': Color(0xffccd9cd),
+    '角色': Color(0xffc8c8e7),
+    '女性': Color(0xffdbceee),
+    '男性': Color(0xfffdd7d7),
+    '原作': Color(0xffeed4c5),
+    '团队': Color(0xffdfd6f7),
+    '混合': Color(0xffd6e0f7),
+    '角色扮演者': Color(0xfff6dce9),
+    '其他': Color(0xfffadcdb),
+  };
+
 
   /// raw tag color to tag index
   static const Map<String, int> favoriteTagIndex = <String, int>{

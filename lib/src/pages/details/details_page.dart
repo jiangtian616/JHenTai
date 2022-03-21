@@ -30,7 +30,8 @@ import 'details_page_state.dart';
 class DetailsPage extends StatelessWidget {
   final DetailsPageLogic detailsPageLogic = Get.put(DetailsPageLogic());
   final DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
-  final DownloadService downloadService = Get.find<DownloadService>();
+  final DownloadService downloadService = Get.find();
+  final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
 
   DetailsPage({Key? key}) : super(key: key);
@@ -410,7 +411,9 @@ class DetailsPage extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Container(
-                        color: ColorConsts.tagCategoryColor[entry.key],
+                        color: tagTranslationService.hasData
+                            ? ColorConsts.zhTagCategoryColor[entry.key]
+                            : ColorConsts.tagCategoryColor[entry.key],
                         alignment: Alignment.center,
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         child: Text(
@@ -430,11 +433,13 @@ class DetailsPage extends StatelessWidget {
                               (tagName) => ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Container(
+                                  height: 27,
                                   color: Colors.grey.shade200,
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                                   child: Text(
                                     tagName,
-                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade800),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade800, height: 1.4),
                                   ),
                                 ),
                               ),
