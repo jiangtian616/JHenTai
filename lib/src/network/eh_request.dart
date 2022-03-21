@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -17,12 +19,25 @@ import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:path/path.dart';
 
+import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
 
 class EHRequest {
   static late final Dio _dio;
   static late final PersistCookieJar _cookieJar;
+
+  static CacheOptions cacheOption = CacheOptions(
+    store: DbCacheStore(databasePath: join(PathSetting.getVisiblePath().path, 'cache')),
+    policy: CachePolicy.noCache,
+    hitCacheOnErrorExcept: [401, 403],
+    maxStale: const Duration(seconds: 60),
+    priority: CachePriority.normal,
+    cipher: null,
+    keyBuilder: CacheOptions.defaultCacheKeyBuilder,
+    allowPostMethod: false,
+  );
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -67,6 +82,9 @@ class EHRequest {
         return EHConsts.host2Ip.containsValue(host);
       };
     };
+
+    /// cache
+    _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
 
     /// error handler
     _dio.interceptors.add(InterceptorsWrapper(
@@ -170,21 +188,36 @@ class EHRequest {
   }
 
   static Future<Gallery> getGalleryByUrl(String galleryUrl) async {
-    Response<String> response = await _dio.get(galleryUrl);
+    Response<String> response = await _dio.get(
+      galleryUrl,
+      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
+    );
     return EHSpiderParser.parseGalleryByUrl(response.data!, galleryUrl);
   }
 
-  static Future<Map<String, dynamic>> getGalleryDetailsAndApikey(
-      {required String galleryUrl, int thumbnailsPageNo = 0}) async {
+  static Future<Map<String, dynamic>> getGalleryDetailsAndApikey({
+    required String galleryUrl,
+    int thumbnailsPageNo = 0,
+    bool useCacheIfAvailable = true,
+  }) async {
     Response<String> response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
+      options: useCacheIfAvailable
+          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
     return EHSpiderParser.parseGalleryDetails(response.data!);
   }
 
-  static Future<Map<String, dynamic>> getGalleryAndDetailsByUrl(String galleryUrl) async {
-    Response<String> response = await _dio.get(galleryUrl);
+  static Future<Map<String, dynamic>> getGalleryAndDetailsByUrl(String galleryUrl,
+      {bool useCacheIfAvailable = true}) async {
+    Response<String> response = await _dio.get(
+      galleryUrl,
+      options: useCacheIfAvailable
+          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+    );
     return EHSpiderParser.getGalleryAndDetailsByUrl(response.data!, galleryUrl);
   }
 
@@ -195,6 +228,12 @@ class EHRequest {
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
+      options: cacheOption
+          .copyWith(
+            policy: CachePolicy.forceCache,
+            maxStale: const Nullable(Duration(days: 1)),
+          )
+          .toOptions(),
     );
     return EHSpiderParser.parseGalleryDetailsThumbnails(response.data!);
   }
@@ -276,8 +315,13 @@ class EHRequest {
     return response.statusCode == 200;
   }
 
-  static Future<GalleryImage> getGalleryImage(String href, {CancelToken? cancelToken}) async {
-    Response<String> response = await _dio.post(href, cancelToken: cancelToken);
+  static Future<GalleryImage> getGalleryImage(String href,
+      {CancelToken? cancelToken, bool useCacheIfAvailable = true}) async {
+    Response<String> response = await _dio.post(
+      href,
+      cancelToken: cancelToken,
+      options: useCacheIfAvailable ? cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions() : null,
+    );
     return EHSpiderParser.parseGalleryImage(response.data!);
   }
 
@@ -292,7 +336,11 @@ class EHRequest {
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
-      options: Options(responseType: ResponseType.stream, receiveTimeout: 8000),
+      options: Options(
+        responseType: ResponseType.stream,
+        receiveTimeout: 8000,
+        extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
+      ),
     );
     return true;
   }

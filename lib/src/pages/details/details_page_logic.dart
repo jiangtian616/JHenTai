@@ -86,9 +86,12 @@ class DetailsPageLogic extends GetxController {
 
     Map<String, dynamic> galleryDetailsAndApikey;
     try {
-      galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(galleryUrl: state.gallery!.galleryUrl);
+      galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(
+        galleryUrl: state.gallery!.galleryUrl,
+        useCacheIfAvailable: false,
+      );
     } on DioError catch (e) {
-      Get.snackbar('error', '获取画廊详情错误', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('get gallery details failed', e.message, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 

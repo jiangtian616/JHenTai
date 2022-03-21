@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/utils/log.dart';
 
 class EHCookieManager extends CookieManager {
   EHCookieManager(CookieJar cookieJar) : super(cookieJar);
