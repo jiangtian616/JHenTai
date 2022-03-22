@@ -283,20 +283,12 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTitleAndUploader(gallery.title, gallery.uploader),
-          if (gallery.tags.isNotEmpty) _buildTagWaterFlow(_mergeTagList(gallery.tags)),
-          Expanded(child: SizedBox(),),
+          if (gallery.tags.isNotEmpty) _buildTagWaterFlow(gallery.tags),
+          const Expanded(child: SizedBox()),
           _buildFooter(gallery),
         ],
       ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
     );
-  }
-
-  List<String> _mergeTagList(Map<String, List<String>> tags) {
-    List<String> mergedList = [];
-    for (List<String> tagNames in tags.values) {
-      mergedList.addAll(tagNames);
-    }
-    return mergedList;
   }
 
   Widget _buildTitleAndUploader(String title, String uploader) {
@@ -320,7 +312,14 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     );
   }
 
-  Widget _buildTagWaterFlow(List<String> tagNames) {
+  Widget _buildTagWaterFlow(Map<String, List<String>> tags) {
+    List<MapEntry<String, String>> mergedList = [];
+    tags.forEach((namespace, tagNames) {
+      for (String tagName in tagNames) {
+        mergedList.add(MapEntry(namespace, tagName));
+      }
+    });
+
     return SizedBox(
       height: 70,
       child: WaterfallFlow.builder(
@@ -331,9 +330,10 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),
-        itemCount: tagNames.length,
+        itemCount: mergedList.length,
         itemBuilder: (BuildContext context, int index) => EHTag(
-          tagName: tagNames[index],
+          namespace: mergedList[index].key,
+          tagName: mergedList[index].value,
           fontSize: 12,
           textHeight: 1.2,
           borderRadius: 4,

@@ -9,6 +9,8 @@ import 'package:jhentai/src/network/eh_request.dart';
 class EHCookieManager extends CookieManager {
   EHCookieManager(CookieJar cookieJar) : super(cookieJar);
 
+  CookieJar get() => cookieJar;
+
   /// just copy from CookieManager
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
@@ -27,8 +29,14 @@ class EHCookieManager extends CookieManager {
       return;
     }
 
-    if (EHConsts.host2Ip.containsKey(response.requestOptions.uri.path)) {
-      await EHRequest.storeEhCookiesForAllUri(cookies.map((str) => Cookie.fromSetCookieValue(str)).toList());
+    if (EHConsts.host2Ip.containsKey(response.requestOptions.uri.host) ||
+        EHConsts.host2Ip.containsValue(response.requestOptions.uri.host)) {
+      await EHRequest.storeEhCookiesForAllUri(
+        cookies
+            .map((str) => Cookie.fromSetCookieValue(str))
+            .map((cookie) => Cookie(cookie.name, cookie.value))
+            .toList(),
+      );
     } else {
       await cookieJar.saveFromResponse(
         response.requestOptions.uri,

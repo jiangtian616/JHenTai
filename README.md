@@ -12,15 +12,17 @@
 10. - [x]  http cache
 11. - [x] tag翻译
 12. - [ ] tag投票
-13. - [ ] FavoriteSetting 默认值
-14. -[ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和超链接跳转
-15. - [ ] network retry、cache
-16. - [ ] webview登录
-17. -[ ] 搜索 search_choices
-18. -[ ] 点击标签搜索
-19. -[ ] 详情页拦截器缓存
-20. -[x] offensive gallery
-21. - [x] 增加EhTagTranslation中的描述页面
+13. - [ ] 里站支持
+14. - [ ] 日文标题
+15. - [ ] FavoriteSetting 默认值
+16. -[ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和超链接跳转
+17. - [ ] network retry、cache
+18. - [ ] webview登录
+19. -[ ] 搜索 search_choices
+20. -[ ] 点击标签搜索
+21. -[ ] 详情页拦截器缓存
+22. -[x] offensive gallery
+23. - [x] 增加EhTagTranslation中的描述页面
 
 ### 优化类
 1. -[ ] 图片放大：https://github.com/bluefireteam/photo_view

@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
@@ -18,8 +19,9 @@ class TagTranslationService extends GetxService {
   final String downloadUrl = 'https://cdn.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
   final String savePath = join(PathSetting.getVisiblePath().path, 'tag_translation.json');
 
-  bool hasData = false;
+  Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);
+  RxString downloadProgress = RxString('0 MB');
 
   static void init() {
     Get.put(TagTranslationService());
@@ -27,12 +29,17 @@ class TagTranslationService extends GetxService {
   }
 
   void onInit() {
-    hasData = storageService.read('TagTranslationServiceHasData') ?? false;
+    loadingState.value = LoadingState.values[storageService.read('TagTranslationServiceLoadingState') ?? 0];
     timeStamp.value = storageService.read('TagTranslationServiceTimestamp');
     super.onInit();
   }
 
   Future<void> updateDatabase() async {
+    if (loadingState.value == LoadingState.loading) {
+      return;
+    }
+    loadingState.value = LoadingState.loading;
+
     List dataList = await _getDataList();
     if (dataList.isEmpty) {
       return;
@@ -55,9 +62,9 @@ class TagTranslationService extends GetxService {
 
     await _clear();
     await _save(tagList);
-    storageService.write('TagTranslationServiceHasData', true);
+    storageService.write('TagTranslationServiceLoadingState', LoadingState.success.index);
     storageService.write('TagTranslationServiceTimestamp', timeStamp.value);
-    hasData = true;
+    loadingState.value = LoadingState.success;
     Log.info('update tagTranslation database success', false);
     File(savePath).delete();
   }
@@ -95,16 +102,19 @@ class TagTranslationService extends GetxService {
       await retry(
         () async {
           await EHRequest.download(
-            url: downloadUrl,
-            path: savePath,
-            options: Options(receiveTimeout: 30000),
-          );
+              url: downloadUrl,
+              path: savePath,
+              options: Options(receiveTimeout: 30000),
+              onReceiveProgress: (count, total) {
+                downloadProgress.value = (count / 1024 / 1024).toStringAsFixed(2) + ' MB';
+              });
         },
         maxAttempts: 5,
         onRetry: (error) => Log.warning('download tag translation data failed, retry.', false),
       );
     } on DioError catch (e) {
       Log.error('download tag translation data failed after 3 times', e.message);
+      loadingState.value = LoadingState.error;
       return [];
     }
 

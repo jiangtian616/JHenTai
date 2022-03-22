@@ -94,6 +94,7 @@ class EHSpiderParser {
           '0',
       torrentPageUrl:
           document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      fullTags: _parseGalleryTagsByUrl(document),
       comments: _parseGalleryDetailsComments(commentElements),
       thumbnails: _parseGalleryDetailsThumbnails(thumbNailElements),
     );
@@ -221,7 +222,7 @@ class EHSpiderParser {
         /// some tag doesn't has a type
         List<String> list = pair.split(':').toList();
         String type = list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
-        String text = list[1];
+        String text = list[1].replaceAll('\_', ' ');
 
         tags.putIfAbsent(type, () => []).add(text);
       }

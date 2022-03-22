@@ -63,6 +63,7 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.success;
 
       FavoriteSetting.init();
+
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 700));
       Get.back();
@@ -114,6 +115,8 @@ class LoginPageLogic extends GetxController {
 
     List<String?>? userNameAndAvatarUrl;
     try {
+      /// get cookie [sk] first
+      await EHRequest.home();
       userNameAndAvatarUrl = await EHRequest.getUserInfoByCookieAndMemberId(ipbMemberId);
     } on DioError catch (e) {
       Log.error(e);
@@ -129,7 +132,6 @@ class LoginPageLogic extends GetxController {
       update();
 
       UserSetting.saveUserInfo(userName: userNameAndAvatarUrl[0]!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
-
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 1000));
       Get.back();

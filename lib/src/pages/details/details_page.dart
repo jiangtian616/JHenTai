@@ -68,7 +68,8 @@ class DetailsPage extends StatelessWidget {
               _buildHeader(gallery, context),
               _buildDetails(gallery, detailsPageState.galleryDetails),
               _buildActions(gallery, detailsPageState.galleryDetails),
-              if (gallery.tags.isNotEmpty) _buildTags(gallery.tags),
+              if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
+                _buildTags(detailsPageState.galleryDetails!.fullTags),
               _buildLoadingDetailsIndicator(),
               if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
                 _buildComments(detailsPageState.galleryDetails!),
@@ -411,9 +412,11 @@ class DetailsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     EHTag(
+                      namespace: 'rows',
                       tagName: entry.key,
                       withColor: true,
-                      inZh: tagTranslationService.hasData && GallerySetting.enableTagZHTranslation.isTrue,
+                      inZh: tagTranslationService.loadingState.value == LoadingState.success &&
+                          GallerySetting.enableTagZHTranslation.isTrue,
                     ).marginOnly(right: 10),
 
                     /// use [expanded] and [wrap] to implement 'flex-wrap'
@@ -421,7 +424,13 @@ class DetailsPage extends StatelessWidget {
                       child: Wrap(
                         spacing: 5,
                         runSpacing: 5,
-                        children: entry.value.map((tagName) => EHTag(tagName: tagName)).toList(),
+                        children: entry.value
+                            .map((tagName) => EHTag(
+                                  namespace: entry.key,
+                                  tagName: tagName,
+                                  enableTapping: true,
+                                ))
+                            .toList(),
                       ),
                     ),
                   ],

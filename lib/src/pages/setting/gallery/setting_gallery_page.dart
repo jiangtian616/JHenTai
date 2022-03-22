@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class SettingGalleryPage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
@@ -26,14 +27,14 @@ class SettingGalleryPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('enableTagZHTranslation'.tr),
-                  if (tagTranslationService.timeStamp.value != null)
+                  if (tagTranslationService.loadingState.value == LoadingState.success)
                     Text(
                       '${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
                       style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     ),
-                  if (tagTranslationService.timeStamp.value == null && GallerySetting.enableTagZHTranslation.isTrue)
+                  if (tagTranslationService.loadingState.value == LoadingState.loading)
                     Text(
-                      'downloadTagTranslationHint'.tr,
+                      'downloadTagTranslationHint'.tr + tagTranslationService.downloadProgress.value,
                       style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     ),
                 ],
@@ -43,7 +44,8 @@ class SettingGalleryPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (!tagTranslationService.hasData && GallerySetting.enableTagZHTranslation.isTrue)
+                    if (tagTranslationService.loadingState.value == LoadingState.loading &&
+                        GallerySetting.enableTagZHTranslation.isTrue)
                       const CupertinoActivityIndicator().marginOnly(right: 8),
                     CupertinoSwitch(
                       value: GallerySetting.enableTagZHTranslation.value,

@@ -45,6 +45,14 @@ class ThemeConfig {
         ),
       ),
     ),
+    dialogTheme: const DialogTheme(
+      titleTextStyle: TextStyle(
+        fontSize: 14,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.white,
   );
 

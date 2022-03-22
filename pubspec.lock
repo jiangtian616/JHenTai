@@ -361,6 +361,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_widget_from_html_core:
+    dependency: "direct main"
+    description:
+      name: flutter_widget_from_html_core
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.8.5+1"
   font_awesome_flutter:
     dependency: "direct main"
     description:
@@ -375,6 +382,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.2"
+  fwfh_text_style:
+    dependency: transitive
+    description:
+      name: fwfh_text_style
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.7.3+1"
   get:
     dependency: "direct main"
     description:

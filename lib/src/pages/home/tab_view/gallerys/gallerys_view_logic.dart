@@ -26,15 +26,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
       Log.error('refresh gallery failed', e.message);
-      Get.snackbar('refresh gallery failed', 'e.message', snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('refresh gallery failed', e.message, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     state.nextPageIndexToLoad[tabIndex] = 1;
     state.gallerys[tabIndex].clear();
-    if (GallerySetting.enableTagZHTranslation.isTrue && tagTranslationService.hasData) {
-      replaceTranslatedTags(newGallerys);
-    }
     state.gallerys[tabIndex] = newGallerys;
     state.pageCount[tabIndex] = pageCount;
     update();
@@ -54,11 +51,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     try {
       List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]);
-      List<Gallery> newGallerys = gallerysAndPageCount[0];
-      if (GallerySetting.enableTagZHTranslation.isTrue && tagTranslationService.hasData) {
-        replaceTranslatedTags(newGallerys);
-      }
-      state.gallerys[tabIndex].addAll(newGallerys);
+      state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
       state.pageCount[tabIndex] = gallerysAndPageCount[1];
     } on DioError catch (e) {
       Log.error('get gallerys failed', e.message);
@@ -105,12 +98,5 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
     return await EHRequest.getHomeGallerysListAndPageCountByPageNo(pageNo, state.tabBarConfigs[tabIndex].searchConfig);
-  }
-
-  Future<List<Gallery>> replaceTranslatedTags(List<Gallery> gallerys) async {
-    for (Gallery gallery in gallerys) {
-      gallery.tags = await tagTranslationService.getTagMapTranslation(gallery.tags);
-    }
-    return gallerys;
   }
 }

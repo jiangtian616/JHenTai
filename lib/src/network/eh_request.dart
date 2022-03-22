@@ -48,13 +48,9 @@ class EHRequest {
     _cookieJar = PersistCookieJar(storage: FileStorage(PathSetting.appSupportDir.path + "/.cookies/"));
     await _cookieJar.forceInit();
 
-    await storeEhCookiesForAllUri([
-      /// never warn about offensive gallery
-      Cookie("nw", "1"),
-    ]);
-
-    /// cookies
-    _dio.interceptors.add(EHCookieManager(_cookieJar));
+    if ((await _cookieJar.loadForRequest(Uri.parse('https://e-hentai.org'))).isEmpty) {
+      await storeEhCookiesForAllUri([]);
+    }
 
     /// domain fronting
     _dio.interceptors.add(InterceptorsWrapper(
@@ -82,6 +78,9 @@ class EHRequest {
         return EHConsts.host2Ip.containsValue(host);
       };
     };
+
+    /// cookies
+    _dio.interceptors.add(EHCookieManager(_cookieJar));
 
     /// cache
     _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
@@ -113,18 +112,19 @@ class EHRequest {
   }
 
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
+    /// never warn about offensive gallery
+    cookies.add(Cookie("nw", "1"));
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
     Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
   }
 
   static Future<void> removeAllCookies() async {
     await _cookieJar.deleteAll();
+    await storeEhCookiesForAllUri([]);
   }
 
   /// return null if login success, otherwise return error message
   static Future<String?> login(String userName, String passWord) async {
-    await logout();
-
     Response<String> response = await _dio.post(
       EHConsts.EHForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -162,8 +162,15 @@ class EHRequest {
 
   /// just remove cookies
   static Future<void> logout() async {
-    _cookieJar.deleteAll();
+    removeAllCookies();
     UserSetting.clear();
+  }
+
+  static Future<String> home() async {
+    Response<String> response = await _dio.get(
+      EHConsts.EHHome,
+    );
+    return response.data!;
   }
 
   /// return null if cookie is wrong
@@ -179,7 +186,7 @@ class EHRequest {
 
   static Future<List<dynamic>> getHomeGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
     Response<String> response = await _dio.get(
-      EHConsts.EHHome,
+      EHConsts.EHIndex,
       queryParameters: {
         'page': pageNo,
       },
@@ -292,7 +299,7 @@ class EHRequest {
         'update': 1,
       },
     );
-    return response.statusCode == 200;
+    return true;
   }
 
   static Future<bool> removeFavorite(int gid, String token) async {
@@ -312,7 +319,7 @@ class EHRequest {
         'update': 1,
       },
     );
-    return response.statusCode == 200;
+    return true;
   }
 
   static Future<GalleryImage> getGalleryImage(String href,
@@ -337,12 +344,37 @@ class EHRequest {
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
-      options:options?? Options(
-        receiveTimeout: 10000,
-        extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
-      ),
+      options: options ??
+          Options(
+            receiveTimeout: 10000,
+            extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
+          ),
     );
     return true;
+  }
+
+  static Future<String> voteTag(
+    int gid,
+    String token,
+    int apiuid,
+    String apikey,
+    String namespace,
+    String tagName,
+    bool isVotingUp,
+  ) async {
+    Response<String> response = await _dio.post(
+      EHConsts.EHApi,
+      data: {
+        'apikey': apikey,
+        'apiuid': apiuid,
+        'gid': gid,
+        'method': "taggallery",
+        'token': token,
+        'vote': isVotingUp ? 1 : -1,
+        'tags': '$namespace:$tagName',
+      },
+    );
+    return response.data!;
   }
 
   static String _parseErrorMsg(String html) {
