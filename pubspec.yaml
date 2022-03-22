@@ -50,6 +50,7 @@ dependencies:
   path_provider: ^2.0.9
   flutter_slidable: ^1.2.0
   flutter_widget_from_html_core: ^0.8.5+1
+  url_launcher: ^6.0.20
 
 dev_dependencies:
   flutter_test:

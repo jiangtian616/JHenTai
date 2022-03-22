@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
@@ -14,6 +15,7 @@ import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
 import '../setting/gallery_setting.dart';
@@ -53,7 +55,8 @@ class _EHTagState extends State<EHTag> {
 
   @override
   void initState() {
-    if (GallerySetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
+    if (GallerySetting.enableTagZHTranslation.isTrue &&
+        tagTranslationService.loadingState.value == LoadingState.success) {
       tagTranslationService.getTagTranslation(widget.tagName, widget.namespace).then((tagData) {
         setState(() {
           this.tagData = tagData;
@@ -219,18 +222,28 @@ class _TagDialogState extends State<_TagDialog> {
     Get.back();
     Get.dialog(
       SimpleDialog(
+        title: const Text('所有数据来源于EhTagTranslation'),
         children: [
-          HtmlWidget(
-            widget.tagData!.fullTagName + widget.tagData!.intro + widget.tagData!.links,
-            onErrorBuilder: (context, element, error) => Text('$element error: $error'),
-            onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
-            onTapUrl: (url) {
-              print('tapped $url');
-              return true;
-            },
-            renderMode: RenderMode.column,
-            // set the default styling for text
-            textStyle: TextStyle(fontSize: 14),
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 50,
+              minWidth: 200,
+              maxHeight: 500,
+              maxWidth: 200,
+            ),
+            child: HtmlWidget(
+              widget.tagData!.fullTagName + widget.tagData!.intro + widget.tagData!.links,
+              renderMode: RenderMode.column,
+              textStyle: const TextStyle(fontSize: 12),
+              onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+              onLoadingBuilder: (context, element, loadingProgress) => const CircularProgressIndicator(),
+              onTapUrl: (url) async {
+                return await launch(url);
+              },
+              customWidgetBuilder: (element) {
+                return null;
+              },
+            ).paddingSymmetric(horizontal: 20),
           ),
         ],
       ),
