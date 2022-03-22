@@ -98,7 +98,7 @@ class TagTranslationService extends GetxService {
             options: Options(receiveTimeout: 30000),
           );
         },
-        maxAttempts: 3,
+        maxAttempts: 5,
         onRetry: (error) => Log.warning('download tag translation data failed, retry.', false),
       );
     } on DioError catch (e) {

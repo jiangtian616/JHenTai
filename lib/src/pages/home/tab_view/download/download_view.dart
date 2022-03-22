@@ -1,15 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/service/download_service.dart';
 
-import '../../../../config/global_config.dart';
-import '../../../../consts/color_consts.dart';
-import '../../../../consts/locale_consts.dart';
 import '../../../../model/download_progress.dart';
-import '../../../../model/gallery.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/storage_service.dart';
@@ -33,43 +29,52 @@ class DownloadView extends StatelessWidget {
       ),
       body: Obx(() {
         return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-
-          /// must assign controller
-          controller: ScrollController(),
           children: downloadService.gallerys
-              .map(
-                (gallery) => GestureDetector(
-                  onLongPress: () => _showDeleteBottomSheet(gallery, context),
-                  child: Container(
-                    height: 130,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-
-                      /// covered when in dark mode
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 5,
-                          spreadRadius: 1,
-                          offset: const Offset(0.5, 3),
+              .map((gallery) => Slidable(
+                    key: Key(gallery.gid.toString()),
+                    endActionPane: ActionPane(
+                      motion: const DrawerMotion(),
+                      extentRatio: 0.15,
+                      children: [
+                        SlidableAction(
+                          icon: Icons.delete,
+                          foregroundColor: Colors.red,
+                          backgroundColor: Get.theme.scaffoldBackgroundColor,
+                          onPressed: (BuildContext context) => downloadService.deleteGallery(gallery),
                         )
                       ],
-                      borderRadius: BorderRadius.circular(15),
                     ),
-                    margin: const EdgeInsets.only(top: 5, bottom: 4, left: 10, right: 10),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Row(
-                        children: [
-                          _buildCover(gallery, context),
-                          _buildInfo(gallery),
-                        ],
+                    child: GestureDetector(
+                      onLongPress: () => _showDeleteBottomSheet(gallery, context),
+                      child: Container(
+                        height: 130,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+
+                          /// covered when in dark mode
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 2,
+                              spreadRadius: 1,
+                              offset: const Offset(0.3, 1),
+                            )
+                          ],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Row(
+                            children: [
+                              _buildCover(gallery, context),
+                              _buildInfo(gallery),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              )
+                  ))
               .toList(),
         );
       }),

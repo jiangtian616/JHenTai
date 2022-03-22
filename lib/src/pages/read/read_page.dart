@@ -127,7 +127,6 @@ class ReadPage extends StatelessWidget {
 
     return SizedBox(
       height: fittedSizes.destination.height,
-      width: fittedSizes.destination.width,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -169,7 +168,6 @@ class ReadPage extends StatelessWidget {
       Size(state.images[index].value!.width, state.images[index].value!.height),
       Size(context.width, double.infinity),
     );
-
 
     return Obx(() {
       SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;

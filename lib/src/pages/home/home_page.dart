@@ -19,14 +19,13 @@ class HomePage extends StatelessWidget {
             controller: homePageState.tabController,
             tabBar: CupertinoTabBar(
               items: homePageState.navigationBarItems,
+              backgroundColor: Get.theme.appBarTheme.backgroundColor,
+              border: null,
+              iconSize: 26,
               onTap: (index) => homePageLogic.handleTapNavigationBar(index),
             ),
             tabBuilder: (BuildContext context, int index) {
-              return CupertinoTabView(
-                builder: (BuildContext context) {
-                  return homePageState.navigationBarViews[index];
-                },
-              );
+              return homePageState.navigationBarViews[index];
             },
           ),
         );

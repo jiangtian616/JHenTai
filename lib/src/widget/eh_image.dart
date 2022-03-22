@@ -72,63 +72,60 @@ class _EHImageState extends State<EHImage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child;
-    if (widget.galleryImage.path != null) {
-      if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
-        child = widget.downloadingWidgetBuilder != null
-            ? widget.downloadingWidgetBuilder!()
-            : const Center(child: CircularProgressIndicator());
-      } else {
-        child = ExtendedImage.file(
-          io.File(widget.galleryImage.path!),
-          key: key,
-          height: widget.adaptive ? null : widget.galleryImage.height,
-          width: widget.adaptive ? null : widget.galleryImage.width,
-          fit: widget.fit,
-          mode: widget.mode,
-        );
-      }
-    } else {
-      child = GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
-        child: ExtendedImage.network(
-          widget.galleryImage.url,
-          key: key,
-          height: widget.adaptive ? null : widget.galleryImage.height,
-          width: widget.adaptive ? null : widget.galleryImage.width,
-          fit: widget.fit,
-          mode: widget.mode,
-          initGestureConfigHandler: widget.initGestureConfigHandler,
-          cancelToken: cancelToken,
-          imageCacheName: widget.galleryImage.url,
-          handleLoadingProgress: widget.loadingWidgetBuilder != null,
-          loadStateChanged: (ExtendedImageState state) {
-            if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
-              if (state.loadingProgress == null) {
-                return widget.loadingWidgetBuilder!(0.01);
-              }
-
-              int cur = state.loadingProgress!.cumulativeBytesLoaded;
-              int? total = state.extendedImageInfo?.sizeBytes;
-              int? compressed = state.loadingProgress!.expectedTotalBytes;
-              return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
-            }
-
-            if (state.extendedImageLoadState == LoadState.failed) {
-              return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
-            }
-
-            return null;
-          },
-        ),
-      );
-    }
-
     return SizedBox(
       height: widget.containerHeight,
       width: widget.containerWidth,
-      child: child,
+      child: () {
+        if (widget.galleryImage.path != null) {
+          if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
+            return widget.downloadingWidgetBuilder != null
+                ? widget.downloadingWidgetBuilder!()
+                : const Center(child: CircularProgressIndicator());
+          }
+          return ExtendedImage.file(
+            io.File(widget.galleryImage.path!),
+            key: key,
+            height: widget.adaptive ? null : widget.galleryImage.height,
+            width: widget.adaptive ? null : widget.galleryImage.width,
+            fit: widget.fit,
+            mode: widget.mode,
+          );
+        }
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
+          child: ExtendedImage.network(
+            widget.galleryImage.url,
+            key: key,
+            height: widget.adaptive ? null : widget.galleryImage.height,
+            width: widget.adaptive ? null : widget.galleryImage.width,
+            fit: widget.fit,
+            mode: widget.mode,
+            initGestureConfigHandler: widget.initGestureConfigHandler,
+            cancelToken: cancelToken,
+            imageCacheName: widget.galleryImage.url,
+            handleLoadingProgress: widget.loadingWidgetBuilder != null,
+            loadStateChanged: (ExtendedImageState state) {
+              if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
+                if (state.loadingProgress == null) {
+                  return widget.loadingWidgetBuilder!(0.01);
+                }
+
+                int cur = state.loadingProgress!.cumulativeBytesLoaded;
+                int? total = state.extendedImageInfo?.sizeBytes;
+                int? compressed = state.loadingProgress!.expectedTotalBytes;
+                return widget.loadingWidgetBuilder!(cur / (compressed ?? total ?? cur * 100));
+              }
+
+              if (state.extendedImageLoadState == LoadState.failed) {
+                return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
+              }
+
+              return null;
+            },
+          ),
+        );
+      }(),
     );
   }
 
