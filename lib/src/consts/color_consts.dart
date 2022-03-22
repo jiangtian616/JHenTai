@@ -27,7 +27,8 @@ class ColorConsts {
     'parody': Color(0xffeed4c5),
     'group': Color(0xffdfd6f7),
     'mixed': Color(0xffd6e0f7),
-    'cosplayer': Color(0xfff6dce9),
+    'cosplayer': Color(0xfff6dcf3),
+    'reclass': Color(0xfff6dce9),
     'temp': Color(0xffe9dbfa),
     'other': Color(0xfffadcdb),
   };
@@ -42,7 +43,8 @@ class ColorConsts {
     '原作': Color(0xffeed4c5),
     '团队': Color(0xffdfd6f7),
     '混合': Color(0xffd6e0f7),
-    '角色扮演者': Color(0xfff6dce9),
+    '角色扮演者': Color(0xfff6dcf3),
+    '重新分类': Color(0xfff6dce9),
     '临时': Color(0xffe9dbfa),
     '其他': Color(0xfffadcdb),
   };

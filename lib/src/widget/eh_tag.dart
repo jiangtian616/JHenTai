@@ -1,24 +1,22 @@
 import 'package:dio/dio.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
-import '../setting/gallery_setting.dart';
 import '../setting/user_setting.dart';
 
 class EHTag extends StatefulWidget {
@@ -52,8 +50,7 @@ class _EHTagState extends State<EHTag> {
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Container(
         color: widget.withColor
-            ? ColorConsts.zhTagCategoryColor[widget.tagData.key] ??
-                ColorConsts.tagCategoryColor[widget.tagData.key]!
+            ? ColorConsts.zhTagCategoryColor[widget.tagData.key] ?? ColorConsts.tagCategoryColor[widget.tagData.key]!
             : Colors.grey.shade200,
         padding: widget.padding,
         child: Column(
@@ -129,7 +126,7 @@ class _TagDialogState extends State<_TagDialog> {
               ),
               successWidget: DoneWidget(),
             ),
-            if (widget.tagData != null)
+            if (widget.tagData.tagName != null)
               GestureDetector(
                 onTap: () => _showInfo(),
                 child: Icon(Icons.visibility, color: Colors.blue.shade700),
@@ -192,6 +189,8 @@ class _TagDialogState extends State<_TagDialog> {
 
   _showInfo() {
     Get.back();
+
+    String content = widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!;
     Get.dialog(
       SimpleDialog(
         title: const Text('所有数据来源于EhTagTranslation'),
@@ -200,12 +199,12 @@ class _TagDialogState extends State<_TagDialog> {
             constraints: const BoxConstraints(
               minHeight: 50,
               minWidth: 200,
-              maxHeight: 500,
+              maxHeight: 400,
               maxWidth: 200,
             ),
             child: HtmlWidget(
-              widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!,
-              renderMode: RenderMode.column,
+              content,
+              renderMode: content.contains('img') ? RenderMode.listView : RenderMode.column,
               textStyle: const TextStyle(fontSize: 12),
               onErrorBuilder: (context, element, error) => Text('$element error: $error'),
               onLoadingBuilder: (context, element, loadingProgress) => const CircularProgressIndicator(),
@@ -213,7 +212,12 @@ class _TagDialogState extends State<_TagDialog> {
                 return await launch(url);
               },
               customWidgetBuilder: (element) {
-                return null;
+                if (element.localName != 'img') {
+                  return null;
+                }
+                return Center(
+                  child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
+                );
               },
             ).paddingSymmetric(horizontal: 20),
           ),
