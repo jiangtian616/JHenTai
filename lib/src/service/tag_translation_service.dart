@@ -69,30 +69,26 @@ class TagTranslationService extends GetxService {
     File(savePath).delete();
   }
 
-  Future<TagData?> getTagTranslation(String key, [String? namespace]) async {
-    if (namespace == null) {
-      List<TagData> list = (await appDb.selectTagsByKey(key).get());
-      return list.isNotEmpty ? list.first : null;
-    }
+  Future<TagData?> getTagTranslation(String namespace, String key) async {
     List<TagData> list = (await appDb.selectTagByNamespaceAndKey(namespace, key).get());
     return list.isNotEmpty ? list.first : null;
   }
 
-  Future<LinkedHashMap<String, List<String>>> getTagMapTranslation(LinkedHashMap<String, List<String>> tags) async {
-    LinkedHashMap<String, List<String>> translatedTags = LinkedHashMap();
+  Future<LinkedHashMap<String, List<TagData>>> getTagMapTranslation(LinkedHashMap<String, List<TagData>> tags) async {
+    LinkedHashMap<String, List<TagData>> translatedTags = LinkedHashMap();
 
     Iterator iterator = tags.entries.iterator;
     while (iterator.moveNext()) {
-      MapEntry<String, List<String>> entry = iterator.current;
+      MapEntry<String, List<TagData>> entry = iterator.current;
       String namespace = entry.key;
-      List<String> tagNames = entry.value;
+      List<TagData> tagDatas = entry.value;
 
-      String newCategory = (await getTagTranslation(namespace, 'rows'))?.tagName ?? namespace;
-      List<String> newTagNames = [];
-      for (String tagName in tagNames) {
-        newTagNames.add((await getTagTranslation(tagName, namespace))?.tagName ?? tagName);
+      String newNamespace = (await getTagTranslation('rows', namespace))?.tagName ?? namespace;
+      List<TagData> newTagDatas = [];
+      for (TagData tagData in tagDatas) {
+        newTagDatas.add((await getTagTranslation(tagData.namespace, tagData.key)) ?? tagData);
       }
-      translatedTags[newCategory] = newTagNames;
+      translatedTags[newNamespace] = newTagDatas;
     }
     return translatedTags;
   }

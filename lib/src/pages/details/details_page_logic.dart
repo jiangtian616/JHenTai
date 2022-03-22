@@ -6,6 +6,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -15,6 +16,7 @@ import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
+import '../../setting/gallery_setting.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
@@ -22,6 +24,7 @@ class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
+  final TagTranslationService tagTranslationService = Get.find();
 
   DetailsPageLogic() {
     dynamic arg = Get.arguments;
@@ -77,6 +80,10 @@ class DetailsPageLogic extends GetxController {
     }
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
+    if (GallerySetting.enableTagZHTranslation.isTrue &&
+        tagTranslationService.loadingState.value == LoadingState.success) {
+      state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
+    }
     state.loadingDetailsState = LoadingState.success;
     update();
   }
@@ -98,6 +105,10 @@ class DetailsPageLogic extends GetxController {
     state.refresh();
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
+    if (GallerySetting.enableTagZHTranslation.isTrue &&
+        tagTranslationService.loadingState.value == LoadingState.success) {
+      state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
+    }
     update();
   }
 

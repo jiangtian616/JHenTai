@@ -17,7 +17,7 @@ class Gallery {
   int? favoriteTagIndex;
   String? favoriteTagName;
   String galleryUrl;
-  LinkedHashMap<String, List<String>> tags;
+  LinkedHashMap<String, List<TagData>> tags;
   String? language;
   String uploader;
   String publishTime;
@@ -82,7 +82,7 @@ class Gallery {
     int? favoriteTagIndex,
     String? favoriteTagName,
     String? galleryUrl,
-    LinkedHashMap<String, List<String>>? tags,
+    LinkedHashMap<String, List<TagData>>? tags,
     String? language,
     String? uploader,
     String? publishTime,

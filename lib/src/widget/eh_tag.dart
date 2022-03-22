@@ -22,10 +22,8 @@ import '../setting/gallery_setting.dart';
 import '../setting/user_setting.dart';
 
 class EHTag extends StatefulWidget {
-  final String namespace;
-  final String tagName;
+  final TagData tagData;
   final bool withColor;
-  final bool inZh;
   final double borderRadius;
   final double fontSize;
   final double textHeight;
@@ -34,10 +32,8 @@ class EHTag extends StatefulWidget {
 
   const EHTag({
     Key? key,
-    required this.namespace,
-    required this.tagName,
+    required this.tagData,
     this.withColor = false,
-    this.inZh = false,
     this.borderRadius = 7,
     this.fontSize = 13,
     this.textHeight = 1.3,
@@ -50,34 +46,21 @@ class EHTag extends StatefulWidget {
 }
 
 class _EHTagState extends State<EHTag> {
-  final TagTranslationService tagTranslationService = Get.find();
-  TagData? tagData;
-
-  @override
-  void initState() {
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
-      tagTranslationService.getTagTranslation(widget.tagName, widget.namespace).then((tagData) {
-        setState(() {
-          this.tagData = tagData;
-        });
-      });
-    }
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     Widget tag = ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Container(
-        color: widget.withColor ? ColorConsts.tagCategoryColor[widget.tagName] : Colors.grey.shade200,
+        color: widget.withColor
+            ? ColorConsts.zhTagCategoryColor[widget.tagData.key] ??
+                ColorConsts.tagCategoryColor[widget.tagData.key]!
+            : Colors.grey.shade200,
         padding: widget.padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              tagData?.tagName ?? widget.tagName,
+              widget.tagData.tagName ?? widget.tagData.key,
               style: TextStyle(
                 fontSize: widget.fontSize,
                 height: widget.textHeight,
@@ -104,25 +87,14 @@ class _EHTagState extends State<EHTag> {
   void _searchTag() {}
 
   void _showDialog() {
-    Get.dialog(_TagDialog(
-      namespace: widget.namespace,
-      tagName: widget.tagName,
-      tagData: tagData,
-    ));
+    Get.dialog(_TagDialog(tagData: widget.tagData));
   }
 }
 
 class _TagDialog extends StatefulWidget {
-  final String namespace;
-  final String tagName;
-  final TagData? tagData;
+  final TagData tagData;
 
-  const _TagDialog({
-    Key? key,
-    required this.namespace,
-    required this.tagName,
-    this.tagData,
-  }) : super(key: key);
+  const _TagDialog({Key? key, required this.tagData}) : super(key: key);
 
   @override
   _TagDialogState createState() => _TagDialogState();
@@ -135,7 +107,7 @@ class _TagDialogState extends State<_TagDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text('${widget.namespace}:${widget.tagName}'),
+      title: Text('${widget.tagData.namespace}:${widget.tagData.key}'),
       titlePadding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 8.0),
       children: [
         Row(
@@ -190,8 +162,8 @@ class _TagDialogState extends State<_TagDialog> {
         state.gallery!.token,
         UserSetting.ipbMemberId.value!,
         state.apikey,
-        widget.namespace,
-        widget.tagName,
+        widget.tagData.namespace,
+        widget.tagData.key,
         isVotingUp,
       );
     } on DioError catch (e) {
@@ -232,7 +204,7 @@ class _TagDialogState extends State<_TagDialog> {
               maxWidth: 200,
             ),
             child: HtmlWidget(
-              widget.tagData!.fullTagName + widget.tagData!.intro + widget.tagData!.links,
+              widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!,
               renderMode: RenderMode.column,
               textStyle: const TextStyle(fontSize: 12),
               onErrorBuilder: (context, element, error) => Text('$element error: $error'),

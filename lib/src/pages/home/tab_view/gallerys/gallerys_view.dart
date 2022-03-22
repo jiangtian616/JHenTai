@@ -9,6 +9,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
@@ -312,11 +313,11 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     );
   }
 
-  Widget _buildTagWaterFlow(Map<String, List<String>> tags) {
-    List<MapEntry<String, String>> mergedList = [];
-    tags.forEach((namespace, tagNames) {
-      for (String tagName in tagNames) {
-        mergedList.add(MapEntry(namespace, tagName));
+  Widget _buildTagWaterFlow(Map<String, List<TagData>> tags) {
+    List<MapEntry<String, TagData>> mergedList = [];
+    tags.forEach((namespace, tagDatas) {
+      for (TagData tagData in tagDatas) {
+        mergedList.add(MapEntry(namespace, tagData));
       }
     });
 
@@ -332,8 +333,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         ),
         itemCount: mergedList.length,
         itemBuilder: (BuildContext context, int index) => EHTag(
-          namespace: mergedList[index].key,
-          tagName: mergedList[index].value,
+          tagData: mergedList[index].value,
           fontSize: 12,
           textHeight: 1.2,
           borderRadius: 4,

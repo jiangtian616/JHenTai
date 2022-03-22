@@ -97,6 +97,17 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
-    return await EHRequest.getHomeGallerysListAndPageCountByPageNo(pageNo, state.tabBarConfigs[tabIndex].searchConfig);
+    List<dynamic> gallerysAndPageCount =
+        await EHRequest.getHomeGallerysListAndPageCountByPageNo(pageNo, state.tabBarConfigs[tabIndex].searchConfig);
+
+    if (GallerySetting.enableTagZHTranslation.isTrue &&
+        tagTranslationService.loadingState.value == LoadingState.success) {
+      List<Gallery> newGallerys = gallerysAndPageCount[0];
+      for (Gallery gallery in newGallerys) {
+        gallery.tags = await tagTranslationService.getTagMapTranslation(gallery.tags);
+      }
+    }
+
+    return gallerysAndPageCount;
   }
 }

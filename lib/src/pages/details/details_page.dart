@@ -8,6 +8,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/l18n/en_US.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -401,7 +402,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTags(LinkedHashMap<String, List<String>> tagList) {
+  Widget _buildTags(LinkedHashMap<String, List<TagData>> tagList) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
@@ -412,11 +413,8 @@ class DetailsPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     EHTag(
-                      namespace: 'rows',
-                      tagName: entry.key,
+                      tagData: TagData(namespace: 'rows', key: entry.key),
                       withColor: true,
-                      inZh: tagTranslationService.loadingState.value == LoadingState.success &&
-                          GallerySetting.enableTagZHTranslation.isTrue,
                     ).marginOnly(right: 10),
 
                     /// use [expanded] and [wrap] to implement 'flex-wrap'
@@ -424,13 +422,7 @@ class DetailsPage extends StatelessWidget {
                       child: Wrap(
                         spacing: 5,
                         runSpacing: 5,
-                        children: entry.value
-                            .map((tagName) => EHTag(
-                                  namespace: entry.key,
-                                  tagName: tagName,
-                                  enableTapping: true,
-                                ))
-                            .toList(),
+                        children: entry.value.map((tagData) => EHTag(tagData: tagData, enableTapping: true)).toList(),
                       ),
                     ),
                   ],

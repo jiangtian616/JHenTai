@@ -9,6 +9,7 @@ import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 
+import '../database/database.dart';
 import '../model/gallery.dart';
 
 class EHSpiderParser {
@@ -46,7 +47,7 @@ class EHSpiderParser {
     List<String>? parts = galleryUrl.split('/');
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
-    LinkedHashMap<String, List<String>> tags = _parseGalleryTagsByUrl(document);
+    LinkedHashMap<String, List<TagData>> tags = _parseGalleryTagsByUrl(document);
 
     Gallery gallery = Gallery(
       gid: int.parse(parts[4]),
@@ -70,7 +71,7 @@ class EHSpiderParser {
           : document.querySelector('#favoritelink')?.text,
       galleryUrl: galleryUrl,
       tags: tags,
-      language: tags['language']?[0],
+      language: tags['language']?[0].key,
       uploader: document.querySelector('#gdn > a')?.text ?? '',
       publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
     );
@@ -158,7 +159,7 @@ class EHSpiderParser {
   }
 
   static Gallery _parseHomeGallery(Element tr) {
-    LinkedHashMap<String, List<String>> tags = _parseHomeGalleryTags(tr);
+    LinkedHashMap<String, List<TagData>> tags = _parseHomeGalleryTags(tr);
     GalleryImage? cover = _parseHomeGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? '';
     List<String>? parts = galleryUrl.split('/');
@@ -177,7 +178,7 @@ class EHSpiderParser {
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
       galleryUrl: galleryUrl,
       tags: tags,
-      language: tags['language']?[0],
+      language: tags['language']?[0].key,
       uploader: tr.querySelector('.gl4c.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2c > div:nth-child(2) > [id]')?.text ?? '',
     );
@@ -185,8 +186,8 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static LinkedHashMap<String, List<String>> _parseHomeGalleryTags(Element tr) {
-    LinkedHashMap<String, List<String>> tags = LinkedHashMap();
+  static LinkedHashMap<String, List<TagData>> _parseHomeGalleryTags(Element tr) {
+    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
 
     List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
     for (Element tagDiv in tagDivs) {
@@ -198,16 +199,16 @@ class EHSpiderParser {
 
       /// some tag doesn't has a type
       List<String> list = pair.split(':').toList();
-      String type = list[0].isNotEmpty ? list[0] : 'temp';
-      String text = list[1];
+      String namespace = list[0].isNotEmpty ? list[0] : 'temp';
+      String key = list[1];
 
-      tags.putIfAbsent(type, () => []).add(text);
+      tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
     }
     return tags;
   }
 
-  static LinkedHashMap<String, List<String>> _parseGalleryTagsByUrl(Document document) {
-    LinkedHashMap<String, List<String>> tags = LinkedHashMap();
+  static LinkedHashMap<String, List<TagData>> _parseGalleryTagsByUrl(Document document) {
+    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
 
     List<Element> trs = document.querySelectorAll('#taglist > table > tbody > tr').toList();
     for (Element tr in trs) {
@@ -221,10 +222,10 @@ class EHSpiderParser {
 
         /// some tag doesn't has a type
         List<String> list = pair.split(':').toList();
-        String type = list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
-        String text = list[1].replaceAll('\_', ' ');
+        String namespace = list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
+        String key = list[1].replaceAll('\_', ' ');
 
-        tags.putIfAbsent(type, () => []).add(text);
+        tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
       }
     }
     return tags;
