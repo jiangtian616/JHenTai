@@ -24,11 +24,12 @@ CREATE TABLE image
 
 CREATE TABLE tag
 (
-    namespace TEXT NOT NULL,
-    _key      TEXT NOT NULL,
-    tagName   TEXT NOT NULL,
-    intro     TEXT NOT NULL,
-    links     TEXT NOT NULL,
+    namespace   TEXT NOT NULL,
+    _key        TEXT NOT NULL,
+    tagName     TEXT NOT NULL,
+    fullTagName TEXT NOT NULL,
+    intro       TEXT NOT NULL,
+    links       TEXT NOT NULL,
     primary key (namespace, _key)
 );
 
@@ -113,7 +114,7 @@ from tag;
 
 insertTag:
 insert into tag
-values (:namespace, :key, :tagName, :intro, :links);
+values (:namespace, :key, :tagName, :fullTagName, :intro, :links);
 
 deleteAllTags:
 delete

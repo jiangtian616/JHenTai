@@ -19,6 +19,7 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 import '../../../../config/global_config.dart';
 import '../../../../consts/color_consts.dart';
 import '../../../../widget/eh_sliver_header_delegate.dart';
+import '../../../../widget/eh_tag.dart';
 import '../../../../widget/gallery_category_tag.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'gallerys_view_logic.dart';
@@ -283,6 +284,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         children: [
           _buildTitleAndUploader(gallery.title, gallery.uploader),
           if (gallery.tags.isNotEmpty) _buildTagWaterFlow(_mergeTagList(gallery.tags)),
+          Expanded(child: SizedBox(),),
           _buildFooter(gallery),
         ],
       ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
@@ -320,30 +322,25 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   Widget _buildTagWaterFlow(List<String> tagNames) {
     return SizedBox(
-      height: 60,
+      height: 70,
       child: WaterfallFlow.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
-          mainAxisSpacing: 5,
-          crossAxisSpacing: 3,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
         ),
         itemCount: tagNames.length,
-        itemBuilder: (BuildContext context, int index) => ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: Container(
-            color: Colors.grey.shade200,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(
-              tagNames[index],
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade900, height: 1.4),
-            ),
-          ),
+        itemBuilder: (BuildContext context, int index) => EHTag(
+          tagName: tagNames[index],
+          fontSize: 12,
+          textHeight: 1.2,
+          borderRadius: 4,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ),
       ),
-    );
+    ).marginOnly(top: 12);
   }
 
   Widget _buildFooter(Gallery gallery) {

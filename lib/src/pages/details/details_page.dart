@@ -13,8 +13,10 @@ import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -408,19 +410,10 @@ class DetailsPage extends StatelessWidget {
                 (entry) => Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        color: tagTranslationService.hasData
-                            ? ColorConsts.zhTagCategoryColor[entry.key]
-                            : ColorConsts.tagCategoryColor[entry.key],
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                        child: Text(
-                          entry.key,
-                          style: TextStyle(fontSize: 13, color: Colors.grey.shade900),
-                        ),
-                      ),
+                    EHTag(
+                      tagName: entry.key,
+                      withColor: true,
+                      inZh: tagTranslationService.hasData && GallerySetting.enableTagZHTranslation.isTrue,
                     ).marginOnly(right: 10),
 
                     /// use [expanded] and [wrap] to implement 'flex-wrap'
@@ -428,23 +421,7 @@ class DetailsPage extends StatelessWidget {
                       child: Wrap(
                         spacing: 5,
                         runSpacing: 5,
-                        children: entry.value
-                            .map(
-                              (tagName) => ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  height: 27,
-                                  color: Colors.grey.shade200,
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                                  child: Text(
-                                    tagName,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 13, color: Colors.grey.shade800, height: 1.4),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
+                        children: entry.value.map((tagName) => EHTag(tagName: tagName)).toList(),
                       ),
                     ),
                   ],

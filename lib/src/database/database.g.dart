@@ -845,12 +845,14 @@ class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
   final String tagName;
+  final String fullTagName;
   final String intro;
   final String links;
   TagData(
       {required this.namespace,
       required this.key,
       required this.tagName,
+      required this.fullTagName,
       required this.intro,
       required this.links});
   factory TagData.fromData(Map<String, dynamic> data, {String? prefix}) {
@@ -862,6 +864,8 @@ class TagData extends DataClass implements Insertable<TagData> {
           .mapFromDatabaseResponse(data['${effectivePrefix}_key'])!,
       tagName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}tagName'])!,
+      fullTagName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}fullTagName'])!,
       intro: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}intro'])!,
       links: const StringType()
@@ -874,6 +878,7 @@ class TagData extends DataClass implements Insertable<TagData> {
     map['namespace'] = Variable<String>(namespace);
     map['_key'] = Variable<String>(key);
     map['tagName'] = Variable<String>(tagName);
+    map['fullTagName'] = Variable<String>(fullTagName);
     map['intro'] = Variable<String>(intro);
     map['links'] = Variable<String>(links);
     return map;
@@ -884,6 +889,7 @@ class TagData extends DataClass implements Insertable<TagData> {
       namespace: Value(namespace),
       key: Value(key),
       tagName: Value(tagName),
+      fullTagName: Value(fullTagName),
       intro: Value(intro),
       links: Value(links),
     );
@@ -896,6 +902,7 @@ class TagData extends DataClass implements Insertable<TagData> {
       namespace: serializer.fromJson<String>(json['namespace']),
       key: serializer.fromJson<String>(json['_key']),
       tagName: serializer.fromJson<String>(json['tagName']),
+      fullTagName: serializer.fromJson<String>(json['fullTagName']),
       intro: serializer.fromJson<String>(json['intro']),
       links: serializer.fromJson<String>(json['links']),
     );
@@ -907,6 +914,7 @@ class TagData extends DataClass implements Insertable<TagData> {
       'namespace': serializer.toJson<String>(namespace),
       '_key': serializer.toJson<String>(key),
       'tagName': serializer.toJson<String>(tagName),
+      'fullTagName': serializer.toJson<String>(fullTagName),
       'intro': serializer.toJson<String>(intro),
       'links': serializer.toJson<String>(links),
     };
@@ -916,12 +924,14 @@ class TagData extends DataClass implements Insertable<TagData> {
           {String? namespace,
           String? key,
           String? tagName,
+          String? fullTagName,
           String? intro,
           String? links}) =>
       TagData(
         namespace: namespace ?? this.namespace,
         key: key ?? this.key,
         tagName: tagName ?? this.tagName,
+        fullTagName: fullTagName ?? this.fullTagName,
         intro: intro ?? this.intro,
         links: links ?? this.links,
       );
@@ -931,6 +941,7 @@ class TagData extends DataClass implements Insertable<TagData> {
           ..write('namespace: $namespace, ')
           ..write('key: $key, ')
           ..write('tagName: $tagName, ')
+          ..write('fullTagName: $fullTagName, ')
           ..write('intro: $intro, ')
           ..write('links: $links')
           ..write(')'))
@@ -938,7 +949,8 @@ class TagData extends DataClass implements Insertable<TagData> {
   }
 
   @override
-  int get hashCode => Object.hash(namespace, key, tagName, intro, links);
+  int get hashCode =>
+      Object.hash(namespace, key, tagName, fullTagName, intro, links);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -946,6 +958,7 @@ class TagData extends DataClass implements Insertable<TagData> {
           other.namespace == this.namespace &&
           other.key == this.key &&
           other.tagName == this.tagName &&
+          other.fullTagName == this.fullTagName &&
           other.intro == this.intro &&
           other.links == this.links);
 }
@@ -954,12 +967,14 @@ class TagCompanion extends UpdateCompanion<TagData> {
   final Value<String> namespace;
   final Value<String> key;
   final Value<String> tagName;
+  final Value<String> fullTagName;
   final Value<String> intro;
   final Value<String> links;
   const TagCompanion({
     this.namespace = const Value.absent(),
     this.key = const Value.absent(),
     this.tagName = const Value.absent(),
+    this.fullTagName = const Value.absent(),
     this.intro = const Value.absent(),
     this.links = const Value.absent(),
   });
@@ -967,17 +982,20 @@ class TagCompanion extends UpdateCompanion<TagData> {
     required String namespace,
     required String key,
     required String tagName,
+    required String fullTagName,
     required String intro,
     required String links,
   })  : namespace = Value(namespace),
         key = Value(key),
         tagName = Value(tagName),
+        fullTagName = Value(fullTagName),
         intro = Value(intro),
         links = Value(links);
   static Insertable<TagData> custom({
     Expression<String>? namespace,
     Expression<String>? key,
     Expression<String>? tagName,
+    Expression<String>? fullTagName,
     Expression<String>? intro,
     Expression<String>? links,
   }) {
@@ -985,6 +1003,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
       if (namespace != null) 'namespace': namespace,
       if (key != null) '_key': key,
       if (tagName != null) 'tagName': tagName,
+      if (fullTagName != null) 'fullTagName': fullTagName,
       if (intro != null) 'intro': intro,
       if (links != null) 'links': links,
     });
@@ -994,12 +1013,14 @@ class TagCompanion extends UpdateCompanion<TagData> {
       {Value<String>? namespace,
       Value<String>? key,
       Value<String>? tagName,
+      Value<String>? fullTagName,
       Value<String>? intro,
       Value<String>? links}) {
     return TagCompanion(
       namespace: namespace ?? this.namespace,
       key: key ?? this.key,
       tagName: tagName ?? this.tagName,
+      fullTagName: fullTagName ?? this.fullTagName,
       intro: intro ?? this.intro,
       links: links ?? this.links,
     );
@@ -1017,6 +1038,9 @@ class TagCompanion extends UpdateCompanion<TagData> {
     if (tagName.present) {
       map['tagName'] = Variable<String>(tagName.value);
     }
+    if (fullTagName.present) {
+      map['fullTagName'] = Variable<String>(fullTagName.value);
+    }
     if (intro.present) {
       map['intro'] = Variable<String>(intro.value);
     }
@@ -1032,6 +1056,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
           ..write('namespace: $namespace, ')
           ..write('key: $key, ')
           ..write('tagName: $tagName, ')
+          ..write('fullTagName: $fullTagName, ')
           ..write('intro: $intro, ')
           ..write('links: $links')
           ..write(')'))
@@ -1062,6 +1087,13 @@ class Tag extends Table with TableInfo<Tag, TagData> {
       type: const StringType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  final VerificationMeta _fullTagNameMeta =
+      const VerificationMeta('fullTagName');
+  late final GeneratedColumn<String?> fullTagName = GeneratedColumn<String?>(
+      'fullTagName', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _introMeta = const VerificationMeta('intro');
   late final GeneratedColumn<String?> intro = GeneratedColumn<String?>(
       'intro', aliasedName, false,
@@ -1075,7 +1107,8 @@ class Tag extends Table with TableInfo<Tag, TagData> {
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   @override
-  List<GeneratedColumn> get $columns => [namespace, key, tagName, intro, links];
+  List<GeneratedColumn> get $columns =>
+      [namespace, key, tagName, fullTagName, intro, links];
   @override
   String get aliasedName => _alias ?? 'tag';
   @override
@@ -1102,6 +1135,14 @@ class Tag extends Table with TableInfo<Tag, TagData> {
           tagName.isAcceptableOrUnknown(data['tagName']!, _tagNameMeta));
     } else if (isInserting) {
       context.missing(_tagNameMeta);
+    }
+    if (data.containsKey('fullTagName')) {
+      context.handle(
+          _fullTagNameMeta,
+          fullTagName.isAcceptableOrUnknown(
+              data['fullTagName']!, _fullTagNameMeta));
+    } else if (isInserting) {
+      context.missing(_fullTagNameMeta);
     }
     if (data.containsKey('intro')) {
       context.handle(
@@ -1307,13 +1348,14 @@ abstract class _$AppDb extends GeneratedDatabase {
   }
 
   Future<int> insertTag(String namespace, String key, String tagName,
-      String intro, String links) {
+      String fullTagName, String intro, String links) {
     return customInsert(
-      'insert into tag\r\nvalues (:namespace, :key, :tagName, :intro, :links)',
+      'insert into tag\r\nvalues (:namespace, :key, :tagName, :fullTagName, :intro, :links)',
       variables: [
         Variable<String>(namespace),
         Variable<String>(key),
         Variable<String>(tagName),
+        Variable<String>(fullTagName),
         Variable<String>(intro),
         Variable<String>(links)
       ],

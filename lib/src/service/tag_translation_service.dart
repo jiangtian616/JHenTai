@@ -45,9 +45,11 @@ class TagTranslationService extends GetxService {
       tags.forEach((key, value) {
         String _key = key as String;
         String tagName = RegExp(r'.*>(.+)<.*').firstMatch((value['name']))!.group(1)!;
+        String fullTagName = value['name'];
         String intro = value['intro'];
         String links = value['links'];
-        tagList.add(TagData(namespace: namespace, key: _key, tagName: tagName, intro: intro, links: links));
+        tagList.add(TagData(
+            namespace: namespace, key: _key, tagName: tagName, fullTagName: fullTagName, intro: intro, links: links));
       });
     }
 
@@ -126,6 +128,7 @@ class TagTranslationService extends GetxService {
           tag.namespace,
           tag.key,
           tag.tagName,
+          tag.fullTagName,
           tag.intro,
           tag.links,
         );
