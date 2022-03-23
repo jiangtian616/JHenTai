@@ -42,17 +42,19 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             ),
             ListTile(
               title: Text('openLog'.tr),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),
               onTap: () => Get.toNamed(Routes.logList),
             ),
             ListTile(
               title: Text('clearLogs'.tr),
-              trailing: TextButton(
-                onPressed: () {
-                  Log.clear();
-                  setState(() {});
-                },
-                child: Text(Log.getSizeInKB()),
-              ),
+              trailing: Text(
+                Log.getSizeInKB(),
+                style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
+              ).marginOnly(right: 8),
+              onTap: () {
+                Log.clear();
+                setState(() {});
+              },
             ),
           ],
         ).paddingSymmetric(vertical: 16);

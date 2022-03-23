@@ -535,31 +535,26 @@ class DetailsPage extends StatelessWidget {
                       Size size = Size(constraints.maxWidth, constraints.maxHeight);
                       FittedSizes fittedSizes = applyBoxFit(BoxFit.contain, imageSize, size);
 
-                      return SizedBox(
-                        height: fittedSizes.destination.height,
-                        width: fittedSizes.destination.width,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: ExtendedImage.network(
-                            thumbnail.thumbUrl,
-                            loadStateChanged: (ExtendedImageState state) {
-                              if (state.extendedImageLoadState != LoadState.completed) {
-                                return null;
-                              }
-
-                              /// crop image because raw image consists of 10 thumbnails in row
-                              return ExtendedRawImage(
-                                image: state.extendedImageInfo?.image,
-                                fit: BoxFit.fill,
-                                sourceRect: Rect.fromLTRB(
-                                  thumbnail.offSet!,
-                                  0,
-                                  thumbnail.offSet! + thumbnail.thumbWidth!,
-                                  thumbnail.thumbHeight!,
-                                ),
-                              );
-                            },
-                          ),
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: EHImage(
+                          galleryImage: GalleryImage(
+                              url: thumbnail.thumbUrl,
+                              height: fittedSizes.destination.height,
+                              width: fittedSizes.destination.width),
+                          completedWidgetBuilder: (ExtendedImageState state) {
+                            /// crop image because raw image consists of 10 thumbnails in row
+                            return ExtendedRawImage(
+                              image: state.extendedImageInfo?.image,
+                              fit: BoxFit.fill,
+                              sourceRect: Rect.fromLTRB(
+                                thumbnail.offSet!,
+                                0,
+                                thumbnail.offSet! + thumbnail.thumbWidth!,
+                                thumbnail.thumbHeight!,
+                              ),
+                            );
+                          },
                         ),
                       );
                     },

@@ -6,6 +6,7 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -126,7 +127,7 @@ class EHRequest {
   /// return null if login success, otherwise return error message
   static Future<String?> login(String userName, String passWord) async {
     Response<String> response = await _dio.post(
-      EHConsts.EHForums,
+      EHConsts.EForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {'act': 'Login', 'CODE': '01'},
       data: {
@@ -168,7 +169,7 @@ class EHRequest {
 
   static Future<String> home() async {
     Response<String> response = await _dio.get(
-      EHConsts.EHHome,
+      EHConsts.EHome,
     );
     return response.data!;
   }
@@ -176,7 +177,7 @@ class EHRequest {
   /// return null if cookie is wrong
   static Future<List<String?>?> getUserInfoByCookieAndMemberId(int ipbMemberId) async {
     Response<String> response = await _dio.get(
-      EHConsts.EHForums,
+      EHConsts.EForums,
       queryParameters: {
         'showuser': ipbMemberId,
       },
@@ -186,7 +187,7 @@ class EHRequest {
 
   static Future<List<dynamic>> getHomeGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
     Response<String> response = await _dio.get(
-      EHConsts.EHIndex,
+      EHConsts.EIndex,
       queryParameters: {
         'page': pageNo,
       },
@@ -247,7 +248,7 @@ class EHRequest {
 
   static Future<String> submitRating(int gid, String token, int apiuid, String apikey, int rating) async {
     Response<String> response = await _dio.post(
-      EHConsts.EHApi,
+      EHConsts.EApi,
       data: {
         'apikey': apikey,
         'apiuid': apiuid,
@@ -263,7 +264,7 @@ class EHRequest {
   static Future<T> getPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(
-      EHConsts.EHPopup,
+      EHConsts.EPopup,
       queryParameters: {
         'gid': gid,
         't': token,
@@ -276,7 +277,7 @@ class EHRequest {
   static Future<LinkedHashMap<String, int>> getFavoriteTags() async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(
-      EHConsts.EHFavorite,
+      EHConsts.EFavorite,
     );
     return EHSpiderParser.parseFavoriteTags(response.data!);
   }
@@ -285,7 +286,7 @@ class EHRequest {
   static Future<bool> addFavorite(int gid, String token, int favcat) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
-      EHConsts.EHPopup,
+      EHConsts.EPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
         'gid': gid,
@@ -305,7 +306,7 @@ class EHRequest {
   static Future<bool> removeFavorite(int gid, String token) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
-      EHConsts.EHPopup,
+      EHConsts.EPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
         'gid': gid,
@@ -363,7 +364,7 @@ class EHRequest {
     bool isVotingUp,
   ) async {
     Response<String> response = await _dio.post(
-      EHConsts.EHApi,
+      EHConsts.EApi,
       data: {
         'apikey': apikey,
         'apiuid': apiuid,

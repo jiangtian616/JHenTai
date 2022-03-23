@@ -70,6 +70,10 @@ class en {
       'accountSetting': 'Account Setting',
       'gallerySetting': 'Gallery Setting',
       'advancedSetting': 'Advanced Setting',
+      'ehSetting': 'EH Site Setting',
+
+      /// eh setting page
+      'site':'site',
 
       /// gallery setting page
       'enableTagZHTranslation': 'translate tag name into chinese',

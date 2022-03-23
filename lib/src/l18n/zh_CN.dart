@@ -69,6 +69,11 @@ class zh_CN {
       'accountSetting': '账户设置',
       'gallerySetting': '画廊设置',
       'advancedSetting': '高级设置',
+      'ehSetting': 'EH 网站设置',
+
+      /// eh setting page
+      'site':'站点',
+
 
       /// gallery setting page
       'enableTagZHTranslation': '开启标签中文翻译',

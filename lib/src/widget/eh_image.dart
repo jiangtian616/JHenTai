@@ -5,6 +5,10 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
 
+import 'package:jhentai/src/setting/advanced_setting.dart';
+
+import '../network/eh_request.dart';
+
 /// responsible for all network and local images, depends on :
 /// 1. ExtendedImage:
 ///   - interface of reading from network or local file
@@ -23,6 +27,7 @@ import 'dart:io' as io;
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
+typedef CompletedWidgetBuilder = Widget Function(ExtendedImageState state);
 typedef DownloadingWidgetBuilder = Widget Function();
 
 class EHImage extends StatefulWidget {
@@ -31,6 +36,7 @@ class EHImage extends StatefulWidget {
   final double? containerWidth;
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
+  final CompletedWidgetBuilder? completedWidgetBuilder;
   final DownloadingWidgetBuilder? downloadingWidgetBuilder;
   final bool adaptive;
   final BoxFit? fit;
@@ -47,6 +53,7 @@ class EHImage extends StatefulWidget {
     this.containerWidth,
     this.loadingWidgetBuilder,
     this.failedWidgetBuilder,
+    this.completedWidgetBuilder,
     this.downloadingWidgetBuilder,
     this.adaptive = false,
     this.fit,
@@ -95,7 +102,7 @@ class _EHImageState extends State<EHImage> {
           behavior: HitTestBehavior.opaque,
           onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
           child: ExtendedImage.network(
-            widget.galleryImage.url,
+            _replaceUrlIfInDomainFrontingAndInEX(widget.galleryImage.url),
             key: key,
             height: widget.adaptive ? null : widget.galleryImage.height,
             width: widget.adaptive ? null : widget.galleryImage.width,
@@ -106,7 +113,10 @@ class _EHImageState extends State<EHImage> {
             imageCacheName: widget.galleryImage.url,
             handleLoadingProgress: widget.loadingWidgetBuilder != null,
             loadStateChanged: (ExtendedImageState state) {
-              if (state.extendedImageLoadState == LoadState.loading && widget.loadingWidgetBuilder != null) {
+              if (state.extendedImageLoadState == LoadState.loading) {
+                if (widget.loadingWidgetBuilder == null) {
+                  return null;
+                }
                 if (state.loadingProgress == null) {
                   return widget.loadingWidgetBuilder!(0.01);
                 }
@@ -121,7 +131,7 @@ class _EHImageState extends State<EHImage> {
                 return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
               }
 
-              return null;
+              return widget.completedWidgetBuilder == null ? null : widget.completedWidgetBuilder!(state);
             },
           ),
         );
@@ -155,5 +165,22 @@ class _EHImageState extends State<EHImage> {
         ),
       ),
     );
+  }
+
+  /// replace image host: exhentai.org -> ehgt.org or e-hentai.org
+  String _replaceUrlIfInDomainFrontingAndInEX(String url) {
+    if (AdvancedSetting.enableDomainFronting.isFalse) {
+      return url;
+    }
+    Uri rawUri = Uri.parse(url);
+    String host = rawUri.host;
+    if (host != 'exhentai.org') {
+      return url;
+    }
+
+    /// thumbnails:
+    String newHost = 'ehgt.org';
+    Uri newUri = rawUri.replace(host: newHost);
+    return newUri.toString();
   }
 }

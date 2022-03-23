@@ -21,7 +21,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     List<Gallery> newGallerys;
     int pageCount;
     try {
-      List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]);
+      List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, 0);
       newGallerys = gallerysAndPageCount[0];
       pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
