@@ -11,15 +11,17 @@
 - [x]  记录阅读进度
 - [x]  http cache
 - [x] tag翻译
-- [ ] tag投票
+- [x] tag投票
 - [ ] 里站支持
 - [ ] 日文标题
 - [ ] FavoriteSetting 默认值
 - [ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和超链接跳转
-- [ ] network retry、cache
+- [ ] 磁力、归档
+- [x] network retry、cache
 - [ ] webview登录
 - [ ] 搜索 search_choices
 - [ ] 点击标签搜索
+- [ ] 相似
 - [ ] 详情页拦截器缓存
 - [x] offensive gallery
 - [x] 增加EhTagTranslation中的描述页面
@@ -29,6 +31,6 @@
 -[ ] getBuilder 使用 id 范围优化 
 -[ ] keepalive原理优化
 -[ ] 下载改为使用isolate实现
--[ ] 下载item滑动删除，删除动画效果
--[ ] 一直下载不下来的图，返回错误提示
+-[x] 下载item滑动删除，删除动画效果
+-[ ] 一直下载不下来的图，尝试更换ip
 -[ ] 底部bar正确变色

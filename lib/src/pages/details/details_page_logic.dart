@@ -49,6 +49,10 @@ class DetailsPageLogic extends GetxController {
       state.apikey = galleryAndDetailsAndApikey['apikey']!;
       state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
       state.loadingDetailsState = LoadingState.success;
+      if (GallerySetting.enableTagZHTranslation.isTrue &&
+          tagTranslationService.loadingState.value == LoadingState.success) {
+        state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
+      }
       update();
     }
   }
@@ -57,7 +61,7 @@ class DetailsPageLogic extends GetxController {
     Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
   }
 
-  void getDetails() async {
+  Future<void> getDetails() async {
     if (state.loadingDetailsState == LoadingState.loading || state.loadingDetailsState == LoadingState.success) {
       return;
     }
@@ -112,7 +116,7 @@ class DetailsPageLogic extends GetxController {
     update();
   }
 
-  void loadMoreThumbnails() async {
+  Future<void> loadMoreThumbnails() async {
     if (state.loadingThumbnailsState == LoadingState.loading) {
       return;
     }
@@ -155,7 +159,7 @@ class DetailsPageLogic extends GetxController {
     update();
   }
 
-  void handleTapFavorite() async {
+  Future<void> handleTapFavorite() async {
     if (state.addFavoriteState == LoadingState.loading) {
       return;
     }
@@ -193,7 +197,7 @@ class DetailsPageLogic extends GetxController {
     Get.find<GallerysViewLogic>().update();
   }
 
-  void handleTapRating() async {
+  Future<void> handleTapRating() async {
     Get.dialog(
       const RatingDialog(),
       barrierColor: Colors.black38,

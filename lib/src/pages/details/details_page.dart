@@ -84,8 +84,6 @@ class DetailsPage extends StatelessWidget {
   }
 
   Widget _buildHeader(Gallery gallery, BuildContext context) {
-    int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
-
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 200,
@@ -133,59 +131,6 @@ class DetailsPage extends StatelessWidget {
                           ).marginOnly(top: 10),
                         ],
                       ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(13),
-                          child: Container(
-                            color: Get.theme.primaryColor,
-                            height: 30,
-                            width: 150,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                CupertinoButton(
-                                  child: Text(
-                                    'read'.tr + (readIndexRecord > 0 ? ' P' + (readIndexRecord + 1).toString() : ''),
-                                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                                  ),
-                                  color: Get.theme.primaryColor,
-                                  borderRadius: BorderRadius.circular(28),
-                                  padding: const EdgeInsets.all(0),
-                                  onPressed: () => detailsPageLogic.goToReadPage(),
-                                ),
-                                Container(
-                                  width: 0.4,
-                                  color: Colors.white,
-                                ),
-                                CupertinoButton(
-                                  child: Obx(() {
-                                    return Text(
-                                      downloadService.gid2downloadProgress[gallery.gid] == null
-                                          ? 'download'.tr
-                                          : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
-                                                  DownloadStatus.paused
-                                              ? 'resume'.tr
-                                              : downloadService
-                                                          .gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
-                                                      DownloadStatus.downloaded
-                                                  ? 'finished'.tr
-                                                  : 'pause'.tr,
-                                      style: const TextStyle(fontSize: 14, color: Colors.white),
-                                    );
-                                  }),
-                                  color: Get.theme.primaryColor,
-                                  borderRadius: BorderRadius.circular(24),
-                                  padding: const EdgeInsets.all(0),
-                                  onPressed: () => detailsPageLogic.handleTapDownload(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
                     ),
                   ],
                 ).paddingOnly(left: 6),
@@ -311,25 +256,76 @@ class DetailsPage extends StatelessWidget {
   }
 
   Widget _buildActions(Gallery gallery, GalleryDetails? galleryDetails) {
+    int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
+
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            LoadingStateIndicator(
-              height: 60,
-              width: 76,
-              loadingState: detailsPageState.addFavoriteState,
-              idleWidget: IconTextButton(
-                iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                iconColor: gallery.isFavorite && detailsPageState.galleryDetails != null
-                    ? ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]
-                    : null,
+        child: SizedBox(
+          height: 70,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            children: [
+              IconTextButton(
+                iconData: Icons.visibility,
+                iconSize: 28,
+                onPressed: () => detailsPageLogic.goToReadPage(),
                 text: Text(
-                  gallery.isFavorite ? gallery.favoriteTagName! : 'favorite'.tr,
+                  'read'.tr + (readIndexRecord > 0 ? ' P' + (readIndexRecord + 1).toString() : ''),
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                ),
+              ),
+              IconTextButton(
+                iconData: Icons.download,
+                iconSize: 30,
+                onPressed: () => detailsPageLogic.handleTapDownload(),
+                text: Obx(() {
+                  return Text(
+                    downloadService.gid2downloadProgress[gallery.gid] == null
+                        ? 'download'.tr
+                        : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
+                                DownloadStatus.paused
+                            ? 'resume'.tr
+                            : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
+                                    DownloadStatus.downloaded
+                                ? 'finished'.tr
+                                : 'pause'.tr,
+                    style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                  );
+                }),
+              ),
+              LoadingStateIndicator(
+                loadingState: detailsPageState.addFavoriteState,
+                idleWidget: IconTextButton(
+                  iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  iconSize: 26,
+                  iconColor: gallery.isFavorite && detailsPageState.galleryDetails != null
+                      ? ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]
+                      : null,
+                  text: Text(
+                    gallery.isFavorite ? gallery.favoriteTagName! : 'favorite'.tr,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Get.theme.appBarTheme.titleTextStyle?.color,
+                    ),
+                  ),
+                  onPressed: detailsPageState.galleryDetails == null
+                      ? null
+                      : UserSetting.hasLoggedIn()
+                          ? detailsPageLogic.handleTapFavorite
+                          : detailsPageLogic.showLoginSnack,
+                ),
+                errorWidgetSameWithIdle: true,
+              ),
+              IconTextButton(
+                iconData: gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
+                iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
+                iconSize: 28,
+                text: Text(
+                  gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
                   style: TextStyle(
                     fontSize: 12,
                     color: Get.theme.appBarTheme.titleTextStyle?.color,
@@ -338,65 +334,38 @@ class DetailsPage extends StatelessWidget {
                 onPressed: detailsPageState.galleryDetails == null
                     ? null
                     : UserSetting.hasLoggedIn()
-                        ? detailsPageLogic.handleTapFavorite
+                        ? detailsPageLogic.handleTapRating
                         : detailsPageLogic.showLoginSnack,
               ),
-              errorWidgetSameWithIdle: true,
-            ),
-            IconTextButton(
-              height: 60,
-              iconData: gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
-              iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
-              text: Text(
-                gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Get.theme.appBarTheme.titleTextStyle?.color,
+              IconTextButton(
+                iconData: FontAwesomeIcons.magnet,
+                iconSize: 24,
+                text: Text(
+                  'torrent'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
+                onPressed: () => {},
               ),
-              onPressed: detailsPageState.galleryDetails == null
-                  ? null
-                  : UserSetting.hasLoggedIn()
-                      ? detailsPageLogic.handleTapRating
-                      : detailsPageLogic.showLoginSnack,
-            ),
-            IconTextButton(
-              height: 60,
-              iconData: FontAwesomeIcons.magnet,
-              text: Text(
-                'torrent'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Get.theme.appBarTheme.titleTextStyle?.color,
+              IconTextButton(
+                iconData: Icons.folder_zip,
+                iconSize: 28,
+                text: Text(
+                  'archive'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
+                onPressed: () => {},
               ),
-              onPressed: () => {},
-            ),
-            IconTextButton(
-              height: 60,
-              iconData: Icons.folder_zip,
-              text: Text(
-                'archive'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Get.theme.appBarTheme.titleTextStyle?.color,
+              IconTextButton(
+                iconData: Icons.search,
+                iconSize: 28,
+                text: Text(
+                  'similar'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
+                onPressed: () => {},
               ),
-              onPressed: () => {},
-            ),
-            IconTextButton(
-              height: 60,
-              iconData: Icons.search,
-              text: Text(
-                'similar'.tr,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Get.theme.appBarTheme.titleTextStyle?.color,
-                ),
-              ),
-              onPressed: () => {},
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

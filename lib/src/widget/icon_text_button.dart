@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class IconTextButton extends StatelessWidget {
   double? height;
   double? width;
   IconData iconData;
   Color? iconColor;
-  double? iconSize;
+  double iconSize;
   Widget text;
+  double offset;
   VoidCallback? onPressed;
 
   IconTextButton({
@@ -16,8 +18,9 @@ class IconTextButton extends StatelessWidget {
     this.width,
     required this.iconData,
     this.iconColor,
-    this.iconSize,
+    this.iconSize = 24.0,
     required this.text,
+    this.offset = 0.0,
     this.onPressed,
   }) : super(key: key);
 
@@ -35,7 +38,7 @@ class IconTextButton extends StatelessWidget {
               iconData,
               color: iconColor,
               size: iconSize,
-            ),
+            ).marginOnly(bottom: offset),
             text,
           ],
         ),
