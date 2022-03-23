@@ -51,6 +51,7 @@ dependencies:
   flutter_slidable: ^1.2.0
   flutter_widget_from_html_core: ^0.8.5+1
   url_launcher: ^6.0.20
+  like_button: ^2.0.4
 
 dev_dependencies:
   flutter_test:

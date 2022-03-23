@@ -27,6 +27,7 @@ class ColorConsts {
     'parody': Color(0xffeed4c5),
     'group': Color(0xffdfd6f7),
     'mixed': Color(0xffd6e0f7),
+    'Coser': Color(0xfff6dcf3),
     'cosplayer': Color(0xfff6dcf3),
     'reclass': Color(0xfff6dce9),
     'temp': Color(0xffe9dbfa),

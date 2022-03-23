@@ -342,6 +342,7 @@ class EHSpiderParser {
       final String localTime = DateFormat('yyyy-MM-dd HH:mm').format(utcTime);
 
       return GalleryComment(
+        id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
         userName: element.querySelector('.c2 > .c3')?.children[0].text ?? '',
         score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
         content: element.querySelector('.c6')?.text ?? '',

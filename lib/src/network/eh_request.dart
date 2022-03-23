@@ -378,6 +378,29 @@ class EHRequest {
     return response.data!;
   }
 
+  static Future<String> voteComment(
+      int gid,
+      String token,
+      int apiuid,
+      String apikey,
+      int commentId,
+      bool isVotingUp,
+      ) async {
+    Response<String> response = await _dio.post(
+      EHConsts.EApi,
+      data: {
+        'apikey': apikey,
+        'apiuid': apiuid,
+        'gid': gid,
+        'method': "votecomment",
+        'token': token,
+        'comment_vote': isVotingUp ? 1 : -1,
+        'comment_id': commentId,
+      },
+    );
+    return response.data!;
+  }
+
   static String _parseErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
       return 'needCaptcha'.tr;

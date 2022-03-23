@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,6 +10,7 @@ import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
@@ -51,7 +54,8 @@ class DetailsPageLogic extends GetxController {
       state.loadingDetailsState = LoadingState.success;
       if (GallerySetting.enableTagZHTranslation.isTrue &&
           tagTranslationService.loadingState.value == LoadingState.success) {
-        state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
+        state.galleryDetails!.fullTags =
+            await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
       }
       update();
     }
@@ -219,6 +223,32 @@ class DetailsPageLogic extends GetxController {
     } else if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
     }
+  }
+
+  Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {
+    if (!UserSetting.hasLoggedIn()) {
+      Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+      return null;
+    }
+
+    EHRequest.voteComment(
+      state.gallery!.gid,
+      state.gallery!.token,
+      UserSetting.ipbMemberId.value!,
+      state.apikey,
+      commentId,
+      isVotingUp,
+    ).then((result) {
+      int score = jsonDecode(result)['comment_score'];
+      state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score =
+          score >= 0 ? '+' + score.toString() : score.toString();
+      update();
+    }).catchError((error) {
+      Log.error('vote comment failed', (error as DioError).message);
+      Get.snackbar('vote comment failed', error.message);
+    });
+
+    return true;
   }
 
   void goToReadPage([int? index]) {

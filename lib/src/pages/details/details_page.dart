@@ -20,6 +20,7 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:like_button/like_button.dart';
 
 import '../../database/database.dart';
 import '../../model/gallery_thumbnail.dart';
@@ -435,7 +436,7 @@ class DetailsPage extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: 130,
+            height: 135,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
@@ -479,10 +480,30 @@ class DetailsPage extends StatelessWidget {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
+                                if (comment.score.isNotEmpty)
+                                  LikeButton(
+                                    size: 18,
+                                    likeBuilder: (isLiked) => Icon(
+                                      Icons.thumb_up,
+                                      size: 18,
+                                      color: Colors.green.shade800,
+                                    ),
+                                    onTap: (isLiked) => detailsPageLogic.handleVotingComment(comment.id, true),
+                                  ).marginOnly(right: 14),
+                                if (comment.score.isNotEmpty)
+                                  LikeButton(
+                                    size: 18,
+                                    likeBuilder: (isLiked) => Icon(
+                                      Icons.thumb_down,
+                                      size: 18,
+                                      color: Colors.red.shade800,
+                                    ),
+                                    onTap: (isLiked) => detailsPageLogic.handleVotingComment(comment.id, false),
+                                  ).marginOnly(right: 14),
                                 Text(
                                   comment.score.isNotEmpty ? comment.score : 'uploader'.tr,
                                   style: TextStyle(
-                                    fontSize: 10,
+                                    fontSize: 12,
                                     color: Colors.grey.shade600,
                                   ),
                                 ),
