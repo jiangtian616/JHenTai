@@ -1,10 +1,17 @@
 import 'package:jhentai/src/setting/eh_setting.dart';
 
 class EHConsts {
-  static String get EIndex => EHSetting.site.value == 'EH' ? 'https://e-hentai.org' : 'https://exhentai.org';
+  static String get EIndex => EHSetting.site.value == 'EH' ? EHIndex : EXIndex;
 
-  static String get EApi =>
-      EHSetting.site.value == 'EH' ? 'https://api.e-hentai.org/api.php' : 'https://api.exhentai.org/api.php';
+  static String get EHIndex => 'https://e-hentai.org';
+
+  static String get EXIndex => 'https://exhentai.org';
+
+  static String get EApi => EHSetting.site.value == 'EH' ? EHApi : EXApi;
+
+  static String get EHApi => 'https://api.e-hentai.org/api.php';
+
+  static String get EXApi => 'https://api.exhentai.org/api.php';
 
   static String get EHome => 'https://e-hentai.org/home.php';
 

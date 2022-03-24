@@ -6,12 +6,12 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery.dart';
+import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/search_config.dart';
@@ -158,7 +158,7 @@ class EHRequest {
       return null;
     }
 
-    return _parseErrorMsg(response.data!);
+    return _parseLoginErrorMsg(response.data!);
   }
 
   /// just remove cookies
@@ -244,6 +244,12 @@ class EHRequest {
           .toOptions(),
     );
     return EHSpiderParser.parseGalleryDetailsThumbnails(response.data!);
+  }
+
+  /// only parse Comments
+  static Future<List<GalleryComment>> getGalleryDetailsComments({required String galleryUrl}) async {
+    Response<String> response = await _dio.get(galleryUrl);
+    return EHSpiderParser.parseGalleryDetailsComments(response.data!);
   }
 
   static Future<String> submitRating(int gid, String token, int apiuid, String apikey, int rating) async {
@@ -379,13 +385,13 @@ class EHRequest {
   }
 
   static Future<String> voteComment(
-      int gid,
-      String token,
-      int apiuid,
-      String apikey,
-      int commentId,
-      bool isVotingUp,
-      ) async {
+    int gid,
+    String token,
+    int apiuid,
+    String apikey,
+    int commentId,
+    bool isVotingUp,
+  ) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -401,7 +407,21 @@ class EHRequest {
     return response.data!;
   }
 
-  static String _parseErrorMsg(String html) {
+  static Future<String?> sendComment(
+    String galleryUrl,
+    String content,
+  ) async {
+    Response<String> response = await _dio.post(
+      galleryUrl,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: {
+        'commenttext_new': content,
+      },
+    );
+    return EHSpiderParser.parseSendCommentErrorMsg(response);
+  }
+
+  static String _parseLoginErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
       return 'needCaptcha'.tr;
     }

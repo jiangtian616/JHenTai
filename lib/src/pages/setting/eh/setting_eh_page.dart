@@ -1,10 +1,7 @@
-import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 
-import '../../../routes/routes.dart';
 import '../../../setting/eh_setting.dart';
 
 class SettingEHPage extends StatelessWidget {

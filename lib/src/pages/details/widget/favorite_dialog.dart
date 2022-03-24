@@ -9,8 +9,8 @@ import '../details_page_state.dart';
 
 class FavoriteDialog extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-  final DetailsPageLogic detailsPageLogic = Get.find<DetailsPageLogic>();
-  final DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
+  final DetailsPageLogic detailsPageLogic = DetailsPageLogic.currentDetailsPageLogic;
+  final DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
 
   FavoriteDialog({Key? key}) : super(key: key);
 

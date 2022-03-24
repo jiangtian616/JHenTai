@@ -16,6 +16,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
@@ -32,8 +33,11 @@ import 'details_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget {
-  final DetailsPageLogic detailsPageLogic = Get.put(DetailsPageLogic());
-  final DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
+  final DetailsPageLogic detailsPageLogic = Get.put(
+    DetailsPageLogic(),
+    tag: DetailsPageLogic.currentStackDepth.toString(),
+  );
+  final DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
   final DownloadService downloadService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
@@ -44,43 +48,47 @@ class DetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: GetBuilder<DetailsPageLogic>(builder: (logic) {
-        Gallery? gallery = detailsPageState.gallery;
+      body: GetBuilder<DetailsPageLogic>(
+        tag: DetailsPageLogic.currentStackDepth.toString(),
+        builder: (logic) {
+          Gallery? gallery = detailsPageState.gallery;
 
-        if (gallery == null) {
-          return const Align(
-            child: CupertinoActivityIndicator(radius: 20),
-            alignment: Alignment(0, -0.25),
-          );
-        }
+          if (gallery == null) {
+            return const Align(
+              child: CupertinoActivityIndicator(radius: 20),
+              alignment: Alignment(0, -0.25),
+            );
+          }
 
-        return Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                width: 0.2,
-                color: Get.theme.appBarTheme.foregroundColor!,
+          return Container(
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  width: 0.2,
+                  color: Get.theme.appBarTheme.foregroundColor!,
+                ),
               ),
             ),
-          ),
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
-              _buildHeader(gallery, context),
-              _buildDetails(gallery, detailsPageState.galleryDetails),
-              _buildActions(gallery, detailsPageState.galleryDetails),
-              if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
-                _buildTags(detailsPageState.galleryDetails!.fullTags),
-              _buildLoadingDetailsIndicator(),
-              if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
-                _buildComments(detailsPageState.galleryDetails!),
-              if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
-              if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-            ],
-          ).paddingOnly(top: 10, left: 15, right: 15),
-        );
-      }),
+            child: CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
+                _buildHeader(gallery, context),
+                _buildDetails(gallery, detailsPageState.galleryDetails),
+                _buildActions(gallery, detailsPageState.galleryDetails),
+                if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
+                  _buildTags(detailsPageState.galleryDetails!.fullTags),
+                _buildLoadingDetailsIndicator(),
+                if (detailsPageState.galleryDetails != null) _buildCommentsIndicator(detailsPageState.galleryDetails!),
+                if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
+                  _buildComments(detailsPageState.galleryDetails!),
+                if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
+                if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+              ],
+            ).paddingOnly(top: 10, left: 15, right: 15),
+          );
+        },
+      ),
     );
   }
 
@@ -297,6 +305,7 @@ class DetailsPage extends StatelessWidget {
                 }),
               ),
               LoadingStateIndicator(
+                width: 65,
                 loadingState: detailsPageState.addFavoriteState,
                 idleWidget: IconTextButton(
                   iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
@@ -417,107 +426,42 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildCommentsIndicator(GalleryDetails galleryDetails) {
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: () => Get.toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+              child: Text(
+                galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildComments(GalleryDetails galleryDetails) {
     return SliverToBoxAdapter(
-      child: Column(
-        children: [
-          SizedBox(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => {},
-                  child: Text(
-                    'allComments'.tr,
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 135,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemExtent: 300,
-              children: galleryDetails.comments
-                  .map(
-                    (comment) => ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        color: Colors.grey.shade200,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  comment.userName,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Get.theme.primaryColor,
-                                  ),
-                                ),
-                                Text(
-                                  comment.time,
-                                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                ),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 70,
-                              child: Text(
-                                comment.content,
-                                maxLines: 4,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (comment.score.isNotEmpty)
-                                  LikeButton(
-                                    size: 18,
-                                    likeBuilder: (isLiked) => Icon(
-                                      Icons.thumb_up,
-                                      size: 18,
-                                      color: Colors.green.shade800,
-                                    ),
-                                    onTap: (isLiked) => detailsPageLogic.handleVotingComment(comment.id, true),
-                                  ).marginOnly(right: 14),
-                                if (comment.score.isNotEmpty)
-                                  LikeButton(
-                                    size: 18,
-                                    likeBuilder: (isLiked) => Icon(
-                                      Icons.thumb_down,
-                                      size: 18,
-                                      color: Colors.red.shade800,
-                                    ),
-                                    onTap: (isLiked) => detailsPageLogic.handleVotingComment(comment.id, false),
-                                  ).marginOnly(right: 14),
-                                Text(
-                                  comment.score.isNotEmpty ? comment.score : 'uploader'.tr,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ).paddingSymmetric(vertical: 12, horizontal: 12),
-                      ),
-                    ).marginOnly(right: 10),
-                  )
-                  .toList(),
-            ),
-          ),
-        ],
+      child: SizedBox(
+        height: 135,
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemExtent: 300,
+          children: galleryDetails.comments
+              .map(
+                (comment) => GestureDetector(
+                  onTap: () => Get.toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                  child: EHComment(comment: comment, maxLines: 4),
+                ).marginOnly(right: 10),
+              )
+              .toList(),
+        ),
       ),
     );
   }

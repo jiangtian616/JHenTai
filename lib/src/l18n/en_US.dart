@@ -3,10 +3,12 @@ import 'dart:core';
 class en {
   static Map<String, String> keys() {
     return {
+      'cancel': "取消",
+      'OK': "确定",
       'success': "success",
       'error': "error",
-      'cancel': "cancel",
-      'OK': "OK",
+      'failed': "failed",
+      'home': "home",
       'gallery': "gallery",
       'setting': 'setting',
       'read': 'read',
@@ -18,7 +20,6 @@ class en {
       'similar': 'similar',
       'noMoreData': 'no more data',
       'noData': 'no data',
-      'allComments': 'all comments',
       'uploader': 'uploader',
       'currentRating': 'current rating',
       'afterRating': 'after rating',
@@ -55,6 +56,9 @@ class en {
       'resume': "resume",
       'pause': 'pause',
       'finished': 'finished',
+      'getGalleryDetailFailed': 'Get Gallery Detail Failed',
+      'allComments': 'all comments',
+      'noComments': 'no comments',
 
       /// EHImage
       'reloadImage': "reload image",
@@ -73,7 +77,7 @@ class en {
       'ehSetting': 'EH Site Setting',
 
       /// eh setting page
-      'site':'site',
+      'site': 'site',
 
       /// gallery setting page
       'enableTagZHTranslation': 'translate tag name into chinese',
@@ -91,6 +95,10 @@ class en {
 
       /// download page
       'delete': 'delete',
+
+      /// comment page
+      'newComment': 'newComment',
+      'commentTooShort': 'comment too short',
     };
   }
 }

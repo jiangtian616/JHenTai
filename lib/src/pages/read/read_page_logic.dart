@@ -98,7 +98,7 @@ class ReadPageLogic extends GetxController {
   @override
   void onClose() {
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
-    Get.find<DetailsPageLogic>().update();
+    DetailsPageLogic.currentDetailsPageLogic.update();
     super.onClose();
   }
 }

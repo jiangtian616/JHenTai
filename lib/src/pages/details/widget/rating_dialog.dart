@@ -23,8 +23,8 @@ class RatingDialog extends StatefulWidget {
 
 class _RatingDialogState extends State<RatingDialog> {
   GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-  DetailsPageLogic detailsPageLogic = Get.find<DetailsPageLogic>();
-  DetailsPageState detailsPageState = Get.find<DetailsPageLogic>().state;
+  DetailsPageLogic detailsPageLogic = DetailsPageLogic.currentDetailsPageLogic;
+  DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
 
   LoadingState submitState = LoadingState.idle;
   late double rating;

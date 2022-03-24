@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
@@ -115,6 +116,12 @@ class EHSpiderParser {
     return _parseGalleryDetailsThumbnails(thumbNailElements);
   }
 
+  static List<GalleryComment> parseGalleryDetailsComments(String html) {
+    Document document = parse(html);
+    List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
+    return _parseGalleryDetailsComments(commentElements);
+  }
+
   static List<String> parseFavoritePopup(String html) {
     Document document = parse(html);
     List<Element> divs = document.querySelectorAll('.nosel > div');
@@ -150,6 +157,15 @@ class EHSpiderParser {
       height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
       width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
     );
+  }
+
+  static String? parseSendCommentErrorMsg(Response<String> response) {
+    String? html = response.data;
+    if (html?.isEmpty ?? true) {
+      return null;
+    }
+    Document document = parse(html);
+    return document.querySelector('p.br')?.text;
   }
 
   static int _parseSearchTotalPageCount(Document document) {
@@ -222,8 +238,8 @@ class EHSpiderParser {
 
         /// some tag doesn't has a type
         List<String> list = pair.split(':').toList();
-        String namespace = list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
-        String key = list[1].replaceAll('\_', ' ');
+        String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
+        String key = list.length == 1 ? list[0].substring(3).replaceAll('\_', ' ') : list[1].replaceAll('\_', ' ');
 
         tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
       }
@@ -345,7 +361,7 @@ class EHSpiderParser {
         id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
         userName: element.querySelector('.c2 > .c3')?.children[0].text ?? '',
         score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
-        content: element.querySelector('.c6')?.text ?? '',
+        content: element.querySelector('.c6')?.outerHtml ?? '',
         time: localTime,
       );
     }).toList();

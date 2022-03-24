@@ -143,7 +143,7 @@ class _TagDialogState extends State<_TagDialog> {
       return false;
     }
 
-    final DetailsPageState state = Get.find<DetailsPageLogic>().state;
+    final DetailsPageState state = DetailsPageLogic.currentDetailsPageLogic.state;
 
     setState(() {
       if (isVotingUp) {

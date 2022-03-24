@@ -5,7 +5,7 @@ import '../service/storage_service.dart';
 
 class AdvancedSetting {
   static RxBool enableDomainFronting = false.obs;
-  static RxBool enableLogging = false.obs;
+  static RxBool enableLogging = true.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');

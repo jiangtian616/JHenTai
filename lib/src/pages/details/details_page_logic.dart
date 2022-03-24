@@ -30,6 +30,8 @@ class DetailsPageLogic extends GetxController {
   final TagTranslationService tagTranslationService = Get.find();
 
   DetailsPageLogic() {
+    currentStackDepth++;
+
     dynamic arg = Get.arguments;
 
     /// enter from galleryPage
@@ -39,6 +41,14 @@ class DetailsPageLogic extends GetxController {
       getDetails();
     }
   }
+
+  /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
+  /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
+  /// when a DetailsPageLogic is created, currentStackDepth++, when a DetailsPageLogic is disposed, currentStackDepth--.
+  static int currentStackDepth = 0;
+
+  static DetailsPageLogic get currentDetailsPageLogic =>
+      Get.find<DetailsPageLogic>(tag: DetailsPageLogic.currentStackDepth.toString());
 
   @override
   void onInit() async {
@@ -61,6 +71,12 @@ class DetailsPageLogic extends GetxController {
     }
   }
 
+  @override
+  void onClose() {
+    currentStackDepth--;
+    super.onClose();
+  }
+
   void showLoginSnack() {
     Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
   }
@@ -81,7 +97,8 @@ class DetailsPageLogic extends GetxController {
     try {
       galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(galleryUrl: state.gallery!.galleryUrl);
     } on DioError catch (e) {
-      Get.snackbar('error', '获取画廊详情错误', snackPosition: SnackPosition.BOTTOM);
+      Log.error('Get Gallery Detail Failed', e.message);
+      Get.snackbar('getGalleryDetailFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingDetailsState = LoadingState.error;
       update();
       return;

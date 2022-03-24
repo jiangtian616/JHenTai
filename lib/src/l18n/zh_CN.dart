@@ -3,10 +3,13 @@ import 'dart:core';
 class zh_CN {
   static Map<String, String> keys() {
     return {
-      'home': "主页",
-      'gallery': "画廊",
       'cancel': "取消",
       'OK': "确定",
+      'success': "成功",
+      'error': "错误",
+      'failed': "失败",
+      'home': "主页",
+      'gallery': "画廊",
       'setting': '设置',
       'read': '阅读',
       'download': '下载',
@@ -17,7 +20,6 @@ class zh_CN {
       'similar': '相似',
       'noMoreData': '到底啦',
       'noData': '无查询数据',
-      'allComments': '所有评论',
       'uploader': '上传者',
       'currentRating': '当前评分',
       'afterRating': '您评分后',
@@ -54,6 +56,9 @@ class zh_CN {
       'resume': "继续下载",
       'pause': '暂停',
       'finished': '已完成',
+      'getGalleryDetailFailed': '获取画廊详情失败',
+      'allComments': '所有评论',
+      'noComments': '暂无评论',
 
       ///EHImage
       'reloadImage': "重新加载图片",
@@ -72,8 +77,7 @@ class zh_CN {
       'ehSetting': 'EH 网站设置',
 
       /// eh setting page
-      'site':'站点',
-
+      'site': '站点',
 
       /// gallery setting page
       'enableTagZHTranslation': '开启标签中文翻译',
@@ -91,6 +95,10 @@ class zh_CN {
 
       /// download page
       'delete': '删除',
+
+      /// comment page
+      'newComment': '新评论',
+      'commentTooShort': '评论过短',
     };
   }
 }

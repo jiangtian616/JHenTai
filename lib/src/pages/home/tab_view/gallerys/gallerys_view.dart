@@ -12,7 +12,6 @@ import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
-import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -285,10 +284,9 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         children: [
           _buildTitleAndUploader(gallery.title, gallery.uploader),
           if (gallery.tags.isNotEmpty) _buildTagWaterFlow(gallery.tags),
-          const Expanded(child: SizedBox()),
           _buildFooter(gallery),
         ],
-      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+      ).paddingOnly(left: 6, right: 10, top: 5, bottom: 5),
     );
   }
 
@@ -308,7 +306,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
             fontSize: 12,
             color: Colors.grey,
           ),
-        ).marginOnly(top: 5),
+        ).marginOnly(top: 2),
       ],
     );
   }
@@ -340,7 +338,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ),
       ),
-    ).marginOnly(top: 12);
+    ).marginOnly(top: 5);
   }
 
   Widget _buildFooter(Gallery gallery) {
