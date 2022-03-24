@@ -103,7 +103,7 @@ class DownloadView extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => Get.toNamed(Routes.details, arguments: gallery),
+      onTap: () => Get.toNamed(Routes.details, arguments: gallery.galleryUrl),
       child: child,
     );
   }

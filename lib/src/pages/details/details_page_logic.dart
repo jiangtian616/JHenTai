@@ -31,15 +31,6 @@ class DetailsPageLogic extends GetxController {
 
   DetailsPageLogic() {
     currentStackDepth++;
-
-    dynamic arg = Get.arguments;
-
-    /// enter from galleryPage
-    if (arg is Gallery) {
-      state.gallery = arg;
-      state.thumbnailsPageCount = arg.pageCount ~/ 40;
-      getDetails();
-    }
   }
 
   /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
@@ -52,11 +43,19 @@ class DetailsPageLogic extends GetxController {
 
   @override
   void onInit() async {
-    /// enter from downloadPage
     dynamic arg = Get.arguments;
 
-    if (arg is GalleryDownloadedData) {
-      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg.galleryUrl);
+    /// enter from galleryPage
+    if (arg is Gallery) {
+      state.gallery = arg;
+      state.thumbnailsPageCount = arg.pageCount ~/ 40;
+      getDetails();
+      return;
+    }
+
+    /// enter from downloadPage or url
+    if (arg is String) {
+      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg);
       state.gallery = galleryAndDetailsAndApikey['gallery']!;
       state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
       state.apikey = galleryAndDetailsAndApikey['apikey']!;
@@ -68,6 +67,7 @@ class DetailsPageLogic extends GetxController {
             await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
       }
       update();
+      return;
     }
   }
 
