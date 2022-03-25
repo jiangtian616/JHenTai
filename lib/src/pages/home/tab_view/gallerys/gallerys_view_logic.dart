@@ -70,8 +70,16 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// pull-down refresh
   Future<void> handleRefresh(int tabIndex) async {
+    if (state.loadingState[tabIndex] == LoadingState.loading) {
+      return;
+    }
+
+
     List<Gallery> newGallerys;
     int pageCount;
+    state.loadingState[tabIndex] = LoadingState.loading;
+    update();
+
     try {
       List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, 0);
       newGallerys = gallerysAndPageCount[0];
@@ -79,6 +87,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     } on DioError catch (e) {
       Log.error('refresh gallery failed', e.message);
       Get.snackbar('refresh gallery failed', e.message, snackPosition: SnackPosition.BOTTOM);
+      state.loadingState[tabIndex] = LoadingState.error;
+      update();
       return;
     }
 
@@ -86,6 +96,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.gallerys[tabIndex].clear();
     state.gallerys[tabIndex] = newGallerys;
     state.pageCount[tabIndex] = pageCount;
+    if (state.pageCount[tabIndex] == 0) {
+      state.loadingState[tabIndex] = LoadingState.noData;
+    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
+      state.loadingState[tabIndex] = LoadingState.noMore;
+    } else {
+      state.loadingState[tabIndex] = LoadingState.idle;
+    }
     update();
   }
 

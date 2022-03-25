@@ -18,12 +18,14 @@ enum LoadingState {
 }
 
 typedef ErrorTapCallback = void Function();
+typedef NoDataTapCallback = void Function();
 
 class LoadingStateIndicator extends StatelessWidget {
   final double? height;
   final double? width;
   final LoadingState loadingState;
   final ErrorTapCallback? errorTapCallback;
+  final NoDataTapCallback? noDataTapCallback;
   final bool userCupertinoIndicator;
   final double indicatorRadius;
   final Widget? idleWidget;
@@ -40,6 +42,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.width,
     required this.loadingState,
     this.errorTapCallback,
+    this.noDataTapCallback,
     this.userCupertinoIndicator = true,
     this.indicatorRadius = 12,
     this.idleWidget,
@@ -85,7 +88,10 @@ class LoadingStateIndicator extends StatelessWidget {
         child = successWidget ?? const SizedBox();
         break;
       case LoadingState.noData:
-        child = noDataWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));
+        child = GestureDetector(
+          onTap: noDataTapCallback,
+          child: noDataWidget ?? Text('noData'.tr, style: const TextStyle(color: Colors.grey)),
+        );
         break;
     }
 

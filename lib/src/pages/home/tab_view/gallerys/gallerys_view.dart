@@ -270,10 +270,11 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   @override
   Widget build(BuildContext context) {
     return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
-            gallerysViewState.loadingState[widget.tabIndex] == LoadingState.loading
+            gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
         ? Center(
             child: LoadingStateIndicator(
               errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             ),
           )
