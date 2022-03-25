@@ -31,6 +31,11 @@ class EHSpiderParser {
     Document document = parse(html);
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
+    /// no data
+    if (galleryListElements.isEmpty) {
+      return [<Gallery>[], 0];
+    }
+
     /// remove table header
     galleryListElements.removeAt(0);
 

@@ -185,11 +185,12 @@ class EHRequest {
     return EHSpiderParser.parseUserInfo(response.data!);
   }
 
-  static Future<List<dynamic>> getHomeGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
+  static Future<List<dynamic>> getGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
     Response<String> response = await _dio.get(
       EHConsts.EIndex,
       queryParameters: {
         'page': pageNo,
+        ...?searchConfig?.toQueryParameters(),
       },
     );
     return EHSpiderParser.parseHomeGallerysList(response.data!);

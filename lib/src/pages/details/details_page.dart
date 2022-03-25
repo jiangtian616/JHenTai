@@ -46,50 +46,61 @@ class DetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: GetBuilder<DetailsPageLogic>(
+    return GetBuilder<DetailsPageLogic>(
         tag: DetailsPageLogic.currentStackDepth.toString(),
         builder: (logic) {
-          Gallery? gallery = detailsPageState.gallery;
-
-          if (gallery == null) {
-            return const Align(
-              child: CupertinoActivityIndicator(radius: 20),
-              alignment: Alignment(0, -0.25),
-            );
-          }
-
-          return Container(
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  width: 0.2,
-                  color: Get.theme.appBarTheme.foregroundColor!,
-                ),
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(detailsPageState.gallery?.title ?? ''),
+              titleTextStyle: const TextStyle(
+                fontSize: 14,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
-                _buildHeader(gallery, context),
-                _buildDetails(gallery, detailsPageState.galleryDetails),
-                _buildActions(gallery, detailsPageState.galleryDetails),
-                if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
-                  _buildTags(detailsPageState.galleryDetails!.fullTags),
-                _buildLoadingDetailsIndicator(),
-                if (detailsPageState.galleryDetails != null) _buildCommentsIndicator(detailsPageState.galleryDetails!),
-                if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
-                  _buildComments(detailsPageState.galleryDetails!),
-                if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
-                if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-              ],
-            ).paddingOnly(top: 10, left: 15, right: 15),
+            body: Builder(
+              builder: (context) {
+                Gallery? gallery = detailsPageState.gallery;
+
+                if (gallery == null) {
+                  return const Align(
+                    child: CupertinoActivityIndicator(radius: 20),
+                    alignment: Alignment(0, -0.25),
+                  );
+                }
+
+                return Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        width: 0.2,
+                        color: Get.theme.appBarTheme.foregroundColor!,
+                      ),
+                    ),
+                  ),
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    slivers: [
+                      CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
+                      _buildHeader(gallery, context),
+                      _buildDetails(gallery, detailsPageState.galleryDetails),
+                      _buildActions(gallery, detailsPageState.galleryDetails),
+                      if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
+                        _buildTags(detailsPageState.galleryDetails!.fullTags),
+                      _buildLoadingDetailsIndicator(),
+                      if (detailsPageState.galleryDetails != null)
+                        _buildCommentsIndicator(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
+                        _buildComments(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+                    ],
+                  ).paddingOnly(top: 10, left: 15, right: 15),
+                );
+              },
+            ),
           );
-        },
-      ),
-    );
+        });
   }
 
   Widget _buildHeader(Gallery gallery, BuildContext context) {

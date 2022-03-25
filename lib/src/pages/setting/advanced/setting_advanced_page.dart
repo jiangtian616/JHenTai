@@ -28,14 +28,14 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           children: [
             ListTile(
               title: Text('enableDomainFronting'.tr),
-              trailing: CupertinoSwitch(
+              trailing: Switch(
                 value: AdvancedSetting.enableDomainFronting.value,
                 onChanged: (value) => AdvancedSetting.saveEnableDomainFronting(value),
               ),
             ),
             ListTile(
               title: Text('enableLogging'.tr),
-              trailing: CupertinoSwitch(
+              trailing: Switch(
                 value: AdvancedSetting.enableLogging.value,
                 onChanged: (value) => AdvancedSetting.saveEnableLogging(value),
               ),

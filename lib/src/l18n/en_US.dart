@@ -50,6 +50,7 @@ class en {
 
       /// gallery page
       'getGallerysFailed': "get gallerys failed",
+      'tabBarSetting': 'TabBar Setting',
 
       /// details page
       'downloading': "downloading",
@@ -99,6 +100,30 @@ class en {
       /// comment page
       'newComment': 'newComment',
       'commentTooShort': 'comment too short',
+
+      /// search dialog
+      'searchConfig': 'Search Config',
+      'tabBarName': 'TabBar Name',
+      'searchType': 'Search Type',
+      'popular': 'popular',
+      'ranklist': 'ranklist',
+      'history': 'history',
+      'keyword': 'keyword',
+      'searchGalleryName': 'Search Gallery Name',
+      'searchGalleryTags': 'Search Gallery Tags',
+      'searchGalleryDescription': 'Search Gallery Description',
+      'searchExpungedGalleries': 'Search Expunged Galleries',
+      'onlyShowGalleriesWithTorrents': 'Only Show Galleries With Torrents',
+      'searchLowPowerTags': 'Search LowPower Tags',
+      'searchDownVotedTags': 'Search DownVoted Tags',
+      'pageAtLeast': 'Page At Least',
+      'pageAtMost': 'Page At Most',
+      'pagesBetween': 'Pages Between',
+      'to': 'to',
+      'minimumRating': 'Minimum Rating',
+      'disableFilterForLanguage': 'Disable Filter For Language',
+      'disableFilterForUploader': 'Disable Filter For Uploader',
+      'disableFilterForTags': 'Disable Filter For Tags',
     };
   }
 }

@@ -13,20 +13,26 @@
 - [x] tag翻译
 - [x] tag投票
 - [x] 里站支持
-- [ ] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和画廊的超链接跳转
-- [ ] 评论支持画廊图片的超链接跳转
+- [x] 展开所有评论、添加评论、只有登陆后才能评论、评论支持显示图片和画廊的超链接跳转
+- [x] 评论支持画廊图片的超链接跳转
 - [ ] 磁力、归档
 - [x] network retry、cache
 - [ ] webview登录
 - [ ] 网站设置
-- [ ] 搜索 search_choices
+- [ ] 搜索
 - [ ] 点击标签搜索
 - [ ] 相似
+- [ ] 搜索历史
+- [ ] 搜索推荐标签
 - [x] 详情页拦截器缓存
 - [x] offensive gallery
 - [x] 增加EhTagTranslation中的描述页面
 
+### bug
+- 缩略图大图
+
 ### 优化类
+- [ ] 导航栏设置拖动排序
 - [ ] 图片放大：https://github.com/bluefireteam/photo_view
 - [ ] getBuilder 使用 id 范围优化 
 - [ ] keepalive原理优化

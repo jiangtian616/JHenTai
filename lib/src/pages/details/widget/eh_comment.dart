@@ -171,7 +171,6 @@ class _EHCommentState extends State<EHComment> {
   }
 
   Future<bool> _handleTapUrl(String url) async {
-    print('tap');
     if (!widget.canTapUrl) {
       return false;
     }

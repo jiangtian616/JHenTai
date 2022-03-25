@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
@@ -18,6 +20,9 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../consts/color_consts.dart';
+import '../../../../model/search_config.dart';
+import '../../../../setting/tab_bar_setting.dart';
+import '../../../../widget/eh_tab_bar_config_dialog.dart';
 import '../../../../widget/eh_sliver_header_delegate.dart';
 import '../../../../widget/eh_tag.dart';
 import '../../../../widget/gallery_category_tag.dart';
@@ -26,6 +31,7 @@ import 'gallerys_view_logic.dart';
 import 'gallerys_view_state.dart';
 
 final GlobalKey<ExtendedNestedScrollViewState> galleryListKey = GlobalKey<ExtendedNestedScrollViewState>();
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class GallerysView extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
@@ -35,15 +41,104 @@ class GallerysView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExtendedNestedScrollView(
-      /// use this GlobalKey to get innerController to implement 'scroll to top'
-      key: galleryListKey,
+    return Scaffold(
+      key: scaffoldKey,
+      endDrawer: _buildDrawer(),
+      body: ExtendedNestedScrollView(
+        /// use this GlobalKey to get innerController to implement 'scroll to top'
+        key: galleryListKey,
 
-      /// this property is needed for TabBar in ExtendedNestedScrollView.
-      onlyOneScrollInBody: true,
-      floatHeaderSlivers: true,
-      headerSliverBuilder: _headerBuilder,
-      body: _buildBody(),
+        /// this property is needed for TabBar in ExtendedNestedScrollView.
+        onlyOneScrollInBody: true,
+        floatHeaderSlivers: true,
+        headerSliverBuilder: _headerBuilder,
+        body: _buildBody(),
+      ),
+    );
+  }
+
+  Widget _buildDrawer() {
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(14)),
+          child: SizedBox(
+            width: 250,
+            child: Drawer(
+              child: Column(
+                children: [
+                  ListTile(
+                    tileColor: Get.theme.primaryColorLight,
+                    title: Text(
+                      'tabBarSetting'.tr,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    trailing: SizedBox(
+                      width: 70,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.add)),
+                            child: const Icon(Icons.add, size: 28, color: Colors.white).marginOnly(right: 16),
+                          ),
+                          const Icon(FontAwesomeIcons.bars, size: 18, color: Colors.white).marginOnly(right: 4),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Obx(() {
+                      return ListView.separated(
+                        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                        itemCount: TabBarSetting.configs.length,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const Divider(thickness: 0.7, height: 2, indent: 16),
+                        itemBuilder: (BuildContext context, int index) {
+                          return Slidable(
+                            key: Key(TabBarSetting.configs[index].name),
+                            endActionPane: ActionPane(
+                              motion: const DrawerMotion(),
+                              extentRatio: 0.21,
+                              children: [
+                                SlidableAction(
+                                  icon: Icons.delete,
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.red,
+                                  onPressed: (context) => TabBarSetting.removeTab(TabBarSetting.configs[index].name),
+                                )
+                              ],
+                            ),
+                            child: ListTile(
+                              dense: true,
+                              title: Text(
+                                TabBarSetting.configs[index].name,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                              trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
+                              onTap: () => Get.dialog(
+                                EHTabBarConfigDialog(
+                                  tabBarConfig: TabBarSetting.configs[index],
+                                  type: EHTabBarConfigDialogType.update,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -104,8 +199,8 @@ class GallerysView extends StatelessWidget {
                             isScrollable: true,
                             physics: const BouncingScrollPhysics(),
                             tabs: List.generate(
-                              gallerysViewState.tabBarConfigs.length,
-                              (index) => Tab(text: gallerysViewState.tabBarConfigs[index].name),
+                              TabBarSetting.configs.length,
+                              (index) => Tab(text: TabBarSetting.configs[index].name),
                             ),
                           );
                         }),
@@ -118,7 +213,7 @@ class GallerysView extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.only(bottom: 2),
                         onPressed: () {
-                          gallerysViewLogic.handleAddTab();
+                          scaffoldKey.currentState?.openEndDrawer();
                         },
                       ),
                     ],
@@ -138,7 +233,7 @@ class GallerysView extends StatelessWidget {
         return TabBarView(
           controller: logic.tabController,
           children: List.generate(
-            gallerysViewState.tabBarConfigs.length,
+            TabBarSetting.configs.length,
             (tabIndex) => GalleryTabBarView(
               tabIndex: tabIndex,
             ),
@@ -174,10 +269,11 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    return gallerysViewState.gallerys[widget.tabIndex].isEmpty
+    return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
+            gallerysViewState.loadingState[widget.tabIndex] == LoadingState.loading
         ? Center(
             child: LoadingStateIndicator(
-              errorTapCallback: () => {gallerysViewLogic.handleLoadMore(widget.tabIndex)},
+              errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             ),
           )
@@ -201,7 +297,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 sliver: SliverToBoxAdapter(
                   child: LoadingStateIndicator(
-                    errorTapCallback: () => {gallerysViewLogic.handleLoadMore(widget.tabIndex)},
+                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
                     loadingState: gallerysViewState.loadingState[widget.tabIndex],
                   ),
                 ),

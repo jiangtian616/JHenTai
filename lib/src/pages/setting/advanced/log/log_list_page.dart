@@ -15,12 +15,14 @@ class LogListPage extends StatefulWidget {
 }
 
 class _LogListPageState extends State<LogListPage> {
-  late List<io.FileSystemEntity> logs;
+   List<io.FileSystemEntity> logs = [];
 
   @override
   void initState() {
     io.Directory logDir = io.Directory(Log.logPath);
-    logs = logDir.listSync();
+    if (logDir.existsSync()) {
+      logs = logDir.listSync();
+    }
     super.initState();
   }
 

@@ -47,7 +47,7 @@ class SettingGalleryPage extends StatelessWidget {
                     if (tagTranslationService.loadingState.value == LoadingState.loading &&
                         GallerySetting.enableTagZHTranslation.isTrue)
                       const CupertinoActivityIndicator().marginOnly(right: 8),
-                    CupertinoSwitch(
+                    Switch(
                       value: GallerySetting.enableTagZHTranslation.value,
                       onChanged: (value) {
                         GallerySetting.saveTagZHTranslation(value);

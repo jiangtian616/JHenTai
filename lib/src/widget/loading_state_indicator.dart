@@ -29,7 +29,7 @@ class LoadingStateIndicator extends StatelessWidget {
   final Widget? idleWidget;
   final Widget? loadingWidget;
   final Widget? noMoreWidget;
-  final Widget? noneWidget;
+  final Widget? noDataWidget;
   final Widget? successWidget;
   final Widget? errorWidget;
   final bool errorWidgetSameWithIdle;
@@ -45,7 +45,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.idleWidget,
     this.loadingWidget,
     this.noMoreWidget,
-    this.noneWidget,
+    this.noDataWidget,
     this.successWidget,
     this.errorWidget,
     this.errorWidgetSameWithIdle = false,
@@ -85,7 +85,7 @@ class LoadingStateIndicator extends StatelessWidget {
         child = successWidget ?? const SizedBox();
         break;
       case LoadingState.noData:
-        child = noneWidget ?? Text('noData'.tr, style: const TextStyle(color: Colors.grey));
+        child = noDataWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));
         break;
     }
 

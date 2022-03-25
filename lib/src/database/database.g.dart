@@ -841,103 +841,6 @@ class Image extends Table with TableInfo<Image, ImageData> {
   bool get dontWriteConstraints => true;
 }
 
-class TagCompanion extends UpdateCompanion<TagData> {
-  final Value<String> namespace;
-  final Value<String> key;
-  final Value<String?> tagName;
-  final Value<String?> fullTagName;
-  final Value<String?> intro;
-  final Value<String?> links;
-  const TagCompanion({
-    this.namespace = const Value.absent(),
-    this.key = const Value.absent(),
-    this.tagName = const Value.absent(),
-    this.fullTagName = const Value.absent(),
-    this.intro = const Value.absent(),
-    this.links = const Value.absent(),
-  });
-  TagCompanion.insert({
-    required String namespace,
-    required String key,
-    this.tagName = const Value.absent(),
-    this.fullTagName = const Value.absent(),
-    this.intro = const Value.absent(),
-    this.links = const Value.absent(),
-  })  : namespace = Value(namespace),
-        key = Value(key);
-  static Insertable<TagData> custom({
-    Expression<String>? namespace,
-    Expression<String>? key,
-    Expression<String?>? tagName,
-    Expression<String?>? fullTagName,
-    Expression<String?>? intro,
-    Expression<String?>? links,
-  }) {
-    return RawValuesInsertable({
-      if (namespace != null) 'namespace': namespace,
-      if (key != null) '_key': key,
-      if (tagName != null) 'tagName': tagName,
-      if (fullTagName != null) 'fullTagName': fullTagName,
-      if (intro != null) 'intro': intro,
-      if (links != null) 'links': links,
-    });
-  }
-
-  TagCompanion copyWith(
-      {Value<String>? namespace,
-      Value<String>? key,
-      Value<String?>? tagName,
-      Value<String?>? fullTagName,
-      Value<String?>? intro,
-      Value<String?>? links}) {
-    return TagCompanion(
-      namespace: namespace ?? this.namespace,
-      key: key ?? this.key,
-      tagName: tagName ?? this.tagName,
-      fullTagName: fullTagName ?? this.fullTagName,
-      intro: intro ?? this.intro,
-      links: links ?? this.links,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (namespace.present) {
-      map['namespace'] = Variable<String>(namespace.value);
-    }
-    if (key.present) {
-      map['_key'] = Variable<String>(key.value);
-    }
-    if (tagName.present) {
-      map['tagName'] = Variable<String?>(tagName.value);
-    }
-    if (fullTagName.present) {
-      map['fullTagName'] = Variable<String?>(fullTagName.value);
-    }
-    if (intro.present) {
-      map['intro'] = Variable<String?>(intro.value);
-    }
-    if (links.present) {
-      map['links'] = Variable<String?>(links.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TagCompanion(')
-          ..write('namespace: $namespace, ')
-          ..write('key: $key, ')
-          ..write('tagName: $tagName, ')
-          ..write('fullTagName: $fullTagName, ')
-          ..write('intro: $intro, ')
-          ..write('links: $links')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
@@ -1072,6 +975,103 @@ class TagData extends DataClass implements Insertable<TagData> {
           other.fullTagName == this.fullTagName &&
           other.intro == this.intro &&
           other.links == this.links);
+}
+
+class TagCompanion extends UpdateCompanion<TagData> {
+  final Value<String> namespace;
+  final Value<String> key;
+  final Value<String?> tagName;
+  final Value<String?> fullTagName;
+  final Value<String?> intro;
+  final Value<String?> links;
+  const TagCompanion({
+    this.namespace = const Value.absent(),
+    this.key = const Value.absent(),
+    this.tagName = const Value.absent(),
+    this.fullTagName = const Value.absent(),
+    this.intro = const Value.absent(),
+    this.links = const Value.absent(),
+  });
+  TagCompanion.insert({
+    required String namespace,
+    required String key,
+    this.tagName = const Value.absent(),
+    this.fullTagName = const Value.absent(),
+    this.intro = const Value.absent(),
+    this.links = const Value.absent(),
+  })  : namespace = Value(namespace),
+        key = Value(key);
+  static Insertable<TagData> custom({
+    Expression<String>? namespace,
+    Expression<String>? key,
+    Expression<String?>? tagName,
+    Expression<String?>? fullTagName,
+    Expression<String?>? intro,
+    Expression<String?>? links,
+  }) {
+    return RawValuesInsertable({
+      if (namespace != null) 'namespace': namespace,
+      if (key != null) '_key': key,
+      if (tagName != null) 'tagName': tagName,
+      if (fullTagName != null) 'fullTagName': fullTagName,
+      if (intro != null) 'intro': intro,
+      if (links != null) 'links': links,
+    });
+  }
+
+  TagCompanion copyWith(
+      {Value<String>? namespace,
+      Value<String>? key,
+      Value<String?>? tagName,
+      Value<String?>? fullTagName,
+      Value<String?>? intro,
+      Value<String?>? links}) {
+    return TagCompanion(
+      namespace: namespace ?? this.namespace,
+      key: key ?? this.key,
+      tagName: tagName ?? this.tagName,
+      fullTagName: fullTagName ?? this.fullTagName,
+      intro: intro ?? this.intro,
+      links: links ?? this.links,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespace.present) {
+      map['namespace'] = Variable<String>(namespace.value);
+    }
+    if (key.present) {
+      map['_key'] = Variable<String>(key.value);
+    }
+    if (tagName.present) {
+      map['tagName'] = Variable<String?>(tagName.value);
+    }
+    if (fullTagName.present) {
+      map['fullTagName'] = Variable<String?>(fullTagName.value);
+    }
+    if (intro.present) {
+      map['intro'] = Variable<String?>(intro.value);
+    }
+    if (links.present) {
+      map['links'] = Variable<String?>(links.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TagCompanion(')
+          ..write('namespace: $namespace, ')
+          ..write('key: $key, ')
+          ..write('tagName: $tagName, ')
+          ..write('fullTagName: $fullTagName, ')
+          ..write('intro: $intro, ')
+          ..write('links: $links')
+          ..write(')'))
+        .toString();
+  }
 }
 
 class Tag extends Table with TableInfo<Tag, TagData> {

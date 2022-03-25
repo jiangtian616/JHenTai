@@ -52,7 +52,6 @@ class DetailsPageLogic extends GetxController {
       getDetails();
       return;
     }
-
     /// enter from downloadPage or url
     if (arg is String) {
       Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg);
@@ -61,6 +60,7 @@ class DetailsPageLogic extends GetxController {
       state.apikey = galleryAndDetailsAndApikey['apikey']!;
       state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
       state.loadingDetailsState = LoadingState.success;
+      state.loadingThumbnailsState = LoadingState.success;
       if (GallerySetting.enableTagZHTranslation.isTrue &&
           tagTranslationService.loadingState.value == LoadingState.success) {
         state.galleryDetails!.fullTags =

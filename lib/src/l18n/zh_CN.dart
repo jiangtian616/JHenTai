@@ -16,7 +16,7 @@ class zh_CN {
       'favorite': '收藏',
       'rating': '评分',
       'torrent': '种子',
-      'archive': '压缩包',
+      'archive': '归档',
       'similar': '相似',
       'noMoreData': '到底啦',
       'noData': '无查询数据',
@@ -50,6 +50,7 @@ class zh_CN {
 
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
+      'tabBarSetting': '导航栏设置',
 
       /// details page
       'downloading': "下载中",
@@ -99,6 +100,29 @@ class zh_CN {
       /// comment page
       'newComment': '新评论',
       'commentTooShort': '评论过短',
+
+      /// search dialog
+      'searchConfig': '搜索配置',
+      'tabBarName': '导航栏名称',
+      'popular': '热门',
+      'ranklist': '排行',
+      'history': '历史',
+      'keyword': '关键词',
+      'searchGalleryName': '搜索画廊名字',
+      'searchGalleryTags': '搜索画廊标签',
+      'searchGalleryDescription': '搜索画廊描述',
+      'searchExpungedGalleries': '搜索移除了的画廊',
+      'onlyShowGalleriesWithTorrents': '只显示有种子的画廊',
+      'searchLowPowerTags': '搜索可信度较低的标签',
+      'searchDownVotedTags': '搜索差评标签',
+      'pageAtLeast': '页数至少',
+      'pageAtMost': '页数最多',
+      'pagesBetween': '页数范围',
+      'to': '到',
+      'minimumRating': '最低评分',
+      'disableFilterForLanguage': '禁用语言过滤',
+      'disableFilterForUploader': '禁用上传者过滤',
+      'disableFilterForTags': '禁用标签过滤',
     };
   }
 }

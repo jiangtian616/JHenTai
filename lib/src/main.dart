@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,6 +15,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
@@ -61,6 +61,7 @@ Future<void> beforeInit() async {
   UserSetting.init();
   TagTranslationService.init();
   GallerySetting.init();
+  TabBarSetting.init();
 
   await EHRequest.init();
   await DownloadService.init();
