@@ -27,7 +27,8 @@ class EHSpiderParser {
     return [userName, avatarUrl];
   }
 
-  static List<dynamic> parseHomeGallerysList(String html) {
+  static List<dynamic> parseGalleryList(Response response) {
+    String html = response.data!;
     Document document = parse(html);
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
@@ -41,9 +42,9 @@ class EHSpiderParser {
 
     /// remove ad
     galleryListElements.removeWhere((element) => element.querySelector('.itd') != null);
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseHomeGallery(e)).toList();
+    List<Gallery> gallerys = galleryListElements.map((e) => _parseGallery(e)).toList();
 
-    int pageCount = _parseSearchTotalPageCount(document);
+    int pageCount = _parseHomeGalleryTotalPageCount(document);
     return [gallerys, pageCount];
   }
 
@@ -68,7 +69,7 @@ class EHSpiderParser {
       ),
       pageCount: int.parse(
           (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
-      rating: _parseHomeGalleryRating(document.querySelector('#grt2')!),
+      rating: _parseGalleryRating(document.querySelector('#grt2')!),
       hasRated: document.querySelector('#grt2 > #rating_image .ir.irg') != null ? true : false,
       isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
@@ -173,17 +174,17 @@ class EHSpiderParser {
     return document.querySelector('p.br')?.text;
   }
 
-  static int _parseSearchTotalPageCount(Document document) {
+  static int _parseHomeGalleryTotalPageCount(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 2];
-    return int.parse(td?.querySelector('a')?.text ?? '0');
+    return int.parse(td?.querySelector('a')?.text ?? '1');
   }
 
-  static Gallery _parseHomeGallery(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = _parseHomeGalleryTags(tr);
-    GalleryImage? cover = _parseHomeGalleryCover(tr);
+  static Gallery _parseGallery(Element tr) {
+    LinkedHashMap<String, List<TagData>> tags = _parseGalleryTags(tr);
+    GalleryImage? cover = _parseGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? '';
-    List<String>? parts = galleryUrl.split('/');
+    List<String> parts = galleryUrl.split('/');
 
     Gallery gallery = Gallery(
       gid: int.parse(parts[4]),
@@ -191,8 +192,8 @@ class EHSpiderParser {
       title: tr.querySelector('.glink')?.text ?? '',
       category: tr.querySelector('.cn')?.text ?? '',
       cover: cover!,
-      pageCount: _parseHomeGalleryPageCount(tr),
-      rating: _parseHomeGalleryRating(tr),
+      pageCount: _parseGalleryListPageCount(tr),
+      rating: _parseGalleryRating(tr),
       hasRated: tr.querySelector('.gl2c > div:nth-child(2) > .ir.irb') != null ? true : false,
       isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndex(tr),
@@ -207,7 +208,7 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static LinkedHashMap<String, List<TagData>> _parseHomeGalleryTags(Element tr) {
+  static LinkedHashMap<String, List<TagData>> _parseGalleryTags(Element tr) {
     LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
 
     List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
@@ -252,7 +253,7 @@ class EHSpiderParser {
     return tags;
   }
 
-  static GalleryImage? _parseHomeGalleryCover(Element tr) {
+  static GalleryImage? _parseGalleryCover(Element tr) {
     Element? img = tr.querySelector('.gl2c > .glthumb > div > img');
     if (img == null) {
       return null;
@@ -279,15 +280,20 @@ class EHSpiderParser {
     );
   }
 
-  static int _parseHomeGalleryPageCount(Element tr) {
+  static int _parseGalleryListPageCount(Element tr) {
     List<Element> divs = tr.querySelectorAll('.gl4c.glhide > div');
+
+    /// favorite page
+    if (divs.isEmpty) {
+      return 0;
+    }
 
     /// eg: '66 pages'
     String pageCountDesc = divs[1].text;
     return int.parse(pageCountDesc.split(' ')[0]);
   }
 
-  static double _parseHomeGalleryRating(Element tr) {
+  static double _parseGalleryRating(Element tr) {
     /// eg: style="background-position:-16px -1px;opacity:1"
     String style = tr.querySelector('.ir')?.attributes['style'] ?? '';
     if (style.isEmpty) {

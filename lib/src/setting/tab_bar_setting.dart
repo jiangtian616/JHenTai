@@ -12,10 +12,20 @@ import '../utils/log.dart';
 class TabBarSetting {
   static RxList<TabBarConfig> configs = <TabBarConfig>[
     TabBarConfig(name: 'gallery'.tr, searchConfig: SearchConfig()),
-    TabBarConfig(name: 'popular'.tr, searchConfig: SearchConfig()),
-    TabBarConfig(name: 'favorite'.tr, searchConfig: SearchConfig()),
-    TabBarConfig(name: 'ranklist'.tr, searchConfig: SearchConfig()),
-    TabBarConfig(name: 'history'.tr, searchConfig: SearchConfig()),
+    TabBarConfig(
+      name: 'popular'.tr,
+      searchConfig: SearchConfig(searchType: SearchType.popular),
+      isDeleteAble: false,
+      isEditable: false,
+    ),
+    TabBarConfig(name: 'favorite'.tr, searchConfig: SearchConfig(searchType: SearchType.favorite)),
+    TabBarConfig(name: 'watched'.tr, searchConfig: SearchConfig(searchType: SearchType.watched)),
+    TabBarConfig(
+      name: 'history'.tr,
+      searchConfig: SearchConfig(searchType: SearchType.history),
+      isDeleteAble: false,
+      isEditable: false,
+    ),
   ].obs;
 
   static bool addTab(String name, [SearchConfig? searchConfig]) {
@@ -73,6 +83,7 @@ class TabBarSetting {
         .map((entry) => TabBarConfig(
               name: entry['name'],
               searchConfig: SearchConfig.fromJson(entry['searchConfig']),
+              isDeleteAble: entry['isDeleteAble'],
             ))
         .toList();
   }

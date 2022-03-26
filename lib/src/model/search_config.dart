@@ -1,11 +1,19 @@
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 enum SearchType {
   gallery,
   popular,
   favorite,
-  ranklist,
+  watched,
   history,
+}
+
+enum RanklistType {
+  all,
+  year,
+  month,
+  day,
 }
 
 @JsonSerializable()
@@ -42,6 +50,11 @@ class SearchConfig {
   bool disableFilterForUploader = false;
   bool disableFilterForTags = false;
 
+  /// Favorite
+  bool searchFavoriteName = true;
+  bool searchFavoriteTags = true;
+  bool searchFavoriteNote = true;
+
   SearchConfig({
     this.searchType = SearchType.gallery,
     this.includeDoujinshi = true,
@@ -68,8 +81,28 @@ class SearchConfig {
     this.disableFilterForLanguage = false,
     this.disableFilterForUploader = false,
     this.disableFilterForTags = false,
+    this.searchFavoriteName = true,
+    this.searchFavoriteTags= true,
+    this.searchFavoriteNote = true,
   });
 
+  /// search path
+  String toPath() {
+    switch (searchType) {
+      case SearchType.gallery:
+        return EHConsts.EIndex;
+      case SearchType.popular:
+        return EHConsts.EPopular;
+      case SearchType.favorite:
+        return EHConsts.EFavorite;
+      case SearchType.watched:
+        return EHConsts.EWatched;
+      case SearchType.history:
+        return '';
+    }
+  }
+
+  /// search params
   Map<String, dynamic> toQueryParameters() {
     Map<String, dynamic> params = {
       'advsearch': 1,
@@ -122,7 +155,82 @@ class SearchConfig {
       params['f_sft'] = 'on';
     }
 
+    if (searchFavoriteName) {
+      params['sn'] = 'on';
+    }
+    if (searchFavoriteTags) {
+      params['st'] = 'on';
+    }
+    if (searchFavoriteNote) {
+      params['sf'] = 'on';
+    }
     return params;
+  }
+
+  factory SearchConfig.fromJson(Map<String, dynamic> json) {
+    return SearchConfig(
+      searchType: SearchType.values[json["searchType"]],
+      includeDoujinshi: json["includeDoujinshi"],
+      includeManga: json["includeManga"],
+      includeArtistCG: json["includeArtistCG"],
+      includeGameCg: json["includeGameCg"],
+      includeWestern: json["includeWestern"],
+      includeNonH: json["includeNonH"],
+      includeImageSet: json["includeImageSet"],
+      includeCosplay: json["includeCosplay"],
+      includeAsianPorn: json["includeAsianPorn"],
+      includeMisc: json["includeMisc"],
+      keyword: json["keyword"],
+      searchGalleryName: json["searchGalleryName"],
+      searchGalleryTags: json["searchGalleryTags"],
+      searchGalleryDescription: json["searchGalleryDescription"],
+      searchExpungedGalleries: json["searchExpungedGalleries"],
+      onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
+      searchLowPowerTags: json["searchLowPowerTags"],
+      searchDownVotedTags: json["searchDownVotedTags"],
+      pageAtLeast: json["pageAtLeast"],
+      pageAtMost: json["pageAtMost"],
+      minimumRating: json["minimumRating"],
+      disableFilterForLanguage: json["disableFilterForLanguage"],
+      disableFilterForUploader: json["disableFilterForUploader"],
+      disableFilterForTags: json["disableFilterForTags"],
+      searchFavoriteName: json["searchFavoriteName"],
+      searchFavoriteTags: json["searchFavoriteTags"],
+      searchFavoriteNote: json["searchFavoriteNote"],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "searchType": this.searchType.index,
+      "includeDoujinshi": this.includeDoujinshi,
+      "includeManga": this.includeManga,
+      "includeArtistCG": this.includeArtistCG,
+      "includeGameCg": this.includeGameCg,
+      "includeWestern": this.includeWestern,
+      "includeNonH": this.includeNonH,
+      "includeImageSet": this.includeImageSet,
+      "includeCosplay": this.includeCosplay,
+      "includeAsianPorn": this.includeAsianPorn,
+      "includeMisc": this.includeMisc,
+      "keyword": this.keyword,
+      "searchGalleryName": this.searchGalleryName,
+      "searchGalleryTags": this.searchGalleryTags,
+      "searchGalleryDescription": this.searchGalleryDescription,
+      "searchExpungedGalleries": this.searchExpungedGalleries,
+      "onlyShowGalleriesWithTorrents": this.onlyShowGalleriesWithTorrents,
+      "searchLowPowerTags": this.searchLowPowerTags,
+      "searchDownVotedTags": this.searchDownVotedTags,
+      "pageAtLeast": this.pageAtLeast,
+      "pageAtMost": this.pageAtMost,
+      "minimumRating": this.minimumRating,
+      "disableFilterForLanguage": this.disableFilterForLanguage,
+      "disableFilterForUploader": this.disableFilterForUploader,
+      "disableFilterForTags": this.disableFilterForTags,
+      "searchFavoriteName": this.searchFavoriteName,
+      "searchFavoriteTags": this.searchFavoriteTags,
+      "searchFavoriteNote": this.searchFavoriteNote,
+    };
   }
 
   int _computeFCats() {
@@ -160,63 +268,66 @@ class SearchConfig {
     return f_cats;
   }
 
-  factory SearchConfig.fromJson(Map<String, dynamic> json) {
+  SearchConfig copyWith({
+    SearchType? searchType,
+    bool? includeDoujinshi,
+    bool? includeManga,
+    bool? includeArtistCG,
+    bool? includeGameCg,
+    bool? includeWestern,
+    bool? includeNonH,
+    bool? includeImageSet,
+    bool? includeCosplay,
+    bool? includeAsianPorn,
+    bool? includeMisc,
+    String? keyword,
+    bool? searchGalleryName,
+    bool? searchGalleryTags,
+    bool? searchGalleryDescription,
+    bool? searchExpungedGalleries,
+    bool? onlyShowGalleriesWithTorrents,
+    bool? searchLowPowerTags,
+    bool? searchDownVotedTags,
+    int? pageAtLeast,
+    int? pageAtMost,
+    int? minimumRating,
+    bool? disableFilterForLanguage,
+    bool? disableFilterForUploader,
+    bool? disableFilterForTags,
+    bool? searchFavoriteName,
+    bool? searchFavoriteTags,
+    bool? searchFavoriteNote,
+    RanklistType? ranklistType,
+  }) {
     return SearchConfig(
-      searchType: SearchType.values[json["searchType"]],
-      includeDoujinshi: json["includeDoujinshi"],
-      includeManga: json["includeManga"],
-      includeArtistCG: json["includeArtistCG"],
-      includeGameCg: json["includeGameCg"],
-      includeWestern: json["includeWestern"],
-      includeNonH: json["includeNonH"],
-      includeImageSet: json["includeImageSet"],
-      includeCosplay: json["includeCosplay"],
-      includeAsianPorn: json["includeAsianPorn"],
-      includeMisc: json["includeMisc"],
-      keyword: json["keyword"],
-      searchGalleryName: json["searchGalleryName"],
-      searchGalleryTags: json["searchGalleryTags"],
-      searchGalleryDescription: json["searchGalleryDescription"],
-      searchExpungedGalleries: json["searchExpungedGalleries"],
-      onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
-      searchLowPowerTags: json["searchLowPowerTags"],
-      searchDownVotedTags: json["searchDownVotedTags"],
-      pageAtLeast: json["pageAtLeast"],
-      pageAtMost: json["pageAtMost"],
-      minimumRating: json["minimumRating"],
-      disableFilterForLanguage: json["disableFilterForLanguage"],
-      disableFilterForUploader: json["disableFilterForUploader"],
-      disableFilterForTags: json["disableFilterForTags"],
+      searchType: searchType ?? this.searchType,
+      includeDoujinshi: includeDoujinshi ?? this.includeDoujinshi,
+      includeManga: includeManga ?? this.includeManga,
+      includeArtistCG: includeArtistCG ?? this.includeArtistCG,
+      includeGameCg: includeGameCg ?? this.includeGameCg,
+      includeWestern: includeWestern ?? this.includeWestern,
+      includeNonH: includeNonH ?? this.includeNonH,
+      includeImageSet: includeImageSet ?? this.includeImageSet,
+      includeCosplay: includeCosplay ?? this.includeCosplay,
+      includeAsianPorn: includeAsianPorn ?? this.includeAsianPorn,
+      includeMisc: includeMisc ?? this.includeMisc,
+      keyword: keyword ?? this.keyword,
+      searchGalleryName: searchGalleryName ?? this.searchGalleryName,
+      searchGalleryTags: searchGalleryTags ?? this.searchGalleryTags,
+      searchGalleryDescription: searchGalleryDescription ?? this.searchGalleryDescription,
+      searchExpungedGalleries: searchExpungedGalleries ?? this.searchExpungedGalleries,
+      onlyShowGalleriesWithTorrents: onlyShowGalleriesWithTorrents ?? this.onlyShowGalleriesWithTorrents,
+      searchLowPowerTags: searchLowPowerTags ?? this.searchLowPowerTags,
+      searchDownVotedTags: searchDownVotedTags ?? this.searchDownVotedTags,
+      pageAtLeast: pageAtLeast ?? this.pageAtLeast,
+      pageAtMost: pageAtMost ?? this.pageAtMost,
+      minimumRating: minimumRating ?? this.minimumRating,
+      disableFilterForLanguage: disableFilterForLanguage ?? this.disableFilterForLanguage,
+      disableFilterForUploader: disableFilterForUploader ?? this.disableFilterForUploader,
+      disableFilterForTags: disableFilterForTags ?? this.disableFilterForTags,
+      searchFavoriteName: searchFavoriteName ?? this.searchFavoriteName,
+      searchFavoriteTags: searchFavoriteTags ?? this.searchFavoriteTags,
+      searchFavoriteNote: searchFavoriteNote ?? this.searchFavoriteNote,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      "searchType": this.searchType.index,
-      "includeDoujinshi": this.includeDoujinshi,
-      "includeManga": this.includeManga,
-      "includeArtistCG": this.includeArtistCG,
-      "includeGameCg": this.includeGameCg,
-      "includeWestern": this.includeWestern,
-      "includeNonH": this.includeNonH,
-      "includeImageSet": this.includeImageSet,
-      "includeCosplay": this.includeCosplay,
-      "includeAsianPorn": this.includeAsianPorn,
-      "includeMisc": this.includeMisc,
-      "keyword": this.keyword,
-      "searchGalleryName": this.searchGalleryName,
-      "searchGalleryTags": this.searchGalleryTags,
-      "searchGalleryDescription": this.searchGalleryDescription,
-      "searchExpungedGalleries": this.searchExpungedGalleries,
-      "onlyShowGalleriesWithTorrents": this.onlyShowGalleriesWithTorrents,
-      "searchLowPowerTags": this.searchLowPowerTags,
-      "searchDownVotedTags": this.searchDownVotedTags,
-      "pageAtLeast": this.pageAtLeast,
-      "pageAtMost": this.pageAtMost,
-      "minimumRating": this.minimumRating,
-      "disableFilterForLanguage": this.disableFilterForLanguage,
-      "disableFilterForUploader": this.disableFilterForUploader,
-      "disableFilterForTags": this.disableFilterForTags,
-    };
   }
 }

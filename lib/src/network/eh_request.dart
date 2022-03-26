@@ -8,6 +8,7 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:html/parser.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery.dart';
@@ -24,6 +25,8 @@ import 'package:path/path.dart';
 
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
+
+typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
@@ -185,15 +188,16 @@ class EHRequest {
     return EHSpiderParser.parseUserInfo(response.data!);
   }
 
-  static Future<List<dynamic>> getGallerysListAndPageCountByPageNo(int pageNo, SearchConfig? searchConfig) async {
+  static Future<List<dynamic>> getGallerysListAndPageCountByPageNo(
+      int pageNo, SearchConfig searchConfig, EHHtmlParser parser) async {
     Response<String> response = await _dio.get(
-      EHConsts.EIndex,
+      searchConfig.toPath(),
       queryParameters: {
         'page': pageNo,
-        ...?searchConfig?.toQueryParameters(),
+        ...searchConfig.toQueryParameters(),
       },
     );
-    return EHSpiderParser.parseHomeGallerysList(response.data!);
+    return parser(response);
   }
 
   static Future<Gallery> getGalleryByUrl(String galleryUrl) async {

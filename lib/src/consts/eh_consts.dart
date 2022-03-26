@@ -7,6 +7,12 @@ class EHConsts {
 
   static String get EXIndex => 'https://exhentai.org';
 
+  static String get EPopular => EHSetting.site.value == 'EH' ? EHPopular : EXPopular;
+
+  static String get EHPopular => 'https://e-hentai.org/popular';
+
+  static String get EXPopular => 'https://exhentai.org/popular';
+
   static String get EApi => EHSetting.site.value == 'EH' ? EHApi : EXApi;
 
   static String get EHApi => 'https://api.e-hentai.org/api.php';
@@ -14,6 +20,14 @@ class EHConsts {
   static String get EXApi => 'https://api.exhentai.org/api.php';
 
   static String get EHome => 'https://e-hentai.org/home.php';
+
+  static String get ERanklist => 'https://e-hentai.org/toplist.php';
+
+  static String get EWatched => EHSetting.site.value == 'EH' ? EHWatched : EXWatched;
+
+  static String get EHWatched => 'https://e-hentai.org/watched';
+
+  static String get EXWatched => 'https://exhentai.org/watched';
 
   static String get EForums => 'https://forums.e-hentai.org/index.php';
 

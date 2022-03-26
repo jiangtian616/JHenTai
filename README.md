@@ -33,6 +33,7 @@
 
 ### 优化类
 - [ ] 导航栏设置拖动排序
+- [ ] 缩略图精确导航
 - [ ] 图片放大：https://github.com/bluefireteam/photo_view
 - [ ] getBuilder 使用 id 范围优化 
 - [ ] keepalive原理优化

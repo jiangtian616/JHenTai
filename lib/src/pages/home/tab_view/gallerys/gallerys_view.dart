@@ -102,6 +102,7 @@ class GallerysView extends StatelessWidget {
                         itemBuilder: (BuildContext context, int index) {
                           return Slidable(
                             key: Key(TabBarSetting.configs[index].name),
+                            enabled: TabBarSetting.configs[index].isDeleteAble,
                             endActionPane: ActionPane(
                               motion: const DrawerMotion(),
                               extentRatio: 0.21,
@@ -120,13 +121,17 @@ class GallerysView extends StatelessWidget {
                                 TabBarSetting.configs[index].name,
                                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                               ),
-                              trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
-                              onTap: () => Get.dialog(
-                                EHTabBarConfigDialog(
-                                  tabBarConfig: TabBarSetting.configs[index],
-                                  type: EHTabBarConfigDialogType.update,
-                                ),
-                              ),
+                              trailing: TabBarSetting.configs[index].isDeleteAble
+                                  ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
+                                  : null,
+                              onTap: TabBarSetting.configs[index].isEditable
+                                  ? () => Get.dialog(
+                                        EHTabBarConfigDialog(
+                                          tabBarConfig: TabBarSetting.configs[index],
+                                          type: EHTabBarConfigDialogType.update,
+                                        ),
+                                      )
+                                  : null,
                             ),
                           );
                         },
@@ -435,47 +440,43 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ),
       ),
-    ).marginOnly(top: 5);
+    );
   }
 
   Widget _buildFooter(Gallery gallery) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        if (gallery.isFavorite)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            GalleryCategoryTag(category: gallery.category),
+            const Expanded(child: SizedBox()),
+            if (gallery.isFavorite)
               ClipRRect(
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(10),
                 child: Container(
                   color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
-                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                   child: Row(
                     children: [
                       const Icon(
                         Icons.favorite,
-                        size: 10,
+                        size: 8,
                         color: Colors.white,
                       ),
                       Text(
                         gallery.favoriteTagName!,
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 10,
+                          height: 1,
                           color: Colors.white,
                         ),
                       ).marginOnly(left: 2),
                     ],
                   ),
                 ),
-              )
-            ],
-          ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GalleryCategoryTag(category: gallery.category),
-            const Expanded(child: SizedBox()),
+              ).marginOnly(right: 4),
             if (gallery.language != null)
               Text(
                 LocaleConsts.languageCode[gallery.language] ?? '',
@@ -484,18 +485,20 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
                   color: Colors.grey.shade600,
                 ),
               ).marginOnly(right: 4),
-            Icon(
-              Icons.panorama,
-              size: 12,
-              color: Colors.grey.shade600,
-            ).marginOnly(right: 2),
-            Text(
-              gallery.pageCount.toString(),
-              style: TextStyle(
-                fontSize: 12,
+            if (gallery.pageCount > 0)
+              Icon(
+                Icons.panorama,
+                size: 12,
                 color: Colors.grey.shade600,
+              ).marginOnly(right: 2),
+            if (gallery.pageCount > 0)
+              Text(
+                gallery.pageCount.toString(),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
           ],
         ),
         Row(

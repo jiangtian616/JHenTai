@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -13,12 +14,14 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../../model/tab_bar_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
+import '../../../../utils/eh_spider_parser.dart';
 import 'gallerys_view_state.dart';
 import '../../../../model/gallery.dart';
 
 class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin {
   final GallerysViewState state = GallerysViewState();
   final TagTranslationService tagTranslationService = Get.find();
+  final StorageService storageService = Get.find();
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
 
   @override
@@ -74,7 +77,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-
     List<Gallery> newGallerys;
     int pageCount;
     state.loadingState[tabIndex] = LoadingState.loading;
@@ -106,7 +108,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     update();
   }
 
-  /// has scrolled to  bottom, so need to load more data.
+  /// has scrolled to bottom, so need to load more data.
   Future<void> handleLoadMore(int tabIndex) async {
     if (state.loadingState[tabIndex] == LoadingState.loading) {
       return;
@@ -166,15 +168,21 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
-    List<dynamic> gallerysAndPageCount =
-        await EHRequest.getGallerysListAndPageCountByPageNo(pageNo, TabBarSetting.configs[tabIndex].searchConfig);
+
+    List<dynamic> gallerysAndPageCount = await () async {
+      if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
+        return storageService.read<List<Gallery>>('history') ?? <Gallery>[];
+      }
+      return await EHRequest.getGallerysListAndPageCountByPageNo(
+          pageNo, TabBarSetting.configs[tabIndex].searchConfig, EHSpiderParser.parseGalleryList);
+    }();
 
     if (GallerySetting.enableTagZHTranslation.isTrue &&
         tagTranslationService.loadingState.value == LoadingState.success) {
       List<Gallery> newGallerys = gallerysAndPageCount[0];
-      for (Gallery gallery in newGallerys) {
-        gallery.tags = await tagTranslationService.getTagMapTranslation(gallery.tags);
-      }
+      Future.wait(newGallerys.map((gallery) {
+        return tagTranslationService.getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
+      }).toList());
     }
 
     return gallerysAndPageCount;

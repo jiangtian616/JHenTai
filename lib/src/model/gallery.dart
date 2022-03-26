@@ -107,4 +107,49 @@ class Gallery {
       publishTime: publishTime ?? this.publishTime,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "gid": this.gid,
+      "token": this.token,
+      "title": this.title,
+      "japaneseTitle": this.japaneseTitle,
+      "category": this.category,
+      "cover": this.cover,
+      "pageCount": this.pageCount,
+      "rating": this.rating,
+      "hasRated": this.hasRated,
+      "isFavorite": this.isFavorite,
+      "favoriteTagIndex": this.favoriteTagIndex,
+      "favoriteTagName": this.favoriteTagName,
+      "galleryUrl": this.galleryUrl,
+      "tags": this.tags,
+      "language": this.language,
+      "uploader": this.uploader,
+      "publishTime": this.publishTime,
+    };
+  }
+
+  factory Gallery.fromJson(Map<String, dynamic> json) {
+    return Gallery(
+      gid: int.parse(json["gid"]),
+      token: json["token"],
+      title: json["title"],
+      japaneseTitle: json["japaneseTitle"],
+      category: json["category"],
+      cover: GalleryImage.fromJson(json["cover"]),
+      pageCount: int.parse(json["pageCount"]),
+      rating: double.parse(json["rating"]),
+      hasRated: json["hasRated"].toLowerCase() == 'true',
+      isFavorite: json["isFavorite"].toLowerCase() == 'true',
+      favoriteTagIndex: int.parse(json["favoriteTagIndex"]),
+      favoriteTagName: json["favoriteTagName"],
+      galleryUrl: json["galleryUrl"],
+      tags: LinkedHashMap<String, List<TagData>>.from(json["tags"]),
+      language: json["language"],
+      uploader: json["uploader"],
+      publishTime: json["publishTime"],
+    );
+  }
+//
 }

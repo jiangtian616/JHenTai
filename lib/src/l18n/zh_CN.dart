@@ -50,7 +50,7 @@ class zh_CN {
 
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
-      'tabBarSetting': '导航栏设置',
+      'tabBarSetting': '标签栏设置',
 
       /// details page
       'downloading': "下载中",
@@ -103,9 +103,10 @@ class zh_CN {
 
       /// search dialog
       'searchConfig': '搜索配置',
-      'tabBarName': '导航栏名称',
+      'tabBarName': '标签栏名称',
       'popular': '热门',
       'ranklist': '排行',
+      'watched': '关注',
       'history': '历史',
       'keyword': '关键词',
       'searchGalleryName': '搜索画廊名字',
@@ -123,6 +124,13 @@ class zh_CN {
       'disableFilterForLanguage': '禁用语言过滤',
       'disableFilterForUploader': '禁用上传者过滤',
       'disableFilterForTags': '禁用标签过滤',
+      'searchName': '搜索画廊名称',
+      'searchTags': '搜索画廊标签',
+      'searchNote': '搜索画廊注释',
+      'all': '总',
+      'year': '年',
+      'month': '月',
+      'day': '日',
     };
   }
 }

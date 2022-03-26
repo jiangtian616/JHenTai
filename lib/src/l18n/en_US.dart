@@ -107,6 +107,7 @@ class en {
       'searchType': 'Search Type',
       'popular': 'popular',
       'ranklist': 'ranklist',
+      'watched': 'watched',
       'history': 'history',
       'keyword': 'keyword',
       'searchGalleryName': 'Search Gallery Name',
@@ -124,6 +125,13 @@ class en {
       'disableFilterForLanguage': 'Disable Filter For Language',
       'disableFilterForUploader': 'Disable Filter For Uploader',
       'disableFilterForTags': 'Disable Filter For Tags',
+      'searchName': 'Search Name',
+      'searchTags': 'Search Tags',
+      'searchNote': 'Search Note',
+      'all': 'All',
+      'year': 'Year',
+      'month': 'Month',
+      'day': 'Day',
     };
   }
 }
