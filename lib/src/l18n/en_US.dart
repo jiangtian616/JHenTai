@@ -106,7 +106,7 @@ class en {
       'tabBarName': 'TabBar Name',
       'searchType': 'Search Type',
       'popular': 'popular',
-      'ranklist': 'ranklist',
+      'ranklist': 'Ranklist',
       'watched': 'watched',
       'history': 'history',
       'keyword': 'keyword',
@@ -128,10 +128,13 @@ class en {
       'searchName': 'Search Name',
       'searchTags': 'Search Tags',
       'searchNote': 'Search Note',
-      'all': 'All',
+      'allTime': 'All-Time',
       'year': 'Year',
       'month': 'Month',
       'day': 'Day',
+
+      /// ranklist view
+      'getRanklistFailed':'get ranklist failed',
     };
   }
 }

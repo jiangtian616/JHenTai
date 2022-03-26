@@ -14,6 +14,7 @@ import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -35,7 +36,9 @@ final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class GallerysView extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
-  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
+  final GallerysViewState gallerysViewState = Get
+      .find<GallerysViewLogic>()
+      .state;
 
   GallerysView({Key? key}) : super(key: key);
 
@@ -45,6 +48,7 @@ class GallerysView extends StatelessWidget {
       key: scaffoldKey,
       endDrawer: _buildDrawer(),
       body: ExtendedNestedScrollView(
+
         /// use this GlobalKey to get innerController to implement 'scroll to top'
         key: galleryListKey,
 
@@ -98,7 +102,7 @@ class GallerysView extends StatelessWidget {
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
                         separatorBuilder: (BuildContext context, int index) =>
-                            const Divider(thickness: 0.7, height: 2, indent: 16),
+                        const Divider(thickness: 0.7, height: 2, indent: 16),
                         itemBuilder: (BuildContext context, int index) {
                           return Slidable(
                             key: Key(TabBarSetting.configs[index].name),
@@ -125,12 +129,13 @@ class GallerysView extends StatelessWidget {
                                   ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
                                   : null,
                               onTap: TabBarSetting.configs[index].isEditable
-                                  ? () => Get.dialog(
-                                        EHTabBarConfigDialog(
-                                          tabBarConfig: TabBarSetting.configs[index],
-                                          type: EHTabBarConfigDialogType.update,
-                                        ),
-                                      )
+                                  ? () =>
+                                  Get.dialog(
+                                    EHTabBarConfigDialog(
+                                      tabBarConfig: TabBarSetting.configs[index],
+                                      type: EHTabBarConfigDialogType.update,
+                                    ),
+                                  )
                                   : null,
                             ),
                           );
@@ -186,11 +191,15 @@ class GallerysView extends StatelessWidget {
                   height: GlobalConfig.tabBarHeight,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppBarTheme.of(context).backgroundColor,
+                    color: AppBarTheme
+                        .of(context)
+                        .backgroundColor,
                     border: Border(
                       bottom: BorderSide(
                         width: 0.2,
-                        color: AppBarTheme.of(context).foregroundColor!,
+                        color: AppBarTheme
+                            .of(context)
+                            .foregroundColor!,
                       ),
                     ),
                   ),
@@ -205,7 +214,7 @@ class GallerysView extends StatelessWidget {
                             physics: const BouncingScrollPhysics(),
                             tabs: List.generate(
                               TabBarSetting.configs.length,
-                              (index) => Tab(text: TabBarSetting.configs[index].name),
+                                  (index) => Tab(text: TabBarSetting.configs[index].name),
                             ),
                           );
                         }),
@@ -239,9 +248,10 @@ class GallerysView extends StatelessWidget {
           controller: logic.tabController,
           children: List.generate(
             TabBarSetting.configs.length,
-            (tabIndex) => GalleryTabBarView(
-              tabIndex: tabIndex,
-            ),
+                (tabIndex) =>
+                GalleryTabBarView(
+                  tabIndex: tabIndex,
+                ),
           ),
         );
       },
@@ -261,7 +271,9 @@ class GalleryTabBarView extends StatefulWidget {
 
 class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   final GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
+  final GallerysViewState gallerysViewState = Get
+      .find<GallerysViewLogic>()
+      .state;
 
   @override
   void initState() {
@@ -275,41 +287,42 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   @override
   Widget build(BuildContext context) {
     return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
-            gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
+        gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
         ? Center(
+      child: LoadingStateIndicator(
+        errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+        noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
+        loadingState: gallerysViewState.loadingState[widget.tabIndex],
+      ),
+    )
+        : CustomScrollView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: <Widget>[
+
+        /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
+        /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just
+        /// equal to Container(height: SystemBar.height + pinned height in header).
+        /// Because i want to place a CupertinoSliverRefreshControl here, but it only works when placed in the first of a
+        /// sliver list, so i wrapped it into a SliverPadding with it padding-top equal with [SliverOverlapInjector]'s height.
+        SliverPadding(
+          padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
+          sliver: CupertinoSliverRefreshControl(
+            refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+            onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
+          ),
+        ),
+        _buildGalleryList(widget.tabIndex),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          sliver: SliverToBoxAdapter(
             child: LoadingStateIndicator(
               errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             ),
-          )
-        : CustomScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: <Widget>[
-              /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
-              /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just
-              /// equal to Container(height: SystemBar.height + pinned height in header).
-              /// Because i want to place a CupertinoSliverRefreshControl here, but it only works when placed in the first of a
-              /// sliver list, so i wrapped it into a SliverPadding with it padding-top equal with [SliverOverlapInjector]'s height.
-              SliverPadding(
-                padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
-                sliver: CupertinoSliverRefreshControl(
-                  refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-                  onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
-                ),
-              ),
-              _buildGalleryList(widget.tabIndex),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                sliver: SliverToBoxAdapter(
-                  child: LoadingStateIndicator(
-                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-                    loadingState: gallerysViewState.loadingState[widget.tabIndex],
-                  ),
-                ),
-              ),
-            ],
-          );
+          ),
+        ),
+      ],
+    );
   }
 
   SliverList _buildGalleryList(int tabIndex) {
@@ -326,207 +339,10 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
             gallerysViewLogic.handleLoadMore(tabIndex);
           });
         }
-        List<Gallery> gallerys = gallerysViewState.gallerys[tabIndex];
+        Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
 
-        /// 1. in order to keep position for each TabBarView after changing to another TabBarView,
-        /// we should make the sliver widget in CustomScrollView mixin with [AutomaticKeepAliveClientMixin].
-        /// 2. we use a handy class [KeepAliveWrapper] to avoid write with AutomaticKeepAliveClientMixin,
-        /// they are equal in fact.
-        return KeepAliveWrapper(
-          child: GestureDetector(
-            onTap: () => gallerysViewLogic.handleTapCard(gallerys[index]),
-            child: Container(
-              height: 200,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-
-                /// covered when in dark mode
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 5,
-                    spreadRadius: 1,
-                    offset: const Offset(0.5, 3),
-                  )
-                ],
-                borderRadius: BorderRadius.circular(15),
-              ),
-              margin: const EdgeInsets.only(top: 5, bottom: 10, left: 10, right: 10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Row(
-                  children: [
-                    _buildCover(gallerys[index].cover),
-                    _buildInfo(gallerys[index]),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+        return GalleryCard(gallery: gallery, handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery));
       }, childCount: gallerysViewState.gallerys[tabIndex].length),
-    );
-  }
-
-  Widget _buildCover(GalleryImage image) {
-    return EHImage(
-      containerHeight: 200,
-      containerWidth: 140,
-      adaptive: true,
-      galleryImage: image,
-      fit: BoxFit.cover,
-    );
-  }
-
-  Widget _buildInfo(Gallery gallery) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitleAndUploader(gallery.title, gallery.uploader),
-          if (gallery.tags.isNotEmpty) _buildTagWaterFlow(gallery.tags),
-          _buildFooter(gallery),
-        ],
-      ).paddingOnly(left: 6, right: 10, top: 5, bottom: 5),
-    );
-  }
-
-  Widget _buildTitleAndUploader(String title, String uploader) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 15, height: 1.2),
-        ),
-        Text(
-          uploader,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ).marginOnly(top: 2),
-      ],
-    );
-  }
-
-  Widget _buildTagWaterFlow(Map<String, List<TagData>> tags) {
-    List<MapEntry<String, TagData>> mergedList = [];
-    tags.forEach((namespace, tagDatas) {
-      for (TagData tagData in tagDatas) {
-        mergedList.add(MapEntry(namespace, tagData));
-      }
-    });
-
-    return SizedBox(
-      height: 70,
-      child: WaterfallFlow.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-        ),
-        itemCount: mergedList.length,
-        itemBuilder: (BuildContext context, int index) => EHTag(
-          tagData: mergedList[index].value,
-          fontSize: 12,
-          textHeight: 1.2,
-          borderRadius: 4,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFooter(Gallery gallery) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GalleryCategoryTag(category: gallery.category),
-            const Expanded(child: SizedBox()),
-            if (gallery.isFavorite)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.favorite,
-                        size: 8,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        gallery.favoriteTagName!,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                      ).marginOnly(left: 2),
-                    ],
-                  ),
-                ),
-              ).marginOnly(right: 4),
-            if (gallery.language != null)
-              Text(
-                LocaleConsts.languageCode[gallery.language] ?? '',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-              ).marginOnly(right: 4),
-            if (gallery.pageCount > 0)
-              Icon(
-                Icons.panorama,
-                size: 12,
-                color: Colors.grey.shade600,
-              ).marginOnly(right: 2),
-            if (gallery.pageCount > 0)
-              Text(
-                gallery.pageCount.toString(),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            RatingBar.builder(
-              unratedColor: Colors.grey.shade300,
-              initialRating: gallery.rating,
-              itemCount: 5,
-              allowHalfRating: true,
-              itemSize: 16,
-              ignoreGestures: true,
-              itemBuilder: (context, _) => Icon(
-                Icons.star,
-                color: gallery.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
-              ),
-              onRatingUpdate: (rating) {},
-            ),
-            Text(
-              DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
-            ),
-          ],
-        ).marginOnly(top: 2),
-      ],
     );
   }
 }

@@ -127,10 +127,13 @@ class zh_CN {
       'searchName': '搜索画廊名称',
       'searchTags': '搜索画廊标签',
       'searchNote': '搜索画廊注释',
-      'all': '总',
+      'allTime': '总',
       'year': '年',
       'month': '月',
       'day': '日',
+
+      /// ranklist view
+      'getRanklistFailed':'获取排行榜数据失败',
     };
   }
 }

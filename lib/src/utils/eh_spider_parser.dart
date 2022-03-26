@@ -5,6 +5,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -12,6 +13,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
+import '../pages/home/tab_view/ranklist/ranklist_view_state.dart';
 
 class EHSpiderParser {
   static List<String?>? parseUserInfo(String html) {
@@ -84,6 +86,20 @@ class EHSpiderParser {
     );
 
     return gallery;
+  }
+
+  static Map<RanklistType, List<BaseGallery>> parse4Ranklists(Response response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> rankLists = document.querySelectorAll('.dc > .tdo');
+
+    return {
+      RanklistType.allTime: _parseRanklist(rankLists[0]),
+      RanklistType.year: _parseRanklist(rankLists[1]),
+      RanklistType.month: _parseRanklist(rankLists[2]),
+      RanklistType.day: _parseRanklist(rankLists[3]),
+    };
   }
 
   static Map<String, dynamic> parseGalleryDetails(String html) {
@@ -291,6 +307,18 @@ class EHSpiderParser {
     /// eg: '66 pages'
     String pageCountDesc = divs[1].text;
     return int.parse(pageCountDesc.split(' ')[0]);
+  }
+
+  static List<BaseGallery> _parseRanklist(Element ranklistDiv) {
+    List<Element> trs = ranklistDiv.querySelectorAll('table > tbody > tr');
+    return trs
+        .map(
+          (tr) => BaseGallery(
+            galleryUrl: tr.querySelector('.tun > a')!.attributes['href']!,
+            title: tr.querySelector('.tun > a')!.text,
+          ),
+        )
+        .toList();
   }
 
   static double _parseGalleryRating(Element tr) {

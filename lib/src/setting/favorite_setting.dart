@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:retry/retry.dart';
 
 class FavoriteSetting {
   static List<String>? favoriteTagNames;
@@ -20,14 +21,24 @@ class FavoriteSetting {
     if (!UserSetting.hasLoggedIn()) {
       return false;
     }
+    if (inited) {
+      return true;
+    }
 
     try {
-      favoriteTagNames2Count = await EHRequest.getFavoriteTags();
-      favoriteTagNames = favoriteTagNames2Count?.keys.toList();
+      retry(
+        () async {
+          favoriteTagNames2Count = await EHRequest.getFavoriteTags();
+          favoriteTagNames = favoriteTagNames2Count?.keys.toList();
+        },
+        retryIf: (e) => e is DioError,
+        maxAttempts: 4,
+      );
     } on DioError catch (e) {
       Log.error('FavoriteSetting init fail', e.message);
       return false;
     }
+
     Log.info('FavoriteSetting init success', false);
     return true;
   }

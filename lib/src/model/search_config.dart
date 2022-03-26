@@ -9,13 +9,6 @@ enum SearchType {
   history,
 }
 
-enum RanklistType {
-  all,
-  year,
-  month,
-  day,
-}
-
 @JsonSerializable()
 class SearchConfig {
   SearchType searchType = SearchType.gallery;
@@ -297,7 +290,6 @@ class SearchConfig {
     bool? searchFavoriteName,
     bool? searchFavoriteTags,
     bool? searchFavoriteNote,
-    RanklistType? ranklistType,
   }) {
     return SearchConfig(
       searchType: searchType ?? this.searchType,

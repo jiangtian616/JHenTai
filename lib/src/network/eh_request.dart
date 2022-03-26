@@ -200,6 +200,11 @@ class EHRequest {
     return parser(response);
   }
 
+  static Future<T> getRanklist<T>(EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(EHConsts.ERanklist);
+    return parser(response);
+  }
+
   static Future<Gallery> getGalleryByUrl(String galleryUrl) async {
     Response<String> response = await _dio.get(
       galleryUrl,
@@ -287,9 +292,7 @@ class EHRequest {
 
   static Future<LinkedHashMap<String, int>> getFavoriteTags() async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await _dio.get(
-      EHConsts.EFavorite,
-    );
+    Response<String> response = await _dio.get(EHConsts.EFavorite);
     return EHSpiderParser.parseFavoriteTags(response.data!);
   }
 

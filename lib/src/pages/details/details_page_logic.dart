@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
@@ -52,6 +51,7 @@ class DetailsPageLogic extends GetxController {
       getDetails();
       return;
     }
+
     /// enter from downloadPage or url
     if (arg is String) {
       Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg);
@@ -66,6 +66,18 @@ class DetailsPageLogic extends GetxController {
         state.galleryDetails!.fullTags =
             await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
       }
+      update();
+      return;
+    }
+
+    /// enter from ranklist view
+    if (arg is List) {
+      state.gallery = arg[0];
+      state.galleryDetails = arg[1];
+      state.apikey = arg[2];
+      state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
+      state.loadingDetailsState = LoadingState.success;
+      state.loadingThumbnailsState = LoadingState.idle;
       update();
       return;
     }
