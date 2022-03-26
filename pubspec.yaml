@@ -52,6 +52,7 @@ dependencies:
   flutter_widget_from_html: ^0.8.5
   url_launcher: ^6.0.20
   like_button: ^2.0.4
+  webview_flutter: ^3.0.1
 
 dev_dependencies:
   flutter_test:

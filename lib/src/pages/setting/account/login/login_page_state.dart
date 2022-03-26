@@ -10,10 +10,10 @@ enum LoginType {
 class LoginPageState {
   LoginType loginType = LoginType.password;
   FocusNode passwordFocusNode = FocusNode();
+  bool obscureText = true;
   String? userName;
   String? password;
   String? cookie;
   LoadingState loginState = LoadingState.idle;
 
-  LoginPageState() {}
 }
