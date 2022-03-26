@@ -44,6 +44,12 @@ class EHConsts {
 
   static String get EXTorrent => 'https://exhentai.org/gallerytorrents.php';
 
+  static String get EAchiver => EHSetting.site.value == 'EH' ? EHAchiver : EXAchiver;
+
+  static String get EHAchiver => 'https://e-hentai.org/archiver.php';
+
+  static String get EXAchiver => 'https://exhentai.org/archiver.php';
+
   static const Map<String, String> host2Ip = {
     'e-hentai.org': '104.20.135.21',
     'exhentai.org': '178.175.129.254',

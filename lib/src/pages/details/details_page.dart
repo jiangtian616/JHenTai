@@ -284,6 +284,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            itemExtent: (context.width - 30) / 5,
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -367,15 +368,15 @@ class DetailsPage extends StatelessWidget {
                 ),
                 onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapTorrent,
               ),
-              IconTextButton(
-                iconData: Icons.folder_zip,
-                iconSize: 28,
-                text: Text(
-                  'archive'.tr,
-                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
-                ),
-                onPressed: () => {},
-              ),
+              // IconTextButton(
+              //   iconData: Icons.folder_zip,
+              //   iconSize: 28,
+              //   text: Text(
+              //     'archive'.tr,
+              //     style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+              //   ),
+              //   onPressed: () => {},
+              // ),
             ],
           ),
         ),
