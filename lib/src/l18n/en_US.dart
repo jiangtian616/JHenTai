@@ -103,6 +103,9 @@ class en {
 
       /// search dialog
       'searchConfig': 'Search Config',
+      'addTabBar': 'Add Tab Bar',
+      'updateTabBar': 'Update Tab Bar',
+      'filterConfig': 'Filter Config',
       'tabBarName': 'TabBar Name',
       'searchType': 'Search Type',
       'popular': 'popular',
@@ -134,7 +137,11 @@ class en {
       'day': 'Day',
 
       /// ranklist view
-      'getRanklistFailed':'get ranklist failed',
+      'getRanklistFailed': 'get ranklist failed',
+
+      /// search page
+      'search': 'Search',
+      'searchFailed': 'search failed',
     };
   }
 }

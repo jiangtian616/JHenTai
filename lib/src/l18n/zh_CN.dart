@@ -103,6 +103,9 @@ class zh_CN {
 
       /// search dialog
       'searchConfig': '搜索配置',
+      'addTabBar': '添加标签栏',
+      'updateTabBar': '更新配置',
+      'filterConfig': '筛选配置',
       'tabBarName': '标签栏名称',
       'popular': '热门',
       'ranklist': '排行',
@@ -133,7 +136,11 @@ class zh_CN {
       'day': '日',
 
       /// ranklist view
-      'getRanklistFailed':'获取排行榜数据失败',
+      'getRanklistFailed': '获取排行榜数据失败',
+
+      /// search page
+      'search': '搜索',
+      'searchFailed': '搜索失败',
     };
   }
 }

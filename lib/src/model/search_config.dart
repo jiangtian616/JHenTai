@@ -75,7 +75,7 @@ class SearchConfig {
     this.disableFilterForUploader = false,
     this.disableFilterForTags = false,
     this.searchFavoriteName = true,
-    this.searchFavoriteTags= true,
+    this.searchFavoriteTags = true,
     this.searchFavoriteNote = true,
   });
 
@@ -97,66 +97,71 @@ class SearchConfig {
 
   /// search params
   Map<String, dynamic> toQueryParameters() {
-    Map<String, dynamic> params = {
-      'advsearch': 1,
-    };
+    Map<String, dynamic> params = {};
 
-    params['f_cats'] = _computeFCats();
-    if (keyword != null) {
-      params['f_search'] = keyword;
-    }
-    if (searchGalleryName) {
-      params['f_sname'] = 'on';
-    }
-    if (searchGalleryTags) {
-      params['f_stags'] = 'on';
-    }
-    if (searchGalleryDescription) {
-      params['f_sdesc'] = 'on';
-    }
-    if (searchExpungedGalleries) {
-      params['f_sh'] = 'on';
-    }
-    if (onlyShowGalleriesWithTorrents) {
-      params['f_sto'] = 'on';
-    }
-    if (onlyShowGalleriesWithTorrents) {
-      params['f_sto'] = 'on';
-    }
-    if (searchLowPowerTags) {
-      params['f_sdt1'] = 'on';
-    }
-    if (searchDownVotedTags) {
-      params['f_sdt2'] = 'on';
-    }
-    if (pageAtLeast != null) {
-      params['f_spf'] = pageAtLeast;
-    }
-    if (pageAtMost != null && (pageAtLeast == null || pageAtMost! >= pageAtLeast!)) {
-      params['f_spt'] = pageAtMost;
-    }
-    if (minimumRating > 1) {
-      params['f_srdd'] = minimumRating;
-    }
-    if (disableFilterForLanguage) {
-      params['f_sfl'] = 'on';
-    }
-    if (disableFilterForUploader) {
-      params['f_sfu'] = 'on';
-    }
-    if (disableFilterForTags) {
-      params['f_sft'] = 'on';
+    if (searchType == SearchType.gallery) {
+      params['advsearch'] = 1;
+      params['f_cats'] = _computeFCats();
+      if (keyword != null) {
+        params['f_search'] = keyword;
+      }
+      if (searchGalleryName) {
+        params['f_sname'] = 'on';
+      }
+      if (searchGalleryTags) {
+        params['f_stags'] = 'on';
+      }
+      if (searchGalleryDescription) {
+        params['f_sdesc'] = 'on';
+      }
+      if (searchExpungedGalleries) {
+        params['f_sh'] = 'on';
+      }
+      if (onlyShowGalleriesWithTorrents) {
+        params['f_sto'] = 'on';
+      }
+      if (onlyShowGalleriesWithTorrents) {
+        params['f_sto'] = 'on';
+      }
+      if (searchLowPowerTags) {
+        params['f_sdt1'] = 'on';
+      }
+      if (searchDownVotedTags) {
+        params['f_sdt2'] = 'on';
+      }
+      if (pageAtLeast != null) {
+        params['f_spf'] = pageAtLeast;
+      }
+      if (pageAtMost != null && (pageAtLeast == null || pageAtMost! >= pageAtLeast!)) {
+        params['f_spt'] = pageAtMost;
+      }
+      if (minimumRating > 1) {
+        params['f_sr'] = 'on';
+        params['f_srdd'] = minimumRating;
+      }
+      if (disableFilterForLanguage) {
+        params['f_sfl'] = 'on';
+      }
+      if (disableFilterForUploader) {
+        params['f_sfu'] = 'on';
+      }
+      if (disableFilterForTags) {
+        params['f_sft'] = 'on';
+      }
     }
 
-    if (searchFavoriteName) {
-      params['sn'] = 'on';
+    if (searchType == SearchType.favorite) {
+      if (searchFavoriteName) {
+        params['sn'] = 'on';
+      }
+      if (searchFavoriteTags) {
+        params['st'] = 'on';
+      }
+      if (searchFavoriteNote) {
+        params['sf'] = 'on';
+      }
     }
-    if (searchFavoriteTags) {
-      params['st'] = 'on';
-    }
-    if (searchFavoriteNote) {
-      params['sf'] = 'on';
-    }
+
     return params;
   }
 
@@ -228,6 +233,9 @@ class SearchConfig {
 
   int _computeFCats() {
     int f_cats = 0;
+    if (!includeMisc) {
+      f_cats += 1;
+    }
     if (!includeDoujinshi) {
       f_cats += 2;
     }
@@ -240,23 +248,20 @@ class SearchConfig {
     if (!includeGameCg) {
       f_cats += 16;
     }
-    if (!includeWestern) {
+    if (!includeImageSet) {
       f_cats += 32;
     }
-    if (!includeNonH) {
+    if (!includeCosplay) {
       f_cats += 64;
     }
-    if (!includeImageSet) {
+    if (!includeAsianPorn) {
       f_cats += 128;
     }
-    if (!includeCosplay) {
+    if (!includeNonH) {
       f_cats += 256;
     }
-    if (!includeAsianPorn) {
+    if (!includeWestern) {
       f_cats += 512;
-    }
-    if (!includeMisc) {
-      f_cats += 1024;
     }
     return f_cats;
   }

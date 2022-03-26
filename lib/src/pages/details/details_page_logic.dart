@@ -61,11 +61,8 @@ class DetailsPageLogic extends GetxController {
       state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
       state.loadingDetailsState = LoadingState.success;
       state.loadingThumbnailsState = LoadingState.success;
-      if (GallerySetting.enableTagZHTranslation.isTrue &&
-          tagTranslationService.loadingState.value == LoadingState.success) {
-        state.galleryDetails!.fullTags =
-            await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
-      }
+
+      await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
       update();
       return;
     }
@@ -117,10 +114,7 @@ class DetailsPageLogic extends GetxController {
     }
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
-      state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
-    }
+    await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
     update();
   }
@@ -142,10 +136,7 @@ class DetailsPageLogic extends GetxController {
     state.refresh();
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
-      state.galleryDetails!.fullTags = await tagTranslationService.getTagMapTranslation(state.galleryDetails!.fullTags);
-    }
+    await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     update();
   }
 

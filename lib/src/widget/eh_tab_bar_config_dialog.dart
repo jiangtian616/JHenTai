@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
 import 'gallery_category_tag.dart';
@@ -15,7 +14,7 @@ enum EHTabBarConfigDialogType {
   update,
 
   /// add a new tabBar
-  add,
+  addTabBar,
 
   /// in search page, filter the result
   filter,
@@ -45,7 +44,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
     /// notify listeners to rebuild page and save new config
     if (widget.type == EHTabBarConfigDialogType.update) {
       TabBarSetting.updateTab(tabBarConfig.name, tabBarConfig);
-    } else if (widget.type == EHTabBarConfigDialogType.add) {
+    } else if (widget.type == EHTabBarConfigDialogType.addTabBar) {
       TabBarSetting.addTab(tabBarConfig.name, tabBarConfig.searchConfig);
     }
 
@@ -62,24 +61,28 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         child: Column(
           children: [
             Center(
-              child: Text('searchConfig'.tr, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              child: Text(
+                _buildTitleText(),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ).marginOnly(bottom: 12),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        isDense: true,
-                        alignLabelWithHint: true,
-                        labelText: 'tabBarName'.tr,
-                        labelStyle: const TextStyle(fontSize: 12),
-                      ),
-                      controller: TextEditingController(text: tabBarConfig.name),
-                      onChanged: (title) {
-                        tabBarConfig.name = title;
-                      },
-                    ).marginOnly(left: 16, right: 16),
+                    if (widget.type != EHTabBarConfigDialogType.filter)
+                      TextField(
+                        decoration: InputDecoration(
+                          isDense: true,
+                          alignLabelWithHint: true,
+                          labelText: 'tabBarName'.tr,
+                          labelStyle: const TextStyle(fontSize: 12),
+                        ),
+                        controller: TextEditingController(text: tabBarConfig.name),
+                        onChanged: (title) {
+                          tabBarConfig.name = title;
+                        },
+                      ).marginOnly(left: 16, right: 16),
                     CupertinoSlidingSegmentedControl<SearchType>(
                       groupValue: tabBarConfig.searchConfig.searchType,
                       children: {
@@ -98,18 +101,19 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                       Column(
                         children: [
                           _buildCategoryTags().marginOnly(top: 20),
-                          TextField(
-                            decoration: InputDecoration(
-                              isDense: true,
-                              alignLabelWithHint: true,
-                              labelText: 'keyword'.tr,
-                              labelStyle: const TextStyle(fontSize: 12),
-                            ),
-                            controller: TextEditingController(text: tabBarConfig.searchConfig.keyword),
-                            onChanged: (keyword) {
-                              tabBarConfig.searchConfig.keyword = keyword;
-                            },
-                          ).marginOnly(left: 16, right: 16, top: 16),
+                          if (widget.type != EHTabBarConfigDialogType.filter)
+                            TextField(
+                              decoration: InputDecoration(
+                                isDense: true,
+                                alignLabelWithHint: true,
+                                labelText: 'keyword'.tr,
+                                labelStyle: const TextStyle(fontSize: 12),
+                              ),
+                              controller: TextEditingController(text: tabBarConfig.searchConfig.keyword),
+                              onChanged: (keyword) {
+                                tabBarConfig.searchConfig.keyword = keyword;
+                              },
+                            ).marginOnly(left: 16, right: 16, top: 16),
                           ListTile(
                             title: Text('searchGalleryName'.tr, style: const TextStyle(fontSize: 15)),
                             dense: true,
@@ -276,14 +280,16 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                             key: const Key('searchName'),
                             title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
                             dense: true,
-                            trailing: KeepAliveWrapper(child: Switch(
-                              value: tabBarConfig.searchConfig.searchFavoriteName,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  tabBarConfig.searchConfig.searchFavoriteName = value;
-                                });
-                              },
-                            ),),
+                            trailing: KeepAliveWrapper(
+                              child: Switch(
+                                value: tabBarConfig.searchConfig.searchFavoriteName,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    tabBarConfig.searchConfig.searchFavoriteName = value;
+                                  });
+                                },
+                              ),
+                            ),
                           ).marginOnly(top: 24),
                           ListTile(
                             key: const Key('searchTags'),
@@ -321,6 +327,17 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         ).marginOnly(top: 22, bottom: 22),
       ),
     );
+  }
+
+  String _buildTitleText() {
+    switch (widget.type) {
+      case EHTabBarConfigDialogType.update:
+        return 'updateTabBar'.tr;
+      case EHTabBarConfigDialogType.addTabBar:
+        return 'addTabBar'.tr;
+      case EHTabBarConfigDialogType.filter:
+        return 'filterConfig'.tr;
+    }
   }
 
   Widget _buildCategoryTags() {

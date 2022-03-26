@@ -35,7 +35,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
         state.gallerys.add(List.empty(growable: true));
         state.loadingState.add(LoadingState.idle);
         state.pageCount.add(-1);
-        state.nextPageIndexToLoad.add(0);
+        state.nextPageNoToLoad.add(0);
 
         /// to change the length of a existing TabController, replace it by a new one.
         TabController oldController = tabController;
@@ -53,7 +53,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
         state.gallerys.removeAt(removedIndex);
         state.loadingState.removeAt(removedIndex);
         state.pageCount.removeAt(removedIndex);
-        state.nextPageIndexToLoad.removeAt(removedIndex);
+        state.nextPageNoToLoad.removeAt(removedIndex);
 
         /// to change the length of a existing TabController, replace it by a new one.
         TabController oldController = tabController;
@@ -94,13 +94,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    state.nextPageIndexToLoad[tabIndex] = 1;
+    state.nextPageNoToLoad[tabIndex] = 1;
     state.gallerys[tabIndex].clear();
     state.gallerys[tabIndex] = newGallerys;
     state.pageCount[tabIndex] = pageCount;
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;
-    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
+    } else if (state.pageCount[tabIndex] == state.nextPageNoToLoad[tabIndex]) {
       state.loadingState[tabIndex] = LoadingState.noMore;
     } else {
       state.loadingState[tabIndex] = LoadingState.idle;
@@ -121,7 +121,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     }
 
     try {
-      List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]);
+      List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageNoToLoad[tabIndex]);
       state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
       state.pageCount[tabIndex] = gallerysAndPageCount[1];
     } on DioError catch (e) {
@@ -132,10 +132,10 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    state.nextPageIndexToLoad[tabIndex]++;
+    state.nextPageNoToLoad[tabIndex]++;
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;
-    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
+    } else if (state.pageCount[tabIndex] == state.nextPageNoToLoad[tabIndex]) {
       state.loadingState[tabIndex] = LoadingState.noMore;
     } else {
       state.loadingState[tabIndex] = LoadingState.idle;
@@ -150,7 +150,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.gallerys.add(List.empty(growable: true));
     state.loadingState.add(LoadingState.idle);
     state.pageCount.add(-1);
-    state.nextPageIndexToLoad.add(0);
+    state.nextPageNoToLoad.add(0);
 
     /// to change the length of a existing TabController, replace it by a new one.
     TabController oldController = tabController;
@@ -177,13 +177,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
           pageNo, TabBarSetting.configs[tabIndex].searchConfig, EHSpiderParser.parseGalleryList);
     }();
 
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
-      List<Gallery> newGallerys = gallerysAndPageCount[0];
-      Future.wait(newGallerys.map((gallery) {
-        return tagTranslationService.getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
-      }).toList());
-    }
+    await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
 
     return gallerysAndPageCount;
   }

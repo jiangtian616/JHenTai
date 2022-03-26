@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -11,6 +12,8 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../database/database.dart';
+import '../model/gallery.dart';
+import '../setting/gallery_setting.dart';
 import '../utils/log.dart';
 
 class TagTranslationService extends GetxService {
@@ -67,6 +70,28 @@ class TagTranslationService extends GetxService {
     loadingState.value = LoadingState.success;
     Log.info('update tagTranslation database success', false);
     File(savePath).delete();
+  }
+
+  Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
+    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+      Future.wait(gallerys.map((gallery) {
+        return getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
+      }).toList());
+    }
+  }
+
+  Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetails> galleryDetails) async {
+    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+      Future.wait(galleryDetails.map((galleryDetail) {
+        return getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
+      }).toList());
+    }
+  }
+
+  Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetails galleryDetail) async {
+    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+      await getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
+    }
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {

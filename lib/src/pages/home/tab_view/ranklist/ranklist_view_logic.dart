@@ -65,15 +65,8 @@ class RanklistViewLogic extends GetxController {
       }
     }
 
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
-      Future.wait(state.ranklistGallery[curType]!.map((gallery) {
-        return tagTranslationService.getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
-      }).toList());
-      Future.wait(state.ranklistGalleryDetails[curType]!.map((detail) {
-        return tagTranslationService.getTagMapTranslation(detail.fullTags).then((value) => detail.fullTags = value);
-      }).toList());
-    }
+    tagTranslationService.translateGalleryTagsIfNeeded(state.ranklistGallery[curType]!);
+    tagTranslationService.translateGalleryDetailsTagsIfNeeded(state.ranklistGalleryDetails[curType]!);
     state.getRanklistLoadingState[curType] = LoadingState.noMore;
     update();
   }

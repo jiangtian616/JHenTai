@@ -15,6 +15,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
+import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -36,9 +37,7 @@ final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class GallerysView extends StatelessWidget {
   final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
-  final GallerysViewState gallerysViewState = Get
-      .find<GallerysViewLogic>()
-      .state;
+  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
 
   GallerysView({Key? key}) : super(key: key);
 
@@ -48,7 +47,6 @@ class GallerysView extends StatelessWidget {
       key: scaffoldKey,
       endDrawer: _buildDrawer(),
       body: ExtendedNestedScrollView(
-
         /// use this GlobalKey to get innerController to implement 'scroll to top'
         key: galleryListKey,
 
@@ -88,7 +86,7 @@ class GallerysView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onTap: () => Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.add)),
+                            onTap: () => Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
                             child: const Icon(Icons.add, size: 28, color: Colors.white).marginOnly(right: 16),
                           ),
                           const Icon(FontAwesomeIcons.bars, size: 18, color: Colors.white).marginOnly(right: 4),
@@ -102,7 +100,7 @@ class GallerysView extends StatelessWidget {
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
                         separatorBuilder: (BuildContext context, int index) =>
-                        const Divider(thickness: 0.7, height: 2, indent: 16),
+                            const Divider(thickness: 0.7, height: 2, indent: 16),
                         itemBuilder: (BuildContext context, int index) {
                           return Slidable(
                             key: Key(TabBarSetting.configs[index].name),
@@ -129,13 +127,12 @@ class GallerysView extends StatelessWidget {
                                   ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
                                   : null,
                               onTap: TabBarSetting.configs[index].isEditable
-                                  ? () =>
-                                  Get.dialog(
-                                    EHTabBarConfigDialog(
-                                      tabBarConfig: TabBarSetting.configs[index],
-                                      type: EHTabBarConfigDialogType.update,
-                                    ),
-                                  )
+                                  ? () => Get.dialog(
+                                        EHTabBarConfigDialog(
+                                          tabBarConfig: TabBarSetting.configs[index],
+                                          type: EHTabBarConfigDialogType.update,
+                                        ),
+                                      )
                                   : null,
                             ),
                           );
@@ -182,7 +179,7 @@ class GallerysView extends StatelessWidget {
                     actions: [
                       IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () {},
+                        onPressed: () => Get.toNamed(Routes.search),
                       ),
                     ],
                   ),
@@ -191,15 +188,11 @@ class GallerysView extends StatelessWidget {
                   height: GlobalConfig.tabBarHeight,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppBarTheme
-                        .of(context)
-                        .backgroundColor,
+                    color: AppBarTheme.of(context).backgroundColor,
                     border: Border(
                       bottom: BorderSide(
                         width: 0.2,
-                        color: AppBarTheme
-                            .of(context)
-                            .foregroundColor!,
+                        color: AppBarTheme.of(context).foregroundColor!,
                       ),
                     ),
                   ),
@@ -214,7 +207,7 @@ class GallerysView extends StatelessWidget {
                             physics: const BouncingScrollPhysics(),
                             tabs: List.generate(
                               TabBarSetting.configs.length,
-                                  (index) => Tab(text: TabBarSetting.configs[index].name),
+                              (index) => Tab(text: TabBarSetting.configs[index].name),
                             ),
                           );
                         }),
@@ -248,10 +241,9 @@ class GallerysView extends StatelessWidget {
           controller: logic.tabController,
           children: List.generate(
             TabBarSetting.configs.length,
-                (tabIndex) =>
-                GalleryTabBarView(
-                  tabIndex: tabIndex,
-                ),
+            (tabIndex) => GalleryTabBarView(
+              tabIndex: tabIndex,
+            ),
           ),
         );
       },
@@ -271,9 +263,7 @@ class GalleryTabBarView extends StatefulWidget {
 
 class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   final GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-  final GallerysViewState gallerysViewState = Get
-      .find<GallerysViewLogic>()
-      .state;
+  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
 
   @override
   void initState() {
@@ -287,42 +277,41 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   @override
   Widget build(BuildContext context) {
     return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
-        gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
+            gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
         ? Center(
-      child: LoadingStateIndicator(
-        errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-        noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
-        loadingState: gallerysViewState.loadingState[widget.tabIndex],
-      ),
-    )
-        : CustomScrollView(
-      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      slivers: <Widget>[
-
-        /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
-        /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just
-        /// equal to Container(height: SystemBar.height + pinned height in header).
-        /// Because i want to place a CupertinoSliverRefreshControl here, but it only works when placed in the first of a
-        /// sliver list, so i wrapped it into a SliverPadding with it padding-top equal with [SliverOverlapInjector]'s height.
-        SliverPadding(
-          padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
-          sliver: CupertinoSliverRefreshControl(
-            refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-            onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
-          ),
-        ),
-        _buildGalleryList(widget.tabIndex),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          sliver: SliverToBoxAdapter(
             child: LoadingStateIndicator(
               errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             ),
-          ),
-        ),
-      ],
-    );
+          )
+        : CustomScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            slivers: <Widget>[
+              /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
+              /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just
+              /// equal to Container(height: SystemBar.height + pinned height in header).
+              /// Because i want to place a CupertinoSliverRefreshControl here, but it only works when placed in the first of a
+              /// sliver list, so i wrapped it into a SliverPadding with it padding-top equal with [SliverOverlapInjector]'s height.
+              SliverPadding(
+                padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
+                sliver: CupertinoSliverRefreshControl(
+                  refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+                  onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
+                ),
+              ),
+              _buildGalleryList(widget.tabIndex),
+              SliverPadding(
+                padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
+                sliver: SliverToBoxAdapter(
+                  child: LoadingStateIndicator(
+                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+                    loadingState: gallerysViewState.loadingState[widget.tabIndex],
+                  ),
+                ),
+              ),
+            ],
+          );
   }
 
   SliverList _buildGalleryList(int tabIndex) {

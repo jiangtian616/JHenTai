@@ -125,6 +125,7 @@ class GalleryCard extends StatelessWidget {
     return SizedBox(
       height: 70,
       child: WaterfallFlow.builder(
+        key: Key(gallery.gid.toString()),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
