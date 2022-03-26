@@ -142,6 +142,7 @@ class en {
       /// search page
       'search': 'Search',
       'searchFailed': 'search failed',
+
     };
   }
 }

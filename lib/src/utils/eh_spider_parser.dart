@@ -10,6 +10,7 @@ import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_details.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/model/gallery_torrent.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
@@ -188,6 +189,32 @@ class EHSpiderParser {
     }
     Document document = parse(html);
     return document.querySelector('p.br')?.text;
+  }
+
+  static List<GalleryTorrent> parseTorrent(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> torrentForms = document.querySelectorAll('#torrentinfo > div > form');
+    torrentForms.removeWhere((form) => form.querySelector('div > table > tbody > tr:nth-child(4) > td > a') == null);
+
+    return torrentForms.map(
+      (form) {
+        List<Element> trs = form.querySelectorAll('div > table > tbody > tr');
+        return GalleryTorrent(
+          title: trs[2].querySelector('td > a')!.text,
+          postTime: trs[0].querySelector('td:nth-child(1)')!.text.substring(8),
+          size: trs[0].querySelector('td:nth-child(3)')!.text.substring(6),
+          seeds: int.parse(trs[0].querySelector('td:nth-child(7)')!.text.substring(7)),
+          peers: int.parse(trs[0].querySelector('td:nth-child(9)')!.text.substring(7)),
+          downloads: int.parse(trs[0].querySelector('td:nth-child(11)')!.text.substring(11)),
+          uploader: trs[1].querySelector('td:nth-child(1)')!.text.substring(10),
+          torrentUrl: trs[2].querySelector('td > a')!.attributes['href']!,
+          magnetUrl:
+              'magnet:?xt=urn:btih:${trs[2].querySelector('td > a')!.attributes['href']!.split('.')[1].split('/').last}',
+        );
+      },
+    ).toList();
   }
 
   static int _parseHomeGalleryTotalPageCount(Document document) {

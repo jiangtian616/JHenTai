@@ -77,10 +77,11 @@ class SearchPagePage extends StatelessWidget {
                   width: double.infinity,
                   child: CupertinoSearchTextField(
                     prefixInsets: const EdgeInsets.only(left: 18),
-                    placeholder: 'search'.tr,
-                    placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
                     borderRadius: BorderRadius.zero,
                     backgroundColor: Get.theme.backgroundColor,
+                    placeholder: 'search'.tr,
+                    placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
+                    controller: TextEditingController(text: state.tabBarConfig.searchConfig.keyword),
                     onChanged: (value) => state.tabBarConfig.searchConfig.keyword = value,
                     onSubmitted: (value) => logic.search(),
                   ),

@@ -38,6 +38,12 @@ class EHConsts {
   static String get EFavorite =>
       EHSetting.site.value == 'EH' ? 'https://e-hentai.org/favorites.php' : 'https://exhentai.org/favorites.php';
 
+  static String get ETorrent => EHSetting.site.value == 'EH' ? EHTorrent : EXTorrent;
+
+  static String get EHTorrent => 'https://e-hentai.org/gallerytorrents.php';
+
+  static String get EXTorrent => 'https://exhentai.org/gallerytorrents.php';
+
   static const Map<String, String> host2Ip = {
     'e-hentai.org': '104.20.135.21',
     'exhentai.org': '178.175.129.254',

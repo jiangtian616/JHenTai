@@ -16,6 +16,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
+import '../routes/routes.dart';
 import '../setting/user_setting.dart';
 
 class EHTag extends StatefulWidget {
@@ -80,7 +81,9 @@ class _EHTagState extends State<EHTag> {
     );
   }
 
-  void _searchTag() {}
+  void _searchTag() {
+    Get.toNamed(Routes.search, arguments: '${widget.tagData.namespace}:${widget.tagData.key}');
+  }
 
   void _showDialog() {
     Get.dialog(_TagDialog(tagData: widget.tagData));

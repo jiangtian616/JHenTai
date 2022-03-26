@@ -19,15 +19,15 @@
 - [x] network retry、cache
 - [ ] webview登录
 - [ ] 网站设置
-- [ ] 搜索
-- [ ] 点击标签搜索
-- [ ] 相似
+- [x] 搜索
+- [x] 点击标签搜索
 - [ ] 搜索历史
-- [ ] 搜索推荐标签
+- [ ] 搜索智能提示标签
 - [x] 详情页拦截器缓存
 - [x] offensive gallery
 - [x] 增加EhTagTranslation中的描述页面
-
+- [ ] 展示Gallery 统计数据
+- [ ] 文件搜索
 ### bug
 - 缩略图大图
 

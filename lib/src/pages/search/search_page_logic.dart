@@ -27,6 +27,16 @@ class SearchPageLogic extends GetxController {
   static SearchPageLogic get currentSearchPageLogic =>
       Get.find<SearchPageLogic>(tag: SearchPageLogic.currentStackDepth.toString());
 
+  @override
+  void onInit() {
+    /// enter this page by tapping tag
+    if (Get.arguments is String) {
+      state.tabBarConfig.searchConfig.keyword = Get.arguments;
+      search();
+    }
+    super.onInit();
+  }
+
   Future<void> search({bool isRefresh = true}) async {
     if (state.loadingState == LoadingState.loading) {
       return;

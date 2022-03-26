@@ -26,7 +26,7 @@ import 'package:path/path.dart';
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
 
-typedef EHHtmlParser<T> = T Function(Response response);
+typedef EHHtmlParser<T> = T Function(Response<String> response);
 
 class EHRequest {
   static late final Dio _dio;
@@ -415,10 +415,7 @@ class EHRequest {
     return response.data!;
   }
 
-  static Future<String?> sendComment(
-    String galleryUrl,
-    String content,
-  ) async {
+  static Future<String?> sendComment(String galleryUrl, String content) async {
     Response<String> response = await _dio.post(
       galleryUrl,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -427,6 +424,18 @@ class EHRequest {
       },
     );
     return EHSpiderParser.parseSendCommentErrorMsg(response);
+  }
+
+  static Future<T> getTorrent<T>(int gid, String token, EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(
+      EHConsts.ETorrent,
+      queryParameters: {
+        'gid': gid,
+        't': token,
+      },
+      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
+    );
+    return parser(response);
   }
 
   static String _parseLoginErrorMsg(String html) {

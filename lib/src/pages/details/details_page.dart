@@ -82,7 +82,7 @@ class DetailsPage extends StatelessWidget {
                       CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
                       _buildHeader(gallery, context),
                       _buildDetails(gallery, detailsPageState.galleryDetails),
-                      _buildActions(gallery, detailsPageState.galleryDetails),
+                      _buildActions(gallery, detailsPageState.galleryDetails, context),
                       if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
                         _buildTags(detailsPageState.galleryDetails!.fullTags),
                       _buildLoadingDetailsIndicator(),
@@ -273,7 +273,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActions(Gallery gallery, GalleryDetails? galleryDetails) {
+  Widget _buildActions(Gallery gallery, GalleryDetails? galleryDetails, BuildContext context) {
     int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
 
     return SliverPadding(
@@ -314,7 +314,7 @@ class DetailsPage extends StatelessWidget {
                 }),
               ),
               LoadingStateIndicator(
-                width: 65,
+                width: (context.width - 30) / 6,
                 loadingState: detailsPageState.addFavoriteState,
                 idleWidget: IconTextButton(
                   iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
@@ -326,6 +326,8 @@ class DetailsPage extends StatelessWidget {
                       : null,
                   text: Text(
                     gallery.isFavorite ? gallery.favoriteTagName! : 'favorite'.tr,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
                       color: Get.theme.appBarTheme.titleTextStyle?.color,
@@ -360,25 +362,16 @@ class DetailsPage extends StatelessWidget {
                 iconData: FontAwesomeIcons.magnet,
                 iconSize: 24,
                 text: Text(
-                  'torrent'.tr,
+                  '${'torrent'.tr}(${detailsPageState.galleryDetails?.torrentCount ?? '.'})',
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
-                onPressed: () => {},
+                onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapTorrent,
               ),
               IconTextButton(
                 iconData: Icons.folder_zip,
                 iconSize: 28,
                 text: Text(
                   'archive'.tr,
-                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
-                ),
-                onPressed: () => {},
-              ),
-              IconTextButton(
-                iconData: Icons.search,
-                iconSize: 28,
-                text: Text(
-                  'similar'.tr,
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
                 onPressed: () => {},
