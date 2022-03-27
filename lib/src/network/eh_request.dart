@@ -8,7 +8,6 @@ import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:html/parser.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery.dart';
@@ -23,6 +22,7 @@ import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:path/path.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
@@ -113,7 +113,7 @@ class EHRequest {
       },
     ));
 
-    Log.info('EHRequest init success', false);
+    Log.info('init EHRequest success', false);
   }
 
   static Future<void> storeEhCookiesStringForAllUri(String cookiesString) async {
@@ -175,8 +175,9 @@ class EHRequest {
 
   /// just remove cookies
   static Future<void> logout() async {
-    removeAllCookies();
+     removeAllCookies();
     UserSetting.clear();
+    CookieManager().clearCookies();
   }
 
   static Future<String> home() async {
@@ -197,8 +198,8 @@ class EHRequest {
     return EHSpiderParser.parseUserInfo(response.data!);
   }
 
-  static Future<List<dynamic>> getGallerysListAndPageCountByPageNo(
-      int pageNo, SearchConfig searchConfig, EHHtmlParser parser) async {
+  static Future<T> getGallerysListAndPageCountByPageNo<T>(
+      int pageNo, SearchConfig searchConfig, EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(
       searchConfig.toPath(),
       queryParameters: {
@@ -219,13 +220,14 @@ class EHRequest {
       galleryUrl,
       options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
     );
-    return EHSpiderParser.parseGalleryByUrl(response.data!, galleryUrl);
+    return EHSpiderParser.parseGalleryByUrl(response);
   }
 
-  static Future<Map<String, dynamic>> getGalleryDetailsAndApikey({
+  static Future<T> getGalleryDetails<T>({
     required String galleryUrl,
     int thumbnailsPageNo = 0,
     bool useCacheIfAvailable = true,
+    required EHHtmlParser<T> parser,
   }) async {
     Response<String> response = await _dio.get(
       galleryUrl,
@@ -234,18 +236,18 @@ class EHRequest {
           ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
           : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
-    return EHSpiderParser.parseGalleryDetails(response.data!);
+    return parser(response);
   }
 
-  static Future<Map<String, dynamic>> getGalleryAndDetailsByUrl(String galleryUrl,
-      {bool useCacheIfAvailable = true}) async {
+  static Future<T> getGalleryAndDetailsByUrl<T>(
+      {required String galleryUrl, bool useCacheIfAvailable = true, required EHHtmlParser<T> parser}) async {
     Response<String> response = await _dio.get(
       galleryUrl,
       options: useCacheIfAvailable
           ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
           : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
-    return EHSpiderParser.getGalleryAndDetailsByUrl(response.data!, galleryUrl);
+    return parser(response);
   }
 
   /// only parse Thumbnails
@@ -255,12 +257,6 @@ class EHRequest {
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
-      options: cacheOption
-          .copyWith(
-            policy: CachePolicy.forceCache,
-            maxStale: const Nullable(Duration(days: 1)),
-          )
-          .toOptions(),
     );
     return EHSpiderParser.parseGalleryDetailsThumbnails(response.data!);
   }
@@ -444,6 +440,11 @@ class EHRequest {
       },
       options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
     );
+    return parser(response);
+  }
+
+  static Future<T> requestSetting<T>(EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(EHConsts.EUconfig);
     return parser(response);
   }
 

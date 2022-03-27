@@ -5,6 +5,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/service/download_service.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -17,8 +18,7 @@ class ReadPageLogic extends GetxController {
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  @override
-  void onInit() {
+  ReadPageLogic() {
     state.type = Get.parameters['type']!;
     state.initialIndex = int.parse(Get.parameters['initialIndex']!);
     state.pageCount = int.parse(Get.parameters['pageCount']!);
@@ -64,7 +64,7 @@ class ReadPageLogic extends GetxController {
     try {
       newThumbnails = await EHRequest.getGalleryDetailsThumbnailByPageNo(
         galleryUrl: state.galleryUrl,
-        thumbnailsPageNo: index ~/ 40,
+        thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
       );
     } on DioError catch (e) {
       Log.error('get thumbnails error!', e);
@@ -98,7 +98,9 @@ class ReadPageLogic extends GetxController {
   @override
   void onClose() {
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
-    DetailsPageLogic.currentDetailsPageLogic.update();
+    if (DetailsPageLogic.currentStackDepth > 0) {
+      DetailsPageLogic.currentDetailsPageLogic.update();
+    }
     super.onClose();
   }
 }

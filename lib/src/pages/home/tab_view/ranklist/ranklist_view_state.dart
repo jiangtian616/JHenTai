@@ -1,5 +1,5 @@
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/gallery_details.dart';
+import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 enum RanklistType {
@@ -12,7 +12,7 @@ enum RanklistType {
 class RanklistViewState {
   late RanklistType ranklistType;
   late Map<RanklistType, List<Gallery>> ranklistGallery;
-  late Map<RanklistType, List<GalleryDetails>> ranklistGalleryDetails;
+  late Map<RanklistType, List<GalleryDetail>> ranklistGalleryDetails;
   late Map<RanklistType, List<String>> ranklistGalleryDetailsApikey;
 
   late Map<RanklistType, LoadingState> getRanklistLoadingState;
@@ -25,11 +25,11 @@ class RanklistViewState {
       RanklistType.month: <Gallery>[],
       RanklistType.day: <Gallery>[],
     };
-    ranklistGalleryDetails = <RanklistType, List<GalleryDetails>>{
-      RanklistType.allTime: <GalleryDetails>[],
-      RanklistType.year: <GalleryDetails>[],
-      RanklistType.month: <GalleryDetails>[],
-      RanklistType.day: <GalleryDetails>[],
+    ranklistGalleryDetails = <RanklistType, List<GalleryDetail>>{
+      RanklistType.allTime: <GalleryDetail>[],
+      RanklistType.year: <GalleryDetail>[],
+      RanklistType.month: <GalleryDetail>[],
+      RanklistType.day: <GalleryDetail>[],
     };
     ranklistGalleryDetailsApikey = <RanklistType, List<String>>{
       RanklistType.allTime: <String>[],

@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:retry/retry.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
@@ -102,7 +103,7 @@ class DownloadService extends GetxService {
         downloadGallery(g, isFirstDownload: false);
       }
     }
-    Log.info('DownloadService init success, download task count: ${gallerys.length}', false);
+    Log.info('init DownloadService success, download task count: ${gallerys.length}', false);
   }
 
   /// begin or resume downloading all images of a gallery
@@ -203,13 +204,13 @@ class DownloadService extends GetxService {
           .scheduleTask(
         () => EHRequest.getGalleryDetailsThumbnailByPageNo(
           galleryUrl: gallery.galleryUrl,
-          thumbnailsPageNo: serialNo ~/ 40,
+          thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
           cancelToken: gid2CancelToken[gallery.gid],
         ),
       )
           .then((newThumbnails) {
         Log.info('getMoreThumbnails success', false);
-        int from = serialNo ~/ 40 * 40;
+        int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
         for (int i = 0; i < newThumbnails.length; i++) {
           gid2ImageHrefs[gallery.gid]![from + i].value = newThumbnails[i];
         }

@@ -29,10 +29,13 @@
 - [x] offensive gallery
 - [x] 增加EhTagTranslation中的描述页面
 - [ ] 展示Gallery 统计数据
+- [ ] 关于
+- [ ] 下载配置
 - [ ] 文件搜索
 
 ### bug
-- 缩略图大图
+- 默认解析只支持Compact类型
+- 阅读进度自动跳转卡顿
 
 ### 优化类
 - [ ] 导航栏设置拖动排序

@@ -25,6 +25,7 @@ class Log {
 
     _logFile = Logger(
       printer: SimplePrinter(printTime: true, colors: false),
+      filter: ProductionFilter(),
       output: FileOutput(file: logFile),
     );
   }

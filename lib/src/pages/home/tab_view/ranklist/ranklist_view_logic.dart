@@ -47,10 +47,14 @@ class RanklistViewLogic extends GetxController {
 
     for (BaseGallery baseGallery in baseGallerys[curType]!) {
       try {
-        Map<String, dynamic> galleryAndDetails = await EHRequest.getGalleryAndDetailsByUrl(baseGallery.galleryUrl);
-        state.ranklistGallery[curType]?.add(galleryAndDetails['gallery']);
-        state.ranklistGalleryDetails[curType]?.add(galleryAndDetails['galleryDetails']);
-        state.ranklistGalleryDetailsApikey[curType]?.add(galleryAndDetails['apikey']);
+        Map<String, dynamic> galleryAndDetailAndApikeyAndPageCount =
+            await EHRequest.getGalleryAndDetailsByUrl<Map<String, dynamic>>(
+          galleryUrl: baseGallery.galleryUrl,
+          parser: EHSpiderParser.galleryDetail2GalleryAndDetailAndApikey,
+        );
+        state.ranklistGallery[curType]?.add(galleryAndDetailAndApikeyAndPageCount['gallery']);
+        state.ranklistGalleryDetails[curType]?.add(galleryAndDetailAndApikeyAndPageCount['galleryDetails']);
+        state.ranklistGalleryDetailsApikey[curType]?.add(galleryAndDetailAndApikeyAndPageCount['apikey']);
       } on DioError catch (e) {
         if (e.response?.statusCode != 404) {
           Log.error('get ranklist failed', e.message);

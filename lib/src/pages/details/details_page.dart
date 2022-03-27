@@ -9,7 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/gallery_details.dart';
+import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -159,7 +159,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDetails(Gallery gallery, GalleryDetails? galleryDetails) {
+  Widget _buildDetails(Gallery gallery, GalleryDetail? galleryDetails) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 18),
       sliver: SliverToBoxAdapter(
@@ -272,7 +272,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildActions(Gallery gallery, GalleryDetails? galleryDetails, BuildContext context) {
+  Widget _buildActions(Gallery gallery, GalleryDetail? galleryDetails, BuildContext context) {
     int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
 
     return SliverPadding(
@@ -283,7 +283,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: (context.width - 30) / 5.5,
+            itemExtent: (context.width - 30) / 4.7,
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -428,7 +428,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCommentsIndicator(GalleryDetails galleryDetails) {
+  Widget _buildCommentsIndicator(GalleryDetail galleryDetails) {
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 50,
@@ -447,7 +447,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildComments(GalleryDetails galleryDetails) {
+  Widget _buildComments(GalleryDetail galleryDetails) {
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 135,
@@ -468,7 +468,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnails(GalleryDetails galleryDetails) {
+  Widget _buildThumbnails(GalleryDetail galleryDetails) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36),
       sliver: SliverGrid(
@@ -491,42 +491,7 @@ class DetailsPage extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => detailsPageLogic.goToReadPage(index),
-                child: ConstrainedBox(
-                  /// 220-16-4
-                  constraints: const BoxConstraints(maxHeight: 200),
-                  child: LayoutBuilder(
-                    builder: (BuildContext context, BoxConstraints constraints) {
-                      /// there's a bug that after cropping, the image's length-width ratio remains(equal to the raw image),
-                      /// so choose to assign the size manually.
-                      Size imageSize = Size(thumbnail.thumbWidth!, thumbnail.thumbHeight!);
-                      Size size = Size(constraints.maxWidth, constraints.maxHeight);
-                      FittedSizes fittedSizes = applyBoxFit(BoxFit.contain, imageSize, size);
-
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: EHImage(
-                          galleryImage: GalleryImage(
-                              url: thumbnail.thumbUrl,
-                              height: fittedSizes.destination.height,
-                              width: fittedSizes.destination.width),
-                          completedWidgetBuilder: (ExtendedImageState state) {
-                            /// crop image because raw image consists of 10 thumbnails in row
-                            return ExtendedRawImage(
-                              image: state.extendedImageInfo?.image,
-                              fit: BoxFit.fill,
-                              sourceRect: Rect.fromLTRB(
-                                thumbnail.offSet!,
-                                0,
-                                thumbnail.offSet! + thumbnail.thumbWidth!,
-                                thumbnail.thumbHeight!,
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
               ),
               Text(
                 (index + 1).toString(),
@@ -553,6 +518,56 @@ class DetailsPage extends StatelessWidget {
           errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
           loadingState: detailsPageState.loadingThumbnailsState,
         ),
+      ),
+    );
+  }
+
+  Widget _buildSmallThumbnail(GalleryThumbnail thumbnail) {
+    return ConstrainedBox(
+      /// 220-16-4
+      constraints: const BoxConstraints(maxHeight: 200),
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          /// there's a bug that after cropping, the image's length-width ratio remains(equal to the raw image),
+          /// so choose to assign the size manually.
+          Size imageSize = Size(thumbnail.thumbWidth!, thumbnail.thumbHeight!);
+          Size size = Size(constraints.maxWidth, constraints.maxHeight);
+          FittedSizes fittedSizes = applyBoxFit(BoxFit.contain, imageSize, size);
+
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: EHImage(
+              galleryImage: GalleryImage(
+                  url: thumbnail.thumbUrl,
+                  height: fittedSizes.destination.height,
+                  width: fittedSizes.destination.width),
+              completedWidgetBuilder: (ExtendedImageState state) {
+                /// crop image because raw image consists of 10 thumbnails in row
+                return ExtendedRawImage(
+                  image: state.extendedImageInfo?.image,
+                  fit: BoxFit.fill,
+                  sourceRect: Rect.fromLTRB(
+                    thumbnail.offSet!,
+                    0,
+                    thumbnail.offSet! + thumbnail.thumbWidth!,
+                    thumbnail.thumbHeight!,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLargeThumbnail(GalleryThumbnail thumbnail) {
+    return EHImage(
+      containerHeight: 200,
+      galleryImage: GalleryImage(
+        url: thumbnail.thumbUrl,
+        height: thumbnail.thumbHeight!,
+        width: thumbnail.thumbWidth!,
       ),
     );
   }

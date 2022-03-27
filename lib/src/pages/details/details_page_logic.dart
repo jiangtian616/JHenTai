@@ -13,6 +13,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
@@ -22,6 +23,7 @@ import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
+import '../../setting/site_setting.dart';
 import '../../utils/cookie_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
@@ -53,20 +55,22 @@ class DetailsPageLogic extends GetxController {
     /// enter from galleryPage
     if (arg is Gallery) {
       state.gallery = arg;
-      state.thumbnailsPageCount = arg.pageCount ~/ 40;
+      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       getDetails();
       return;
     }
 
     /// enter from downloadPage or url
     if (arg is String) {
-      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(arg);
+      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(
+        galleryUrl: arg,
+        parser: EHSpiderParser.galleryDetail2GalleryAndDetailAndApikey,
+      );
       state.gallery = galleryAndDetailsAndApikey['gallery']!;
       state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
       state.apikey = galleryAndDetailsAndApikey['apikey']!;
-      state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
+      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
-      state.loadingThumbnailsState = LoadingState.success;
 
       await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
       update();
@@ -78,9 +82,8 @@ class DetailsPageLogic extends GetxController {
       state.gallery = arg[0];
       state.galleryDetails = arg[1];
       state.apikey = arg[2];
-      state.thumbnailsPageCount = state.gallery!.pageCount ~/ 40;
+      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
-      state.loadingThumbnailsState = LoadingState.idle;
       update();
       return;
     }
@@ -130,7 +133,10 @@ class DetailsPageLogic extends GetxController {
     Log.info('get gallery details', false);
     Map<String, dynamic> galleryDetailsAndApikey;
     try {
-      galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(galleryUrl: state.gallery!.galleryUrl);
+      galleryDetailsAndApikey = await EHRequest.getGalleryDetails<Map<String, dynamic>>(
+        galleryUrl: state.gallery!.galleryUrl,
+        parser: EHSpiderParser.galleryDetail2DetailAndApikey,
+      );
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
       Get.snackbar('getGalleryDetailFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
@@ -148,10 +154,11 @@ class DetailsPageLogic extends GetxController {
   Future<void> handleRefresh() async {
     Log.info('refresh gallery details', false);
 
-    Map<String, dynamic> galleryDetailsAndApikey;
+    Map<String, dynamic> detailAndApikey;
     try {
-      galleryDetailsAndApikey = await EHRequest.getGalleryDetailsAndApikey(
+      detailAndApikey = await EHRequest.getGalleryDetails<Map<String, dynamic>>(
         galleryUrl: state.gallery!.galleryUrl,
+        parser: EHSpiderParser.galleryDetail2DetailAndApikey,
         useCacheIfAvailable: false,
       );
     } on DioError catch (e) {
@@ -160,8 +167,8 @@ class DetailsPageLogic extends GetxController {
     }
 
     state.refresh();
-    state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
-    state.apikey = galleryDetailsAndApikey['apikey'];
+    state.galleryDetails = detailAndApikey['galleryDetails'];
+    state.apikey = detailAndApikey['apikey'];
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     update();
   }
@@ -173,7 +180,7 @@ class DetailsPageLogic extends GetxController {
     update();
 
     /// no more page
-    if (state.nextPageNoToLoadThumbnails > state.thumbnailsPageCount!) {
+    if (state.nextPageIndexToLoadThumbnails >= state.thumbnailsPageCount) {
       state.loadingThumbnailsState = LoadingState.noMore;
 
       update();
@@ -190,9 +197,10 @@ class DetailsPageLogic extends GetxController {
     try {
       newThumbNails = await EHRequest.getGalleryDetailsThumbnailByPageNo(
         galleryUrl: state.gallery!.galleryUrl,
-        thumbnailsPageNo: state.nextPageNoToLoadThumbnails,
+        thumbnailsPageNo: state.nextPageIndexToLoadThumbnails,
       );
     } on DioError catch (e) {
+      Log.error('fail to get thumbnails', e.message);
       Get.snackbar('failToGetThumbnails'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingThumbnailsState = LoadingState.error;
       update();
@@ -200,11 +208,11 @@ class DetailsPageLogic extends GetxController {
     }
     state.galleryDetails!.thumbnails.addAll(newThumbNails);
 
-    /// a full page contains 40 thumbnails, if not, means there's no more data.
-    if (newThumbNails.length % 40 != 0) {
+    /// a full page contains x thumbnails, if not, means there's no more data.
+    if (newThumbNails.length % SiteSetting.thumbnailsCountPerPage.value != 0) {
       state.loadingThumbnailsState = LoadingState.noMore;
     }
-    state.nextPageNoToLoadThumbnails++;
+    state.nextPageIndexToLoadThumbnails++;
     state.loadingThumbnailsState = LoadingState.idle;
     update();
   }

@@ -39,7 +39,7 @@ class FavoriteSetting {
       return false;
     }
 
-    Log.info('FavoriteSetting init success', false);
+    Log.info('init FavoriteSetting success', false);
     return true;
   }
 }

@@ -7,10 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
-import 'package:jhentai/src/model/gallery_details.dart';
+import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
@@ -40,6 +41,7 @@ class EHSpiderParser {
 
     /// remove table header
     galleryListElements.removeAt(0);
+
     /// remove ad or [no result row]
     galleryListElements.removeWhere((element) => element.children.length == 1);
     List<Gallery> gallerys = galleryListElements.map((e) => _parseGallery(e)).toList();
@@ -48,9 +50,11 @@ class EHSpiderParser {
     return [gallerys, pageCount];
   }
 
-  static Gallery parseGalleryByUrl(String html, String galleryUrl) {
+  static Gallery parseGalleryByUrl(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
 
+    String galleryUrl = document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0];
     List<String>? parts = galleryUrl.split('/');
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
@@ -100,12 +104,11 @@ class EHSpiderParser {
     };
   }
 
-  static Map<String, dynamic> parseGalleryDetails(String html) {
+  static Map<String, dynamic> galleryDetail2DetailAndApikey(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
-    List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
-    List<Element> thumbNailElements = document.querySelectorAll('#gdt > .gdtm');
 
-    GalleryDetails galleryDetails = GalleryDetails(
+    GalleryDetail galleryDetail = GalleryDetail(
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
@@ -119,23 +122,28 @@ class EHSpiderParser {
       archivePageUrl:
           document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       fullTags: _parseGalleryTagsByUrl(document),
-      comments: _parseGalleryDetailsComments(commentElements),
-      thumbnails: _parseGalleryDetailsThumbnails(thumbNailElements),
+      comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
+      thumbnails: parseGalleryDetailsThumbnails(html),
     );
 
-    return {'galleryDetails': galleryDetails, 'apikey': _parseApikey(document)};
+    return {'galleryDetails': galleryDetail, 'apikey': _galleryDetailDocument2Apikey(document)};
   }
 
-  static Map<String, dynamic> getGalleryAndDetailsByUrl(String html, String galleryUrl) {
-    Gallery gallery = parseGalleryByUrl(html, galleryUrl);
-    Map<String, dynamic> map = parseGalleryDetails(html);
-    return map..['gallery'] = gallery;
+  static Map<String, dynamic> galleryDetail2GalleryAndDetailAndApikey(Response<String> response) {
+    Map<String, dynamic> map = galleryDetail2DetailAndApikey(response);
+    map['gallery'] = parseGalleryByUrl(response);
+    return map;
   }
 
   static List<GalleryThumbnail> parseGalleryDetailsThumbnails(String html) {
     Document document = parse(html);
+
     List<Element> thumbNailElements = document.querySelectorAll('#gdt > .gdtm');
-    return _parseGalleryDetailsThumbnails(thumbNailElements);
+    if (thumbNailElements.isNotEmpty) {
+      return _parseGalleryDetailsSmallThumbnails(thumbNailElements);
+    }
+    thumbNailElements = document.querySelectorAll('#gdt > .gdtl');
+    return _parseGalleryDetailsLargeThumbnails(thumbNailElements);
   }
 
   static List<GalleryComment> parseGalleryDetailsComments(String html) {
@@ -214,6 +222,43 @@ class EHSpiderParser {
         );
       },
     ).toList();
+  }
+
+  static Map<String, dynamic> setting2SiteSetting(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+    List<Element> items = document.querySelectorAll('.optouter');
+    Map<String, dynamic> map = {};
+
+    Element frontPageSetting = items[6];
+    String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
+
+    switch (type) {
+      case ' Minimal':
+        map['frontPageDisplayType'] = FrontPageDisplayType.minimal;
+        break;
+      case ' Minimal+':
+        map['frontPageDisplayType'] = FrontPageDisplayType.minimalPlus;
+        break;
+      case ' Compact':
+        map['frontPageDisplayType'] = FrontPageDisplayType.compact;
+        break;
+      case ' Extended':
+        map['frontPageDisplayType'] = FrontPageDisplayType.extended;
+        break;
+      case ' Thumbnail':
+        map['frontPageDisplayType'] = FrontPageDisplayType.thumbnail;
+        break;
+    }
+
+    Element thumbnailSetting = items[18];
+    map['isLargeThumbnail'] =
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
+            ? true
+            : false;
+    map['thumbnailRows'] =
+        int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
+    return map;
   }
 
   static int _parseHomeGalleryTotalPageCount(Document document) {
@@ -432,7 +477,7 @@ class EHSpiderParser {
     }).toList();
   }
 
-  static List<GalleryThumbnail> _parseGalleryDetailsThumbnails(List<Element> thumbNailElements) {
+  static List<GalleryThumbnail> _parseGalleryDetailsSmallThumbnails(List<Element> thumbNailElements) {
     return thumbNailElements.map((element) {
       String href = element.querySelector('div > a')?.attributes['href'] ?? '';
       String style = element.querySelector('div')?.attributes['style'] ?? '';
@@ -448,7 +493,21 @@ class EHSpiderParser {
     }).toList();
   }
 
-  static String _parseApikey(Document document) {
+  static List<GalleryThumbnail> _parseGalleryDetailsLargeThumbnails(List<Element> thumbNailElements) {
+    return thumbNailElements.map((element) {
+      String thumbUrl = element.querySelector('a > img')?.attributes['src'] ?? '';
+      List<String> parts = thumbUrl.split('-');
+      return GalleryThumbnail(
+        href: element.querySelector('a')?.attributes['href'] ?? '',
+        thumbUrl: thumbUrl,
+        isLarge: true,
+        thumbWidth: double.parse(parts[2]),
+        thumbHeight: double.parse(parts[3]),
+      );
+    }).toList();
+  }
+
+  static String _galleryDetailDocument2Apikey(Document document) {
     String script = document.querySelector('.gm')?.previousElementSibling?.text ?? '';
     return RegExp(r'var apikey = "(\w+)"').firstMatch(script)?.group(1) ?? '';
   }

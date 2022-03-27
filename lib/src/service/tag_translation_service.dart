@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/gallery_details.dart';
+import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -80,7 +80,7 @@ class TagTranslationService extends GetxService {
     }
   }
 
-  Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetails> galleryDetails) async {
+  Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetail> galleryDetails) async {
     if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       Future.wait(galleryDetails.map((galleryDetail) {
         return getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
@@ -88,7 +88,7 @@ class TagTranslationService extends GetxService {
     }
   }
 
-  Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetails galleryDetail) async {
+  Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetail galleryDetail) async {
     if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       await getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
     }

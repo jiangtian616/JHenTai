@@ -15,6 +15,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -63,6 +64,8 @@ Future<void> beforeInit() async {
   GallerySetting.init();
   TabBarSetting.init();
 
+  SiteSetting.init();
+
   await EHRequest.init();
   await DownloadService.init();
 
@@ -71,4 +74,5 @@ Future<void> beforeInit() async {
 
 Future<void> onInit() async {
   FavoriteSetting.init();
+  SiteSetting.refresh();
 }

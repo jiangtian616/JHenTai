@@ -4,7 +4,7 @@ import '../database/database.dart';
 import 'gallery_comment.dart';
 import 'gallery_thumbnail.dart';
 
-class GalleryDetails {
+class GalleryDetail {
   int ratingCount;
   double realRating;
   String size;
@@ -16,7 +16,7 @@ class GalleryDetails {
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
 
-  GalleryDetails({
+  GalleryDetail({
     required this.ratingCount,
     required this.realRating,
     required this.size,

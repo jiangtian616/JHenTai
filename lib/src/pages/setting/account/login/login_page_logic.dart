@@ -102,8 +102,6 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    EHRequest.removeAllCookies();
-
     int ipbMemberId = int.parse(match.group(1)!);
     String ipbPassHash = match.group(2)!;
     EHRequest.storeEhCookiesForAllUri([

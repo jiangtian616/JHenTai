@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 
 import '../../../setting/eh_setting.dart';
@@ -51,10 +52,11 @@ class SettingEHPage extends StatelessWidget {
 
   Future<void> _gotoSiteSettingPage() async {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
-    Get.toNamed(
+    await Get.toNamed(
       Routes.webview,
       arguments: EHConsts.EUconfig,
       parameters: {'cookies': CookieUtil.parse2String(cookies)},
     );
+    SiteSetting.refresh();
   }
 }

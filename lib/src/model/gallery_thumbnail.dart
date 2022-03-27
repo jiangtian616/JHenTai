@@ -1,7 +1,9 @@
 class GalleryThumbnail {
   String href;
-  String thumbUrl;
+
+  /// Large image
   bool isLarge;
+  String thumbUrl;
   double? thumbHeight;
   double? thumbWidth;
   double? offSet;
