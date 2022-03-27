@@ -52,7 +52,11 @@ class EHConsts {
 
   static String get ELogin => 'https://forums.e-hentai.org/index.php?act=Login&CODE=00';
 
-  static String get ELoginSuccess => 'https://forums.e-hentai.org/index.php?act=Login&CODE=01';
+  static String get EUconfig => EHSetting.site.value == 'EH' ? EHUconfig : EXUconfig;
+
+  static String get EHUconfig => 'https://e-hentai.org/uconfig.php';
+
+  static String get EXUconfig => 'https://exhentai.org/uconfig.php';
 
   static const Map<String, String> host2Ip = {
     'e-hentai.org': '104.20.135.21',

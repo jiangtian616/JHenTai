@@ -153,6 +153,10 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> handleWebLogin() async {
-    Get.toNamed(Routes.webview, arguments: EHConsts.ELogin);
+    Get.toNamed(
+      Routes.webview,
+      arguments: EHConsts.ELogin,
+      parameters: {'isLogin': 'true'},
+    );
   }
 }

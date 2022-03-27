@@ -18,7 +18,7 @@
 - [x] 磁力
 - [ ] 归档
 - [x] network retry、cache
-- [ ] webview登录
+- [x] webview登录
 - [ ] 网站设置
 - [ ] 历史记录
 - [x] 搜索

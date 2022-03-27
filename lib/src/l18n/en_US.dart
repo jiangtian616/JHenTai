@@ -79,6 +79,7 @@ class en {
 
       /// eh setting page
       'site': 'site',
+      'siteSetting': 'site setting',
 
       /// gallery setting page
       'enableTagZHTranslation': 'translate tag name into chinese',

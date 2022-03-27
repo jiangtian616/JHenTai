@@ -79,6 +79,7 @@ class zh_CN {
 
       /// eh setting page
       'site': '站点',
+      'siteSetting': '站点设置',
 
       /// gallery setting page
       'enableTagZHTranslation': '开启标签中文翻译',
