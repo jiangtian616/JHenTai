@@ -1,4 +1,3 @@
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 

@@ -6,10 +6,10 @@
 - [x] 阅读 从上到下连续List、失败重新加载、
 - [ ] 阅读 放大、tap边框翻页、tap中央显示bar、指定跳页
 - [x] 下载画廊、暂停、继续、删除任务、删除下载图片、初始化下载、失败过多重新解析
-- [x]  Log、Log size、Log clear
-- [x]  应用内查看Log
-- [x]  记录阅读进度
-- [x]  http cache
+- [x] Log、Log size、Log clear
+- [x] 应用内查看Log
+- [x] 记录阅读进度
+- [x] http cache
 - [x] tag翻译
 - [x] tag投票
 - [x] 里站支持
@@ -19,7 +19,7 @@
 - [ ] 归档
 - [x] network retry、cache
 - [x] webview登录
-- [ ] 网站设置
+- [x] 网站设置
 - [ ] 历史记录
 - [x] 搜索
 - [x] 点击标签搜索
@@ -46,3 +46,4 @@
 - [ ] 底部bar正确变色
 - [ ] github 图片加载优化
 - [ ] EHRequest类 上面加一层Transformer类
+- [ ] 历史记录使用数据库记录全数据

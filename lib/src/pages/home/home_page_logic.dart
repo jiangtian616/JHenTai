@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 
 import '../../config/global_config.dart';
+import '../../model/gallery.dart';
 import 'home_page_state.dart';
 
 class HomePageLogic extends GetxController {
@@ -30,7 +33,7 @@ class HomePageLogic extends GetxController {
     }
 
     /// scroll to top
-    if ((scrollController?.positions as List<ScrollPosition>)[index].pixels != 0) {
+    if ((scrollController?.positions as List<ScrollPosition>).any((position) => position.pixels != 0)) {
       scrollController?.animateTo(
         0,
         duration: const Duration(milliseconds: 400),
@@ -44,11 +47,14 @@ class HomePageLogic extends GetxController {
     }
 
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
-      /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
-      scrollController?.animateTo(
-        -GlobalConfig.refreshTriggerPullDistance,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
+      Future.delayed(
+        const Duration(milliseconds: 0),
+        /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
+        () => scrollController?.animateTo(
+          -GlobalConfig.refreshTriggerPullDistance,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.ease,
+        ),
       );
     }
 

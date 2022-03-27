@@ -16,6 +16,8 @@ class HomePageState {
   /// record tap time to implement 'double tap to refresh'
   DateTime? lastTapTime;
 
+  Map<int, VoidCallback> tabTapCallback = {};
+
   HomePageState() {
     currentIndex = 0;
     tabController = CupertinoTabController();

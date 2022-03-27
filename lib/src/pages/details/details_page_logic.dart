@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
-import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
@@ -20,7 +19,6 @@ import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
-import '../../setting/gallery_setting.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
@@ -44,6 +42,8 @@ class DetailsPageLogic extends GetxController {
 
   @override
   void onInit() async {
+    super.onInit();
+
     dynamic arg = Get.arguments;
 
     /// enter from galleryPage
@@ -80,6 +80,26 @@ class DetailsPageLogic extends GetxController {
       update();
       return;
     }
+  }
+
+  @override
+  void onReady() {
+    /// record history
+    List<String> historyUrls = storageService.read<List>('history')?.map((e) => e as String).toList() ?? <String>[];
+    String curUrl;
+
+    if (Get.arguments is Gallery) {
+      curUrl = (Get.arguments as Gallery).galleryUrl;
+    } else if (Get.arguments is String) {
+      curUrl = Get.arguments;
+    } else {
+      curUrl = (Get.arguments[0] as Gallery).galleryUrl;
+    }
+
+    historyUrls.removeWhere((historyUrl) => historyUrl == curUrl);
+    historyUrls.insert(0, curUrl);
+    storageService.write('history', historyUrls);
+    super.onReady();
   }
 
   @override
@@ -248,7 +268,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleTapTorrent() async {
-    if(state.galleryDetails!.torrentCount == '0') {
+    if (state.galleryDetails!.torrentCount == '0') {
       return;
     }
     Get.dialog(TorrentDialog());

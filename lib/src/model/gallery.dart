@@ -151,5 +151,4 @@ class Gallery {
       publishTime: json["publishTime"],
     );
   }
-//
 }

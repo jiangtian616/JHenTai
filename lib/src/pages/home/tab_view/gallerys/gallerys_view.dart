@@ -1,33 +1,21 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/locale_consts.dart';
-import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/utils/date_util.dart';
-import 'package:jhentai/src/widget/eh_image.dart';
-import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../../../../config/global_config.dart';
-import '../../../../consts/color_consts.dart';
-import '../../../../model/search_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
 import '../../../../widget/eh_tab_bar_config_dialog.dart';
 import '../../../../widget/eh_sliver_header_delegate.dart';
-import '../../../../widget/eh_tag.dart';
-import '../../../../widget/gallery_category_tag.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'gallerys_view_logic.dart';
 import 'gallerys_view_state.dart';
@@ -86,7 +74,8 @@ class GallerysView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onTap: () => Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
+                            onTap: () =>
+                                Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
                             child: const Icon(Icons.add, size: 28, color: Colors.white).marginOnly(right: 16),
                           ),
                           const Icon(FontAwesomeIcons.bars, size: 18, color: Colors.white).marginOnly(right: 4),

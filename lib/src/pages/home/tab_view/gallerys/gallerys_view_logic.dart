@@ -171,8 +171,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     List<dynamic> gallerysAndPageCount = await () async {
       if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
-        List<Gallery>? gallerys = storageService.read<List<Gallery>>('history');
-        return gallerys == null ? [<Gallery>[], 0] : [gallerys, 1];
+        List<String>? galleryUrls = storageService.read<List>('history')?.map((e) => e as String).toList();
+        if (galleryUrls == null) {
+          return [<Gallery>[], 0];
+        }
+        List<Gallery> gallerys = await Future.wait(galleryUrls.map((url) => EHRequest.getGalleryByUrl(url)).toList());
+        return [gallerys, 1];
       }
       return await EHRequest.getGallerysListAndPageCountByPageNo(
           pageNo, TabBarSetting.configs[tabIndex].searchConfig, EHSpiderParser.parseGalleryList);
