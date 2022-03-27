@@ -3,6 +3,7 @@ import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/pages/read/read_page.dart';
 import 'package:jhentai/src/pages/search/search_page.dart';
+import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/log/log_list_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/log/log_page.dart';
@@ -85,6 +86,11 @@ class Routes {
         GetPage(
           name: settingAdvanced,
           page: () => SettingAdvancedPage(),
+          transition: Transition.cupertino,
+        ),
+        GetPage(
+          name: settingAbout,
+          page: () => SettingAboutPage(),
           transition: Transition.cupertino,
         ),
         GetPage(

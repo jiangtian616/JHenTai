@@ -144,6 +144,8 @@ class en {
       'search': 'Search',
       'searchFailed': 'search failed',
 
+      /// about page
+      'author': 'Author',
     };
   }
 }

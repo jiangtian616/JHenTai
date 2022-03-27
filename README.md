@@ -29,12 +29,11 @@
 - [x] offensive gallery
 - [x] 增加EhTagTranslation中的描述页面
 - [ ] 展示Gallery 统计数据
-- [ ] 关于
+- [x] 关于
 - [ ] 下载配置
 - [ ] 文件搜索
 
 ### bug
-- 默认解析只支持Compact类型
 - 阅读进度自动跳转卡顿
 
 ### 优化类
@@ -50,3 +49,4 @@
 - [ ] github 图片加载优化
 - [ ] EHRequest类 上面加一层Transformer类
 - [ ] 历史记录使用数据库记录全数据
+- [ ] 解析支持多种画廊类型

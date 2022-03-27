@@ -142,6 +142,9 @@ class zh_CN {
       /// search page
       'search': '搜索',
       'searchFailed': '搜索失败',
+
+      /// about page
+      'author': '创作者',
     };
   }
 }
