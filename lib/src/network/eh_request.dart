@@ -19,6 +19,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:path/path.dart';
@@ -116,12 +117,7 @@ class EHRequest {
   }
 
   static Future<void> storeEhCookiesStringForAllUri(String cookiesString) async {
-    List<Cookie> cookies = cookiesString.split('; ').map((pair) {
-      List<String> nameAndValue = pair.split('=');
-      return Cookie(nameAndValue[0], nameAndValue[1]);
-    }).toList();
-
-    await storeEhCookiesForAllUri(cookies);
+    await storeEhCookiesForAllUri(CookieUtil.parse2Cookies(cookiesString));
   }
 
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
@@ -129,6 +125,10 @@ class EHRequest {
     cookies.add(Cookie("nw", "1"));
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
     Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
+  }
+
+  static Future<List<Cookie>> getCookie(Uri uri) async {
+    return _cookieJar.loadForRequest(uri);
   }
 
   static Future<void> removeAllCookies() async {
@@ -445,22 +445,6 @@ class EHRequest {
       options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
     );
     return parser(response);
-  }
-
-  static bool validateCookiesString(String? cookiesString) {
-    if (cookiesString?.isEmpty ?? false) {
-      return false;
-    }
-    RegExpMatch? match = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(cookiesString!);
-    String? ipbMemberId = match?.group(1);
-    String? ipbPassHash = match?.group(2);
-    return (ipbMemberId != null && ipbPassHash != null && ipbMemberId != '0' && ipbPassHash != '0');
-  }
-
-  static bool validateCookies(List<Cookie> cookies) {
-    String? ipbMemberId = cookies.firstWhereOrNull((cookie) => cookie.name == 'ipb_member_id')?.value;
-    String? ipbPassHash = cookies.firstWhereOrNull((cookie) => cookie.name == 'ipb_pass_hash')?.value;
-    return (ipbMemberId != null && ipbPassHash != null && ipbMemberId != '0' && ipbPassHash != '0');
   }
 
   static String _parseLoginErrorMsg(String html) {

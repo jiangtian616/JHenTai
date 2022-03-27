@@ -20,7 +20,7 @@
 - [x] network retry、cache
 - [x] webview登录
 - [x] 网站设置
-- [ ] 历史记录
+- [x] 历史记录
 - [x] 搜索
 - [x] 点击标签搜索
 - [ ] 搜索历史

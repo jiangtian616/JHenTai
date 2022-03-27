@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebviewPage extends StatefulWidget {
@@ -17,12 +18,15 @@ class WebviewPage extends StatefulWidget {
 class _WebviewPageState extends State<WebviewPage> {
   late String url;
   late WebViewController controller;
+  late List<Cookie> cookies;
+
   bool isLogin = false;
 
   @override
   void initState() {
     url = Get.arguments;
     isLogin = Get.parameters['isLogin'] == 'true';
+    cookies = CookieUtil.parse2Cookies(Get.parameters['cookies']);
     super.initState();
   }
 
@@ -34,12 +38,14 @@ class _WebviewPageState extends State<WebviewPage> {
           initialUrl: url,
           onWebViewCreated: (controller) => this.controller = controller,
           javascriptMode: JavascriptMode.unrestricted,
+          initialCookies:
+              cookies.map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: url)).toList(),
           onPageStarted: !isLogin
               ? null
               : (url) async {
                   String cookieString = await controller.runJavascriptReturningResult('document.cookie');
                   cookieString = cookieString.replaceAll('"', '');
-                  if (!EHRequest.validateCookiesString(cookieString)) {
+                  if (!CookieUtil.validateCookiesString(cookieString)) {
                     return;
                   }
 
