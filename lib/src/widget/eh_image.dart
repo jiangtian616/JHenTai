@@ -96,6 +96,7 @@ class _EHImageState extends State<EHImage> {
             width: widget.adaptive ? null : widget.galleryImage.width,
             fit: widget.fit,
             mode: widget.mode,
+            enableLoadState: true,
           );
         }
         return GestureDetector(

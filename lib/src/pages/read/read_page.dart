@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
+import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
@@ -50,15 +51,24 @@ class ReadPage extends StatelessWidget {
                 return _buildParsingImageIndicator(context, index);
               }
 
+              FittedSizes fittedSizes = applyBoxFit(
+                BoxFit.contain,
+                Size(state.images[index].value!.width, state.images[index].value!.height),
+                Size(context.width, double.infinity),
+              );
+
               /// step 3 load image : use url to [load] image
-              return EHImage(
-                galleryImage: state.images[index].value!,
-                adaptive: true,
-                fit: BoxFit.contain,
-                enableLongPressToRefresh: state.type == 'online',
-                loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-                failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-                downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+              return KeepAliveWrapper(
+                child: EHImage(
+                  containerHeight: fittedSizes.destination.height,
+                  galleryImage: state.images[index].value!,
+                  adaptive: true,
+                  fit: BoxFit.contain,
+                  enableLongPressToRefresh: state.type == 'online',
+                  loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+                  failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+                  downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+                ),
               );
             });
           },
