@@ -173,17 +173,14 @@ class EHRequest {
     return _parseLoginErrorMsg(response.data!);
   }
 
-  /// just remove cookies
   static Future<void> logout() async {
-     removeAllCookies();
+    removeAllCookies();
     UserSetting.clear();
     CookieManager().clearCookies();
   }
 
   static Future<String> home() async {
-    Response<String> response = await _dio.get(
-      EHConsts.EHome,
-    );
+    Response<String> response = await _dio.get(EHConsts.EHome);
     return response.data!;
   }
 

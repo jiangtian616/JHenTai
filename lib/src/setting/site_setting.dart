@@ -1,7 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:retry/retry.dart';
 
 import '../service/storage_service.dart';
 import '../utils/log.dart';
@@ -34,11 +36,23 @@ class SiteSetting {
     if (!UserSetting.hasLoggedIn()) {
       return;
     }
-    Map<String, dynamic> map = await EHRequest.requestSetting(EHSpiderParser.setting2SiteSetting);
-    frontPageDisplayType.value = map['frontPageDisplayType'];
-    isLargeThumbnail.value = map['isLargeThumbnail'];
-    thumbnailRows.value = map['thumbnailRows'];
-    thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
+
+    try {
+      await retry(
+        () async {
+          Map<String, dynamic> map = await EHRequest.requestSetting(EHSpiderParser.setting2SiteSetting);
+          frontPageDisplayType.value = map['frontPageDisplayType'];
+          isLargeThumbnail.value = map['isLargeThumbnail'];
+          thumbnailRows.value = map['thumbnailRows'];
+          thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
+        },
+        retryIf: (e) => e is DioError,
+        maxAttempts: 3,
+      );
+    } on DioError catch (e) {
+      Log.error('refresh SiteSetting fail', e.message);
+      return;
+    }
     Log.info('refresh SiteSetting success', false);
     _save();
   }

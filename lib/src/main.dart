@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
 
       /// enable swipe back feature
       popGesture: true,
-      onInit: onInit,
+      onReady: onReady,
     );
   }
 }
@@ -65,6 +65,7 @@ Future<void> beforeInit() async {
   TabBarSetting.init();
 
   SiteSetting.init();
+  FavoriteSetting.init();
 
   await EHRequest.init();
   await DownloadService.init();
@@ -72,7 +73,7 @@ Future<void> beforeInit() async {
   TagTranslationService.init();
 }
 
-Future<void> onInit() async {
-  FavoriteSetting.init();
+Future<void> onReady() async {
+  FavoriteSetting.refresh();
   SiteSetting.refresh();
 }

@@ -222,7 +222,7 @@ class DetailsPageLogic extends GetxController {
       return;
     }
     if (!FavoriteSetting.inited) {
-      await FavoriteSetting.init();
+      await FavoriteSetting.refresh();
     }
 
     int? favIndex = await Get.dialog(FavoriteDialog());
@@ -240,7 +240,7 @@ class DetailsPageLogic extends GetxController {
         state.gallery!.removeFavorite();
       } else {
         await EHRequest.addFavorite(state.gallery!.gid, state.gallery!.token, favIndex);
-        state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames![favIndex]);
+        state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames[favIndex]);
       }
     } on DioError catch (e) {
       Get.snackbar('收藏画廊错误', e.message, snackPosition: SnackPosition.BOTTOM);

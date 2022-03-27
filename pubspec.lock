@@ -390,7 +390,7 @@ packages:
       name: flutter_list_view
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.4"
+    version: "1.1.9"
   flutter_rating_bar:
     dependency: "direct main"
     description:
@@ -856,6 +856,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.3"
+  scrollable_positioned_list:
+    dependency: "direct main"
+    description:
+      name: scrollable_positioned_list
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.3"
   shelf:
     dependency: transitive
     description:

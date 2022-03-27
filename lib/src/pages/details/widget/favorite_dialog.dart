@@ -26,7 +26,7 @@ class FavoriteDialog extends StatelessWidget {
       content: SizedBox(
         height: 400,
         child: Column(
-          children: FavoriteSetting.favoriteTagNames2Count!.entries
+          children: FavoriteSetting.favoriteTagNames2Count.entries
               .mapIndexed(
                 (index, entry) => ListTile(
                   dense: true,
