@@ -40,12 +40,11 @@ class EHSpiderParser {
 
     /// remove table header
     galleryListElements.removeAt(0);
-
-    /// remove ad
-    galleryListElements.removeWhere((element) => element.querySelector('.itd') != null);
+    /// remove ad or [no result row]
+    galleryListElements.removeWhere((element) => element.children.length == 1);
     List<Gallery> gallerys = galleryListElements.map((e) => _parseGallery(e)).toList();
 
-    int pageCount = _parseHomeGalleryTotalPageCount(document);
+    int pageCount = gallerys.isEmpty ? 0 : _parseHomeGalleryTotalPageCount(document);
     return [gallerys, pageCount];
   }
 
@@ -117,6 +116,8 @@ class EHSpiderParser {
           '0',
       torrentPageUrl:
           document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      archivePageUrl:
+          document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       fullTags: _parseGalleryTagsByUrl(document),
       comments: _parseGalleryDetailsComments(commentElements),
       thumbnails: _parseGalleryDetailsThumbnails(thumbNailElements),

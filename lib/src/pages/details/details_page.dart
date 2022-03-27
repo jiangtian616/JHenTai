@@ -19,7 +19,6 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:like_button/like_button.dart';
 
 import '../../database/database.dart';
 import '../../model/gallery_thumbnail.dart';
@@ -284,7 +283,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: (context.width - 30) / 5,
+            itemExtent: (context.width - 30) / 5.5,
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -368,15 +367,15 @@ class DetailsPage extends StatelessWidget {
                 ),
                 onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapTorrent,
               ),
-              // IconTextButton(
-              //   iconData: Icons.folder_zip,
-              //   iconSize: 28,
-              //   text: Text(
-              //     'archive'.tr,
-              //     style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
-              //   ),
-              //   onPressed: () => {},
-              // ),
+              IconTextButton(
+                iconData: Icons.folder_zip,
+                iconSize: 28,
+                text: Text(
+                  'archive'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                ),
+                onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapArchive,
+              ),
             ],
           ),
         ),

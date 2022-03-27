@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
+import 'package:jhentai/src/pages/webview/webview_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
@@ -15,10 +17,12 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 
+import '../../consts/eh_consts.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
+import '../../utils/cookie_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
@@ -298,6 +302,15 @@ class DetailsPageLogic extends GetxController {
     });
 
     return true;
+  }
+
+  Future<void> handleTapArchive() async {
+    List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
+    Get.toNamed(
+      Routes.webview,
+      arguments: state.galleryDetails!.archivePageUrl,
+      parameters: {'cookies': CookieUtil.parse2String(cookies)},
+    );
   }
 
   void goToReadPage([int? index]) {

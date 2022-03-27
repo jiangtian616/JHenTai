@@ -44,11 +44,11 @@ class EHConsts {
 
   static String get EXTorrent => 'https://exhentai.org/gallerytorrents.php';
 
-  static String get EAchiver => EHSetting.site.value == 'EH' ? EHAchiver : EXAchiver;
+  static String get EArchive => EHSetting.site.value == 'EH' ? EHArchive : EXArchive;
 
-  static String get EHAchiver => 'https://e-hentai.org/archiver.php';
+  static String get EHArchive => 'https://e-hentai.org/archiver.php';
 
-  static String get EXAchiver => 'https://exhentai.org/archiver.php';
+  static String get EXArchive => 'https://exhentai.org/archiver.php';
 
   static String get ELogin => 'https://forums.e-hentai.org/index.php?act=Login&CODE=00';
 
