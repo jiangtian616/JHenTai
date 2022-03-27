@@ -7,7 +7,6 @@ class UserSetting {
   static RxnString userName = RxnString();
   static RxnInt ipbMemberId = RxnInt();
   static RxnString ipbPassHash = RxnString();
-  static RxnString avatarUrl = RxnString();
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
@@ -21,17 +20,15 @@ class UserSetting {
     required String userName,
     required int ipbMemberId,
     required String ipbPassHash,
-    String? avatarUrl,
   }) async {
     UserSetting.userName.value = userName;
     UserSetting.ipbMemberId.value = ipbMemberId;
     UserSetting.ipbPassHash.value = ipbPassHash;
-    UserSetting.avatarUrl.value = avatarUrl;
     _save();
   }
 
   static bool hasLoggedIn() {
-    return ipbMemberId.value != null && ipbMemberId.value != null && ipbPassHash.value != null;
+    return userName.value != null;
   }
 
   static String getCookies() {
@@ -42,7 +39,6 @@ class UserSetting {
     userName.value = null;
     ipbMemberId.value = null;
     ipbPassHash.value = null;
-    avatarUrl.value = null;
     Get.find<StorageService>().remove('userSetting');
   }
 
@@ -55,7 +51,6 @@ class UserSetting {
       'userName': userName.value,
       'ipbMemberId': ipbMemberId.value,
       'ipbPassHash': ipbPassHash.value,
-      'avatarUrl': avatarUrl.value,
     };
   }
 
@@ -63,6 +58,5 @@ class UserSetting {
     userName = RxnString(map['userName']);
     ipbMemberId = RxnInt(map['ipbMemberId']);
     ipbPassHash = RxnString(map['ipbPassHash']);
-    avatarUrl = RxnString(map['avatarUrl']);
   }
 }

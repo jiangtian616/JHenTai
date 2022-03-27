@@ -22,20 +22,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.8.0"
-  another_flushbar:
-    dependency: transitive
-    description:
-      name: another_flushbar
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.10.28"
-  another_transformer_page_view:
-    dependency: transitive
-    description:
-      name: another_transformer_page_view
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.1.0"
   args:
     dependency: transitive
     description:
@@ -405,13 +391,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.4"
-  flutter_login:
-    dependency: "direct main"
-    description:
-      name: flutter_login
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.2.0"
   flutter_rating_bar:
     dependency: "direct main"
     description:
@@ -419,13 +398,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
-  flutter_signin_button:
-    dependency: transitive
-    description:
-      name: flutter_signin_button
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.0.0"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -863,13 +835,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.0"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "3.0.1+1"
   recase:
     dependency: transitive
     description:

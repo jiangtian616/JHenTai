@@ -17,7 +17,7 @@ import '../model/gallery.dart';
 import '../pages/home/tab_view/ranklist/ranklist_view_state.dart';
 
 class EHSpiderParser {
-  static List<String?>? parseUserInfo(String html) {
+  static String? parseUserInfo(String html) {
     Document document = parse(html);
 
     /// cookie is wrong, not logged in
@@ -25,9 +25,7 @@ class EHSpiderParser {
       return null;
     }
 
-    String userName = document.querySelector('.home > b > a')!.text;
-    String? avatarUrl = document.querySelector('#profilename + br + div > img')?.attributes['src'];
-    return [userName, avatarUrl];
+    return document.querySelector('.home > b > a')!.text;
   }
 
   static List<dynamic> parseGalleryList(Response response) {

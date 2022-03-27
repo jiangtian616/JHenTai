@@ -115,6 +115,15 @@ class EHRequest {
     Log.info('EHRequest init success', false);
   }
 
+  static Future<void> storeEhCookiesStringForAllUri(String cookiesString) async {
+    List<Cookie> cookies = cookiesString.split('; ').map((pair) {
+      List<String> nameAndValue = pair.split('=');
+      return Cookie(nameAndValue[0], nameAndValue[1]);
+    }).toList();
+
+    await storeEhCookiesForAllUri(cookies);
+  }
+
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
     /// never warn about offensive gallery
     cookies.add(Cookie("nw", "1"));
@@ -178,7 +187,7 @@ class EHRequest {
   }
 
   /// return null if cookie is wrong
-  static Future<List<String?>?> getUserInfoByCookieAndMemberId(int ipbMemberId) async {
+  static Future<String?> getUsernameByCookieAndMemberId(int ipbMemberId) async {
     Response<String> response = await _dio.get(
       EHConsts.EForums,
       queryParameters: {
@@ -436,6 +445,22 @@ class EHRequest {
       options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
     );
     return parser(response);
+  }
+
+  static bool validateCookiesString(String? cookiesString) {
+    if (cookiesString?.isEmpty ?? false) {
+      return false;
+    }
+    RegExpMatch? match = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(cookiesString!);
+    String? ipbMemberId = match?.group(1);
+    String? ipbPassHash = match?.group(2);
+    return (ipbMemberId != null && ipbPassHash != null && ipbMemberId != '0' && ipbPassHash != '0');
+  }
+
+  static bool validateCookies(List<Cookie> cookies) {
+    String? ipbMemberId = cookies.firstWhereOrNull((cookie) => cookie.name == 'ipb_member_id')?.value;
+    String? ipbPassHash = cookies.firstWhereOrNull((cookie) => cookie.name == 'ipb_pass_hash')?.value;
+    return (ipbMemberId != null && ipbPassHash != null && ipbMemberId != '0' && ipbPassHash != '0');
   }
 
   static String _parseLoginErrorMsg(String html) {

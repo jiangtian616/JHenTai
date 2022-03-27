@@ -10,6 +10,7 @@ import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/gallery/setting_gallery_page.dart';
 import 'package:jhentai/src/pages/test.dart';
+import 'package:jhentai/src/pages/webview/webview_page.dart';
 
 import '../pages/details/comment/comment_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
@@ -22,6 +23,7 @@ class Routes {
   static const String read = "/read";
   static const String comment = "/comment";
   static const String search = "/search";
+  static const String webview = "/webview";
 
   static const String settingAccount = "/setting_account";
   static const String settingEH = "/setting_EH";
@@ -58,6 +60,11 @@ class Routes {
         GetPage(
           name: singleImagePage,
           page: () => SingleImagePage(),
+          transition: Transition.cupertino,
+        ),
+        GetPage(
+          name: webview,
+          page: () => WebviewPage(),
           transition: Transition.cupertino,
         ),
         GetPage(

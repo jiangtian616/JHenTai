@@ -50,6 +50,10 @@ class EHConsts {
 
   static String get EXAchiver => 'https://exhentai.org/archiver.php';
 
+  static String get ELogin => 'https://forums.e-hentai.org/index.php?act=Login&CODE=00';
+
+  static String get ELoginSuccess => 'https://forums.e-hentai.org/index.php?act=Login&CODE=01';
+
   static const Map<String, String> host2Ip = {
     'e-hentai.org': '104.20.135.21',
     'exhentai.org': '178.175.129.254',

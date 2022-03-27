@@ -3,7 +3,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -115,11 +117,11 @@ class LoginPageLogic extends GetxController {
     state.loginState = LoadingState.loading;
     update();
 
-    List<String?>? userNameAndAvatarUrl;
+    String? userName;
     try {
       /// get cookie [sk] first
       await EHRequest.home();
-      userNameAndAvatarUrl = await EHRequest.getUserInfoByCookieAndMemberId(ipbMemberId);
+      userName = await EHRequest.getUsernameByCookieAndMemberId(ipbMemberId);
     } on DioError catch (e) {
       Log.error(e);
       Get.snackbar('loginFail'.tr, e.message);
@@ -129,11 +131,12 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    if (userNameAndAvatarUrl != null) {
+    if (userName != null) {
       state.loginState = LoadingState.success;
       update();
 
-      UserSetting.saveUserInfo(userName: userNameAndAvatarUrl[0]!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+      UserSetting.saveUserInfo(userName: userName, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 1000));
       Get.back();
@@ -147,5 +150,9 @@ class LoginPageLogic extends GetxController {
         backgroundColor: Colors.grey.withOpacity(0.7),
       );
     }
+  }
+
+  Future<void> handleWebLogin() async {
+    Get.toNamed(Routes.webview, arguments: EHConsts.ELogin);
   }
 }
