@@ -13,6 +13,10 @@ import '../../../../utils/log.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'ranklist_view_state.dart';
 
+String appBarTitleId = 'appBarTitleId';
+String bodyId = 'bodyId';
+String loadingStateId = 'loadingStateId';
+
 class RanklistViewLogic extends GetxController {
   final RanklistViewState state = RanklistViewState();
   final TagTranslationService tagTranslationService = Get.find();
@@ -31,7 +35,7 @@ class RanklistViewLogic extends GetxController {
     LoadingState prevState = state.getRanklistLoadingState[curType]!;
     state.getRanklistLoadingState[curType] = LoadingState.loading;
     if (prevState == LoadingState.error) {
-      update();
+      update([loadingStateId]);
     }
 
     Map<RanklistType, List<BaseGallery>> baseGallerys = {};
@@ -41,7 +45,7 @@ class RanklistViewLogic extends GetxController {
       Log.error('get ranklist failed', e.message);
       Get.snackbar('getRanklistFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.getRanklistLoadingState[curType] = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
 
@@ -63,7 +67,7 @@ class RanklistViewLogic extends GetxController {
           state.ranklistGalleryDetails[curType]?.clear();
           state.ranklistGalleryDetailsApikey[curType]?.clear();
           state.getRanklistLoadingState[curType] = LoadingState.error;
-          update();
+          update([bodyId]);
           return;
         }
       }
@@ -72,7 +76,7 @@ class RanklistViewLogic extends GetxController {
     tagTranslationService.translateGalleryTagsIfNeeded(state.ranklistGallery[curType]!);
     tagTranslationService.translateGalleryDetailsTagsIfNeeded(state.ranklistGalleryDetails[curType]!);
     state.getRanklistLoadingState[curType] = LoadingState.noMore;
-    update();
+    update([bodyId]);
   }
 
   Future<void> handleRefresh() async {
@@ -92,5 +96,15 @@ class RanklistViewLogic extends GetxController {
         state.ranklistGalleryDetailsApikey[state.ranklistType]![index],
       ],
     );
+  }
+
+  Future<void> handleChangeRanklist(RanklistType result) async {
+    if (result != state.ranklistType) {
+      state.ranklistType = result;
+      update([bodyId]);
+      getRanklist();
+    }
+    state.ranklistType = result;
+    update(['appBarTitleId']);
   }
 }

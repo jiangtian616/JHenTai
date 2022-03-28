@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:reorderables/reorderables.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
@@ -191,17 +190,19 @@ class GallerysView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: GetBuilder<GallerysViewLogic>(builder: (logic) {
-                          return TabBar(
-                            controller: logic.tabController,
-                            isScrollable: true,
-                            physics: const BouncingScrollPhysics(),
-                            tabs: List.generate(
-                              TabBarSetting.configs.length,
-                              (index) => Tab(text: TabBarSetting.configs[index].name),
-                            ),
-                          );
-                        }),
+                        child: GetBuilder<GallerysViewLogic>(
+                            id: tabBarId,
+                            builder: (logic) {
+                              return TabBar(
+                                controller: logic.tabController,
+                                isScrollable: true,
+                                physics: const BouncingScrollPhysics(),
+                                tabs: List.generate(
+                                  TabBarSetting.configs.length,
+                                  (index) => Tab(text: TabBarSetting.configs[index].name),
+                                ),
+                              );
+                            }),
                       ),
                       IconButton(
                         icon: Icon(
@@ -227,6 +228,7 @@ class GallerysView extends StatelessWidget {
 
   Widget _buildBody() {
     return GetBuilder<GallerysViewLogic>(
+      id: bodyId,
       builder: (logic) {
         return TabBarView(
           controller: logic.tabController,
@@ -270,11 +272,15 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
             gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
         ? Center(
-            child: LoadingStateIndicator(
-              errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
-              loadingState: gallerysViewState.loadingState[widget.tabIndex],
-            ),
+            child: GetBuilder<GallerysViewLogic>(
+                id: loadingStateId,
+                builder: (logic) {
+                  return LoadingStateIndicator(
+                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+                    noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
+                    loadingState: gallerysViewState.loadingState[widget.tabIndex],
+                  );
+                }),
           )
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -295,10 +301,14 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
               SliverPadding(
                 padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
                 sliver: SliverToBoxAdapter(
-                  child: LoadingStateIndicator(
-                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-                    loadingState: gallerysViewState.loadingState[widget.tabIndex],
-                  ),
+                  child: GetBuilder<GallerysViewLogic>(
+                      id: loadingStateId,
+                      builder: (logic) {
+                        return LoadingStateIndicator(
+                          errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+                          loadingState: gallerysViewState.loadingState[widget.tabIndex],
+                        );
+                      }),
                 ),
               ),
             ],
@@ -307,22 +317,25 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   SliverList _buildGalleryList(int tabIndex) {
     return SliverList(
-      delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-        if (index == gallerysViewState.gallerys[tabIndex].length - 1 &&
-            gallerysViewState.loadingState[tabIndex] == LoadingState.idle) {
-          /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
-          /// that hints circular build.
-          /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
-          /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-          /// the callback is added only once.
-          SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-            gallerysViewLogic.handleLoadMore(tabIndex);
-          });
-        }
-        Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
+      delegate: SliverChildBuilderDelegate(
+        (BuildContext context, int index) {
+          if (index == gallerysViewState.gallerys[tabIndex].length - 1 &&
+              gallerysViewState.loadingState[tabIndex] == LoadingState.idle) {
+            /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
+            /// that hints circular build.
+            /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
+            /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+            /// the callback is added only once.
+            SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+              gallerysViewLogic.handleLoadMore(tabIndex);
+            });
+          }
+          Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
 
-        return GalleryCard(gallery: gallery, handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery));
-      }, childCount: gallerysViewState.gallerys[tabIndex].length),
+          return GalleryCard(gallery: gallery, handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery));
+        },
+        childCount: gallerysViewState.gallerys[tabIndex].length,
+      ),
     );
   }
 }

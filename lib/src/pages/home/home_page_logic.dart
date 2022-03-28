@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 
 import '../../config/global_config.dart';
-import '../../model/gallery.dart';
 import 'home_page_state.dart';
 
 class HomePageLogic extends GetxController {

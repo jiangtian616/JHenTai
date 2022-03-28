@@ -27,6 +27,11 @@ import '../../utils/cookie_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
+String bodyId = 'bodyId';
+String loadingStateId = 'loadingStateId';
+String addFavoriteStateId = 'addFavoriteStateId';
+String thumbnailsId = 'thumbnailsId';
+
 class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
   final DownloadService downloadService = Get.find();
@@ -72,7 +77,7 @@ class DetailsPageLogic extends GetxController {
       state.loadingDetailsState = LoadingState.success;
 
       await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-      update();
+      update([bodyId]);
       return;
     }
 
@@ -83,7 +88,7 @@ class DetailsPageLogic extends GetxController {
       state.apikey = arg[2];
       state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
-      update();
+      update([bodyId]);
       return;
     }
   }
@@ -126,7 +131,7 @@ class DetailsPageLogic extends GetxController {
     LoadingState prevState = state.loadingDetailsState;
     state.loadingDetailsState = LoadingState.loading;
     if (prevState == LoadingState.error) {
-      update();
+      update([loadingStateId]);
     }
 
     Log.info('get gallery details', false);
@@ -140,14 +145,14 @@ class DetailsPageLogic extends GetxController {
       Log.error('Get Gallery Detail Failed', e.message);
       Get.snackbar('getGalleryDetailFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingDetailsState = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
-    update();
+    update([bodyId]);
   }
 
   Future<void> handleRefresh() async {
@@ -169,27 +174,27 @@ class DetailsPageLogic extends GetxController {
     state.galleryDetails = detailAndApikey['galleryDetails'];
     state.apikey = detailAndApikey['apikey'];
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-    update();
+    update([bodyId]);
   }
 
   Future<void> loadMoreThumbnails() async {
     if (state.loadingThumbnailsState == LoadingState.loading) {
       return;
     }
-    update();
+    update([loadingStateId]);
 
     /// no more page
     if (state.nextPageIndexToLoadThumbnails >= state.thumbnailsPageCount) {
       state.loadingThumbnailsState = LoadingState.noMore;
 
-      update();
+      update([loadingStateId]);
       return;
     }
 
     LoadingState prevState = state.loadingThumbnailsState;
     state.loadingThumbnailsState = LoadingState.loading;
     if (prevState == LoadingState.error) {
-      update();
+      update([loadingStateId]);
     }
 
     List<GalleryThumbnail> newThumbNails;
@@ -203,7 +208,7 @@ class DetailsPageLogic extends GetxController {
       Log.error('fail to get thumbnails', e.message);
       Get.snackbar('failToGetThumbnails'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingThumbnailsState = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
     state.galleryDetails!.thumbnails.addAll(newThumbNails);
@@ -214,7 +219,7 @@ class DetailsPageLogic extends GetxController {
     }
     state.nextPageIndexToLoadThumbnails++;
     state.loadingThumbnailsState = LoadingState.idle;
-    update();
+    update([bodyId]);
   }
 
   Future<void> handleTapFavorite() async {
@@ -233,7 +238,7 @@ class DetailsPageLogic extends GetxController {
     }
 
     state.addFavoriteState = LoadingState.loading;
-    update();
+    update([addFavoriteStateId]);
     try {
       if (favIndex == state.gallery?.favoriteTagIndex) {
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
@@ -245,14 +250,14 @@ class DetailsPageLogic extends GetxController {
     } on DioError catch (e) {
       Get.snackbar('收藏画廊错误', e.message, snackPosition: SnackPosition.BOTTOM);
       state.addFavoriteState = LoadingState.error;
-      update();
+      update([addFavoriteStateId]);
       return;
     }
     state.addFavoriteState = LoadingState.idle;
-    update();
+    update([addFavoriteStateId]);
 
     /// update homePage status
-    Get.find<GallerysViewLogic>().update();
+    Get.find<GallerysViewLogic>().update([bodyId]);
   }
 
   Future<void> handleTapRating() async {
@@ -303,7 +308,7 @@ class DetailsPageLogic extends GetxController {
       int score = jsonDecode(result)['comment_score'];
       state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score =
           score >= 0 ? '+' + score.toString() : score.toString();
-      update();
+      update([bodyId]);
     }).catchError((error) {
       Log.error('vote comment failed', (error as DioError).message);
       Get.snackbar('vote comment failed', error.message);

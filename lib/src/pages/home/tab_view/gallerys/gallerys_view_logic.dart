@@ -17,6 +17,10 @@ import '../../../../utils/eh_spider_parser.dart';
 import 'gallerys_view_state.dart';
 import '../../../../model/gallery.dart';
 
+String tabBarId = 'tabBarId';
+String bodyId = 'bodyId';
+String loadingStateId = 'loadingStateId';
+
 class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin {
   final GallerysViewState state = GallerysViewState();
   final TagTranslationService tagTranslationService = Get.find();
@@ -32,7 +36,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     List<Gallery> newGallerys;
     int pageCount;
     state.loadingState[tabIndex] = LoadingState.loading;
-    update();
+    update([loadingStateId]);
 
     try {
       List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, 0);
@@ -42,7 +46,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       Log.error('refresh gallery failed', e.message);
       Get.snackbar('refresh gallery failed', e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingState[tabIndex] = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
 
@@ -57,7 +61,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     } else {
       state.loadingState[tabIndex] = LoadingState.idle;
     }
-    update();
+    update([bodyId]);
   }
 
   /// has scrolled to bottom, so need to load more data.
@@ -69,7 +73,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     LoadingState prevState = state.loadingState[tabIndex];
     state.loadingState[tabIndex] = LoadingState.loading;
     if (prevState == LoadingState.error) {
-      update();
+      update([loadingStateId]);
     }
 
     try {
@@ -80,7 +84,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       Log.error('get gallerys failed', e.message);
       Get.snackbar('getGallerysFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingState[tabIndex] = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
 
@@ -93,7 +97,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.loadingState[tabIndex] = LoadingState.idle;
     }
 
-    update();
+    update([bodyId]);
   }
 
   /// click the card and enter details page
@@ -117,7 +121,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
     tabController.index = oldController.index;
     oldController.dispose();
-    update();
+    update([tabBarId, bodyId]);
   }
 
   /// remove tab
@@ -136,7 +140,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
     tabController.index = max(oldController.index - 1, 0);
     oldController.dispose();
-    update();
+    update([tabBarId, bodyId]);
   }
 
   /// remove tab
@@ -147,7 +151,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     TabBarSetting.updateTab(index, tabBarConfig);
     state.tabBarNames[index] = tabBarConfig.name;
-    update();
+    update([tabBarId, bodyId]);
   }
 
   /// reOrder tab
@@ -180,7 +184,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     } else if (newIndex <= tabController.index && tabController.index < oldIndex) {
       tabController.index = tabController.index + 1;
     }
-    update();
+    update([tabBarId, bodyId]);
   }
 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {

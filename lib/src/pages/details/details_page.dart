@@ -44,6 +44,7 @@ class DetailsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
+        id: bodyId,
         tag: DetailsPageLogic.currentStackDepth.toString(),
         builder: (logic) {
           return Scaffold(
@@ -313,34 +314,39 @@ class DetailsPage extends StatelessWidget {
                   );
                 }),
               ),
-              LoadingStateIndicator(
-                width: (context.width - 30) / 6,
-                loadingState: detailsPageState.addFavoriteState,
-                idleWidget: IconTextButton(
-                  iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                  iconSize: 26,
-                  iconColor: gallery.isFavorite && detailsPageState.galleryDetails != null
-                      ? ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]
-                      : null,
-                  text: Text(
-                    gallery.isFavorite ? gallery.favoriteTagName! : 'favorite'.tr,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Get.theme.appBarTheme.titleTextStyle?.color,
-                    ),
-                  ),
-                  onPressed: detailsPageState.galleryDetails == null
-                      ? null
-                      : UserSetting.hasLoggedIn()
-                          ? detailsPageLogic.handleTapFavorite
-                          : detailsPageLogic.showLoginSnack,
-                ),
-                errorWidgetSameWithIdle: true,
-              ),
+              GetBuilder<DetailsPageLogic>(
+                  id: addFavoriteStateId,
+                  tag: DetailsPageLogic.currentStackDepth.toString(),
+                  builder: (logic) {
+                    return LoadingStateIndicator(
+                      width: (context.width - 30) / 6,
+                      loadingState: detailsPageState.addFavoriteState,
+                      idleWidget: IconTextButton(
+                        iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        iconSize: 26,
+                        iconColor: gallery.isFavorite && detailsPageState.galleryDetails != null
+                            ? ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]
+                            : null,
+                        text: Text(
+                          gallery.isFavorite ? gallery.favoriteTagName! : 'favorite'.tr,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Get.theme.appBarTheme.titleTextStyle?.color,
+                          ),
+                        ),
+                        onPressed: detailsPageState.galleryDetails == null
+                            ? null
+                            : UserSetting.hasLoggedIn()
+                                ? detailsPageLogic.handleTapFavorite
+                                : detailsPageLogic.showLoginSnack,
+                      ),
+                      errorWidgetSameWithIdle: true,
+                    );
+                  }),
               IconTextButton(
                 iconData: gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
                 iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
@@ -419,11 +425,16 @@ class DetailsPage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
-        child: LoadingStateIndicator(
-          indicatorRadius: 16,
-          loadingState: detailsPageState.loadingDetailsState,
-          errorTapCallback: detailsPageLogic.getDetails,
-        ),
+        child: GetBuilder<DetailsPageLogic>(
+            id: loadingStateId,
+            tag: DetailsPageLogic.currentStackDepth.toString(),
+            builder: (logic) {
+              return LoadingStateIndicator(
+                indicatorRadius: 16,
+                loadingState: detailsPageState.loadingDetailsState,
+                errorTapCallback: detailsPageLogic.getDetails,
+              );
+            }),
       ),
     );
   }
@@ -471,42 +482,47 @@ class DetailsPage extends StatelessWidget {
   Widget _buildThumbnails(GalleryDetail galleryDetails) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36),
-      sliver: SliverGrid(
-        delegate: SliverChildBuilderDelegate((context, index) {
-          if (index == galleryDetails.thumbnails.length - 1 &&
-              detailsPageState.loadingThumbnailsState == LoadingState.idle) {
-            /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
-            /// that hints circular build.
-            /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
-            /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-            /// the callback is added once.
-            SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-              detailsPageLogic.loadMoreThumbnails();
-            });
-          }
+      sliver: GetBuilder<DetailsPageLogic>(
+          id: thumbnailsId,
+          tag: DetailsPageLogic.currentStackDepth.toString(),
+          builder: (logic) {
+            return SliverGrid(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                if (index == galleryDetails.thumbnails.length - 1 &&
+                    detailsPageState.loadingThumbnailsState == LoadingState.idle) {
+                  /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
+                  /// that hints circular build.
+                  /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
+                  /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+                  /// the callback is added once.
+                  SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+                    detailsPageLogic.loadMoreThumbnails();
+                  });
+                }
 
-          GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GestureDetector(
-                onTap: () => detailsPageLogic.goToReadPage(index),
-                child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => detailsPageLogic.goToReadPage(index),
+                      child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                    ),
+                    Text(
+                      (index + 1).toString(),
+                      style: const TextStyle(color: Colors.grey),
+                    ).paddingOnly(top: 4),
+                  ],
+                );
+              }, childCount: galleryDetails.thumbnails.length),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                mainAxisExtent: 220,
+                maxCrossAxisExtent: 150,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 5,
               ),
-              Text(
-                (index + 1).toString(),
-                style: const TextStyle(color: Colors.grey),
-              ).paddingOnly(top: 4),
-            ],
-          );
-        }, childCount: galleryDetails.thumbnails.length),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          mainAxisExtent: 220,
-          maxCrossAxisExtent: 150,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 5,
-        ),
-      ),
+            );
+          }),
     );
   }
 
@@ -514,10 +530,15 @@ class DetailsPage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
-        child: LoadingStateIndicator(
-          errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
-          loadingState: detailsPageState.loadingThumbnailsState,
-        ),
+        child: GetBuilder<DetailsPageLogic>(
+            id: loadingStateId,
+            tag: DetailsPageLogic.currentStackDepth.toString(),
+            builder: (logic) {
+              return LoadingStateIndicator(
+                errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
+                loadingState: detailsPageState.loadingThumbnailsState,
+              );
+            }),
       ),
     );
   }

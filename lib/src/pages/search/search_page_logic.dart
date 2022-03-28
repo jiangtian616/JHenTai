@@ -11,6 +11,9 @@ import '../../utils/log.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
 
+String bodyId = 'bodyId';
+String loadingStateId = 'loadingStateId';
+
 class SearchPageLogic extends GetxController {
   final SearchPageState state = SearchPageState();
   final TagTranslationService tagTranslationService = Get.find();
@@ -49,7 +52,7 @@ class SearchPageLogic extends GetxController {
       state.pageCount = -1;
     }
     state.loadingState = LoadingState.loading;
-    update();
+    update([loadingStateId]);
 
     try {
       List<dynamic> gallerysAndPageCount = await EHRequest.requestGalleryPage(
@@ -63,7 +66,7 @@ class SearchPageLogic extends GetxController {
       Log.error('search Failed', e.message);
       Get.snackbar('searchFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
 
@@ -79,7 +82,7 @@ class SearchPageLogic extends GetxController {
 
     await tagTranslationService.translateGalleryTagsIfNeeded(state.gallerys);
 
-    update();
+    update([bodyId]);
   }
 
   void handleTapCard(Gallery gallery) {

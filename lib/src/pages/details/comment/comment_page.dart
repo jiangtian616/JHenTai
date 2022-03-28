@@ -80,7 +80,7 @@ class _CommentPageState extends State<CommentPage> {
         comments = newComments;
       });
       DetailsPageLogic.currentDetailsPageLogic.state.galleryDetails!.comments = newComments;
-      DetailsPageLogic.currentDetailsPageLogic.update();
+      DetailsPageLogic.currentDetailsPageLogic.update([bodyId]);
     }
   }
 }

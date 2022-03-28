@@ -12,7 +12,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
+import '../../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 
 class RatingDialog extends StatefulWidget {
   const RatingDialog({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class RatingDialog extends StatefulWidget {
 }
 
 class _RatingDialogState extends State<RatingDialog> {
-  GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
+  g.GallerysViewLogic gallerysViewLogic = Get.find<g.GallerysViewLogic>();
   DetailsPageLogic detailsPageLogic = DetailsPageLogic.currentDetailsPageLogic;
   DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
 
@@ -134,8 +134,8 @@ class _RatingDialogState extends State<RatingDialog> {
     detailsPageState.gallery!.rating = double.parse(respMap['rating_usr'].toString());
     detailsPageState.galleryDetails!.ratingCount = respMap['rating_cnt'];
     detailsPageState.galleryDetails!.realRating = double.parse(respMap['rating_avg'].toString());
-    detailsPageLogic.update();
-    gallerysViewLogic.update();
+    detailsPageLogic.update([bodyId]);
+    gallerysViewLogic.update([g.bodyId]);
     setState(() {
       submitState = LoadingState.success;
     });

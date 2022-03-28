@@ -31,7 +31,7 @@ class _RanklistViewState extends State<RanklistView> {
     return Scaffold(
       appBar: AppBar(
         title: GetBuilder<RanklistViewLogic>(
-            id: 'appBarTitle',
+            id: 'appBarTitleId',
             builder: (logic) {
               return Text('${state.ranklistType.name.tr} ${'ranklist'.tr}');
             }),
@@ -39,20 +39,12 @@ class _RanklistViewState extends State<RanklistView> {
         elevation: 1,
         actions: [
           GetBuilder<RanklistViewLogic>(
-              id: 'appBarTitle',
+              id: 'appBarTitleId',
               builder: (logic) {
                 return PopupMenuButton(
                   initialValue: state.ranklistType,
                   padding: EdgeInsets.zero,
-                  onSelected: (RanklistType result) {
-                    if (result != state.ranklistType) {
-                      state.ranklistType = result;
-                      logic.update();
-                      logic.getRanklist();
-                    }
-                    state.ranklistType = result;
-                    logic.update(['appBarTitle']);
-                  },
+                  onSelected: logic.handleChangeRanklist,
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
                     PopupMenuItem<RanklistType>(
                       value: RanklistType.allTime,
@@ -75,9 +67,11 @@ class _RanklistViewState extends State<RanklistView> {
               }),
         ],
       ),
-      body: GetBuilder<RanklistViewLogic>(builder: (logic) {
-        return _buildBody();
-      }),
+      body: GetBuilder<RanklistViewLogic>(
+          id: bodyId,
+          builder: (logic) {
+            return _buildBody();
+          }),
     );
   }
 
@@ -85,11 +79,15 @@ class _RanklistViewState extends State<RanklistView> {
     return state.ranklistGallery[state.ranklistType]!.isEmpty &&
             state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
         ? Center(
-            child: LoadingStateIndicator(
-              errorTapCallback: () => logic.handleRefresh(),
-              noDataTapCallback: () => logic.handleRefresh(),
-              loadingState: state.getRanklistLoadingState[state.ranklistType]!,
-            ),
+            child: GetBuilder<RanklistViewLogic>(
+                id: loadingStateId,
+                builder: (logic) {
+                  return LoadingStateIndicator(
+                    errorTapCallback: () => logic.handleRefresh(),
+                    noDataTapCallback: () => logic.handleRefresh(),
+                    loadingState: state.getRanklistLoadingState[state.ranklistType]!,
+                  );
+                }),
           )
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -103,9 +101,13 @@ class _RanklistViewState extends State<RanklistView> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 sliver: SliverToBoxAdapter(
-                  child: LoadingStateIndicator(
-                    loadingState: state.getRanklistLoadingState[state.ranklistType]!,
-                  ),
+                  child: GetBuilder<RanklistViewLogic>(
+                      id: loadingStateId,
+                      builder: (logic) {
+                        return LoadingStateIndicator(
+                          loadingState: state.getRanklistLoadingState[state.ranklistType]!,
+                        );
+                      }),
                 ),
               ),
             ],

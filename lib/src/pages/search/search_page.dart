@@ -96,15 +96,20 @@ class SearchPagePage extends StatelessWidget {
 
   Widget _buildBody(BuildContext context) {
     return GetBuilder<SearchPageLogic>(
+      id: bodyId,
       tag: SearchPageLogic.currentStackDepth.toString(),
       builder: (logic) {
         return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
             ? Center(
-                child: LoadingStateIndicator(
-                  errorTapCallback: () => logic.search(isRefresh: true),
-                  noDataTapCallback: () => logic.search(isRefresh: true),
-                  loadingState: state.loadingState,
-                ),
+                child: GetBuilder<SearchPageLogic>(
+                    id: loadingStateId,
+                    builder: (logic) {
+                      return LoadingStateIndicator(
+                        errorTapCallback: () => logic.search(isRefresh: true),
+                        noDataTapCallback: () => logic.search(isRefresh: true),
+                        loadingState: state.loadingState,
+                      );
+                    }),
               )
             : CustomScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -120,9 +125,13 @@ class SearchPagePage extends StatelessWidget {
                   SliverPadding(
                     padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
                     sliver: SliverToBoxAdapter(
-                      child: LoadingStateIndicator(
-                        loadingState: state.loadingState,
-                      ),
+                      child: GetBuilder<SearchPageLogic>(
+                          id: loadingStateId,
+                          builder: (logic) {
+                            return LoadingStateIndicator(
+                              loadingState: state.loadingState,
+                            );
+                          }),
                     ),
                   ),
                 ],
