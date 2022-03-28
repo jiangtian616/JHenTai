@@ -4,12 +4,12 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../service/download_service.dart';
 
@@ -24,59 +24,56 @@ class ReadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: FlutterListView(
-        controller: state.listViewController,
-        delegate: FlutterListViewDelegate(
-          (BuildContext context, int index) {
-            return Obx(() {
-              /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
-              if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
-                if (state.imageHrefParsingState.value == LoadingState.idle) {
-                  logic.beginParsingImageHref(index);
-                }
-                if (state.type == 'online' || state.images[index].value == null) {
-                  return _buildParsingThumbnailsIndicator(context, index);
-                }
-              }
+      child: ScrollablePositionedList.builder(
+        minCacheExtent: state.type == 'download' ? 5000.0 : 0.0,
+        initialScrollIndex: state.initialIndex,
+        itemCount: state.pageCount,
+        itemBuilder: (context, index) => Obx(() {
+          /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
+          if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
+            if (state.imageHrefParsingState.value == LoadingState.idle) {
+              logic.beginParsingImageHref(index);
+            }
+            if (state.type == 'online' || state.images[index].value == null) {
+              return _buildParsingThumbnailsIndicator(context, index);
+            }
+          }
 
-              /// step 2: parsing image url. [parse] one image's raw data
-              if (state.images[index].value == null) {
-                if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
-                  logic.beginParsingImageUrl(index);
-                }
+          /// step 2: parsing image url. [parse] one image's raw data
+          if (state.images[index].value == null) {
+            if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
+              logic.beginParsingImageUrl(index);
+            }
 
-                /// just like a listener
-                downloadService.gid2Images[state.gid]?[index].value;
+            /// just like a listener
+            downloadService.gid2Images[state.gid]?[index].value;
 
-                return _buildParsingImageIndicator(context, index);
-              }
+            return _buildParsingImageIndicator(context, index);
+          }
 
-              FittedSizes fittedSizes = applyBoxFit(
-                BoxFit.contain,
-                Size(state.images[index].value!.width, state.images[index].value!.height),
-                Size(context.width, double.infinity),
-              );
+          FittedSizes fittedSizes = applyBoxFit(
+            BoxFit.contain,
+            Size(state.images[index].value!.width, state.images[index].value!.height),
+            Size(context.width, double.infinity),
+          );
 
-              /// step 3 load image : use url to [load] image
-              return KeepAliveWrapper(
-                child: EHImage(
-                  containerHeight: fittedSizes.destination.height,
-                  galleryImage: state.images[index].value!,
-                  adaptive: true,
-                  fit: BoxFit.contain,
-                  enableLongPressToRefresh: state.type == 'online',
-                  loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-                  failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-                  downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
-                ),
-              );
-            });
-          },
-          initIndex: state.initialIndex,
-          childCount: state.pageCount,
-          preferItemHeight: context.height,
-          onIsPermanent: (keyOrIndex) => true,
-        ),
+          /// step 3 load image : use url to [load] image
+          return KeepAliveWrapper(
+            child: EHImage(
+              containerHeight: fittedSizes.destination.height,
+              containerWidth: fittedSizes.destination.width,
+              galleryImage: state.images[index].value!,
+              adaptive: true,
+              fit: BoxFit.contain,
+              enableLongPressToRefresh: state.type == 'online',
+              loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+              failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+              downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+            ),
+          );
+        }),
+        itemScrollController: state.itemScrollController,
+        itemPositionsListener: state.itemPositionsListener,
       ),
     );
   }
@@ -128,72 +125,43 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _loadingWidgetBuilder(BuildContext context, int index, double progress) {
-    FittedSizes fittedSizes = applyBoxFit(
-      BoxFit.contain,
-      Size(state.images[index].value!.width, state.images[index].value!.height),
-      Size(context.width, double.infinity),
-    );
-
-    return SizedBox(
-      height: fittedSizes.destination.height,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(value: progress),
-          Text('loading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
-          Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CircularProgressIndicator(value: progress),
+        Text('loading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
+        Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
+      ],
     );
   }
 
   Widget _failedWidgetBuilder(BuildContext context, int index, ExtendedImageState state) {
-    FittedSizes fittedSizes = applyBoxFit(
-      BoxFit.contain,
-      Size(this.state.images[index].value!.width, this.state.images[index].value!.height),
-      Size(context.width, double.infinity),
-    );
-
-    return SizedBox(
-      height: fittedSizes.destination.height,
-      width: fittedSizes.destination.width,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconTextButton(
-            iconData: Icons.error,
-            text: Text('networkError'.tr, style: _readPageTextStyle()),
-            onPressed: state.reLoadImage,
-          ),
-          Text(index.toString(), style: _readPageTextStyle()),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconTextButton(
+          iconData: Icons.error,
+          text: Text('networkError'.tr, style: _readPageTextStyle()),
+          onPressed: state.reLoadImage,
+        ),
+        Text(index.toString(), style: _readPageTextStyle()),
+      ],
     );
   }
 
   Widget _downloadingWidgetBuilder(BuildContext context, int index) {
-    FittedSizes fittedSizes = applyBoxFit(
-      BoxFit.contain,
-      Size(state.images[index].value!.width, state.images[index].value!.height),
-      Size(context.width, double.infinity),
-    );
-
     return Obx(() {
       SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
       int downloadedBytes = speedComputer.imageDownloadedBytes[index].value;
       int totalBytes = speedComputer.imageTotalBytes[index].value;
 
-      return SizedBox(
-        height: fittedSizes.destination.height,
-        width: fittedSizes.destination.width,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
-            Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
-            Text(index.toString(), style: _readPageTextStyle()),
-          ],
-        ),
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
+          Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
+          Text(index.toString(), style: _readPageTextStyle()),
+        ],
       );
     });
   }

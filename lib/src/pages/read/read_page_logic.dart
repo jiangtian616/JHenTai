@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -46,10 +45,9 @@ class ReadPageLogic extends GetxController {
     }
 
     /// record reading progress
-    state.listViewController.sliverController.onPaintItemPositionsCallback =
-        (double widgetHeight, List<FlutterListViewItemPosition> positions) {
-      state.readIndexRecord = positions.last.index - 1;
-    };
+    state.itemPositionsListener.itemPositions.addListener(() {
+      state.readIndexRecord = state.itemPositionsListener.itemPositions.value.last.index - 1;
+    });
   }
 
   Future<void> beginParsingImageHref(int index) async {
@@ -71,9 +69,9 @@ class ReadPageLogic extends GetxController {
       state.imageHrefParsingState.value = LoadingState.error;
       return;
     }
-
+    int from = index ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
     for (int i = 0; i < newThumbnails.length; i++) {
-      state.thumbnails[index + i].value = newThumbnails[i];
+      state.thumbnails[from + i].value = newThumbnails[i];
     }
     state.imageHrefParsingState.value = LoadingState.success;
     return;
