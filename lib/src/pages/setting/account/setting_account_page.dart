@@ -30,7 +30,7 @@ class SettingAccountPage extends StatelessWidget {
               ListTile(
                 title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
                 trailing: Container(
-                  width: 150,
+                  width: 155,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
