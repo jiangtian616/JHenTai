@@ -8,7 +8,6 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
-import 'package:jhentai/src/pages/webview/webview_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';

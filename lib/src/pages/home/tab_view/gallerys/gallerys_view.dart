@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +6,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:reorderables/reorderables.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
@@ -76,54 +74,58 @@ class GallerysView extends StatelessWidget {
                           GestureDetector(
                             onTap: () =>
                                 Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
-                            child: const Icon(Icons.add, size: 28, color: Colors.white).marginOnly(right: 16),
+                            child: const Icon(Icons.add, size: 28, color: Colors.white),
                           ),
-                          const Icon(FontAwesomeIcons.bars, size: 18, color: Colors.white).marginOnly(right: 4),
                         ],
                       ),
                     ),
                   ),
                   Expanded(
                     child: Obx(() {
-                      return ListView.separated(
+                      return ReorderableListView.builder(
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const Divider(thickness: 0.7, height: 2, indent: 16),
+                        onReorder: gallerysViewLogic.handleReOrderTab,
                         itemBuilder: (BuildContext context, int index) {
-                          return Slidable(
+                          return Column(
                             key: Key(TabBarSetting.configs[index].name),
-                            enabled: TabBarSetting.configs[index].isDeleteAble,
-                            endActionPane: ActionPane(
-                              motion: const DrawerMotion(),
-                              extentRatio: 0.21,
-                              children: [
-                                SlidableAction(
-                                  icon: Icons.delete,
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.red,
-                                  onPressed: (context) => TabBarSetting.removeTab(TabBarSetting.configs[index].name),
-                                )
-                              ],
-                            ),
-                            child: ListTile(
-                              dense: true,
-                              title: Text(
-                                TabBarSetting.configs[index].name,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                            children: [
+                              Slidable(
+                                key: Key(TabBarSetting.configs[index].name),
+                                enabled: TabBarSetting.configs[index].isDeleteAble,
+                                endActionPane: ActionPane(
+                                  motion: const DrawerMotion(),
+                                  extentRatio: 0.21,
+                                  children: [
+                                    SlidableAction(
+                                      icon: Icons.delete,
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colors.red,
+                                      onPressed: (context) => gallerysViewLogic.handleRemoveTab(index),
+                                    )
+                                  ],
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: Text(
+                                    TabBarSetting.configs[index].name,
+                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                                  ),
+                                  trailing: TabBarSetting.configs[index].isDeleteAble
+                                      ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
+                                      : null,
+                                  onTap: TabBarSetting.configs[index].isEditable
+                                      ? () => Get.dialog(
+                                            EHTabBarConfigDialog(
+                                              tabBarConfig: TabBarSetting.configs[index],
+                                              type: EHTabBarConfigDialogType.update,
+                                            ),
+                                          )
+                                      : null,
+                                ),
                               ),
-                              trailing: TabBarSetting.configs[index].isDeleteAble
-                                  ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
-                                  : null,
-                              onTap: TabBarSetting.configs[index].isEditable
-                                  ? () => Get.dialog(
-                                        EHTabBarConfigDialog(
-                                          tabBarConfig: TabBarSetting.configs[index],
-                                          type: EHTabBarConfigDialogType.update,
-                                        ),
-                                      )
-                                  : null,
-                            ),
+                              const Divider(thickness: 0.7, height: 2, indent: 16),
+                            ],
                           );
                         },
                       );

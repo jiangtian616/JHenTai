@@ -28,34 +28,37 @@ class TabBarSetting {
     ),
   ].obs;
 
-  static bool addTab(String name, [SearchConfig? searchConfig]) {
-    if (name.isEmpty) {
-      return false;
+  static void addTab(TabBarConfig tabBarConfig) {
+    if (tabBarConfig.name.isEmpty) {
+      return;
+    }
+    if (configs.firstWhereOrNull((config) => config.name == tabBarConfig.name) != null) {
+      return;
     }
 
-    if (configs.firstWhereOrNull((config) => config.name == name) != null) {
-      return false;
-    }
-
-    configs.add(TabBarConfig(name: name, searchConfig: searchConfig ?? SearchConfig()));
+    configs.add(tabBarConfig);
     _save();
-    return true;
   }
 
-  static bool removeTab(String name) {
+  static void removeTab(int index) {
     if (configs.length == 1) {
-      return false;
+      return;
     }
-
-    /// removeAt will call ever twice (a bug)! so i can only use removeWhere.
-    configs.removeWhere((config) => config.name == name);
+    configs.removeAt(index);
     _save();
-    return true;
   }
 
-  static void updateTab(String name, TabBarConfig tabBarConfig) {
-    int updateIndex = configs.indexWhere((config) => config.name == name);
-    configs[updateIndex] = tabBarConfig;
+  static void updateTab(int index, TabBarConfig tabBarConfig) {
+    configs[index] = tabBarConfig;
+    _save();
+  }
+
+  static void reOrderTab(int oldIndex, int newIndex) {
+    if (newIndex != configs.length - 1) {
+      configs.insert(newIndex, configs.removeAt(oldIndex));
+    } else {
+      configs.add(configs.removeAt(oldIndex));
+    }
     _save();
   }
 

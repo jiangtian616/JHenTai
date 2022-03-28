@@ -56,6 +56,7 @@ dependencies:
   photo_view:
     git: https://gitee.com/jiangtian616/photo_view.git
 #    git: https://github.com/bluefireteam/photo_view.git
+  reorderables: ^0.4.3
 
 dev_dependencies:
   flutter_test:

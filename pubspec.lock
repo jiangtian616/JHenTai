@@ -844,6 +844,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
+  reorderables:
+    dependency: "direct main"
+    description:
+      name: reorderables
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.4.3"
   retry:
     dependency: "direct main"
     description:

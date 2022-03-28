@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
 import 'gallery_category_tag.dart';
@@ -31,6 +32,7 @@ class EHTabBarConfigDialog extends StatefulWidget {
 }
 
 class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
+  final GallerysViewLogic gallerysViewLogic = Get.find();
   late TabBarConfig tabBarConfig;
 
   @override
@@ -43,9 +45,9 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
   void deactivate() {
     /// notify listeners to rebuild page and save new config
     if (widget.type == EHTabBarConfigDialogType.update) {
-      TabBarSetting.updateTab(tabBarConfig.name, tabBarConfig);
+      gallerysViewLogic.handleUpdateTab(tabBarConfig);
     } else if (widget.type == EHTabBarConfigDialogType.addTabBar) {
-      TabBarSetting.addTab(tabBarConfig.name, tabBarConfig.searchConfig);
+      gallerysViewLogic.handleAddTab(tabBarConfig);
     }
 
     super.deactivate();
