@@ -103,6 +103,7 @@ class SearchPagePage extends StatelessWidget {
             ? Center(
                 child: GetBuilder<SearchPageLogic>(
                     id: loadingStateId,
+                    tag: SearchPageLogic.currentStackDepth.toString(),
                     builder: (logic) {
                       return LoadingStateIndicator(
                         errorTapCallback: () => logic.search(isRefresh: true),
@@ -127,6 +128,7 @@ class SearchPagePage extends StatelessWidget {
                     sliver: SliverToBoxAdapter(
                       child: GetBuilder<SearchPageLogic>(
                           id: loadingStateId,
+                          tag: SearchPageLogic.currentStackDepth.toString(),
                           builder: (logic) {
                             return LoadingStateIndicator(
                               loadingState: state.loadingState,

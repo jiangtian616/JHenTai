@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
@@ -10,10 +9,6 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
-import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/gallery_comment.dart';
-import 'package:jhentai/src/model/gallery_image.dart';
-import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -34,7 +29,7 @@ class EHRequest {
   static late final PersistCookieJar _cookieJar;
 
   static CacheOptions cacheOption = CacheOptions(
-    store: DbCacheStore(databasePath: join(PathSetting.getVisiblePath().path, 'cache')),
+    store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
     policy: CachePolicy.noCache,
     hitCacheOnErrorExcept: [401, 403],
     maxStale: const Duration(seconds: 60),

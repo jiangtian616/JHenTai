@@ -168,7 +168,7 @@ class _EHImageState extends State<EHImage> {
     );
   }
 
-  /// replace image host: exhentai.org -> ehgt.org or e-hentai.org
+  /// replace image host: exhentai.org -> ehgt.org
   String _replaceUrlIfInDomainFrontingAndInEX(String url) {
     if (AdvancedSetting.enableDomainFronting.isFalse) {
       return url;
