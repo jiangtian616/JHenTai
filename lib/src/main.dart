@@ -15,6 +15,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -71,9 +72,13 @@ Future<void> beforeInit() async {
   await DownloadService.init();
 
   TagTranslationService.init();
+
+
 }
 
 Future<void> onReady() async {
   FavoriteSetting.refresh();
   SiteSetting.refresh();
+
+  ReadSetting.init();
 }

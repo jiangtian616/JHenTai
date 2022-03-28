@@ -53,6 +53,9 @@ dependencies:
   url_launcher: ^6.0.20
   like_button: ^2.0.4
   webview_flutter: ^3.0.1
+  photo_view:
+    git: https://gitee.com/jiangtian616/photo_view.git
+#    git: https://github.com/bluefireteam/photo_view.git
 
 dev_dependencies:
   flutter_test:
@@ -64,4 +67,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-#  assets:

@@ -4,7 +4,7 @@
 - [x] cookie登录
 - [x] 查看cookie
 - [x] 阅读 从上到下连续List、失败重新加载、
-- [ ] 阅读 放大、tap边框翻页、tap中央显示bar、指定跳页
+- [x] 阅读 放大、tap边框翻页、tap中央显示bar、指定跳页
 - [x] 下载画廊、暂停、继续、删除任务、删除下载图片、初始化下载、失败过多重新解析
 - [x] Log、Log size、Log clear
 - [x] 应用内查看Log

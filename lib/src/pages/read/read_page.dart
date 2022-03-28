@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
+import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -24,57 +25,66 @@ class ReadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: ScrollablePositionedList.builder(
-        minCacheExtent: state.type == 'download' ? 5000.0 : 0.0,
-        initialScrollIndex: state.initialIndex,
-        itemCount: state.pageCount,
-        itemBuilder: (context, index) => Obx(() {
-          /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
-          if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
-            if (state.imageHrefParsingState.value == LoadingState.idle) {
-              logic.beginParsingImageHref(index);
-            }
-            if (state.type == 'online' || state.images[index].value == null) {
-              return _buildParsingThumbnailsIndicator(context, index);
-            }
-          }
-
-          /// step 2: parsing image url. [parse] one image's raw data
-          if (state.images[index].value == null) {
-            if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
-              logic.beginParsingImageUrl(index);
-            }
-
-            /// just like a listener
-            downloadService.gid2Images[state.gid]?[index].value;
-
-            return _buildParsingImageIndicator(context, index);
-          }
-
-          FittedSizes fittedSizes = applyBoxFit(
-            BoxFit.contain,
-            Size(state.images[index].value!.width, state.images[index].value!.height),
-            Size(context.width, double.infinity),
-          );
-
-          /// step 3 load image : use url to [load] image
-          return KeepAliveWrapper(
-            child: EHImage(
-              containerHeight: fittedSizes.destination.height,
-              containerWidth: fittedSizes.destination.width,
-              galleryImage: state.images[index].value!,
-              adaptive: true,
-              fit: BoxFit.contain,
-              enableLongPressToRefresh: state.type == 'online',
-              loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-              failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-              downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
-            ),
-          );
-        }),
-        itemScrollController: state.itemScrollController,
-        itemPositionsListener: state.itemPositionsListener,
+      child: ReadListViewHelper(
+        child: _buildListView(context),
       ),
+    );
+  }
+
+  Widget _buildListView(BuildContext context) {
+    return ScrollablePositionedList.separated(
+      minCacheExtent: state.type == 'local' ? 5000.0 : 0.0,
+      initialScrollIndex: state.initialIndex,
+      itemCount: state.pageCount,
+      itemScrollController: state.itemScrollController,
+      itemPositionsListener: state.itemPositionsListener,
+      itemBuilder: (context, index) => Obx(() {
+        /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
+        if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
+          if (state.imageHrefParsingState.value == LoadingState.idle) {
+            logic.beginParsingImageHref(index);
+          }
+          if (state.type == 'online' || state.images[index].value == null) {
+            return _buildParsingThumbnailsIndicator(context, index);
+          }
+        }
+
+        /// step 2: parsing image url. [parse] one image's raw data
+        if (state.images[index].value == null) {
+          if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
+            logic.beginParsingImageUrl(index);
+          }
+
+          /// just like a listener
+          downloadService.gid2Images[state.gid]?[index].value;
+
+          return _buildParsingImageIndicator(context, index);
+        }
+
+        FittedSizes fittedSizes = applyBoxFit(
+          BoxFit.contain,
+          Size(state.images[index].value!.width, state.images[index].value!.height),
+          Size(context.width, double.infinity),
+        );
+
+        /// step 3 load image : use url to [load] image
+        return KeepAliveWrapper(
+          child: EHImage(
+            containerHeight: fittedSizes.destination.height,
+            containerWidth: fittedSizes.destination.width,
+            galleryImage: state.images[index].value!,
+            adaptive: true,
+            fit: BoxFit.contain,
+            mode: ExtendedImageMode.gesture,
+            loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+            failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+            downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+          ),
+        );
+      }),
+      separatorBuilder: (BuildContext context, int index) {
+        return const Divider(height: 6);
+      },
     );
   }
 
@@ -92,9 +102,9 @@ class ReadPage extends StatelessWidget {
           ),
           Text(
             state.imageHrefParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
-            style: _readPageTextStyle(),
+            style: state.readPageTextStyle(),
           ).marginOnly(top: 8),
-          Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
+          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
         ],
       ),
     );
@@ -116,9 +126,9 @@ class ReadPage extends StatelessWidget {
           if (state.type == 'local') const CircularProgressIndicator(),
           Text(
             state.imageUrlParsingStates?[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
-            style: _readPageTextStyle(),
+            style: state.readPageTextStyle(),
           ).marginOnly(top: 8),
-          Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
+          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
         ],
       ),
     );
@@ -129,8 +139,8 @@ class ReadPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CircularProgressIndicator(value: progress),
-        Text('loading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
-        Text(index.toString(), style: _readPageTextStyle()).marginOnly(top: 4),
+        Text('loading'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
+        Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
       ],
     );
   }
@@ -141,10 +151,10 @@ class ReadPage extends StatelessWidget {
       children: [
         IconTextButton(
           iconData: Icons.error,
-          text: Text('networkError'.tr, style: _readPageTextStyle()),
+          text: Text('networkError'.tr, style: this.state.readPageTextStyle()),
           onPressed: state.reLoadImage,
         ),
-        Text(index.toString(), style: _readPageTextStyle()),
+        Text(index.toString(), style: this.state.readPageTextStyle()),
       ],
     );
   }
@@ -159,18 +169,10 @@ class ReadPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
-          Text('downloading'.tr, style: _readPageTextStyle()).marginOnly(top: 8),
-          Text(index.toString(), style: _readPageTextStyle()),
+          Text('downloading'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
+          Text(index.toString(), style: state.readPageTextStyle()),
         ],
       );
     });
-  }
-
-  TextStyle _readPageTextStyle() {
-    return const TextStyle(
-      color: Colors.white,
-      fontSize: 12,
-      decoration: TextDecoration.none,
-    );
   }
 }

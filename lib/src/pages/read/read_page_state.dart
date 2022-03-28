@@ -1,7 +1,11 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ReadPageState {
@@ -19,6 +23,18 @@ class ReadPageState {
   late List<Rxn<GalleryImage>> images;
   List<Rx<LoadingState>>? imageUrlParsingStates;
 
+  bool isMenuOpen = false;
+
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+
+  final PhotoViewScaleStateController photoViewScaleStateController = PhotoViewScaleStateController();
+
+  TextStyle readPageTextStyle() {
+    return const TextStyle(
+      color: Colors.white,
+      fontSize: 12,
+      decoration: TextDecoration.none,
+    );
+  }
 }

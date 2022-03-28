@@ -76,6 +76,7 @@ class en {
       'gallerySetting': 'Gallery Setting',
       'advancedSetting': 'Advanced Setting',
       'ehSetting': 'EH Site Setting',
+      'readSetting': 'Read Setting',
 
       /// eh setting page
       'site': 'site',
@@ -91,6 +92,9 @@ class en {
       'enableLogging': 'enable logging(need reboot)',
       'openLog': 'open log',
       'clearLogs': 'clear logs',
+
+      /// read setting page
+      'enablePageTurnAnime': 'Enable Page Turn Anime',
 
       /// log page
       'logList': 'Log List',

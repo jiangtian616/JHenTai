@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -7,9 +10,11 @@ import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:photo_view/photo_view.dart';
 
 import '../../database/database.dart';
 import '../../service/storage_service.dart';
+import '../../setting/read_setting.dart';
 import 'read_page_state.dart';
 
 class ReadPageLogic extends GetxController {
@@ -48,6 +53,15 @@ class ReadPageLogic extends GetxController {
     state.itemPositionsListener.itemPositions.addListener(() {
       state.readIndexRecord = state.itemPositionsListener.itemPositions.value.last.index - 1;
     });
+  }
+
+  @override
+  void onClose() {
+    storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
+    if (DetailsPageLogic.currentStackDepth > 0) {
+      DetailsPageLogic.currentDetailsPageLogic.update();
+    }
+    super.onClose();
   }
 
   Future<void> beginParsingImageHref(int index) async {
@@ -93,12 +107,49 @@ class ReadPageLogic extends GetxController {
     });
   }
 
-  @override
-  void onClose() {
-    storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
-    if (DetailsPageLogic.currentStackDepth > 0) {
-      DetailsPageLogic.currentDetailsPageLogic.update();
+  void scrollOrJump2PrevPage() {
+    scrollOrJump2Page(max(state.readIndexRecord - 1, 0));
+  }
+
+  void scrollOrJump2NextPage() {
+    scrollOrJump2Page(min(state.readIndexRecord + 1, state.pageCount));
+  }
+
+  void scrollOrJump2Page(int pageIndex) {
+    if (ReadSetting.enablePageTurnAnime.isTrue) {
+      state.itemScrollController.scrollTo(
+        index: pageIndex,
+        duration: const Duration(milliseconds: 200),
+      );
+    } else {
+      state.itemScrollController.jumpTo(
+        index: pageIndex,
+      );
     }
-    super.onClose();
+  }
+
+  void jump2Page(int pageIndex) {
+    state.itemScrollController.jumpTo(index: pageIndex);
+  }
+
+  void toggleMenu() {
+    state.isMenuOpen = !state.isMenuOpen;
+    print(state.isMenuOpen);
+    update(['menu']);
+  }
+
+  void onScaleEnd(BuildContext context, ScaleEndDetails details, PhotoViewControllerValue controllerValue) {
+    if (controllerValue.scale! < 1) {
+      state.photoViewScaleStateController.reset();
+    }
+  }
+
+  void handleSlide(double value) {
+    state.readIndexRecord = (value - 1).toInt();
+    update(['menu']);
+  }
+
+  void handleSlideEnd(double value) {
+    jump2Page((value - 1).toInt());
   }
 }

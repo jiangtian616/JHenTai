@@ -76,6 +76,7 @@ class zh_CN {
       'gallerySetting': '画廊设置',
       'advancedSetting': '高级设置',
       'ehSetting': 'EH 网站设置',
+      'readSetting': '阅读设置',
 
       /// eh setting page
       'site': '站点',
@@ -91,6 +92,9 @@ class zh_CN {
       'enableLogging': '开启日志(需要重启)',
       'openLog': '查看日志',
       'clearLogs': '清除日志',
+
+      /// read setting page
+      'enablePageTurnAnime': '开启翻页动画',
 
       /// log page
       'logList': '日志列表',

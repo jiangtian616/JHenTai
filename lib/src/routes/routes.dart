@@ -10,6 +10,7 @@ import 'package:jhentai/src/pages/setting/advanced/log/log_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/gallery/setting_gallery_page.dart';
+import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/test.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
 
@@ -81,6 +82,11 @@ class Routes {
         GetPage(
           name: settingGallery,
           page: () => SettingGalleryPage(),
+          transition: Transition.cupertino,
+        ),
+        GetPage(
+          name: settingRead,
+          page: () => SettingReadPage(),
           transition: Transition.cupertino,
         ),
         GetPage(
