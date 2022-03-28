@@ -1,3 +1,4 @@
+import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -69,7 +70,7 @@ class TagTranslationService extends GetxService {
     storageService.write('TagTranslationServiceTimestamp', timeStamp.value);
     loadingState.value = LoadingState.success;
     Log.info('update tagTranslation database success', false);
-    File(savePath).delete();
+    io.File(savePath).delete();
   }
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
@@ -139,7 +140,7 @@ class TagTranslationService extends GetxService {
       return [];
     }
 
-    String json = File(savePath).readAsStringSync();
+    String json = io.File(savePath).readAsStringSync();
     Map dataMap = jsonDecode(json);
 
     Map head = dataMap['head'] as Map;

@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:core';
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
@@ -34,7 +34,7 @@ class DownloadService extends GetxService {
   static const int downloadRetryTimes = 3;
 
   static Future<void> init() async {
-    await Directory(path.join(PathSetting.getVisiblePath().path, 'download')).create(recursive: true);
+    await io.Directory(path.join(PathSetting.getVisiblePath().path, 'download')).create(recursive: true);
     Get.put(DownloadService(), permanent: true);
   }
 
@@ -357,14 +357,14 @@ class DownloadService extends GetxService {
   }
 
   /// clear images in disk
-  Future<FileSystemEntity> _clearDownloadedImage(GalleryDownloadedData gallery) {
+  Future<io.FileSystemEntity> _clearDownloadedImage(GalleryDownloadedData gallery) {
     String directoryPath = path.join(
       PathSetting.getVisiblePath().path,
       'download',
       '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
     );
 
-    File directory = File(directoryPath);
+    io.File directory = io.File(directoryPath);
     return directory.delete(recursive: true);
   }
 

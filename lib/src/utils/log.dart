@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' as io;
 
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -20,7 +20,7 @@ class Log {
 
     logPath = path.join(PathSetting.getVisiblePath().path, 'logs');
 
-    File logFile = File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
+    io.File logFile = io.File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
     await logFile.create(recursive: true);
 
     _logFile = Logger(
@@ -46,19 +46,19 @@ class Log {
   }
 
   static String getSizeInKB() {
-    Directory logDirectory = Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
+    io.Directory logDirectory = io.Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
     if (!logDirectory.existsSync()) {
       return '0KB';
     }
     int totalBytes = logDirectory
         .listSync()
-        .fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
+        .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
 
     return (totalBytes / 1024).toStringAsFixed(2) + 'KB';
   }
 
   static void clear() {
-    Directory logDirectory = Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
+    io. Directory logDirectory = io.Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
     if (logDirectory.existsSync()) {
       logDirectory.delete(recursive: true);
     }
