@@ -61,9 +61,9 @@ class DetailsPageLogic extends GetxController {
 
     /// enter from downloadPage or url
     if (arg is String) {
-      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.getGalleryAndDetailsByUrl(
+      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.requestDetailPage(
         galleryUrl: arg,
-        parser: EHSpiderParser.galleryDetail2GalleryAndDetailAndApikey,
+        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
       );
       state.gallery = galleryAndDetailsAndApikey['gallery']!;
       state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
@@ -132,9 +132,9 @@ class DetailsPageLogic extends GetxController {
     Log.info('get gallery details', false);
     Map<String, dynamic> galleryDetailsAndApikey;
     try {
-      galleryDetailsAndApikey = await EHRequest.getGalleryDetails<Map<String, dynamic>>(
+      galleryDetailsAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
         galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.galleryDetail2DetailAndApikey,
+        parser: EHSpiderParser.detailPage2DetailAndApikey,
       );
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
@@ -155,9 +155,9 @@ class DetailsPageLogic extends GetxController {
 
     Map<String, dynamic> detailAndApikey;
     try {
-      detailAndApikey = await EHRequest.getGalleryDetails<Map<String, dynamic>>(
+      detailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
         galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.galleryDetail2DetailAndApikey,
+        parser: EHSpiderParser.detailPage2DetailAndApikey,
         useCacheIfAvailable: false,
       );
     } on DioError catch (e) {
@@ -194,9 +194,10 @@ class DetailsPageLogic extends GetxController {
 
     List<GalleryThumbnail> newThumbNails;
     try {
-      newThumbNails = await EHRequest.getGalleryDetailsThumbnailByPageNo(
+      newThumbNails = await EHRequest.requestDetailPage(
         galleryUrl: state.gallery!.galleryUrl,
         thumbnailsPageNo: state.nextPageIndexToLoadThumbnails,
+        parser: EHSpiderParser.detailPage2Thumbnails,
       );
     } on DioError catch (e) {
       Log.error('fail to get thumbnails', e.message);
@@ -235,10 +236,10 @@ class DetailsPageLogic extends GetxController {
     update();
     try {
       if (favIndex == state.gallery?.favoriteTagIndex) {
-        await EHRequest.removeFavorite(state.gallery!.gid, state.gallery!.token);
+        await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
         state.gallery!.removeFavorite();
       } else {
-        await EHRequest.addFavorite(state.gallery!.gid, state.gallery!.token, favIndex);
+        await EHRequest.requestAddFavorite(state.gallery!.gid, state.gallery!.token, favIndex);
         state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames[favIndex]);
       }
     } on DioError catch (e) {

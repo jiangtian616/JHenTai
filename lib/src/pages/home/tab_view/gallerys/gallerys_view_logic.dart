@@ -192,11 +192,21 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
         if (galleryUrls == null) {
           return [<Gallery>[], 0];
         }
-        List<Gallery> gallerys = await Future.wait(galleryUrls.map((url) => EHRequest.getGalleryByUrl(url)).toList());
+        List<Gallery> gallerys = await Future.wait(
+          galleryUrls
+              .map(
+                (url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery),
+              )
+              .toList(),
+        );
         return [gallerys, 1];
       }
-      return await EHRequest.getGallerysListAndPageCountByPageNo(
-          pageNo, TabBarSetting.configs[tabIndex].searchConfig, EHSpiderParser.parseGalleryList);
+
+      return await EHRequest.requestGalleryPage(
+        pageNo: pageNo,
+        searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
+        parser: EHSpiderParser.galleryPage2GalleryList,
+      );
     }();
 
     await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);

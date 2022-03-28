@@ -112,7 +112,7 @@ class _RatingDialogState extends State<RatingDialog> {
 
     String response;
     try {
-      response = await EHRequest.submitRating(
+      response = await EHRequest.requestSubmitRating(
         detailsPageState.gallery!.gid,
         detailsPageState.gallery!.token,
         UserSetting.ipbMemberId.value!,

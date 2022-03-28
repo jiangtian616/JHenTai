@@ -179,24 +179,28 @@ class EHRequest {
     CookieManager().clearCookies();
   }
 
-  static Future<String> home() async {
+  static Future<T> requestHomePage<T>({EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.get(EHConsts.EHome);
-    return response.data!;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
   /// return null if cookie is wrong
-  static Future<String?> getUsernameByCookieAndMemberId(int ipbMemberId) async {
+  static Future<T> requestForum<T>(int ipbMemberId, EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(
       EHConsts.EForums,
       queryParameters: {
         'showuser': ipbMemberId,
       },
     );
-    return EHSpiderParser.parseUserInfo(response.data!);
+    return parser(response);
   }
 
-  static Future<T> getGallerysListAndPageCountByPageNo<T>(
-      int pageNo, SearchConfig searchConfig, EHHtmlParser<T> parser) async {
+  static Future<T> requestGalleryPage<T>({
+    required int pageNo,
+    required SearchConfig searchConfig,
+    required EHHtmlParser<T> parser,
+  }) async {
     Response<String> response = await _dio.get(
       searchConfig.toPath(),
       queryParameters: {
@@ -207,64 +211,30 @@ class EHRequest {
     return parser(response);
   }
 
-  static Future<T> getRanklist<T>(EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(EHConsts.ERanklist);
-    return parser(response);
-  }
-
-  static Future<Gallery> getGalleryByUrl(String galleryUrl) async {
-    Response<String> response = await _dio.get(
-      galleryUrl,
-      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
-    );
-    return EHSpiderParser.parseGalleryByUrl(response);
-  }
-
-  static Future<T> getGalleryDetails<T>({
+  static Future<T> requestDetailPage<T>({
     required String galleryUrl,
     int thumbnailsPageNo = 0,
     bool useCacheIfAvailable = true,
+    CancelToken? cancelToken,
     required EHHtmlParser<T> parser,
   }) async {
     Response<String> response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
-      options: useCacheIfAvailable
-          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
-    );
-    return parser(response);
-  }
-
-  static Future<T> getGalleryAndDetailsByUrl<T>(
-      {required String galleryUrl, bool useCacheIfAvailable = true, required EHHtmlParser<T> parser}) async {
-    Response<String> response = await _dio.get(
-      galleryUrl,
-      options: useCacheIfAvailable
-          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
-    );
-    return parser(response);
-  }
-
-  /// only parse Thumbnails
-  static Future<List<GalleryThumbnail>> getGalleryDetailsThumbnailByPageNo(
-      {required String galleryUrl, int thumbnailsPageNo = 0, CancelToken? cancelToken}) async {
-    Response<String> response = await _dio.get(
-      galleryUrl,
-      queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
+      options: useCacheIfAvailable
+          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
-    return EHSpiderParser.parseGalleryDetailsThumbnails(response.data!);
+    return parser(response);
   }
 
-  /// only parse Comments
-  static Future<List<GalleryComment>> getGalleryDetailsComments({required String galleryUrl}) async {
-    Response<String> response = await _dio.get(galleryUrl);
-    return EHSpiderParser.parseGalleryDetailsComments(response.data!);
+  static Future<T> requestRankPage<T>(EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(EHConsts.ERanklist);
+    return parser(response);
   }
 
-  static Future<String> submitRating(int gid, String token, int apiuid, String apikey, int rating) async {
+  static Future<String> requestSubmitRating(int gid, String token, int apiuid, String apikey, int rating) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -279,7 +249,7 @@ class EHRequest {
     return response.data!;
   }
 
-  static Future<T> getPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
+  static Future<T> requestPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(
       EHConsts.EPopup,
@@ -292,14 +262,14 @@ class EHRequest {
     return parser.call(response.data!);
   }
 
-  static Future<LinkedHashMap<String, int>> getFavoriteTags() async {
+  static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(EHConsts.EFavorite);
-    return EHSpiderParser.parseFavoriteTags(response.data!);
+    return parser(response);
   }
 
   /// favcat: the favorite tag index
-  static Future<bool> addFavorite(int gid, String token, int favcat) async {
+  static Future<bool> requestAddFavorite(int gid, String token, int favcat) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
       EHConsts.EPopup,
@@ -319,7 +289,7 @@ class EHRequest {
     return true;
   }
 
-  static Future<bool> removeFavorite(int gid, String token) async {
+  static Future<bool> requestRemoveFavorite(int gid, String token) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
       EHConsts.EPopup,
@@ -339,14 +309,35 @@ class EHRequest {
     return true;
   }
 
-  static Future<GalleryImage> getGalleryImage(String href,
-      {CancelToken? cancelToken, bool useCacheIfAvailable = true}) async {
+  static Future<T> requestImagePage<T>(
+    String href, {
+    CancelToken? cancelToken,
+    bool useCacheIfAvailable = true,
+    required EHHtmlParser<T> parser,
+  }) async {
     Response<String> response = await _dio.post(
       href,
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions() : null,
     );
-    return EHSpiderParser.parseGalleryImage(response.data!);
+    return parser(response);
+  }
+
+  static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(
+      EHConsts.ETorrent,
+      queryParameters: {
+        'gid': gid,
+        't': token,
+      },
+      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
+    );
+    return parser(response);
+  }
+
+  static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.get(EHConsts.EUconfig);
+    return parser(response);
   }
 
   static Future<bool> download({
@@ -417,7 +408,11 @@ class EHRequest {
     return response.data!;
   }
 
-  static Future<String?> sendComment(String galleryUrl, String content) async {
+  static Future<T> requestSendComment<T>({
+    required String galleryUrl,
+    required String content,
+    required EHHtmlParser<T> parser,
+  }) async {
     Response<String> response = await _dio.post(
       galleryUrl,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -425,23 +420,6 @@ class EHRequest {
         'commenttext_new': content,
       },
     );
-    return EHSpiderParser.parseSendCommentErrorMsg(response);
-  }
-
-  static Future<T> getTorrent<T>(int gid, String token, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(
-      EHConsts.ETorrent,
-      queryParameters: {
-        'gid': gid,
-        't': token,
-      },
-      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
-    );
-    return parser(response);
-  }
-
-  static Future<T> requestSetting<T>(EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(EHConsts.EUconfig);
     return parser(response);
   }
 
@@ -454,15 +432,5 @@ class EHRequest {
 
   static Future<void> _storeCookies(String uri, List<Cookie> cookies) async {
     await _cookieJar.saveFromResponse(Uri.parse(uri), cookies);
-  }
-
-  static Future<Response<T>> get<T>(
-    String url, {
-    Map<String, dynamic>? queryParameters,
-    Options? options,
-    CancelToken? cancelToken,
-    ProgressCallback? onReceiveProgress,
-  }) {
-    return _dio.get<T>(url);
   }
 }

@@ -107,10 +107,10 @@ class _TorrentDialogState extends State<TorrentDialog> {
       loadingState = LoadingState.loading;
     });
 
-    EHRequest.getTorrent<List<GalleryTorrent>>(
+    EHRequest.requestTorrentPage<List<GalleryTorrent>>(
       state.gallery!.gid,
       state.gallery!.token,
-      EHSpiderParser.parseTorrent,
+      EHSpiderParser.torrentPage2GalleryTorrent,
     ).then((value) {
       setState(() {
         galleryTorrents = value;

@@ -10,6 +10,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:retry/retry.dart';
 
 import '../service/storage_service.dart';
+import '../utils/eh_spider_parser.dart';
 
 class FavoriteSetting {
   static List<String> favoriteTagNames = [];
@@ -46,7 +47,7 @@ class FavoriteSetting {
     try {
       await retry(
         () async {
-          favoriteTagNames2Count = await EHRequest.getFavoriteTags();
+          favoriteTagNames2Count = await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTags);
           favoriteTagNames = favoriteTagNames2Count.keys.toList();
         },
         retryIf: (e) => e is DioError,

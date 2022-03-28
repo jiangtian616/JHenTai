@@ -33,7 +33,7 @@ class ReadPage extends StatelessWidget {
 
   Widget _buildListView(BuildContext context) {
     return ScrollablePositionedList.separated(
-      minCacheExtent: state.type == 'local' ? 5000.0 : 0.0,
+      minCacheExtent: state.type == 'local' ? 5000.0 : 500.0,
       initialScrollIndex: state.initialIndex,
       itemCount: state.pageCount,
       itemScrollController: state.itemScrollController,
@@ -70,12 +70,12 @@ class ReadPage extends StatelessWidget {
         /// step 3 load image : use url to [load] image
         return KeepAliveWrapper(
           child: EHImage(
+            enableLongPressToRefresh: state.type == 'online',
             containerHeight: fittedSizes.destination.height,
             containerWidth: fittedSizes.destination.width,
             galleryImage: state.images[index].value!,
             adaptive: true,
             fit: BoxFit.contain,
-            mode: ExtendedImageMode.gesture,
             loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
             failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
             downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),

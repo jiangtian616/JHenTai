@@ -11,10 +11,12 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../database/database.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
+import '../../utils/eh_spider_parser.dart';
 import 'read_page_state.dart';
 
 class ReadPageLogic extends GetxController {
@@ -51,7 +53,8 @@ class ReadPageLogic extends GetxController {
 
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
-      state.readIndexRecord = state.itemPositionsListener.itemPositions.value.last.index - 1;
+      state.readIndexRecord = state.itemPositionsListener.itemPositions.value.first.index;
+      update(['menu']);
     });
   }
 
@@ -74,9 +77,10 @@ class ReadPageLogic extends GetxController {
 
     List<GalleryThumbnail> newThumbnails;
     try {
-      newThumbnails = await EHRequest.getGalleryDetailsThumbnailByPageNo(
+      newThumbnails = await EHRequest.requestDetailPage(
         galleryUrl: state.galleryUrl,
         thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
+        parser: EHSpiderParser.detailPage2Thumbnails,
       );
     } on DioError catch (e) {
       Log.error('get thumbnails error!', e);
@@ -98,7 +102,10 @@ class ReadPageLogic extends GetxController {
 
     state.imageUrlParsingStates![index].value = LoadingState.loading;
 
-    EHRequest.getGalleryImage(state.thumbnails[index].value!.href).then((image) {
+    EHRequest.requestImagePage(
+      state.thumbnails[index].value!.href,
+      parser: EHSpiderParser.imagePage2GalleryImage,
+    ).then((image) {
       state.images[index].value = image;
       state.imageUrlParsingStates![index].value = LoadingState.success;
     }).catchError((error) {
@@ -107,12 +114,20 @@ class ReadPageLogic extends GetxController {
     });
   }
 
+  /// attention! [Prev] page is the first page which is not totally shown that in the viewport and before.
   void scrollOrJump2PrevPage() {
-    scrollOrJump2Page(max(state.readIndexRecord - 1, 0));
+    ItemPosition firstPosition = state.itemPositionsListener.itemPositions.value.first;
+    int targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
+    scrollOrJump2Page(max(targetIndex, 0));
   }
 
+  /// attention! [next] page is the first page which is not totally shown that in the viewport and behind.
   void scrollOrJump2NextPage() {
-    scrollOrJump2Page(min(state.readIndexRecord + 1, state.pageCount));
+    ItemPosition lastPosition = state.itemPositionsListener.itemPositions.value.last;
+    int targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
+        ? lastPosition.index
+        : lastPosition.index + 1;
+    scrollOrJump2Page(min(targetIndex, state.pageCount));
   }
 
   void scrollOrJump2Page(int pageIndex) {
@@ -126,15 +141,16 @@ class ReadPageLogic extends GetxController {
         index: pageIndex,
       );
     }
+    update(['menu']);
   }
 
   void jump2Page(int pageIndex) {
     state.itemScrollController.jumpTo(index: pageIndex);
+    update(['menu']);
   }
 
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
-    print(state.isMenuOpen);
     update(['menu']);
   }
 

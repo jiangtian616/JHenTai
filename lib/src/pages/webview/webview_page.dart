@@ -6,6 +6,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
+import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebviewPage extends StatefulWidget {
@@ -62,7 +63,8 @@ class _WebviewPageState extends State<WebviewPage> {
                   Get.until((route) => route.settings.name == Routes.settingAccount);
 
                   EHRequest.storeEhCookiesForAllUri(cookies).then((v) {
-                    EHRequest.getUsernameByCookieAndMemberId(ipbMemberId).then((String? userName) {
+                    EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo)
+                        .then((String? userName) {
                       UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
                     });
                   });

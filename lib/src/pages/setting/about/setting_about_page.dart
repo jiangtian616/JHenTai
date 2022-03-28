@@ -1,8 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
-class SettingAboutPage extends StatelessWidget {
+class SettingAboutPage extends StatefulWidget {
   const SettingAboutPage({Key? key}) : super(key: key);
+
+  @override
+  _SettingAboutPageState createState() => _SettingAboutPageState();
+}
+
+class _SettingAboutPageState extends State<SettingAboutPage> {
+  String appName = '';
+  String packageName = '';
+  String version = '';
+  String buildNumber = '';
+  String author = 'JT <jiangtian616@qq.com>';
+  String gitRepo = 'https://github.com/jiangtian616/JHenTai';
+
+  @override
+  void initState() {
+    PackageInfo.fromPlatform().then((packageInfo) {
+      setState(() {
+        appName = packageInfo.appName;
+        packageName = packageInfo.packageName;
+        version = packageInfo.version;
+        buildNumber = packageInfo.buildNumber;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +43,15 @@ class SettingAboutPage extends StatelessWidget {
         children: [
           ListTile(
             title: Text('version'.tr),
-            subtitle: const Text('1.0.0'),
+            subtitle: Text(version.isEmpty ? '1.0.0' : '$version+$buildNumber'),
           ),
           ListTile(
             title: Text('author'.tr),
-            subtitle: const SelectableText('JT <jiangtian616@qq.com>'),
+            subtitle: SelectableText(author),
           ),
-          const ListTile(
-            title: Text('Github'),
-            subtitle: SelectableText('https://github.com/jiangtian616/JHenTai'),
+          ListTile(
+            title: const Text('Github'),
+            subtitle: SelectableText(gitRepo),
           ),
         ],
       ).paddingSymmetric(horizontal: 6),

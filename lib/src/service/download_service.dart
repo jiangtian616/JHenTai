@@ -16,6 +16,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as path;
 
 import '../model/gallery_image.dart';
+import '../utils/eh_spider_parser.dart';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxService {
@@ -202,10 +203,11 @@ class DownloadService extends GetxService {
     return retry(
       () => executor
           .scheduleTask(
-        () => EHRequest.getGalleryDetailsThumbnailByPageNo(
+        () => EHRequest.requestDetailPage(
           galleryUrl: gallery.galleryUrl,
           thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
           cancelToken: gid2CancelToken[gallery.gid],
+          parser: EHSpiderParser.detailPage2Thumbnails,
         ),
       )
           .then((newThumbnails) {
@@ -233,9 +235,10 @@ class DownloadService extends GetxService {
     return retry(
       () => executor
           .scheduleTask(
-        () => EHRequest.getGalleryImage(
+        () => EHRequest.requestImagePage(
           gid2ImageHrefs[gallery.gid]![serialNo].value!.href,
           cancelToken: gid2CancelToken[gallery.gid],
+          parser: EHSpiderParser.imagePage2GalleryImage,
         ),
       )
           .then((image) async {

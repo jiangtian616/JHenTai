@@ -13,6 +13,7 @@ import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../setting/user_setting.dart';
+import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 
 class CommentPage extends StatefulWidget {
@@ -70,8 +71,11 @@ class _CommentPageState extends State<CommentPage> {
     bool? success = await Get.dialog(const _SendCommentDialog());
 
     if (success ?? false) {
-      List<GalleryComment> newComments = await EHRequest.getGalleryDetailsComments(
-          galleryUrl: DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl);
+      List<GalleryComment> newComments = await EHRequest.requestDetailPage(
+        galleryUrl: DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl,
+        parser: EHSpiderParser.detailPage2Comments,
+        useCacheIfAvailable: false,
+      );
       setState(() {
         comments = newComments;
       });
@@ -143,8 +147,11 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
 
     String? errMsg;
     try {
-      errMsg =
-          await EHRequest.sendComment(DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl, content);
+      errMsg = await EHRequest.requestSendComment(
+        galleryUrl: DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl,
+        content: content,
+        parser: EHSpiderParser.sendComment2ErrorMsg,
+      );
     } on DioError catch (e) {
       if (e.response?.statusCode != 302) {
         Log.error('send comment failed', e.message);

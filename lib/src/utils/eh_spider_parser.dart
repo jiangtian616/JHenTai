@@ -17,19 +17,10 @@ import '../database/database.dart';
 import '../model/gallery.dart';
 import '../pages/home/tab_view/ranklist/ranklist_view_state.dart';
 
+T noOpParser<T>(v) => v as T;
+
 class EHSpiderParser {
-  static String? parseUserInfo(String html) {
-    Document document = parse(html);
-
-    /// cookie is wrong, not logged in
-    if (document.querySelector('.pcen') != null) {
-      return null;
-    }
-
-    return document.querySelector('.home > b > a')!.text;
-  }
-
-  static List<dynamic> parseGalleryList(Response response) {
+  static List<dynamic> galleryPage2GalleryList(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
@@ -50,7 +41,7 @@ class EHSpiderParser {
     return [gallerys, pageCount];
   }
 
-  static Gallery parseGalleryByUrl(Response<String> response) {
+  static Gallery detailPage2Gallery(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
 
@@ -90,21 +81,7 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static Map<RanklistType, List<BaseGallery>> parse4Ranklists(Response response) {
-    String html = response.data!;
-    Document document = parse(html);
-
-    List<Element> rankLists = document.querySelectorAll('.dc > .tdo');
-
-    return {
-      RanklistType.allTime: _parseRanklist(rankLists[0]),
-      RanklistType.year: _parseRanklist(rankLists[1]),
-      RanklistType.month: _parseRanklist(rankLists[2]),
-      RanklistType.day: _parseRanklist(rankLists[3]),
-    };
-  }
-
-  static Map<String, dynamic> galleryDetail2DetailAndApikey(Response<String> response) {
+  static Map<String, dynamic> detailPage2DetailAndApikey(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
 
@@ -123,19 +100,20 @@ class EHSpiderParser {
           document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       fullTags: _parseGalleryTagsByUrl(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
-      thumbnails: parseGalleryDetailsThumbnails(html),
+      thumbnails: detailPage2Thumbnails(response),
     );
 
     return {'galleryDetails': galleryDetail, 'apikey': _galleryDetailDocument2Apikey(document)};
   }
 
-  static Map<String, dynamic> galleryDetail2GalleryAndDetailAndApikey(Response<String> response) {
-    Map<String, dynamic> map = galleryDetail2DetailAndApikey(response);
-    map['gallery'] = parseGalleryByUrl(response);
+  static Map<String, dynamic> detailPage2GalleryAndDetailAndApikey(Response<String> response) {
+    Map<String, dynamic> map = detailPage2DetailAndApikey(response);
+    map['gallery'] = detailPage2Gallery(response);
     return map;
   }
 
-  static List<GalleryThumbnail> parseGalleryDetailsThumbnails(String html) {
+  static List<GalleryThumbnail> detailPage2Thumbnails(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
 
     List<Element> thumbNailElements = document.querySelectorAll('#gdt > .gdtm');
@@ -146,19 +124,48 @@ class EHSpiderParser {
     return _parseGalleryDetailsLargeThumbnails(thumbNailElements);
   }
 
-  static List<GalleryComment> parseGalleryDetailsComments(String html) {
+  static List<GalleryComment> detailPage2Comments(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
     List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
     return _parseGalleryDetailsComments(commentElements);
   }
 
-  static List<String> parseFavoritePopup(String html) {
+  static Map<RanklistType, List<BaseGallery>> rankPage2Ranklists(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> rankLists = document.querySelectorAll('.dc > .tdo');
+
+    return {
+      RanklistType.allTime: _parseRanklist(rankLists[0]),
+      RanklistType.year: _parseRanklist(rankLists[1]),
+      RanklistType.month: _parseRanklist(rankLists[2]),
+      RanklistType.day: _parseRanklist(rankLists[3]),
+    };
+  }
+
+  static String? forumPage2UserInfo(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    /// cookie is wrong, not logged in
+    if (document.querySelector('.pcen') != null) {
+      return null;
+    }
+
+    return document.querySelector('.home > b > a')!.text;
+  }
+
+  static List<String> favoritePopup2FavoriteTagNames(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
     List<Element> divs = document.querySelectorAll('.nosel > div');
     return divs.map((div) => div.querySelector('div:nth-child(5)')?.text ?? '').toList();
   }
 
-  static LinkedHashMap<String, int> parseFavoriteTags(String html) {
+  static LinkedHashMap<String, int> favoritePage2FavoriteTags(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
     List<Element> divs = document.querySelectorAll('.nosel > .fp');
 
@@ -175,7 +182,8 @@ class EHSpiderParser {
     return tagNames2Count;
   }
 
-  static GalleryImage parseGalleryImage(String html) {
+  static GalleryImage imagePage2GalleryImage(Response<String> response) {
+    String html = response.data!;
     Document document = parse(html);
     Element img = document.querySelector('#img')!;
 
@@ -189,7 +197,7 @@ class EHSpiderParser {
     );
   }
 
-  static String? parseSendCommentErrorMsg(Response<String> response) {
+  static String? sendComment2ErrorMsg(Response<String> response) {
     String? html = response.data;
     if (html?.isEmpty ?? true) {
       return null;
@@ -198,7 +206,7 @@ class EHSpiderParser {
     return document.querySelector('p.br')?.text;
   }
 
-  static List<GalleryTorrent> parseTorrent(Response<String> response) {
+  static List<GalleryTorrent> torrentPage2GalleryTorrent(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
 
@@ -224,7 +232,7 @@ class EHSpiderParser {
     ).toList();
   }
 
-  static Map<String, dynamic> setting2SiteSetting(Response<String> response) {
+  static Map<String, dynamic> settingPage2SiteSetting(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
     List<Element> items = document.querySelectorAll('.optouter');

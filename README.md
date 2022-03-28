@@ -34,11 +34,10 @@
 - [ ] 文件搜索
 
 ### bug
-- 阅读进度自动跳转卡顿
+- [ ] 阅读页面重试按钮和中心区重合时，重试按钮无法被点击
 
 ### 优化类
-- [ ] 导航栏设置拖动排序
-- [ ] 图片放大：https://github.com/bluefireteam/photo_view
+- [x] 图片放大：https://github.com/bluefireteam/photo_view
 - [ ] getBuilder 使用 id 范围优化 
 - [ ] keepalive原理优化
 - [ ] 下载改为使用isolate实现
@@ -46,6 +45,5 @@
 - [ ] 一直下载不下来的图，尝试更换ip
 - [ ] 底部bar正确变色
 - [ ] github 图片加载优化
-- [ ] EHRequest类 上面加一层Transformer类
 - [ ] 历史记录使用数据库记录全数据
 - [ ] 解析支持多种画廊类型

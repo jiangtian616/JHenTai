@@ -40,7 +40,7 @@ class SiteSetting {
     try {
       await retry(
         () async {
-          Map<String, dynamic> map = await EHRequest.requestSetting(EHSpiderParser.setting2SiteSetting);
+          Map<String, dynamic> map = await EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting);
           frontPageDisplayType.value = map['frontPageDisplayType'];
           isLargeThumbnail.value = map['isLargeThumbnail'];
           thumbnailRows.value = map['thumbnailRows'];

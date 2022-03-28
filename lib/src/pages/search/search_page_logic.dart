@@ -52,8 +52,11 @@ class SearchPageLogic extends GetxController {
     update();
 
     try {
-      List<dynamic> gallerysAndPageCount = await EHRequest.getGallerysListAndPageCountByPageNo(
-          state.nextPageNoToLoad, state.tabBarConfig.searchConfig, EHSpiderParser.parseGalleryList);
+      List<dynamic> gallerysAndPageCount = await EHRequest.requestGalleryPage(
+        pageNo: state.nextPageNoToLoad,
+        searchConfig: state.tabBarConfig.searchConfig,
+        parser: EHSpiderParser.galleryPage2GalleryList,
+      );
       state.gallerys.addAll(gallerysAndPageCount[0]);
       state.pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {

@@ -36,7 +36,7 @@ class RanklistViewLogic extends GetxController {
 
     Map<RanklistType, List<BaseGallery>> baseGallerys = {};
     try {
-      baseGallerys = await EHRequest.getRanklist(EHSpiderParser.parse4Ranklists);
+      baseGallerys = await EHRequest.requestRankPage(EHSpiderParser.rankPage2Ranklists);
     } on DioError catch (e) {
       Log.error('get ranklist failed', e.message);
       Get.snackbar('getRanklistFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
@@ -48,9 +48,9 @@ class RanklistViewLogic extends GetxController {
     for (BaseGallery baseGallery in baseGallerys[curType]!) {
       try {
         Map<String, dynamic> galleryAndDetailAndApikeyAndPageCount =
-            await EHRequest.getGalleryAndDetailsByUrl<Map<String, dynamic>>(
+            await EHRequest.requestDetailPage<Map<String, dynamic>>(
           galleryUrl: baseGallery.galleryUrl,
-          parser: EHSpiderParser.galleryDetail2GalleryAndDetailAndApikey,
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         );
         state.ranklistGallery[curType]?.add(galleryAndDetailAndApikeyAndPageCount['gallery']);
         state.ranklistGalleryDetails[curType]?.add(galleryAndDetailAndApikeyAndPageCount['galleryDetails']);

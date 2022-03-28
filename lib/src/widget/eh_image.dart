@@ -110,7 +110,7 @@ class _EHImageState extends State<EHImage> {
             fit: widget.fit,
             mode: widget.mode,
             initGestureConfigHandler: widget.initGestureConfigHandler,
-            cancelToken: cancelToken,
+            cancelToken: widget.enableLongPressToRefresh ? cancelToken : null,
             imageCacheName: widget.galleryImage.url,
             handleLoadingProgress: widget.loadingWidgetBuilder != null,
             loadStateChanged: (ExtendedImageState state) {
