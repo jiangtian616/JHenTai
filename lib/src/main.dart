@@ -12,6 +12,7 @@ import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -68,12 +69,12 @@ Future<void> beforeInit() async {
   SiteSetting.init();
   FavoriteSetting.init();
 
+  DownloadSetting.init();
   await EHRequest.init();
+
   await DownloadService.init();
 
   TagTranslationService.init();
-
-
 }
 
 Future<void> onReady() async {

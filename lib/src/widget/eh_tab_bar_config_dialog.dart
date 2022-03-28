@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
-import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
 import 'gallery_category_tag.dart';
 

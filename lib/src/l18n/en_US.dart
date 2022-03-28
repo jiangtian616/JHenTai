@@ -77,6 +77,7 @@ class en {
       'advancedSetting': 'Advanced Setting',
       'ehSetting': 'EH Site Setting',
       'readSetting': 'Read Setting',
+      'downloadSetting': 'Download Setting',
 
       /// eh setting page
       'site': 'site',
@@ -150,6 +151,10 @@ class en {
 
       /// about page
       'author': 'Author',
+
+      /// download setting page
+      'downloadTaskConcurrency': 'Download Task Concurrency',
+      'needRestart': 'need restart',
     };
   }
 }

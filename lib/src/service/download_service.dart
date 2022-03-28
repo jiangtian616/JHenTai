@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:retry/retry.dart';
 import 'package:get/get.dart';
@@ -20,7 +21,7 @@ import '../utils/eh_spider_parser.dart';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxService {
-  final executor = Executor(concurrency: 6);
+  final executor = Executor(concurrency: DownloadSetting.downloadTaskConcurrency.value);
 
   RxList<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[].obs;
   RxMap<int, Rx<DownloadProgress>> gid2downloadProgress = <int, Rx<DownloadProgress>>{}.obs;

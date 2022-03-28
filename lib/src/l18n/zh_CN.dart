@@ -77,6 +77,7 @@ class zh_CN {
       'advancedSetting': '高级设置',
       'ehSetting': 'EH 网站设置',
       'readSetting': '阅读设置',
+      'downloadSetting': '下载设置',
 
       /// eh setting page
       'site': '站点',
@@ -149,6 +150,10 @@ class zh_CN {
 
       /// about page
       'author': '创作者',
+
+      /// download setting page
+      'downloadTaskConcurrency': '同时下载任务数量',
+      'needRestart': '需要重启',
     };
   }
 }

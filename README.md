@@ -37,7 +37,6 @@
 - [ ] 阅读页面重试按钮和中心区重合时，重试按钮无法被点击
 
 ### 优化类
-- [x] 图片放大：https://github.com/bluefireteam/photo_view
 - [ ] getBuilder 使用 id 范围优化 
 - [ ] keepalive原理优化
 - [ ] 下载改为使用isolate实现
