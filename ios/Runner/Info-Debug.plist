@@ -52,5 +52,9 @@
   <array>
     <string>_dartobservatory._tcp</string>
   </array>
+  <key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 </dict>
 </plist>

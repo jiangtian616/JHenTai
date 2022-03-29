@@ -40,7 +40,7 @@ class _WebviewPageState extends State<WebviewPage> {
           onWebViewCreated: (controller) => this.controller = controller,
           javascriptMode: JavascriptMode.unrestricted,
           initialCookies:
-              cookies.map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: url)).toList(),
+              cookies.map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: Uri.parse(url).host)).toList(),
           onPageStarted: !isLogin
               ? null
               : (url) async {
