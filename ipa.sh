@@ -1,9 +1,3 @@
-flutter build ipa --release -t lib/src/main.dart
+flutter build ios --release -t lib/src/main.dart
 
-cp -r build/ios/archive/Runner.xcarchive/Products/Applications/Runner.app ~/Desktop/Runner.app
-
-mkdir ~/Desktop/Payload
-
-mv ~/Desktop/Runner.app ~/Desktop/Payload
-
-zip ~/Desktop/JHenTai.ipa ~/Desktop/Payload
+xcodebuild profile -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release

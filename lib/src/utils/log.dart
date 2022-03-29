@@ -18,7 +18,7 @@ class Log {
       return;
     }
 
-    logPath = path.join(PathSetting.getVisiblePath().path, 'logs');
+    logPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
     io.File logFile = io.File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
     await logFile.create(recursive: true);
@@ -46,7 +46,7 @@ class Log {
   }
 
   static String getSizeInKB() {
-    io.Directory logDirectory = io.Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
+    io.Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
     if (!logDirectory.existsSync()) {
       return '0KB';
     }
@@ -58,7 +58,7 @@ class Log {
   }
 
   static void clear() {
-    io. Directory logDirectory = io.Directory('${PathSetting.getVisiblePath().uri.toFilePath()}logs/');
+    io. Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
     if (logDirectory.existsSync()) {
       logDirectory.delete(recursive: true);
     }

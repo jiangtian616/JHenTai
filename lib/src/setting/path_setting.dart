@@ -4,13 +4,13 @@ import 'package:path_provider/path_provider.dart';
 
 class PathSetting {
   /// visible on ios
-  static late Directory appDocDir;
+  static Directory? appDocDir;
 
   /// invisible on ios&android
   static late Directory appSupportDir;
 
   /// visible on android and not exists on ios
-  static late Directory? externalStorageDir;
+  static Directory? externalStorageDir;
 
   static Future<void> init() async {
     await Future.wait([
@@ -20,10 +20,10 @@ class PathSetting {
     ]);
   }
 
-  static Directory getVisiblePath() {
-    if (Platform.isAndroid) {
+  static Directory getVisibleDir() {
+    if (Platform.isAndroid && externalStorageDir != null) {
       return externalStorageDir!;
     }
-    return appDocDir;
+    return appDocDir!;
   }
 }

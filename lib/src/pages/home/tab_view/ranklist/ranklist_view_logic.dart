@@ -82,6 +82,7 @@ class RanklistViewLogic extends GetxController {
   Future<void> handleRefresh() async {
     state.ranklistGallery[state.ranklistType]?.clear();
     state.getRanklistLoadingState[state.ranklistType] = LoadingState.idle;
+    update([bodyId]);
     getRanklist();
   }
 

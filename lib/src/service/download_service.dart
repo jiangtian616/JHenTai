@@ -34,7 +34,7 @@ class DownloadService extends GetxService {
   static const int downloadRetryTimes = 3;
 
   static Future<void> init() async {
-    await io.Directory(path.join(PathSetting.getVisiblePath().path, 'download')).create(recursive: true);
+    await io.Directory(path.join(PathSetting.getVisibleDir().path, 'download')).create(recursive: true);
     Get.put(DownloadService(), permanent: true);
   }
 
@@ -265,7 +265,7 @@ class DownloadService extends GetxService {
 
   String _generateDownloadPath(GalleryDownloadedData gallery, int serialNo) {
     return path.join(
-      PathSetting.getVisiblePath().path,
+      PathSetting.getVisibleDir().path,
       'download',
       '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
       '$serialNo.jpg',
@@ -359,7 +359,7 @@ class DownloadService extends GetxService {
   /// clear images in disk
   Future<io.FileSystemEntity> _clearDownloadedImage(GalleryDownloadedData gallery) {
     String directoryPath = path.join(
-      PathSetting.getVisiblePath().path,
+      PathSetting.getVisibleDir().path,
       'download',
       '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
     );

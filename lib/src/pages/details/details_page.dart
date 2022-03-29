@@ -502,7 +502,7 @@ class DetailsPage extends StatelessWidget {
 
                 GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
                 return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
                       onTap: () => detailsPageLogic.goToReadPage(index),
@@ -559,9 +559,10 @@ class DetailsPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: EHImage(
               galleryImage: GalleryImage(
-                  url: thumbnail.thumbUrl,
-                  height: fittedSizes.destination.height,
-                  width: fittedSizes.destination.width),
+                url: thumbnail.thumbUrl,
+                height: fittedSizes.destination.height,
+                width: fittedSizes.destination.width,
+              ),
               completedWidgetBuilder: (ExtendedImageState state) {
                 /// crop image because raw image consists of 10 thumbnails in row
                 return ExtendedRawImage(

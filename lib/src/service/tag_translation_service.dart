@@ -21,7 +21,7 @@ class TagTranslationService extends GetxService {
   final StorageService storageService = Get.find();
   final String tagStoragePrefix = 'tagTrans::';
   final String downloadUrl = 'https://cdn.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
-  final String savePath = join(PathSetting.getVisiblePath().path, 'tag_translation.json');
+  final String savePath = join(PathSetting.getVisibleDir().path, 'tag_translation.json');
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);
