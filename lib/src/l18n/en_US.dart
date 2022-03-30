@@ -95,12 +95,14 @@ class en {
 
       /// advanced setting page
       'enableDomainFronting': 'enable Domain Fronting',
-      'enableLogging': 'enable logging(need reboot)',
+      'enableLogging': 'enable logging',
       'openLog': 'open log',
       'clearLogs': 'clear logs',
 
       /// read setting page
       'enablePageTurnAnime': 'Enable Page Turn Anime',
+      'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
+      'ScreenHeight': 'Screen Height',
 
       /// log page
       'logList': 'Log List',

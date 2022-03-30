@@ -5,6 +5,7 @@ import '../service/storage_service.dart';
 
 class ReadSetting {
   static RxBool enablePageTurnAnime = true.obs;
+  static RxInt preloadDistance = 1.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -19,6 +20,11 @@ class ReadSetting {
     _save();
   }
 
+  static savePreloadDistance(int value) {
+    preloadDistance.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -26,10 +32,12 @@ class ReadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enablePageTurnAnime': enablePageTurnAnime.value,
+      'preloadDistance': preloadDistance.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
+    preloadDistance.value = map['preloadDistance'];
   }
 }

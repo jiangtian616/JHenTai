@@ -38,6 +38,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 value: AdvancedSetting.enableLogging.value,
                 onChanged: (value) => AdvancedSetting.saveEnableLogging(value),
               ),
+              subtitle: Text('needRestart'.tr),
             ),
             ListTile(
               title: Text('openLog'.tr),

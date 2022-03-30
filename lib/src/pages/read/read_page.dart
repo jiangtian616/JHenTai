@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -34,7 +35,7 @@ class ReadPage extends StatelessWidget {
 
   Widget _buildListView(BuildContext context) {
     return ScrollablePositionedList.separated(
-      minCacheExtent: state.type == 'local' ? 5000.0 : 500.0,
+      minCacheExtent: state.type == 'local' ? 8 * context.height : ReadSetting.preloadDistance * context.height * 1,
       initialScrollIndex: state.initialIndex,
       itemCount: state.pageCount,
       itemScrollController: state.itemScrollController,

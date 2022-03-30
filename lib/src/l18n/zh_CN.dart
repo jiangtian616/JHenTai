@@ -95,12 +95,14 @@ class zh_CN {
 
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',
-      'enableLogging': '开启日志(需要重启)',
+      'enableLogging': '开启日志',
       'openLog': '查看日志',
       'clearLogs': '清除日志',
 
       /// read setting page
       'enablePageTurnAnime': '开启翻页动画',
+      'preloadDistanceInOnlineMode': '在线模式预载距离',
+      'ScreenHeight': '屏幕高度',
 
       /// log page
       'logList': '日志列表',
