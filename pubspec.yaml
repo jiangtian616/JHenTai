@@ -47,7 +47,6 @@ dependencies:
 #    git: https://github.com/bluefireteam/photo_view.git
   reorderables: ^0.4.3
   package_info_plus: ^1.4.0
-  device_preview: ^1.0.0
 
 dev_dependencies:
   flutter_test:
