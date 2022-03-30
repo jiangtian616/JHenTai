@@ -18,6 +18,7 @@ class GalleryDownloadedData extends DataClass
   final String uploader;
   final String publishTime;
   final int downloadStatusIndex;
+  final String? insertTime;
   GalleryDownloadedData(
       {required this.gid,
       required this.token,
@@ -27,7 +28,8 @@ class GalleryDownloadedData extends DataClass
       required this.galleryUrl,
       required this.uploader,
       required this.publishTime,
-      required this.downloadStatusIndex});
+      required this.downloadStatusIndex,
+      this.insertTime});
   factory GalleryDownloadedData.fromData(Map<String, dynamic> data,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -50,6 +52,8 @@ class GalleryDownloadedData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}publishTime'])!,
       downloadStatusIndex: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}downloadStatusIndex'])!,
+      insertTime: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}insertTime']),
     );
   }
   @override
@@ -64,6 +68,9 @@ class GalleryDownloadedData extends DataClass
     map['uploader'] = Variable<String>(uploader);
     map['publishTime'] = Variable<String>(publishTime);
     map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
+    if (!nullToAbsent || insertTime != null) {
+      map['insertTime'] = Variable<String?>(insertTime);
+    }
     return map;
   }
 
@@ -78,6 +85,9 @@ class GalleryDownloadedData extends DataClass
       uploader: Value(uploader),
       publishTime: Value(publishTime),
       downloadStatusIndex: Value(downloadStatusIndex),
+      insertTime: insertTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(insertTime),
     );
   }
 
@@ -95,6 +105,7 @@ class GalleryDownloadedData extends DataClass
       publishTime: serializer.fromJson<String>(json['publishTime']),
       downloadStatusIndex:
           serializer.fromJson<int>(json['downloadStatusIndex']),
+      insertTime: serializer.fromJson<String?>(json['insertTime']),
     );
   }
   @override
@@ -110,6 +121,7 @@ class GalleryDownloadedData extends DataClass
       'uploader': serializer.toJson<String>(uploader),
       'publishTime': serializer.toJson<String>(publishTime),
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
+      'insertTime': serializer.toJson<String?>(insertTime),
     };
   }
 
@@ -122,7 +134,8 @@ class GalleryDownloadedData extends DataClass
           String? galleryUrl,
           String? uploader,
           String? publishTime,
-          int? downloadStatusIndex}) =>
+          int? downloadStatusIndex,
+          String? insertTime}) =>
       GalleryDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -133,6 +146,7 @@ class GalleryDownloadedData extends DataClass
         uploader: uploader ?? this.uploader,
         publishTime: publishTime ?? this.publishTime,
         downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+        insertTime: insertTime ?? this.insertTime,
       );
   @override
   String toString() {
@@ -145,14 +159,15 @@ class GalleryDownloadedData extends DataClass
           ..write('galleryUrl: $galleryUrl, ')
           ..write('uploader: $uploader, ')
           ..write('publishTime: $publishTime, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(gid, token, title, category, pageCount,
-      galleryUrl, uploader, publishTime, downloadStatusIndex);
+      galleryUrl, uploader, publishTime, downloadStatusIndex, insertTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -165,7 +180,8 @@ class GalleryDownloadedData extends DataClass
           other.galleryUrl == this.galleryUrl &&
           other.uploader == this.uploader &&
           other.publishTime == this.publishTime &&
-          other.downloadStatusIndex == this.downloadStatusIndex);
+          other.downloadStatusIndex == this.downloadStatusIndex &&
+          other.insertTime == this.insertTime);
 }
 
 class GalleryDownloadedCompanion
@@ -179,6 +195,7 @@ class GalleryDownloadedCompanion
   final Value<String> uploader;
   final Value<String> publishTime;
   final Value<int> downloadStatusIndex;
+  final Value<String?> insertTime;
   const GalleryDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -189,6 +206,7 @@ class GalleryDownloadedCompanion
     this.uploader = const Value.absent(),
     this.publishTime = const Value.absent(),
     this.downloadStatusIndex = const Value.absent(),
+    this.insertTime = const Value.absent(),
   });
   GalleryDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -200,6 +218,7 @@ class GalleryDownloadedCompanion
     required String uploader,
     required String publishTime,
     required int downloadStatusIndex,
+    this.insertTime = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -218,6 +237,7 @@ class GalleryDownloadedCompanion
     Expression<String>? uploader,
     Expression<String>? publishTime,
     Expression<int>? downloadStatusIndex,
+    Expression<String?>? insertTime,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -230,6 +250,7 @@ class GalleryDownloadedCompanion
       if (publishTime != null) 'publishTime': publishTime,
       if (downloadStatusIndex != null)
         'downloadStatusIndex': downloadStatusIndex,
+      if (insertTime != null) 'insertTime': insertTime,
     });
   }
 
@@ -242,7 +263,8 @@ class GalleryDownloadedCompanion
       Value<String>? galleryUrl,
       Value<String>? uploader,
       Value<String>? publishTime,
-      Value<int>? downloadStatusIndex}) {
+      Value<int>? downloadStatusIndex,
+      Value<String?>? insertTime}) {
     return GalleryDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -253,6 +275,7 @@ class GalleryDownloadedCompanion
       uploader: uploader ?? this.uploader,
       publishTime: publishTime ?? this.publishTime,
       downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+      insertTime: insertTime ?? this.insertTime,
     );
   }
 
@@ -286,6 +309,9 @@ class GalleryDownloadedCompanion
     if (downloadStatusIndex.present) {
       map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
     }
+    if (insertTime.present) {
+      map['insertTime'] = Variable<String?>(insertTime.value);
+    }
     return map;
   }
 
@@ -300,7 +326,8 @@ class GalleryDownloadedCompanion
           ..write('galleryUrl: $galleryUrl, ')
           ..write('uploader: $uploader, ')
           ..write('publishTime: $publishTime, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime')
           ..write(')'))
         .toString();
   }
@@ -368,6 +395,12 @@ class GalleryDownloaded extends Table
       type: const IntType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  final VerificationMeta _insertTimeMeta = const VerificationMeta('insertTime');
+  late final GeneratedColumn<String?> insertTime = GeneratedColumn<String?>(
+      'insertTime', aliasedName, true,
+      type: const StringType(),
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -378,7 +411,8 @@ class GalleryDownloaded extends Table
         galleryUrl,
         uploader,
         publishTime,
-        downloadStatusIndex
+        downloadStatusIndex,
+        insertTime
       ];
   @override
   String get aliasedName => _alias ?? 'gallery_downloaded';
@@ -447,6 +481,12 @@ class GalleryDownloaded extends Table
               data['downloadStatusIndex']!, _downloadStatusIndexMeta));
     } else if (isInserting) {
       context.missing(_downloadStatusIndexMeta);
+    }
+    if (data.containsKey('insertTime')) {
+      context.handle(
+          _insertTimeMeta,
+          insertTime.isAcceptableOrUnknown(
+              data['insertTime']!, _insertTimeMeta));
     }
     return context;
   }
@@ -1187,7 +1227,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final Tag tag = Tag(this);
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid',
+        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -1203,6 +1243,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         uploader: row.read<String>('uploader'),
         publishTime: row.read<String>('publishTime'),
         galleryDownloadStatusIndex: row.read<int>('galleryDownloadStatusIndex'),
+        insertTime: row.read<String?>('insertTime'),
         url: row.read<String?>('url'),
         serialNo: row.read<int?>('serialNo'),
         height: row.read<double?>('height'),
@@ -1214,7 +1255,8 @@ abstract class _$AppDb extends GeneratedDatabase {
   }
 
   Selectable<GalleryDownloadedData> selectGallerys() {
-    return customSelect('SELECT *\r\nFROM gallery_downloaded',
+    return customSelect(
+        'SELECT *\r\nFROM gallery_downloaded\r\nORDER BY insertTime DESC',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -1230,9 +1272,10 @@ abstract class _$AppDb extends GeneratedDatabase {
       String galleryUrl,
       String uploader,
       String publishTime,
-      int downloadStatusIndex) {
+      int downloadStatusIndex,
+      String? insertTime) {
     return customInsert(
-      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex)',
+      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex, :insertTime)',
       variables: [
         Variable<int>(gid),
         Variable<String>(token),
@@ -1242,7 +1285,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<String>(galleryUrl),
         Variable<String>(uploader),
         Variable<String>(publishTime),
-        Variable<int>(downloadStatusIndex)
+        Variable<int>(downloadStatusIndex),
+        Variable<String?>(insertTime)
       ],
       updates: {galleryDownloaded},
     );
@@ -1391,6 +1435,7 @@ class SelectGallerysWithImagesResult {
   final String uploader;
   final String publishTime;
   final int galleryDownloadStatusIndex;
+  final String? insertTime;
   final String? url;
   final int? serialNo;
   final double? height;
@@ -1407,6 +1452,7 @@ class SelectGallerysWithImagesResult {
     required this.uploader,
     required this.publishTime,
     required this.galleryDownloadStatusIndex,
+    this.insertTime,
     this.url,
     this.serialNo,
     this.height,

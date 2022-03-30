@@ -9,7 +9,7 @@ class EHException implements Exception {
 
   @override
   String toString() {
-    return 'EHException{type: $type, msg: $msg}';
+    return msg;
   }
 }
 

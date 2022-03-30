@@ -8,7 +8,8 @@ CREATE TABLE gallery_downloaded
     galleryUrl          TEXT NOT NULL,
     uploader            TEXT NOT NULL,
     publishTime         TEXT NOT NULL,
-    downloadStatusIndex INT  NOT NULL
+    downloadStatusIndex INT  NOT NULL,
+    insertTime          TEXT
 );
 
 CREATE TABLE image
@@ -43,6 +44,7 @@ SELECT g.gid,
        uploader,
        publishTime,
        g.downloadStatusIndex as galleryDownloadStatusIndex,
+       insertTime,
        url,
        i.serialNo,
        height,
@@ -54,11 +56,12 @@ FROM gallery_downloaded g
 
 selectGallerys:
 SELECT *
-FROM gallery_downloaded;
+FROM gallery_downloaded
+ORDER BY insertTime DESC;
 
 insertGallery:
 insert into gallery_downloaded
-values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex);
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex, :insertTime);
 
 deleteGallery:
 delete

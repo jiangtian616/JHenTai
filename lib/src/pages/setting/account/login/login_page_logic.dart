@@ -58,7 +58,7 @@ class LoginPageLogic extends GetxController {
     try {
       errorMsg = await EHRequest.login(state.userName!, state.password!);
     } on DioError catch (e) {
-      Log.error(e);
+      Log.error('loginFail'.tr, e.message);
       Get.snackbar('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       update();

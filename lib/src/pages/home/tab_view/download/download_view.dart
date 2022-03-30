@@ -29,6 +29,7 @@ class DownloadView extends StatelessWidget {
       ),
       body: Obx(() {
         return ListView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: downloadService.gallerys
               .map((gallery) => Slidable(
                     key: Key(gallery.gid.toString()),

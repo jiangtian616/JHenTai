@@ -432,7 +432,7 @@ class DetailsPage extends StatelessWidget {
               return LoadingStateIndicator(
                 indicatorRadius: 16,
                 loadingState: detailsPageState.loadingDetailsState,
-                errorTapCallback: detailsPageLogic.getDetails,
+                errorTapCallback:  detailsPageLogic.getDetails,
               );
             }),
       ),
@@ -511,7 +511,7 @@ class DetailsPage extends StatelessWidget {
                     Text(
                       (index + 1).toString(),
                       style: const TextStyle(color: Colors.grey),
-                    ).paddingOnly(top: 4),
+                    ).paddingOnly(top: 3),
                   ],
                 );
               }, childCount: galleryDetails.thumbnails.length),

@@ -41,7 +41,7 @@ class EHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: 4000,
+      connectTimeout: 5000,
       receiveTimeout: 6000,
     ));
 
@@ -51,6 +51,29 @@ class EHRequest {
     if ((await _cookieJar.loadForRequest(Uri.parse('https://e-hentai.org'))).isEmpty) {
       await storeEhCookiesForAllUri([]);
     }
+
+    /// error handler
+    _dio.interceptors.add(InterceptorsWrapper(
+      onResponse: (response, handler) {
+        if ((response.data.toString()).isEmpty) {
+          return handler.reject(
+            DioError(
+              requestOptions: response.requestOptions,
+              error: EHException(type: EHExceptionType.blankBody, msg: "sadPanda".tr),
+            ),
+          );
+        }
+        if (response.data.toString().startsWith('Your IP address')) {
+          return handler.reject(
+            DioError(
+              requestOptions: response.requestOptions,
+              error: EHException(type: EHExceptionType.banned, msg: response.data),
+            ),
+          );
+        }
+        handler.next(response);
+      },
+    ));
 
     /// domain fronting
     _dio.interceptors.add(InterceptorsWrapper(
@@ -84,29 +107,6 @@ class EHRequest {
 
     /// cache
     _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
-
-    /// error handler
-    _dio.interceptors.add(InterceptorsWrapper(
-      onResponse: (response, handler) {
-        if ((response.data.toString()).isEmpty) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.blankBody, msg: "IP限制"),
-            ),
-          );
-        }
-        if (response.data.toString().startsWith('Your IP address')) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.banned, msg: response.data),
-            ),
-          );
-        }
-        handler.next(response);
-      },
-    ));
 
     Log.info('init EHRequest success', false);
   }

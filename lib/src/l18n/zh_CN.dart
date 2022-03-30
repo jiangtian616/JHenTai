@@ -48,6 +48,9 @@ class zh_CN {
       'networkError': "网络错误",
       'failToGetThumbnails': "获取画廊缩略图数据失败",
 
+      /// request
+      'sadPanda': 'Sad Panda: 无响应数据',
+
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',

@@ -45,15 +45,17 @@ class DownloadService extends GetxService {
 
     for (SelectGallerysWithImagesResult result in selectGallerysWithImagesResults) {
       GalleryDownloadedData gallery = GalleryDownloadedData(
-          gid: result.gid,
-          token: result.token,
-          title: result.title,
-          category: result.category,
-          pageCount: result.pageCount,
-          galleryUrl: result.galleryUrl,
-          uploader: result.uploader,
-          publishTime: result.publishTime,
-          downloadStatusIndex: result.galleryDownloadStatusIndex);
+        gid: result.gid,
+        token: result.token,
+        title: result.title,
+        category: result.category,
+        pageCount: result.pageCount,
+        galleryUrl: result.galleryUrl,
+        uploader: result.uploader,
+        publishTime: result.publishTime,
+        downloadStatusIndex: result.galleryDownloadStatusIndex,
+        insertTime: result.insertTime,
+      );
 
       if (gallerys.isEmpty || gallerys.last.gid != gallery.gid) {
         gallerys.add(gallery);
@@ -338,7 +340,7 @@ class DownloadService extends GetxService {
 
   /// init memory info
   void _initGalleryDownloadInfo(GalleryDownloadedData gallery) {
-    gallerys.add(gallery);
+    gallerys.insert(0, gallery);
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2downloadProgress[gallery.gid] = DownloadProgress(totalCount: gallery.pageCount).obs;
     gid2Images[gallery.gid] = List.generate(gallery.pageCount, (index) => Rxn<GalleryImage>(null)).obs;
@@ -388,6 +390,7 @@ class DownloadService extends GetxService {
       gallery.uploader,
       gallery.publishTime,
       gallery.downloadStatusIndex,
+      DateTime.now().toString(),
     );
   }
 

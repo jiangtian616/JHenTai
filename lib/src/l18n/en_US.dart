@@ -52,6 +52,9 @@ class en {
       'getGallerysFailed': "get gallerys failed",
       'tabBarSetting': 'TabBar Setting',
 
+      /// request
+      'sadPanda': 'Sad Panda: No Data',
+
       /// details page
       'downloading': "downloading",
       'resume': "resume",

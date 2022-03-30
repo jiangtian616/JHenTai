@@ -11,6 +11,7 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../database/database.dart';
@@ -77,10 +78,13 @@ class ReadPageLogic extends GetxController {
 
     List<GalleryThumbnail> newThumbnails;
     try {
-      newThumbnails = await EHRequest.requestDetailPage(
-        galleryUrl: state.galleryUrl,
-        thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
-        parser: EHSpiderParser.detailPage2Thumbnails,
+      newThumbnails = await retry(
+        () async => await EHRequest.requestDetailPage(
+          galleryUrl: state.galleryUrl,
+          thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
+          parser: EHSpiderParser.detailPage2Thumbnails,
+        ),
+        maxAttempts: 3,
       );
     } on DioError catch (e) {
       Log.error('get thumbnails error!', e);
@@ -102,9 +106,12 @@ class ReadPageLogic extends GetxController {
 
     state.imageUrlParsingStates![index].value = LoadingState.loading;
 
-    EHRequest.requestImagePage(
-      state.thumbnails[index].value!.href,
-      parser: EHSpiderParser.imagePage2GalleryImage,
+    retry(
+      () => EHRequest.requestImagePage(
+        state.thumbnails[index].value!.href,
+        parser: EHSpiderParser.imagePage2GalleryImage,
+      ),
+      maxAttempts: 3,
     ).then((image) {
       state.images[index].value = image;
       state.imageUrlParsingStates![index].value = LoadingState.success;
