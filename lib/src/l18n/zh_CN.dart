@@ -91,6 +91,7 @@ class zh_CN {
       'enableTagZHTranslation': '开启标签中文翻译',
       'version': '版本',
       'downloadTagTranslationHint': '下载数据中... 已下载: ',
+      'enableDarkTheme': '开启黑暗主题',
 
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',

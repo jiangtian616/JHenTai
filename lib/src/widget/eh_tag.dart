@@ -3,9 +3,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -51,7 +48,9 @@ class _EHTagState extends State<EHTag> {
       child: Container(
         color: widget.withColor
             ? ColorConsts.zhTagCategoryColor[widget.tagData.key] ?? ColorConsts.tagCategoryColor[widget.tagData.key]!
-            : Colors.grey.shade200,
+            : Get.theme.brightness == Brightness.light
+                ? Colors.grey.shade200
+                : Colors.grey.shade800,
         padding: widget.padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -61,7 +60,11 @@ class _EHTagState extends State<EHTag> {
               style: TextStyle(
                 fontSize: widget.fontSize,
                 height: widget.textHeight,
-                color: Colors.grey.shade800,
+                color: widget.withColor
+                    ? Colors.black
+                    : Get.theme.brightness == Brightness.light
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade300,
               ),
             ),
           ],

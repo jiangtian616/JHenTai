@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page_state.dart';
@@ -14,6 +15,7 @@ class HomePage extends StatelessWidget {
     return GetBuilder<HomePageLogic>(
       builder: (logic) {
         return CupertinoTabScaffold(
+          backgroundColor: Theme.of(context).cupertinoOverrideTheme?.scaffoldBackgroundColor,
           controller: homePageState.tabController,
           tabBar: CupertinoTabBar(
             items: homePageState.navigationBarItems,
@@ -23,9 +25,7 @@ class HomePage extends StatelessWidget {
             iconSize: 26,
             onTap: (index) => homePageLogic.handleTapNavigationBar(index),
           ),
-          tabBuilder: (BuildContext context, int index) {
-            return homePageState.navigationBarViews[index];
-          },
+          tabBuilder: (BuildContext context, int index) => homePageState.navigationBarViews[index],
         );
       },
     );

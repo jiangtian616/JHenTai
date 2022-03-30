@@ -42,7 +42,7 @@ class _EHCommentState extends State<EHComment> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        color: Colors.grey.shade200,
+        color: Get.theme.brightness == Brightness.light ? Colors.grey.shade200 : Colors.grey.shade800,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,

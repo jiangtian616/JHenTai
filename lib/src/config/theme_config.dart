@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -45,6 +46,9 @@ class ThemeConfig {
         ),
       ),
     ),
+    cupertinoOverrideTheme: const CupertinoThemeData(
+      scaffoldBackgroundColor: Colors.white,
+    ),
     dialogTheme: const DialogTheme(
       titleTextStyle: TextStyle(
         fontSize: 14,
@@ -58,6 +62,8 @@ class ThemeConfig {
 
   static ThemeData dark = ThemeData(
     brightness: Brightness.dark,
+    primaryColor: const Color.fromARGB(255, 0, 122, 255),
+    primaryColorLight: Colors.pink.shade300,
     appBarTheme: AppBarTheme(
       foregroundColor: Colors.grey.shade100,
       backgroundColor: Colors.grey.shade900,
@@ -92,6 +98,17 @@ class ThemeConfig {
         ),
       ),
     ),
+    cupertinoOverrideTheme: CupertinoThemeData(
+      scaffoldBackgroundColor: Colors.grey.shade900,
+    ),
+    dialogTheme: const DialogTheme(
+      titleTextStyle: TextStyle(
+        fontSize: 14,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.grey.shade900,
   );
 }

@@ -30,7 +30,7 @@ import 'config/theme_config.dart';
 void main() async {
   await beforeInit();
   runApp(DevicePreview(
-    enabled: !kReleaseMode,
+    enabled: false,
     builder: (context) => const MyApp(), // Wrap your app
   ));
 }
@@ -42,8 +42,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'JHenTai',
-      theme: ThemeConfig.light,
-      // locale: window.locale,
+      theme: GallerySetting.enableDarkTheme.isTrue ? ThemeConfig.dark : ThemeConfig.light,
+      locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
       getPages: Routes.getPages(),
@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
 
       /// device preview
       useInheritedMediaQuery: true,
-      locale: DevicePreview.locale(context),
+      // locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
 
       /// enable swipe back feature

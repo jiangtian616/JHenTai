@@ -433,7 +433,7 @@ class DetailsPage extends StatelessWidget {
               return LoadingStateIndicator(
                 indicatorRadius: 16,
                 loadingState: detailsPageState.loadingDetailsState,
-                errorTapCallback:  detailsPageLogic.getDetails,
+                errorTapCallback: detailsPageLogic.getDetails,
               );
             }),
       ),
@@ -503,11 +503,14 @@ class DetailsPage extends StatelessWidget {
 
                 GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
                 return Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
-                      onTap: () => detailsPageLogic.goToReadPage(index),
-                      child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                    Expanded(
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => detailsPageLogic.goToReadPage(index),
+                          child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                        ),
+                      ),
                     ),
                     Text(
                       (index + 1).toString(),

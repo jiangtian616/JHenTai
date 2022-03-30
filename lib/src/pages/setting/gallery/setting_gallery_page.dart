@@ -23,6 +23,13 @@ class SettingGalleryPage extends StatelessWidget {
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
             ListTile(
+              title: Text('enableDarkTheme'.tr),
+              trailing: Switch(
+                value: GallerySetting.enableDarkTheme.value,
+                onChanged: GallerySetting.saveEnableDarkTheme,
+              ),
+            ),
+            ListTile(
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -50,7 +57,7 @@ class SettingGalleryPage extends StatelessWidget {
                     Switch(
                       value: GallerySetting.enableTagZHTranslation.value,
                       onChanged: (value) {
-                        GallerySetting.saveTagZHTranslation(value);
+                        GallerySetting.saveEnableTagZHTranslation(value);
                         if (value == true) {
                           Get.find<TagTranslationService>().updateDatabase();
                         }
