@@ -29,13 +29,7 @@ import 'config/theme_config.dart';
 
 void main() async {
   await beforeInit();
-  onReady();
-  runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => const MyApp(), // Wrap your app
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -46,20 +40,16 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'JHenTai',
       theme: ThemeConfig.light,
+      locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
       getPages: Routes.getPages(),
       initialRoute: Routes.home,
       navigatorObservers: [GetXRouterObserver()],
 
-      /// Device preview
-      locale: DevicePreview.locale(context),
-      useInheritedMediaQuery: true,
-      builder: DevicePreview.appBuilder,
-
       /// enable swipe back feature
       popGesture: true,
-      // onReady: onReady,
+      onReady: onReady,
     );
   }
 }
