@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
 import 'package:path/path.dart';
 
 class LogPage extends StatefulWidget {
@@ -35,14 +34,18 @@ class _LogPageState extends State<LogPage> {
         ),
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: SelectableText(
-            (log as io.File).readAsStringSync(),
-
-            /// draggable
-            minLines: 99,
-            style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+          child: SizedBox(
+            width: context.width,
+            child: SelectableText(
+              (log as io.File).readAsStringSync(),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
+              ),
+            ),
           ),
         ),
       ).marginOnly(top: 8),
