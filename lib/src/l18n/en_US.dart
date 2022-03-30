@@ -18,6 +18,7 @@ class en {
       'torrent': 'torrent',
       'archive': 'archive',
       'similar': 'similar',
+      'reload': 'reload',
       'noMoreData': 'no more data',
       'noData': 'no data',
       'uploader': 'uploader',

@@ -1,6 +1,8 @@
 import 'dart:ui';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -27,7 +29,10 @@ import 'config/theme_config.dart';
 
 void main() async {
   await beforeInit();
-  runApp(const MyApp());
+  runApp(DevicePreview(
+    enabled: !kReleaseMode,
+    builder: (context) => const MyApp(), // Wrap your app
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,12 +43,17 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'JHenTai',
       theme: ThemeConfig.light,
-      locale: window.locale,
+      // locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
       getPages: Routes.getPages(),
       initialRoute: Routes.home,
       navigatorObservers: [GetXRouterObserver()],
+
+      /// device preview
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
 
       /// enable swipe back feature
       popGesture: true,

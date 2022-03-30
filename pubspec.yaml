@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  dio: ^4.0.3
+  dio: 4.0.4
   cookie_jar: 3.0.1
   dio_cookie_manager: ^2.0.0
   dio_cache_interceptor: ^3.2.6
@@ -47,6 +47,7 @@ dependencies:
 #    git: https://github.com/bluefireteam/photo_view.git
   reorderables: ^0.4.3
   package_info_plus: ^1.4.0
+  device_preview: ^1.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -284,7 +285,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: (context.width - 30) / 4.7,
+            itemExtent: max(77, (context.width - 15 * 2) / 6),
             children: [
               IconTextButton(
                 iconData: Icons.visibility,

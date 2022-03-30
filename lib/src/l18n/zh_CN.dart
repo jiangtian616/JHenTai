@@ -18,6 +18,7 @@ class zh_CN {
       'torrent': '种子',
       'archive': '归档',
       'similar': '相似',
+      'reload': '重新加载',
       'noMoreData': '到底啦',
       'noData': '无查询数据',
       'uploader': '上传者',

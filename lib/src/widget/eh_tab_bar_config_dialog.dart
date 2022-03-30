@@ -59,6 +59,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
       insetPadding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 24.0),
       child: SizedBox(
         height: 500,
+        width: 200,
         child: Column(
           children: [
             Center(

@@ -7,7 +7,6 @@ import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
-import '../network/eh_request.dart';
 
 /// responsible for all network and local images, depends on :
 /// 1. ExtendedImage:

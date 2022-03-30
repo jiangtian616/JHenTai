@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flukit/flukit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -89,47 +90,55 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _buildParsingThumbnailsIndicator(BuildContext context, int index) {
-    return SizedBox(
-      height: context.height / 2,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          LoadingStateIndicator(
-            userCupertinoIndicator: false,
-            loadingState: state.imageHrefParsingState.value,
-            idleWidget: const CircularProgressIndicator(),
-            errorTapCallback: () => logic.beginParsingImageHref(index),
-          ),
-          Text(
-            state.imageHrefParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
-            style: state.readPageTextStyle(),
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageHref(index)),
+      child: SizedBox(
+        height: context.height / 2,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            LoadingStateIndicator(
+              userCupertinoIndicator: false,
+              loadingState: state.imageHrefParsingState.value,
+              idleWidget: const CircularProgressIndicator(),
+              errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+            ),
+            Text(
+              state.imageHrefParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
+              style: state.readPageTextStyle(),
+            ).marginOnly(top: 8),
+            Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildParsingImageIndicator(BuildContext context, int index) {
-    return SizedBox(
-      height: context.height / 2,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (state.type == 'online')
-            LoadingStateIndicator(
-              userCupertinoIndicator: false,
-              loadingState: state.imageUrlParsingStates![index].value,
-              idleWidget: const CircularProgressIndicator(),
-              errorTapCallback: () => logic.beginParsingImageUrl(index),
-            ),
-          if (state.type == 'local') const CircularProgressIndicator(),
-          Text(
-            state.imageUrlParsingStates?[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
-            style: state.readPageTextStyle(),
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-        ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageUrl(index)),
+      child: SizedBox(
+        height: context.height / 2,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (state.type == 'online')
+              LoadingStateIndicator(
+                userCupertinoIndicator: false,
+                loadingState: state.imageUrlParsingStates![index].value,
+                idleWidget: const CircularProgressIndicator(),
+                errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+              ),
+            if (state.type == 'local') const CircularProgressIndicator(),
+            Text(
+              state.imageUrlParsingStates?[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
+              style: state.readPageTextStyle(),
+            ).marginOnly(top: 8),
+            Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+          ],
+        ),
       ),
     );
   }
@@ -174,5 +183,26 @@ class ReadPage extends StatelessWidget {
         ],
       );
     });
+  }
+
+  void _showReParseBottomSheet(BuildContext context, ErrorTapCallback callback) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('reload'.tr),
+            onPressed: () async {
+              callback();
+              Get.back();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: Get.back,
+        ),
+      ),
+    );
   }
 }
