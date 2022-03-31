@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="top.jtmonster.jhentai">
    <application
-        android:label="jhentai"
+        android:label="JHenTai"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/jhentai">
         <activity
             android:name=".MainActivity"
             android:exported="true"
