@@ -11,6 +11,7 @@ import '../../model/gallery.dart';
 import '../../routes/routes.dart';
 import '../../service/tag_translation_service.dart';
 import '../../utils/log.dart';
+import '../../utils/snack_util.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
 
@@ -76,8 +77,8 @@ class SearchPageLogic extends GetxController {
       state.gallerys.addAll(gallerysAndPageCount[0]);
       state.pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
-      Log.error('search Failed', e.message);
-      Get.snackbar('searchFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('searchFailed'.tr, e.message);
+      snack('searchFailed'.tr, e.message);
       state.loadingState = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -135,7 +136,6 @@ class SearchPageLogic extends GetxController {
 
   Future<void> searchTags() async {
     Log.info('search for ${state.tabBarConfig.searchConfig.keyword}', false);
-
 
     /// chinese => database
     /// other => EH api

@@ -10,6 +10,7 @@ import '../../../../routes/routes.dart';
 import '../../../../service/tag_translation_service.dart';
 import '../../../../setting/gallery_setting.dart';
 import '../../../../utils/log.dart';
+import '../../../../utils/snack_util.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'ranklist_view_state.dart';
 
@@ -42,8 +43,8 @@ class RanklistViewLogic extends GetxController {
     try {
       baseGallerys = await EHRequest.requestRankPage(EHSpiderParser.rankPage2Ranklists);
     } on DioError catch (e) {
-      Log.error('get ranklist failed', e.message);
-      Get.snackbar('getRanklistFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('getRanklistFailed'.tr, e.message);
+      snack('getRanklistFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.getRanklistLoadingState[curType] = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -61,8 +62,8 @@ class RanklistViewLogic extends GetxController {
         state.ranklistGalleryDetailsApikey[curType]?.add(galleryAndDetailAndApikeyAndPageCount['apikey']);
       } on DioError catch (e) {
         if (e.response?.statusCode != 404) {
-          Log.error('get ranklist failed', e.message);
-          Get.snackbar('getRanklistFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+          Log.error('getRanklistFailed'.tr, e.message);
+          snack('getRanklistFailed'.tr, e.message,longDuration: true, snackPosition: SnackPosition.BOTTOM);
           state.ranklistGallery[curType]?.clear();
           state.ranklistGalleryDetails[curType]?.clear();
           state.ranklistGalleryDetailsApikey[curType]?.clear();

@@ -12,6 +12,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../../utils/snack_util.dart';
 import '../../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 
 class RatingDialog extends StatefulWidget {
@@ -120,8 +121,8 @@ class _RatingDialogState extends State<RatingDialog> {
         (rating * 2).toInt(),
       );
     } on DioError catch (e) {
-      Log.error(e);
-      Get.snackbar('评分错误', e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('ratingFailed'.tr, e.message);
+      snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       setState(() {
         submitState = LoadingState.error;
       });

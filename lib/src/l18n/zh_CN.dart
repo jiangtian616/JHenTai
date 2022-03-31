@@ -3,37 +3,30 @@ import 'dart:core';
 class zh_CN {
   static Map<String, String> keys() {
     return {
+      /// common
       'cancel': "取消",
       'OK': "确定",
       'success': "成功",
       'error': "错误",
       'failed': "失败",
-      'home': "主页",
-      'gallery': "画廊",
-      'setting': '设置',
-      'read': '阅读',
-      'download': '下载',
-      'favorite': '收藏',
-      'rating': '评分',
-      'torrent': '种子',
-      'archive': '归档',
-      'similar': '相似',
       'reload': '重新加载',
       'noMoreData': '到底啦',
       'noData': '无查询数据',
-      'uploader': '上传者',
-      'currentRating': '当前评分',
-      'afterRating': '您评分后',
-      'submit': '提交',
-      'chooseFavorite': '选择收藏夹',
-      'account': '账户',
-      'EH': 'EH',
-      'advanced': '高级',
-      'about': '关于',
+      'operationFailed': '操作失败',
+      'needLoginToOperate': '需要登陆后才能操作',
+      'hasCopiedToClipboard': "已复制到粘贴板",
+      'networkError': "网络错误",
+
+      'home': "主页",
+      'gallery': "画廊",
+      'setting': '设置',
+
+      /// login page
       'login': '登录',
       'logout': '注销',
       'passwordLogin': '密码登录',
       'cookieLogin': 'cookie登录',
+      'youHaveLoggedInAs': '您已登录:   ',
       'cookieIsBlack': 'cookie为空',
       'cookieFormatError': 'cookie格式错误',
       'invalidCookie': '无效的cookie',
@@ -42,12 +35,6 @@ class zh_CN {
       'password': '密码',
       'needCaptcha': '需要勾选验证码。请另外选择cookie登陆或网页登陆。',
       'userNameOrPasswordMismatch': '用户名或密码错误',
-      'operationFailed': '操作失败',
-      'needLoginToOperate': '需要登陆后才能操作',
-      'youHaveLoggedInAs': '您已登录:   ',
-      'hasCopiedToClipboard': "已复制到粘贴板",
-      'networkError': "网络错误",
-      'failToGetThumbnails': "获取画廊缩略图数据失败",
 
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
@@ -55,15 +42,37 @@ class zh_CN {
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',
+      'refreshGalleryFailed': '刷新画廊失败',
 
       /// details page
+      'read': '阅读',
+      'download': '下载',
+      'favorite': '收藏',
+      'rating': '评分',
+      'torrent': '种子',
+      'archive': '归档',
+      'similar': '相似',
       'downloading': "下载中",
       'resume': "继续下载",
       'pause': '暂停',
       'finished': '已完成',
-      'getGalleryDetailFailed': '获取画廊详情失败',
+      'submit': '提交',
+      'chooseFavorite': '选择收藏夹',
+      'uploader': '上传者',
       'allComments': '所有评论',
       'noComments': '暂无评论',
+      'getGalleryDetailFailed': '获取画廊详情失败',
+      'refreshGalleryDetailsFailed': '刷新画廊详情失败',
+      'failToGetThumbnails': "获取画廊缩略图数据失败",
+      'favoriteGalleryFailed': "收藏画廊错误",
+      'ratingFailed': '评分失败',
+      'voteTagFailed': '投票标签失败',
+
+      /// comment page
+      'newComment': '新评论',
+      'commentTooShort': '评论过短',
+      'sendCommentFailed': '发送评论失败',
+      'voteCommentFailed': '投票评论失败',
 
       ///EHImage
       'reloadImage': "重新加载图片",
@@ -76,6 +85,10 @@ class zh_CN {
       'loading': "加载中",
 
       /// setting page
+      'account': '账户',
+      'EH': 'EH',
+      'advanced': '高级',
+      'about': '关于',
       'accountSetting': '账户设置',
       'gallerySetting': '画廊设置',
       'advancedSetting': '高级设置',
@@ -109,10 +122,6 @@ class zh_CN {
 
       /// download page
       'delete': '删除',
-
-      /// comment page
-      'newComment': '新评论',
-      'commentTooShort': '评论过短',
 
       /// search dialog
       'searchConfig': '搜索配置',

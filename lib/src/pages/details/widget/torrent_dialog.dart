@@ -19,6 +19,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../utils/snack_util.dart';
 import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
 
 class TorrentDialog extends StatefulWidget {
@@ -76,11 +77,7 @@ class _TorrentDialogState extends State<TorrentDialog> {
                         child: const Icon(FontAwesomeIcons.magnet, size: 16, color: Colors.blue),
                         onTap: () {
                           FlutterClipboard.copy(galleryTorrent.magnetUrl).then(
-                            (value) => Get.snackbar(
-                              'success'.tr,
-                              'hasCopiedToClipboard'.tr,
-                              duration: Duration(seconds: 1),
-                            ),
+                            (value) => snack('success'.tr, 'hasCopiedToClipboard'.tr, isSuccess: true),
                           );
                         },
                       ),

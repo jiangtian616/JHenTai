@@ -15,6 +15,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
+import '../../../utils/snack_util.dart';
 
 class CommentPage extends StatefulWidget {
   const CommentPage({Key? key}) : super(key: key);
@@ -64,7 +65,7 @@ class _CommentPageState extends State<CommentPage> {
 
   void _showAddCommentDialog() async {
     if (!UserSetting.hasLoggedIn()) {
-      Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
       return;
     }
 
@@ -137,7 +138,7 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
 
   Future<void> _sendComment() async {
     if (content.length <= 2) {
-      Get.snackbar('failed'.tr, 'commentTooShort'.tr, snackPosition: SnackPosition.TOP);
+      snack('failed'.tr, 'commentTooShort'.tr);
       return;
     }
 
@@ -154,8 +155,8 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
       );
     } on DioError catch (e) {
       if (e.response?.statusCode != 302) {
-        Log.error('send comment failed', e.message);
-        Get.snackbar('failed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+        Log.error('sendCommentFailed'.tr, e.message);
+        snack('sendCommentFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
         setState(() {
           sendCommentState = LoadingState.idle;
         });
@@ -174,7 +175,7 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
     setState(() {
       sendCommentState = LoadingState.idle;
     });
-    Get.snackbar('failed'.tr, errMsg, snackPosition: SnackPosition.TOP);
+    snack('sendCommentFailed'.tr, errMsg);
     return;
   }
 }

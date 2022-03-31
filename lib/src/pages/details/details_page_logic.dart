@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 
@@ -120,7 +121,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   void showLoginSnack() {
-    Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+    snack('operationFailed'.tr, 'needLoginToOperate'.tr);
   }
 
   Future<void> getDetails() async {
@@ -143,7 +144,7 @@ class DetailsPageLogic extends GetxController {
       );
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
-      Get.snackbar('getGalleryDetailFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingDetailsState = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -166,7 +167,8 @@ class DetailsPageLogic extends GetxController {
         useCacheIfAvailable: false,
       );
     } on DioError catch (e) {
-      Get.snackbar('get gallery details failed', e.message, snackPosition: SnackPosition.BOTTOM);
+      snack('refreshGalleryDetailsFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      Log.error('refreshGalleryDetailsFailed'.tr, e.message);
       return;
     }
 
@@ -205,8 +207,8 @@ class DetailsPageLogic extends GetxController {
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
     } on DioError catch (e) {
-      Log.error('fail to get thumbnails', e.message);
-      Get.snackbar('failToGetThumbnails'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('failToGetThumbnails'.tr, e.message);
+      snack('failToGetThumbnails'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingThumbnailsState = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -248,7 +250,8 @@ class DetailsPageLogic extends GetxController {
         state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames[favIndex]);
       }
     } on DioError catch (e) {
-      Get.snackbar('收藏画廊错误', e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('favoriteGalleryFailed'.tr, e.message);
+      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.addFavoriteState = LoadingState.error;
       update([addFavoriteStateId]);
       return;
@@ -293,7 +296,7 @@ class DetailsPageLogic extends GetxController {
 
   Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {
     if (!UserSetting.hasLoggedIn()) {
-      Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
       return null;
     }
 
@@ -310,8 +313,8 @@ class DetailsPageLogic extends GetxController {
           score >= 0 ? '+' + score.toString() : score.toString();
       update([bodyId]);
     }).catchError((error) {
-      Log.error('vote comment failed', (error as DioError).message);
-      Get.snackbar('vote comment failed', error.message);
+      Log.error('voteCommentFailed'.tr, (error as DioError).message);
+      snack('voteCommentFailed'.tr, error.message);
     });
 
     return true;

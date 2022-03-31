@@ -14,6 +14,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../../model/tab_bar_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
 import '../../../../utils/eh_spider_parser.dart';
+import '../../../../utils/snack_util.dart';
 import 'gallerys_view_state.dart';
 import '../../../../model/gallery.dart';
 
@@ -43,8 +44,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       newGallerys = gallerysAndPageCount[0];
       pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
-      Log.error('refresh gallery failed', e.message);
-      Get.snackbar('refresh gallery failed', e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('refreshGalleryFailed'.tr, e.message);
+      snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState[tabIndex] = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -81,8 +82,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
       state.pageCount[tabIndex] = gallerysAndPageCount[1];
     } on DioError catch (e) {
-      Log.error('get gallerys failed', e.message);
-      Get.snackbar('getGallerysFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      Log.error('getGallerysFailed'.tr, e.message);
+      snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState[tabIndex] = LoadingState.error;
       update([loadingStateId]);
       return;

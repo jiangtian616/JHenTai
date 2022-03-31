@@ -5,6 +5,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 
 import '../../../routes/routes.dart';
+import '../../../utils/snack_util.dart';
 
 class SettingAccountPage extends StatelessWidget {
   const SettingAccountPage({Key? key}) : super(key: key);
@@ -37,7 +38,7 @@ class SettingAccountPage extends StatelessWidget {
                       TextButton(
                         onPressed: () {
                           FlutterClipboard.copy(UserSetting.getCookies())
-                              .then((value) => Get.snackbar('success'.tr, 'hasCopiedToClipboard'.tr));
+                              .then((value) => snack('success'.tr, 'hasCopiedToClipboard'.tr, isSuccess: true));
                         },
                         child: Text('复制cookie'.tr, style: const TextStyle()),
                       ),

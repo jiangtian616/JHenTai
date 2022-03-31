@@ -3,79 +3,92 @@ import 'dart:core';
 class en {
   static Map<String, String> keys() {
     return {
-      'cancel': "取消",
-      'OK': "确定",
-      'success': "success",
-      'error': "error",
-      'failed': "failed",
-      'home': "home",
+      /// common
+      'cancel': "Cancel",
+      'OK': "OK",
+      'success': "Success",
+      'error': "Error",
+      'failed': "Failed",
+      'reload': 'Reload',
+      'noMoreData': 'No More Data',
+      'noData': 'No Data',
+      'operationFailed': 'Operation Failed',
+      'needLoginToOperate': 'Need Log In To Operate',
+      'hasCopiedToClipboard': "Has Copied To Clipboard",
+      'networkError': "Network Error",
+
+      'home': "Home",
       'gallery': "Gallery",
       'setting': 'Setting',
-      'read': 'Read',
-      'download': 'Download',
-      'favorite': 'favorite',
-      'rating': 'rating',
-      'torrent': 'torrent',
-      'archive': 'archive',
-      'similar': 'similar',
-      'reload': 'reload',
-      'noMoreData': 'no more data',
-      'noData': 'no data',
-      'uploader': 'uploader',
-      'currentRating': 'current rating',
-      'afterRating': 'after rating',
-      'submit': 'submit',
-      'chooseFavorite': 'Choose Favorite',
-      'account': 'Account',
-      'EH': 'EH',
-      'advanced': 'Advanced',
-      'about': 'About',
-      'login': 'login',
-      'logout': 'logout',
+
+      /// login page
+      'login': 'Login',
+      'logout': 'Logout',
       'passwordLogin': 'Password Login',
       'cookieLogin': 'Cookie Login',
-      'cookieIsBlack': 'cookie is black',
-      'cookieFormatError': 'cookie format error',
-      'invalidCookie': 'invalid cookie',
-      'loginFail': 'login failed',
-      'userName': 'userName',
-      'password': 'password',
-      'needCaptcha': 'need captcha, please login via cookie or web again.',
-      'userNameOrPasswordMismatch': 'username or password mismatch',
-      'operationFailed': 'Operation Failed',
-      'needLoginToOperate': 'need log in to operate',
       'youHaveLoggedInAs': 'Hello:   ',
-      'hasCopiedToClipboard': "has copied to clipboard",
-      'networkError': "network error",
-      'failToGetThumbnails': "fail to get thumbnails",
-
-      /// gallery page
-      'getGallerysFailed': "get gallerys failed",
-      'tabBarSetting': 'TabBar Setting',
+      'cookieIsBlack': 'Cookie is Black',
+      'cookieFormatError': 'Cookie Format Error',
+      'invalidCookie': 'Invalid Cookie',
+      'loginFail': 'Login Failed',
+      'userName': 'UserName',
+      'password': 'Password',
+      'needCaptcha': 'Need captcha, please login via cookie or web again.',
+      'userNameOrPasswordMismatch': 'Username or password mismatch',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',
 
+      /// gallery page
+      'getGallerysFailed': "Get Gallerys Failed",
+      'refreshGalleryFailed': 'Refresh Gallery Failed',
+      'tabBarSetting': 'TabBar Setting',
+
       /// details page
-      'downloading': "downloading",
-      'resume': "resume",
-      'pause': 'pause',
-      'finished': 'finished',
+      'read': 'Read',
+      'download': 'Download',
+      'favorite': 'Favorite',
+      'rating': 'Rating',
+      'torrent': 'Torrent',
+      'archive': 'Archive',
+      'similar': 'Similar',
+      'downloading': "Downloading",
+      'resume': "Resume",
+      'pause': 'Pause',
+      'finished': 'Finished',
+      'submit': 'Submit',
+      'chooseFavorite': 'Choose Favorite',
+      'uploader': 'Uploader',
+      'allComments': 'All Comments',
+      'noComments': 'No Comments',
       'getGalleryDetailFailed': 'Get Gallery Detail Failed',
-      'allComments': 'all comments',
-      'noComments': 'no comments',
+      'refreshGalleryDetailsFailed': 'Refresh Gallery Details Failed',
+      'failToGetThumbnails': "Fail To Get Thumbnails",
+      'favoriteGalleryFailed': "Favorite Gallery Failed",
+      'ratingFailed': 'Rating Failed',
+      'voteTagFailed': 'Vote Tag Failed',
+
+      /// comment page
+      'newComment': 'New Comment',
+      'commentTooShort': 'Comment is Too Short',
+      'sendCommentFailed': 'Send Comment Failed',
+      'voteCommentFailed': 'Vote Comment Failed',
 
       /// EHImage
-      'reloadImage': "reload image",
+      'reloadImage': "Reload Image",
 
       /// read page
-      'parsingPage': "parsing page",
-      'parsingURL': "parsing URL",
-      'parsePageFailed': "parse page failed",
-      'parseURLFailed': "parse URL failed",
-      'loading': "loading",
+      'parsingPage': "Parsing Page",
+      'parsingURL': "Parsing URL",
+      'parsePageFailed': "Parse Page Failed",
+      'parseURLFailed': "Parse URL Failed",
+      'loading': "Loading",
 
       /// setting page
+      'account': 'Account',
+      'EH': 'EH',
+      'advanced': 'Advanced',
+      'about': 'About',
       'accountSetting': 'Account Setting',
       'gallerySetting': 'Gallery Setting',
       'advancedSetting': 'Advanced Setting',
@@ -84,20 +97,20 @@ class en {
       'downloadSetting': 'Download Setting',
 
       /// eh setting page
-      'site': 'site',
-      'siteSetting': 'site setting',
+      'site': 'Site',
+      'siteSetting': 'Site Setting',
 
       /// gallery setting page
-      'enableTagZHTranslation': 'translate tag name into chinese',
-      'version': 'version',
-      'downloadTagTranslationHint': 'downloading data..., downloaded: ',
+      'enableTagZHTranslation': 'Translate tag name into chinese',
+      'version': 'Version',
+      'downloadTagTranslationHint': 'Downloading data..., downloaded: ',
       'enableDarkTheme': 'Enable Dark Theme',
 
       /// advanced setting page
-      'enableDomainFronting': 'enable Domain Fronting',
-      'enableLogging': 'enable logging',
-      'openLog': 'open log',
-      'clearLogs': 'clear logs',
+      'enableDomainFronting': 'Enable Domain Fronting',
+      'enableLogging': 'Enable Logging',
+      'openLog': 'Open Log',
+      'clearLogs': 'Clear Logs',
 
       /// read setting page
       'enablePageTurnAnime': 'Enable Page Turn Anime',
@@ -108,11 +121,7 @@ class en {
       'logList': 'Log List',
 
       /// download page
-      'delete': 'delete',
-
-      /// comment page
-      'newComment': 'newComment',
-      'commentTooShort': 'comment too short',
+      'delete': 'Delete',
 
       /// search dialog
       'searchConfig': 'Search Config',
@@ -121,11 +130,11 @@ class en {
       'filterConfig': 'Filter Config',
       'tabBarName': 'TabBar Name',
       'searchType': 'Search Type',
-      'popular': 'popular',
+      'popular': 'Popular',
       'ranklist': 'Ranklist',
-      'watched': 'watched',
-      'history': 'history',
-      'keyword': 'keyword',
+      'watched': 'Watched',
+      'history': 'History',
+      'keyword': 'Keyword',
       'searchGalleryName': 'Search Gallery Name',
       'searchGalleryTags': 'Search Gallery Tags',
       'searchGalleryDescription': 'Search Gallery Description',
@@ -150,33 +159,33 @@ class en {
       'day': 'Day',
 
       /// ranklist view
-      'getRanklistFailed': 'get ranklist failed',
+      'getRanklistFailed': 'Get Ranklist Failed',
 
       /// search page
       'search': 'Search',
-      'searchFailed': 'search failed',
+      'searchFailed': 'Search Failed',
 
       /// about page
       'author': 'Author',
 
       /// download setting page
       'downloadTaskConcurrency': 'Download Task Concurrency',
-      'needRestart': 'need restart',
+      'needRestart': 'Need Restart',
 
       /// tag namespace
-      'language': 'language',
-      'artist': 'artist',
-      'character': 'character',
-      'female': 'female',
-      'male': 'male',
-      'parody': 'parody',
-      'group': 'group',
-      'mixed': 'mixed',
+      'language': 'Language',
+      'artist': 'Artist',
+      'character': 'Character',
+      'female': 'Female',
+      'male': 'Male',
+      'parody': 'Parody',
+      'group': 'Group',
+      'mixed': 'Mixed',
       'Coser': 'Coser',
-      'cosplayer': 'cosplayer',
-      'reclass': 'reclass',
-      'temp': 'temp',
-      'other': 'other',
+      'cosplayer': 'Cosplayer',
+      'reclass': 'Reclass',
+      'temp': 'Temp',
+      'other': 'Other',
     };
   }
 }

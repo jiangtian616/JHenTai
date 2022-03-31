@@ -15,6 +15,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../../utils/log.dart';
+import '../../../../utils/snack_util.dart';
 import 'login_page_state.dart';
 
 class LoginPageLogic extends GetxController {
@@ -39,12 +40,7 @@ class LoginPageLogic extends GetxController {
 
   Future<void> _handlePasswordLogin() async {
     if (state.userName == null || state.password == null || state.userName!.isEmpty || state.password!.isEmpty) {
-      Get.snackbar(
-        'loginFail'.tr,
-        'userNameOrPasswordMismatch'.tr,
-        duration: const Duration(seconds: 1),
-        backgroundColor: Colors.grey.withOpacity(0.7),
-      );
+      snack('loginFail'.tr, 'userNameOrPasswordMismatch'.tr);
       return;
     }
 
@@ -59,7 +55,7 @@ class LoginPageLogic extends GetxController {
       errorMsg = await EHRequest.login(state.userName!, state.password!);
     } on DioError catch (e) {
       Log.error('loginFail'.tr, e.message);
-      Get.snackbar('loginFail'.tr, e.message);
+      snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       update();
       return;
@@ -75,34 +71,20 @@ class LoginPageLogic extends GetxController {
       Get.back();
     } else {
       state.loginState = LoadingState.error;
-      Get.snackbar(
-        'loginFail'.tr,
-        errorMsg,
-        backgroundColor: Colors.grey.withOpacity(0.7),
-      );
+      snack('loginFail'.tr, errorMsg);
     }
     update();
   }
 
   Future<void> _handleCookieLogin() async {
     if (state.cookie == null || state.cookie!.isEmpty) {
-      Get.snackbar(
-        'loginFail'.tr,
-        'cookieIsBlack'.tr,
-        duration: const Duration(seconds: 1),
-        backgroundColor: Colors.grey.withOpacity(0.7),
-      );
+      snack('loginFail'.tr, 'cookieIsBlack'.tr);
       return;
     }
 
     RegExpMatch? match = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(state.cookie!);
     if (match == null) {
-      Get.snackbar(
-        'loginFail'.tr,
-        'cookieFormatError'.tr,
-        duration: const Duration(seconds: 1),
-        backgroundColor: Colors.grey.withOpacity(0.7),
-      );
+      snack('loginFail'.tr, 'cookieFormatError'.tr);
       return;
     }
 
@@ -125,8 +107,8 @@ class LoginPageLogic extends GetxController {
       await EHRequest.requestHomePage();
       userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
     } on DioError catch (e) {
-      Log.error(e);
-      Get.snackbar('loginFail'.tr, e.message);
+      Log.error('loginFail'.tr, e.message);
+      snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       await EHRequest.removeAllCookies();
       update();
@@ -146,11 +128,7 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.error;
       update();
       await EHRequest.removeAllCookies();
-      Get.snackbar(
-        'loginFail'.tr,
-        'invalidCookie'.tr,
-        backgroundColor: Colors.grey.withOpacity(0.7),
-      );
+      snack('loginFail'.tr, 'invalidCookie'.tr);
     }
   }
 

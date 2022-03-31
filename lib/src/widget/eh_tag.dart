@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../consts/color_consts.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
+import '../utils/snack_util.dart';
 
 class EHTag extends StatefulWidget {
   final TagData tagData;
@@ -144,7 +145,7 @@ class _TagDialogState extends State<_TagDialog> {
 
   Future<bool> _vote(bool isVotingUp) async {
     if (!UserSetting.hasLoggedIn()) {
-      Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
       return false;
     }
 
@@ -176,8 +177,8 @@ class _TagDialogState extends State<_TagDialog> {
           voteDownState = LoadingState.error;
         }
       });
-      Log.error('vote tag failed', e.message);
-      Get.snackbar('vote tag failed', e.message);
+      Log.error('voteTagFailed'.tr, e.message);
+      snack('voteTagFailed'.tr, e.message);
       return false;
     }
 

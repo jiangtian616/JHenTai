@@ -17,6 +17,7 @@ import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
+import '../../../utils/snack_util.dart';
 
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
@@ -144,7 +145,7 @@ class _EHCommentState extends State<EHComment> {
 
   Future<bool?> _handleVotingComment(int commentId, bool isVotingUp) async {
     if (!UserSetting.hasLoggedIn()) {
-      Get.snackbar('operationFailed'.tr, 'needLoginToOperate'.tr);
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
       return null;
     }
 
@@ -164,7 +165,7 @@ class _EHCommentState extends State<EHComment> {
       });
     }).catchError((error) {
       Log.error('vote comment failed', (error as DioError).message);
-      Get.snackbar('vote comment failed', error.message);
+      snack('vote comment failed', error.message);
     });
 
     return true;
