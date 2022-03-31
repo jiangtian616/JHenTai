@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
@@ -356,6 +357,12 @@ class EHSpiderParser {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 2];
     return int.parse(td?.querySelector('a')?.text ?? '1');
+  }
+
+  static List<TagData> tagSuggestion2TagList(Response<String> response) {
+    Map resp = jsonDecode(response.data!);
+    Map tags = resp['tags'];
+    return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }
 
   static Gallery _parseCompactGallery(Element tr) {

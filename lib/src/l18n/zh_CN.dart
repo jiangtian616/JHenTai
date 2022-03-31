@@ -161,6 +161,21 @@ class zh_CN {
       /// download setting page
       'downloadTaskConcurrency': '同时下载任务数量',
       'needRestart': '需要重启',
+
+      /// tag namespace
+      'language': '语言',
+      'artist': '作者',
+      'character': '角色',
+      'female': '女性',
+      'male': '男性',
+      'parody': '原作',
+      'group': '团体',
+      'mixed': '混合',
+      'Coser': 'Coser',
+      'cosplayer': 'Coser',
+      'reclass': '重新分类',
+      'temp': '暂时',
+      'other': '其他',
     };
   }
 }

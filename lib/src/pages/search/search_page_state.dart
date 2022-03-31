@@ -1,3 +1,4 @@
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
@@ -13,4 +14,5 @@ class SearchPageState {
   LoadingState loadingState = LoadingState.success;
 
   bool showSuggestionAndHistory = true;
+  List<TagData> suggestions = <TagData>[];
 }

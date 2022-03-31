@@ -403,6 +403,17 @@ class EHRequest {
     return response.data!;
   }
 
+  static Future<T> requestTagSuggestion<T>(String keyword, EHHtmlParser<T> parser) async {
+    Response<String> response = await _dio.post(
+      EHConsts.EApi,
+      data: {
+        'method': "tagsuggest",
+        'text': keyword,
+      },
+    );
+    return parser(response);
+  }
+
   static Future<T> requestSendComment<T>({
     required String galleryUrl,
     required String content,

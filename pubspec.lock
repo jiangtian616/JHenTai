@@ -330,6 +330,20 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.0.0"
+  extended_text:
+    dependency: "direct main"
+    description:
+      name: extended_text
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "9.0.0"
+  extended_text_library:
+    dependency: transitive
+    description:
+      name: extended_text_library
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "9.0.0"
   fake_async:
     dependency: transitive
     description:

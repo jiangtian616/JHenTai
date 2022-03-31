@@ -115,6 +115,13 @@ selectAllTags:
 select *
 from tag;
 
+searchTags(REQUIRED :pattern AS TEXT):
+select *
+from tag
+where _key LIKE :pattern
+   OR tagName LIKE :pattern
+LIMIT 35;
+
 insertTag:
 insert into tag
 values (:namespace, :key, :tagName, :fullTagName, :intro, :links);

@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/gallery_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 
 import '../../model/gallery.dart';
@@ -20,6 +23,8 @@ class SearchPageLogic extends GetxController {
   final SearchPageState state = SearchPageState();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
+
+  Timer? timer;
 
   SearchPageLogic() {
     currentStackDepth++;
@@ -106,7 +111,7 @@ class SearchPageLogic extends GetxController {
   }
 
   List<String> getSearchHistory() {
-    List history = storageService.read('searchHistory')?? <String>[];
+    List history = storageService.read('searchHistory') ?? <String>[];
     return history.map((e) => e as String).toList();
   }
 
@@ -116,6 +121,37 @@ class SearchPageLogic extends GetxController {
         update([bodyId]);
       }
     });
+  }
+
+  /// search only if there's no timer active (300ms)
+  Future<void> waitAndSearchTags() async {
+    timer?.cancel();
+
+    if (state.tabBarConfig.searchConfig.keyword?.isEmpty ?? true) {
+      return;
+    }
+    timer = Timer(const Duration(milliseconds: 300), searchTags);
+  }
+
+  Future<void> searchTags() async {
+    Log.info('search for ${state.tabBarConfig.searchConfig.keyword}', false);
+
+
+    /// chinese => database
+    /// other => EH api
+    if (GallerySetting.enableTagZHTranslation.isTrue &&
+        tagTranslationService.loadingState.value == LoadingState.success) {
+      state.suggestions = await tagTranslationService.searchTags(state.tabBarConfig.searchConfig.keyword!);
+    } else {
+      state.suggestions = await EHRequest.requestTagSuggestion(
+        state.tabBarConfig.searchConfig.keyword!,
+        EHSpiderParser.tagSuggestion2TagList,
+      );
+    }
+
+    if (state.showSuggestionAndHistory) {
+      update([bodyId]);
+    }
   }
 
   void handleTapCard(Gallery gallery) {

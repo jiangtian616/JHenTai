@@ -25,6 +25,7 @@ class SearchPagePage extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: ExtendedNestedScrollView(
+        onlyOneScrollInBody: true,
         floatHeaderSlivers: true,
         headerSliverBuilder: _headerBuilder,
         body: _buildBody(context),
@@ -58,12 +59,14 @@ class SearchPagePage extends StatelessWidget {
                           title: Text('search'.tr),
                           actions: [
                             IconButton(
-                              icon: Icon(state.showSuggestionAndHistory ? Icons.update_disabled : Icons.history,
-                                  size: 28),
+                              icon: Icon(
+                                state.showSuggestionAndHistory ? Icons.update_disabled : Icons.history,
+                                size: 24,
+                              ),
                               onPressed: logic.toggleBodyType,
                             ),
                             IconButton(
-                              icon: const Icon(Icons.filter_alt, size: 28),
+                              icon: const Icon(Icons.filter_alt, size: 24),
                               onPressed: () => Get.dialog(
                                 EHTabBarConfigDialog(
                                   type: EHTabBarConfigDialogType.filter,
@@ -72,7 +75,7 @@ class SearchPagePage extends StatelessWidget {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.add_circle_outline, size: 26),
+                              icon: const Icon(Icons.add_circle_outline, size: 24),
                               onPressed: () => Get.dialog(
                                 EHTabBarConfigDialog(
                                   type: EHTabBarConfigDialogType.addTabBar,
@@ -107,7 +110,10 @@ class SearchPagePage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          onChanged: (value) => state.tabBarConfig.searchConfig.keyword = value,
+                          onChanged: (value) {
+                            state.tabBarConfig.searchConfig.keyword = value;
+                            logic.waitAndSearchTags();
+                          },
                           onSubmitted: (value) => logic.searchMore(),
                         );
                       }),
@@ -130,43 +136,119 @@ class SearchPagePage extends StatelessWidget {
   }
 
   Widget _buildSuggestionAndHistoryBody(BuildContext context) {
-    List<String> keywords = logic.getSearchHistory();
-    return Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 7,
-                children: keywords
-                    .map((keyword) => GestureDetector(
-                          onTap: () {
-                            state.tabBarConfig.searchConfig.keyword = keyword;
-                            logic.searchMore();
-                          },
-                          child: EHTag(tagData: TagData(namespace: '', key: keyword)),
-                        ))
-                    .toList(),
+    List<String> history = logic.getSearchHistory();
+
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        Builder(
+          builder: (context) => SliverOverlapInjector(
+            handle: ExtendedNestedScrollView.sliverOverlapAbsorberHandleFor(context),
+          ),
+        ),
+        if (history.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+            sliver: SliverToBoxAdapter(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 7,
+                      children: history
+                          .map((keyword) => GestureDetector(
+                                onTap: () {
+                                  state.tabBarConfig.searchConfig.keyword = keyword;
+                                  logic.searchMore();
+                                },
+                                child: EHTag(tagData: TagData(namespace: '', key: keyword)),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        )
-            .marginOnly(top: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight)
-            .paddingOnly(left: 18, right: 18, top: 20),
-        if (keywords.isNotEmpty)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: logic.clearHistory,
-                icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-              )
-            ],
-          )
+          ),
+        if (history.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: logic.clearHistory,
+                  icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+                )
+              ],
+            ),
+          ),
+        SliverPadding(
+          padding: const EdgeInsets.only(top: 16),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate(
+              state.suggestions
+                  .map((tagData) => ListTile(
+                        title: RichText(
+                          text: _highlightKeyword('${tagData.namespace} : ${tagData.key}', false),
+                        ),
+                        subtitle: tagData.tagName == null
+                            ? null
+                            : RichText(
+                                text: _highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', true),
+                              ),
+                        leading: const Icon(Icons.search),
+                        dense: true,
+                        minLeadingWidth: 20,
+                        visualDensity: const VisualDensity(vertical: -1),
+                        onTap: () {
+                          state.tabBarConfig.searchConfig.keyword = '${tagData.namespace}:${tagData.key}';
+                          logic.searchMore();
+                        },
+                      ))
+                  .toList(),
+            ),
+          ),
+        ),
       ],
     );
+  }
+
+  TextSpan _highlightKeyword(String rawText, bool isSubTitle) {
+    String keyword = state.tabBarConfig.searchConfig.keyword!;
+    List<TextSpan> children = <TextSpan>[];
+
+    List<int> matchIndexes = keyword.allMatches(rawText).map((match) => match.start).toList();
+
+    int indexHandling = 0;
+    for (int index in matchIndexes) {
+      if (index > indexHandling) {
+        children.add(
+          TextSpan(
+            text: rawText.substring(indexHandling, index),
+            style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Colors.black),
+          ),
+        );
+      }
+      children.add(
+        TextSpan(
+          text: keyword,
+          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: Get.theme.primaryColorLight),
+        ),
+      );
+      indexHandling = index + keyword.length;
+    }
+    if (rawText.length > indexHandling) {
+      children.add(
+        TextSpan(
+          text: rawText.substring(indexHandling, rawText.length),
+          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Colors.black),
+        ),
+      );
+    }
+
+    return TextSpan(children: children);
   }
 
   Widget _buildGalleryBody(BuildContext context) {

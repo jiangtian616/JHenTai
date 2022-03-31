@@ -162,6 +162,21 @@ class en {
       /// download setting page
       'downloadTaskConcurrency': 'Download Task Concurrency',
       'needRestart': 'need restart',
+
+      /// tag namespace
+      'language': 'language',
+      'artist': 'artist',
+      'character': 'character',
+      'female': 'female',
+      'male': 'male',
+      'parody': 'parody',
+      'group': 'group',
+      'mixed': 'mixed',
+      'Coser': 'Coser',
+      'cosplayer': 'cosplayer',
+      'reclass': 'reclass',
+      'temp': 'temp',
+      'other': 'other',
     };
   }
 }

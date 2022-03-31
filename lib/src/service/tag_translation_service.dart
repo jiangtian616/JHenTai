@@ -2,7 +2,6 @@ import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -96,8 +95,12 @@ class TagTranslationService extends GetxService {
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {
-    List<TagData> list = (await appDb.selectTagByNamespaceAndKey(namespace, key).get());
+    List<TagData> list = await appDb.selectTagByNamespaceAndKey(namespace, key).get();
     return list.isNotEmpty ? list.first : null;
+  }
+
+  Future<List<TagData>> searchTags(String keyword) async {
+    return await appDb.searchTags('%$keyword%').get();
   }
 
   Future<LinkedHashMap<String, List<TagData>>> getTagMapTranslation(LinkedHashMap<String, List<TagData>> tags) async {

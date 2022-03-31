@@ -283,11 +283,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: <Widget>[
-              /// generally, we could put a [SliverOverlapInjector] here to take up the height of header.
-              /// The collapsed height has been dealt with SliverOverlapAbsorber, so [SliverOverlapInjector] is just
-              /// equal to Container(height: SystemBar.height + pinned height in header).
-              /// Because i want to place a CupertinoSliverRefreshControl here, but it only works when placed in the first of a
-              /// sliver list, so i wrapped it into a SliverPadding with it padding-top equal with [SliverOverlapInjector]'s height.
+              /// equal to [SliverOverlapInjector]
               SliverPadding(
                 padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
                 sliver: CupertinoSliverRefreshControl(

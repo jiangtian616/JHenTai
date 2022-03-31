@@ -1394,6 +1394,17 @@ abstract class _$AppDb extends GeneratedDatabase {
     }).map(tag.mapFromRow);
   }
 
+  Selectable<TagData> searchTags(String pattern) {
+    return customSelect(
+        'select *\r\nfrom tag\r\nwhere _key LIKE :pattern\r\n   OR tagName LIKE :pattern LIMIT 35',
+        variables: [
+          Variable<String>(pattern)
+        ],
+        readsFrom: {
+          tag,
+        }).map(tag.mapFromRow);
+  }
+
   Future<int> insertTag(String namespace, String key, String? tagName,
       String? fullTagName, String? intro, String? links) {
     return customInsert(
