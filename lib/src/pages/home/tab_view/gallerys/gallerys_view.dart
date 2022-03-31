@@ -234,9 +234,7 @@ class GallerysView extends StatelessWidget {
           controller: logic.tabController,
           children: List.generate(
             TabBarSetting.configs.length,
-            (tabIndex) => GalleryTabBarView(
-              tabIndex: tabIndex,
-            ),
+            (tabIndex) => GalleryTabBarView(tabIndex: tabIndex),
           ),
         );
       },

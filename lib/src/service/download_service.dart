@@ -4,7 +4,6 @@ import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';

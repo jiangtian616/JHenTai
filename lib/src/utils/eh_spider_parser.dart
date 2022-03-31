@@ -24,7 +24,7 @@ class EHSpiderParser {
     String html = response.data!;
     Document document = parse(html);
 
-    String inlineType = document.querySelector('#dms > div > select > option[selected=selected]')!.text;
+    String inlineType = document.querySelector('#dms > div > select > option[selected=selected]')?.text ?? '';
 
     switch (inlineType) {
       case 'Minimal':

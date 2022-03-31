@@ -11,4 +11,6 @@ class SearchPageState {
   int nextPageNoToLoad = 0;
   int pageCount = -1;
   LoadingState loadingState = LoadingState.success;
+
+  bool showSuggestionAndHistory = true;
 }

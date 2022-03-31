@@ -3,12 +3,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 
 import '../../config/global_config.dart';
 import '../../model/gallery.dart';
 import '../../widget/eh_sliver_header_delegate.dart';
 import '../../widget/eh_tab_bar_config_dialog.dart';
+import '../../widget/eh_tag.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
 
@@ -47,44 +49,68 @@ class SearchPagePage extends StatelessWidget {
               children: [
                 // use Expanded so the AppBar can shrink or expand when scrolling between [minExtent] and [maxExtent]
                 Expanded(
-                  child: AppBar(
-                    centerTitle: true,
-                    title: Text('search'.tr),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.filter_alt, size: 28),
-                        onPressed: () => Get.dialog(
-                          EHTabBarConfigDialog(
-                            type: EHTabBarConfigDialogType.filter,
-                            tabBarConfig: state.tabBarConfig,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add_circle_outline, size: 26),
-                        onPressed: () => Get.dialog(
-                          EHTabBarConfigDialog(
-                            type: EHTabBarConfigDialogType.addTabBar,
-                            tabBarConfig: state.tabBarConfig,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  child: GetBuilder<SearchPageLogic>(
+                      id: appBarId,
+                      tag: SearchPageLogic.currentStackDepth.toString(),
+                      builder: (logic) {
+                        return AppBar(
+                          centerTitle: true,
+                          title: Text('search'.tr),
+                          actions: [
+                            IconButton(
+                              icon: Icon(state.showSuggestionAndHistory ? Icons.update_disabled : Icons.history,
+                                  size: 28),
+                              onPressed: logic.toggleBodyType,
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.filter_alt, size: 28),
+                              onPressed: () => Get.dialog(
+                                EHTabBarConfigDialog(
+                                  type: EHTabBarConfigDialogType.filter,
+                                  tabBarConfig: state.tabBarConfig,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline, size: 26),
+                              onPressed: () => Get.dialog(
+                                EHTabBarConfigDialog(
+                                  type: EHTabBarConfigDialogType.addTabBar,
+                                  tabBarConfig: state.tabBarConfig,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                 ),
                 SizedBox(
                   height: GlobalConfig.searchBarHeight,
                   width: double.infinity,
-                  child: CupertinoSearchTextField(
-                    prefixInsets: const EdgeInsets.only(left: 18),
-                    borderRadius: BorderRadius.zero,
-                    backgroundColor: Get.theme.backgroundColor,
-                    placeholder: 'search'.tr,
-                    placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
-                    controller: TextEditingController(text: state.tabBarConfig.searchConfig.keyword),
-                    onChanged: (value) => state.tabBarConfig.searchConfig.keyword = value,
-                    onSubmitted: (value) => logic.search(),
-                  ),
+                  child: GetBuilder<SearchPageLogic>(
+                      id: searchField,
+                      tag: SearchPageLogic.currentStackDepth.toString(),
+                      builder: (logic) {
+                        return CupertinoSearchTextField(
+                          prefixInsets: const EdgeInsets.only(left: 18),
+                          borderRadius: BorderRadius.zero,
+                          backgroundColor: Get.theme.backgroundColor,
+                          placeholder: 'search'.tr,
+                          placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
+                          controller: TextEditingController.fromValue(
+                            TextEditingValue(
+                              text: state.tabBarConfig.searchConfig.keyword ?? '',
+
+                              /// make cursor stay at last letter
+                              selection: TextSelection.fromPosition(
+                                TextPosition(offset: state.tabBarConfig.searchConfig.keyword?.length ?? 0),
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) => state.tabBarConfig.searchConfig.keyword = value,
+                          onSubmitted: (value) => logic.searchMore(),
+                        );
+                      }),
                 ),
               ],
             ),
@@ -98,48 +124,91 @@ class SearchPagePage extends StatelessWidget {
     return GetBuilder<SearchPageLogic>(
       id: bodyId,
       tag: SearchPageLogic.currentStackDepth.toString(),
-      builder: (logic) {
-        return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-            ? Center(
-                child: GetBuilder<SearchPageLogic>(
-                    id: loadingStateId,
-                    tag: SearchPageLogic.currentStackDepth.toString(),
-                    builder: (logic) {
-                      return LoadingStateIndicator(
-                        errorTapCallback: () => logic.search(isRefresh: true),
-                        noDataTapCallback: () => logic.search(isRefresh: true),
-                        loadingState: state.loadingState,
-                      );
-                    }),
-              )
-            : CustomScrollView(
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                slivers: <Widget>[
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight),
-                    sliver: CupertinoSliverRefreshControl(
-                      refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-                      onRefresh: () => logic.search(isRefresh: true),
-                    ),
-                  ),
-                  _buildGalleryList(),
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
-                    sliver: SliverToBoxAdapter(
-                      child: GetBuilder<SearchPageLogic>(
-                          id: loadingStateId,
-                          tag: SearchPageLogic.currentStackDepth.toString(),
-                          builder: (logic) {
-                            return LoadingStateIndicator(
-                              loadingState: state.loadingState,
-                            );
-                          }),
-                    ),
-                  ),
-                ],
-              );
-      },
+      builder: (logic) =>
+          state.showSuggestionAndHistory ? _buildSuggestionAndHistoryBody(context) : _buildGalleryBody(context),
     );
+  }
+
+  Widget _buildSuggestionAndHistoryBody(BuildContext context) {
+    List<String> keywords = logic.getSearchHistory();
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 7,
+                children: keywords
+                    .map((keyword) => GestureDetector(
+                          onTap: () {
+                            state.tabBarConfig.searchConfig.keyword = keyword;
+                            logic.searchMore();
+                          },
+                          child: EHTag(tagData: TagData(namespace: '', key: keyword)),
+                        ))
+                    .toList(),
+              ),
+            ),
+          ],
+        )
+            .marginOnly(top: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight)
+            .paddingOnly(left: 18, right: 18, top: 20),
+        if (keywords.isNotEmpty)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: logic.clearHistory,
+                icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+              )
+            ],
+          )
+      ],
+    );
+  }
+
+  Widget _buildGalleryBody(BuildContext context) {
+    return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+        ? Center(
+            child: GetBuilder<SearchPageLogic>(
+                id: loadingStateId,
+                tag: SearchPageLogic.currentStackDepth.toString(),
+                builder: (logic) {
+                  return LoadingStateIndicator(
+                    errorTapCallback: () => logic.searchMore(isRefresh: true),
+                    noDataTapCallback: () => logic.searchMore(isRefresh: true),
+                    loadingState: state.loadingState,
+                  );
+                }),
+          )
+        : CustomScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            slivers: <Widget>[
+              SliverPadding(
+                padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight),
+                sliver: CupertinoSliverRefreshControl(
+                  refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+                  onRefresh: () => logic.searchMore(isRefresh: true),
+                ),
+              ),
+              _buildGalleryList(),
+              SliverPadding(
+                padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
+                sliver: SliverToBoxAdapter(
+                  child: GetBuilder<SearchPageLogic>(
+                      id: loadingStateId,
+                      tag: SearchPageLogic.currentStackDepth.toString(),
+                      builder: (logic) {
+                        return LoadingStateIndicator(
+                          loadingState: state.loadingState,
+                        );
+                      }),
+                ),
+              ),
+            ],
+          );
   }
 
   SliverList _buildGalleryList() {
@@ -148,7 +217,7 @@ class SearchPagePage extends StatelessWidget {
         (BuildContext context, int index) {
           if (index == state.gallerys.length - 1 && state.loadingState == LoadingState.idle) {
             SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-              logic.search(isRefresh: false);
+              logic.searchMore(isRefresh: false);
             });
           }
 

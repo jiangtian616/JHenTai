@@ -1,22 +1,25 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 
 import '../../model/gallery.dart';
 import '../../routes/routes.dart';
 import '../../service/tag_translation_service.dart';
-import '../../setting/gallery_setting.dart';
 import '../../utils/log.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
 
+String appBarId = 'appBarId';
+String searchField = 'searchField';
 String bodyId = 'bodyId';
 String loadingStateId = 'loadingStateId';
 
 class SearchPageLogic extends GetxController {
   final SearchPageState state = SearchPageState();
   final TagTranslationService tagTranslationService = Get.find();
+  final StorageService storageService = Get.find();
 
   SearchPageLogic() {
     currentStackDepth++;
@@ -35,17 +38,22 @@ class SearchPageLogic extends GetxController {
     /// enter this page by tapping tag
     if (Get.arguments is String) {
       state.tabBarConfig.searchConfig.keyword = Get.arguments;
-      search();
+      searchMore();
     }
     super.onInit();
   }
 
-  Future<void> search({bool isRefresh = true}) async {
+  Future<void> searchMore({bool isRefresh = true}) async {
     if (state.loadingState == LoadingState.loading) {
       return;
     }
 
     Log.info('search data', false);
+
+    if (state.showSuggestionAndHistory) {
+      toggleBodyType();
+    }
+
     if (isRefresh) {
       state.gallerys.clear();
       state.nextPageNoToLoad = 0;
@@ -81,8 +89,33 @@ class SearchPageLogic extends GetxController {
     }
 
     await tagTranslationService.translateGalleryTagsIfNeeded(state.gallerys);
+    _writeHistory();
+    update([appBarId, bodyId]);
+  }
 
-    update([bodyId]);
+  void toggleBodyType() {
+    state.showSuggestionAndHistory = !state.showSuggestionAndHistory;
+    update([appBarId, searchField, bodyId]);
+  }
+
+  void _writeHistory() {
+    List history = storageService.read('searchHistory') ?? <String>[];
+    history.remove(state.tabBarConfig.searchConfig.keyword);
+    history.insert(0, state.tabBarConfig.searchConfig.keyword);
+    storageService.write('searchHistory', history);
+  }
+
+  List<String> getSearchHistory() {
+    List history = storageService.read('searchHistory')?? <String>[];
+    return history.map((e) => e as String).toList();
+  }
+
+  void clearHistory() {
+    storageService.remove('searchHistory').then((v) {
+      if (state.showSuggestionAndHistory) {
+        update([bodyId]);
+      }
+    });
   }
 
   void handleTapCard(Gallery gallery) {
