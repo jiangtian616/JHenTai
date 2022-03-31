@@ -23,22 +23,23 @@ class EHSpiderParser {
   static List<dynamic> galleryPage2GalleryList(Response<String> response) {
     String html = response.data!;
     Document document = parse(html);
-    List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
-    /// no data
-    if (galleryListElements.isEmpty) {
-      return [<Gallery>[], 0];
+    String inlineType = document.querySelector('#dms > div > select > option[selected=selected]')!.text;
+
+    switch (inlineType) {
+      case 'Minimal':
+        return _compactGalleryPage2GalleryList(response);
+      case 'Minimal+':
+        return _compactGalleryPage2GalleryList(response);
+      case 'Compact':
+        return _compactGalleryPage2GalleryList(response);
+      case 'Extended':
+        return _extendedGalleryPage2GalleryList(response);
+      case 'Thumbnail':
+        return _thumbnailGalleryPage2GalleryList(response);
+      default:
+        return _compactGalleryPage2GalleryList(response);
     }
-
-    /// remove table header
-    galleryListElements.removeAt(0);
-
-    /// remove ad or [no result row]
-    galleryListElements.removeWhere((element) => element.children.length == 1);
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseGallery(e)).toList();
-
-    int pageCount = gallerys.isEmpty ? 0 : _parseHomeGalleryTotalPageCount(document);
-    return [gallerys, pageCount];
   }
 
   static Gallery detailPage2Gallery(Response<String> response) {
@@ -49,7 +50,7 @@ class EHSpiderParser {
     List<String>? parts = galleryUrl.split('/');
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
-    LinkedHashMap<String, List<TagData>> tags = _parseGalleryTagsByUrl(document);
+    LinkedHashMap<String, List<TagData>> tags = detailPage2Tags(document);
 
     Gallery gallery = Gallery(
       gid: int.parse(parts[4]),
@@ -98,7 +99,7 @@ class EHSpiderParser {
           document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl:
           document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
-      fullTags: _parseGalleryTagsByUrl(document),
+      fullTags: detailPage2Tags(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: detailPage2Thumbnails(response),
     );
@@ -110,6 +111,30 @@ class EHSpiderParser {
     Map<String, dynamic> map = detailPage2DetailAndApikey(response);
     map['gallery'] = detailPage2Gallery(response);
     return map;
+  }
+
+  static LinkedHashMap<String, List<TagData>> detailPage2Tags(Document document) {
+    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
+
+    List<Element> trs = document.querySelectorAll('#taglist > table > tbody > tr').toList();
+    for (Element tr in trs) {
+      List<Element> tagDivs = tr.querySelectorAll('td:nth-child(1) > div').toList();
+      for (Element tagDiv in tagDivs) {
+        /// eg: language:english
+        String pair = tagDiv.attributes['id'] ?? '';
+        if (pair.isEmpty) {
+          continue;
+        }
+
+        /// some tag doesn't has a type
+        List<String> list = pair.split(':').toList();
+        String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
+        String key = list.length == 1 ? list[0].substring(3).replaceAll('\_', ' ') : list[1].replaceAll('\_', ' ');
+
+        tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
+      }
+    }
+    return tags;
   }
 
   static List<GalleryThumbnail> detailPage2Thumbnails(Response<String> response) {
@@ -269,15 +294,73 @@ class EHSpiderParser {
     return map;
   }
 
-  static int _parseHomeGalleryTotalPageCount(Document document) {
+  static List<dynamic> _compactGalleryPage2GalleryList(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
+
+    /// no data
+    if (galleryListElements.isEmpty) {
+      return [<Gallery>[], 0];
+    }
+
+    /// remove table header
+    galleryListElements.removeAt(0);
+
+    /// remove ad or [no result row]
+    galleryListElements.removeWhere((element) => element.children.length == 1);
+    List<Gallery> gallerys = galleryListElements.map((e) => _parseCompactGallery(e)).toList();
+
+    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
+    return [gallerys, pageCount];
+  }
+
+  static List<dynamic> _extendedGalleryPage2GalleryList(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> galleryListElements = document.querySelectorAll('.itg.glte > tbody > tr');
+
+    /// no data
+    if (galleryListElements.isEmpty) {
+      return [<Gallery>[], 0];
+    }
+
+    /// remove ad
+    galleryListElements.removeWhere((element) => element.children.length == 1);
+    List<Gallery> gallerys = galleryListElements.map((e) => _parseExtendedGallery(e)).toList();
+
+    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
+    return [gallerys, pageCount];
+  }
+
+  static List<dynamic> _thumbnailGalleryPage2GalleryList(Response<String> response) {
+    String html = response.data!;
+    Document document = parse(html);
+
+    List<Element> galleryListElements = document.querySelectorAll('.itg.gld > div');
+
+    /// no data
+    if (galleryListElements.isEmpty) {
+      return [<Gallery>[], 0];
+    }
+
+    List<Gallery> gallerys = galleryListElements.map((e) => _parseThumbnailGallery(e)).toList();
+
+    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
+    return [gallerys, pageCount];
+  }
+
+  static int galleryPage2TotalPageCount(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 2];
     return int.parse(td?.querySelector('a')?.text ?? '1');
   }
 
-  static Gallery _parseGallery(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = _parseGalleryTags(tr);
-    GalleryImage? cover = _parseGalleryCover(tr);
+  static Gallery _parseCompactGallery(Element tr) {
+    LinkedHashMap<String, List<TagData>> tags = _parseCompactGalleryTags(tr);
+    GalleryImage? cover = _parseCompactGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? '';
     List<String> parts = galleryUrl.split('/');
 
@@ -287,11 +370,11 @@ class EHSpiderParser {
       title: tr.querySelector('.glink')?.text ?? '',
       category: tr.querySelector('.cn')?.text ?? '',
       cover: cover!,
-      pageCount: _parseGalleryListPageCount(tr),
+      pageCount: _parseCompactGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
       hasRated: tr.querySelector('.gl2c > div:nth-child(2) > .ir.irb') != null ? true : false,
       isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
-      favoriteTagIndex: _parseFavoriteTagIndex(tr),
+      favoriteTagIndex: _parseCompactGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
       galleryUrl: galleryUrl,
       tags: tags,
@@ -303,7 +386,60 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static LinkedHashMap<String, List<TagData>> _parseGalleryTags(Element tr) {
+  static Gallery _parseExtendedGallery(Element tr) {
+    LinkedHashMap<String, List<TagData>> tags = _parseExtendedGalleryTags(tr);
+    GalleryImage? cover = _parseExtendedGalleryCover(tr);
+    String galleryUrl = tr.querySelector('.gl1e > div > a')?.attributes['href'] ?? '';
+    List<String> parts = galleryUrl.split('/');
+
+    Gallery gallery = Gallery(
+      gid: int.parse(parts[4]),
+      token: parts[5],
+      title: tr.querySelector('.glink')?.text ?? '',
+      category: tr.querySelector('.cn')?.text ?? '',
+      cover: cover!,
+      pageCount: _parseExtendedGalleryPageCount(tr),
+      rating: _parseGalleryRating(tr),
+      hasRated: tr.querySelector('.gl3e > .ir.irb') != null ? true : false,
+      isFavorite: tr.querySelector('.gl3e > [id][style]') != null ? true : false,
+      favoriteTagIndex: _parseExtendedGalleryFavoriteTagIndex(tr),
+      favoriteTagName: tr.querySelector('.gl3e > [id][style]')?.attributes['title'],
+      galleryUrl: galleryUrl,
+      tags: tags,
+      language: tags['language']?[0].key,
+      uploader: tr.querySelector('.gl3e > div > a')?.text ?? '',
+      publishTime: tr.querySelector('.gl3e > div[id]')?.text ?? '',
+    );
+
+    return gallery;
+  }
+
+  static Gallery _parseThumbnailGallery(Element div) {
+    GalleryImage? cover = _parseThumbnailGalleryCover(div);
+    String galleryUrl = div.querySelector('a')?.attributes['href'] ?? '';
+    List<String> parts = galleryUrl.split('/');
+
+    Gallery gallery = Gallery(
+      gid: int.parse(parts[4]),
+      token: parts[5],
+      title: div.querySelector('.glink')?.text ?? '',
+      category: div.querySelector('.cs')?.text ?? '',
+      cover: cover!,
+      pageCount: _parseThumbnailGalleryPageCount(div),
+      rating: _parseGalleryRating(div),
+      hasRated: div.querySelector('.gl5t > div > .ir.irb') != null ? true : false,
+      isFavorite: div.querySelector('.gl5t > div > [id][style]') != null ? true : false,
+      favoriteTagIndex: _parseThumbnailGalleryFavoriteTagIndex(div),
+      favoriteTagName: div.querySelector('.gl5t > div > [id][style]')?.attributes['title'],
+      galleryUrl: galleryUrl,
+      tags: LinkedHashMap(),
+      publishTime: div.querySelector('.gl5t > div > div[id]')?.text ?? '',
+    );
+
+    return gallery;
+  }
+
+  static LinkedHashMap<String, List<TagData>> _parseCompactGalleryTags(Element tr) {
     LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
 
     List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
@@ -324,31 +460,28 @@ class EHSpiderParser {
     return tags;
   }
 
-  static LinkedHashMap<String, List<TagData>> _parseGalleryTagsByUrl(Document document) {
+  static LinkedHashMap<String, List<TagData>> _parseExtendedGalleryTags(Element tr) {
     LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
 
-    List<Element> trs = document.querySelectorAll('#taglist > table > tbody > tr').toList();
-    for (Element tr in trs) {
-      List<Element> tagDivs = tr.querySelectorAll('td:nth-child(1) > div').toList();
-      for (Element tagDiv in tagDivs) {
-        /// eg: language:english
-        String pair = tagDiv.attributes['id'] ?? '';
-        if (pair.isEmpty) {
-          continue;
-        }
-
-        /// some tag doesn't has a type
-        List<String> list = pair.split(':').toList();
-        String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
-        String key = list.length == 1 ? list[0].substring(3).replaceAll('\_', ' ') : list[1].replaceAll('\_', ' ');
-
-        tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
+    List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
+    for (Element tagDiv in tagDivs) {
+      /// eg: language:english
+      String pair = tagDiv.attributes['title'] ?? '';
+      if (pair.isEmpty) {
+        continue;
       }
+
+      /// some tag doesn't has a type
+      List<String> list = pair.split(':').toList();
+      String namespace = list[0].isNotEmpty ? list[0] : 'temp';
+      String key = list[1];
+
+      tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
     }
     return tags;
   }
 
-  static GalleryImage? _parseGalleryCover(Element tr) {
+  static GalleryImage? _parseCompactGalleryCover(Element tr) {
     Element? img = tr.querySelector('.gl2c > .glthumb > div > img');
     if (img == null) {
       return null;
@@ -375,8 +508,88 @@ class EHSpiderParser {
     );
   }
 
-  static int _parseGalleryListPageCount(Element tr) {
+  static GalleryImage? _parseExtendedGalleryCover(Element tr) {
+    Element? img = tr.querySelector('.gl1e > div > a > img');
+    if (img == null) {
+      return null;
+    }
+    String coverUrl = img.attributes['data-src'] ?? img.attributes['src'] ?? '';
+
+    /// eg: height:296px;width:250px
+    String? style = img.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+    RegExp sizeReg = RegExp(r'(\d+)');
+    List<RegExpMatch> sizes = sizeReg.allMatches(style).toList();
+
+    String? height = sizes[0].group(0);
+    String? width = sizes[1].group(0);
+    if (height == null || width == null) {
+      return null;
+    }
+    return GalleryImage(
+      url: coverUrl,
+      height: double.parse(height),
+      width: double.parse(width),
+    );
+  }
+
+  static GalleryImage? _parseThumbnailGalleryCover(Element div) {
+    Element? img = div.querySelector('.gl3t > a > img');
+    if (img == null) {
+      return null;
+    }
+    String coverUrl = img.attributes['data-src'] ?? img.attributes['src'] ?? '';
+
+    /// eg: height:296px;width:250px
+    String? style = img.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+    RegExp sizeReg = RegExp(r'(\d+)');
+    List<RegExpMatch> sizes = sizeReg.allMatches(style).toList();
+
+    String? height = sizes[0].group(0);
+    String? width = sizes[1].group(0);
+    if (height == null || width == null) {
+      return null;
+    }
+    return GalleryImage(
+      url: coverUrl,
+      height: double.parse(height),
+      width: double.parse(width),
+    );
+  }
+
+  static int _parseCompactGalleryPageCount(Element tr) {
     List<Element> divs = tr.querySelectorAll('.gl4c.glhide > div');
+
+    /// favorite page
+    if (divs.isEmpty) {
+      return 0;
+    }
+
+    /// eg: '66 pages'
+    String pageCountDesc = divs[1].text;
+    return int.parse(pageCountDesc.split(' ')[0]);
+  }
+
+  static int _parseExtendedGalleryPageCount(Element tr) {
+    List<Element> divs = tr.querySelectorAll('.gl3e > div');
+
+    /// favorite page
+    if (divs.isEmpty) {
+      return 0;
+    }
+
+    /// eg: '66 pages'
+    String pageCountDesc = divs[4].text;
+    return int.parse(pageCountDesc.split(' ')[0]);
+  }
+
+  static int _parseThumbnailGalleryPageCount(Element div) {
+    List<Element> divs = div.querySelectorAll('.gl5t > div:nth-child(1) > div');
 
     /// favorite page
     if (divs.isEmpty) {
@@ -430,8 +643,26 @@ class EHSpiderParser {
     return initValue;
   }
 
-  static int? _parseFavoriteTagIndex(Element tr) {
+  static int? _parseCompactGalleryFavoriteTagIndex(Element tr) {
     String? style = tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+    final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
+    return ColorConsts.favoriteTagIndex[color]!;
+  }
+
+  static int? _parseExtendedGalleryFavoriteTagIndex(Element tr) {
+    String? style = tr.querySelector('.gl3e > [id][style]')?.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+    final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
+    return ColorConsts.favoriteTagIndex[color]!;
+  }
+
+  static int? _parseThumbnailGalleryFavoriteTagIndex(Element div) {
+    String? style = div.querySelector('.gl5t > div > [id][style]')?.attributes['style'];
     if (style == null) {
       return null;
     }

@@ -93,7 +93,7 @@ class GalleryCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTitleAndUploader(String title, String uploader) {
+  Widget _buildTitleAndUploader(String title, String? uploader) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,13 +103,14 @@ class GalleryCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontSize: 15, height: 1.2),
         ),
-        Text(
-          uploader,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
-          ),
-        ).marginOnly(top: 2),
+        if (uploader != null)
+          Text(
+            uploader,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ).marginOnly(top: 2),
       ],
     );
   }

@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  dio: 4.0.4
+  dio: ^4.0.6
   cookie_jar: 3.0.1
   dio_cookie_manager: ^2.0.0
   dio_cache_interceptor: ^3.2.6

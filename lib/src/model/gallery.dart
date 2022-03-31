@@ -19,7 +19,7 @@ class Gallery {
   String galleryUrl;
   LinkedHashMap<String, List<TagData>> tags;
   String? language;
-  String uploader;
+  String? uploader;
   String publishTime;
 
   void addFavorite(int favIndex, String tagName) {
@@ -64,7 +64,7 @@ class Gallery {
     required this.galleryUrl,
     required this.tags,
     this.language,
-    required this.uploader,
+    this.uploader,
     required this.publishTime,
   });
 

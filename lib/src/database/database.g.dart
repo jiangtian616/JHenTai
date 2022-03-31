@@ -15,7 +15,7 @@ class GalleryDownloadedData extends DataClass
   final String category;
   final int pageCount;
   final String galleryUrl;
-  final String uploader;
+  final String? uploader;
   final String publishTime;
   final int downloadStatusIndex;
   final String? insertTime;
@@ -26,7 +26,7 @@ class GalleryDownloadedData extends DataClass
       required this.category,
       required this.pageCount,
       required this.galleryUrl,
-      required this.uploader,
+      this.uploader,
       required this.publishTime,
       required this.downloadStatusIndex,
       this.insertTime});
@@ -47,7 +47,7 @@ class GalleryDownloadedData extends DataClass
       galleryUrl: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}galleryUrl'])!,
       uploader: const StringType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}uploader'])!,
+          .mapFromDatabaseResponse(data['${effectivePrefix}uploader']),
       publishTime: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}publishTime'])!,
       downloadStatusIndex: const IntType().mapFromDatabaseResponse(
@@ -65,7 +65,9 @@ class GalleryDownloadedData extends DataClass
     map['category'] = Variable<String>(category);
     map['pageCount'] = Variable<int>(pageCount);
     map['galleryUrl'] = Variable<String>(galleryUrl);
-    map['uploader'] = Variable<String>(uploader);
+    if (!nullToAbsent || uploader != null) {
+      map['uploader'] = Variable<String?>(uploader);
+    }
     map['publishTime'] = Variable<String>(publishTime);
     map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
     if (!nullToAbsent || insertTime != null) {
@@ -82,7 +84,9 @@ class GalleryDownloadedData extends DataClass
       category: Value(category),
       pageCount: Value(pageCount),
       galleryUrl: Value(galleryUrl),
-      uploader: Value(uploader),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
       publishTime: Value(publishTime),
       downloadStatusIndex: Value(downloadStatusIndex),
       insertTime: insertTime == null && nullToAbsent
@@ -101,7 +105,7 @@ class GalleryDownloadedData extends DataClass
       category: serializer.fromJson<String>(json['category']),
       pageCount: serializer.fromJson<int>(json['pageCount']),
       galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
-      uploader: serializer.fromJson<String>(json['uploader']),
+      uploader: serializer.fromJson<String?>(json['uploader']),
       publishTime: serializer.fromJson<String>(json['publishTime']),
       downloadStatusIndex:
           serializer.fromJson<int>(json['downloadStatusIndex']),
@@ -118,7 +122,7 @@ class GalleryDownloadedData extends DataClass
       'category': serializer.toJson<String>(category),
       'pageCount': serializer.toJson<int>(pageCount),
       'galleryUrl': serializer.toJson<String>(galleryUrl),
-      'uploader': serializer.toJson<String>(uploader),
+      'uploader': serializer.toJson<String?>(uploader),
       'publishTime': serializer.toJson<String>(publishTime),
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
       'insertTime': serializer.toJson<String?>(insertTime),
@@ -192,7 +196,7 @@ class GalleryDownloadedCompanion
   final Value<String> category;
   final Value<int> pageCount;
   final Value<String> galleryUrl;
-  final Value<String> uploader;
+  final Value<String?> uploader;
   final Value<String> publishTime;
   final Value<int> downloadStatusIndex;
   final Value<String?> insertTime;
@@ -215,7 +219,7 @@ class GalleryDownloadedCompanion
     required String category,
     required int pageCount,
     required String galleryUrl,
-    required String uploader,
+    this.uploader = const Value.absent(),
     required String publishTime,
     required int downloadStatusIndex,
     this.insertTime = const Value.absent(),
@@ -224,7 +228,6 @@ class GalleryDownloadedCompanion
         category = Value(category),
         pageCount = Value(pageCount),
         galleryUrl = Value(galleryUrl),
-        uploader = Value(uploader),
         publishTime = Value(publishTime),
         downloadStatusIndex = Value(downloadStatusIndex);
   static Insertable<GalleryDownloadedData> custom({
@@ -234,7 +237,7 @@ class GalleryDownloadedCompanion
     Expression<String>? category,
     Expression<int>? pageCount,
     Expression<String>? galleryUrl,
-    Expression<String>? uploader,
+    Expression<String?>? uploader,
     Expression<String>? publishTime,
     Expression<int>? downloadStatusIndex,
     Expression<String?>? insertTime,
@@ -261,7 +264,7 @@ class GalleryDownloadedCompanion
       Value<String>? category,
       Value<int>? pageCount,
       Value<String>? galleryUrl,
-      Value<String>? uploader,
+      Value<String?>? uploader,
       Value<String>? publishTime,
       Value<int>? downloadStatusIndex,
       Value<String?>? insertTime}) {
@@ -301,7 +304,7 @@ class GalleryDownloadedCompanion
       map['galleryUrl'] = Variable<String>(galleryUrl.value);
     }
     if (uploader.present) {
-      map['uploader'] = Variable<String>(uploader.value);
+      map['uploader'] = Variable<String?>(uploader.value);
     }
     if (publishTime.present) {
       map['publishTime'] = Variable<String>(publishTime.value);
@@ -377,10 +380,10 @@ class GalleryDownloaded extends Table
       $customConstraints: 'NOT NULL');
   final VerificationMeta _uploaderMeta = const VerificationMeta('uploader');
   late final GeneratedColumn<String?> uploader = GeneratedColumn<String?>(
-      'uploader', aliasedName, false,
+      'uploader', aliasedName, true,
       type: const StringType(),
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
+      requiredDuringInsert: false,
+      $customConstraints: '');
   final VerificationMeta _publishTimeMeta =
       const VerificationMeta('publishTime');
   late final GeneratedColumn<String?> publishTime = GeneratedColumn<String?>(
@@ -463,8 +466,6 @@ class GalleryDownloaded extends Table
     if (data.containsKey('uploader')) {
       context.handle(_uploaderMeta,
           uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
-    } else if (isInserting) {
-      context.missing(_uploaderMeta);
     }
     if (data.containsKey('publishTime')) {
       context.handle(
@@ -1240,7 +1241,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         category: row.read<String>('category'),
         pageCount: row.read<int>('pageCount'),
         galleryUrl: row.read<String>('galleryUrl'),
-        uploader: row.read<String>('uploader'),
+        uploader: row.read<String?>('uploader'),
         publishTime: row.read<String>('publishTime'),
         galleryDownloadStatusIndex: row.read<int>('galleryDownloadStatusIndex'),
         insertTime: row.read<String?>('insertTime'),
@@ -1270,7 +1271,7 @@ abstract class _$AppDb extends GeneratedDatabase {
       String category,
       int pageCount,
       String galleryUrl,
-      String uploader,
+      String? uploader,
       String publishTime,
       int downloadStatusIndex,
       String? insertTime) {
@@ -1283,7 +1284,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<String>(category),
         Variable<int>(pageCount),
         Variable<String>(galleryUrl),
-        Variable<String>(uploader),
+        Variable<String?>(uploader),
         Variable<String>(publishTime),
         Variable<int>(downloadStatusIndex),
         Variable<String?>(insertTime)
@@ -1432,7 +1433,7 @@ class SelectGallerysWithImagesResult {
   final String category;
   final int pageCount;
   final String galleryUrl;
-  final String uploader;
+  final String? uploader;
   final String publishTime;
   final int galleryDownloadStatusIndex;
   final String? insertTime;
@@ -1449,7 +1450,7 @@ class SelectGallerysWithImagesResult {
     required this.category,
     required this.pageCount,
     required this.galleryUrl,
-    required this.uploader,
+    this.uploader,
     required this.publishTime,
     required this.galleryDownloadStatusIndex,
     this.insertTime,

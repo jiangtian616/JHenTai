@@ -6,7 +6,7 @@ CREATE TABLE gallery_downloaded
     category            TEXT NOT NULL,
     pageCount           INT  NOT NULL,
     galleryUrl          TEXT NOT NULL,
-    uploader            TEXT NOT NULL,
+    uploader            TEXT,
     publishTime         TEXT NOT NULL,
     downloadStatusIndex INT  NOT NULL,
     insertTime          TEXT

@@ -142,13 +142,14 @@ class DownloadView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              gallery.uploader,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
-            ).marginOnly(top: 5),
+            if (gallery.uploader != null)
+              Text(
+                gallery.uploader!,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ).marginOnly(top: 5),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
               style: TextStyle(

@@ -141,13 +141,14 @@ class DetailsPage extends StatelessWidget {
                             maxLines: 7,
                             style: const TextStyle(fontSize: 16, height: 1.2),
                           ),
-                          SelectableText(
-                            gallery.uploader,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ).marginOnly(top: 10),
+                          if (gallery.uploader != null)
+                            SelectableText(
+                              gallery.uploader!,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ).marginOnly(top: 10),
                         ],
                       ),
                     ),

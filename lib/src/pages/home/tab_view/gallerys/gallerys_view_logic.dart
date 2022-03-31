@@ -214,7 +214,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     }();
 
     await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
-
     return gallerysAndPageCount;
   }
 }

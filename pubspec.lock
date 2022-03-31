@@ -259,7 +259,7 @@ packages:
       name: dio
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.0.4"
+    version: "4.0.6"
   dio_cache_interceptor:
     dependency: "direct main"
     description:
