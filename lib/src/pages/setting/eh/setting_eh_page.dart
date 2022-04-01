@@ -7,6 +7,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 
 import '../../../setting/eh_setting.dart';
@@ -25,26 +26,28 @@ class SettingEHPage extends StatelessWidget {
       body: ListView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         children: [
-          ListTile(
-            title: Text('site'.tr),
-            trailing: Obx(() {
-              return CupertinoSlidingSegmentedControl<String>(
-                groupValue: EHSetting.site.value,
-                children: const {
-                  'EH': Text('E-Hentai'),
-                  'EX': Text('EXHentai'),
-                },
-                onValueChanged: (value) {
-                  EHSetting.saveSite(value!);
-                },
-              );
-            }),
-          ),
-          ListTile(
-            title: Text('siteSetting'.tr),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: _gotoSiteSettingPage,
-          ),
+          if (UserSetting.hasLoggedIn())
+            ListTile(
+              title: Text('site'.tr),
+              trailing: Obx(() {
+                return CupertinoSlidingSegmentedControl<String>(
+                  groupValue: EHSetting.site.value,
+                  children: const {
+                    'EH': Text('E-Hentai'),
+                    'EX': Text('EXHentai'),
+                  },
+                  onValueChanged: (value) {
+                    EHSetting.saveSite(value!);
+                  },
+                );
+              }),
+            ),
+          if (UserSetting.hasLoggedIn())
+            ListTile(
+              title: Text('siteSetting'.tr),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: _gotoSiteSettingPage,
+            ),
         ],
       ).paddingSymmetric(vertical: 16),
     );

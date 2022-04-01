@@ -481,6 +481,23 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildLoadingThumbnailIndicator() {
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 8, bottom: 40),
+      sliver: SliverToBoxAdapter(
+        child: GetBuilder<DetailsPageLogic>(
+            id: loadingStateId,
+            tag: DetailsPageLogic.currentStackDepth.toString(),
+            builder: (logic) {
+              return LoadingStateIndicator(
+                errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
+                loadingState: detailsPageState.loadingThumbnailsState,
+              );
+            }),
+      ),
+    );
+  }
+
   Widget _buildThumbnails(GalleryDetail galleryDetails) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36),
@@ -528,23 +545,6 @@ class DetailsPage extends StatelessWidget {
               ),
             );
           }),
-    );
-  }
-
-  Widget _buildLoadingThumbnailIndicator() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 8, bottom: 40),
-      sliver: SliverToBoxAdapter(
-        child: GetBuilder<DetailsPageLogic>(
-            id: loadingStateId,
-            tag: DetailsPageLogic.currentStackDepth.toString(),
-            builder: (logic) {
-              return LoadingStateIndicator(
-                errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
-                loadingState: detailsPageState.loadingThumbnailsState,
-              );
-            }),
-      ),
     );
   }
 

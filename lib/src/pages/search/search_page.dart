@@ -191,12 +191,12 @@ class SearchPagePage extends StatelessWidget {
               state.suggestions
                   .map((tagData) => ListTile(
                         title: RichText(
-                          text: _highlightKeyword('${tagData.namespace} : ${tagData.key}', false),
+                          text: _highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', false),
                         ),
                         subtitle: tagData.tagName == null
                             ? null
                             : RichText(
-                                text: _highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', true),
+                                text: _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true),
                               ),
                         leading: const Icon(Icons.search),
                         dense: true,
@@ -215,7 +215,7 @@ class SearchPagePage extends StatelessWidget {
     );
   }
 
-  TextSpan _highlightKeyword(String rawText, bool isSubTitle) {
+  TextSpan _highlightKeyword(BuildContext context, String rawText, bool isSubTitle) {
     String keyword = state.tabBarConfig.searchConfig.keyword!;
     List<TextSpan> children = <TextSpan>[];
 
@@ -227,7 +227,9 @@ class SearchPagePage extends StatelessWidget {
         children.add(
           TextSpan(
             text: rawText.substring(indexHandling, index),
-            style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Colors.black),
+            style: TextStyle(
+                fontSize: isSubTitle ? 12 : 15,
+                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).listTileTheme.textColor),
           ),
         );
       }
@@ -243,7 +245,7 @@ class SearchPagePage extends StatelessWidget {
       children.add(
         TextSpan(
           text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Colors.black),
+          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).listTileTheme.textColor),
         ),
       );
     }
