@@ -42,11 +42,13 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'JHenTai',
       theme: StyleSetting.getCurrentThemeData(),
+
       locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
-      getPages: Routes.getPages(),
-      initialRoute: Routes.home,
+
+      getPages: Routes.pages,
+      initialRoute: Routes.start,
       navigatorObservers: [GetXRouterObserver()],
 
       /// device preview

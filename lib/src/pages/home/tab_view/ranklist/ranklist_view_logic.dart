@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/l18n/en_US.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -8,8 +7,8 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import '../../../../model/base_gallery.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/tag_translation_service.dart';
-import '../../../../setting/style_setting.dart';
 import '../../../../utils/log.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'ranklist_view_state.dart';
@@ -90,7 +89,7 @@ class RanklistViewLogic extends GetxController {
   Future<void> handleTapCard(Gallery gallery) async {
     int index = state.ranklistGallery[state.ranklistType]!.indexWhere((g) => gallery.gid == g.gid);
 
-    Get.toNamed(
+    toNamed(
       Routes.details,
       arguments: [
         gallery,

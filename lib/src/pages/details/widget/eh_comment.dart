@@ -17,6 +17,7 @@ import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
+import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 
 class EHComment extends StatefulWidget {
@@ -179,7 +180,7 @@ class _EHCommentState extends State<EHComment> {
       if (Get.currentRoute == Routes.comment) {
         Get.offNamed(Routes.details, arguments: url);
       } else {
-        Get.toNamed(Routes.details, arguments: url, preventDuplicates: false);
+        toNamed(Routes.details, arguments: url, preventDuplicates: false);
       }
       return true;
     }

@@ -14,6 +14,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../../model/tab_bar_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
 import '../../../../utils/eh_spider_parser.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import 'gallerys_view_state.dart';
 import '../../../../model/gallery.dart';
@@ -103,7 +104,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// click the card and enter details page
   void handleTapCard(Gallery gallery) async {
-    Get.toNamed(Routes.details, arguments: gallery);
+    toNamed(Routes.details, arguments: gallery);
   }
 
   /// add customized tab

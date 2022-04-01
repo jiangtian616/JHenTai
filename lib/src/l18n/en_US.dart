@@ -113,6 +113,7 @@ class en {
       'dark': 'Dark',
       'light': 'Light',
       'followSystem': 'Follow System',
+      'enableTabletLayout': 'Enable Tablet Layout',
 
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',

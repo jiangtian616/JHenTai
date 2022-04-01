@@ -14,6 +14,10 @@ enum EHThemeMode {
 class StyleSetting {
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<EHThemeMode> themeMode = EHThemeMode.light.obs;
+  static RxBool enableTabletLayout =
+      WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio <= 600
+          ? false.obs
+          : true.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
@@ -34,6 +38,11 @@ class StyleSetting {
     Get.changeTheme(getCurrentThemeData());
   }
 
+  static saveEnableTabletLayout(bool enableTabletLayout) {
+    StyleSetting.enableTabletLayout.value = enableTabletLayout;
+    _save();
+  }
+
   static ThemeData getCurrentThemeData() {
     return themeMode.value == EHThemeMode.dark
         ? ThemeConfig.dark
@@ -48,21 +57,17 @@ class StyleSetting {
     await Get.find<StorageService>().write('styleSetting', _toMap());
   }
 
-  static void clear() {
-    enableTagZHTranslation.value = false;
-    themeMode.value = EHThemeMode.light;
-    Get.find<StorageService>().remove('styleSetting');
-  }
-
   static Map<String, dynamic> _toMap() {
     return {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
+      'enableTabletLayout': enableTabletLayout.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = EHThemeMode.values[map['themeMode']];
+    enableTabletLayout.value = map['enableTabletLayout'];
   }
 }

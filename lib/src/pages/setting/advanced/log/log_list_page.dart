@@ -6,6 +6,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
 import '../../../../routes/routes.dart';
+import '../../../../utils/route_util.dart';
 
 class LogListPage extends StatefulWidget {
   const LogListPage({Key? key}) : super(key: key);
@@ -40,7 +41,7 @@ class _LogListPageState extends State<LogListPage> {
             .map(
               (log) => ListTile(
                 title: Text(basename(log.path)),
-                onTap: () => Get.toNamed(Routes.log, arguments: log),
+                onTap: () => toNamed(Routes.log, arguments: log),
               ),
             )
             .toList(),

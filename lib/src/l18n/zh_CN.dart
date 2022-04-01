@@ -113,6 +113,7 @@ class zh_CN {
       'dark': '黑暗',
       'light': '明亮',
       'followSystem': '跟随系统',
+      'enableTabletLayout': '开启平板双栏布局',
 
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',

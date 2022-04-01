@@ -10,6 +10,7 @@ import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../utils/date_util.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/gallery_category_tag.dart';
 
@@ -105,7 +106,7 @@ class DownloadView extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => Get.toNamed(Routes.details, arguments: gallery.galleryUrl),
+      onTap: () => toNamed(Routes.details, arguments: gallery.galleryUrl),
       child: child,
     );
   }
@@ -259,7 +260,7 @@ class DownloadView extends StatelessWidget {
   void _goToReadPage(GalleryDownloadedData gallery) {
     int readIndexRecord = storageService.read('readIndexRecord::${gallery.gid}') ?? 0;
 
-    Get.toNamed(
+    toNamed(
       Routes.read,
       arguments: gallery,
       parameters: {

@@ -11,6 +11,7 @@ import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_tab_bar_config_dialog.dart';
 import '../../../../widget/eh_sliver_header_delegate.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -169,7 +170,7 @@ class GallerysView extends StatelessWidget {
                     actions: [
                       IconButton(
                         icon: const Icon(Icons.search),
-                        onPressed: () => Get.toNamed(Routes.search),
+                        onPressed: () => toNamed(Routes.search),
                       ),
                     ],
                   ),

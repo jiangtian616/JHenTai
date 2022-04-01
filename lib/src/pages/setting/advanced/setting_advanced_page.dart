@@ -4,6 +4,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../../../routes/routes.dart';
+import '../../../utils/route_util.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -43,7 +44,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             ListTile(
               title: Text('openLog'.tr),
               trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),
-              onTap: () => Get.toNamed(Routes.logList),
+              onTap: () => toNamed(Routes.logList),
             ),
             ListTile(
               title: Text('clearLogs'.tr),

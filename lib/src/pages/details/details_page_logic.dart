@@ -25,6 +25,7 @@ import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/cookie_util.dart';
+import '../../utils/route_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
 
@@ -325,7 +326,7 @@ class DetailsPageLogic extends GetxController {
 
   Future<void> handleTapArchive() async {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
-    Get.toNamed(
+    toNamed(
       Routes.webview,
       arguments: state.galleryDetails!.archivePageUrl,
       parameters: {'cookies': CookieUtil.parse2String(cookies)},
@@ -334,7 +335,7 @@ class DetailsPageLogic extends GetxController {
 
   Future<void> handleTapStatistic() async {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
-    Get.toNamed(
+    toNamed(
       Routes.webview,
       arguments: state.galleryDetails!.statisticPageUrl,
       parameters: {'cookies': CookieUtil.parse2String(cookies)},
@@ -343,7 +344,7 @@ class DetailsPageLogic extends GetxController {
 
   void goToReadPage([int? index]) {
     if (downloadService.gid2downloadProgress[state.gallery!.gid] != null) {
-      Get.toNamed(
+      toNamed(
         Routes.read,
         arguments: state.gallery!.toGalleryDownloadedData(),
         parameters: {
@@ -355,7 +356,7 @@ class DetailsPageLogic extends GetxController {
         },
       );
     } else {
-      Get.toNamed(
+      toNamed(
         Routes.read,
 
         /// parsed thumbnails, don't need to parse again

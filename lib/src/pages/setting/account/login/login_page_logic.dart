@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -15,6 +14,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../../utils/log.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import 'login_page_state.dart';
 
@@ -133,7 +133,7 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> handleWebLogin() async {
-    Get.toNamed(
+    toNamed(
       Routes.webview,
       arguments: EHConsts.ELogin,
       parameters: {'isLogin': 'true'},

@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../consts/color_consts.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
+import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 
 class EHTag extends StatefulWidget {
@@ -86,7 +87,7 @@ class _EHTagState extends State<EHTag> {
   }
 
   void _searchTag() {
-    Get.toNamed(Routes.search, arguments: '${widget.tagData.namespace}:${widget.tagData.key}');
+    toNamed(Routes.search, arguments: '${widget.tagData.namespace}:${widget.tagData.key}');
   }
 
   void _showDialog() {

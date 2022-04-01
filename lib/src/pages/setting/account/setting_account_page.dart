@@ -5,6 +5,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 
 import '../../../routes/routes.dart';
+import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 
 class SettingAccountPage extends StatelessWidget {
@@ -25,7 +26,7 @@ class SettingAccountPage extends StatelessWidget {
             if (!UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('login'.tr),
-                onTap: () => Get.toNamed(Routes.login),
+                onTap: () => toNamed(Routes.login),
               ),
             if (UserSetting.hasLoggedIn())
               ListTile(

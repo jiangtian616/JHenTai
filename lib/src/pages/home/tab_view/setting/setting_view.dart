@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
+import '../../../../utils/route_util.dart';
+
 LinkedHashMap<String, IconData> items = LinkedHashMap.of({
   'account': Icons.account_circle,
   'EH': Icons.mood,
@@ -32,7 +34,7 @@ class SettingView extends StatelessWidget {
               (entry) => ListTile(
                 leading: Icon(entry.value),
                 title: Text(entry.key.tr),
-                onTap: () => Get.toNamed(Routes.settingPrefix + entry.key),
+                onTap: () => toNamed(Routes.settingPrefix + entry.key),
               ),
             )
             .toList(),

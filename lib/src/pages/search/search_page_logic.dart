@@ -11,6 +11,7 @@ import '../../model/gallery.dart';
 import '../../routes/routes.dart';
 import '../../service/tag_translation_service.dart';
 import '../../utils/log.dart';
+import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
@@ -155,6 +156,6 @@ class SearchPageLogic extends GetxController {
   }
 
   void handleTapCard(Gallery gallery) {
-    Get.toNamed(Routes.details, arguments: gallery);
+    toNamed(Routes.details, arguments: gallery);
   }
 }

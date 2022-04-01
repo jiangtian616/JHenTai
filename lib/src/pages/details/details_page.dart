@@ -26,6 +26,7 @@ import '../../model/gallery_thumbnail.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
 import '../../utils/date_util.dart';
+import '../../utils/route_util.dart';
 import '../../widget/gallery_category_tag.dart';
 import 'details_page_logic.dart';
 import 'details_page_state.dart';
@@ -122,7 +123,7 @@ class DetailsPage extends StatelessWidget {
                   ),
                 ),
                 onTap: () {
-                  Get.toNamed(Routes.singleImagePage, arguments: gallery.cover);
+                  toNamed(Routes.singleImagePage, arguments: gallery.cover);
                 },
               ),
               Expanded(
@@ -458,7 +459,7 @@ class DetailsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
-              onPressed: () => Get.toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+              onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
               child: Text(
                 galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
               ),
@@ -480,7 +481,7 @@ class DetailsPage extends StatelessWidget {
           children: galleryDetails.comments
               .map(
                 (comment) => GestureDetector(
-                  onTap: () => Get.toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                  onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
                   child: EHComment(comment: comment, maxLines: 4),
                 ).marginOnly(right: 10),
               )
