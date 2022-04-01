@@ -13,6 +13,7 @@ class ThemeConfig {
       backgroundColor: Colors.white,
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.dark,
       ),
       titleTextStyle: const TextStyle(
@@ -69,6 +70,7 @@ class ThemeConfig {
       backgroundColor: Colors.grey.shade900,
       systemOverlayStyle: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
+        statusBarBrightness: Brightness.dark,
         statusBarIconBrightness: Brightness.light,
       ),
       titleTextStyle: const TextStyle(

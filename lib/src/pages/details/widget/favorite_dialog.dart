@@ -20,9 +20,8 @@ class FavoriteDialog extends StatelessWidget {
       title: Center(
         child: Text('chooseFavorite'.tr),
       ),
-      titleTextStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
+      titleTextStyle: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: Colors.grey.shade200.withOpacity(0.95),
       content: SizedBox(
         height: 400,
         child: Column(
@@ -34,11 +33,10 @@ class FavoriteDialog extends StatelessWidget {
                   visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
                   leading: Text(
                     entry.key,
-                    style: const TextStyle(fontSize: 16),
                   ),
                   trailing: Text(
                     entry.value.toString(),
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 12),
+                    style:Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
                   ),
                   onTap: () => Get.back(result: index),
                 ),

@@ -12,6 +12,7 @@ class GalleryDetail {
   String torrentCount;
   String torrentPageUrl;
   String archivePageUrl;
+  String statisticPageUrl;
   LinkedHashMap<String, List<TagData>> fullTags;
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
@@ -24,6 +25,7 @@ class GalleryDetail {
     required this.torrentCount,
     required this.torrentPageUrl,
     required this.archivePageUrl,
+    required this.statisticPageUrl,
     required this.fullTags,
     required this.comments,
     required this.thumbnails,

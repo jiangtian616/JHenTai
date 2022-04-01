@@ -7,7 +7,7 @@ import 'package:jhentai/src/routes/routes.dart';
 LinkedHashMap<String, IconData> items = LinkedHashMap.of({
   'account': Icons.account_circle,
   'EH': Icons.mood,
-  'gallery': Icons.collections,
+  'style': Icons.style,
   'read': Icons.local_library,
   'download': Icons.download,
   'advanced': Icons.settings_suggest,

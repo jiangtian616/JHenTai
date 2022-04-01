@@ -276,14 +276,17 @@ class DetailsPageLogic extends GetxController {
 
     if (downloadService.gid2downloadProgress[gallery.gid] == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
+      snack('beginToDownload'.tr, gallery.title);
       return;
     }
 
     if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData(), isFirstDownload: false);
+      snack('resume'.tr, gallery.title);
       return;
     } else if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
+      snack('pause'.tr, gallery.title);
     }
   }
 
@@ -325,6 +328,15 @@ class DetailsPageLogic extends GetxController {
     Get.toNamed(
       Routes.webview,
       arguments: state.galleryDetails!.archivePageUrl,
+      parameters: {'cookies': CookieUtil.parse2String(cookies)},
+    );
+  }
+
+  Future<void> handleTapStatistic() async {
+    List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
+    Get.toNamed(
+      Routes.webview,
+      arguments: state.galleryDetails!.statisticPageUrl,
       parameters: {'cookies': CookieUtil.parse2String(cookies)},
     );
   }

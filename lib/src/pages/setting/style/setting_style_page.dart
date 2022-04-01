@@ -2,20 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/gallery_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-class SettingGalleryPage extends StatelessWidget {
+class SettingStylePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
 
-  SettingGalleryPage({Key? key}) : super(key: key);
+  SettingStylePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('gallerySetting'.tr),
+        title: Text('styleSetting'.tr),
         elevation: 1,
       ),
       body: Obx(() {
@@ -23,10 +23,27 @@ class SettingGalleryPage extends StatelessWidget {
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
             ListTile(
-              title: Text('enableDarkTheme'.tr),
-              trailing: Switch(
-                value: GallerySetting.enableDarkTheme.value,
-                onChanged: GallerySetting.saveEnableDarkTheme,
+              title: Text('themeMode'.tr),
+              trailing: DropdownButton<EHThemeMode>(
+                value: StyleSetting.themeMode.value,
+                elevation: 4,
+                onChanged: (EHThemeMode? newValue) {
+                  StyleSetting.saveThemeMode(newValue!);
+                },
+                items: [
+                  DropdownMenuItem(
+                    child: Text('light'.tr),
+                    value: EHThemeMode.light,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('dark'.tr),
+                    value: EHThemeMode.dark,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('followSystem'.tr),
+                    value: EHThemeMode.system,
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -52,12 +69,12 @@ class SettingGalleryPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (tagTranslationService.loadingState.value == LoadingState.loading &&
-                        GallerySetting.enableTagZHTranslation.isTrue)
+                        StyleSetting.enableTagZHTranslation.isTrue)
                       const CupertinoActivityIndicator().marginOnly(right: 8),
                     Switch(
-                      value: GallerySetting.enableTagZHTranslation.value,
+                      value: StyleSetting.enableTagZHTranslation.value,
                       onChanged: (value) {
-                        GallerySetting.saveEnableTagZHTranslation(value);
+                        StyleSetting.saveEnableTagZHTranslation(value);
                         if (value == true) {
                           Get.find<TagTranslationService>().updateDatabase();
                         }

@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -17,7 +16,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
-import 'package:jhentai/src/setting/gallery_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -42,7 +41,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'JHenTai',
-      theme: GallerySetting.enableDarkTheme.isTrue ? ThemeConfig.dark : ThemeConfig.light,
+      theme: StyleSetting.getCurrentThemeData(),
       locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
@@ -74,7 +73,7 @@ Future<void> beforeInit() async {
   await Log.init();
   UserSetting.init();
   TagTranslationService.init();
-  GallerySetting.init();
+  StyleSetting.init();
   TabBarSetting.init();
 
   SiteSetting.init();

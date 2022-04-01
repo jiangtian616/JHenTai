@@ -1,26 +1,18 @@
-import 'dart:convert';
-
 import 'package:clipboard/clipboard.dart';
-import 'package:dio/dio.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../utils/snack_util.dart';
-import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
 
 class TorrentDialog extends StatefulWidget {
   const TorrentDialog({Key? key}) : super(key: key);
@@ -43,7 +35,7 @@ class _TorrentDialogState extends State<TorrentDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Center(child: Text('torrent'.tr)),
-      titleTextStyle: const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+      titleTextStyle: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
       children: [
         if (loadingState == LoadingState.loading) const CupertinoActivityIndicator(),
         if (loadingState == LoadingState.success)

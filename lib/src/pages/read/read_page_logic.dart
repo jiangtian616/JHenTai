@@ -55,7 +55,6 @@ class ReadPageLogic extends GetxController {
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
       state.readIndexRecord = state.itemPositionsListener.itemPositions.value.first.index;
-      print(state.itemPositionsListener.itemPositions.value.map((e) => e.index).join(','));
       update(['menu']);
     });
   }

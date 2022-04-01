@@ -51,6 +51,7 @@ class zh_CN {
       'rating': '评分',
       'torrent': '种子',
       'archive': '归档',
+      'statistic': '统计',
       'similar': '相似',
       'downloading': "下载中",
       'resume': "继续下载",
@@ -67,6 +68,9 @@ class zh_CN {
       'favoriteGalleryFailed': "收藏画廊错误",
       'ratingFailed': '评分失败',
       'voteTagFailed': '投票标签失败',
+      'beginToDownload': '开始下载',
+      'resumeDownload': '继续下载',
+      'pauseDownload': '暂停下载',
 
       /// comment page
       'newComment': '新评论',
@@ -87,10 +91,11 @@ class zh_CN {
       /// setting page
       'account': '账户',
       'EH': 'EH',
+      'style': '样式',
       'advanced': '高级',
       'about': '关于',
       'accountSetting': '账户设置',
-      'gallerySetting': '画廊设置',
+      'styleSetting': '样式设置',
       'advancedSetting': '高级设置',
       'ehSetting': 'EH 网站设置',
       'readSetting': '阅读设置',
@@ -100,11 +105,14 @@ class zh_CN {
       'site': '站点',
       'siteSetting': '站点设置',
 
-      /// gallery setting page
+      /// style setting page
       'enableTagZHTranslation': '开启标签中文翻译',
       'version': '版本',
       'downloadTagTranslationHint': '下载数据中... 已下载: ',
-      'enableDarkTheme': '开启黑暗主题',
+      'themeMode': '主题模式',
+      'dark': '黑暗',
+      'light': '明亮',
+      'followSystem': '跟随系统',
 
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',

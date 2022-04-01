@@ -8,7 +8,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import '../../../../model/base_gallery.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/tag_translation_service.dart';
-import '../../../../setting/gallery_setting.dart';
+import '../../../../setting/style_setting.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/snack_util.dart';
 import '../../../../widget/loading_state_indicator.dart';

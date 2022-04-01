@@ -70,7 +70,7 @@ class EHSpiderParser {
       hasRated: document.querySelector('#grt2 > #rating_image .ir.irg') != null ? true : false,
       isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
-      favoriteTagName: document.querySelector('#favoritelink')!.hasChildNodes()
+      favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null
           ? null
           : document.querySelector('#favoritelink')?.text,
       galleryUrl: galleryUrl,
@@ -100,6 +100,7 @@ class EHSpiderParser {
           document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl:
           document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      statisticPageUrl: document.querySelector('#gd5')?.children[5].querySelector('a')?.attributes['href'] ?? '',
       fullTags: detailPage2Tags(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: detailPage2Thumbnails(response),

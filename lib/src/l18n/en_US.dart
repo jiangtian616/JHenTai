@@ -51,6 +51,7 @@ class en {
       'rating': 'Rating',
       'torrent': 'Torrent',
       'archive': 'Archive',
+      'statistic': 'Statistic',
       'similar': 'Similar',
       'downloading': "Downloading",
       'resume': "Resume",
@@ -67,6 +68,9 @@ class en {
       'favoriteGalleryFailed': "Favorite Gallery Failed",
       'ratingFailed': 'Rating Failed',
       'voteTagFailed': 'Vote Tag Failed',
+      'beginToDownload': 'Begin To Download',
+      'resumeDownload': 'Resume Download',
+      'pauseDownload': 'Pause Download',
 
       /// comment page
       'newComment': 'New Comment',
@@ -87,10 +91,11 @@ class en {
       /// setting page
       'account': 'Account',
       'EH': 'EH',
+      'style': 'Style',
       'advanced': 'Advanced',
       'about': 'About',
       'accountSetting': 'Account Setting',
-      'gallerySetting': 'Gallery Setting',
+      'styleSetting': 'Style Setting',
       'advancedSetting': 'Advanced Setting',
       'ehSetting': 'EH Site Setting',
       'readSetting': 'Read Setting',
@@ -100,11 +105,14 @@ class en {
       'site': 'Site',
       'siteSetting': 'Site Setting',
 
-      /// gallery setting page
+      /// style setting page
       'enableTagZHTranslation': 'Translate tag name into chinese',
       'version': 'Version',
       'downloadTagTranslationHint': 'Downloading data..., downloaded: ',
-      'enableDarkTheme': 'Enable Dark Theme',
+      'themeMode': 'Theme Mode',
+      'dark': 'Dark',
+      'light': 'Light',
+      'followSystem': 'Follow System',
 
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',

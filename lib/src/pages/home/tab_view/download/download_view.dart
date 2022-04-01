@@ -104,6 +104,7 @@ class DownloadView extends StatelessWidget {
     }
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => Get.toNamed(Routes.details, arguments: gallery.galleryUrl),
       child: child,
     );

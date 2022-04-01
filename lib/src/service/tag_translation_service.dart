@@ -13,7 +13,7 @@ import 'package:retry/retry.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
-import '../setting/gallery_setting.dart';
+import '../setting/style_setting.dart';
 import '../utils/log.dart';
 
 class TagTranslationService extends GetxService {
@@ -73,7 +73,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
-    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+    if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       Future.wait(gallerys.map((gallery) {
         return getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
       }).toList());
@@ -81,7 +81,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetail> galleryDetails) async {
-    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+    if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       Future.wait(galleryDetails.map((galleryDetail) {
         return getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
       }).toList());
@@ -89,7 +89,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetail galleryDetail) async {
-    if (GallerySetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
+    if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       await getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
     }
   }

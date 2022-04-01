@@ -64,7 +64,7 @@ class EHConsts {
     'api.e-hentai.org': '178.162.147.246',
     'api.exhentai.org': '178.175.128.252',
     'forums.e-hentai.org': '94.100.18.243',
-    'ehgt.org': '178.162.140.212',
+    'ehgt.org': '37.48.89.44',
     'raw.githubusercontent.com': '178.175.129.254',
   };
 }

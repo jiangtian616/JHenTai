@@ -45,18 +45,13 @@ class _RatingDialogState extends State<RatingDialog> {
           width: 280,
           height: 140,
           padding: const EdgeInsets.only(top: 8),
-          color: Colors.grey.shade200,
+          color: Get.theme.brightness == Brightness.light ? Colors.grey.shade200 : Colors.grey.shade800,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 rating.toString(),
-                style: const TextStyle(
-                  color: Colors.black,
-                  decoration: TextDecoration.none,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
               RatingBar.builder(
                 unratedColor: Colors.grey.shade300,

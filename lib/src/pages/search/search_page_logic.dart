@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/gallery_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 
 import '../../model/gallery.dart';
@@ -139,7 +139,7 @@ class SearchPageLogic extends GetxController {
 
     /// chinese => database
     /// other => EH api
-    if (GallerySetting.enableTagZHTranslation.isTrue &&
+    if (StyleSetting.enableTagZHTranslation.isTrue &&
         tagTranslationService.loadingState.value == LoadingState.success) {
       state.suggestions = await tagTranslationService.searchTags(state.tabBarConfig.searchConfig.keyword!);
     } else {

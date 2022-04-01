@@ -24,6 +24,7 @@ class LoginPage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Get.theme.primaryColor,
           iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 0,
         ),
         body: Column(
           children: [
@@ -49,10 +50,12 @@ class LoginPage extends StatelessWidget {
                               child: TextFormField(
                                 onEditingComplete: () => FocusScope.of(context).requestFocus(state.passwordFocusNode),
                                 onChanged: (userName) => state.userName = userName,
+                                style: const TextStyle(color: Colors.black),
                                 decoration: InputDecoration(
                                   hintText: 'userName'.tr,
+                                  hintStyle: TextStyle(color: Colors.grey.shade700),
                                   border: InputBorder.none,
-                                  prefixIcon: const Icon(Icons.account_circle, size: 22),
+                                  prefixIcon: Icon(Icons.account_circle, size: 22, color: Colors.grey.shade600),
                                 ),
                               ),
                             ),
@@ -65,16 +68,18 @@ class LoginPage extends StatelessWidget {
                               child: TextFormField(
                                 focusNode: state.passwordFocusNode,
                                 obscureText: state.obscureText,
+                                style: const TextStyle(color: Colors.black),
                                 onChanged: (password) => state.password = password,
                                 onFieldSubmitted: (v) => logic.handleLogin(),
                                 decoration: InputDecoration(
                                   hintText: 'password'.tr,
                                   border: InputBorder.none,
-                                  prefixIcon: const Icon(Icons.key, size: 22),
+                                  hintStyle: TextStyle(color: Colors.grey.shade700),
+                                  prefixIcon: Icon(Icons.key, size: 22, color: Colors.grey.shade600),
                                   suffixIcon: InkWell(
                                     child: state.obscureText
-                                        ? const Icon(Icons.visibility, size: 22)
-                                        : const Icon(Icons.visibility_off, size: 22),
+                                        ? Icon(Icons.visibility, size: 22, color: Colors.grey.shade600)
+                                        : Icon(Icons.visibility_off, size: 22, color: Colors.grey.shade600),
                                     onTap: () {
                                       state.obscureText = !state.obscureText;
                                       logic.update();
@@ -96,10 +101,13 @@ class LoginPage extends StatelessWidget {
                               height: 44,
                               child: TextFormField(
                                 key: const Key('cookie'),
+                                style: const TextStyle(color: Colors.black),
                                 decoration: InputDecoration(
                                   hintText: 'Cookie',
                                   border: InputBorder.none,
-                                  prefixIcon: const Icon(FontAwesomeIcons.cookieBite, size: 18).paddingOnly(),
+                                  hintStyle: TextStyle(color: Colors.grey.shade700),
+                                  prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: Colors.grey.shade600)
+                                      .paddingOnly(),
                                 ),
                                 onChanged: (cookie) => state.cookie = cookie,
                                 onFieldSubmitted: (v) => logic.handleLogin(),
@@ -129,11 +137,13 @@ class LoginPage extends StatelessWidget {
                           successWidget: const DoneWidget(outline: true),
                           idleWidget: FloatingActionButton(
                             onPressed: logic.handleLogin,
+                            elevation: 2,
+                            foregroundColor: Colors.white,
+                            backgroundColor: Get.theme.primaryColor,
                             child: const Icon(
                               Icons.arrow_forward,
                               size: 28,
                             ),
-                            elevation: 2,
                           ),
                         ),
                         IconTextButton(

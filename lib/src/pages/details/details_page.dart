@@ -51,9 +51,9 @@ class DetailsPage extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text(detailsPageState.gallery?.title ?? ''),
-              titleTextStyle: const TextStyle(
+              titleTextStyle:  TextStyle(
                 fontSize: 14,
-                color: Colors.black,
+                color: Theme.of(context).appBarTheme.titleTextStyle?.color,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -286,7 +286,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(77, (context.width - 15 * 2) / 6),
+            itemExtent: max(77, (context.width - 15 * 2) / 7),
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -321,7 +321,7 @@ class DetailsPage extends StatelessWidget {
                   tag: DetailsPageLogic.currentStackDepth.toString(),
                   builder: (logic) {
                     return LoadingStateIndicator(
-                      width: (context.width - 30) / 6,
+                      width: max(77, (context.width - 15 * 2) / 7),
                       loadingState: detailsPageState.addFavoriteState,
                       idleWidget: IconTextButton(
                         iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
@@ -383,6 +383,15 @@ class DetailsPage extends StatelessWidget {
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
                 onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapArchive,
+              ),
+              IconTextButton(
+                iconData: FontAwesomeIcons.chartLine,
+                iconSize: 28,
+                text: Text(
+                  'statistic'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                ),
+                onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapStatistic,
               ),
             ],
           ),
