@@ -21,12 +21,14 @@ typedef TapCardCallback = FutureOr<void> Function(Gallery gallery);
 class GalleryCard extends StatelessWidget {
   final Gallery gallery;
   final TapCardCallback handleTapCard;
+  final bool withTags;
   final bool keepAlive;
 
   const GalleryCard({
     Key? key,
     required this.gallery,
     required this.handleTapCard,
+    this.withTags = true,
     this.keepAlive = true,
   }) : super(key: key);
 
@@ -41,20 +43,19 @@ class GalleryCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () => handleTapCard(gallery),
         child: Container(
-          height: 200,
+          height: withTags ? 200 : 125,
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.grey.withOpacity(0.3),
                 blurRadius: 5,
                 spreadRadius: 1,
-                offset: const Offset(0.5, 3),
+                offset: const Offset(3, 3),
               )
             ],
             borderRadius: BorderRadius.circular(15),
           ),
-          margin: const EdgeInsets.only(top: 5, bottom: 10, left: 10, right: 10),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(15),
             child: Row(
@@ -71,8 +72,8 @@ class GalleryCard extends StatelessWidget {
 
   Widget _buildCover(GalleryImage image) {
     return EHImage(
-      containerHeight: 200,
-      containerWidth: 140,
+      containerHeight: withTags ? 200 : 125,
+      containerWidth: withTags ? 140 : 85,
       adaptive: true,
       galleryImage: image,
       fit: BoxFit.cover,
@@ -86,7 +87,7 @@ class GalleryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildTitleAndUploader(gallery.title, gallery.uploader),
-          if (gallery.tags.isNotEmpty) _buildTagWaterFlow(gallery.tags),
+          if (gallery.tags.isNotEmpty && withTags) _buildTagWaterFlow(gallery.tags),
           _buildFooter(gallery),
         ],
       ).paddingOnly(left: 6, right: 10, top: 5, bottom: 5),

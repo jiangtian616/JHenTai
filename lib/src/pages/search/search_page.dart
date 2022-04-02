@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 
 import '../../config/global_config.dart';
 import '../../model/gallery.dart';
+import '../../setting/style_setting.dart';
 import '../../widget/eh_sliver_header_delegate.dart';
 import '../../widget/eh_tab_bar_config_dialog.dart';
 import '../../widget/eh_tag.dart';
@@ -226,7 +227,7 @@ class SearchPagePage extends StatelessWidget {
             text: rawText.substring(indexHandling, index),
             style: TextStyle(
                 fontSize: isSubTitle ? 12 : 15,
-                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).listTileTheme.textColor),
+                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
           ),
         );
       }
@@ -242,7 +243,9 @@ class SearchPagePage extends StatelessWidget {
       children.add(
         TextSpan(
           text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).listTileTheme.textColor),
+          style: TextStyle(
+              fontSize: isSubTitle ? 12 : 15,
+              color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
         ),
       );
     }
@@ -301,7 +304,13 @@ class SearchPagePage extends StatelessWidget {
           }
 
           Gallery gallery = state.gallerys[index];
-          return GalleryCard(gallery: gallery, handleTapCard: (gallery) => logic.handleTapCard(gallery));
+          return Obx(() {
+            return GalleryCard(
+              gallery: gallery,
+              handleTapCard: (gallery) => logic.handleTapCard(gallery),
+              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
+            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
+          });
         },
         childCount: state.gallerys.length,
       ),

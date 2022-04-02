@@ -47,6 +47,30 @@ class SettingStylePage extends StatelessWidget {
               ),
             ),
             ListTile(
+              title: Text('listStyle'.tr),
+              trailing: DropdownButton<ListMode>(
+                value: StyleSetting.listMode.value,
+                elevation: 4,
+                onChanged: (ListMode? newValue) {
+                  StyleSetting.saveListMode(newValue!);
+                },
+                items: [
+                  DropdownMenuItem(
+                    child: Text('listWithoutTags'.tr),
+                    value: ListMode.listWithoutTags,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('listWithTags'.tr),
+                    value: ListMode.listWithTags,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('waterflow'.tr),
+                    value: ListMode.waterflow,
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

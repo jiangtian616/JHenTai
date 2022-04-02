@@ -11,9 +11,16 @@ enum EHThemeMode {
   system,
 }
 
+enum ListMode {
+  listWithoutTags,
+  listWithTags,
+  waterflow,
+}
+
 class StyleSetting {
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<EHThemeMode> themeMode = EHThemeMode.light.obs;
+  static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxBool enableTabletLayout =
       WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio <= 600
           ? false.obs
@@ -36,6 +43,11 @@ class StyleSetting {
     StyleSetting.themeMode.value = themeMode;
     _save();
     Get.changeTheme(getCurrentThemeData());
+  }
+
+  static saveListMode(ListMode listMode) {
+    StyleSetting.listMode.value = listMode;
+    _save();
   }
 
   static saveEnableTabletLayout(bool enableTabletLayout) {
@@ -61,6 +73,7 @@ class StyleSetting {
     return {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
+      'listMode': listMode.value.index,
       'enableTabletLayout': enableTabletLayout.value,
     };
   }
@@ -68,6 +81,7 @@ class StyleSetting {
   static _initFromMap(Map<String, dynamic> map) {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = EHThemeMode.values[map['themeMode']];
+    listMode.value = ListMode.values[map['listMode']];
     enableTabletLayout.value = map['enableTabletLayout'];
   }
 }

@@ -113,6 +113,10 @@ class zh_CN {
       'dark': '黑暗',
       'light': '明亮',
       'followSystem': '跟随系统',
+      'listStyle': '画廊列表样式',
+      'listWithoutTags': '列表 - 无标签',
+      'listWithTags': '列表 - 带标签',
+      'waterflow': '瀑布流',
       'enableTabletLayout': '开启平板双栏布局',
 
       /// advanced setting page

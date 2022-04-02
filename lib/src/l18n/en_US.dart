@@ -113,6 +113,10 @@ class en {
       'dark': 'Dark',
       'light': 'Light',
       'followSystem': 'Follow System',
+      'listStyle': 'Gallery List Style',
+      'listWithoutTags': 'List Without Tags',
+      'listWithTags': 'List With Tags',
+      'waterflow': 'Waterflow',
       'enableTabletLayout': 'Enable Tablet Layout',
 
       /// advanced setting page

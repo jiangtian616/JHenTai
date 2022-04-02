@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
@@ -270,67 +271,89 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   Widget build(BuildContext context) {
     return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
             gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
-        ? Center(
-            child: GetBuilder<GallerysViewLogic>(
-                id: loadingStateId,
-                builder: (logic) {
-                  return LoadingStateIndicator(
-                    errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-                    noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
-                    loadingState: gallerysViewState.loadingState[widget.tabIndex],
-                  );
-                }),
-          )
+        ? _buildCenterStatusIndicator()
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: <Widget>[
-              /// equal to [SliverOverlapInjector]
-              SliverPadding(
-                padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
-                sliver: CupertinoSliverRefreshControl(
-                  refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-                  onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
-                ),
-              ),
+              _buildRefreshIndicator(),
               _buildGalleryList(widget.tabIndex),
-              SliverPadding(
-                padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
-                sliver: SliverToBoxAdapter(
-                  child: GetBuilder<GallerysViewLogic>(
-                      id: loadingStateId,
-                      builder: (logic) {
-                        return LoadingStateIndicator(
-                          errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-                          loadingState: gallerysViewState.loadingState[widget.tabIndex],
-                        );
-                      }),
-                ),
-              ),
+              _buildLoadMoreIndicator(),
             ],
           );
+  }
+
+  Widget _buildCenterStatusIndicator() {
+    return Center(
+      child: GetBuilder<GallerysViewLogic>(
+          id: loadingStateId,
+          builder: (logic) {
+            return LoadingStateIndicator(
+              errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
+              loadingState: gallerysViewState.loadingState[widget.tabIndex],
+            );
+          }),
+    );
+  }
+
+  Widget _buildRefreshIndicator() {
+    /// take responsibility of [SliverOverlapInjector]
+    return SliverPadding(
+      padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
+      sliver: CupertinoSliverRefreshControl(
+        refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+        onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return SliverPadding(
+      padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
+      sliver: SliverToBoxAdapter(
+        child: GetBuilder<GallerysViewLogic>(
+            id: loadingStateId,
+            builder: (logic) {
+              return LoadingStateIndicator(
+                errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+                loadingState: gallerysViewState.loadingState[widget.tabIndex],
+              );
+            }),
+      ),
+    );
   }
 
   SliverList _buildGalleryList(int tabIndex) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (BuildContext context, int index) {
-          if (index == gallerysViewState.gallerys[tabIndex].length - 1 &&
-              gallerysViewState.loadingState[tabIndex] == LoadingState.idle) {
-            /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
-            /// that hints circular build.
-            /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
-            /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-            /// the callback is added only once.
-            SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-              gallerysViewLogic.handleLoadMore(tabIndex);
-            });
-          }
-          Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
+          _handleLoadMoreIfAtLast(tabIndex, index);
 
-          return GalleryCard(gallery: gallery, handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery));
+          Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
+          return Obx(() {
+            return GalleryCard(
+              gallery: gallery,
+              handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery),
+              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
+            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
+          });
         },
         childCount: gallerysViewState.gallerys[tabIndex].length,
       ),
     );
+  }
+
+  void _handleLoadMoreIfAtLast(int tabIndex, int index) {
+    if (index == gallerysViewState.gallerys[tabIndex].length - 1 &&
+        gallerysViewState.loadingState[tabIndex] == LoadingState.idle) {
+      /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
+      /// that hints circular build.
+      /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
+      /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+      /// the callback is added only once.
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+        gallerysViewLogic.handleLoadMore(tabIndex);
+      });
+    }
   }
 }
