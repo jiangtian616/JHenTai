@@ -22,7 +22,7 @@ class TorrentDialog extends StatefulWidget {
 }
 
 class _TorrentDialogState extends State<TorrentDialog> {
-  final DetailsPageState state = DetailsPageLogic.currentDetailsPageLogic.state;
+  final DetailsPageState state = DetailsPageLogic.current!.state;
   List<GalleryTorrent> galleryTorrents = <GalleryTorrent>[];
   LoadingState loadingState = LoadingState.idle;
 

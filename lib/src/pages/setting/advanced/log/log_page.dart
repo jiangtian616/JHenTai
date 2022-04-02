@@ -1,8 +1,7 @@
 import 'dart:io' as io;
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/utils/size_util.dart';
 import 'package:path/path.dart';
 
 class LogPage extends StatefulWidget {
@@ -37,7 +36,7 @@ class _LogPageState extends State<LogPage> {
         scrollDirection: Axis.horizontal,
         child: SingleChildScrollView(
           child: SizedBox(
-            width: context.width,
+            width: screenWidth,
             child: SelectableText(
               (log as io.File).readAsStringSync(),
               style: TextStyle(

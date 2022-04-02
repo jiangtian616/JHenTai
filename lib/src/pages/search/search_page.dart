@@ -15,8 +15,8 @@ import '../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
 
 class SearchPagePage extends StatelessWidget {
-  final logic = Get.put(SearchPageLogic(), tag: SearchPageLogic.currentStackDepth.toString());
-  final state = SearchPageLogic.currentSearchPageLogic.state;
+  final logic = Get.put(SearchPageLogic());
+  final state = Get.find<SearchPageLogic>().state;
 
   SearchPagePage({Key? key}) : super(key: key);
 
@@ -52,7 +52,6 @@ class SearchPagePage extends StatelessWidget {
                 Expanded(
                   child: GetBuilder<SearchPageLogic>(
                       id: appBarId,
-                      tag: SearchPageLogic.currentStackDepth.toString(),
                       builder: (logic) {
                         return AppBar(
                           centerTitle: true,
@@ -92,7 +91,6 @@ class SearchPagePage extends StatelessWidget {
                   width: double.infinity,
                   child: GetBuilder<SearchPageLogic>(
                       id: searchField,
-                      tag: SearchPageLogic.currentStackDepth.toString(),
                       builder: (logic) {
                         return CupertinoSearchTextField(
                           prefixInsets: const EdgeInsets.only(left: 18),
@@ -129,7 +127,6 @@ class SearchPagePage extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     return GetBuilder<SearchPageLogic>(
       id: bodyId,
-      tag: SearchPageLogic.currentStackDepth.toString(),
       builder: (logic) =>
           state.showSuggestionAndHistory ? _buildSuggestionAndHistoryBody(context) : _buildGalleryBody(context),
     );
@@ -258,7 +255,6 @@ class SearchPagePage extends StatelessWidget {
         ? Center(
             child: GetBuilder<SearchPageLogic>(
                 id: loadingStateId,
-                tag: SearchPageLogic.currentStackDepth.toString(),
                 builder: (logic) {
                   return LoadingStateIndicator(
                     errorTapCallback: () => logic.searchMore(isRefresh: true),
@@ -283,7 +279,6 @@ class SearchPagePage extends StatelessWidget {
                 sliver: SliverToBoxAdapter(
                   child: GetBuilder<SearchPageLogic>(
                       id: loadingStateId,
-                      tag: SearchPageLogic.currentStackDepth.toString(),
                       builder: (logic) {
                         return LoadingStateIndicator(
                           loadingState: state.loadingState,

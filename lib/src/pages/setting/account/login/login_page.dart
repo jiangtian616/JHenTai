@@ -8,6 +8,8 @@ import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../../../utils/size_util.dart';
+
 class LoginPage extends StatelessWidget {
   final LoginPageLogic logic = Get.put<LoginPageLogic>(LoginPageLogic());
   final LoginPageState state = Get.find<LoginPageLogic>().state;
@@ -28,7 +30,7 @@ class LoginPage extends StatelessWidget {
         ),
         body: Column(
           children: [
-            SizedBox(height: (context.height - GlobalConfig.appBarHeight) / 10, width: context.width),
+            SizedBox(height: (screenHeight - GlobalConfig.appBarHeight) / 10, width: fullScreenWidth),
             const Text('EHenTai', style: TextStyle(color: Colors.white, fontSize: 60)),
             ClipRRect(
               borderRadius: BorderRadius.circular(20),

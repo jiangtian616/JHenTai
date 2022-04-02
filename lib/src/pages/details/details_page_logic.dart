@@ -35,22 +35,22 @@ String addFavoriteStateId = 'addFavoriteStateId';
 String thumbnailsId = 'thumbnailsId';
 
 class DetailsPageLogic extends GetxController {
+  /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
+  /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
+  String tag;
+
   final DetailsPageState state = DetailsPageState();
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
 
-  DetailsPageLogic() {
-    currentStackDepth++;
+  static final List<DetailsPageLogic> _stack = <DetailsPageLogic>[];
+
+  static DetailsPageLogic? get current => _stack.isEmpty ? null : _stack.last;
+
+  DetailsPageLogic(this.tag) {
+    _stack.add(this);
   }
-
-  /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
-  /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
-  /// when a DetailsPageLogic is created, currentStackDepth++, when a DetailsPageLogic is disposed, currentStackDepth--.
-  static int currentStackDepth = 0;
-
-  static DetailsPageLogic get currentDetailsPageLogic =>
-      Get.find<DetailsPageLogic>(tag: DetailsPageLogic.currentStackDepth.toString());
 
   @override
   void onInit() async {
@@ -117,7 +117,7 @@ class DetailsPageLogic extends GetxController {
 
   @override
   void onClose() {
-    currentStackDepth--;
+    _stack.remove(this);
     super.onClose();
   }
 

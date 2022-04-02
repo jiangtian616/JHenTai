@@ -150,7 +150,7 @@ class _TagDialogState extends State<_TagDialog> {
       return false;
     }
 
-    final DetailsPageState state = DetailsPageLogic.currentDetailsPageLogic.state;
+    final DetailsPageState state = DetailsPageLogic.current!.state;
 
     setState(() {
       if (isVotingUp) {
@@ -195,7 +195,7 @@ class _TagDialogState extends State<_TagDialog> {
   }
 
   _showInfo() {
-    Get.back();
+    back();
 
     String content = widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!;
     Get.dialog(

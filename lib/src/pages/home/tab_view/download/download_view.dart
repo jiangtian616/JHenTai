@@ -245,13 +245,13 @@ class DownloadView extends StatelessWidget {
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
               downloadService.deleteGallery(gallery);
-              Get.back();
+              back();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: Get.back,
+          onPressed: back,
         ),
       ),
     );

@@ -362,6 +362,9 @@ class EHSpiderParser {
 
   static List<TagData> tagSuggestion2TagList(Response<String> response) {
     Map resp = jsonDecode(response.data!);
+    if (resp['tags'] is! Map) {
+      return <TagData>[];
+    }
     Map tags = resp['tags'];
     return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }

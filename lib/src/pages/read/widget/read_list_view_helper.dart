@@ -5,6 +5,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../utils/route_util.dart';
+import '../../../utils/size_util.dart';
 import '../read_page_logic.dart';
 
 class ReadListViewHelper extends StatelessWidget {
@@ -89,7 +90,7 @@ class ReadListViewHelper extends StatelessWidget {
           height: state.isMenuOpen ? GlobalConfig.appBarHeight + context.mediaQuery.padding.top : 0,
           child: SizedBox(
             height: GlobalConfig.appBarHeight + context.mediaQuery.padding.top,
-            width: context.width,
+            width: fullScreenWidth,
             child: AppBar(
               iconTheme: const IconThemeData(color: Colors.white),
               actionsIconTheme: const IconThemeData(color: Colors.white),
@@ -118,7 +119,7 @@ class ReadListViewHelper extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(
-                  width: context.width,
+                  width: fullScreenWidth,
                   child: Row(
                     children: [
                       Text(

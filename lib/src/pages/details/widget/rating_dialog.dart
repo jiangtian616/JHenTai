@@ -12,6 +12,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 import '../../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 
@@ -24,8 +25,8 @@ class RatingDialog extends StatefulWidget {
 
 class _RatingDialogState extends State<RatingDialog> {
   g.GallerysViewLogic gallerysViewLogic = Get.find<g.GallerysViewLogic>();
-  DetailsPageLogic detailsPageLogic = DetailsPageLogic.currentDetailsPageLogic;
-  DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
+  DetailsPageLogic detailsPageLogic = DetailsPageLogic.current!;
+  DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
 
   LoadingState submitState = LoadingState.idle;
   late double rating;
@@ -141,6 +142,6 @@ class _RatingDialogState extends State<RatingDialog> {
     setState(() {
       submitState = LoadingState.idle;
     });
-    Get.back();
+    back();
   }
 }

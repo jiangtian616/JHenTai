@@ -15,6 +15,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
+import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 
 class CommentPage extends StatefulWidget {
@@ -73,15 +74,15 @@ class _CommentPageState extends State<CommentPage> {
 
     if (success ?? false) {
       List<GalleryComment> newComments = await EHRequest.requestDetailPage(
-        galleryUrl: DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl,
+        galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
         parser: EHSpiderParser.detailPage2Comments,
         useCacheIfAvailable: false,
       );
       setState(() {
         comments = newComments;
       });
-      DetailsPageLogic.currentDetailsPageLogic.state.galleryDetails!.comments = newComments;
-      DetailsPageLogic.currentDetailsPageLogic.update([bodyId]);
+      DetailsPageLogic.current!.state.galleryDetails!.comments = newComments;
+      DetailsPageLogic.current!.update([bodyId]);
     }
   }
 }
@@ -149,7 +150,7 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
     String? errMsg;
     try {
       errMsg = await EHRequest.requestSendComment(
-        galleryUrl: DetailsPageLogic.currentDetailsPageLogic.state.gallery!.galleryUrl,
+        galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
         content: content,
         parser: EHSpiderParser.sendComment2ErrorMsg,
       );
@@ -167,7 +168,7 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
     if (errMsg == null) {
       setState(() {
         sendCommentState = LoadingState.loading;
-        Get.back(result: true);
+        back(result: true);
       });
       return;
     }

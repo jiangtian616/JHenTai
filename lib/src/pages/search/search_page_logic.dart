@@ -28,18 +28,6 @@ class SearchPageLogic extends GetxController {
 
   Timer? timer;
 
-  SearchPageLogic() {
-    currentStackDepth++;
-  }
-
-  /// there may be more than one SearchPages in route stack at same time.
-  /// use this param as a 'tag' to get target [SearchPageLogic] and [SearchPageState].
-  /// when a SearchPageLogic is created, currentStackDepth++, when a SearchPageLogic is disposed, currentStackDepth--.
-  static int currentStackDepth = 0;
-
-  static SearchPageLogic get currentSearchPageLogic =>
-      Get.find<SearchPageLogic>(tag: SearchPageLogic.currentStackDepth.toString());
-
   @override
   void onInit() {
     /// enter this page by tapping tag

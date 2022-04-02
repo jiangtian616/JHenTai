@@ -7,6 +7,8 @@ import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
+import '../utils/route_util.dart';
+
 
 /// responsible for all network and local images, depends on :
 /// 1. ExtendedImage:
@@ -155,13 +157,13 @@ class _EHImageState extends State<EHImage> {
                 key = UniqueKey();
                 cancelToken = CancellationToken();
               });
-              Get.back();
+              back();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: Get.back,
+          onPressed: back,
         ),
       ),
     );

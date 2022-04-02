@@ -16,13 +16,14 @@ class LogListPage extends StatefulWidget {
 }
 
 class _LogListPageState extends State<LogListPage> {
-   List<io.FileSystemEntity> logs = [];
+  List<io.FileSystemEntity> logs = [];
 
   @override
   void initState() {
     io.Directory logDir = io.Directory(Log.logPath);
     if (logDir.existsSync()) {
       logs = logDir.listSync();
+      logs.sort((a, b) => a.statSync().changed.difference(a.statSync().changed).inMicroseconds);
     }
     super.initState();
   }
@@ -37,7 +38,7 @@ class _LogListPageState extends State<LogListPage> {
       ),
       body: ListView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        children: logs.reversed
+        children: logs
             .map(
               (log) => ListTile(
                 title: Text(basename(log.path)),

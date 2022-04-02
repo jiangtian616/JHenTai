@@ -15,6 +15,7 @@ import 'package:jhentai/src/pages/setting/style/setting_style_page.dart';
 import 'package:jhentai/src/pages/start_page.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
 
+import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/single_image/single_image.dart';
@@ -22,6 +23,7 @@ import 'EHPage.dart';
 
 class Routes {
   static const String start = "/";
+  static const String blank = "/blank";
 
   static const String home = "/home";
   static const String details = "/details";
@@ -48,97 +50,127 @@ class Routes {
   static List<EHPage> pages = <EHPage>[
     EHPage(
       name: start,
+      className: 'StartPage',
       page: () => StartPage(),
       transition: Transition.cupertino,
       side: Side.fullScreen,
     ),
     EHPage(
+      name: blank,
+      className: 'BlankPage',
+      page: () => BlankPage(),
+      transition: Transition.cupertino,
+      side: Side.right,
+    ),
+    EHPage(
       name: home,
+      className: 'HomePage',
       page: () => HomePage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: details,
+      className: 'DetailsPage',
       page: () => DetailsPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: search,
+      className: 'SearchPagePage',
       page: () => SearchPagePage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: singleImagePage,
+      className: 'SingleImagePage',
       page: () => SingleImagePage(),
       transition: Transition.cupertino,
+      offAllBefore: false,
     ),
     EHPage(
       name: webview,
+      className: 'WebviewPage',
       page: () => WebviewPage(),
       transition: Transition.cupertino,
+      offAllBefore: false,
     ),
     EHPage(
       name: settingAccount,
+      className: 'SettingAccountPage',
       page: () => SettingAccountPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingEH,
+      className: 'SettingEHPage',
       page: () => SettingEHPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingStyle,
+      className: 'SettingStylePage',
       page: () => SettingStylePage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingRead,
+      className: 'SettingReadPage',
       page: () => SettingReadPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingDownload,
+      className: 'SettingDownloadPage',
       page: () => SettingDownloadPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingAdvanced,
+      className: 'SettingAdvancedPage',
       page: () => SettingAdvancedPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingAbout,
+      className: 'SettingAboutPage',
       page: () => SettingAboutPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: login,
+      className: 'LoginPage',
       page: () => LoginPage(),
       transition: Transition.cupertino,
+      side: Side.fullScreen,
     ),
     EHPage(
       name: logList,
+      className: 'LogListPage',
       page: () => LogListPage(),
       transition: Transition.cupertino,
+      offAllBefore: false,
     ),
     EHPage(
       name: log,
+      className: 'LogPage',
       page: () => LogPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: read,
+      className: 'ReadPage',
       page: () => ReadPage(),
       transition: Transition.cupertino,
       side: Side.fullScreen,
     ),
     EHPage(
       name: comment,
+      className: 'CommentPage',
       page: () => CommentPage(),
       transition: Transition.cupertino,
+      offAllBefore: false,
     ),
   ];
 }

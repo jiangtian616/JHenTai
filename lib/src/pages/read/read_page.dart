@@ -9,12 +9,14 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/utils/size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../service/download_service.dart';
+import '../../utils/route_util.dart';
 
 class ReadPage extends StatelessWidget {
   final logic = Get.put(ReadPageLogic());
@@ -28,14 +30,14 @@ class ReadPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: ReadListViewHelper(
-        child: _buildListView(context),
+        child: _buildListView(),
       ),
     );
   }
 
-  Widget _buildListView(BuildContext context) {
+  Widget _buildListView() {
     return ScrollablePositionedList.separated(
-      minCacheExtent: state.type == 'local' ? 8 * context.height : ReadSetting.preloadDistance * context.height * 1,
+      minCacheExtent: state.type == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
       initialScrollIndex: state.initialIndex,
       itemCount: state.pageCount,
       itemScrollController: state.itemScrollController,
@@ -66,7 +68,7 @@ class ReadPage extends StatelessWidget {
         FittedSizes fittedSizes = applyBoxFit(
           BoxFit.contain,
           Size(state.images[index].value!.width, state.images[index].value!.height),
-          Size(context.width, double.infinity),
+          Size(fullScreenWidth, double.infinity),
         );
 
         /// step 3 load image : use url to [load] image
@@ -95,7 +97,7 @@ class ReadPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageHref(index)),
       child: SizedBox(
-        height: context.height / 2,
+        height: screenHeight / 2,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -121,7 +123,7 @@ class ReadPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageUrl(index)),
       child: SizedBox(
-        height: context.height / 2,
+        height: screenHeight / 2,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -195,13 +197,13 @@ class ReadPage extends StatelessWidget {
             child: Text('reload'.tr),
             onPressed: () async {
               callback();
-              Get.back();
+              back();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: Get.back,
+          onPressed: back,
         ),
       ),
     );

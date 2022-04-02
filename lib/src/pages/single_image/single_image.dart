@@ -1,9 +1,10 @@
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+
+import '../../utils/route_util.dart';
 
 class SingleImagePage extends StatelessWidget {
   const SingleImagePage({Key? key}) : super(key: key);
@@ -13,9 +14,7 @@ class SingleImagePage extends StatelessWidget {
     GalleryImage image = Get.arguments as GalleryImage;
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(
-          onPressed: Get.back,
-        ),
+        leading: BackButton(onPressed: () => back(className: toStringShort())),
       ),
       body: Container(
         constraints: const BoxConstraints.expand(),

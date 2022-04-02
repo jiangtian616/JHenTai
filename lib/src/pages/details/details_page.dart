@@ -27,32 +27,36 @@ import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
+import '../../utils/size_util.dart';
 import '../../widget/gallery_category_tag.dart';
 import 'details_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget {
-  final DetailsPageLogic detailsPageLogic = Get.put(
-    DetailsPageLogic(),
-    tag: DetailsPageLogic.currentStackDepth.toString(),
-  );
-  final DetailsPageState detailsPageState = DetailsPageLogic.currentDetailsPageLogic.state;
+  String tag = UniqueKey().toString();
+
+  late final DetailsPageLogic detailsPageLogic;
+  late final DetailsPageState detailsPageState;
+
   final DownloadService downloadService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
 
-  DetailsPage({Key? key}) : super(key: key);
+  DetailsPage({Key? key}) : super(key: key) {
+    detailsPageLogic = Get.put(DetailsPageLogic(tag), tag: tag);
+    detailsPageState = detailsPageLogic.state;
+  }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
         id: bodyId,
-        tag: DetailsPageLogic.currentStackDepth.toString(),
+        tag: tag,
         builder: (logic) {
           return Scaffold(
             appBar: AppBar(
               title: Text(detailsPageState.gallery?.title ?? ''),
-              titleTextStyle:  TextStyle(
+              titleTextStyle: TextStyle(
                 fontSize: 14,
                 color: Theme.of(context).appBarTheme.titleTextStyle?.color,
                 fontWeight: FontWeight.bold,
@@ -122,9 +126,7 @@ class DetailsPage extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-                onTap: () {
-                  toNamed(Routes.singleImagePage, arguments: gallery.cover);
-                },
+                onTap: () => toNamed(Routes.singleImagePage, arguments: gallery.cover),
               ),
               Expanded(
                 child: Column(
@@ -287,7 +289,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(77, (context.width - 15 * 2) / 7),
+            itemExtent: max(77, (screenWidth - 15 * 2) / 7),
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -319,10 +321,10 @@ class DetailsPage extends StatelessWidget {
               ),
               GetBuilder<DetailsPageLogic>(
                   id: addFavoriteStateId,
-                  tag: DetailsPageLogic.currentStackDepth.toString(),
+                  tag: tag,
                   builder: (logic) {
                     return LoadingStateIndicator(
-                      width: max(77, (context.width - 15 * 2) / 7),
+                      width: max(77, (screenWidth - 15 * 2) / 7),
                       loadingState: detailsPageState.addFavoriteState,
                       idleWidget: IconTextButton(
                         iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
@@ -439,7 +441,7 @@ class DetailsPage extends StatelessWidget {
       sliver: SliverToBoxAdapter(
         child: GetBuilder<DetailsPageLogic>(
             id: loadingStateId,
-            tag: DetailsPageLogic.currentStackDepth.toString(),
+            tag: tag,
             builder: (logic) {
               return LoadingStateIndicator(
                 indicatorRadius: 16,
@@ -459,7 +461,8 @@ class DetailsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
-              onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+              onPressed: () =>
+                  toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
               child: Text(
                 galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
               ),
@@ -497,7 +500,7 @@ class DetailsPage extends StatelessWidget {
       sliver: SliverToBoxAdapter(
         child: GetBuilder<DetailsPageLogic>(
             id: loadingStateId,
-            tag: DetailsPageLogic.currentStackDepth.toString(),
+            tag: tag,
             builder: (logic) {
               return LoadingStateIndicator(
                 errorTapCallback: () => {detailsPageLogic.loadMoreThumbnails()},
@@ -513,7 +516,7 @@ class DetailsPage extends StatelessWidget {
       padding: const EdgeInsets.only(top: 36),
       sliver: GetBuilder<DetailsPageLogic>(
           id: thumbnailsId,
-          tag: DetailsPageLogic.currentStackDepth.toString(),
+          tag: tag,
           builder: (logic) {
             return SliverGrid(
               delegate: SliverChildBuilderDelegate((context, index) {
