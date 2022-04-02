@@ -58,6 +58,8 @@ class EHConsts {
 
   static String get EXUconfig => 'https://exhentai.org/uconfig.php';
 
+  static String get EStat => 'https://e-hentai.org/stats.php';
+
   static const Map<String, String> host2Ip = {
     'e-hentai.org': '104.20.135.21',
     'exhentai.org': '178.175.129.254',

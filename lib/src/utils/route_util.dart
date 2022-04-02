@@ -50,23 +50,12 @@ Future<T?>? toNamed<T>(
 }
 
 void back<T>({
-  String? className,
+  required String? currentRoute,
   T? result,
   bool closeOverlays = false,
   bool canPop = true,
 }) {
-  if (className == null) {
-    /// get caller className to decide which Navigator to pop
-    List<Frame> frames = Trace.current().frames;
-    String member = frames[1].member!;
-    List<String> parts = member.split(".");
-    className = parts[0];
-  }
-
-  Side side = Routes.pages
-          .firstWhereOrNull((page) => page.className == className)
-          ?.side ??
-      Side.fullScreen;
+  Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
   return Get.back(
     result: result,
     closeOverlays: closeOverlays,
@@ -83,22 +72,12 @@ void back<T>({
 
 Future<T?>? offNamed<T>(
   String page, {
-  String? className,
+  required String? currentRoute,
   dynamic arguments,
   bool preventDuplicates = true,
   Map<String, String>? parameters,
 }) {
-  if (className == null) {
-    List<Frame> frames = Trace.current().frames;
-    String member = frames[1].member!;
-    List<String> parts = member.split(".");
-    className = parts[0];
-  }
-
-  Side side = Routes.pages
-          .firstWhereOrNull((page) => page.className == className)
-          ?.side ??
-      Side.fullScreen;
+  Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
 
   return Get.offNamed(
     page,
@@ -115,19 +94,8 @@ Future<T?>? offNamed<T>(
   );
 }
 
-void until(RoutePredicate predicate, {String? className}) {
-  if (className == null) {
-    /// get caller className to decide which Navigator to pop
-    List<Frame> frames = Trace.current().frames;
-    String member = frames[1].member!;
-    List<String> parts = member.split(".");
-    className = parts[0];
-  }
-
-  Side side = Routes.pages
-          .firstWhereOrNull((page) => page.className == className)
-          ?.side ??
-      Side.fullScreen;
+void until(String? currentRoute, RoutePredicate predicate) {
+  Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
   return Get.until(
     predicate,
     id: StyleSetting.enableTabletLayout.isFalse

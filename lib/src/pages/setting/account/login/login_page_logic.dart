@@ -68,7 +68,7 @@ class LoginPageLogic extends GetxController {
 
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 700));
-      back();
+      back(currentRoute: Routes.login);
     } else {
       state.loginState = LoadingState.error;
       snack('loginFail'.tr, errorMsg);
@@ -123,7 +123,7 @@ class LoginPageLogic extends GetxController {
 
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 1000));
-      back();
+      back(currentRoute: Routes.login);
     } else {
       state.loginState = LoadingState.error;
       update();

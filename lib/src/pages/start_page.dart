@@ -58,9 +58,7 @@ class StartPage extends StatelessWidget {
           settings: settings,
 
           /// setting name may include path params
-          page: Routes.pages
-              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
-              .page,
+          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
           /// do not use swipe back in tablet layout!
           popGesture: false,
@@ -91,9 +89,7 @@ class StartPage extends StatelessWidget {
           settings: settings,
 
           /// setting name may include path params
-          page: Routes.pages
-              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
-              .page,
+          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
           /// do not use swipe back in tablet layout!
           popGesture: false,

@@ -78,13 +78,13 @@ class _LogoutDialog extends StatelessWidget {
           children: [
             TextButton(
               child: Text('cancel'.tr),
-              onPressed: back,
+              onPressed: () => back(currentRoute: null),
             ),
             TextButton(
               child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
               onPressed: () async {
                 EHRequest.logout();
-                back();
+                until(null, (route) => !Get.isDialogOpen!);
               },
             ),
           ],

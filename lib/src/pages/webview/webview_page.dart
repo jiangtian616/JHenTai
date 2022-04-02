@@ -42,52 +42,37 @@ class _WebviewPageState extends State<WebviewPage> {
         onWebViewCreated: (controller) => this.controller = controller,
         javascriptMode: JavascriptMode.unrestricted,
         initialCookies: cookies
-            .map((cookie) => WebViewCookie(
-                name: cookie.name,
-                value: cookie.value,
-                domain: Uri.parse(url).host))
+            .map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: Uri.parse(url).host))
             .toList(),
-        onPageStarted: !isLogin
-            ? null
-            : (url) async {
-                String cookieString = await controller
-                    .runJavascriptReturningResult('document.cookie');
-                cookieString = cookieString.replaceAll('"', '');
-                if (!CookieUtil.validateCookiesString(cookieString)) {
-                  return;
-                }
-
-                List<Cookie> cookies = cookieString.split('; ').map((pair) {
-                  List<String> nameAndValue = pair.split('=');
-                  return Cookie(nameAndValue[0], nameAndValue[1]);
-                }).toList();
-
-                int ipbMemberId = int.parse(cookies
-                    .firstWhere((cookie) => cookie.name == 'ipb_member_id')
-                    .value);
-                String ipbPassHash = cookies
-                    .firstWhere((cookie) => cookie.name == 'ipb_pass_hash')
-                    .value;
-
-                /// temporarily
-                UserSetting.userName.value = ipbMemberId.toString();
-                until(
-                  (route) => route.settings.name == Routes.settingAccount,
-                  className: 'WebviewPage',
-                );
-
-                EHRequest.storeEhCookiesForAllUri(cookies).then((v) {
-                  EHRequest.requestForum(
-                          ipbMemberId, EHSpiderParser.forumPage2UserInfo)
-                      .then((String? userName) {
-                    UserSetting.saveUserInfo(
-                        userName: userName!,
-                        ipbMemberId: ipbMemberId,
-                        ipbPassHash: ipbPassHash);
-                  });
-                });
-              },
+        onPageStarted: isLogin ? onLogin : null,
       ),
     );
+  }
+
+  Future<void> onLogin(String url) async {
+    String cookieString = await controller.runJavascriptReturningResult('document.cookie');
+    cookieString = cookieString.replaceAll('"', '');
+    if (!CookieUtil.validateCookiesString(cookieString)) {
+      return;
+    }
+
+    List<Cookie> cookies = cookieString.split('; ').map((pair) {
+      List<String> nameAndValue = pair.split('=');
+      return Cookie(nameAndValue[0], nameAndValue[1]);
+    }).toList();
+
+    int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
+    String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
+
+    /// temporarily
+    UserSetting.userName.value = ipbMemberId.toString();
+    until(
+      Routes.webview,
+      (route) => route.settings.name == Routes.settingAccount,
+    );
+
+    await EHRequest.storeEhCookiesForAllUri(cookies);
+    String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+    UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
   }
 }

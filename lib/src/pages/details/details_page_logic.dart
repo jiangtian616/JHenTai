@@ -337,7 +337,7 @@ class DetailsPageLogic extends GetxController {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
     toNamed(
       Routes.webview,
-      arguments: state.galleryDetails!.statisticPageUrl,
+      arguments: '${EHConsts.EStat}?gid=${state.gallery!.gid}&t=${state.gallery!.token}',
       parameters: {'cookies': CookieUtil.parse2String(cookies)},
     );
   }
