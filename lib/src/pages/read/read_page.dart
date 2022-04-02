@@ -7,10 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
+import 'package:jhentai/src/pages/read/widget/eh_photo_view_gallery.dart';
 import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
@@ -98,11 +97,11 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _buildPageView() {
-    return PhotoViewGallery.builder(
+    return EHPhotoViewGallery.builder(
       pageController: state.pageController,
+      cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       itemCount: state.pageCount,
       onPageChanged: logic.handleReadProgress,
-      allowImplicitScrolling: true,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,

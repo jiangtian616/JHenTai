@@ -95,6 +95,43 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+              ListTile(
+                title: Text('preloadPageCount'.tr),
+                trailing: DropdownButton<int>(
+                  value: ReadSetting.preloadPageCount.value,
+                  elevation: 4,
+                  onChanged: (int? newValue) {
+                    ReadSetting.savePreloadPageCount(newValue!);
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      child: Text('0'),
+                      value: 0,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('1'),
+                      value: 1,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('2'),
+                      value: 2,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('3'),
+                      value: 3,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('5'),
+                      value: 5,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('10'),
+                      value: 10,
+                    ),
+                  ],
+                ),
+              ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

@@ -134,6 +134,7 @@ class zh_CN {
       'enablePageTurnAnime': '开启翻页动画',
       'preloadDistanceInOnlineMode': '在线模式预载距离',
       'ScreenHeight': '屏幕高度',
+      'preloadPageCount': '预载图片数量',
 
       /// log page
       'logList': '日志列表',

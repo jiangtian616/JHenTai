@@ -134,6 +134,7 @@ class en {
       'enablePageTurnAnime': 'Enable Page Turn Anime',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
       'ScreenHeight': 'Screen Height',
+      'preloadPageCount': 'Preload Page Count',
 
       /// log page
       'logList': 'Log List',

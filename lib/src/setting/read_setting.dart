@@ -13,6 +13,7 @@ class ReadSetting {
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxInt preloadDistance = 1.obs;
+  static RxInt preloadPageCount = 1.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -37,6 +38,11 @@ class ReadSetting {
     _save();
   }
 
+  static savePreloadPageCount(int value) {
+    preloadPageCount.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -46,6 +52,7 @@ class ReadSetting {
       'readDirection': readDirection.value.index,
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'preloadDistance': preloadDistance.value,
+      'preloadPageCount': preloadPageCount.value,
     };
   }
 
@@ -53,5 +60,6 @@ class ReadSetting {
     readDirection.value = ReadDirection.values[map['readDirection']];
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     preloadDistance.value = map['preloadDistance'];
+    preloadPageCount.value = map['preloadPageCount'];
   }
 }
