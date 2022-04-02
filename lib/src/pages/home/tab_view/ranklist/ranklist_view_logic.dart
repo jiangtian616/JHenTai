@@ -1,6 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
+import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 
@@ -49,29 +51,32 @@ class RanklistViewLogic extends GetxController {
       return;
     }
 
-    for (BaseGallery baseGallery in baseGallerys[curType]!) {
-      try {
-        Map<String, dynamic> galleryAndDetailAndApikeyAndPageCount =
-            await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: baseGallery.galleryUrl,
-          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        );
-        state.ranklistGallery[curType]?.add(galleryAndDetailAndApikeyAndPageCount['gallery']);
-        state.ranklistGalleryDetails[curType]?.add(galleryAndDetailAndApikeyAndPageCount['galleryDetails']);
-        state.ranklistGalleryDetailsApikey[curType]?.add(galleryAndDetailAndApikeyAndPageCount['apikey']);
-      } on DioError catch (e) {
-        if (e.response?.statusCode != 404) {
-          Log.error('getRanklistFailed'.tr, e.message);
-          snack('getRanklistFailed'.tr, e.message,longDuration: true, snackPosition: SnackPosition.BOTTOM);
-          state.ranklistGallery[curType]?.clear();
-          state.ranklistGalleryDetails[curType]?.clear();
-          state.ranklistGalleryDetailsApikey[curType]?.clear();
-          state.getRanklistLoadingState[curType] = LoadingState.error;
-          update([bodyId]);
-          return;
-        }
+    List<Map<String, dynamic>?> results = List.generate(baseGallerys[curType]!.length, (index) => null);
+    try {
+      await Future.wait(
+        baseGallerys[curType]!
+            .mapIndexed(
+              (index, baseGallery) => EHRequest.requestDetailPage<Map<String, dynamic>>(
+                galleryUrl: baseGallery.galleryUrl,
+                parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+              ).then(
+                (value) => results[index] = value,
+              ),
+            )
+            .toList(),
+      );
+    } on DioError catch (e) {
+      /// 404 => hide or remove
+      if (e.response?.statusCode != 404) {
+        Log.error('getRanklistFailed'.tr, e.message);
+        snack('getRanklistFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       }
     }
+
+    results.removeWhere((r) => r == null);
+    state.ranklistGallery[curType]?.addAll(results.map((r) => r!['gallery'] as Gallery).toList());
+    state.ranklistGalleryDetails[curType]?.addAll(results.map((r) => r!['galleryDetails'] as GalleryDetail).toList());
+    state.ranklistGalleryDetailsApikey[curType]?.addAll(results.map((r) => r!['apikey'] as String).toList());
 
     tagTranslationService.translateGalleryTagsIfNeeded(state.ranklistGallery[curType]!);
     tagTranslationService.translateGalleryDetailsTagsIfNeeded(state.ranklistGalleryDetails[curType]!);

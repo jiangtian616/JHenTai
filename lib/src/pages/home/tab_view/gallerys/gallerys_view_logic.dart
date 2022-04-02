@@ -192,30 +192,35 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
 
-    List<dynamic> gallerysAndPageCount = await () async {
-      if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
-        List<String>? galleryUrls = storageService.read<List>('history')?.map((e) => e as String).toList();
-        if (galleryUrls == null) {
-          return [<Gallery>[], 0];
-        }
-        List<Gallery> gallerys = await Future.wait(
-          galleryUrls
-              .map(
-                (url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery),
-              )
-              .toList(),
-        );
-        return [gallerys, 1];
-      }
-
-      return await EHRequest.requestGalleryPage(
+    List<dynamic> gallerysAndPageCount;
+    if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
+      gallerysAndPageCount = await _getHistoryGallerys();
+    } else {
+      gallerysAndPageCount = await EHRequest.requestGalleryPage(
         pageNo: pageNo,
         searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
         parser: EHSpiderParser.galleryPage2GalleryList,
       );
-    }();
+    }
 
     await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
     return gallerysAndPageCount;
+  }
+
+  Future<List<dynamic>> _getHistoryGallerys() async {
+    List<String>? galleryUrls = storageService.read<List>('history')?.map((e) => e as String).toList();
+    if (galleryUrls == null) {
+      return [<Gallery>[], 0];
+    }
+
+
+    List<Gallery> gallerys = await Future.wait(
+      galleryUrls
+          .map(
+            (url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery),
+          )
+          .toList(),
+    );
+    return [gallerys, 1];
   }
 }
