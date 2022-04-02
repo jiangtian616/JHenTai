@@ -18,58 +18,83 @@ class SettingReadPage extends StatelessWidget {
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
             ListTile(
+              title: Text('readDirection'.tr),
+              trailing: DropdownButton<ReadDirection>(
+                value: ReadSetting.readDirection.value,
+                elevation: 4,
+                onChanged: (ReadDirection? newValue) {
+                  ReadSetting.saveReadDirection(newValue!);
+                },
+                items: [
+                  DropdownMenuItem(
+                    child: Text('top2bottom'.tr),
+                    value: ReadDirection.top2bottom,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('left2right'.tr),
+                    value: ReadDirection.left2right,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('right2left'.tr),
+                    value: ReadDirection.right2left,
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
               title: Text('enablePageTurnAnime'.tr),
               trailing: Switch(
                 value: ReadSetting.enablePageTurnAnime.value,
                 onChanged: (value) => ReadSetting.saveEnablePageTurnAnime(value),
               ),
             ),
-            ListTile(
-              title: Text('preloadDistanceInOnlineMode'.tr),
-              subtitle: Text('needRestart'.tr),
-              trailing: SizedBox(
-                width: 150,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DropdownButton<int>(
-                      value: ReadSetting.preloadDistance.value,
-                      elevation: 4,
-                      onChanged: (int? newValue) {
-                        ReadSetting.savePreloadDistance(newValue!);
-                      },
-                      items: const [
-                        DropdownMenuItem(
-                          child: Text('0'),
-                          value: 0,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('1'),
-                          value: 1,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('2'),
-                          value: 2,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('3'),
-                          value: 3,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('5'),
-                          value: 5,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('10'),
-                          value: 10,
-                        ),
-                      ],
-                    ),
-                    Text('ScreenHeight'.tr).marginSymmetric(horizontal: 12),
-                  ],
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
+              ListTile(
+                title: Text('preloadDistanceInOnlineMode'.tr),
+                subtitle: Text('needRestart'.tr),
+                trailing: SizedBox(
+                  width: 150,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DropdownButton<int>(
+                        value: ReadSetting.preloadDistance.value,
+                        elevation: 4,
+                        onChanged: (int? newValue) {
+                          ReadSetting.savePreloadDistance(newValue!);
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                            child: Text('0'),
+                            value: 0,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('1'),
+                            value: 1,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('2'),
+                            value: 2,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('3'),
+                            value: 3,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('5'),
+                            value: 5,
+                          ),
+                          DropdownMenuItem(
+                            child: Text('10'),
+                            value: 10,
+                          ),
+                        ],
+                      ),
+                      Text('ScreenHeight'.tr).marginSymmetric(horizontal: 12),
+                    ],
+                  ),
                 ),
               ),
-            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

@@ -115,9 +115,9 @@ class zh_CN {
       'followSystem': '跟随系统',
       'listStyle': '画廊列表样式',
       'listWithoutTags': '列表 - 无标签',
-      'listWithTags': '列表 - 带标签',
+      'listWithTags': '列表',
       'waterfallFlowWithImageOnly': '瀑布流(仅图片)',
-      'waterfallFlowWithImageAndInfo': '瀑布流(带描述)',
+      'waterfallFlowWithImageAndInfo': '瀑布流',
       'enableTabletLayout': '开启平板双栏布局',
 
       /// advanced setting page
@@ -127,6 +127,10 @@ class zh_CN {
       'clearLogs': '清除日志',
 
       /// read setting page
+      'readDirection': '阅读方向',
+      'top2bottom': '从上至下',
+      'left2right': '从左至右',
+      'right2left': '从右至左',
       'enablePageTurnAnime': '开启翻页动画',
       'preloadDistanceInOnlineMode': '在线模式预载距离',
       'ScreenHeight': '屏幕高度',

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../utils/route_util.dart';
 import '../../../utils/size_util.dart';
@@ -28,6 +29,10 @@ class ReadListViewHelper extends StatelessWidget {
   }
 
   Widget _buildZoomableList(Widget child) {
+    if (child is! ScrollablePositionedList) {
+      return child;
+    }
+
     /// we need to scale the whole list rather than single image, so assign count = 1.
     return PhotoViewGallery.builder(
       itemCount: 1,

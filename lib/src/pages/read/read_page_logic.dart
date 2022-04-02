@@ -32,6 +32,7 @@ class ReadPageLogic extends GetxController {
     state.gid = int.parse(Get.parameters['gid']!);
     state.galleryUrl = Get.parameters['galleryUrl']!;
     state.readIndexRecord = storageService.read('readIndexRecord::${state.gid}') ?? 0;
+    state.pageController = PageController(initialPage: state.initialIndex);
 
     if (state.type == 'local') {
       GalleryDownloadedData gallery = Get.arguments as GalleryDownloadedData;
@@ -44,7 +45,7 @@ class ReadPageLogic extends GetxController {
         List<GalleryThumbnail> parsedThumbnails = Get.arguments as List<GalleryThumbnail>;
         state.thumbnails = List.generate(
           state.pageCount,
-          (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
+              (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
           growable: true,
         );
       }
@@ -54,8 +55,7 @@ class ReadPageLogic extends GetxController {
 
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
-      state.readIndexRecord = state.itemPositionsListener.itemPositions.value.first.index;
-      update(['menu']);
+      handleReadProgress(state.itemPositionsListener.itemPositions.value.first.index);
     });
   }
 
@@ -79,7 +79,8 @@ class ReadPageLogic extends GetxController {
     List<GalleryThumbnail> newThumbnails;
     try {
       newThumbnails = await retry(
-        () async => await EHRequest.requestDetailPage(
+            () async =>
+        await EHRequest.requestDetailPage(
           galleryUrl: state.galleryUrl,
           thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
           parser: EHSpiderParser.detailPage2Thumbnails,
@@ -107,10 +108,11 @@ class ReadPageLogic extends GetxController {
     state.imageUrlParsingStates![index].value = LoadingState.loading;
 
     retry(
-      () => EHRequest.requestImagePage(
-        state.thumbnails[index].value!.href,
-        parser: EHSpiderParser.imagePage2GalleryImage,
-      ),
+          () =>
+          EHRequest.requestImagePage(
+            state.thumbnails[index].value!.href,
+            parser: EHSpiderParser.imagePage2GalleryImage,
+          ),
       maxAttempts: 3,
     ).then((image) {
       state.images[index].value = image;
@@ -123,36 +125,62 @@ class ReadPageLogic extends GetxController {
 
   /// attention! [Prev] page is the first page which is not totally shown that in the viewport and before.
   void scrollOrJump2PrevPage() {
-    ItemPosition firstPosition = state.itemPositionsListener.itemPositions.value.first;
-    int targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
+    int targetIndex;
+
+    if (state.itemScrollController.isAttached) {
+      ItemPosition firstPosition = state.itemPositionsListener.itemPositions.value.first;
+      targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
+    } else {
+      targetIndex = (state.pageController!.page! - 1).toInt();
+    }
+
     scrollOrJump2Page(max(targetIndex, 0));
   }
 
   /// attention! [next] page is the first page which is not totally shown that in the viewport and behind.
   void scrollOrJump2NextPage() {
-    ItemPosition lastPosition = state.itemPositionsListener.itemPositions.value.last;
-    int targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
-        ? lastPosition.index
-        : lastPosition.index + 1;
+    int targetIndex;
+
+    if (state.itemScrollController.isAttached) {
+      ItemPosition lastPosition = state.itemPositionsListener.itemPositions.value.last;
+      targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
+          ? lastPosition.index
+          : lastPosition.index + 1;
+    } else {
+      targetIndex = (state.pageController!.page! + 1).toInt();
+    }
     scrollOrJump2Page(min(targetIndex, state.pageCount));
   }
 
   void scrollOrJump2Page(int pageIndex) {
     if (ReadSetting.enablePageTurnAnime.isTrue) {
-      state.itemScrollController.scrollTo(
-        index: pageIndex,
-        duration: const Duration(milliseconds: 200),
-      );
+      if (state.itemScrollController.isAttached) {
+        state.itemScrollController.scrollTo(
+          index: pageIndex,
+          duration: const Duration(milliseconds: 200),
+        );
+      }
+      if (state.pageController?.hasClients ?? false) {
+        state.pageController?.animateToPage(
+          pageIndex,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+        );
+      }
+      update(['menu']);
     } else {
-      state.itemScrollController.jumpTo(
-        index: pageIndex,
-      );
+      state.itemScrollController.jumpTo(index: pageIndex);
+      state.pageController?.jumpToPage(pageIndex);
     }
-    update(['menu']);
   }
 
   void jump2Page(int pageIndex) {
-    state.itemScrollController.jumpTo(index: pageIndex);
+    if (state.itemScrollController.isAttached) {
+      state.itemScrollController.jumpTo(index: pageIndex);
+    }
+    if (state.pageController?.hasClients ?? false) {
+      state.pageController?.jumpToPage(pageIndex);
+    }
     update(['menu']);
   }
 
@@ -174,5 +202,10 @@ class ReadPageLogic extends GetxController {
 
   void handleSlideEnd(double value) {
     jump2Page((value - 1).toInt());
+  }
+
+  void handleReadProgress(int index) {
+    state.readIndexRecord = index;
+    update(['menu']);
   }
 }

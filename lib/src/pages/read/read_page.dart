@@ -9,10 +9,13 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../service/download_service.dart';
@@ -30,7 +33,9 @@ class ReadPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: ReadListViewHelper(
-        child: _buildListView(),
+        child: Obx(() {
+          return ReadSetting.readDirection.value == ReadDirection.top2bottom ? _buildListView() : _buildPageView();
+        }),
       ),
     );
   }
@@ -89,6 +94,64 @@ class ReadPage extends StatelessWidget {
       separatorBuilder: (BuildContext context, int index) {
         return const Divider(height: 6);
       },
+    );
+  }
+
+  Widget _buildPageView() {
+    return PhotoViewGallery.builder(
+      pageController: state.pageController,
+      itemCount: state.pageCount,
+      onPageChanged: logic.handleReadProgress,
+      allowImplicitScrolling: true,
+      reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+        scaleStateController: state.photoViewScaleStateController,
+        onScaleEnd: logic.onScaleEnd,
+        child: Obx(() {
+          /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
+          if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
+            if (state.imageHrefParsingState.value == LoadingState.idle) {
+              logic.beginParsingImageHref(index);
+            }
+            if (state.type == 'online' || state.images[index].value == null) {
+              return _buildParsingThumbnailsIndicator(context, index);
+            }
+          }
+
+          /// step 2: parsing image url. [parse] one image's raw data
+          if (state.images[index].value == null) {
+            if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
+              logic.beginParsingImageUrl(index);
+            }
+
+            /// just like a listener
+            downloadService.gid2Images[state.gid]?[index].value;
+
+            return _buildParsingImageIndicator(context, index);
+          }
+
+          FittedSizes fittedSizes = applyBoxFit(
+            BoxFit.contain,
+            Size(state.images[index].value!.width, state.images[index].value!.height),
+            Size(fullScreenWidth, double.infinity),
+          );
+
+          /// step 3 load image : use url to [load] image
+          return KeepAliveWrapper(
+            child: EHImage(
+              enableLongPressToRefresh: state.type == 'online',
+              containerHeight: fittedSizes.destination.height,
+              containerWidth: fittedSizes.destination.width,
+              galleryImage: state.images[index].value!,
+              adaptive: true,
+              fit: BoxFit.contain,
+              loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+              failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+              downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
+            ),
+          );
+        }),
+      ),
     );
   }
 

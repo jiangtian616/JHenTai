@@ -114,10 +114,10 @@ class en {
       'light': 'Light',
       'followSystem': 'Follow System',
       'listStyle': 'Gallery List Style',
-      'listWithoutTags': 'List Without Tags',
-      'listWithTags': 'List With Tags',
+      'listWithoutTags': 'List(Without Tags)',
+      'listWithTags': 'List',
       'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',
-      'waterfallFlowWithImageAndInfo': 'Waterfall Flow(With Info)',
+      'waterfallFlowWithImageAndInfo': 'Waterfall Flow',
       'enableTabletLayout': 'Enable Tablet Layout',
 
       /// advanced setting page
@@ -127,6 +127,10 @@ class en {
       'clearLogs': 'Clear Logs',
 
       /// read setting page
+      'readDirection': 'Read Direction',
+      'top2bottom': 'Top to Bottom',
+      'left2right': 'Left to Right',
+      'right2left': 'Right to Left',
       'enablePageTurnAnime': 'Enable Page Turn Anime',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
       'ScreenHeight': 'Screen Height',
