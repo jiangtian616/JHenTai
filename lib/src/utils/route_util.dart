@@ -14,7 +14,8 @@ Future<T?>? toNamed<T>(
   bool preventDuplicates = true,
   Map<String, String>? parameters,
 }) {
-  if (StyleSetting.enableTabletLayout.isFalse) {
+  EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
+  if (StyleSetting.enableTabletLayout.isFalse || page.side == Side.fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -22,8 +23,6 @@ Future<T?>? toNamed<T>(
       parameters: parameters,
     );
   }
-
-  EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
 
   if (page.side == Side.left) {
     return Get.toNamed(
@@ -64,7 +63,10 @@ void back<T>({
     className = parts[0];
   }
 
-  Side side = Routes.pages.firstWhereOrNull((page) => page.className == className)?.side ?? Side.fullScreen;
+  Side side = Routes.pages
+          .firstWhereOrNull((page) => page.className == className)
+          ?.side ??
+      Side.fullScreen;
   return Get.back(
     result: result,
     closeOverlays: closeOverlays,
@@ -80,13 +82,24 @@ void back<T>({
 }
 
 Future<T?>? offNamed<T>(
-  String currentRouteName,
   String page, {
+  String? className,
   dynamic arguments,
   bool preventDuplicates = true,
   Map<String, String>? parameters,
 }) {
-  Side side = Routes.pages.firstWhere((page) => page.name == currentRouteName).side;
+  if (className == null) {
+    List<Frame> frames = Trace.current().frames;
+    String member = frames[1].member!;
+    List<String> parts = member.split(".");
+    className = parts[0];
+  }
+
+  Side side = Routes.pages
+          .firstWhereOrNull((page) => page.className == className)
+          ?.side ??
+      Side.fullScreen;
+
   return Get.offNamed(
     page,
     arguments: arguments,
@@ -102,8 +115,19 @@ Future<T?>? offNamed<T>(
   );
 }
 
-void until(String currentRouteName, RoutePredicate predicate) {
-  Side side = Routes.pages.firstWhere((page) => page.name == currentRouteName).side;
+void until(RoutePredicate predicate, {String? className}) {
+  if (className == null) {
+    /// get caller className to decide which Navigator to pop
+    List<Frame> frames = Trace.current().frames;
+    String member = frames[1].member!;
+    List<String> parts = member.split(".");
+    className = parts[0];
+  }
+
+  Side side = Routes.pages
+          .firstWhereOrNull((page) => page.className == className)
+          ?.side ??
+      Side.fullScreen;
   return Get.until(
     predicate,
     id: StyleSetting.enableTabletLayout.isFalse

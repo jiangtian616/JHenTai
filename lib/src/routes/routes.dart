@@ -143,7 +143,7 @@ class Routes {
       className: 'LoginPage',
       page: () => LoginPage(),
       transition: Transition.cupertino,
-      side: Side.fullScreen,
+      offAllBefore: false,
     ),
     EHPage(
       name: logList,
@@ -157,6 +157,7 @@ class Routes {
       className: 'LogPage',
       page: () => LogPage(),
       transition: Transition.cupertino,
+      offAllBefore: false,
     ),
     EHPage(
       name: read,

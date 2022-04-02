@@ -1,12 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/blank_page.dart';
-import 'package:jhentai/src/pages/home/home_page_logic.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
-import 'package:jhentai/src/pages/home/home_page_state.dart';
-import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
-import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
@@ -27,15 +22,14 @@ class StartPage extends StatelessWidget {
       return Row(
         children: [
           Expanded(
-            child: _leftScreen(),
+            child: Row(
+              children: [
+                Expanded(child: _leftScreen()),
+                Container(width: 0.3, color: Colors.black),
+              ],
+            ),
           ),
-          Container(
-            width: 0.4,
-            color: Colors.grey,
-          ),
-          Expanded(
-            child: _rightScreen(),
-          ),
+          Expanded(child: _rightScreen()),
         ],
       );
     });
@@ -51,16 +45,28 @@ class StartPage extends StatelessWidget {
         GetPageRoute(
           settings: const RouteSettings(name: Routes.home),
           page: () => HomePage(),
+          popGesture: false,
+          transition: Transition.fadeIn,
+          showCupertinoParallax: false,
         ),
       ],
       onGenerateRoute: (settings) {
+        /// todo: check conflict
+        Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
+
         return GetPageRoute(
           settings: settings,
-          page: Routes.pages.firstWhere((page) => page.name == settings.name).page,
+
+          /// setting name may include path params
+          page: Routes.pages
+              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
+              .page,
 
           /// do not use swipe back in tablet layout!
           popGesture: false,
           transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 150),
+          showCupertinoParallax: false,
         );
       },
     );
@@ -73,17 +79,27 @@ class StartPage extends StatelessWidget {
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
-          page: () => BlankPage(),
+          page: () => const BlankPage(),
+          popGesture: false,
+          transition: Transition.fadeIn,
+          showCupertinoParallax: false,
         ),
       ],
       onGenerateRoute: (settings) {
+        Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
         return GetPageRoute(
           settings: settings,
-          page: Routes.pages.firstWhere((page) => page.name == settings.name).page,
+
+          /// setting name may include path params
+          page: Routes.pages
+              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
+              .page,
 
           /// do not use swipe back in tablet layout!
           popGesture: false,
           transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 150),
+          showCupertinoParallax: false,
         );
       },
     );

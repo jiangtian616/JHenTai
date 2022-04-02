@@ -9,6 +9,8 @@ import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../utils/route_util.dart';
+
 class WebviewPage extends StatefulWidget {
   const WebviewPage({Key? key}) : super(key: key);
 
@@ -34,42 +36,57 @@ class _WebviewPageState extends State<WebviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: WebView(
-          initialUrl: url,
-          onWebViewCreated: (controller) => this.controller = controller,
-          javascriptMode: JavascriptMode.unrestricted,
-          initialCookies:
-              cookies.map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: Uri.parse(url).host)).toList(),
-          onPageStarted: !isLogin
-              ? null
-              : (url) async {
-                  String cookieString = await controller.runJavascriptReturningResult('document.cookie');
-                  cookieString = cookieString.replaceAll('"', '');
-                  if (!CookieUtil.validateCookiesString(cookieString)) {
-                    return;
-                  }
+      appBar: AppBar(),
+      body: WebView(
+        initialUrl: url,
+        onWebViewCreated: (controller) => this.controller = controller,
+        javascriptMode: JavascriptMode.unrestricted,
+        initialCookies: cookies
+            .map((cookie) => WebViewCookie(
+                name: cookie.name,
+                value: cookie.value,
+                domain: Uri.parse(url).host))
+            .toList(),
+        onPageStarted: !isLogin
+            ? null
+            : (url) async {
+                String cookieString = await controller
+                    .runJavascriptReturningResult('document.cookie');
+                cookieString = cookieString.replaceAll('"', '');
+                if (!CookieUtil.validateCookiesString(cookieString)) {
+                  return;
+                }
 
-                  List<Cookie> cookies = cookieString.split('; ').map((pair) {
-                    List<String> nameAndValue = pair.split('=');
-                    return Cookie(nameAndValue[0], nameAndValue[1]);
-                  }).toList();
+                List<Cookie> cookies = cookieString.split('; ').map((pair) {
+                  List<String> nameAndValue = pair.split('=');
+                  return Cookie(nameAndValue[0], nameAndValue[1]);
+                }).toList();
 
-                  int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
-                  String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
+                int ipbMemberId = int.parse(cookies
+                    .firstWhere((cookie) => cookie.name == 'ipb_member_id')
+                    .value);
+                String ipbPassHash = cookies
+                    .firstWhere((cookie) => cookie.name == 'ipb_pass_hash')
+                    .value;
 
-                  /// temporarily
-                  UserSetting.userName.value = ipbMemberId.toString();
-                  Get.until((route) => route.settings.name == Routes.settingAccount);
+                /// temporarily
+                UserSetting.userName.value = ipbMemberId.toString();
+                until(
+                  (route) => route.settings.name == Routes.settingAccount,
+                  className: 'WebviewPage',
+                );
 
-                  EHRequest.storeEhCookiesForAllUri(cookies).then((v) {
-                    EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo)
-                        .then((String? userName) {
-                      UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
-                    });
+                EHRequest.storeEhCookiesForAllUri(cookies).then((v) {
+                  EHRequest.requestForum(
+                          ipbMemberId, EHSpiderParser.forumPage2UserInfo)
+                      .then((String? userName) {
+                    UserSetting.saveUserInfo(
+                        userName: userName!,
+                        ipbMemberId: ipbMemberId,
+                        ipbPassHash: ipbPassHash);
                   });
-                },
-        ),
+                });
+              },
       ),
     );
   }
