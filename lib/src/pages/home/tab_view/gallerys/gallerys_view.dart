@@ -1,18 +1,15 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../setting/tab_bar_setting.dart';
 import '../../../../utils/route_util.dart';
+import '../../../../widget/eh_gallery_collection.dart';
 import '../../../../widget/eh_tab_bar_config_dialog.dart';
 import '../../../../widget/eh_sliver_header_delegate.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -276,7 +273,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: <Widget>[
               _buildRefreshIndicator(),
-              _buildGalleryList(widget.tabIndex),
+              _buildGalleryCollection(widget.tabIndex),
               _buildLoadMoreIndicator(),
             ],
           );
@@ -323,37 +320,12 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     );
   }
 
-  SliverList _buildGalleryList(int tabIndex) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          _handleLoadMoreIfAtLast(tabIndex, index);
-
-          Gallery gallery = gallerysViewState.gallerys[tabIndex][index];
-          return Obx(() {
-            return GalleryCard(
-              gallery: gallery,
-              handleTapCard: (gallery) => gallerysViewLogic.handleTapCard(gallery),
-              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
-          });
-        },
-        childCount: gallerysViewState.gallerys[tabIndex].length,
-      ),
+  SliverList _buildGalleryCollection(int tabIndex) {
+    return EHGalleryCollection(
+      gallerys: gallerysViewState.gallerys[tabIndex],
+      loadingState: gallerysViewState.loadingState[tabIndex],
+      handleTapCard: gallerysViewLogic.handleTapCard,
+      handleLoadMore: () => gallerysViewLogic.handleLoadMore(tabIndex),
     );
-  }
-
-  void _handleLoadMoreIfAtLast(int tabIndex, int index) {
-    if (index == gallerysViewState.gallerys[tabIndex].length - 1 &&
-        gallerysViewState.loadingState[tabIndex] == LoadingState.idle) {
-      /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
-      /// that hints circular build.
-      /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
-      /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-      /// the callback is added only once.
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        gallerysViewLogic.handleLoadMore(tabIndex);
-      });
-    }
   }
 }

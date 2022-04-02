@@ -7,7 +7,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 
-import 'gallery_category_tag.dart';
+import 'eh_gallery_category_tag.dart';
 
 enum EHTabBarConfigDialogType {
   /// update a tabBar config
@@ -179,6 +179,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                                           text: tabBarConfig.searchConfig.pageAtLeast?.toString()),
                                       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d'))],
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(color: Theme.of(context).textTheme.bodyText1?.color),
                                       onChanged: (value) => tabBarConfig.searchConfig.pageAtLeast =
                                           value.isEmpty ? null : int.parse(value),
                                     ),
@@ -191,6 +192,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                                           TextEditingController(text: tabBarConfig.searchConfig.pageAtMost?.toString()),
                                       inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d'))],
                                       textAlign: TextAlign.center,
+                                      style: TextStyle(color: Theme.of(context).textTheme.bodyText1?.color),
                                       onChanged: (value) => tabBarConfig.searchConfig.pageAtMost =
                                           value.isEmpty ? null : int.parse(value),
                                     ),
@@ -465,7 +467,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
   }
 
   Widget _buildCategoryTag({required String category, required bool enabled, VoidCallback? onTap}) {
-    return GalleryCategoryTag(
+    return EHGalleryCategoryTag(
       category: category,
       width: 115,
       height: 30,

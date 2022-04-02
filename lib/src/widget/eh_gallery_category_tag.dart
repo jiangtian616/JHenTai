@@ -2,17 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 
-class GalleryCategoryTag extends StatelessWidget {
+class EHGalleryCategoryTag extends StatelessWidget {
   final String category;
-  double? height;
-  double? width;
-  double borderRadius;
-  bool enabled;
+  final double? height;
+  final double? width;
+  final double borderRadius;
+  final bool enabled;
   final EdgeInsets padding;
   final TextStyle textStyle;
-  VoidCallback? onTap;
+  final VoidCallback? onTap;
 
-  GalleryCategoryTag({
+  const EHGalleryCategoryTag({
     Key? key,
     required this.category,
     this.height,

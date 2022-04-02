@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_logic.dart';
 import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_state.dart';
-import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
+import 'package:jhentai/src/widget/eh_gallery_collection.dart';
 
 import '../../../../config/global_config.dart';
-import '../../../../model/gallery.dart';
-import '../../../../setting/style_setting.dart';
 import '../../../../widget/loading_state_indicator.dart';
 
 class RanklistView extends StatefulWidget {
@@ -84,7 +82,7 @@ class _RanklistViewState extends State<RanklistView> {
             key: PageStorageKey(state.ranklistType.name),
             slivers: <Widget>[
               _buildRefreshIndicator(),
-              _buildGalleryList(),
+              _buildGalleryCollection(),
               _buildLoadMoreIndicator(),
             ],
           );
@@ -126,21 +124,11 @@ class _RanklistViewState extends State<RanklistView> {
     );
   }
 
-  SliverList _buildGalleryList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          Gallery gallery = state.ranklistGallery[state.ranklistType]![index];
-          return Obx(() {
-            return GalleryCard(
-              gallery: gallery,
-              handleTapCard: (gallery) => logic.handleTapCard(gallery),
-              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
-          });
-        },
-        childCount: state.ranklistGallery[state.ranklistType]!.length,
-      ),
+  SliverList _buildGalleryCollection() {
+    return EHGalleryCollection(
+      gallerys: state.ranklistGallery[state.ranklistType]!,
+      loadingState: state.getRanklistLoadingState[state.ranklistType]!,
+      handleTapCard: logic.handleTapCard,
     );
   }
 }

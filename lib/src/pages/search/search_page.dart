@@ -4,11 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/pages/home/tab_view/widget/gallery_card.dart';
 
 import '../../config/global_config.dart';
-import '../../model/gallery.dart';
-import '../../setting/style_setting.dart';
+import '../../widget/eh_gallery_collection.dart';
 import '../../widget/eh_sliver_header_delegate.dart';
 import '../../widget/eh_tab_bar_config_dialog.dart';
 import '../../widget/eh_tag.dart';
@@ -276,7 +274,7 @@ class SearchPagePage extends StatelessWidget {
                   onRefresh: () => logic.searchMore(isRefresh: true),
                 ),
               ),
-              _buildGalleryList(),
+              _buildGalleryCollection(),
               SliverPadding(
                 padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
                 sliver: SliverToBoxAdapter(
@@ -293,27 +291,12 @@ class SearchPagePage extends StatelessWidget {
           );
   }
 
-  SliverList _buildGalleryList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          if (index == state.gallerys.length - 1 && state.loadingState == LoadingState.idle) {
-            SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-              logic.searchMore(isRefresh: false);
-            });
-          }
-
-          Gallery gallery = state.gallerys[index];
-          return Obx(() {
-            return GalleryCard(
-              gallery: gallery,
-              handleTapCard: (gallery) => logic.handleTapCard(gallery),
-              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
-          });
-        },
-        childCount: state.gallerys.length,
-      ),
+  SliverList _buildGalleryCollection() {
+    return EHGalleryCollection(
+      gallerys: state.gallerys,
+      loadingState: state.loadingState,
+      handleTapCard: logic.handleTapCard,
+      handleLoadMore: () => logic.searchMore(isRefresh: false),
     );
   }
 }

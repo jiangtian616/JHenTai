@@ -12,7 +12,7 @@ import '../../../../service/storage_service.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_image.dart';
-import '../../../../widget/gallery_category_tag.dart';
+import '../../../../widget/eh_gallery_category_tag.dart';
 
 class DownloadView extends StatelessWidget {
   final DownloadService downloadService = Get.find();
@@ -174,7 +174,7 @@ class DownloadView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GalleryCategoryTag(category: gallery.category),
+            EHGalleryCategoryTag(category: gallery.category),
             GestureDetector(
               onTap: () {
                 downloadStatus == DownloadStatus.paused

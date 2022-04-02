@@ -14,7 +14,7 @@ import '../../../../model/gallery_image.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/eh_tag.dart';
-import '../../../../widget/gallery_category_tag.dart';
+import '../../../../widget/eh_gallery_category_tag.dart';
 
 typedef TapCardCallback = FutureOr<void> Function(Gallery gallery);
 
@@ -127,7 +127,7 @@ class GalleryCard extends StatelessWidget {
     return SizedBox(
       height: 70,
       child: WaterfallFlow.builder(
-        key: Key(gallery.gid.toString()),
+        key: UniqueKey(),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
@@ -154,7 +154,7 @@ class GalleryCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            GalleryCategoryTag(category: gallery.category),
+            EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
             if (gallery.isFavorite)
               ClipRRect(
