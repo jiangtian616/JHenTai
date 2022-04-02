@@ -116,7 +116,8 @@ class en {
       'listStyle': 'Gallery List Style',
       'listWithoutTags': 'List Without Tags',
       'listWithTags': 'List With Tags',
-      'waterflow': 'Waterflow',
+      'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',
+      'waterfallFlowWithImageAndInfo': 'Waterfall Flow(With Info)',
       'enableTabletLayout': 'Enable Tablet Layout',
 
       /// advanced setting page

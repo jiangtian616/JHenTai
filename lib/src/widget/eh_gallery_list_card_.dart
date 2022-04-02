@@ -7,24 +7,24 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
-import '../../../../consts/color_consts.dart';
-import '../../../../consts/locale_consts.dart';
-import '../../../../database/database.dart';
-import '../../../../model/gallery_image.dart';
-import '../../../../utils/date_util.dart';
-import '../../../../widget/eh_image.dart';
-import '../../../../widget/eh_tag.dart';
-import '../../../../widget/eh_gallery_category_tag.dart';
+import '../consts/color_consts.dart';
+import '../consts/locale_consts.dart';
+import '../database/database.dart';
+import '../model/gallery_image.dart';
+import '../utils/date_util.dart';
+import 'eh_image.dart';
+import 'eh_tag.dart';
+import 'eh_gallery_category_tag.dart';
 
 typedef TapCardCallback = FutureOr<void> Function(Gallery gallery);
 
-class GalleryCard extends StatelessWidget {
+class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
   final TapCardCallback handleTapCard;
   final bool withTags;
   final bool keepAlive;
 
-  const GalleryCard({
+  const EHGalleryListCard({
     Key? key,
     required this.gallery,
     required this.handleTapCard,

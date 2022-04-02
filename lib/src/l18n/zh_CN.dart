@@ -116,7 +116,8 @@ class zh_CN {
       'listStyle': '画廊列表样式',
       'listWithoutTags': '列表 - 无标签',
       'listWithTags': '列表 - 带标签',
-      'waterflow': '瀑布流',
+      'waterfallFlowWithImageOnly': '瀑布流(仅图片)',
+      'waterfallFlowWithImageAndInfo': '瀑布流(带描述)',
       'enableTabletLayout': '开启平板双栏布局',
 
       /// advanced setting page

@@ -14,7 +14,8 @@ enum EHThemeMode {
 enum ListMode {
   listWithoutTags,
   listWithTags,
-  waterflow,
+  waterfallFlowWithImageOnly,
+  waterfallFlowWithImageAndInfo,
 }
 
 class StyleSetting {

@@ -124,7 +124,7 @@ class _RanklistViewState extends State<RanklistView> {
     );
   }
 
-  SliverList _buildGalleryCollection() {
+  Widget _buildGalleryCollection() {
     return EHGalleryCollection(
       gallerys: state.ranklistGallery[state.ranklistType]!,
       loadingState: state.getRanklistLoadingState[state.ranklistType]!,

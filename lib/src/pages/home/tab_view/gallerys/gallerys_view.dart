@@ -320,7 +320,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     );
   }
 
-  SliverList _buildGalleryCollection(int tabIndex) {
+  Widget _buildGalleryCollection(int tabIndex) {
     return EHGalleryCollection(
       gallerys: gallerysViewState.gallerys[tabIndex],
       loadingState: gallerysViewState.loadingState[tabIndex],

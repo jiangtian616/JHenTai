@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:jhentai/src/config/global_config.dart';
 
 class ThemeConfig {
   static ThemeData light = ThemeData(
@@ -66,6 +65,7 @@ class ThemeConfig {
     brightness: Brightness.dark,
     primaryColor: const Color.fromARGB(255, 0, 122, 255),
     primaryColorLight: Colors.pink.shade300,
+    backgroundColor: Colors.grey.shade900,
     appBarTheme: AppBarTheme(
       foregroundColor: Colors.grey.shade100,
       backgroundColor: Colors.grey.shade900,

@@ -64,8 +64,12 @@ class SettingStylePage extends StatelessWidget {
                     value: ListMode.listWithTags,
                   ),
                   DropdownMenuItem(
-                    child: Text('waterflow'.tr),
-                    value: ListMode.waterflow,
+                    child: Text('waterfallFlowWithImageOnly'.tr),
+                    value: ListMode.waterfallFlowWithImageOnly,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('waterfallFlowWithImageAndInfo'.tr),
+                    value: ListMode.waterfallFlowWithImageAndInfo,
                   ),
                 ],
               ),

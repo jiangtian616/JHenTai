@@ -291,7 +291,7 @@ class SearchPagePage extends StatelessWidget {
           );
   }
 
-  SliverList _buildGalleryCollection() {
+  Widget _buildGalleryCollection() {
     return EHGalleryCollection(
       gallerys: state.gallerys,
       loadingState: state.loadingState,
