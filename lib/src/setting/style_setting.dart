@@ -18,10 +18,16 @@ enum ListMode {
   waterfallFlowWithImageAndInfo,
 }
 
+enum CoverMode {
+  cover,
+  contain,
+}
+
 class StyleSetting {
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<EHThemeMode> themeMode = EHThemeMode.light.obs;
-  static Rx<ListMode> listMode = ListMode.listWithTags.obs;
+  static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
+  static Rx<CoverMode> coverMode = CoverMode.cover.obs;
   static RxBool enableTabletLayout =
       WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio <= 600
           ? false.obs
@@ -51,6 +57,11 @@ class StyleSetting {
     _save();
   }
 
+  static saveCoverMode(CoverMode coverMode) {
+    StyleSetting.coverMode.value = coverMode;
+    _save();
+  }
+
   static saveEnableTabletLayout(bool enableTabletLayout) {
     StyleSetting.enableTabletLayout.value = enableTabletLayout;
     _save();
@@ -75,6 +86,7 @@ class StyleSetting {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
+      'coverMode': coverMode.value.index,
       'enableTabletLayout': enableTabletLayout.value,
     };
   }
@@ -83,6 +95,7 @@ class StyleSetting {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = EHThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
+    coverMode.value = CoverMode.values[map['coverMode']];
     enableTabletLayout.value = map['enableTabletLayout'];
   }
 }

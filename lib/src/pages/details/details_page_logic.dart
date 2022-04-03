@@ -68,19 +68,7 @@ class DetailsPageLogic extends GetxController {
 
     /// enter from downloadPage or url
     if (arg is String) {
-      Map<String, dynamic> galleryAndDetailsAndApikey = await EHRequest.requestDetailPage(
-        galleryUrl: arg,
-        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-      );
-      state.gallery = galleryAndDetailsAndApikey['gallery']!;
-      state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
-      state.apikey = galleryAndDetailsAndApikey['apikey']!;
-      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
-      state.loadingDetailsState = LoadingState.success;
-
-      await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-      update([bodyId]);
-      return;
+      getFullPage();
     }
 
     /// enter from ranklist view
@@ -123,6 +111,39 @@ class DetailsPageLogic extends GetxController {
 
   void showLoginSnack() {
     snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+  }
+
+  Future<void> getFullPage() async {
+    state.loadingPageState = LoadingState.loading;
+    update([loadingStateId]);
+
+    Map<String, dynamic> galleryAndDetailsAndApikey;
+    try {
+      galleryAndDetailsAndApikey = await EHRequest.requestDetailPage(
+        galleryUrl: Get.arguments,
+        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+      );
+    } on DioError catch (e) {
+      if (e.response?.statusCode == 404) {
+        Log.error('404', e.message);
+        snack('invisible2User'.tr, 'invisibleHints'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      } else {
+        Log.error('getGalleryDetailFailed'.tr, e.message);
+        snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      }
+      state.loadingPageState = LoadingState.error;
+      update([bodyId]);
+      return;
+    }
+    state.gallery = galleryAndDetailsAndApikey['gallery']!;
+    state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
+    state.apikey = galleryAndDetailsAndApikey['apikey']!;
+    state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
+    state.loadingPageState = LoadingState.success;
+
+    await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
+    update([bodyId]);
+    return;
   }
 
   Future<void> getDetails() async {

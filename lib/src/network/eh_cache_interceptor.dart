@@ -6,7 +6,7 @@ import 'package:dio_cache_interceptor/src/model/cache_options.dart';
 import 'package:dio_cache_interceptor/src/util/response_extension.dart';
 import 'package:jhentai/src/utils/log.dart';
 
-/// copied from [DioCacheInterceptor] and only edit in line 180, to make [max-style] valid and act like [max-age].
+/// copied from [DioCacheInterceptor] and only edit in line 180, to make property [max-style] valid and act like [max-age].
 class EHCacheInterceptor extends Interceptor {
   static const String _getMethodName = 'GET';
   static const String _postMethodName = 'POST';

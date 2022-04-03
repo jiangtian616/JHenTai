@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/color_consts.dart';
@@ -71,13 +72,15 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget _buildCover(GalleryImage image) {
-    return EHImage(
-      containerHeight: withTags ? 200 : 125,
-      containerWidth: withTags ? 140 : 85,
-      adaptive: true,
-      galleryImage: image,
-      fit: BoxFit.cover,
-    );
+    return Obx(() {
+      return EHImage(
+        containerHeight: withTags ? 200 : 125,
+        containerWidth: withTags ? 140 : 85,
+        adaptive: true,
+        galleryImage: image,
+        fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+      );
+    });
   }
 
   Widget _buildInfo(Gallery gallery) {

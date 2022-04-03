@@ -18,7 +18,7 @@ class RanklistViewState {
   late Map<RanklistType, LoadingState> getRanklistLoadingState;
 
   RanklistViewState() {
-    ranklistType = RanklistType.allTime;
+    ranklistType = RanklistType.day;
     ranklistGallery = <RanklistType, List<Gallery>>{
       RanklistType.allTime: <Gallery>[],
       RanklistType.year: <Gallery>[],

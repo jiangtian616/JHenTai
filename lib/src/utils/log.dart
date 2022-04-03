@@ -46,15 +46,12 @@ class Log {
   }
 
   static String getSizeInKB() {
-    io.Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
+    io.Directory logDirectory = io.Directory(logPath);
     if (!logDirectory.existsSync()) {
       return '0KB';
     }
-    int totalBytes = logDirectory
-        .listSync()
-        .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
 
-    return (totalBytes / 1024).toStringAsFixed(2) + 'KB';
+    return (logDirectory.statSync().size / 1024).toStringAsFixed(2) + 'KB';
   }
 
   static void clear() {

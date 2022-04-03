@@ -150,8 +150,7 @@ class _EHCommentState extends State<EHComment> {
       return null;
     }
 
-    final DetailsPageState detailsPageState =
-        Get.find<DetailsPageLogic>(tag: DetailsPageLogic.current.toString()).state;
+    final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     EHRequest.voteComment(
       detailsPageState.gallery!.gid,
       detailsPageState.gallery!.token,

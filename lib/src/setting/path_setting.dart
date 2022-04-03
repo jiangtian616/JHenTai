@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class PathSetting {
+  static late Directory tempDir;
+
   /// visible on ios
   static Directory? appDocDir;
 
@@ -14,6 +16,7 @@ class PathSetting {
 
   static Future<void> init() async {
     await Future.wait([
+      getTemporaryDirectory().then((value) => tempDir = value),
       getApplicationDocumentsDirectory().then((value) => appDocDir = value),
       getApplicationSupportDirectory().then((value) => appSupportDir = value),
       getExternalStorageDirectory().then((value) => externalStorageDir = value).catchError((error) => null),

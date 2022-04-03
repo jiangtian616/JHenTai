@@ -10,7 +10,9 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
@@ -351,7 +353,7 @@ class EHRequest {
       cancelToken: cancelToken,
       options: options ??
           Options(
-            receiveTimeout: 10000,
+            receiveTimeout: DownloadSetting.timeout.value * 1000,
             extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
           ),
     );

@@ -25,6 +25,7 @@ import '../../database/database.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
+import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/size_util.dart';
@@ -67,10 +68,7 @@ class DetailsPage extends StatelessWidget {
                 Gallery? gallery = detailsPageState.gallery;
 
                 if (gallery == null) {
-                  return const Align(
-                    child: CupertinoActivityIndicator(radius: 20),
-                    alignment: Alignment(0, -0.25),
-                  );
+                  return _buildLoadingPageIndicator();
                 }
 
                 return Container(
@@ -86,7 +84,7 @@ class DetailsPage extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     slivers: [
                       CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
-                      _buildHeader(gallery, context),
+                      _buildHeader(gallery, detailsPageState.galleryDetails, context),
                       _buildDetails(gallery, detailsPageState.galleryDetails),
                       _buildActions(gallery, detailsPageState.galleryDetails, context),
                       if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
@@ -107,7 +105,20 @@ class DetailsPage extends StatelessWidget {
         });
   }
 
-  Widget _buildHeader(Gallery gallery, BuildContext context) {
+  Widget _buildLoadingPageIndicator() {
+    return GetBuilder<DetailsPageLogic>(
+        id: loadingStateId,
+        tag: tag,
+        builder: (logic) {
+          return LoadingStateIndicator(
+            indicatorRadius: 18,
+            loadingState: detailsPageState.loadingPageState,
+            errorTapCallback: detailsPageLogic.getFullPage,
+          );
+        });
+  }
+
+  Widget _buildHeader(Gallery gallery, GalleryDetail? galleryDetails, BuildContext context) {
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 200,
@@ -118,43 +129,36 @@ class DetailsPage extends StatelessWidget {
               GestureDetector(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: EHImage(
-                    containerHeight: 200,
-                    containerWidth: 140,
-                    galleryImage: gallery.cover,
-                    adaptive: true,
-                    fit: BoxFit.cover,
-                  ),
+                  child: Obx(() {
+                    return EHImage(
+                      containerHeight: 200,
+                      containerWidth: 140,
+                      galleryImage: gallery.cover,
+                      adaptive: true,
+                      fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+                    );
+                  }),
                 ),
                 onTap: () => toNamed(Routes.singleImagePage, arguments: gallery.cover),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SizedBox(
-                      height: 170,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SelectableText(
-                            gallery.title,
-                            minLines: 1,
-                            maxLines: 7,
-                            style: const TextStyle(fontSize: 16, height: 1.2),
-                          ),
-                          if (gallery.uploader != null)
-                            SelectableText(
-                              gallery.uploader!,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ).marginOnly(top: 10),
-                        ],
-                      ),
+                    SelectableText(
+                      gallery.title,
+                      minLines: 1,
+                      maxLines: 7,
+                      style: const TextStyle(fontSize: 16, height: 1.2),
                     ),
+                    if (gallery.uploader != null)
+                      SelectableText(
+                        gallery.uploader!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ).marginOnly(top: 10),
                   ],
                 ).paddingOnly(left: 6),
               )
@@ -461,8 +465,7 @@ class DetailsPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
-              onPressed: () =>
-                  toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+              onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
               child: Text(
                 galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
               ),

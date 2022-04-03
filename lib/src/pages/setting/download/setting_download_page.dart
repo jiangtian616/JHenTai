@@ -56,6 +56,38 @@ class SettingDownloadPage extends StatelessWidget {
                 ],
               ),
             ),
+            ListTile(
+              title: Text('downloadTimeout'.tr),
+              trailing: DropdownButton<int>(
+                value: DownloadSetting.timeout.value,
+                elevation: 4,
+                onChanged: (int? newValue) {
+                  DownloadSetting.saveTimeout(newValue!);
+                },
+                items: const [
+                  DropdownMenuItem(
+                    child: Text('5s'),
+                    value: 5,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('10s'),
+                    value: 10,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('15s'),
+                    value: 15,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('20s'),
+                    value: 20,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('30s'),
+                    value: 30,
+                  ),
+                ],
+              ),
+            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

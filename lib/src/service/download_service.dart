@@ -237,13 +237,15 @@ class DownloadService extends GetxService {
     });
   }
 
-  Future<void> _getGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, String downloadPath) async {
+  Future<void> _getGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, String downloadPath,
+      [bool useCache = true]) async {
     return retry(
       () => executor
           .scheduleTask(
         () => EHRequest.requestImagePage(
           gid2ImageHrefs[gallery.gid]![serialNo].value!.href,
           cancelToken: gid2CancelToken[gallery.gid],
+          useCacheIfAvailable: useCache,
           parser: EHSpiderParser.imagePage2GalleryImage,
         ),
       )
@@ -336,7 +338,7 @@ class DownloadService extends GetxService {
   /// the image's url may be invalid, try re-parse and then download
   Future<void> _reParseImageUrlAndDownload(GalleryDownloadedData gallery, int serialNo, String downloadPath) async {
     await appDb.deleteImage(gid2Images[gallery.gid]![serialNo].value!.url);
-    await _getGalleryImageUrl(gallery, serialNo, downloadPath);
+    await _getGalleryImageUrl(gallery, serialNo, downloadPath, false);
     _downloadGalleryImage(gallery, serialNo, downloadPath);
   }
 

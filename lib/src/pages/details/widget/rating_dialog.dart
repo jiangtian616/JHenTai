@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flukit/flukit.dart';
@@ -57,7 +58,7 @@ class _RatingDialogState extends State<RatingDialog> {
               RatingBar.builder(
                 unratedColor: Colors.grey.shade300,
                 minRating: 0.5,
-                initialRating: rating,
+                initialRating: max(rating, 0.5),
                 itemCount: 5,
                 allowHalfRating: true,
                 itemSize: 36,

@@ -35,6 +35,8 @@ class zh_CN {
       'password': '密码',
       'needCaptcha': '需要勾选验证码。请另外选择cookie登陆或网页登陆。',
       'userNameOrPasswordMismatch': '用户名或密码错误',
+      'copyCookies': '复制Cookies',
+      'tap2Copy': '点击复制',
 
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
@@ -63,6 +65,8 @@ class zh_CN {
       'allComments': '所有评论',
       'noComments': '暂无评论',
       'getGalleryDetailFailed': '获取画廊详情失败',
+      'invisible2User': '此画廊对您不可见',
+      'invisibleHints': '画廊已被删除或对您进行了限制',
       'refreshGalleryDetailsFailed': '刷新画廊详情失败',
       'failToGetThumbnails': "获取画廊缩略图数据失败",
       'favoriteGalleryFailed': "收藏画廊错误",
@@ -118,6 +122,9 @@ class zh_CN {
       'listWithTags': '列表',
       'waterfallFlowWithImageOnly': '瀑布流(仅图片)',
       'waterfallFlowWithImageAndInfo': '瀑布流',
+      'coverStyle': '封面图片样式',
+      'cover': '覆盖',
+      'adaptive': '自适应',
       'enableTabletLayout': '开启平板双栏布局',
 
       /// advanced setting page
@@ -125,6 +132,7 @@ class zh_CN {
       'enableLogging': '开启日志',
       'openLog': '查看日志',
       'clearLogs': '清除日志',
+      'clearImagesCache': '清除图片缓存',
 
       /// read setting page
       'readDirection': '阅读方向',
@@ -191,6 +199,7 @@ class zh_CN {
       'downloadPath': '下载路径',
       'downloadTaskConcurrency': '同时下载任务数量',
       'needRestart': '需要重启',
+      'downloadTimeout': '单次下载超时时间',
 
       /// tag namespace
       'language': '语言',

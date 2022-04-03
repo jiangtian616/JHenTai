@@ -35,6 +35,7 @@ class EHImage extends StatefulWidget {
   final GalleryImage galleryImage;
   final double? containerHeight;
   final double? containerWidth;
+  final Color? containerColor;
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
   final CompletedWidgetBuilder? completedWidgetBuilder;
@@ -52,6 +53,7 @@ class EHImage extends StatefulWidget {
     required this.galleryImage,
     this.containerHeight,
     this.containerWidth,
+    this.containerColor,
     this.loadingWidgetBuilder,
     this.failedWidgetBuilder,
     this.completedWidgetBuilder,
@@ -80,9 +82,10 @@ class _EHImageState extends State<EHImage> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: widget.containerHeight,
       width: widget.containerWidth,
+      color: widget.containerColor,
       child: () {
         if (widget.galleryImage.path != null) {
           if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {

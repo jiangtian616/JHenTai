@@ -8,6 +8,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -80,6 +81,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     try {
       List<dynamic> gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageNoToLoad[tabIndex]);
+
+      _cleanDuplicateGallery(gallerysAndPageCount[0] as List<Gallery>, state.gallerys[tabIndex]);
       state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
       state.pageCount[tabIndex] = gallerysAndPageCount[1];
     } on DioError catch (e) {
@@ -189,12 +192,24 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     update([tabBarId, bodyId]);
   }
 
+  /// in case that new gallery is uploaded.
+  void _cleanDuplicateGallery(List<Gallery> newGallerys, List<Gallery> gallerys) {
+    newGallerys
+        .removeWhere((newGallery) => gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
+  }
+
   Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
 
     List<dynamic> gallerysAndPageCount;
     if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
       gallerysAndPageCount = await _getHistoryGallerys();
+    } else if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.favorite &&
+        !UserSetting.hasLoggedIn()) {
+      gallerysAndPageCount = [<Gallery>[], 0];
+    } else if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.watched &&
+        !UserSetting.hasLoggedIn()) {
+      gallerysAndPageCount = [<Gallery>[], 0];
     } else {
       gallerysAndPageCount = await EHRequest.requestGalleryPage(
         pageNo: pageNo,
@@ -212,7 +227,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     if (galleryUrls == null) {
       return [<Gallery>[], 0];
     }
-
 
     List<Gallery> gallerys = await Future.wait(
       galleryUrls

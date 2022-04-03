@@ -1,7 +1,13 @@
+import 'dart:io' as io;
+import 'dart:math';
+
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
@@ -57,9 +63,25 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 setState(() {});
               },
             ),
+            ListTile(
+              title: Text('clearImagesCache'.tr),
+              trailing: Text(
+                _getImagesCacheSizeInKB(),
+                style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
+              ).marginOnly(right: 8),
+              onTap: () async {
+                await clearDiskCachedImages();
+                setState(() {});
+              },
+            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),
     );
+  }
+
+  String _getImagesCacheSizeInKB() {
+    io.Directory cacheImagesDirectory = io.Directory(join(PathSetting.tempDir.path, cacheImageFolderName));
+    return max((cacheImagesDirectory.statSync().size / 1024), 0).toStringAsFixed(2) + 'KB';
   }
 }

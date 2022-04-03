@@ -69,7 +69,7 @@ class _TorrentDialogState extends State<TorrentDialog> {
                         child: const Icon(FontAwesomeIcons.magnet, size: 16, color: Colors.blue),
                         onTap: () {
                           FlutterClipboard.copy(galleryTorrent.magnetUrl).then(
-                            (value) => snack('success'.tr, 'hasCopiedToClipboard'.tr, isSuccess: true),
+                            (value) => snack('success'.tr, 'hasCopiedToClipboard'.tr),
                           );
                         },
                       ),

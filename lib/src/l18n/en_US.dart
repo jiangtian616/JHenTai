@@ -35,6 +35,8 @@ class en {
       'password': 'Password',
       'needCaptcha': 'Need captcha, please login via cookie or web again.',
       'userNameOrPasswordMismatch': 'Username or password mismatch',
+      'copyCookies': 'Copy Cookies',
+      'tap2Copy': 'Tap to Copy',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',
@@ -63,6 +65,8 @@ class en {
       'allComments': 'All Comments',
       'noComments': 'No Comments',
       'getGalleryDetailFailed': 'Get Gallery Detail Failed',
+      'invisible2User': 'This Gallery is invisible to You',
+      'invisibleHints': 'This gallery is removed or unavailable.',
       'refreshGalleryDetailsFailed': 'Refresh Gallery Details Failed',
       'failToGetThumbnails': "Fail To Get Thumbnails",
       'favoriteGalleryFailed': "Favorite Gallery Failed",
@@ -118,6 +122,9 @@ class en {
       'listWithTags': 'List',
       'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',
       'waterfallFlowWithImageAndInfo': 'Waterfall Flow',
+      'coverStyle': 'Cover Style',
+      'cover': 'Cover',
+      'adaptive': 'Adaptive',
       'enableTabletLayout': 'Enable Tablet Layout',
 
       /// advanced setting page
@@ -125,6 +132,7 @@ class en {
       'enableLogging': 'Enable Logging',
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
+      'clearImagesCache': 'Clear Images Cache',
 
       /// read setting page
       'readDirection': 'Read Direction',
@@ -183,7 +191,7 @@ class en {
       /// search page
       'search': 'Search',
       'searchFailed': 'Search Failed',
-      'fileSearchFailed':'File Search Failed',
+      'fileSearchFailed': 'File Search Failed',
 
       /// about page
       'author': 'Author',
@@ -192,6 +200,7 @@ class en {
       'downloadPath': 'Download Path',
       'downloadTaskConcurrency': 'Download Task Concurrency',
       'needRestart': 'Need Restart',
+      'downloadTimeout': 'Download Timeout',
 
       /// tag namespace
       'language': 'Language',

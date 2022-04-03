@@ -31,25 +31,20 @@ class SettingAccountPage extends StatelessWidget {
             if (UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
-                trailing: Container(
-                  width: 155,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          FlutterClipboard.copy(UserSetting.getCookies())
-                              .then((value) => snack('success'.tr, 'hasCopiedToClipboard'.tr, isSuccess: true));
-                        },
-                        child: Text('复制cookie'.tr, style: const TextStyle()),
-                      ),
-                      TextButton(
-                          child:
-                              Text('logout'.tr, style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                          onPressed: () => Get.dialog(const _LogoutDialog())),
-                    ],
-                  ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.logout),
+                  color: Colors.red,
+                  onPressed: () => Get.dialog(const _LogoutDialog()),
                 ),
+              ),
+            if (UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('copyCookies'.tr),
+                subtitle: Text('tap2Copy'.tr),
+                onTap: () {
+                  FlutterClipboard.copy(UserSetting.getCookies())
+                      .then((value) => snack('success'.tr, 'hasCopiedToClipboard'.tr));
+                },
               ),
           ],
         ).paddingSymmetric(vertical: 16);

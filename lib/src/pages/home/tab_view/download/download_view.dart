@@ -188,7 +188,9 @@ class DownloadView extends StatelessWidget {
                         ? Icons.pause
                         : Icons.done,
                 size: 26,
-                color: Get.theme.primaryColorLight,
+                color: downloadStatus == DownloadStatus.downloading
+                    ? Get.theme.primaryColorLight
+                    : Get.theme.primaryColor,
               ),
             ),
           ],
@@ -229,7 +231,9 @@ class DownloadView extends StatelessWidget {
             height: 3,
             child: LinearProgressIndicator(
               value: downloadProgress.curCount / downloadProgress.totalCount,
-              color: Get.theme.primaryColorLight,
+              color: downloadProgress.downloadStatus == DownloadStatus.downloading
+                  ? Get.theme.primaryColorLight
+                  : Get.theme.primaryColor,
             ),
           ).marginOnly(top: 4),
       ],

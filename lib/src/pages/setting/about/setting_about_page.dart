@@ -43,7 +43,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
         children: [
           ListTile(
             title: Text('version'.tr),
-            subtitle: Text(version.isEmpty ? '1.0.0' : '$version+$buildNumber'),
+            subtitle: Text(version.isEmpty ? '1.0.0' : version),
           ),
           ListTile(
             title: Text('author'.tr),
