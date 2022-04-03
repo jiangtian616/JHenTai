@@ -1,6 +1,7 @@
 import 'dart:ui';
-
+import 'dart:async';
 import 'package:device_preview/device_preview.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,14 +25,19 @@ import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
-import 'config/theme_config.dart';
 
 void main() async {
-  await beforeInit();
-  runApp(DevicePreview(
-    enabled: false,
-    builder: (context) => const MyApp(), // Wrap your app
-  ));
+  FlutterError.presentError = (FlutterErrorDetails details, {bool forceReport = false}) => Log.error(details.exception);
+
+  runZonedGuarded(() async {
+    await beforeInit();
+    runApp(DevicePreview(
+      enabled: false,
+      builder: (context) => const MyApp(),
+    ));
+  }, (Object error, StackTrace stack) {
+    Log.error(error);
+  });
 }
 
 class MyApp extends StatelessWidget {

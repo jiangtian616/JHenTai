@@ -135,13 +135,14 @@ class SettingStylePage extends StatelessWidget {
                 ),
               ),
             ),
-            ListTile(
-              title: Text('enableTabletLayout'.tr),
-              trailing: Switch(
-                value: StyleSetting.enableTabletLayout.value,
-                onChanged: StyleSetting.saveEnableTabletLayout,
+            if (Get.width >= 600)
+              ListTile(
+                title: Text('enableTabletLayout'.tr),
+                trailing: Switch(
+                  value: StyleSetting.enableTabletLayout.value,
+                  onChanged: StyleSetting.saveEnableTabletLayout,
+                ),
               ),
-            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

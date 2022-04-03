@@ -29,7 +29,7 @@ class StyleSetting {
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
   static RxBool enableTabletLayout =
-      WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio <= 600
+      WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio < 600
           ? false.obs
           : true.obs;
 
