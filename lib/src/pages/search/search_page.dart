@@ -1,7 +1,6 @@
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 
@@ -85,35 +84,51 @@ class SearchPagePage extends StatelessWidget {
                         );
                       }),
                 ),
-                SizedBox(
+                Container(
                   height: GlobalConfig.searchBarHeight,
                   width: double.infinity,
-                  child: GetBuilder<SearchPageLogic>(
-                      id: searchField,
-                      builder: (logic) {
-                        return CupertinoSearchTextField(
-                          prefixInsets: const EdgeInsets.only(left: 18),
-                          borderRadius: BorderRadius.zero,
-                          backgroundColor: Get.theme.backgroundColor,
-                          placeholder: 'search'.tr,
-                          placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
-                          controller: TextEditingController.fromValue(
-                            TextEditingValue(
-                              text: state.tabBarConfig.searchConfig.keyword ?? '',
+                  color: Get.theme.backgroundColor,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GetBuilder<SearchPageLogic>(
+                            id: searchField,
+                            builder: (logic) {
+                              return CupertinoSearchTextField(
+                                prefixInsets: const EdgeInsets.only(left: 18),
+                                borderRadius: BorderRadius.zero,
+                                backgroundColor: Get.theme.backgroundColor,
+                                style: Theme.of(context).textTheme.subtitle1,
+                                placeholder: 'search'.tr,
+                                placeholderStyle: const TextStyle(height: 1.2, color: Colors.grey),
+                                controller: TextEditingController.fromValue(
+                                  TextEditingValue(
+                                    text: state.tabBarConfig.searchConfig.keyword ?? '',
 
-                              /// make cursor stay at last letter
-                              selection: TextSelection.fromPosition(
-                                TextPosition(offset: state.tabBarConfig.searchConfig.keyword?.length ?? 0),
-                              ),
-                            ),
-                          ),
-                          onChanged: (value) {
-                            state.tabBarConfig.searchConfig.keyword = value;
-                            logic.waitAndSearchTags();
-                          },
-                          onSubmitted: (value) => logic.searchMore(),
-                        );
-                      }),
+                                    /// make cursor stay at last letter
+                                    selection: TextSelection.fromPosition(
+                                      TextPosition(offset: state.tabBarConfig.searchConfig.keyword?.length ?? 0),
+                                    ),
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  state.tabBarConfig.searchConfig.keyword = value;
+                                  logic.waitAndSearchTags();
+                                },
+                                onSubmitted: (value) {
+                                  /// indicate => keyword search
+                                  state.redirectUrl = null;
+                                  logic.searchMore();
+                                },
+                              );
+                            }),
+                      ),
+                      IconButton(
+                        onPressed: logic.handlePickImage,
+                        icon: const Icon(Icons.attach_file),
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -211,46 +226,6 @@ class SearchPagePage extends StatelessWidget {
     );
   }
 
-  TextSpan _highlightKeyword(BuildContext context, String rawText, bool isSubTitle) {
-    String keyword = state.tabBarConfig.searchConfig.keyword!;
-    List<TextSpan> children = <TextSpan>[];
-
-    List<int> matchIndexes = keyword.allMatches(rawText).map((match) => match.start).toList();
-
-    int indexHandling = 0;
-    for (int index in matchIndexes) {
-      if (index > indexHandling) {
-        children.add(
-          TextSpan(
-            text: rawText.substring(indexHandling, index),
-            style: TextStyle(
-                fontSize: isSubTitle ? 12 : 15,
-                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
-          ),
-        );
-      }
-      children.add(
-        TextSpan(
-          text: keyword,
-          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: Get.theme.primaryColorLight),
-        ),
-      );
-      indexHandling = index + keyword.length;
-    }
-    if (rawText.length > indexHandling) {
-      children.add(
-        TextSpan(
-          text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(
-              fontSize: isSubTitle ? 12 : 15,
-              color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
-        ),
-      );
-    }
-
-    return TextSpan(children: children);
-  }
-
   Widget _buildGalleryBody(BuildContext context) {
     return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
         ? Center(
@@ -289,6 +264,46 @@ class SearchPagePage extends StatelessWidget {
               ),
             ],
           );
+  }
+
+  TextSpan _highlightKeyword(BuildContext context, String rawText, bool isSubTitle) {
+    String keyword = state.tabBarConfig.searchConfig.keyword!;
+    List<TextSpan> children = <TextSpan>[];
+
+    List<int> matchIndexes = keyword.allMatches(rawText).map((match) => match.start).toList();
+
+    int indexHandling = 0;
+    for (int index in matchIndexes) {
+      if (index > indexHandling) {
+        children.add(
+          TextSpan(
+            text: rawText.substring(indexHandling, index),
+            style: TextStyle(
+                fontSize: isSubTitle ? 12 : 15,
+                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
+          ),
+        );
+      }
+      children.add(
+        TextSpan(
+          text: keyword,
+          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: Get.theme.primaryColorLight),
+        ),
+      );
+      indexHandling = index + keyword.length;
+    }
+    if (rawText.length > indexHandling) {
+      children.add(
+        TextSpan(
+          text: rawText.substring(indexHandling, rawText.length),
+          style: TextStyle(
+              fontSize: isSubTitle ? 12 : 15,
+              color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
+        ),
+      );
+    }
+
+    return TextSpan(children: children);
   }
 
   Widget _buildGalleryCollection() {

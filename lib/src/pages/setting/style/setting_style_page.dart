@@ -27,6 +27,7 @@ class SettingStylePage extends StatelessWidget {
               trailing: DropdownButton<EHThemeMode>(
                 value: StyleSetting.themeMode.value,
                 elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
                 onChanged: (EHThemeMode? newValue) {
                   StyleSetting.saveThemeMode(newValue!);
                 },
@@ -51,6 +52,7 @@ class SettingStylePage extends StatelessWidget {
               trailing: DropdownButton<ListMode>(
                 value: StyleSetting.listMode.value,
                 elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
                 onChanged: (ListMode? newValue) {
                   StyleSetting.saveListMode(newValue!);
                 },

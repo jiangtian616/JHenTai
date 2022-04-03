@@ -2,13 +2,11 @@ import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:path/path.dart';
 
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
 import '../model/gallery.dart';
 import '../model/gallery_image.dart';
-import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
 
@@ -33,7 +31,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: ColoredBox(
-            color: Colors.grey.shade300,
+            color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
             child: Obx(() {
               return Column(
                 children: [

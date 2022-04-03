@@ -48,6 +48,7 @@ dependencies:
   reorderables: ^0.4.3
   package_info_plus: ^1.4.0
   device_preview: ^1.0.0
+  file_picker: ^4.5.1
 
 dev_dependencies:
   flutter_test:

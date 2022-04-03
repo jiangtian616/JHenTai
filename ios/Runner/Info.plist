@@ -52,5 +52,7 @@
 	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+  <string>Pick up image to search</string>
 </dict>
 </plist>

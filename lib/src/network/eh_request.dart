@@ -18,11 +18,11 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:path/path.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
+import 'package:http_parser/http_parser.dart' show MediaType;
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
 
-typedef EHHtmlParser<T> = T Function(Response<String> response);
+typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
@@ -191,16 +191,18 @@ class EHRequest {
     return parser(response);
   }
 
+  /// [url]: used for file search
   static Future<T> requestGalleryPage<T>({
+    String? url,
     required int pageNo,
-    required SearchConfig searchConfig,
+    SearchConfig? searchConfig,
     required EHHtmlParser<T> parser,
   }) async {
     Response<String> response = await _dio.get(
-      searchConfig.toPath(),
+      url ?? searchConfig!.toPath(),
       queryParameters: {
         'page': pageNo,
-        ...searchConfig.toQueryParameters(),
+        ...?searchConfig?.toQueryParameters(),
       },
     );
     return parser(response);
@@ -427,6 +429,35 @@ class EHRequest {
       },
     );
     return parser(response);
+  }
+
+  static Future<T> requestLookup<T>({
+    required String imagePath,
+    required String imageName,
+    required EHHtmlParser<T> parser,
+  }) async {
+    Response? response;
+    try {
+      await _dio.post(
+        EHConsts.ELookup,
+        data: FormData.fromMap({
+          'sfile': MultipartFile.fromFileSync(
+            imagePath,
+            filename: imageName,
+            contentType: MediaType.parse('application/octet-stream'),
+          ),
+          'f_sfile': "File Search",
+          'fs_similar': 'on',
+          'fs_exp': 'on',
+        }),
+      );
+    } on DioError catch (e) {
+      if (e.response?.statusCode != 302) {
+        rethrow;
+      }
+      response = e.response;
+    }
+    return parser(response!);
   }
 
   static String _parseLoginErrorMsg(String html) {

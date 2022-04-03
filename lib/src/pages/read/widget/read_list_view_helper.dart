@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../utils/route_util.dart';
 import '../../../utils/size_util.dart';
@@ -12,7 +10,7 @@ import '../read_page_logic.dart';
 class ReadListViewHelper extends StatelessWidget {
   final logic = Get.put(ReadPageLogic());
   final state = Get.find<ReadPageLogic>().state;
-  Widget child;
+  final Widget child;
 
   ReadListViewHelper({Key? key, required this.child}) : super(key: key);
 
@@ -20,27 +18,11 @@ class ReadListViewHelper extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        _buildZoomableList(child),
+        child,
         _buildGestureRegion(),
         _buildTopMenu(context),
         _buildBottomMenu(context),
       ],
-    );
-  }
-
-  Widget _buildZoomableList(Widget child) {
-    if (child is! ScrollablePositionedList) {
-      return child;
-    }
-
-    /// we need to scale the whole list rather than single image, so assign count = 1.
-    return PhotoViewGallery.builder(
-      itemCount: 1,
-      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        scaleStateController: state.photoViewScaleStateController,
-        onScaleEnd: logic.onScaleEnd,
-        child: child,
-      ),
     );
   }
 

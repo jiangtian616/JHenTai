@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -55,14 +56,23 @@ class SearchPageLogic extends GetxController {
       state.pageCount = -1;
     }
     state.loadingState = LoadingState.loading;
-    update([loadingStateId]);
+    update([bodyId]);
 
     try {
-      List<dynamic> gallerysAndPageCount = await EHRequest.requestGalleryPage(
-        pageNo: state.nextPageNoToLoad,
-        searchConfig: state.tabBarConfig.searchConfig,
-        parser: EHSpiderParser.galleryPage2GalleryList,
-      );
+      List<dynamic> gallerysAndPageCount;
+      if (state.redirectUrl == null) {
+        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+          pageNo: state.nextPageNoToLoad,
+          searchConfig: state.tabBarConfig.searchConfig,
+          parser: EHSpiderParser.galleryPage2GalleryList,
+        );
+      } else {
+        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+          url: state.redirectUrl,
+          pageNo: state.nextPageNoToLoad,
+          parser: EHSpiderParser.galleryPage2GalleryList,
+        );
+      }
       state.gallerys.addAll(gallerysAndPageCount[0]);
       state.pageCount = gallerysAndPageCount[1];
     } on DioError catch (e) {
@@ -94,6 +104,10 @@ class SearchPageLogic extends GetxController {
   }
 
   void _writeHistory() {
+    /// do not record file search
+    if (state.redirectUrl != null) {
+      return;
+    }
     List history = storageService.read('searchHistory') ?? <String>[];
     history.remove(state.tabBarConfig.searchConfig.keyword);
     history.insert(0, state.tabBarConfig.searchConfig.keyword);
@@ -141,6 +155,46 @@ class SearchPageLogic extends GetxController {
     if (state.showSuggestionAndHistory) {
       update([bodyId]);
     }
+  }
+
+  Future<void> handlePickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    Log.info('file search', false);
+
+    if (state.showSuggestionAndHistory) {
+      toggleBodyType();
+    }
+
+    state.gallerys.clear();
+    state.nextPageNoToLoad = 0;
+    state.pageCount = -1;
+    state.loadingState = LoadingState.loading;
+    state.tabBarConfig.searchConfig.keyword = null;
+    update([bodyId, searchField]);
+
+    try {
+      state.redirectUrl = await EHRequest.requestLookup(
+        imagePath: result.files.first.path!,
+        imageName: result.files.first.name,
+        parser: EHSpiderParser.imageLookup2RedirectUrl,
+      );
+    } on DioError catch (e) {
+      Log.error('fileSearchFailed'.tr, e.message);
+      snack('fileSearchFailed'.tr, e.message);
+      state.loadingState = LoadingState.idle;
+      update([loadingStateId]);
+      return;
+    }
+
+    state.loadingState = LoadingState.idle;
+    searchMore();
   }
 
   void handleTapCard(Gallery gallery) {

@@ -77,5 +77,11 @@ Widget EHGalleryCollection({
     );
   }
 
-  return _buildGalleryWaterfallFlow();
+  return Obx(() {
+    if (StyleSetting.listMode.value == ListMode.listWithoutTags ||
+        StyleSetting.listMode.value == ListMode.listWithTags) {
+      return _buildGalleryList();
+    }
+    return _buildGalleryWaterfallFlow();
+  });
 }

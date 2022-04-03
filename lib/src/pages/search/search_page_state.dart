@@ -12,6 +12,7 @@ class SearchPageState {
   int nextPageNoToLoad = 0;
   int pageCount = -1;
   LoadingState loadingState = LoadingState.success;
+  String? redirectUrl;
 
   bool showSuggestionAndHistory = true;
   List<TagData> suggestions = <TagData>[];

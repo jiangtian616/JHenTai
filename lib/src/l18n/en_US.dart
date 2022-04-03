@@ -183,6 +183,7 @@ class en {
       /// search page
       'search': 'Search',
       'searchFailed': 'Search Failed',
+      'fileSearchFailed':'File Search Failed',
 
       /// about page
       'author': 'Author',
