@@ -36,9 +36,9 @@ E-hentai 的一个移动端app
 
 ## 截图
 
-<img width="200" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="200" style="margin-right:10px" src="screenshot/3.jpg"/> <img width="200" src="screenshot/4.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/> <img width="250" src="screenshot/4.jpg"/>
 
-<img width="620" src="screenshot/2.png"/>
+<img width="770" src="screenshot/2.png"/>
 
 ## 功能Todo
 
