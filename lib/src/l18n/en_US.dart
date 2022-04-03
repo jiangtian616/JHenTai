@@ -189,6 +189,7 @@ class en {
       'author': 'Author',
 
       /// download setting page
+      'downloadPath': 'Download Path',
       'downloadTaskConcurrency': 'Download Task Concurrency',
       'needRestart': 'Need Restart',
 

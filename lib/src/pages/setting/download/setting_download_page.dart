@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/path_setting.dart';
 
 class SettingDownloadPage extends StatelessWidget {
   const SettingDownloadPage({Key? key}) : super(key: key);
@@ -17,6 +19,10 @@ class SettingDownloadPage extends StatelessWidget {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
+            ListTile(
+              title: Text('downloadPath'.tr),
+              subtitle: Text(DownloadService.downloadPath),
+            ),
             ListTile(
               title: Text('downloadTaskConcurrency'.tr),
               subtitle: Text('needRestart'.tr),

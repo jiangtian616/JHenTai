@@ -188,6 +188,7 @@ class zh_CN {
       'author': '创作者',
 
       /// download setting page
+      'downloadPath': '下载路径',
       'downloadTaskConcurrency': '同时下载任务数量',
       'needRestart': '需要重启',
 
