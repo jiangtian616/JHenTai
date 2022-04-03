@@ -1,6 +1,6 @@
 import 'dart:core';
 
-class en {
+class en_US {
   static Map<String, String> keys() {
     return {
       /// common

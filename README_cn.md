@@ -1,39 +1,75 @@
 # JHenTai
 
-English | [简体中文](https://github.com/jiangtian616/JHenTai/README_cn.md)
-
-## 下载
+[English](https://github.com/jiangtian616/JHenTai/blob/master/README.md) | 简体中文
 
 ## 定位
 
-e-hentai 的非官方移动端app
+E-hentai 的一个移动端app
+
+## 下载&安装
+
+[下载](https://github.com/jiangtian616/JHenTai/releases)
+
+安卓安装： 下载对应自己设置架构的apk文件，直接安装即可。
+
+苹果安装： 下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
 ## 开发动机
 
-学习flutter的第一个练手项目，用来熟悉flutter的开发流程。 我自己平时主要使用安卓手机和Ipad，之前用的E站其他移动端App Bug较多，没接触过原生开发也看不懂源码，就刚好选来做第一个项目。
+学习flutter的第一个练手项目，用来熟悉flutter的开发流程。
+
+我自己平时主要使用安卓手机和Ipad，之前用的E站其他移动端App Bug较多，没接触过原生开发也改不动源码，就刚好选JHenTai来作为第一个项目。
 
 ## 参考与借鉴
+
 布局样式参考：
-- [FEhviewer](https://github.com/jiangtian616/JHenTai/README_cn.md)：主要
-- [EHPanda](https://github.com/jiangtian616/JHenTai/README_cn.md)
-- [EHViewer](https://github.com/jiangtian616/JHenTai/README_cn.md)
+
+- [FEhviewer](https://github.com/honjow/FEhViewer) ：主要
+- [EHPanda](https://github.com/tatsuz0u/EhPanda)
+- [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
 标签翻译数据库：
-- [EhTagTranslation](https://github.com/jiangtian616/JHenTai/README_cn.md)
+
+- [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
 十分感谢以上项目🙇‍
+
 ## 截图
 
-## 功能/优化
+<img width="200" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="200" style="margin-right:10px" src="screenshot/3.jpg"/> <img width="200" src="screenshot/4.jpg"/>
 
+<img width="620" src="screenshot/2.png"/>
+
+## 功能Todo
+
+- [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
+- [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图
+- [x] 在线阅读与下载
+- [x] 收藏、评分、磁力、归档
+- [x] 账号密码登录、Cookie登录、Web登录
+- [x] 支持里站
+- [x] Tag翻译、Tag投票
+- [x] 评论、评论投票
+- [x] 域名前置实现直连
 - [ ] 图案解锁、指纹解锁
+
+## 优化Todo
+
 - [ ] 另起isolate，专门负责下载
 
-## 国际化
+## 国际化步骤
+
+1. 复制 `/lib/src/l18n/en_US.dart ` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
+2. 更改新文件的主类名字(可选)
+3. 修改keys方法返回的所有键值对，将value翻译为你的语言
+4. 在 `/lib/src/l18n/locale_text.dart ` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 
 ## 已知bug
 
-## 依赖的其他开源项目
+## 主要dart依赖
 
-## 源码编译
+- 依赖管理、状态管理、国际化、NoSQL：get
+- 网络：dio
+- 图片：extendedImage
+- 数据库：drift
 
