@@ -38,7 +38,7 @@ class FavoriteDialog extends StatelessWidget {
                     entry.value.toString(),
                     style: Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
                   ),
-                  onTap: () => back(currentRoute: null, result: index),
+                  onTap: () => back(result: index),
                 ),
               )
               .toList(),
@@ -53,7 +53,7 @@ class FavoriteDialog extends StatelessWidget {
             style: const TextStyle(fontSize: 16),
           ),
           onPressed: () {
-            back(currentRoute: null);
+            back();
           },
         ),
       ],

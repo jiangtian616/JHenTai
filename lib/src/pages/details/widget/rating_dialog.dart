@@ -143,6 +143,6 @@ class _RatingDialogState extends State<RatingDialog> {
     setState(() {
       submitState = LoadingState.idle;
     });
-    back(currentRoute: null);
+    back();
   }
 }

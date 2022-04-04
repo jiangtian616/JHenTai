@@ -195,7 +195,7 @@ class _TagDialogState extends State<_TagDialog> {
   }
 
   _showInfo() {
-    back(currentRoute: null);
+    back();
 
     String content = widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!;
     Get.dialog(

@@ -160,13 +160,13 @@ class _EHImageState extends State<EHImage> {
                 key = UniqueKey();
                 cancelToken = CancellationToken();
               });
-              back(currentRoute: null);
+              back();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(currentRoute: null),
+          onPressed: () => back(),
         ),
       ),
     );

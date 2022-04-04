@@ -50,7 +50,7 @@ Future<T?>? toNamed<T>(
 }
 
 void back<T>({
-  required String? currentRoute,
+  String? currentRoute,
   T? result,
   bool closeOverlays = false,
   bool canPop = true,

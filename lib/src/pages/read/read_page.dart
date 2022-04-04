@@ -226,13 +226,13 @@ class ReadPage extends StatelessWidget {
             child: Text('reload'.tr),
             onPressed: () async {
               callback();
-              back(currentRoute: null);
+              back();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(currentRoute: null),
+          onPressed: () => back(),
         ),
       ),
     );

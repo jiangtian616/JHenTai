@@ -23,7 +23,12 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (StyleSetting.enableTabletLayout.isFalse || screenWidth < 600) {
+      if (StyleSetting.enableTabletLayout.isFalse) {
+        return HomePage();
+      }
+
+      if (screenWidth < 600) {
+        StyleSetting.enableTabletLayout.value = false;
         return HomePage();
       }
 

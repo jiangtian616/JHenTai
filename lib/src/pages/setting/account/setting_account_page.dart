@@ -73,7 +73,7 @@ class _LogoutDialog extends StatelessWidget {
           children: [
             TextButton(
               child: Text('cancel'.tr),
-              onPressed: () => back(currentRoute: null),
+              onPressed: () => back(),
             ),
             TextButton(
               child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
