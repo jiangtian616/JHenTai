@@ -11,6 +11,8 @@ class EHSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init EHSetting success', false);
+    } else {
+      Log.info('init EHSetting success: default', false);
     }
   }
 

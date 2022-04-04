@@ -20,6 +20,8 @@ class ReadSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init ReadSetting success', false);
+    } else {
+      Log.info('init ReadSetting success: default', false);
     }
   }
 

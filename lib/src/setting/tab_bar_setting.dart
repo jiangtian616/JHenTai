@@ -68,6 +68,8 @@ class TabBarSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init TabBarSetting success', false);
+    } else {
+      Log.info('init TabBarSetting success: default', false);
     }
   }
 

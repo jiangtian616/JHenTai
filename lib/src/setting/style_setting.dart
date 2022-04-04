@@ -38,6 +38,8 @@ class StyleSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init StyleSetting success', false);
+    } else {
+      Log.info('init StyleSetting success: default', false);
     }
   }
 

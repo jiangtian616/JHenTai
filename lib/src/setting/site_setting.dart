@@ -20,6 +20,8 @@ class SiteSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init SiteSetting success', false);
+    } else {
+      Log.info('init SiteSetting success: default', false);
     }
 
     /// listen to login and logout

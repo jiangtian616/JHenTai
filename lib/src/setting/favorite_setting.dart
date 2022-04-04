@@ -13,7 +13,9 @@ import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 
 class FavoriteSetting {
-  static List<String> favoriteTagNames = [];
+  static List<String> favoriteTagNames = [
+
+  ];
   static LinkedHashMap<String, int> favoriteTagNames2Count = LinkedHashMap<String, int>();
 
   static bool get inited => favoriteTagNames2Count.isNotEmpty && favoriteTagNames.isNotEmpty;
@@ -23,6 +25,8 @@ class FavoriteSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init FavoriteSetting success', false);
+    } else {
+      Log.info('init FavoriteSetting success: default', false);
     }
 
     /// listen to login and logout

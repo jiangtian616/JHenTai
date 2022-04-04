@@ -28,6 +28,8 @@ class Log {
       filter: ProductionFilter(),
       output: FileOutput(file: logFile),
     );
+
+    info('init LogUtil success', false);
   }
 
   static void info(Object? msg, [bool withStack = true]) {

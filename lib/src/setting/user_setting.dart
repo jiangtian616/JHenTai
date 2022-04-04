@@ -13,6 +13,8 @@ class UserSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init UserSetting success', false);
+    } else {
+      Log.info('init UserSetting success, not logged in', false);
     }
   }
 

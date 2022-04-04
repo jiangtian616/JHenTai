@@ -12,6 +12,8 @@ class DownloadSetting {
     if (map != null) {
       _initFromMap(map);
       Log.info('init DownloadSetting success', false);
+    } else {
+      Log.info('init DownloadSetting success: default', false);
     }
   }
 

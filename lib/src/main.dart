@@ -93,8 +93,6 @@ Future<void> beforeInit() async {
   await EHRequest.init();
 
   await DownloadService.init();
-
-  TagTranslationService.init();
 }
 
 Future<void> onReady() async {
