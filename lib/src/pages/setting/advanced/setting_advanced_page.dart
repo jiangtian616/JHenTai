@@ -54,26 +54,36 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             ),
             ListTile(
               title: Text('clearLogs'.tr),
+              subtitle: Text('longPress2Clear'.tr),
               trailing: Text(
                 Log.getSizeInKB(),
                 style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
               ).marginOnly(right: 8),
-              onTap: () {
+              onLongPress: () {
                 Log.clear();
                 setState(() {});
               },
             ),
             ListTile(
               title: Text('clearImagesCache'.tr),
+              subtitle: Text('longPress2Clear'.tr),
               trailing: Text(
                 _getImagesCacheSize(),
                 style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
               ).marginOnly(right: 8),
-              onTap: () async {
+              onLongPress: () async {
                 await clearDiskCachedImages();
                 setState(() {});
               },
             ),
+            if (AdvancedSetting.supportFingerPrintLock)
+              ListTile(
+                title: Text('enableFingerPrintLock'.tr),
+                trailing: Switch(
+                  value: AdvancedSetting.enableFingerPrintLock.value,
+                  onChanged: (value) => AdvancedSetting.saveEnableFingerPrintLock(value),
+                ),
+              ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_screen_lock/flutter_screen_lock.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/pages/blank_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/size_util.dart';
+import 'package:local_auth/local_auth.dart';
+
+import 'lock_page.dart';
 
 const int left = 1;
 const int right = 2;
@@ -15,7 +23,7 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (StyleSetting.enableTabletLayout.isFalse) {
+      if (StyleSetting.enableTabletLayout.isFalse || screenWidth < 600) {
         return HomePage();
       }
 
@@ -46,7 +54,7 @@ class StartPage extends StatelessWidget {
         GetPageRoute(
           settings: const RouteSettings(name: Routes.home),
           page: () => HomePage(),
-          popGesture: false,
+          popGesture: true,
           transition: Transition.fadeIn,
           showCupertinoParallax: false,
         ),

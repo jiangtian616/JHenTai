@@ -35,7 +35,6 @@ class _TorrentDialogState extends State<TorrentDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Center(child: Text('torrent'.tr)),
-      titleTextStyle: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
       children: [
         if (loadingState == LoadingState.loading) const CupertinoActivityIndicator(),
         if (loadingState == LoadingState.success)

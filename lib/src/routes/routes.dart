@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
+import 'package:jhentai/src/pages/lock_page.dart';
 import 'package:jhentai/src/pages/read/read_page.dart';
 import 'package:jhentai/src/pages/search/search_page.dart';
 import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
@@ -23,6 +24,7 @@ import 'EHPage.dart';
 
 class Routes {
   static const String start = "/";
+  static const String lock = "/lock";
   static const String blank = "/blank";
 
   static const String home = "/home";
@@ -51,6 +53,12 @@ class Routes {
     EHPage(
       name: start,
       page: () => StartPage(),
+      transition: Transition.cupertino,
+      side: Side.fullScreen,
+    ),
+    EHPage(
+      name: lock,
+      page: () => LockPage(),
       transition: Transition.cupertino,
       side: Side.fullScreen,
     ),

@@ -57,7 +57,7 @@ mush thanks to these projects🙇‍
 - [x] vote for Tag
 - [x] comment, vote for comment
 - [x] domain fronting
-- [ ] Pattern Unlock, Fingerprint unlock
+- [x] Fingerprint unlock
 
 ## Improvement & Todo
 

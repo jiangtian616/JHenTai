@@ -27,6 +27,10 @@ class SettingEHPage extends StatelessWidget {
       body: ListView(
         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         children: [
+          if (!UserSetting.hasLoggedIn())
+            ListTile(
+              title: Text('pleaseLogInToOperate'.tr),
+            ),
           if (UserSetting.hasLoggedIn())
             ListTile(
               title: Text('site'.tr),

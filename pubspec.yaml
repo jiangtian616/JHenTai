@@ -43,11 +43,13 @@ dependencies:
   webview_flutter: ^3.0.1
   photo_view:
     git: https://gitee.com/jiangtian616/photo_view.git
-#    git: https://github.com/bluefireteam/photo_view.git
+  #    git: https://github.com/bluefireteam/photo_view.git
   reorderables: ^0.4.3
   package_info_plus: ^1.4.0
   device_preview: ^1.0.0
   file_picker: ^4.5.1
+  flutter_screen_lock: ^5.0.6+1
+  local_auth: ^1.1.11
 
 dev_dependencies:
   flutter_test:

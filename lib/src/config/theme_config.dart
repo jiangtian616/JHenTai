@@ -52,7 +52,7 @@ class ThemeConfig {
     ),
     dialogTheme: const DialogTheme(
       titleTextStyle: TextStyle(
-        fontSize: 14,
+        fontSize: 16,
         color: Colors.black,
         fontWeight: FontWeight.bold,
       ),
@@ -106,8 +106,8 @@ class ThemeConfig {
     ),
     dialogTheme: const DialogTheme(
       titleTextStyle: TextStyle(
-        fontSize: 14,
-        color: Colors.black,
+        fontSize: 16,
+        color: Colors.white,
         fontWeight: FontWeight.bold,
       ),
     ),

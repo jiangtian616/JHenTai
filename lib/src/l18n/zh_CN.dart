@@ -21,6 +21,10 @@ class zh_CN {
       'gallery': "画廊",
       'setting': '设置',
 
+      /// unlock page
+      'localizedReason': '请验证以继续',
+      'tap2Auth': '点击以验证',
+
       /// login page
       'login': '登录',
       'logout': '注销',
@@ -108,6 +112,7 @@ class zh_CN {
       /// eh setting page
       'site': '站点',
       'siteSetting': '站点设置',
+      'pleaseLogInToOperate': '请登陆后操作',
 
       /// style setting page
       'enableTagZHTranslation': '开启标签中文翻译',
@@ -133,6 +138,8 @@ class zh_CN {
       'openLog': '查看日志',
       'clearLogs': '清除日志',
       'clearImagesCache': '清除图片缓存',
+      'longPress2Clear': '长按清除',
+      'enableFingerPrintLock': '开启指纹锁',
 
       /// read setting page
       'readDirection': '阅读方向',

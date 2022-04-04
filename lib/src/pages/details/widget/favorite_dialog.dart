@@ -21,7 +21,6 @@ class FavoriteDialog extends StatelessWidget {
       title: Center(
         child: Text('chooseFavorite'.tr),
       ),
-      titleTextStyle: Theme.of(context).textTheme.headline6?.copyWith(fontSize: 16, fontWeight: FontWeight.bold),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       content: SizedBox(
         height: 400,

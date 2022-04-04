@@ -21,6 +21,10 @@ class en_US {
       'gallery': "Gallery",
       'setting': 'Setting',
 
+      /// unlock page
+      'localizedReason': 'Please authenticate to continue',
+      'tap2Auth': 'Tap to Authenticate',
+
       /// login page
       'login': 'Login',
       'logout': 'Logout',
@@ -108,6 +112,7 @@ class en_US {
       /// eh setting page
       'site': 'Site',
       'siteSetting': 'Site Setting',
+      'pleaseLogInToOperate': 'Please Log In To Operate',
 
       /// style setting page
       'enableTagZHTranslation': 'Translate tag name into chinese',
@@ -133,6 +138,8 @@ class en_US {
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
       'clearImagesCache': 'Clear Images Cache',
+      'longPress2Clear': 'Long Press to Clear',
+      'enableFingerPrintLock': 'Enable FingerPrint Lock',
 
       /// read setting page
       'readDirection': 'Read Direction',

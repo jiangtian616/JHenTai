@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'dart:async';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -24,7 +23,6 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
-
 
 void main() async {
   FlutterError.presentError = (FlutterErrorDetails details, {bool forceReport = false}) => Log.error(details.exception);
@@ -54,7 +52,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: Routes.start,
+      initialRoute: AdvancedSetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver()],
 
       /// device preview
@@ -77,7 +75,7 @@ Future<void> beforeInit() async {
   await GetStorage.init();
   StorageService.init();
 
-  AdvancedSetting.init();
+  await AdvancedSetting.init();
   await Log.init();
   UserSetting.init();
   TagTranslationService.init();
