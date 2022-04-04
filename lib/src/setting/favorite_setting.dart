@@ -14,11 +14,29 @@ import '../utils/eh_spider_parser.dart';
 
 class FavoriteSetting {
   static List<String> favoriteTagNames = [
-
+    'Favorite 0',
+    'Favorite 1',
+    'Favorite 2',
+    'Favorite 3',
+    'Favorite 4',
+    'Favorite 5',
+    'Favorite 6',
+    'Favorite 7',
+    'Favorite 8',
   ];
-  static LinkedHashMap<String, int> favoriteTagNames2Count = LinkedHashMap<String, int>();
+  static LinkedHashMap<String, int> favoriteTagNames2Count = LinkedHashMap<String, int>.of({
+    'Favorite 0': -1,
+    'Favorite 1': -1,
+    'Favorite 2': -1,
+    'Favorite 3': -1,
+    'Favorite 4': -1,
+    'Favorite 5': -1,
+    'Favorite 6': -1,
+    'Favorite 7': -1,
+    'Favorite 8': -1,
+  });
 
-  static bool get inited => favoriteTagNames2Count.isNotEmpty && favoriteTagNames.isNotEmpty;
+  static bool get inited => favoriteTagNames2Count['Favorite 0'] != -1;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('favoriteSetting');
@@ -53,6 +71,7 @@ class FavoriteSetting {
         () async {
           favoriteTagNames2Count = await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTags);
           favoriteTagNames = favoriteTagNames2Count.keys.toList();
+          _save();
         },
         retryIf: (e) => e is DioError,
         maxAttempts: 3,
@@ -70,9 +89,29 @@ class FavoriteSetting {
   }
 
   static Future<void> _clear() async {
-    favoriteTagNames.clear();
-    favoriteTagNames2Count.clear();
-    _save();
+    favoriteTagNames = [
+      'Favorite 0',
+      'Favorite 1',
+      'Favorite 2',
+      'Favorite 3',
+      'Favorite 4',
+      'Favorite 5',
+      'Favorite 6',
+      'Favorite 7',
+      'Favorite 8',
+    ];
+    favoriteTagNames2Count = LinkedHashMap<String, int>.of({
+      'Favorite 0': -1,
+      'Favorite 1': -1,
+      'Favorite 2': -1,
+      'Favorite 3': -1,
+      'Favorite 4': -1,
+      'Favorite 5': -1,
+      'Favorite 6': -1,
+      'Favorite 7': -1,
+      'Favorite 8': -1,
+    });
+    Get.find<StorageService>().remove('favoriteSetting');
     Log.info('clear FavoriteSetting success', false);
   }
 

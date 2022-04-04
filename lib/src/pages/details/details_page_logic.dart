@@ -251,7 +251,7 @@ class DetailsPageLogic extends GetxController {
       return;
     }
     if (!FavoriteSetting.inited) {
-      await FavoriteSetting.refresh();
+      FavoriteSetting.refresh();
     }
 
     int? favIndex = await Get.dialog(FavoriteDialog());
