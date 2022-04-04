@@ -49,7 +49,7 @@ mush thanks to these projects🙇‍
 ## Features & Todo
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
-- [x] search, search suggestion、tap tag to search, file search
+- [x] search, search suggestion, tap tag to search, file search
 - [x] online reading and download
 - [x] favorite, rating, torrent, archive
 - [x] password login, Cookie login, web login

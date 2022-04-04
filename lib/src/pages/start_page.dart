@@ -7,6 +7,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 
 const int left = 1;
 const int right = 2;
+const int fullScreen = 3;
 
 class StartPage extends StatelessWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -51,7 +52,6 @@ class StartPage extends StatelessWidget {
         ),
       ],
       onGenerateRoute: (settings) {
-        /// todo: check conflict
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
 
         return GetPageRoute(
@@ -60,11 +60,9 @@ class StartPage extends StatelessWidget {
           /// setting name may include path params
           page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
-          /// do not use swipe back in tablet layout!
-          popGesture: false,
-          transition: Transition.fadeIn,
+          popGesture: true,
+          transition: Transition.cupertino,
           transitionDuration: const Duration(milliseconds: 150),
-          showCupertinoParallax: false,
         );
       },
     );

@@ -5,6 +5,7 @@ import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../utils/route_util.dart';
 import '../../../utils/size_util.dart';
+import '../../start_page.dart';
 import '../read_page_logic.dart';
 
 class ReadListViewHelper extends StatelessWidget {
@@ -83,7 +84,10 @@ class ReadListViewHelper extends StatelessWidget {
               actionsIconTheme: const IconThemeData(color: Colors.white),
               backgroundColor: Colors.black.withOpacity(0.8),
               actions: [
-                IconButton(onPressed: () => toNamed(Routes.settingRead), icon: const Icon(Icons.settings)),
+                IconButton(
+                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen),
+                  icon: const Icon(Icons.settings),
+                ),
               ],
             ),
           ),

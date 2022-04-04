@@ -51,11 +51,15 @@ class Log {
       return '0KB';
     }
 
-    return (logDirectory.statSync().size / 1024).toStringAsFixed(2) + 'KB';
+    int totalBytes = logDirectory
+        .listSync()
+        .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+
+    return (totalBytes / 1024).toStringAsFixed(2) + 'KB';
   }
 
   static void clear() {
-    io. Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
+    io.Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
     if (logDirectory.existsSync()) {
       logDirectory.delete(recursive: true);
     }

@@ -177,7 +177,7 @@ class _EHCommentState extends State<EHComment> {
     }
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
       if (Get.currentRoute == Routes.comment) {
-        Get.offNamed(Routes.details, arguments: url);
+        offNamed(Routes.details, arguments: url);
       } else {
         toNamed(Routes.details, arguments: url, preventDuplicates: false);
       }

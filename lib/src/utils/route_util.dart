@@ -1,4 +1,3 @@
-import 'package:stack_trace/stack_trace.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/start_page.dart';
@@ -13,9 +12,10 @@ Future<T?>? toNamed<T>(
   dynamic arguments,
   bool preventDuplicates = true,
   Map<String, String>? parameters,
+  int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
-  if (StyleSetting.enableTabletLayout.isFalse || page.side == Side.fullScreen) {
+  if (StyleSetting.enableTabletLayout.isFalse || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -71,16 +71,15 @@ void back<T>({
 }
 
 Future<T?>? offNamed<T>(
-  String page, {
-  required String? currentRoute,
+  String routeName, {
   dynamic arguments,
   bool preventDuplicates = true,
   Map<String, String>? parameters,
 }) {
-  Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
+  Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
 
   return Get.offNamed(
-    page,
+    routeName,
     arguments: arguments,
     id: StyleSetting.enableTabletLayout.isFalse
         ? null
