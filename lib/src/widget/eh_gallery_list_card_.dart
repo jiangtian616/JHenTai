@@ -192,13 +192,13 @@ class EHGalleryListCard extends StatelessWidget {
                   color: Colors.grey.shade600,
                 ),
               ).marginOnly(right: 4),
-            if (gallery.pageCount > 0)
+            if (gallery.pageCount != null)
               Icon(
                 Icons.panorama,
                 size: 12,
                 color: Colors.grey.shade600,
               ).marginOnly(right: 2),
-            if (gallery.pageCount > 0)
+            if (gallery.pageCount != null)
               Text(
                 gallery.pageCount.toString(),
                 style: TextStyle(

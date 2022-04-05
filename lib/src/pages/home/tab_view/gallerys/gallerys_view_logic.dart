@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -223,18 +224,31 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   Future<List<dynamic>> _getHistoryGallerys() async {
-    List<String>? galleryUrls = storageService.read<List>('history')?.map((e) => e as String).toList();
+    List<String>? galleryUrls = storageService.read<List>('history')?.cast<String>();
     if (galleryUrls == null) {
       return [<Gallery>[], 0];
     }
 
-    List<Gallery> gallerys = await Future.wait(
-      galleryUrls
-          .map(
-            (url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery),
-          )
-          .toList(),
-    );
-    return [gallerys, 1];
+    List<Gallery?> gallerys = List.generate(galleryUrls.length, (index) => null);
+    try {
+      await Future.wait(
+        galleryUrls
+            .mapIndexed(
+              (index, url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery)
+                  .then((value) => gallerys[index] = value),
+            )
+            .toList(),
+      );
+    } on DioError catch (e) {
+      /// 404 => hide or remove
+      if (e.response?.statusCode != 404) {
+        Log.error('getHistoryGallerysFailed'.tr, e.message);
+        snack('getHistoryGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      }
+    }
+
+    gallerys.removeWhere((r) => r == null);
+
+    return [gallerys.cast<Gallery>(), 1];
   }
 }

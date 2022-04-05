@@ -8,6 +8,8 @@ class GalleryDetail {
   int ratingCount;
   double realRating;
   String size;
+  int pageCount;
+
   int favoriteCount;
   String torrentCount;
   String torrentPageUrl;
@@ -20,6 +22,7 @@ class GalleryDetail {
     required this.ratingCount,
     required this.realRating,
     required this.size,
+    required this.pageCount,
     required this.favoriteCount,
     required this.torrentCount,
     required this.torrentPageUrl,

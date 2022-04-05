@@ -44,6 +44,7 @@ class SearchConfig {
   bool disableFilterForTags = false;
 
   /// Favorite
+  int? searchFavoriteCategoryIndex;
   bool searchFavoriteName = true;
   bool searchFavoriteTags = true;
   bool searchFavoriteNote = true;
@@ -74,6 +75,7 @@ class SearchConfig {
     this.disableFilterForLanguage = false,
     this.disableFilterForUploader = false,
     this.disableFilterForTags = false,
+    this.searchFavoriteCategoryIndex,
     this.searchFavoriteName = true,
     this.searchFavoriteTags = true,
     this.searchFavoriteNote = true,
@@ -151,6 +153,9 @@ class SearchConfig {
     }
 
     if (searchType == SearchType.favorite) {
+      if (searchFavoriteCategoryIndex != null) {
+        params['favcat'] = searchFavoriteCategoryIndex;
+      }
       if (searchFavoriteName) {
         params['sn'] = 'on';
       }
@@ -192,6 +197,7 @@ class SearchConfig {
       disableFilterForLanguage: json["disableFilterForLanguage"],
       disableFilterForUploader: json["disableFilterForUploader"],
       disableFilterForTags: json["disableFilterForTags"],
+      searchFavoriteCategoryIndex: json["searchFavoriteCategoryIndex"],
       searchFavoriteName: json["searchFavoriteName"],
       searchFavoriteTags: json["searchFavoriteTags"],
       searchFavoriteNote: json["searchFavoriteNote"],
@@ -225,6 +231,7 @@ class SearchConfig {
       "disableFilterForLanguage": this.disableFilterForLanguage,
       "disableFilterForUploader": this.disableFilterForUploader,
       "disableFilterForTags": this.disableFilterForTags,
+      "searchFavoriteCategoryIndex": this.searchFavoriteCategoryIndex,
       "searchFavoriteName": this.searchFavoriteName,
       "searchFavoriteTags": this.searchFavoriteTags,
       "searchFavoriteNote": this.searchFavoriteNote,
@@ -322,6 +329,7 @@ class SearchConfig {
       disableFilterForLanguage: disableFilterForLanguage ?? this.disableFilterForLanguage,
       disableFilterForUploader: disableFilterForUploader ?? this.disableFilterForUploader,
       disableFilterForTags: disableFilterForTags ?? this.disableFilterForTags,
+      searchFavoriteCategoryIndex: searchFavoriteCategoryIndex ?? this.searchFavoriteCategoryIndex,
       searchFavoriteName: searchFavoriteName ?? this.searchFavoriteName,
       searchFavoriteTags: searchFavoriteTags ?? this.searchFavoriteTags,
       searchFavoriteNote: searchFavoriteNote ?? this.searchFavoriteNote,

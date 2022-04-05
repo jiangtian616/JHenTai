@@ -26,11 +26,7 @@ class _LogPageState extends State<LogPage> {
       appBar: AppBar(
         title: Text(basename(log.path)),
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          fontSize: 16,
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
+        titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

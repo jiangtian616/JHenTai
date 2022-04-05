@@ -195,6 +195,9 @@ class en_US {
       /// ranklist view
       'getRanklistFailed': 'Get Ranklist Failed',
 
+      /// history view
+      'getHistoryGallerysFailed': 'Get Some of History Gallerys Failed',
+
       /// search page
       'search': 'Search',
       'searchFailed': 'Search Failed',

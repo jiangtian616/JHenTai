@@ -298,7 +298,7 @@ class DetailsPage extends StatelessWidget {
               IconTextButton(
                 iconData: Icons.visibility,
                 iconSize: 28,
-                onPressed: () => detailsPageLogic.goToReadPage(),
+                onPressed: detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.goToReadPage(),
                 text: Text(
                   'read'.tr + (readIndexRecord > 0 ? ' P' + (readIndexRecord + 1).toString() : ''),
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
@@ -307,7 +307,8 @@ class DetailsPage extends StatelessWidget {
               IconTextButton(
                 iconData: Icons.download,
                 iconSize: 30,
-                onPressed: () => detailsPageLogic.handleTapDownload(),
+                onPressed:
+                    detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
                 text: Obx(() {
                   return Text(
                     downloadService.gid2downloadProgress[gallery.gid] == null

@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'dart:async';
-import 'package:device_preview/device_preview.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,16 +24,14 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 void main() async {
-  FlutterError.presentError = (FlutterErrorDetails details, {bool forceReport = false}) => Log.error(details.exception);
+  FlutterError.presentError =
+      (FlutterErrorDetails details, {bool forceReport = false}) => Log.error(details.exception, null, details.stack);
 
   runZonedGuarded(() async {
-    await beforeInit();
-    runApp(DevicePreview(
-      enabled: false,
-      builder: (context) => const MyApp(),
-    ));
+    await init();
+    runApp(const MyApp());
   }, (Object error, StackTrace stack) {
-    Log.error(error);
+    Log.error(error, null, stack);
   });
 }
 
@@ -55,11 +52,6 @@ class MyApp extends StatelessWidget {
       initialRoute: AdvancedSetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver()],
 
-      /// device preview
-      useInheritedMediaQuery: true,
-      // locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
-
       /// enable swipe back feature
       popGesture: true,
       onReady: onReady,
@@ -67,7 +59,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<void> beforeInit() async {
+Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await PathSetting.init();

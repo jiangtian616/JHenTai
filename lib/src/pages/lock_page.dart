@@ -27,7 +27,7 @@ class _LockPageState extends State<LockPage> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: auth,
-      child: Container(
+      child: ColoredBox(
         color: Get.theme.backgroundColor,
         child: Center(
           child: Text(

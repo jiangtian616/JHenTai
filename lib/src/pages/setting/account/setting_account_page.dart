@@ -26,6 +26,7 @@ class SettingAccountPage extends StatelessWidget {
             if (!UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('login'.tr),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
                 onTap: () => toNamed(Routes.login),
               ),
             if (UserSetting.hasLoggedIn())

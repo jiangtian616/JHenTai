@@ -91,6 +91,8 @@ class EHSpiderParser {
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
+      pageCount: int.parse(
+          (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       favoriteCount: _parseGalleryDetailsFavoriteCount(document),
       torrentCount: RegExp(r'\d+')
               .firstMatch(document.querySelector('#gd5')?.children[2].querySelector('a')?.text ?? '')
@@ -576,12 +578,12 @@ class EHSpiderParser {
     );
   }
 
-  static int _parseCompactGalleryPageCount(Element tr) {
+  static int? _parseCompactGalleryPageCount(Element tr) {
     List<Element> divs = tr.querySelectorAll('.gl4c.glhide > div');
 
     /// favorite page
     if (divs.isEmpty) {
-      return 0;
+      return null;
     }
 
     /// eg: '66 pages'
@@ -589,12 +591,12 @@ class EHSpiderParser {
     return int.parse(pageCountDesc.split(' ')[0]);
   }
 
-  static int _parseExtendedGalleryPageCount(Element tr) {
+  static int? _parseExtendedGalleryPageCount(Element tr) {
     List<Element> divs = tr.querySelectorAll('.gl3e > div');
 
     /// favorite page
     if (divs.isEmpty) {
-      return 0;
+      return null;
     }
 
     /// eg: '66 pages'
@@ -602,12 +604,12 @@ class EHSpiderParser {
     return int.parse(pageCountDesc.split(' ')[0]);
   }
 
-  static int _parseThumbnailGalleryPageCount(Element div) {
+  static int? _parseThumbnailGalleryPageCount(Element div) {
     List<Element> divs = div.querySelectorAll('.gl5t > div:nth-child(1) > div');
 
     /// favorite page
     if (divs.isEmpty) {
-      return 0;
+      return null;
     }
 
     /// eg: '66 pages'

@@ -86,7 +86,7 @@ class zh_CN {
       'sendCommentFailed': '发送评论失败',
       'voteCommentFailed': '投票评论失败',
 
-      ///EHImage
+      /// EHImage
       'reloadImage': "重新加载图片",
 
       /// read page
@@ -193,6 +193,9 @@ class zh_CN {
 
       /// ranklist view
       'getRanklistFailed': '获取排行榜数据失败',
+
+      /// history view
+      'getHistoryGallerysFailed': '获取部分历史数据失败',
 
       /// search page
       'search': '搜索',

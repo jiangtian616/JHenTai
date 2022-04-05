@@ -123,7 +123,7 @@ class FavoriteSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    favoriteTagNames = (jsonDecode(map['favoriteTagNames']) as List).map((e) => e as String).toList();
+    favoriteTagNames = (jsonDecode(map['favoriteTagNames']) as List).cast<String>();
     favoriteTagNames2Count = LinkedHashMap.of(
         (jsonDecode(map['favoriteTagNames2Count']) as Map).map((key, value) => MapEntry<String, int>(key, value)));
   }

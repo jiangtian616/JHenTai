@@ -83,13 +83,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               LocaleConsts.languageCode[gallery.language] ?? '',
               style: const TextStyle(fontSize: 10, color: Colors.white70),
             ).marginOnly(right: 4),
-          if (gallery.pageCount > 0)
+          if (gallery.pageCount != null)
             const Icon(
               Icons.panorama,
               size: 10,
               color: Colors.white70,
             ).marginOnly(right: 2),
-          if (gallery.pageCount > 0)
+          if (gallery.pageCount != null)
             Text(
               gallery.pageCount.toString(),
               style: const TextStyle(fontSize: 10, color: Colors.white70),

@@ -61,7 +61,6 @@ class DetailsPageLogic extends GetxController {
     /// enter from galleryPage
     if (arg is Gallery) {
       state.gallery = arg;
-      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       getDetails();
       return;
     }
@@ -76,7 +75,7 @@ class DetailsPageLogic extends GetxController {
       state.gallery = arg[0];
       state.galleryDetails = arg[1];
       state.apikey = arg[2];
-      state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
+      state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
       update([bodyId]);
       return;
@@ -86,7 +85,7 @@ class DetailsPageLogic extends GetxController {
   @override
   void onReady() {
     /// record history
-    List<String> historyUrls = storageService.read<List>('history')?.map((e) => e as String).toList() ?? <String>[];
+    List<String> historyUrls = storageService.read<List>('history')?.cast<String>() ?? <String>[];
     String curUrl;
 
     if (Get.arguments is Gallery) {
@@ -138,7 +137,8 @@ class DetailsPageLogic extends GetxController {
     state.gallery = galleryAndDetailsAndApikey['gallery']!;
     state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
     state.apikey = galleryAndDetailsAndApikey['apikey']!;
-    state.thumbnailsPageCount = (state.gallery!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
+    state.gallery!.pageCount = state.galleryDetails!.pageCount;
+    state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
     state.loadingPageState = LoadingState.success;
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
@@ -173,6 +173,8 @@ class DetailsPageLogic extends GetxController {
     }
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
+    state.gallery!.pageCount = state.galleryDetails!.pageCount;
+    state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
     update([bodyId]);

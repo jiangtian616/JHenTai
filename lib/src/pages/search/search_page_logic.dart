@@ -116,7 +116,7 @@ class SearchPageLogic extends GetxController {
 
   List<String> getSearchHistory() {
     List history = storageService.read('searchHistory') ?? <String>[];
-    return history.map((e) => e as String).toList();
+    return history.cast<String>();
   }
 
   void clearHistory() {

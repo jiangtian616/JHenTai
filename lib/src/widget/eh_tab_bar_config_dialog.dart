@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
+import 'package:jhentai/src/setting/favorite_setting.dart';
 
 import 'eh_gallery_category_tag.dart';
 
@@ -280,6 +282,20 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                     if (tabBarConfig.searchConfig.searchType == SearchType.favorite)
                       Column(
                         children: [
+                          _buildFavoriteTags().marginOnly(top: 20),
+                          if (widget.type != EHTabBarConfigDialogType.filter)
+                            TextField(
+                              decoration: InputDecoration(
+                                isDense: true,
+                                alignLabelWithHint: true,
+                                labelText: 'keyword'.tr,
+                                labelStyle: const TextStyle(fontSize: 12),
+                              ),
+                              controller: TextEditingController(text: tabBarConfig.searchConfig.keyword),
+                              onChanged: (keyword) {
+                                tabBarConfig.searchConfig.keyword = keyword;
+                              },
+                            ).marginOnly(left: 16, right: 16, top: 16),
                           ListTile(
                             key: const Key('searchName'),
                             title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
@@ -344,13 +360,185 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
     }
   }
 
+  Widget _buildFavoriteTags() {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[0],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 0) == 0,
+              color: ColorConsts.favoriteTagColor[0],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 0) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 0;
+                  }
+                });
+              },
+            ),
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[1],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 1) == 1,
+              color: ColorConsts.favoriteTagColor[1],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 1) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 1;
+                  }
+                });
+              },
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[2],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 2) == 2,
+              color: ColorConsts.favoriteTagColor[2],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 2) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 2;
+                  }
+                });
+              },
+            ),
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[3],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 3) == 3,
+              color: ColorConsts.favoriteTagColor[3],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 3) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 3;
+                  }
+                });
+              },
+            ),
+          ],
+        ).marginOnly(top: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[4],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 4) == 4,
+              color: ColorConsts.favoriteTagColor[4],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 4) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 4;
+                  }
+                });
+              },
+            ),
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[5],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 5) == 5,
+              color: ColorConsts.favoriteTagColor[5],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 5) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 5;
+                  }
+                });
+              },
+            ),
+          ],
+        ).marginOnly(top: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[6],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 6) == 6,
+              color: ColorConsts.favoriteTagColor[6],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 6) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 6;
+                  }
+                });
+              },
+            ),
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[7],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 7) == 7,
+              color: ColorConsts.favoriteTagColor[7],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 7) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 7;
+                  }
+                });
+              },
+            ),
+          ],
+        ).marginOnly(top: 4),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[8],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 8) == 8,
+              color: ColorConsts.favoriteTagColor[8],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 8) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 8;
+                  }
+                });
+              },
+            ),
+            _buildTag(
+              category: FavoriteSetting.favoriteTagNames[9],
+              enabled: (tabBarConfig.searchConfig.searchFavoriteCategoryIndex ?? 9) == 9,
+              color: ColorConsts.favoriteTagColor[9],
+              onTap: () {
+                setState(() {
+                  if (tabBarConfig.searchConfig.searchFavoriteCategoryIndex == 9) {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = null;
+                  } else {
+                    tabBarConfig.searchConfig.searchFavoriteCategoryIndex = 9;
+                  }
+                });
+              },
+            ),
+          ],
+        ).marginOnly(top: 4),
+      ],
+    ).paddingSymmetric(horizontal: 16);
+  }
+
   Widget _buildCategoryTags() {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildCategoryTag(
+            _buildTag(
               category: 'Doujinshi',
               enabled: tabBarConfig.searchConfig.includeDoujinshi,
               onTap: () {
@@ -359,7 +547,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                 });
               },
             ),
-            _buildCategoryTag(
+            _buildTag(
               category: 'Manga',
               enabled: tabBarConfig.searchConfig.includeManga,
               onTap: () {
@@ -373,7 +561,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildCategoryTag(
+            _buildTag(
               category: 'Image Set',
               enabled: tabBarConfig.searchConfig.includeImageSet,
               onTap: () {
@@ -382,7 +570,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                 });
               },
             ),
-            _buildCategoryTag(
+            _buildTag(
               category: 'Game CG',
               enabled: tabBarConfig.searchConfig.includeGameCg,
               onTap: () {
@@ -396,7 +584,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildCategoryTag(
+            _buildTag(
               category: 'Artist CG',
               enabled: tabBarConfig.searchConfig.includeArtistCG,
               onTap: () {
@@ -405,7 +593,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                 });
               },
             ),
-            _buildCategoryTag(
+            _buildTag(
               category: 'Cosplay',
               enabled: tabBarConfig.searchConfig.includeCosplay,
               onTap: () {
@@ -419,7 +607,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildCategoryTag(
+            _buildTag(
               category: 'Non-H',
               enabled: tabBarConfig.searchConfig.includeNonH,
               onTap: () {
@@ -428,7 +616,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                 });
               },
             ),
-            _buildCategoryTag(
+            _buildTag(
               category: 'Asian Porn',
               enabled: tabBarConfig.searchConfig.includeAsianPorn,
               onTap: () {
@@ -442,7 +630,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildCategoryTag(
+            _buildTag(
               category: 'Western',
               enabled: tabBarConfig.searchConfig.includeWestern,
               onTap: () {
@@ -451,7 +639,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                 });
               },
             ),
-            _buildCategoryTag(
+            _buildTag(
               category: 'Misc',
               enabled: tabBarConfig.searchConfig.includeMisc,
               onTap: () {
@@ -466,12 +654,13 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
     ).paddingSymmetric(horizontal: 16);
   }
 
-  Widget _buildCategoryTag({required String category, required bool enabled, VoidCallback? onTap}) {
+  Widget _buildTag({required String category, required bool enabled, Color? color, VoidCallback? onTap}) {
     return EHGalleryCategoryTag(
       category: category,
       width: 115,
       height: 30,
       enabled: enabled,
+      color: color,
       textStyle: const TextStyle(height: 1, fontSize: 16, color: Colors.white),
       onTap: onTap,
     );

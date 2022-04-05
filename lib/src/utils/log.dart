@@ -24,7 +24,7 @@ class Log {
     await logFile.create(recursive: true);
 
     _logFile = Logger(
-      printer: SimplePrinter(printTime: true, colors: false),
+      printer: PrettyPrinter(stackTraceBeginIndex: 1, noBoxingByDefault: true, colors: false, printTime: false),
       filter: ProductionFilter(),
       output: FileOutput(file: logFile),
     );
@@ -42,9 +42,9 @@ class Log {
     _logFile?.w(msg, null, withStack ? null : StackTrace.empty);
   }
 
-  static void error(Object? msg, [Object? errorMsg]) {
-    _log.e(msg, errorMsg);
-    _logFile?.e(msg, errorMsg);
+  static void error(Object? msg, [Object? error, StackTrace? stackTrace]) {
+    _log.e(msg, error, stackTrace);
+    _logFile?.e(msg, error, stackTrace);
   }
 
   static String getSizeInKB() {

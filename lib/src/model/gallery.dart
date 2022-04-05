@@ -10,7 +10,7 @@ class Gallery {
   String? japaneseTitle;
   String category;
   GalleryImage cover;
-  int pageCount;
+  int? pageCount;
   double rating;
   bool hasRated;
   bool isFavorite;
@@ -40,7 +40,7 @@ class Gallery {
       token: token,
       title: title,
       category: category,
-      pageCount: pageCount,
+      pageCount: pageCount!,
       galleryUrl: galleryUrl,
       uploader: uploader,
       publishTime: publishTime,
@@ -55,7 +55,7 @@ class Gallery {
     this.japaneseTitle,
     required this.category,
     required this.cover,
-    required this.pageCount,
+    this.pageCount,
     required this.rating,
     required this.hasRated,
     required this.isFavorite,
