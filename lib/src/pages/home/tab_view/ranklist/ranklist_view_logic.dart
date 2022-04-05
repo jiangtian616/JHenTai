@@ -62,7 +62,7 @@ class RanklistViewLogic extends GetxController {
               ).then((value) => results[index] = value).catchError((error) {
                 /// 404 => hide or remove
                 if (error.response?.statusCode != 404) {
-                  Log.error('${'getRanklistFailed'.tr}: ${baseGallery.galleryUrl}', error.message);
+                  Log.error('${'getSomeOfGallerysFailed'.tr}: ${baseGallery.galleryUrl}', error.message);
                 } else {
                   Log.info('Gallery 404: ${baseGallery.galleryUrl}', false);
                 }

@@ -1,6 +1,6 @@
 version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)
 
-flutter build ios --release --obfuscate --split-debug-info=build/app/outputs/symbols -t lib/src/main.dart \
+flutter build ios --release -t lib/src/main.dart \
 && mkdir ~/Desktop/Payload \
 && cp -r build/ios/Release-iphoneos/Runner.app/ ~/Desktop/Payload/Runner.app/ \
 && cd ~/Desktop \

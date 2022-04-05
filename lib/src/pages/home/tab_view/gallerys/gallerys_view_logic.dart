@@ -239,7 +239,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
                   .catchError((error) {
                 /// 404 => hide or remove
                 if (error.response?.statusCode != 404) {
-                  Log.error('${'getHistoryGallerysFailed'.tr}:$url', error.message);
+                  Log.error('${'getSomeOfGallerysFailed'.tr}:$url', error.message);
                 } else {
                   Log.info('Gallery 404: $url', false);
                 }

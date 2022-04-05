@@ -8,7 +8,7 @@ import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
 
 class Log {
-  static final Logger _log = Logger(printer: PrettyPrinter(stackTraceBeginIndex: 1));
+  static Logger? _log;
   static Logger? _logFile;
 
   static late final logPath;
@@ -19,37 +19,41 @@ class Log {
     }
 
     logPath = path.join(PathSetting.getVisibleDir().path, 'logs');
-
     io.File logFile = io.File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
     await logFile.create(recursive: true);
 
+    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1);
+    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, noBoxingByDefault: true);
+
+    _log = Logger(printer: PrettyPrinter(stackTraceBeginIndex: 1));
     _logFile = Logger(
-      printer: PrettyPrinter(stackTraceBeginIndex: 1, noBoxingByDefault: true, colors: false, printTime: false),
+      printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: ProductionFilter(),
       output: FileOutput(file: logFile),
     );
 
-    PrettyPrinter.levelEmojis[Level.verbose] = '⚙ ';
+    PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
     verbose('init LogUtil success', false);
   }
 
   static void verbose(Object? msg, [bool withStack = true]) {
-    _log.v(msg, null, withStack ? null : StackTrace.empty);
+    _log?.v(msg, null, withStack ? null : StackTrace.empty);
     _logFile?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void info(Object? msg, [bool withStack = true]) {
-    _log.i(msg, null, withStack ? null : StackTrace.empty);
+    _log?.i(msg, null, withStack ? null : StackTrace.empty);
     _logFile?.i(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void warning(Object? msg, [bool withStack = true]) {
-    _log.w(msg, null, withStack ? null : StackTrace.empty);
+    _log?.w(msg, null, withStack ? null : StackTrace.empty);
     _logFile?.w(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void error(Object? msg, [Object? error, StackTrace? stackTrace]) {
-    _log.e(msg, error, stackTrace);
+    _log?.e(msg, error, stackTrace);
     _logFile?.e(msg, error, stackTrace);
   }
 
