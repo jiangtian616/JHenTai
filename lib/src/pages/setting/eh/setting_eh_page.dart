@@ -24,18 +24,18 @@ class SettingEHPage extends StatelessWidget {
         title: Text('ehSetting'.tr),
         elevation: 1,
       ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        children: [
-          if (!UserSetting.hasLoggedIn())
-            ListTile(
-              title: Text('pleaseLogInToOperate'.tr),
-            ),
-          if (UserSetting.hasLoggedIn())
-            ListTile(
-              title: Text('site'.tr),
-              trailing: Obx(() {
-                return CupertinoSlidingSegmentedControl<String>(
+      body: Obx(() {
+        return ListView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          children: [
+            if (!UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('pleaseLogInToOperate'.tr),
+              ),
+            if (UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('site'.tr),
+                trailing: CupertinoSlidingSegmentedControl<String>(
                   groupValue: EHSetting.site.value,
                   children: const {
                     'EH': Text('E-Hentai'),
@@ -44,17 +44,26 @@ class SettingEHPage extends StatelessWidget {
                   onValueChanged: (value) {
                     EHSetting.saveSite(value!);
                   },
-                );
-              }),
-            ),
-          if (UserSetting.hasLoggedIn())
-            ListTile(
-              title: Text('siteSetting'.tr),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: _gotoSiteSettingPage,
-            ),
-        ],
-      ).paddingSymmetric(vertical: 16),
+                ),
+              ),
+            if (UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('siteSetting'.tr),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: _gotoSiteSettingPage,
+              ),
+            if (UserSetting.hasLoggedIn() && EHSetting.site.value == 'EX')
+              ListTile(
+                title: Text('redirect2EH'.tr),
+                subtitle: Text('redirect2Hints'.tr),
+                trailing: Switch(
+                  value: EHSetting.redirect2EH.value,
+                  onChanged: EHSetting.saveRedirect2EH,
+                ),
+              ),
+          ],
+        );
+      }).paddingSymmetric(vertical: 16),
     );
   }
 

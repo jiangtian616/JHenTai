@@ -12,6 +12,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
@@ -216,7 +217,39 @@ class EHRequest {
     CancelToken? cancelToken,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.get(
+    Response<String> response;
+
+    if (EHSetting.redirect2EH.isFalse || galleryUrl.startsWith(EHConsts.EHIndex)) {
+      response = await _dio.get(
+        galleryUrl,
+        queryParameters: {'p': thumbnailsPageNo},
+        cancelToken: cancelToken,
+        options: useCacheIfAvailable
+            ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+            : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+      );
+      return parser(response);
+    }
+
+    Log.info('try redirect to EH site', false);
+    try {
+      response = await _dio.get(
+        galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+        queryParameters: {'p': thumbnailsPageNo},
+        cancelToken: cancelToken,
+        options: useCacheIfAvailable
+            ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+            : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+      );
+      return parser(response);
+    } on DioError catch (e) {
+      if (e.response?.statusCode != 404) {
+        rethrow;
+      }
+      Log.info('redirect to EH 404', false);
+    }
+
+    response = await _dio.get(
       galleryUrl,
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,

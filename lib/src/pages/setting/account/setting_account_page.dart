@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/cookie_util.dart';
 
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
@@ -42,15 +46,18 @@ class SettingAccountPage extends StatelessWidget {
               ListTile(
                 title: Text('copyCookies'.tr),
                 subtitle: Text('tap2Copy'.tr),
-                onTap: () {
-                  FlutterClipboard.copy(UserSetting.getCookies())
-                      .then((value) => snack('success'.tr, 'hasCopiedToClipboard'.tr));
-                },
+                onTap: _copyCookie,
               ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),
     );
+  }
+
+  Future<void> _copyCookie() async {
+    List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
+    await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
+    snack('success'.tr, 'hasCopiedToClipboard'.tr);
   }
 }
 

@@ -13,9 +13,7 @@ class EHConsts {
 
   static String get EXPopular => 'https://exhentai.org/popular';
 
-  static String get EApi => EHSetting.site.value == 'EH' ? EHApi : EXApi;
-
-  static String get EHApi => 'https://api.e-hentai.org/api.php';
+  static String get EApi => 'https://api.e-hentai.org/api.php';
 
   static String get EXApi => 'https://api.exhentai.org/api.php';
 

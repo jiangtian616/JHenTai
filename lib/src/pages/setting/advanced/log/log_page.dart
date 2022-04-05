@@ -29,17 +29,16 @@ class _LogPageState extends State<LogPage> {
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
       body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
         child: SingleChildScrollView(
-          child: SizedBox(
-            width: screenWidth,
-            child: SelectableText(
-              (log as io.File).readAsStringSync(),
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
-              ),
+          scrollDirection: Axis.horizontal,
+          child: SelectableText(
+            (log as io.File).readAsStringSync(),
+            minLines: 80,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
             ),
           ),
         ),

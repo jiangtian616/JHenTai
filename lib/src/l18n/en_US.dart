@@ -112,6 +112,8 @@ class en_US {
       /// eh setting page
       'site': 'Site',
       'siteSetting': 'Site Setting',
+      'redirect2EH': 'Redirect to EH site if Available',
+      'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
 
       /// style setting page
