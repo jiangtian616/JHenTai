@@ -59,18 +59,25 @@ class RanklistViewLogic extends GetxController {
               (index, baseGallery) => EHRequest.requestDetailPage<Map<String, dynamic>>(
                 galleryUrl: baseGallery.galleryUrl,
                 parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-              ).then(
-                (value) => results[index] = value,
-              ),
+              ).then((value) => results[index] = value).catchError((error) {
+                /// 404 => hide or remove
+                if (error.response?.statusCode != 404) {
+                  Log.error('${'getRanklistFailed'.tr}: ${baseGallery.galleryUrl}', error.message);
+                } else {
+                  Log.info('Gallery 404: ${baseGallery.galleryUrl}', false);
+                }
+                throw error;
+              }),
             )
             .toList(),
       );
     } on DioError catch (e) {
-      /// 404 => hide or remove
-      if (e.response?.statusCode != 404) {
-        Log.error('getRanklistFailed'.tr, e.message);
-        snack('getRanklistFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      }
+      snack(
+        'getSomeOfGallerysFailed'.tr,
+        e.message,
+        longDuration: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
 
     results.removeWhere((r) => r == null);

@@ -68,6 +68,7 @@ class zh_CN {
       'uploader': '上传者',
       'allComments': '所有评论',
       'noComments': '暂无评论',
+      'lastEditedOn': '最后修改于',
       'getGalleryDetailFailed': '获取画廊详情失败',
       'invisible2User': '此画廊对您不可见',
       'invisibleHints': '画廊已被删除或对您进行了限制',
@@ -195,9 +196,11 @@ class zh_CN {
 
       /// ranklist view
       'getRanklistFailed': '获取排行榜数据失败',
+      'getSomeOfGallerysFailed': '获取部分画廊数据失败',
 
       /// history view
-      'getHistoryGallerysFailed': '获取部分历史数据失败',
+      'getHistoryGallerysFailed': '获取历史数据失败',
+
 
       /// search page
       'search': '搜索',

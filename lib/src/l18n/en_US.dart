@@ -68,6 +68,7 @@ class en_US {
       'uploader': 'Uploader',
       'allComments': 'All Comments',
       'noComments': 'No Comments',
+      'lastEditedOn': 'Last edited on',
       'getGalleryDetailFailed': 'Get Gallery Detail Failed',
       'invisible2User': 'This Gallery is invisible to You',
       'invisibleHints': 'This gallery is removed or unavailable.',
@@ -196,6 +197,7 @@ class en_US {
 
       /// ranklist view
       'getRanklistFailed': 'Get Ranklist Failed',
+      'getSomeOfGallerysFailed': 'Get Some of Gallerys Failed',
 
       /// history view
       'getHistoryGallerysFailed': 'Get Some of History Gallerys Failed',

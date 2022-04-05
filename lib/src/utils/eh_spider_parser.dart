@@ -713,23 +713,43 @@ class EHSpiderParser {
   }
 
   static List<GalleryComment> _parseGalleryDetailsComments(List<Element> commentElements) {
-    return commentElements.map((element) {
-      /// eg: 'Posted on 10 March 2022, 03:49 by: hibiki'
-      String timeDesc = element.querySelector('.c2 > .c3')?.text ?? '';
+    return commentElements
+        .map(
+          (element) => GalleryComment(
+            id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
+            userName: element.querySelector('.c2 > .c3')?.children[0].text ?? '',
+            score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
+            content: element.querySelector('.c6')?.outerHtml ?? '',
+            time: _parsePostedLocalTime(element),
+            lastEditTime: _parsePostedEditedTime(element),
+          ),
+        )
+        .toList();
+  }
 
-      /// eg: '10 March 2022, 03:49'
-      String timeString = RegExp(r'Posted on (.+, .+) by:').firstMatch(timeDesc)?.group(1) ?? '';
-      final DateTime utcTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(timeString).toLocal();
-      final String localTime = DateFormat('yyyy-MM-dd HH:mm').format(utcTime);
+  static String _parsePostedLocalTime(Element element) {
+    /// eg: 'Posted on 10 March 2022, 03:49 by: hibiki'
+    String postedTimeDesc = element.querySelector('.c2 > .c3')?.text ?? '';
 
-      return GalleryComment(
-        id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
-        userName: element.querySelector('.c2 > .c3')?.children[0].text ?? '',
-        score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
-        content: element.querySelector('.c6')?.outerHtml ?? '',
-        time: localTime,
-      );
-    }).toList();
+    /// eg: '10 March 2022, 03:49'
+    String postedTimeString = RegExp(r'Posted on (.+, .+) by:').firstMatch(postedTimeDesc)?.group(1) ?? '';
+    final DateTime postedUTCTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(postedTimeString).toLocal();
+    final String postedLocalTime = DateFormat('yyyy-MM-dd HH:mm').format(postedUTCTime);
+
+    return postedLocalTime;
+  }
+
+  static String? _parsePostedEditedTime(Element element) {
+    /// eg: '10 March 2022, 03:49'
+    String? postedTimeString = element.querySelector('.c8 > strong')?.text;
+    if (postedTimeString == null) {
+      return null;
+    }
+
+    final DateTime postedUTCTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(postedTimeString).toLocal();
+    final String postedLocalTime = DateFormat('yyyy-MM-dd HH:mm').format(postedUTCTime);
+
+    return postedLocalTime;
   }
 
   static List<GalleryThumbnail> _parseGalleryDetailsSmallThumbnails(List<Element> thumbNailElements) {

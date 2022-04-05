@@ -235,16 +235,21 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
         galleryUrls
             .mapIndexed(
               (index, url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery)
-                  .then((value) => gallerys[index] = value),
+                  .then((value) => gallerys[index] = value)
+                  .catchError((error) {
+                /// 404 => hide or remove
+                if (error.response?.statusCode != 404) {
+                  Log.error('${'getHistoryGallerysFailed'.tr}:$url', error.message);
+                } else {
+                  Log.info('Gallery 404: $url', false);
+                }
+                throw error;
+              }),
             )
             .toList(),
       );
     } on DioError catch (e) {
-      /// 404 => hide or remove
-      if (e.response?.statusCode != 404) {
-        Log.error('getHistoryGallerysFailed'.tr, e.message);
-        snack('getHistoryGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      }
+      snack('getSomeOfGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
     }
 
     gallerys.removeWhere((r) => r == null);

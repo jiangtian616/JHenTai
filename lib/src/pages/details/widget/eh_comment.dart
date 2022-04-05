@@ -97,8 +97,16 @@ class _EHCommentState extends State<EHComment> {
                 factoryBuilder: () => _WidgetFactoryWithTextMaxLine(),
               ).marginOnly(top: 2, bottom: 14),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                if (widget.comment.lastEditTime != null)
+                  Text(
+                    '${'lastEditedOn'.tr}: ${widget.comment.lastEditTime}',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                const Expanded(child: SizedBox()),
                 if (widget.comment.score.isNotEmpty)
                   LikeButton(
                     size: 18,
