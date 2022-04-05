@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -24,8 +25,12 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 void main() async {
-  FlutterError.presentError =
-      (FlutterErrorDetails details, {bool forceReport = false}) => Log.error(details.exception, null, details.stack);
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (kReleaseMode){
+      Log.error(details.exception, null, details.stack);
+    }
+    FlutterError.presentError(details);
+  };
 
   runZonedGuarded(() async {
     await init();

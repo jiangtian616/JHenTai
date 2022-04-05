@@ -19,9 +19,9 @@ class ReadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init ReadSetting success', false);
+      Log.verbose('init ReadSetting success', false);
     } else {
-      Log.info('init ReadSetting success: default', false);
+      Log.verbose('init ReadSetting success: default', false);
     }
   }
 

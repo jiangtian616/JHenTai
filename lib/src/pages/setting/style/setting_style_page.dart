@@ -5,6 +5,8 @@ import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../../utils/size_util.dart';
+
 class SettingStylePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
 
@@ -135,7 +137,7 @@ class SettingStylePage extends StatelessWidget {
                 ),
               ),
             ),
-            if (Get.width >= 600)
+            if (fullScreenWidth >= 600)
               ListTile(
                 title: Text('enableTabletLayout'.tr),
                 trailing: Switch(

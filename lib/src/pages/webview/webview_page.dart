@@ -67,8 +67,8 @@ class _WebviewPageState extends State<WebviewPage> {
     /// temporarily
     UserSetting.userName.value = ipbMemberId.toString();
     until(
-      Routes.webview,
-      (route) => route.settings.name == Routes.settingAccount,
+      currentRoute: Routes.webview,
+      predicate: (route) => route.settings.name == Routes.settingAccount,
     );
 
     await EHRequest.storeEhCookiesForAllUri(cookies);

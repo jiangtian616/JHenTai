@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_screen_lock/flutter_screen_lock.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/pages/blank_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/utils/size_util.dart';
-import 'package:local_auth/local_auth.dart';
 
-import 'lock_page.dart';
+import '../utils/route_util.dart';
+import '../utils/size_util.dart';
 
 const int left = 1;
 const int right = 2;
@@ -22,31 +17,42 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (StyleSetting.enableTabletLayout.isFalse) {
-        return HomePage();
-      }
+    /// use LayoutBuilder to listen to the screen resize
+    return LayoutBuilder(
+      builder: (context, constraints) => Obx(
+        () {
+          if (StyleSetting.enableTabletLayout.isFalse) {
+            StyleSetting.currentEnableTabletLayout.value = false;
+            return HomePage();
+          }
 
-      if (screenWidth < 600) {
-        StyleSetting.enableTabletLayout.value = false;
-        return HomePage();
-      }
+          if (fullScreenWidth < 600) {
+            StyleSetting.currentEnableTabletLayout.value = false;
 
-      /// tablet layout
-      return Row(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(child: _leftScreen()),
-                Container(width: 0.3, color: Colors.black),
-              ],
-            ),
-          ),
-          Expanded(child: _rightScreen()),
-        ],
-      );
-    });
+            /// pop all pages in right screen if exists
+            untilBlankPage();
+            return HomePage();
+          }
+
+          StyleSetting.currentEnableTabletLayout.value = true;
+
+          /// tablet layout
+          return Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: [
+                    Expanded(child: _leftScreen()),
+                    Container(width: 0.3, color: Colors.black),
+                  ],
+                ),
+              ),
+              Expanded(child: _rightScreen()),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Widget _leftScreen() {

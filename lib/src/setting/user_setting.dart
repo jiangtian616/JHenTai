@@ -12,9 +12,9 @@ class UserSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init UserSetting success', false);
+      Log.verbose('init UserSetting success', false);
     } else {
-      Log.info('init UserSetting success, not logged in', false);
+      Log.verbose('init UserSetting success, not logged in', false);
     }
   }
 

@@ -29,7 +29,13 @@ class Log {
       output: FileOutput(file: logFile),
     );
 
-    info('init LogUtil success', false);
+    PrettyPrinter.levelEmojis[Level.verbose] = '⚙ ';
+    verbose('init LogUtil success', false);
+  }
+
+  static void verbose(Object? msg, [bool withStack = true]) {
+    _log.v(msg, null, withStack ? null : StackTrace.empty);
+    _logFile?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void info(Object? msg, [bool withStack = true]) {

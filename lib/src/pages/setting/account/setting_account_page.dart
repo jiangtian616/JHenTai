@@ -87,7 +87,7 @@ class _LogoutDialog extends StatelessWidget {
               child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
               onPressed: () async {
                 EHRequest.logout();
-                until(null, (route) => !Get.isDialogOpen!);
+                until(predicate: (route) => !Get.isDialogOpen!);
               },
             ),
           ],

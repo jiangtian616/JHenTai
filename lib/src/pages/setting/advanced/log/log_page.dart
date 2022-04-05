@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/utils/size_util.dart';
 import 'package:path/path.dart';
 
 class LogPage extends StatefulWidget {

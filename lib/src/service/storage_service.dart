@@ -8,7 +8,7 @@ class StorageService extends GetxService {
 
   static void init() {
     Get.put(StorageService());
-    Log.info('init StorageService success', false);
+    Log.verbose('init StorageService success', false);
   }
 
   Future<void> write(String key, dynamic value) {

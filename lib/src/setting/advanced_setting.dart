@@ -17,9 +17,9 @@ class AdvancedSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init AdvancedSetting success', false);
+      Log.verbose('init AdvancedSetting success', false);
     } else {
-      Log.info('init AdvancedSetting success: default', false);
+      Log.verbose('init AdvancedSetting success: default', false);
     }
   }
 

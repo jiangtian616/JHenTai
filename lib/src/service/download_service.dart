@@ -110,7 +110,7 @@ class DownloadService extends GetxService {
         downloadGallery(g, isFirstDownload: false);
       }
     }
-    Log.info('init DownloadService success, download task count: ${gallerys.length}', false);
+    Log.verbose('init DownloadService success, download task count: ${gallerys.length}', false);
   }
 
   /// begin or resume downloading all images of a gallery
@@ -217,7 +217,7 @@ class DownloadService extends GetxService {
         ),
       )
           .then((newThumbnails) {
-        Log.info('getMoreThumbnails success', false);
+        Log.verbose('getMoreThumbnails success', false);
         int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
         for (int i = 0; i < newThumbnails.length; i++) {
           gid2ImageHrefs[gallery.gid]![from + i].value = newThumbnails[i];
@@ -250,7 +250,7 @@ class DownloadService extends GetxService {
         ),
       )
           .then((image) async {
-        Log.info('parseImageUrl: $serialNo success', false);
+        Log.verbose('parseImageUrl: $serialNo success', false);
         image.downloadStatus = DownloadStatus.downloading;
         image.path = downloadPath;
         gid2Images[gallery.gid]![serialNo].value = image;
@@ -292,7 +292,7 @@ class DownloadService extends GetxService {
               gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = count;
               gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes += count;
             }).then((success) async {
-          Log.info('downloadImage: $serialNo success', false);
+          Log.verbose('downloadImage: $serialNo success', false);
           gid2downloadProgress[gallery.gid]!.update((progress) {
             progress?.curCount++;
             progress?.hasDownloaded[serialNo] = true;

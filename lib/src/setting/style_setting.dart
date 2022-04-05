@@ -28,18 +28,21 @@ class StyleSetting {
   static Rx<EHThemeMode> themeMode = EHThemeMode.light.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
+
+  /// if enableTabletLayout is true, currentEnableTabletLayout can also be false because of screen width limit.
   static RxBool enableTabletLayout =
       WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio < 600
           ? false.obs
           : true.obs;
+  static RxBool currentEnableTabletLayout = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init StyleSetting success', false);
+      Log.verbose('init StyleSetting success', false);
     } else {
-      Log.info('init StyleSetting success: default', false);
+      Log.verbose('init StyleSetting success: default', false);
     }
   }
 
@@ -99,5 +102,6 @@ class StyleSetting {
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
     enableTabletLayout.value = map['enableTabletLayout'];
+    currentEnableTabletLayout.value = map['enableTabletLayout'];
   }
 }

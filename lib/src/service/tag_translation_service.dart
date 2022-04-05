@@ -28,7 +28,7 @@ class TagTranslationService extends GetxService {
 
   static void init() {
     Get.put(TagTranslationService());
-    Log.info('init TagTranslationService success', false);
+    Log.verbose('init TagTranslationService success', false);
   }
 
   void onInit() {

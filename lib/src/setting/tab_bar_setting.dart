@@ -67,9 +67,9 @@ class TabBarSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('tabBarSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init TabBarSetting success', false);
+      Log.verbose('init TabBarSetting success', false);
     } else {
-      Log.info('init TabBarSetting success: default', false);
+      Log.verbose('init TabBarSetting success: default', false);
     }
   }
 

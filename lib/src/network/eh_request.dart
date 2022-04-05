@@ -110,7 +110,7 @@ class EHRequest {
     /// cache
     _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
 
-    Log.info('init EHRequest success', false);
+    Log.verbose('init EHRequest success', false);
   }
 
   static Future<void> storeEhCookiesStringForAllUri(String cookiesString) async {
@@ -231,7 +231,7 @@ class EHRequest {
       return parser(response);
     }
 
-    Log.info('try redirect to EH site', false);
+    Log.verbose('try redirect to EH site', false);
     try {
       response = await _dio.get(
         galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
@@ -246,7 +246,7 @@ class EHRequest {
       if (e.response?.statusCode != 404) {
         rethrow;
       }
-      Log.info('redirect to EH 404', false);
+      Log.verbose('redirect to EH 404', false);
     }
 
     response = await _dio.get(

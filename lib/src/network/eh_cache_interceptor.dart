@@ -50,7 +50,7 @@ class EHCacheInterceptor extends Interceptor {
     var cacheResponse = strategy.cacheResponse;
     if (cacheResponse != null) {
       // Cache hit
-      Log.info('hit cache: ${cacheResponse.url}', false);
+      Log.verbose('hit cache: ${cacheResponse.url}', false);
       // Update cached response if needed
       cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
 

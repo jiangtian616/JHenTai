@@ -11,9 +11,9 @@ class DownloadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init DownloadSetting success', false);
+      Log.verbose('init DownloadSetting success', false);
     } else {
-      Log.info('init DownloadSetting success: default', false);
+      Log.verbose('init DownloadSetting success: default', false);
     }
   }
 

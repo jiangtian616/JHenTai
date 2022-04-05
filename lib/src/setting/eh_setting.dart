@@ -11,9 +11,9 @@ class EHSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('EHSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.info('init EHSetting success', false);
+      Log.verbose('init EHSetting success', false);
     } else {
-      Log.info('init EHSetting success: default', false);
+      Log.verbose('init EHSetting success: default', false);
     }
   }
 

@@ -15,7 +15,7 @@ Future<T?>? toNamed<T>(
   int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
-  if (StyleSetting.enableTabletLayout.isFalse || page.side == Side.fullScreen || id == fullScreen) {
+  if (StyleSetting.currentEnableTabletLayout.isFalse || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -60,7 +60,7 @@ void back<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.enableTabletLayout.isFalse
+    id: StyleSetting.currentEnableTabletLayout.isFalse
         ? null
         : side == Side.left
             ? left
@@ -81,7 +81,7 @@ Future<T?>? offNamed<T>(
   return Get.offNamed(
     routeName,
     arguments: arguments,
-    id: StyleSetting.enableTabletLayout.isFalse
+    id: StyleSetting.currentEnableTabletLayout.isFalse
         ? null
         : side == Side.left
             ? left
@@ -93,16 +93,26 @@ Future<T?>? offNamed<T>(
   );
 }
 
-void until(String? currentRoute, RoutePredicate predicate) {
+void until({String? currentRoute, required RoutePredicate predicate}) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
   return Get.until(
     predicate,
-    id: StyleSetting.enableTabletLayout.isFalse
+    id: StyleSetting.currentEnableTabletLayout.isFalse
         ? null
         : side == Side.left
             ? left
             : side == Side.right
                 ? right
                 : null,
+  );
+}
+
+void untilBlankPage() {
+  if (!Get.keys.containsKey(right)) {
+    return;
+  }
+  Get.until(
+    (route) => route.settings.name == Routes.blank,
+    id: right,
   );
 }
