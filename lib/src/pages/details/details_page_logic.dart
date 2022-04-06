@@ -353,8 +353,10 @@ class DetailsPageLogic extends GetxController {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
     toNamed(
       Routes.webview,
-      arguments: state.galleryDetails!.archivePageUrl,
-      parameters: {'cookies': CookieUtil.parse2String(cookies)},
+      arguments: {
+        'url': state.galleryDetails!.archivePageUrl,
+        'cookies': CookieUtil.parse2String(cookies),
+      },
     );
   }
 
@@ -362,8 +364,10 @@ class DetailsPageLogic extends GetxController {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
     toNamed(
       Routes.webview,
-      arguments: '${EHConsts.EStat}?gid=${state.gallery!.gid}&t=${state.gallery!.token}',
-      parameters: {'cookies': CookieUtil.parse2String(cookies)},
+      arguments: {
+        'url': '${EHConsts.EStat}?gid=${state.gallery!.gid}&t=${state.gallery!.token}',
+        'cookies': CookieUtil.parse2String(cookies)
+      },
     );
   }
 

@@ -75,14 +75,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 setState(() {});
               },
             ),
-            if (AdvancedSetting.supportFingerPrintLock)
-              ListTile(
-                title: Text('enableFingerPrintLock'.tr),
-                trailing: Switch(
-                  value: AdvancedSetting.enableFingerPrintLock.value,
-                  onChanged: (value) => AdvancedSetting.saveEnableFingerPrintLock(value),
-                ),
-              ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

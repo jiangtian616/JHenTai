@@ -103,10 +103,12 @@ class zh_CN {
       'style': '样式',
       'advanced': '高级',
       'about': '关于',
+      'security': '安全',
       'accountSetting': '账户设置',
       'styleSetting': '样式设置',
       'advancedSetting': '高级设置',
       'ehSetting': 'EH 网站设置',
+      'securitySetting': '安全设置',
       'readSetting': '阅读设置',
       'downloadSetting': '下载设置',
 
@@ -142,7 +144,10 @@ class zh_CN {
       'clearLogs': '清除日志',
       'clearImagesCache': '清除图片缓存',
       'longPress2Clear': '长按清除',
+
+      /// security setting page
       'enableFingerPrintLock': '开启指纹锁',
+      'enableBlurBackgroundApp': '在任务栏中模糊应用页面',
 
       /// read setting page
       'readDirection': '阅读方向',
@@ -200,7 +205,6 @@ class zh_CN {
 
       /// history view
       'getHistoryGallerysFailed': '获取历史数据失败',
-
 
       /// search page
       'search': '搜索',

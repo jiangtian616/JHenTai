@@ -42,9 +42,9 @@ mush thanks to these projects🙇‍
 
 ## screenshot
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/> <img width="250" src="screenshot/4.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" src="screenshot/3.jpg"/>
 
-<img width="770" src="screenshot/2.png"/>
+<img width="770" src="screenshot/4.png"/>
 
 ## Features & Todo
 

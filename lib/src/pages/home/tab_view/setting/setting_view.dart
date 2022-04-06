@@ -13,6 +13,7 @@ LinkedHashMap<String, IconData> items = LinkedHashMap.of({
   'read': Icons.local_library,
   'download': Icons.download,
   'advanced': Icons.settings_suggest,
+  'security': Icons.security,
   'about': Icons.info,
 });
 

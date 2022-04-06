@@ -11,6 +11,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../utils/route_util.dart';
 
+typedef OnPageStartedCallback = Future<void> Function(String url, WebViewController controller);
+
 class WebviewPage extends StatefulWidget {
   const WebviewPage({Key? key}) : super(key: key);
 
@@ -19,60 +21,22 @@ class WebviewPage extends StatefulWidget {
 }
 
 class _WebviewPageState extends State<WebviewPage> {
-  late String url;
   late WebViewController controller;
-  late List<Cookie> cookies;
-
-  bool isLogin = false;
-
-  @override
-  void initState() {
-    url = Get.arguments;
-    isLogin = Get.parameters['isLogin'] == 'true';
-    cookies = CookieUtil.parse2Cookies(Get.parameters['cookies']);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
       body: WebView(
-        initialUrl: url,
+        initialUrl: Get.arguments['url'],
         onWebViewCreated: (controller) => this.controller = controller,
         javascriptMode: JavascriptMode.unrestricted,
-        initialCookies: cookies
-            .map((cookie) => WebViewCookie(name: cookie.name, value: cookie.value, domain: Uri.parse(url).host))
+        initialCookies: CookieUtil.parse2Cookies(Get.arguments['cookies'])
+            .map((cookie) =>
+                WebViewCookie(name: cookie.name, value: cookie.value, domain: Uri.parse(Get.arguments['url']).host))
             .toList(),
-        onPageStarted: isLogin ? onLogin : null,
+        onPageStarted: (url) => Get.arguments['onPageStarted']?.call(url, controller),
       ),
     );
-  }
-
-  Future<void> onLogin(String url) async {
-    String cookieString = await controller.runJavascriptReturningResult('document.cookie');
-    cookieString = cookieString.replaceAll('"', '');
-    if (!CookieUtil.validateCookiesString(cookieString)) {
-      return;
-    }
-
-    List<Cookie> cookies = cookieString.split('; ').map((pair) {
-      List<String> nameAndValue = pair.split('=');
-      return Cookie(nameAndValue[0], nameAndValue[1]);
-    }).toList();
-
-    int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
-    String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
-
-    /// temporarily
-    UserSetting.userName.value = ipbMemberId.toString();
-    until(
-      currentRoute: Routes.webview,
-      predicate: (route) => route.settings.name == Routes.settingAccount,
-    );
-
-    await EHRequest.storeEhCookiesForAllUri(cookies);
-    String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-    UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
   }
 }

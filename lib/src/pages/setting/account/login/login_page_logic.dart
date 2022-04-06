@@ -12,7 +12,9 @@ import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../../utils/cookie_util.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
@@ -135,8 +137,37 @@ class LoginPageLogic extends GetxController {
   Future<void> handleWebLogin() async {
     toNamed(
       Routes.webview,
-      arguments: EHConsts.ELogin,
-      parameters: {'isLogin': 'true'},
+      arguments: {
+        'url': EHConsts.ELogin,
+        'onPageStarted': onLogin,
+      },
     );
+  }
+
+  Future<void> onLogin(String url, WebViewController controller) async {
+    String cookieString = await controller.runJavascriptReturningResult('document.cookie');
+    cookieString = cookieString.replaceAll('"', '');
+    if (!CookieUtil.validateCookiesString(cookieString)) {
+      return;
+    }
+
+    List<Cookie> cookies = cookieString.split('; ').map((pair) {
+      List<String> nameAndValue = pair.split('=');
+      return Cookie(nameAndValue[0], nameAndValue[1]);
+    }).toList();
+
+    int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
+    String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
+
+    /// temporarily
+    UserSetting.userName.value = ipbMemberId.toString();
+    until(
+      currentRoute: Routes.webview,
+      predicate: (route) => route.settings.name == Routes.settingAccount,
+    );
+
+    await EHRequest.storeEhCookiesForAllUri(cookies);
+    String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+    UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
   }
 }

@@ -71,8 +71,10 @@ class SettingEHPage extends StatelessWidget {
     List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
     await toNamed(
       Routes.webview,
-      arguments: EHConsts.EUconfig,
-      parameters: {'cookies': CookieUtil.parse2String(cookies)},
+      arguments: {
+        'url': EHConsts.EUconfig,
+        'cookies': CookieUtil.parse2String(cookies),
+      },
     );
     SiteSetting.refresh();
   }

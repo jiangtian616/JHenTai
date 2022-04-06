@@ -1,5 +1,5 @@
 class LocaleConsts {
-  static const Map<String, String> languageCode = {
+  static const Map<String, String> language2Code = {
     'chinese': 'ZH',
     'japanese': 'JP',
     'english': 'EN',
@@ -13,5 +13,10 @@ class LocaleConsts {
     'spanish': 'ES',
     'hungarian': 'HU',
     'thai': 'TH',
+  };
+
+  static const Map<String, String> code2Language = {
+    'zh_CN': '简体中文',
+    'en_US': 'English',
   };
 }

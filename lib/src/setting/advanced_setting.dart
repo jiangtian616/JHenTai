@@ -7,13 +7,9 @@ import '../service/storage_service.dart';
 class AdvancedSetting {
   static RxBool enableDomainFronting = false.obs;
   static RxBool enableLogging = true.obs;
-  static RxBool enableFingerPrintLock = false.obs;
 
-  static bool supportFingerPrintLock = false;
 
   static Future<void> init() async {
-    supportFingerPrintLock = (await LocalAuthentication().getAvailableBiometrics()).contains(BiometricType.fingerprint);
-
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
     if (map != null) {
       _initFromMap(map);
@@ -33,11 +29,6 @@ class AdvancedSetting {
     _save();
   }
 
-  static saveEnableFingerPrintLock(bool enableFingerPrintLock) {
-    AdvancedSetting.enableFingerPrintLock.value = enableFingerPrintLock;
-    _save();
-  }
-
   static Future<void> _save() async {
     await Get.find<StorageService>().write('advancedSetting', _toMap());
   }
@@ -46,13 +37,11 @@ class AdvancedSetting {
     return {
       'enableDomainFronting': enableDomainFronting.value,
       'enableLogging': enableLogging.value,
-      'enableFingerPrintLock': enableFingerPrintLock.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableDomainFronting.value = map['enableDomainFronting'];
     enableLogging.value = map['enableLogging'];
-    enableFingerPrintLock.value = map['enableFingerPrintLock'];
   }
 }

@@ -102,10 +102,12 @@ class en_US {
       'EH': 'EH',
       'style': 'Style',
       'advanced': 'Advanced',
+      'security': 'Security',
       'about': 'About',
       'accountSetting': 'Account Setting',
       'styleSetting': 'Style Setting',
       'advancedSetting': 'Advanced Setting',
+      'securitySetting': 'Security Setting',
       'ehSetting': 'EH Site Setting',
       'readSetting': 'Read Setting',
       'downloadSetting': 'Download Setting',
@@ -142,7 +144,10 @@ class en_US {
       'clearLogs': 'Clear Logs',
       'clearImagesCache': 'Clear Images Cache',
       'longPress2Clear': 'Long Press to Clear',
+
+      /// security setting page
       'enableFingerPrintLock': 'Enable FingerPrint Lock',
+      'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
 
       /// read setting page
       'readDirection': 'Read Direction',

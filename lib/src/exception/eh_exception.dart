@@ -16,4 +16,5 @@ class EHException implements Exception {
 enum EHExceptionType {
   blankBody,
   banned,
+  _509,
 }

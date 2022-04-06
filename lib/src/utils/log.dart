@@ -26,7 +26,7 @@ class Log {
     LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, printTime: true);
     LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, noBoxingByDefault: true);
 
-    _log = Logger(printer: PrettyPrinter(stackTraceBeginIndex: 1));
+    _log = Logger(printer: devPrinter);
     _logFile = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: ProductionFilter(),

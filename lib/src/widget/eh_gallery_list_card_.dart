@@ -186,7 +186,7 @@ class EHGalleryListCard extends StatelessWidget {
               ).marginOnly(right: 4),
             if (gallery.language != null)
               Text(
-                LocaleConsts.languageCode[gallery.language] ?? '',
+                LocaleConsts.language2Code[gallery.language] ?? '',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade600,

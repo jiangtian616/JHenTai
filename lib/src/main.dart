@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'dart:async';
 import 'package:blur/blur.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
@@ -18,6 +17,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
+import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
@@ -59,9 +59,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: AdvancedSetting.enableFingerPrintLock.isTrue
-          ? Routes.lock
-          : Routes.start,
+      initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppListener(child: child!),
 
@@ -81,6 +79,7 @@ Future<void> init() async {
   StorageService.init();
 
   await AdvancedSetting.init();
+  await SecuritySetting.init();
   await Log.init();
   UserSetting.init();
   TagTranslationService.init();
@@ -135,15 +134,17 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
       return;
     }
     Get.changeThemeMode(
-      WidgetsBinding.instance?.window.platformBrightness == Brightness.light
-          ? ThemeMode.light
-          : ThemeMode.dark,
+      WidgetsBinding.instance?.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
     );
     super.didChangePlatformBrightness();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (SecuritySetting.enableBlur.isFalse) {
+      return;
+    }
+
     /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
     /// so i choose to set FLAG_SECURE to do the same effect.
     if (state == AppLifecycleState.inactive) {
