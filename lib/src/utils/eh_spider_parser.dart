@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,27 @@ import '../pages/home/tab_view/ranklist/ranklist_view_state.dart';
 T noOpParser<T>(v) => v as T;
 
 class EHSpiderParser {
+  static Map<String, dynamic> loginPage2UserInfoOrErrorMsg(Response response) {
+    Map<String, dynamic> map = {};
+
+    /// if login success, cookieHeaders's length = 4or5, otherwise 1.
+    List<String>? cookieHeaders = response.headers['set-cookie'];
+    bool success = cookieHeaders != null && cookieHeaders.length > 2;
+    if (success) {
+      map['ipbMemberId'] = int.parse(
+        RegExp(r'ipb_member_id=(\d+);')
+            .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!
+            .group(1)!,
+      );
+      map['ipbPassHash'] = RegExp(r'ipb_pass_hash=(\w+);')
+          .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!
+          .group(1)!;
+    } else {
+      map['errorMsg'] = _parseLoginErrorMsg(response.data!);
+    }
+    return map;
+  }
+
   static List<dynamic> galleryPage2GalleryList(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
@@ -299,6 +321,13 @@ class EHSpiderParser {
 
   static String imageLookup2RedirectUrl(Response response) {
     return response.headers['Location']!.first;
+  }
+
+  static String _parseLoginErrorMsg(String html) {
+    if (html.contains('The captcha was not entered correctly')) {
+      return 'needCaptcha'.tr;
+    }
+    return 'userNameOrPasswordMismatch'.tr;
   }
 
   static List<dynamic> _compactGalleryPage2GalleryList(Response response) {

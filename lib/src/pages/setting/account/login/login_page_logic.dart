@@ -52,9 +52,13 @@ class LoginPageLogic extends GetxController {
     state.loginState = LoadingState.loading;
     update();
 
-    String? errorMsg;
+    Map<String, dynamic> userInfoOrErrorMsg;
     try {
-      errorMsg = await EHRequest.login(state.userName!, state.password!);
+      userInfoOrErrorMsg = await EHRequest.requestLogin(
+        state.userName!,
+        state.password!,
+        EHSpiderParser.loginPage2UserInfoOrErrorMsg,
+      );
     } on DioError catch (e) {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
@@ -63,9 +67,13 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    if (errorMsg == null) {
+    if (userInfoOrErrorMsg['errorMsg'] == null) {
       state.loginState = LoadingState.success;
-
+      UserSetting.saveUserInfo(
+        userName: state.userName!,
+        ipbMemberId: userInfoOrErrorMsg['ipbMemberId'],
+        ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
+      );
       FavoriteSetting.init();
 
       /// await DownWidget animation
@@ -73,7 +81,7 @@ class LoginPageLogic extends GetxController {
       back(currentRoute: Routes.login);
     } else {
       state.loginState = LoadingState.error;
-      snack('loginFail'.tr, errorMsg);
+      snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
     }
     update();
   }

@@ -5,7 +5,12 @@ import 'package:dio/dio.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get_utils/src/extensions/widget_extensions.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -108,15 +113,15 @@ class _RatingDialogState extends State<RatingDialog> {
       submitState = LoadingState.loading;
     });
 
-    String response;
+    String data;
     try {
-      response = await EHRequest.requestSubmitRating(
+      data = (await EHRequest.requestSubmitRating<Response>(
         detailsPageState.gallery!.gid,
         detailsPageState.gallery!.token,
         UserSetting.ipbMemberId.value!,
         detailsPageState.apikey,
         (rating * 2).toInt(),
-      );
+      )).data;
     } on DioError catch (e) {
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
@@ -127,7 +132,7 @@ class _RatingDialogState extends State<RatingDialog> {
     }
 
     /// eg: {"rating_avg":0.93000000000000005,"rating_usr":0.5,"rating_cnt":21,"rating_cls":"ir irr"}
-    Map<String, dynamic> respMap = jsonDecode(response);
+    Map<String, dynamic> respMap = jsonDecode(data);
     detailsPageState.gallery!.hasRated = true;
     detailsPageState.gallery!.rating = double.parse(respMap['rating_usr'].toString());
     detailsPageState.galleryDetails!.ratingCount = respMap['rating_cnt'];

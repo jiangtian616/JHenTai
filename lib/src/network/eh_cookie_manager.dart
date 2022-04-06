@@ -6,12 +6,12 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 
+/// just copy from CookieManager and overrides [_saveCookies]
 class EHCookieManager extends CookieManager {
   EHCookieManager(CookieJar cookieJar) : super(cookieJar);
 
   CookieJar get() => cookieJar;
 
-  /// just copy from CookieManager
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     _saveCookies(response).then((_) => handler.next(response)).catchError((e, stackTrace) {
@@ -21,7 +21,7 @@ class EHCookieManager extends CookieManager {
     });
   }
 
-  /// eh host -> save cookie for all eh hosts;
+  /// eh host -> save cookie for all eh hosts
   /// other host -> normal
   Future<void> _saveCookies(Response response) async {
     var cookies = response.headers[HttpHeaders.setCookieHeader];

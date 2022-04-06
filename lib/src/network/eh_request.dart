@@ -50,6 +50,7 @@ class EHRequest {
     _cookieJar = PersistCookieJar(storage: FileStorage(join(PathSetting.appSupportDir.path, ".cookies")));
     await _cookieJar.forceInit();
 
+    /// init [nw] cookie
     if ((await _cookieJar.loadForRequest(Uri.parse('https://e-hentai.org'))).isEmpty) {
       await storeEhCookiesForAllUri([]);
     }
@@ -134,7 +135,7 @@ class EHRequest {
   }
 
   /// return null if login success, otherwise return error message
-  static Future<String?> login(String userName, String passWord) async {
+  static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.post(
       EHConsts.EForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -148,29 +149,10 @@ class EHRequest {
         'CookieDate': 365,
       },
     );
-
-    /// if login success, cookieHeaders's length = 4or5, otherwise 1.
-    List<String>? cookieHeaders = response.headers['set-cookie'];
-    bool success = cookieHeaders != null && cookieHeaders.length > 2;
-    if (success) {
-      UserSetting.saveUserInfo(
-        userName: userName,
-        ipbMemberId: int.parse(
-          RegExp(r'ipb_member_id=(\d+);')
-              .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!
-              .group(1)!,
-        ),
-        ipbPassHash: RegExp(r'ipb_pass_hash=(\w+);')
-            .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!
-            .group(1)!,
-      );
-      return null;
-    }
-
-    return _parseLoginErrorMsg(response.data!);
+    return parser(response);
   }
 
-  static Future<void> logout() async {
+  static Future<void> requestLogout() async {
     removeAllCookies();
     UserSetting.clear();
     CookieManager().clearCookies();
@@ -265,7 +247,8 @@ class EHRequest {
     return parser(response);
   }
 
-  static Future<String> requestSubmitRating(int gid, String token, int apiuid, String apikey, int rating) async {
+  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating,
+      {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -277,7 +260,8 @@ class EHRequest {
         'token': token,
       },
     );
-    return response.data!;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
   static Future<T> requestPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
@@ -300,7 +284,7 @@ class EHRequest {
   }
 
   /// favcat: the favorite tag index
-  static Future<bool> requestAddFavorite(int gid, String token, int favcat) async {
+  static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, {EHHtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
       EHConsts.EPopup,
@@ -317,10 +301,11 @@ class EHRequest {
         'update': 1,
       },
     );
-    return true;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
-  static Future<bool> requestRemoveFavorite(int gid, String token) async {
+  static Future<T> requestRemoveFavorite<T>(int gid, String token, {EHHtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.post(
       EHConsts.EPopup,
@@ -337,7 +322,8 @@ class EHRequest {
         'update': 1,
       },
     );
-    return true;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
   static Future<T> requestImagePage<T>(
@@ -371,14 +357,15 @@ class EHRequest {
     return parser(response);
   }
 
-  static Future<bool> download({
+  static Future<T> download<T>({
     required String url,
     required String path,
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     Options? options,
+    EHHtmlParser<T>? parser,
   }) async {
-    await _dio.download(
+    Response response = await _dio.download(
       url,
       path,
       onReceiveProgress: onReceiveProgress,
@@ -389,18 +376,13 @@ class EHRequest {
             extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
           ),
     );
-    return true;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
-  static Future<String> voteTag(
-    int gid,
-    String token,
-    int apiuid,
-    String apikey,
-    String namespace,
-    String tagName,
-    bool isVotingUp,
-  ) async {
+  static Future<T> voteTag<T>(
+      int gid, String token, int apiuid, String apikey, String namespace, String tagName, bool isVotingUp,
+      {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -413,17 +395,12 @@ class EHRequest {
         'tags': '$namespace:$tagName',
       },
     );
-    return response.data!;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
-  static Future<String> voteComment(
-    int gid,
-    String token,
-    int apiuid,
-    String apikey,
-    int commentId,
-    bool isVotingUp,
-  ) async {
+  static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp,
+      {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -436,7 +413,8 @@ class EHRequest {
         'comment_id': commentId,
       },
     );
-    return response.data!;
+    parser ??= noOpParser;
+    return parser(response);
   }
 
   static Future<T> requestTagSuggestion<T>(String keyword, EHHtmlParser<T> parser) async {
@@ -492,13 +470,6 @@ class EHRequest {
       response = e.response;
     }
     return parser(response!);
-  }
-
-  static String _parseLoginErrorMsg(String html) {
-    if (html.contains('The captcha was not entered correctly')) {
-      return 'needCaptcha'.tr;
-    }
-    return 'userNameOrPasswordMismatch'.tr;
   }
 
   static Future<void> _storeCookies(String uri, List<Cookie> cookies) async {
