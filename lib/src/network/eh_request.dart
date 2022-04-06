@@ -23,12 +23,13 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
+import 'eh_persist_cookie_jar.dart';
 
 typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
-  static late final PersistCookieJar _cookieJar;
+  static late final EHPersistCookieJar _cookieJar;
 
   static CacheOptions cacheOption = CacheOptions(
     store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
@@ -47,7 +48,7 @@ class EHRequest {
       receiveTimeout: 6000,
     ));
 
-    _cookieJar = PersistCookieJar(storage: FileStorage(join(PathSetting.appSupportDir.path, ".cookies")));
+    _cookieJar = EHPersistCookieJar(storage: FileStorage(join(PathSetting.appSupportDir.path, ".cookies")));
     await _cookieJar.forceInit();
 
     /// init [nw] cookie

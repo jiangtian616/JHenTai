@@ -30,9 +30,7 @@ import 'config/theme_config.dart';
 
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
-    if (kReleaseMode) {
-      Log.error(details.exception, null, details.stack);
-    }
+    Log.error(details.exception, null, details.stack);
     FlutterError.presentError(details);
   };
 

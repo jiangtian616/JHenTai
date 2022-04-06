@@ -178,7 +178,12 @@ class DetailsPageLogic extends GetxController {
     state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
-    update([bodyId]);
+
+    /// Attention! At development stage, if enter into detail page and exit very quickly, [update] will throw
+    /// an fatal exception because page has been destroyed, in order to avoid it in production stage, check route first.
+    if (isAtTop(Routes.details)) {
+      update([bodyId]);
+    }
   }
 
   Future<void> handleRefresh() async {
