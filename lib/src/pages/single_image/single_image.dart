@@ -1,7 +1,6 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 
@@ -12,7 +11,6 @@ class SingleImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    GalleryImage image = Get.arguments as GalleryImage;
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(onPressed: () => back(currentRoute: Routes.singleImagePage)),
@@ -21,7 +19,7 @@ class SingleImagePage extends StatelessWidget {
         constraints: const BoxConstraints.expand(),
         color: Colors.white,
         child: EHImage(
-          galleryImage: image,
+          galleryImage:  Get.arguments,
           adaptive: true,
           fit: BoxFit.contain,
           mode: ExtendedImageMode.gesture,

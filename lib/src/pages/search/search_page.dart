@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/pages/search/search_page_state.dart';
 
 import '../../config/global_config.dart';
 import '../../widget/eh_gallery_collection.dart';
@@ -13,10 +14,15 @@ import '../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
 
 class SearchPagePage extends StatelessWidget {
-  final logic = Get.put(SearchPageLogic());
-  final state = Get.find<SearchPageLogic>().state;
+  String tag = UniqueKey().toString();
 
-  SearchPagePage({Key? key}) : super(key: key);
+  late final SearchPageLogic logic;
+  late final SearchPageState state;
+
+  SearchPagePage({Key? key}) : super(key: key) {
+    logic = Get.put(SearchPageLogic(tag), tag: tag);
+    state = logic.state;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +56,7 @@ class SearchPagePage extends StatelessWidget {
                 Expanded(
                   child: GetBuilder<SearchPageLogic>(
                       id: appBarId,
+                      tag: tag,
                       builder: (logic) {
                         return AppBar(
                           centerTitle: true,
@@ -93,6 +100,7 @@ class SearchPagePage extends StatelessWidget {
                       Expanded(
                         child: GetBuilder<SearchPageLogic>(
                             id: searchField,
+                            tag: tag,
                             builder: (logic) {
                               return CupertinoSearchTextField(
                                 prefixInsets: const EdgeInsets.only(left: 18),
@@ -141,6 +149,7 @@ class SearchPagePage extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     return GetBuilder<SearchPageLogic>(
       id: bodyId,
+      tag: tag,
       builder: (logic) =>
           state.showSuggestionAndHistory ? _buildSuggestionAndHistoryBody(context) : _buildGalleryBody(context),
     );
@@ -231,6 +240,7 @@ class SearchPagePage extends StatelessWidget {
         ? Center(
             child: GetBuilder<SearchPageLogic>(
                 id: loadingStateId,
+                tag: tag,
                 builder: (logic) {
                   return LoadingStateIndicator(
                     errorTapCallback: () => logic.searchMore(isRefresh: true),
@@ -255,6 +265,7 @@ class SearchPagePage extends StatelessWidget {
                 sliver: SliverToBoxAdapter(
                   child: GetBuilder<SearchPageLogic>(
                       id: loadingStateId,
+                      tag: tag,
                       builder: (logic) {
                         return LoadingStateIndicator(
                           loadingState: state.loadingState,

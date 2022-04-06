@@ -8,6 +8,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
+import 'package:jhentai/src/pages/search/search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
@@ -283,8 +284,9 @@ class DetailsPageLogic extends GetxController {
     state.addFavoriteState = LoadingState.idle;
     update([addFavoriteStateId]);
 
-    /// update homePage status
+    /// update homePage and searchPage status
     Get.find<GallerysViewLogic>().update([bodyId]);
+    SearchPageLogic.current?.update([bodyId]);
   }
 
   Future<void> handleTapRating() async {

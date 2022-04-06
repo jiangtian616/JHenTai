@@ -5,12 +5,6 @@ import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';
 
-enum EHThemeMode {
-  light,
-  dark,
-  system,
-}
-
 enum ListMode {
   listWithoutTags,
   listWithTags,
@@ -25,7 +19,7 @@ enum CoverMode {
 
 class StyleSetting {
   static RxBool enableTagZHTranslation = false.obs;
-  static Rx<EHThemeMode> themeMode = EHThemeMode.light.obs;
+  static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
 
@@ -51,10 +45,10 @@ class StyleSetting {
     _save();
   }
 
-  static saveThemeMode(EHThemeMode themeMode) {
+  static saveThemeMode(ThemeMode themeMode) {
     StyleSetting.themeMode.value = themeMode;
     _save();
-    Get.changeTheme(getCurrentThemeData());
+    Get.changeThemeMode(themeMode);
   }
 
   static saveListMode(ListMode listMode) {
@@ -73,9 +67,9 @@ class StyleSetting {
   }
 
   static ThemeData getCurrentThemeData() {
-    return themeMode.value == EHThemeMode.dark
+    return themeMode.value == ThemeMode.dark
         ? ThemeConfig.dark
-        : themeMode.value == EHThemeMode.light
+        : themeMode.value == ThemeMode.light
             ? ThemeConfig.light
             : WidgetsBinding.instance!.window.platformBrightness == Brightness.dark
                 ? ThemeConfig.dark
@@ -98,7 +92,7 @@ class StyleSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
-    themeMode.value = EHThemeMode.values[map['themeMode']];
+    themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
     enableTabletLayout.value = map['enableTabletLayout'];

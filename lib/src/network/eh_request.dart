@@ -47,7 +47,7 @@ class EHRequest {
       receiveTimeout: 6000,
     ));
 
-    _cookieJar = PersistCookieJar(storage: FileStorage(PathSetting.appSupportDir.path + "/.cookies/"));
+    _cookieJar = PersistCookieJar(storage: FileStorage(join(PathSetting.appSupportDir.path, ".cookies")));
     await _cookieJar.forceInit();
 
     if ((await _cookieJar.loadForRequest(Uri.parse('https://e-hentai.org'))).isEmpty) {

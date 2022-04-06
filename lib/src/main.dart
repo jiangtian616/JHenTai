@@ -24,6 +24,8 @@ import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
+import 'config/theme_config.dart';
+
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     if (kReleaseMode){
@@ -47,8 +49,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'JHenTai',
-      theme: StyleSetting.getCurrentThemeData(),
-
+      theme: ThemeConfig.light,
+      darkTheme: ThemeConfig.dark,
+      themeMode: StyleSetting.themeMode.value,
       locale: window.locale,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),

@@ -13,6 +13,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
+import '../pages/search/search_page_logic.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
 import '../utils/route_util.dart';
@@ -87,7 +88,16 @@ class _EHTagState extends State<EHTag> {
   }
 
   void _searchTag() {
-    toNamed(Routes.search, arguments: '${widget.tagData.namespace}:${widget.tagData.key}');
+    if (isAtTop(Routes.search)) {
+      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tagData.namespace}:${widget.tagData.key}';
+      searchPageLogic.searchMore();
+    } else {
+      toNamed(
+        Routes.search,
+        arguments: '${widget.tagData.namespace}:${widget.tagData.key}',
+      );
+    }
   }
 
   void _showDialog() {

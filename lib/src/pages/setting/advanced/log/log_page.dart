@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/utils/size_util.dart';
 import 'package:path/path.dart';
 
 class LogPage extends StatefulWidget {
@@ -31,17 +32,19 @@ class _LogPageState extends State<LogPage> {
         physics: const BouncingScrollPhysics(),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SelectableText(
-            (log as io.File).readAsStringSync(),
-            minLines: 80,
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: screenHeight),
+            child: SelectableText(
+              (log as io.File).readAsStringSync(),
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
+              ),
             ),
           ),
-        ),
-      ).marginOnly(top: 8),
+        ).paddingOnly(top: 8),
+      ),
     );
   }
 }

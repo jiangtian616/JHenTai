@@ -26,25 +26,25 @@ class SettingStylePage extends StatelessWidget {
           children: [
             ListTile(
               title: Text('themeMode'.tr),
-              trailing: DropdownButton<EHThemeMode>(
+              trailing: DropdownButton<ThemeMode>(
                 value: StyleSetting.themeMode.value,
                 elevation: 4,
                 alignment: AlignmentDirectional.centerEnd,
-                onChanged: (EHThemeMode? newValue) {
+                onChanged: (ThemeMode? newValue) {
                   StyleSetting.saveThemeMode(newValue!);
                 },
                 items: [
                   DropdownMenuItem(
                     child: Text('light'.tr),
-                    value: EHThemeMode.light,
+                    value: ThemeMode.light,
                   ),
                   DropdownMenuItem(
                     child: Text('dark'.tr),
-                    value: EHThemeMode.dark,
+                    value: ThemeMode.dark,
                   ),
                   DropdownMenuItem(
                     child: Text('followSystem'.tr),
-                    value: EHThemeMode.system,
+                    value: ThemeMode.system,
                   ),
                 ],
               ),

@@ -107,6 +107,7 @@ void until({String? currentRoute, required RoutePredicate predicate}) {
   );
 }
 
+/// pop all pages in right screen if exists
 void untilBlankPage() {
   if (!Get.keys.containsKey(right)) {
     return;
@@ -115,4 +116,15 @@ void untilBlankPage() {
     (route) => route.settings.name == Routes.blank,
     id: right,
   );
+}
+
+bool isAtTop(String routeName) {
+  Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
+  if (side == Side.fullScreen || StyleSetting.currentEnableTabletLayout.isFalse) {
+    return Get.currentRoute == routeName;
+  }
+  if (side == Side.left) {
+    return leftRouting.current == routeName;
+  }
+  return rightRouting.current == routeName;
 }

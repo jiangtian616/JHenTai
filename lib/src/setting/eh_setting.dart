@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';
@@ -15,6 +16,13 @@ class EHSetting {
     } else {
       Log.verbose('init EHSetting success: default', false);
     }
+
+    /// listen to logout
+    ever(UserSetting.userName, (v) {
+      if (!UserSetting.hasLoggedIn()) {
+        site.value = 'EH';
+      }
+    });
   }
 
   static saveSite(String site) {

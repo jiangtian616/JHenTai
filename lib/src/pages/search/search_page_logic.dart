@@ -23,11 +23,23 @@ String bodyId = 'bodyId';
 String loadingStateId = 'loadingStateId';
 
 class SearchPageLogic extends GetxController {
+  /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
+  /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
+  String tag;
+
   final SearchPageState state = SearchPageState();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
 
   Timer? timer;
+
+  static final List<SearchPageLogic> stack = <SearchPageLogic>[];
+
+  static SearchPageLogic? get current => stack.isEmpty ? null : stack.last;
+
+  SearchPageLogic(this.tag) {
+    stack.add(this);
+  }
 
   @override
   void onInit() {
@@ -37,6 +49,12 @@ class SearchPageLogic extends GetxController {
       searchMore();
     }
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    stack.remove(this);
+    super.onClose();
   }
 
   Future<void> searchMore({bool isRefresh = true}) async {
@@ -108,6 +126,10 @@ class SearchPageLogic extends GetxController {
     if (state.redirectUrl != null) {
       return;
     }
+    if (state.tabBarConfig.searchConfig.keyword?.isEmpty ?? true) {
+      return;
+    }
+
     List history = storageService.read('searchHistory') ?? <String>[];
     history.remove(state.tabBarConfig.searchConfig.keyword);
     history.insert(0, state.tabBarConfig.searchConfig.keyword);
