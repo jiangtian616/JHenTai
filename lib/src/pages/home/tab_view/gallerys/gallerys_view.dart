@@ -109,17 +109,24 @@ class GallerysView extends StatelessWidget {
                                     TabBarSetting.configs[index].name,
                                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                   ),
-                                  trailing: TabBarSetting.configs[index].isDeleteAble
-                                      ? const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4)
-                                      : null,
-                                  onTap: TabBarSetting.configs[index].isEditable
-                                      ? () => Get.dialog(
+                                  trailing: TabBarSetting.configs[index].isEditable
+                                      ? InkWell(
+                                          child: const Icon(FontAwesomeIcons.bars, size: 16).marginOnly(right: 4),
+                                          onTap: () => Get.dialog(
                                             EHTabBarConfigDialog(
                                               tabBarConfig: TabBarSetting.configs[index],
                                               type: EHTabBarConfigDialogType.update,
                                             ),
-                                          )
+                                          ),
+                                        )
                                       : null,
+                                  onTap: () {
+                                    if (gallerysViewLogic.tabController.index == index) {
+                                      return;
+                                    }
+                                    gallerysViewLogic.tabController.animateTo(index);
+                                    back();
+                                  },
                                 ),
                               ),
                               const Divider(thickness: 0.7, height: 2, indent: 16),

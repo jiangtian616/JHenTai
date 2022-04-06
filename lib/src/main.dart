@@ -171,7 +171,6 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     if (GetPlatform.isAndroid || state == AppLifecycleState.resumed) {
-      /// use LayoutBuilder to listen to the screen resize
       return widget.child;
     }
 
