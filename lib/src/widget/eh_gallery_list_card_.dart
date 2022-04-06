@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -43,27 +44,29 @@ class EHGalleryListCard extends StatelessWidget {
       keepAlive: keepAlive,
       child: GestureDetector(
         onTap: () => handleTapCard(gallery),
-        child: Container(
-          height: withTags ? 200 : 125,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                blurRadius: 5,
-                spreadRadius: 1,
-                offset: const Offset(3, 3),
-              )
-            ],
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Row(
-              children: [
-                _buildCover(gallery.cover),
-                _buildInfo(gallery),
+        child: FadeIn(
+          child: Container(
+            height: withTags ? 200 : 125,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  blurRadius: 5,
+                  spreadRadius: 1,
+                  offset: const Offset(3, 3),
+                )
               ],
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Row(
+                children: [
+                  _buildCover(gallery.cover),
+                  _buildInfo(gallery),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -48,30 +49,32 @@ class DownloadView extends StatelessWidget {
                     ),
                     child: GestureDetector(
                       onLongPress: () => _showDeleteBottomSheet(gallery, context),
-                      child: Container(
-                        height: 130,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
+                      child: FadeOut(
+                        child: Container(
+                          height: 130,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
 
-                          /// covered when in dark mode
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              blurRadius: 2,
-                              spreadRadius: 1,
-                              offset: const Offset(0.3, 1),
-                            )
-                          ],
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(15),
-                          child: Row(
-                            children: [
-                              _buildCover(gallery, context),
-                              _buildInfo(gallery),
+                            /// covered when in dark mode
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 2,
+                                spreadRadius: 1,
+                                offset: const Offset(0.3, 1),
+                              )
                             ],
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Row(
+                              children: [
+                                _buildCover(gallery, context),
+                                _buildInfo(gallery),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -88,7 +91,8 @@ class DownloadView extends StatelessWidget {
     GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
 
     /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
-    if (image == null) {
+    if (image == null ||
+        image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
       child = const SizedBox(
         height: 130,
         width: 110,
@@ -188,9 +192,8 @@ class DownloadView extends StatelessWidget {
                         ? Icons.pause
                         : Icons.done,
                 size: 26,
-                color: downloadStatus == DownloadStatus.downloading
-                    ? Get.theme.primaryColorLight
-                    : Get.theme.primaryColor,
+                color:
+                    downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
               ),
             ),
           ],

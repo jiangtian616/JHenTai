@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -412,29 +413,31 @@ class DetailsPage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
-        child: Column(
-          children: tagList.entries
-              .map(
-                (entry) => Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    EHTag(
-                      tagData: TagData(namespace: 'rows', key: entry.key),
-                      withColor: true,
-                    ).marginOnly(right: 10),
+        child: FadeIn(
+          child: Column(
+            children: tagList.entries
+                .map(
+                  (entry) => Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      EHTag(
+                        tagData: TagData(namespace: 'rows', key: entry.key),
+                        withColor: true,
+                      ).marginOnly(right: 10),
 
-                    /// use [expanded] and [wrap] to implement 'flex-wrap'
-                    Expanded(
-                      child: Wrap(
-                        spacing: 5,
-                        runSpacing: 5,
-                        children: entry.value.map((tagData) => EHTag(tagData: tagData, enableTapping: true)).toList(),
+                      /// use [expanded] and [wrap] to implement 'flex-wrap'
+                      Expanded(
+                        child: Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: entry.value.map((tagData) => EHTag(tagData: tagData, enableTapping: true)).toList(),
+                        ),
                       ),
-                    ),
-                  ],
-                ).marginOnly(top: 10),
-              )
-              .toList(),
+                    ],
+                  ).marginOnly(top: 10),
+                )
+                .toList(),
+          ),
         ),
       ),
     );
@@ -460,18 +463,20 @@ class DetailsPage extends StatelessWidget {
 
   Widget _buildCommentsIndicator(GalleryDetail galleryDetails) {
     return SliverToBoxAdapter(
-      child: SizedBox(
-        height: 50,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            TextButton(
-              onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
-              child: Text(
-                galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
-              ),
-            )
-          ],
+      child: FadeIn(
+        child: SizedBox(
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                child: Text(
+                  galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr,
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -479,7 +484,7 @@ class DetailsPage extends StatelessWidget {
 
   Widget _buildComments(GalleryDetail galleryDetails) {
     return SliverToBoxAdapter(
-      child: SizedBox(
+      child: FadeIn(child: SizedBox(
         height: 135,
         child: ListView(
           scrollDirection: Axis.horizontal,
@@ -488,13 +493,13 @@ class DetailsPage extends StatelessWidget {
           children: galleryDetails.comments
               .map(
                 (comment) => GestureDetector(
-                  onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
-                  child: EHComment(comment: comment, maxLines: 4),
-                ).marginOnly(right: 10),
-              )
+              onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+              child: EHComment(comment: comment, maxLines: 4),
+            ).marginOnly(right: 10),
+          )
               .toList(),
         ),
-      ),
+      ),),
     );
   }
 

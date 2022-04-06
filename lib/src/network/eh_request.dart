@@ -135,7 +135,6 @@ class EHRequest {
     await storeEhCookiesForAllUri([]);
   }
 
-  /// return null if login success, otherwise return error message
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.post(
       EHConsts.EForums,
@@ -165,7 +164,6 @@ class EHRequest {
     return parser(response);
   }
 
-  /// return null if cookie is wrong
   static Future<T> requestForum<T>(int ipbMemberId, EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(
       EHConsts.EForums,

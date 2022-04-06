@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -209,23 +210,27 @@ class SearchPagePage extends StatelessWidget {
           sliver: SliverList(
             delegate: SliverChildListDelegate(
               state.suggestions
-                  .map((tagData) => ListTile(
-                        title: RichText(
-                          text: _highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', false),
+                  .map((tagData) => FadeIn(
+                        duration: const Duration(milliseconds: 500),
+                        child: ListTile(
+                          title: RichText(
+                            text: _highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', false),
+                          ),
+                          subtitle: tagData.tagName == null
+                              ? null
+                              : RichText(
+                                  text:
+                                      _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true),
+                                ),
+                          leading: const Icon(Icons.search),
+                          dense: true,
+                          minLeadingWidth: 20,
+                          visualDensity: const VisualDensity(vertical: -1),
+                          onTap: () {
+                            state.tabBarConfig.searchConfig.keyword = '${tagData.namespace}:${tagData.key}';
+                            logic.searchMore();
+                          },
                         ),
-                        subtitle: tagData.tagName == null
-                            ? null
-                            : RichText(
-                                text: _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true),
-                              ),
-                        leading: const Icon(Icons.search),
-                        dense: true,
-                        minLeadingWidth: 20,
-                        visualDensity: const VisualDensity(vertical: -1),
-                        onTap: () {
-                          state.tabBarConfig.searchConfig.keyword = '${tagData.namespace}:${tagData.key}';
-                          logic.searchMore();
-                        },
                       ))
                   .toList(),
             ),

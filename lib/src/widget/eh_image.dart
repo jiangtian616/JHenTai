@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
-import '../routes/routes.dart';
 import '../utils/route_util.dart';
 
 /// responsible for all network and local images, depends on :
@@ -103,11 +103,12 @@ class _EHImageState extends State<EHImage> {
             enableLoadState: true,
           );
         }
+
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onLongPress: widget.enableLongPressToRefresh ? _showReloadBottomSheet : null,
           child: ExtendedImage.network(
-            _replaceUrlIfInDomainFrontingAndInEX(widget.galleryImage.url),
+            _replaceEXUrlIfEnableDomainFronting(widget.galleryImage.url),
             key: key,
             height: widget.adaptive ? null : widget.galleryImage.height,
             width: widget.adaptive ? null : widget.galleryImage.width,
@@ -136,7 +137,9 @@ class _EHImageState extends State<EHImage> {
                 return widget.failedWidgetBuilder == null ? null : widget.failedWidgetBuilder!(state);
               }
 
-              return widget.completedWidgetBuilder == null ? null : widget.completedWidgetBuilder!(state);
+              return FadeIn(
+                child: widget.completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state),
+              );
             },
           ),
         );
@@ -173,7 +176,7 @@ class _EHImageState extends State<EHImage> {
   }
 
   /// replace image host: exhentai.org -> ehgt.org
-  String _replaceUrlIfInDomainFrontingAndInEX(String url) {
+  String _replaceEXUrlIfEnableDomainFronting(String url) {
     if (AdvancedSetting.enableDomainFronting.isFalse) {
       return url;
     }
@@ -187,5 +190,32 @@ class _EHImageState extends State<EHImage> {
     String newHost = 'ehgt.org';
     Uri newUri = rawUri.replace(host: newHost);
     return newUri.toString();
+  }
+
+  /// copied from ExtendedImage
+  Widget _getCompletedWidget(ExtendedImageState state) {
+    if (widget.mode == ExtendedImageMode.gesture) {
+      return ExtendedImageGesture(state);
+    }
+    if (widget.mode == ExtendedImageMode.editor) {
+      return ExtendedImageEditor(extendedImageState: state);
+    }
+    return _buildExtendedRawImage(state);
+  }
+
+  /// copied from ExtendedImage
+  Widget _buildExtendedRawImage(ExtendedImageState state) {
+    return ExtendedRawImage(
+      image: state.extendedImageInfo?.image,
+      width: widget.adaptive ? null : widget.galleryImage.width,
+      height: widget.adaptive ? null : widget.galleryImage.height,
+      scale: state.extendedImageInfo?.scale ?? 1.0,
+      fit: widget.fit,
+      alignment: Alignment.center,
+      repeat: ImageRepeat.noRepeat,
+      matchTextDirection: false,
+      isAntiAlias: false,
+      filterQuality: FilterQuality.low,
+    );
   }
 }

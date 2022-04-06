@@ -180,10 +180,9 @@ class DetailsPageLogic extends GetxController {
     state.loadingDetailsState = LoadingState.success;
 
     /// Attention! At development stage, if enter into detail page and exit very quickly, [update] will throw
-    /// an fatal exception because page has been destroyed, in order to avoid it in production stage, check route first.
-    if (isAtTop(Routes.details)) {
-      update([bodyId]);
-    }
+    /// an fatal exception because page has been destroyed, in order to avoid it in production stage, may be
+    /// we should check route first. todo: check whether this happen at production stage too.
+    update([bodyId]);
   }
 
   Future<void> handleRefresh() async {

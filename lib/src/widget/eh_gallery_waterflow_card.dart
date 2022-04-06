@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,18 +29,20 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       keepAlive: keepAlive,
       child: GestureDetector(
         onTap: () => handleTapCard(gallery),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: ColoredBox(
-            color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
-            child: Obx(() {
-              return Column(
-                children: [
-                  _buildCover(gallery.cover),
-                  if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(gallery),
-                ],
-              );
-            }),
+        child: FadeIn(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: ColoredBox(
+              color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
+              child: Obx(() {
+                return Column(
+                  children: [
+                    _buildCover(gallery.cover),
+                    if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(gallery),
+                  ],
+                );
+              }),
+            ),
           ),
         ),
       ),
