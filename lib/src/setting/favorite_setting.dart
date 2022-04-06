@@ -23,6 +23,7 @@ class FavoriteSetting {
     'Favorite 6',
     'Favorite 7',
     'Favorite 8',
+    'Favorite 9',
   ];
   static LinkedHashMap<String, int> favoriteTagNames2Count = LinkedHashMap<String, int>.of({
     'Favorite 0': -1,
@@ -34,6 +35,7 @@ class FavoriteSetting {
     'Favorite 6': -1,
     'Favorite 7': -1,
     'Favorite 8': -1,
+    'Favorite 9': -1,
   });
 
   static bool get inited => favoriteTagNames2Count['Favorite 0'] != -1;
