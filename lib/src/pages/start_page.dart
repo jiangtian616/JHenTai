@@ -1,6 +1,4 @@
-import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/blank_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
@@ -22,8 +20,9 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppListener(
-      child: Obx(
+    /// use LayoutBuilder to listen to resize of window
+    return LayoutBuilder(
+      builder: (context, constraints) => Obx(
         () {
           if (StyleSetting.enableTabletLayout.isFalse) {
             StyleSetting.currentEnableTabletLayout.value = false;
@@ -117,83 +116,6 @@ class StartPage extends StatelessWidget {
           showCupertinoParallax: false,
         );
       },
-    );
-  }
-}
-
-class AppListener extends StatefulWidget {
-  final Widget child;
-
-  const AppListener({Key? key, required this.child}) : super(key: key);
-
-  @override
-  State<AppListener> createState() => _AppListenerState();
-}
-
-class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
-  AppLifecycleState state = AppLifecycleState.resumed;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance!.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    if (StyleSetting.themeMode.value != ThemeMode.system) {
-      return;
-    }
-    Get.changeThemeMode(
-      WidgetsBinding.instance?.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-    );
-    super.didChangePlatformBrightness();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
-    /// so i choose to set FLAG_SECURE to do the same effect.
-    if (state == AppLifecycleState.inactive) {
-      if (GetPlatform.isAndroid) {
-        FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-      } else {
-        setState(() {
-          this.state = state;
-        });
-      }
-    }
-    if (state == AppLifecycleState.resumed) {
-      if (GetPlatform.isAndroid) {
-        FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-      } else {
-        setState(() {
-          this.state = state;
-        });
-      }
-    }
-    super.didChangeAppLifecycleState(state);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (GetPlatform.isAndroid || state == AppLifecycleState.resumed) {
-      /// use LayoutBuilder to listen to the screen resize
-      return LayoutBuilder(
-        builder: (context, constraints) => widget.child,
-      );
-    }
-
-    return Blur(
-      child: LayoutBuilder(
-        builder: (context, constraints) => widget.child,
-      ),
     );
   }
 }

@@ -26,21 +26,20 @@ class _LogPageState extends State<LogPage> {
       appBar: AppBar(
         title: Text(basename(log.path)),
         centerTitle: true,
+        elevation: 1,
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
       body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: screenHeight),
-            child: SelectableText(
-              (log as io.File).readAsStringSync(),
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                fontFamily: io.Platform.isAndroid ? 'monospace' : 'Menlo',
-              ),
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: screenHeight),
+          child: SelectableText(
+            (log as io.File).readAsStringSync(),
+            scrollPhysics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              fontFamily: io.Platform.isAndroid ? 'monospace' : 'PingFang HK',
             ),
           ),
         ).paddingOnly(top: 8),

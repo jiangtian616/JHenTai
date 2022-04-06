@@ -1,8 +1,10 @@
 import 'dart:ui';
 import 'dart:async';
+import 'package:blur/blur.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
@@ -28,7 +30,7 @@ import 'config/theme_config.dart';
 
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
-    if (kReleaseMode){
+    if (kReleaseMode) {
       Log.error(details.exception, null, details.stack);
     }
     FlutterError.presentError(details);
@@ -57,8 +59,11 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: AdvancedSetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
+      initialRoute: AdvancedSetting.enableFingerPrintLock.isTrue
+          ? Routes.lock
+          : Routes.start,
       navigatorObservers: [GetXRouterObserver()],
+      builder: (context, child) => AppListener(child: child!),
 
       /// enable swipe back feature
       popGesture: true,
@@ -98,4 +103,80 @@ Future<void> onReady() async {
   SiteSetting.refresh();
 
   ReadSetting.init();
+}
+
+class AppListener extends StatefulWidget {
+  final Widget child;
+
+  const AppListener({Key? key, required this.child}) : super(key: key);
+
+  @override
+  State<AppListener> createState() => _AppListenerState();
+}
+
+class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
+  AppLifecycleState state = AppLifecycleState.resumed;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (StyleSetting.themeMode.value != ThemeMode.system) {
+      return;
+    }
+    Get.changeThemeMode(
+      WidgetsBinding.instance?.window.platformBrightness == Brightness.light
+          ? ThemeMode.light
+          : ThemeMode.dark,
+    );
+    super.didChangePlatformBrightness();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
+    /// so i choose to set FLAG_SECURE to do the same effect.
+    if (state == AppLifecycleState.inactive) {
+      if (GetPlatform.isAndroid) {
+        FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+      } else {
+        setState(() {
+          this.state = state;
+        });
+      }
+    }
+    if (state == AppLifecycleState.resumed) {
+      if (GetPlatform.isAndroid) {
+        FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+      } else {
+        setState(() {
+          this.state = state;
+        });
+      }
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (GetPlatform.isAndroid || state == AppLifecycleState.resumed) {
+      /// use LayoutBuilder to listen to the screen resize
+      return widget.child;
+    }
+
+    return Blur(
+      blur: 100,
+      child: widget.child,
+    );
+  }
 }
