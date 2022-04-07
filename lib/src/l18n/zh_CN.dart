@@ -49,6 +49,9 @@ class zh_CN {
       'getGallerysFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',
       'refreshGalleryFailed': '刷新画廊失败',
+      'jumpPageTo': '跳转页面至',
+      'range': '范围',
+      'current': '当前',
 
       /// details page
       'read': '阅读',

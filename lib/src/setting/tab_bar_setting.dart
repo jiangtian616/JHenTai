@@ -90,6 +90,7 @@ class TabBarSetting {
               name: entry['name'],
               searchConfig: SearchConfig.fromJson(entry['searchConfig']),
               isDeleteAble: entry['isDeleteAble'],
+              isEditable: entry['isEditable'],
             ))
         .toList();
   }

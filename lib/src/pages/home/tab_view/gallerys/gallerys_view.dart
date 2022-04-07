@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../../config/global_config.dart';
@@ -174,7 +175,11 @@ class GallerysView extends StatelessWidget {
                     title: Text('gallery'.tr),
                     actions: [
                       IconButton(
-                        icon: const Icon(Icons.search),
+                        icon: const Icon(FontAwesomeIcons.paperPlane, size: 18),
+                        onPressed: () => Get.dialog(JumpPageDialog()),
+                      ),
+                      IconButton(
+                        icon: const Icon(FontAwesomeIcons.search, size: 18),
                         onPressed: () => toNamed(Routes.search),
                       ),
                     ],
@@ -279,7 +284,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: <Widget>[
-              _buildRefreshIndicator(),
+              _buildPullDownIndicator(),
               _buildGalleryCollection(widget.tabIndex),
               _buildLoadMoreIndicator(),
             ],
@@ -293,20 +298,20 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           builder: (logic) {
             return LoadingStateIndicator(
               errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-              noDataTapCallback: () => gallerysViewLogic.handleRefresh(widget.tabIndex),
+              noDataTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             );
           }),
     );
   }
 
-  Widget _buildRefreshIndicator() {
+  Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
       padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
       sliver: CupertinoSliverRefreshControl(
         refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-        onRefresh: () => gallerysViewLogic.handleRefresh(gallerysViewLogic.tabController.index),
+        onRefresh: () => gallerysViewLogic.handlePullDown(gallerysViewLogic.tabController.index),
       ),
     );
   }

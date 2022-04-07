@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -17,8 +18,9 @@ Widget EHGalleryCollection({
   VoidCallback? handleLoadMore,
 }) {
   Widget _buildGalleryList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
+    /// use FlutterSliverList to [keepPosition] when insert items at top
+    return FlutterSliverList(
+      delegate: FlutterListViewDelegate(
         (BuildContext context, int index) {
           if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
             /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
@@ -30,7 +32,6 @@ Widget EHGalleryCollection({
               handleLoadMore();
             });
           }
-
           return Obx(() {
             return EHGalleryListCard(
               gallery: gallerys[index],
@@ -40,6 +41,9 @@ Widget EHGalleryCollection({
           });
         },
         childCount: gallerys.length,
+        keepPosition: true,
+        onItemKey: (index) => gallerys[index].galleryUrl,
+        preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
       ),
     );
   }

@@ -49,6 +49,9 @@ class en_US {
       'getGallerysFailed': "Get Gallerys Failed",
       'refreshGalleryFailed': 'Refresh Gallery Failed',
       'tabBarSetting': 'TabBar Setting',
+      'jumpPageTo': 'Jump Page To',
+      'range': 'Range',
+      'current': 'Current',
 
       /// details page
       'read': 'Read',

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:blur/blur.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -157,6 +158,8 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       if (GetPlatform.isAndroid) {
         FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+        /// resume appbar color
+        SystemChrome.setSystemUIOverlayStyle(Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
       } else {
         setState(() {
           this.state = state;

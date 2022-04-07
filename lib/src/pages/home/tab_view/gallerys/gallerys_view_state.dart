@@ -8,7 +8,9 @@ class GallerysViewState {
 
   late List<LoadingState> loadingState;
 
-  late List<int> nextPageNoToLoad;
+  late List<int> prevPageIndexToLoad;
+
+  late List<int> nextPageIndexToLoad;
 
   late List<int> pageCount;
 
@@ -18,7 +20,8 @@ class GallerysViewState {
     tabBarNames = TabBarSetting.configs.map((config) => config.name).toList();
 
     loadingState = List.generate(tabBarNames.length, (index) => LoadingState.idle);
-    nextPageNoToLoad = List.generate(tabBarNames.length, (index) => 0);
+    prevPageIndexToLoad = List.generate(tabBarNames.length, (index) => -1);
+    nextPageIndexToLoad = List.generate(tabBarNames.length, (index) => 0);
     pageCount = List.generate(tabBarNames.length, (index) => -1);
     gallerys = List.generate(tabBarNames.length, (index) => List.empty(growable: true));
   }
