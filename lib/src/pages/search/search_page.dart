@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/search/search_page_state.dart';
@@ -15,7 +16,7 @@ import '../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
 
 class SearchPagePage extends StatelessWidget {
-  String tag = UniqueKey().toString();
+  final String tag = UniqueKey().toString();
 
   late final SearchPageLogic logic;
   late final SearchPageState state;
@@ -63,11 +64,19 @@ class SearchPagePage extends StatelessWidget {
                           centerTitle: true,
                           title: Text('search'.tr),
                           actions: [
+                            if (state.pageCount > 1)
+                              IconButton(
+                                icon: const Icon(FontAwesomeIcons.paperPlane, size: 17),
+                                onPressed: logic.handleOpenJumpDialog,
+                                alignment: const Alignment(0.5, -0.4),
+                                padding: const EdgeInsets.only(top: 11, bottom: 11, left: 8, right: 8),
+                              ),
                             IconButton(
                               icon: Icon(
                                 state.showSuggestionAndHistory ? Icons.update_disabled : Icons.history,
                                 size: 24,
                               ),
+                              visualDensity: const VisualDensity(horizontal: -4),
                               onPressed: logic.toggleBodyType,
                             ),
                             IconButton(
@@ -78,6 +87,7 @@ class SearchPagePage extends StatelessWidget {
                                   tabBarConfig: state.tabBarConfig,
                                 ),
                               ),
+                              visualDensity: const VisualDensity(horizontal: -4),
                             ),
                             IconButton(
                               icon: const Icon(Icons.add_circle_outline, size: 24),
@@ -87,6 +97,7 @@ class SearchPagePage extends StatelessWidget {
                                   tabBarConfig: state.tabBarConfig,
                                 ),
                               ),
+                              alignment: Alignment.centerLeft,
                             ),
                           ],
                         );
@@ -314,7 +325,7 @@ class SearchPagePage extends StatelessWidget {
       padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.searchBarHeight),
       sliver: CupertinoSliverRefreshControl(
         refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-        onRefresh: () => logic.searchMore(isRefresh: true),
+        onRefresh: logic.handlePullDown,
       ),
     );
   }

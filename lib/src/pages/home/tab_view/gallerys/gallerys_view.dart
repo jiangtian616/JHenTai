@@ -1,10 +1,10 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../../config/global_config.dart';
@@ -172,20 +172,27 @@ class GallerysView extends StatelessWidget {
               children: [
                 // use Expanded so the AppBar can shrink or expand when scrolling between [minExtent] and [maxExtent]
                 Expanded(
-                  child: AppBar(
-                    centerTitle: true,
-                    title: Text('gallery'.tr),
-                    actions: [
-                      IconButton(
-                        icon: const Icon(FontAwesomeIcons.paperPlane, size: 18),
-                        onPressed: () => Get.dialog(JumpPageDialog()),
-                      ),
-                      IconButton(
-                        icon: const Icon(FontAwesomeIcons.search, size: 18),
-                        onPressed: () => toNamed(Routes.search),
-                      ),
-                    ],
-                  ),
+                  child: GetBuilder<GallerysViewLogic>(
+                      id: appBarId,
+                      builder: (logic) {
+                        return AppBar(
+                          centerTitle: true,
+                          title: Text('gallery'.tr),
+                          actions: [
+                            if (gallerysViewLogic.state.pageCount[gallerysViewLogic.tabController.index] > 1)
+                              FadeIn(
+                                child: IconButton(
+                                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 18),
+                                  onPressed: gallerysViewLogic.handleOpenJumpDialog,
+                                ),
+                              ),
+                            IconButton(
+                              icon: const Icon(FontAwesomeIcons.search, size: 18),
+                              onPressed: () => toNamed(Routes.search),
+                            ),
+                          ],
+                        );
+                      }),
                 ),
                 Container(
                   height: GlobalConfig.tabBarHeight,
@@ -273,7 +280,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   void initState() {
     if (gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
         gallerysViewState.loadingState[widget.tabIndex] == LoadingState.idle) {
-      gallerysViewLogic.handleLoadMore(widget.tabIndex);
+      gallerysViewLogic.loadMore(widget.tabIndex);
     }
     super.initState();
   }
@@ -299,8 +306,8 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
           id: loadingStateId,
           builder: (logic) {
             return LoadingStateIndicator(
-              errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
-              noDataTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+              errorTapCallback: () => gallerysViewLogic.loadMore(widget.tabIndex),
+              noDataTapCallback: () => gallerysViewLogic.loadMore(widget.tabIndex),
               loadingState: gallerysViewState.loadingState[widget.tabIndex],
             );
           }),
@@ -326,7 +333,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
             id: loadingStateId,
             builder: (logic) {
               return LoadingStateIndicator(
-                errorTapCallback: () => gallerysViewLogic.handleLoadMore(widget.tabIndex),
+                errorTapCallback: () => gallerysViewLogic.loadMore(widget.tabIndex),
                 loadingState: gallerysViewState.loadingState[widget.tabIndex],
               );
             }),
@@ -339,7 +346,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
       gallerys: gallerysViewState.gallerys[tabIndex],
       loadingState: gallerysViewState.loadingState[tabIndex],
       handleTapCard: gallerysViewLogic.handleTapCard,
-      handleLoadMore: () => gallerysViewLogic.handleLoadMore(tabIndex),
+      handleLoadMore: () => gallerysViewLogic.loadMore(tabIndex),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -21,6 +22,7 @@ import '../../../../utils/snack_util.dart';
 import 'gallerys_view_state.dart';
 import '../../../../model/gallery.dart';
 
+String appBarId = 'appBarId';
 String tabBarId = 'tabBarId';
 String bodyId = 'bodyId';
 String loadingStateId = 'loadingStateId';
@@ -31,12 +33,19 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   final StorageService storageService = Get.find();
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
 
+  void onInit() {
+    tabController.addListener(() {
+      update([appBarId]);
+    });
+    super.onInit();
+  }
+
   /// pull-down
   Future<void> handlePullDown(int tabIndex) async {
     if (state.prevPageIndexToLoad[tabIndex] == -1) {
       await handleRefresh(tabIndex);
     } else {
-      await handleLoadBefore(tabIndex);
+      await loadBefore(tabIndex);
     }
   }
 
@@ -75,7 +84,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   /// pull-down to load page before(after jumping to a certain page)
-  Future<void> handleLoadBefore(int tabIndex) async {
+  Future<void> loadBefore(int tabIndex) async {
     if (state.loadingState[tabIndex] == LoadingState.loading) {
       return;
     }
@@ -107,7 +116,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   /// has scrolled to bottom, so need to load more data.
-  Future<void> handleLoadMore(int tabIndex) async {
+  Future<void> loadMore(int tabIndex) async {
     if (state.loadingState[tabIndex] == LoadingState.loading) {
       return;
     }
@@ -142,10 +151,10 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.loadingState[tabIndex] = LoadingState.idle;
     }
 
-    update([bodyId]);
+    update([appBarId, bodyId]);
   }
 
-  Future<void> handleJumpPage(int pageIndex) async {
+  Future<void> jumpPage(int pageIndex) async {
     int tabIndex = tabController.index;
 
     if (state.loadingState[tabIndex] == LoadingState.loading) {
@@ -156,11 +165,11 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.loadingState[tabIndex] = LoadingState.loading;
     update([bodyId]);
 
-    state.prevPageIndexToLoad[tabIndex] = pageIndex - 1;
-    state.nextPageIndexToLoad[tabIndex] = pageIndex;
 
     pageIndex = max(pageIndex, 0);
     pageIndex = min(pageIndex, state.pageCount[tabIndex] - 1);
+    state.prevPageIndexToLoad[tabIndex] = pageIndex - 1;
+    state.nextPageIndexToLoad[tabIndex] = pageIndex;
 
     List<dynamic> gallerysAndPageCount;
     try {
@@ -184,6 +193,18 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.loadingState[tabIndex] = LoadingState.idle;
     }
     update([bodyId]);
+  }
+
+  Future<void> handleOpenJumpDialog() async {
+    int? pageIndex = await Get.dialog(
+      JumpPageDialog(
+        totalPageNo: state.pageCount[tabController.index],
+        currentNo: state.nextPageIndexToLoad[tabController.index],
+      ),
+    );
+    if (pageIndex != null) {
+      jumpPage(pageIndex);
+    }
   }
 
   /// click the card and enter details page

@@ -10,6 +10,7 @@ class SearchPageState {
 
   List<Gallery> gallerys = <Gallery>[];
   int nextPageNoToLoad = 0;
+  int prevPageNoToLoad = -1;
   int pageCount = -1;
   LoadingState loadingState = LoadingState.success;
   String? redirectUrl;
