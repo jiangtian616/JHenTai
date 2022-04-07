@@ -1228,7 +1228,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final Tag tag = Tag(this);
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid',
+        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -1396,7 +1396,7 @@ abstract class _$AppDb extends GeneratedDatabase {
 
   Selectable<TagData> searchTags(String pattern) {
     return customSelect(
-        'select *\r\nfrom tag\r\nwhere _key LIKE :pattern\r\n   OR tagName LIKE :pattern LIMIT 35',
+        'select *\r\nfrom tag\r\nwhere _key LIKE :pattern\r\n   OR tagName LIKE :pattern\r\nLIMIT 35',
         variables: [
           Variable<String>(pattern)
         ],

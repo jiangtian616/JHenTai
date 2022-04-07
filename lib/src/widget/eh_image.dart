@@ -101,6 +101,13 @@ class _EHImageState extends State<EHImage> {
             fit: widget.fit,
             mode: widget.mode,
             enableLoadState: true,
+            loadStateChanged: (ExtendedImageState state) {
+              if (state.extendedImageLoadState == LoadState.completed) {
+                return FadeIn(
+                  child: widget.completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state),
+                );
+              }
+            },
           );
         }
 

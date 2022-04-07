@@ -19,7 +19,23 @@ class DownloadView extends StatelessWidget {
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  DownloadView({Key? key}) : super(key: key);
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
+  late int galleryLength = downloadService.gallerys.length;
+
+  DownloadView({Key? key}) : super(key: key) {
+    /// manually handle add or delete item
+    ever<List<GalleryDownloadedData>>(
+      downloadService.gallerys,
+      (gallerys) {
+        if (gallerys.length > galleryLength) {
+          _listKey.currentState?.insertItem(0);
+        }
+        galleryLength = gallerys.length;
+      },
+      condition: () => downloadService.gallerys.length != galleryLength,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,89 +45,91 @@ class DownloadView extends StatelessWidget {
         title: Text('download'.tr),
         elevation: 1,
       ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          children: downloadService.gallerys
-              .map((gallery) => Slidable(
-                    key: Key(gallery.gid.toString()),
-                    endActionPane: ActionPane(
-                      motion: const DrawerMotion(),
-                      extentRatio: 0.15,
-                      children: [
-                        SlidableAction(
-                          icon: Icons.delete,
-                          foregroundColor: Colors.red,
-                          backgroundColor: Get.theme.scaffoldBackgroundColor,
-                          onPressed: (BuildContext context) => downloadService.deleteGallery(gallery),
-                        )
-                      ],
-                    ),
-                    child: GestureDetector(
-                      onLongPress: () => _showDeleteBottomSheet(gallery, context),
-                      child: FadeOut(
-                        child: Container(
-                          height: 130,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
+      body: AnimatedList(
+        key: _listKey,
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        initialItemCount: galleryLength,
+        itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+      ),
+    );
+  }
 
-                            /// covered when in dark mode
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 2,
-                                spreadRadius: 1,
-                                offset: const Offset(0.3, 1),
-                              )
-                            ],
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Row(
-                              children: [
-                                _buildCover(gallery, context),
-                                _buildInfo(gallery),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ))
-              .toList(),
-        );
-      }),
+  Widget _itemBuilder(BuildContext context, int index) {
+    GalleryDownloadedData gallery = downloadService.gallerys[index];
+    return Slidable(
+      key: Key(gallery.gid.toString()),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: 0.15,
+        children: [
+          SlidableAction(
+            icon: Icons.delete,
+            foregroundColor: Colors.red,
+            backgroundColor: Get.theme.scaffoldBackgroundColor,
+            onPressed: (BuildContext context) => _handleRemoveItem(context, index),
+          )
+        ],
+      ),
+      child: GestureDetector(
+        onLongPress: () => _showDeleteBottomSheet(gallery, index, context),
+        child: Container(
+          height: 130,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+
+            /// covered when in dark mode
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 2,
+                spreadRadius: 1,
+                offset: const Offset(0.3, 1),
+              )
+            ],
+            borderRadius: BorderRadius.circular(15),
+          ),
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Row(
+              children: [
+                _buildCover(gallery, context),
+                _buildInfo(gallery),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
-    Widget child;
-    GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
-
-    /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
-    if (image == null ||
-        image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
-      child = const SizedBox(
-        height: 130,
-        width: 110,
-        child: CupertinoActivityIndicator(),
-      );
-    } else {
-      child = EHImage(
-        containerHeight: 130,
-        containerWidth: 110,
-        galleryImage: image,
-        adaptive: true,
-        fit: BoxFit.cover,
-      );
-    }
-
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toNamed(Routes.details, arguments: gallery.galleryUrl),
-      child: child,
+      child: Obx(
+        () {
+          GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
+
+          /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
+          if (image == null ||
+              image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
+            return const SizedBox(
+              height: 130,
+              width: 110,
+              child: CupertinoActivityIndicator(),
+            );
+          }
+
+          return EHImage(
+            containerHeight: 130,
+            containerWidth: 110,
+            galleryImage: image,
+            adaptive: true,
+            fit: BoxFit.cover,
+          );
+        },
+      ),
     );
   }
 
@@ -170,8 +188,6 @@ class DownloadView extends StatelessWidget {
   }
 
   Widget _buildCenter(GalleryDownloadedData gallery) {
-    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
-
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -179,23 +195,27 @@ class DownloadView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             EHGalleryCategoryTag(category: gallery.category),
-            GestureDetector(
-              onTap: () {
-                downloadStatus == DownloadStatus.paused
-                    ? downloadService.downloadGallery(gallery, isFirstDownload: false)
-                    : downloadService.pauseDownloadGallery(gallery);
-              },
-              child: Icon(
-                downloadStatus == DownloadStatus.paused
-                    ? Icons.play_arrow
-                    : downloadStatus == DownloadStatus.downloading
-                        ? Icons.pause
-                        : Icons.done,
-                size: 26,
-                color:
-                    downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
-              ),
-            ),
+            Obx(() {
+              DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
+              return GestureDetector(
+                onTap: () {
+                  downloadStatus == DownloadStatus.paused
+                      ? downloadService.downloadGallery(gallery, isFirstDownload: false)
+                      : downloadService.pauseDownloadGallery(gallery);
+                },
+                child: Icon(
+                  downloadStatus == DownloadStatus.paused
+                      ? Icons.play_arrow
+                      : downloadStatus == DownloadStatus.downloading
+                          ? Icons.pause
+                          : Icons.done,
+                  size: 26,
+                  color: downloadStatus == DownloadStatus.downloading
+                      ? Get.theme.primaryColorLight
+                      : Get.theme.primaryColor,
+                ),
+              );
+            }),
           ],
         ),
       ],
@@ -203,9 +223,148 @@ class DownloadView extends StatelessWidget {
   }
 
   Widget _buildFooter(GalleryDownloadedData gallery) {
-    DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
-    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
+    return Obx(() {
+      DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
+      SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
+      return Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
+                Text(
+                  speedComputer.speed.value,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              const Expanded(child: SizedBox()),
+              Text(
+                '${downloadProgress.curCount}/${downloadProgress.totalCount}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+          if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
+            SizedBox(
+              height: 3,
+              child: LinearProgressIndicator(
+                value: downloadProgress.curCount / downloadProgress.totalCount,
+                color: downloadProgress.downloadStatus == DownloadStatus.downloading
+                    ? Get.theme.primaryColorLight
+                    : Get.theme.primaryColor,
+              ),
+            ).marginOnly(top: 4),
+        ],
+      );
+    });
+  }
 
+  /// remove Obx() in removedItem
+  Widget _removedItemBuilder(
+    BuildContext context,
+    GalleryDownloadedData gallery,
+    GalleryImage? image,
+    DownloadStatus downloadStatus,
+    DownloadProgress downloadProgress,
+    SpeedComputer speedComputer,
+  ) {
+    return Container(
+      height: 130,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            spreadRadius: 1,
+            offset: const Offset(0.3, 1),
+          )
+        ],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Row(
+          children: [
+            _buildRemovedCover(image),
+            _buildRemovedInfo(gallery, downloadStatus, downloadProgress, speedComputer),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRemovedCover(GalleryImage? image) {
+    if (image == null ||
+        image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
+      return const SizedBox(
+        height: 130,
+        width: 110,
+        child: CupertinoActivityIndicator(),
+      );
+    }
+
+    return EHImage(
+      containerHeight: 130,
+      containerWidth: 110,
+      galleryImage: image,
+      adaptive: true,
+      fit: BoxFit.cover,
+    );
+  }
+
+  Widget _buildRemovedInfo(GalleryDownloadedData gallery, DownloadStatus downloadStatus,
+      DownloadProgress downloadProgress, SpeedComputer speedComputer) {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(gallery),
+          const Expanded(child: SizedBox()),
+          _buildRemovedCenter(gallery, downloadStatus),
+          _buildRemovedFooter(
+            gallery,
+            downloadProgress,
+            speedComputer,
+          ).marginOnly(top: 4),
+        ],
+      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+    );
+  }
+
+  Widget _buildRemovedCenter(GalleryDownloadedData gallery, DownloadStatus downloadStatus) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            EHGalleryCategoryTag(category: gallery.category),
+            Icon(
+              downloadStatus == DownloadStatus.paused
+                  ? Icons.play_arrow
+                  : downloadStatus == DownloadStatus.downloading
+                      ? Icons.pause
+                      : Icons.done,
+              size: 26,
+              color:
+                  downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRemovedFooter(
+      GalleryDownloadedData gallery, DownloadProgress downloadProgress, SpeedComputer speedComputer) {
     return Column(
       children: [
         Row(
@@ -243,7 +402,28 @@ class DownloadView extends StatelessWidget {
     );
   }
 
-  void _showDeleteBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
+  void _handleRemoveItem(BuildContext context, int index) {
+    GalleryDownloadedData gallery = downloadService.gallerys[index];
+    GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
+    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
+    DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
+    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
+
+    downloadService.deleteGallery(gallery);
+
+    _listKey.currentState?.removeItem(
+      index,
+      (context, Animation<double> animation) => FadeTransition(
+        opacity: animation,
+        child: ScaleTransition(
+          scale: animation,
+          child: _removedItemBuilder(context, gallery, image, downloadStatus, downloadProgress, speedComputer),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -251,7 +431,7 @@ class DownloadView extends StatelessWidget {
           CupertinoActionSheetAction(
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              downloadService.deleteGallery(gallery);
+              _handleRemoveItem(context, index);
               back();
             },
           ),

@@ -27,7 +27,7 @@ class DownloadService extends GetxService {
   RxMap<int, Rx<DownloadProgress>> gid2downloadProgress = <int, Rx<DownloadProgress>>{}.obs;
   Map<int, CancelToken> gid2CancelToken = {};
   Map<int, List<Rxn<GalleryThumbnail>>> gid2ImageHrefs = {};
-  Map<int, RxList<Rxn<GalleryImage>>> gid2Images = <int, RxList<Rxn<GalleryImage>>>{}.obs;
+  Map<int, List<Rxn<GalleryImage>>> gid2Images = <int, List<Rxn<GalleryImage>>>{};
 
   Map<int, SpeedComputer> gid2SpeedComputer = {};
 
@@ -310,6 +310,7 @@ class DownloadService extends GetxService {
               progress?.downloadStatus = DownloadStatus.downloaded;
             });
             await _updateGalleryStatus(gallery.gid, DownloadStatus.downloaded);
+            gid2SpeedComputer[gallery.gid]!.dispose();
           }
         }),
       ),

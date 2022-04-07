@@ -46,7 +46,7 @@ mush thanks to these projects🙇‍
 
 <img width="770" src="screenshot/4.png"/>
 
-## Features & Todo
+## Main Features
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search
@@ -58,6 +58,14 @@ mush thanks to these projects🙇‍
 - [x] comment, vote for comment
 - [x] domain fronting
 - [x] Fingerprint unlock
+
+## Feature Todo
+
+- [ ] jump to a certain page
+- [ ] support My Tags
+- [ ] support resume download task after re-install by using download folder
+- [ ] customize Archive Page, support automatic unzip and read directly
+- [ ] customize Statistic Page
 
 ## Improvement & Todo
 

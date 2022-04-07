@@ -52,7 +52,8 @@ SELECT g.gid,
        path,
        i.downloadStatusIndex as imageDownloadStatusIndex
 FROM gallery_downloaded g
-         left join image i on g.gid = i.gid;
+         left join image i on g.gid = i.gid
+ORDER BY insertTime DESC;
 
 selectGallerys:
 SELECT *
@@ -115,7 +116,9 @@ selectAllTags:
 select *
 from tag;
 
-searchTags(REQUIRED :pattern AS TEXT):
+searchTags
+    (REQUIRED :pattern AS TEXT)
+    :
 select *
 from tag
 where _key LIKE :pattern
