@@ -30,6 +30,7 @@ class GallerysView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
+      resizeToAvoidBottomInset: false,
       endDrawer: _buildDrawer(),
       body: ExtendedNestedScrollView(
         /// use this GlobalKey to get innerController to implement 'scroll to top'
@@ -46,6 +47,7 @@ class GallerysView extends StatelessWidget {
 
   Widget _buildDrawer() {
     return SafeArea(
+      bottom: false,
       child: Align(
         alignment: Alignment.bottomRight,
         child: ClipRRect(
@@ -308,7 +310,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
-      padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight),
+      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.tabBarHeight),
       sliver: CupertinoSliverRefreshControl(
         refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
         onRefresh: () => gallerysViewLogic.handlePullDown(gallerysViewLogic.tabController.index),
@@ -318,7 +320,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   Widget _buildLoadMoreIndicator() {
     return SliverPadding(
-      padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
+      padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
         child: GetBuilder<GallerysViewLogic>(
             id: loadingStateId,

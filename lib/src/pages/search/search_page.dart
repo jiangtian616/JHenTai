@@ -240,48 +240,6 @@ class SearchPagePage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryBody(BuildContext context) {
-    return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-        ? Center(
-            child: GetBuilder<SearchPageLogic>(
-                id: loadingStateId,
-                tag: tag,
-                builder: (logic) {
-                  return LoadingStateIndicator(
-                    errorTapCallback: () => logic.searchMore(isRefresh: true),
-                    noDataTapCallback: () => logic.searchMore(isRefresh: true),
-                    loadingState: state.loadingState,
-                  );
-                }),
-          )
-        : CustomScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: <Widget>[
-              SliverPadding(
-                padding: EdgeInsets.only(top: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight),
-                sliver: CupertinoSliverRefreshControl(
-                  refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-                  onRefresh: () => logic.searchMore(isRefresh: true),
-                ),
-              ),
-              _buildGalleryCollection(),
-              SliverPadding(
-                padding: EdgeInsets.only(top: 8, bottom: context.mediaQuery.padding.bottom),
-                sliver: SliverToBoxAdapter(
-                  child: GetBuilder<SearchPageLogic>(
-                      id: loadingStateId,
-                      tag: tag,
-                      builder: (logic) {
-                        return LoadingStateIndicator(
-                          loadingState: state.loadingState,
-                        );
-                      }),
-                ),
-              ),
-            ],
-          );
-  }
-
   TextSpan _highlightKeyword(BuildContext context, String rawText, bool isSubTitle) {
     String keyword = state.tabBarConfig.searchConfig.keyword!;
     List<TextSpan> children = <TextSpan>[];
@@ -320,6 +278,61 @@ class SearchPagePage extends StatelessWidget {
     }
 
     return TextSpan(children: children);
+  }
+
+  Widget _buildGalleryBody(BuildContext context) {
+    return state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+        ? _buildCenterStatusIndicator()
+        : CustomScrollView(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            slivers: <Widget>[
+              _buildPullDownIndicator(),
+              _buildGalleryCollection(),
+              _buildLoadMoreIndicator(),
+            ],
+          );
+  }
+
+  Widget _buildCenterStatusIndicator() {
+    return Center(
+      child: GetBuilder<SearchPageLogic>(
+          id: loadingStateId,
+          tag: tag,
+          builder: (logic) {
+            return LoadingStateIndicator(
+              errorTapCallback: () => logic.searchMore(isRefresh: true),
+              noDataTapCallback: () => logic.searchMore(isRefresh: true),
+              loadingState: state.loadingState,
+            );
+          }),
+    );
+  }
+
+  Widget _buildPullDownIndicator() {
+    /// take responsibility of [SliverOverlapInjector]
+    return SliverPadding(
+      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.searchBarHeight),
+      sliver: CupertinoSliverRefreshControl(
+        refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+        onRefresh: () => logic.searchMore(isRefresh: true),
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 8, bottom: 40),
+      sliver: SliverToBoxAdapter(
+        child: GetBuilder<SearchPageLogic>(
+            id: loadingStateId,
+            tag: tag,
+            builder: (logic) {
+              return LoadingStateIndicator(
+                loadingState: state.loadingState,
+              );
+            }),
+      ),
+    );
   }
 
   Widget _buildGalleryCollection() {

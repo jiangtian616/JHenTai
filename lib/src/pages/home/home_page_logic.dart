@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
+import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 
 import '../../config/global_config.dart';
 import 'home_page_state.dart';
@@ -44,6 +45,10 @@ class HomePageLogic extends GetxController {
     }
 
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
+      /// reset [prevPageIndexToLoad] to refresh rather than load prev page
+      GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
+      gallerysViewLogic.state.prevPageIndexToLoad[gallerysViewLogic.tabController.index] = -1;
+
       Future.delayed(
         const Duration(milliseconds: 0),
         /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
