@@ -159,6 +159,7 @@ class DetailsPage extends StatelessWidget {
                           fontSize: 14,
                           color: Colors.grey,
                         ),
+                        onTap: () => detailsPageLogic.handleTapUploader(gallery.uploader!),
                       ).marginOnly(top: 10),
                   ],
                 ).paddingOnly(left: 6),
@@ -294,7 +295,7 @@ class DetailsPage extends StatelessWidget {
           child: ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(77, (screenWidth - 15 * 2) / 7),
+            itemExtent: max(77, (screenWidth - 15 * 2) / 8),
             children: [
               IconTextButton(
                 iconData: Icons.visibility,
@@ -331,7 +332,7 @@ class DetailsPage extends StatelessWidget {
                   builder: (logic) {
                     return LoadingStateIndicator(
                       width: max(77, (screenWidth - 15 * 2) / 7),
-                      loadingState: detailsPageState.addFavoriteState,
+                      loadingState: detailsPageState.favoriteState,
                       idleWidget: IconTextButton(
                         iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
                             ? Icons.favorite
@@ -374,6 +375,15 @@ class DetailsPage extends StatelessWidget {
                     : UserSetting.hasLoggedIn()
                         ? detailsPageLogic.handleTapRating
                         : detailsPageLogic.showLoginSnack,
+              ),
+              IconTextButton(
+                iconData: Icons.saved_search,
+                iconSize: 28,
+                text: Text(
+                  'similar'.tr,
+                  style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                ),
+                onPressed: detailsPageLogic.searchSimilar,
               ),
               IconTextButton(
                 iconData: FontAwesomeIcons.magnet,
@@ -484,22 +494,24 @@ class DetailsPage extends StatelessWidget {
 
   Widget _buildComments(GalleryDetail galleryDetails) {
     return SliverToBoxAdapter(
-      child: FadeIn(child: SizedBox(
-        height: 135,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          itemExtent: 300,
-          children: galleryDetails.comments
-              .map(
-                (comment) => GestureDetector(
-              onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
-              child: EHComment(comment: comment, maxLines: 4),
-            ).marginOnly(right: 10),
-          )
-              .toList(),
+      child: FadeIn(
+        child: SizedBox(
+          height: 135,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            itemExtent: 300,
+            children: galleryDetails.comments
+                .map(
+                  (comment) => GestureDetector(
+                    onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                    child: EHComment(comment: comment, maxLines: 4),
+                  ).marginOnly(right: 10),
+                )
+                .toList(),
+          ),
         ),
-      ),),
+      ),
     );
   }
 

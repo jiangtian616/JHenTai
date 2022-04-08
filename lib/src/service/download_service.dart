@@ -5,9 +5,11 @@ import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:retry/retry.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
@@ -176,6 +178,10 @@ class DownloadService extends GetxService {
     }
   }
 
+  Future<void> pauseAllDownloadGallery() async {
+    await Future.wait(gallerys.map((g) => pauseDownloadGallery(g)).toList());
+  }
+
   Future<void> pauseDownloadGallery(GalleryDownloadedData gallery) async {
     await _updateGalleryStatus(gallery.gid, DownloadStatus.paused);
     gid2downloadProgress[gallery.gid]!.update((progress) {
@@ -206,68 +212,84 @@ class DownloadService extends GetxService {
   }
 
   Future<void> _getGalleryImageHref(GalleryDownloadedData gallery, int serialNo) async {
-    return retry(
-      () => executor
-          .scheduleTask(
-        () => EHRequest.requestDetailPage(
-          galleryUrl: gallery.galleryUrl,
-          thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
-          cancelToken: gid2CancelToken[gallery.gid],
-          parser: EHSpiderParser.detailPage2Thumbnails,
+    List<GalleryThumbnail> newThumbnails;
+
+    try {
+      newThumbnails = await retry(
+        () => executor.scheduleTask(
+          () => EHRequest.requestDetailPage(
+            galleryUrl: gallery.galleryUrl,
+            thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
+            cancelToken: gid2CancelToken[gallery.gid],
+            parser: EHSpiderParser.detailPage2Thumbnails,
+          ),
         ),
-      )
-          .then((newThumbnails) {
-        Log.verbose('getMoreThumbnails success', false);
-        int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
-        for (int i = 0; i < newThumbnails.length; i++) {
-          gid2ImageHrefs[gallery.gid]![from + i].value = newThumbnails[i];
-        }
-      }),
-      retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-      onRetry: (e) {
-        Log.error('getMoreThumbnails failed, retry', (e as DioError).message);
-      },
-    ).catchError((error, stack) {
-      if (error is! DioError) {
-        throw error;
-      }
-      if (error.type == DioErrorType.cancel) {
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        onRetry: (e) {
+          Log.error('getMoreThumbnails failed, retry', (e as DioError).message);
+        },
+        maxAttempts: downloadRetryTimes,
+      );
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.cancel) {
         return;
       }
-    });
+      if (e.error is EHException) {
+        Log.error('Download Error', e.error.msg);
+        snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        pauseAllDownloadGallery();
+        return;
+      }
+      await _getGalleryImageHref(gallery, serialNo);
+      return;
+    }
+
+    int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
+    for (int i = 0; i < newThumbnails.length; i++) {
+      gid2ImageHrefs[gallery.gid]![from + i].value = newThumbnails[i];
+    }
+    Log.verbose('getMoreThumbnails success', false);
   }
 
   Future<void> _getGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, String downloadPath,
       [bool useCache = true]) async {
-    return retry(
-      () => executor
-          .scheduleTask(
-        () => EHRequest.requestImagePage(
-          gid2ImageHrefs[gallery.gid]![serialNo].value!.href,
-          cancelToken: gid2CancelToken[gallery.gid],
-          useCacheIfAvailable: useCache,
-          parser: EHSpiderParser.imagePage2GalleryImage,
+    GalleryImage image;
+
+    try {
+      image = await retry(
+        () => executor.scheduleTask(
+          () => EHRequest.requestImagePage(
+            gid2ImageHrefs[gallery.gid]![serialNo].value!.href,
+            cancelToken: gid2CancelToken[gallery.gid],
+            useCacheIfAvailable: useCache,
+            parser: EHSpiderParser.imagePage2GalleryImage,
+          ),
         ),
-      )
-          .then((image) async {
-        Log.verbose('parseImageUrl: $serialNo success', false);
-        image.downloadStatus = DownloadStatus.downloading;
-        image.path = downloadPath;
-        gid2Images[gallery.gid]![serialNo].value = image;
-        await _saveNewImage(image, serialNo, gallery.gid);
-      }),
-      retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-      onRetry: (e) {
-        Log.error('parseImageUrl failed, retry', (e as DioError).message);
-      },
-    ).catchError((error, stack) {
-      if (error is! DioError) {
-        throw error;
-      }
-      if (error.type == DioErrorType.cancel) {
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        onRetry: (e) {
+          Log.error('parseImageUrl failed, retry', (e as DioError).message);
+        },
+        maxAttempts: downloadRetryTimes,
+      );
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.cancel) {
         return;
       }
-    });
+      if (e.error is EHException) {
+        Log.error('Download Error', e.error.msg);
+        snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        await pauseAllDownloadGallery();
+        return;
+      }
+      await _getGalleryImageUrl(gallery, serialNo, downloadPath, useCache);
+      return;
+    }
+
+    Log.verbose('parseImageUrl: $serialNo success', false);
+    image.downloadStatus = DownloadStatus.downloading;
+    image.path = downloadPath;
+    gid2Images[gallery.gid]![serialNo].value = image;
+    await _saveNewImage(image, serialNo, gallery.gid);
   }
 
   String _generateDownloadPath(GalleryDownloadedData gallery, int serialNo) {
@@ -279,9 +301,10 @@ class DownloadService extends GetxService {
   }
 
   Future<void> _downloadGalleryImage(GalleryDownloadedData gallery, int serialNo, String downloadPath) async {
-    retry(
-      () => executor.scheduleTask(
-        () => EHRequest.download(
+    try {
+      await retry(
+        () => executor.scheduleTask(
+          () => EHRequest.download(
             url: gid2Images[gallery.gid]![serialNo].value!.url,
             path: downloadPath,
             cancelToken: gid2CancelToken[gallery.gid],
@@ -291,49 +314,54 @@ class DownloadService extends GetxService {
                   gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value;
               gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = count;
               gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes += count;
-            }).then((success) async {
-          Log.verbose('downloadImage: $serialNo success', false);
-          gid2downloadProgress[gallery.gid]!.update((progress) {
-            progress?.curCount++;
-            progress?.hasDownloaded[serialNo] = true;
-          });
-          gid2Images[gallery.gid]![serialNo].update((image) {
-            image?.downloadStatus = DownloadStatus.downloaded;
-          });
-
-          await _updateDownloadedImageStatus(gid2Images[gallery.gid]![serialNo].value!.url);
-
-          /// all image has been downloaded
-          if (gid2downloadProgress[gallery.gid]!.value.curCount ==
-              gid2downloadProgress[gallery.gid]!.value.totalCount) {
-            gid2downloadProgress[gallery.gid]!.update((progress) {
-              progress?.downloadStatus = DownloadStatus.downloaded;
-            });
-            await _updateGalleryStatus(gallery.gid, DownloadStatus.downloaded);
-            gid2SpeedComputer[gallery.gid]!.dispose();
-          }
-        }),
-      ),
-      maxAttempts: downloadRetryTimes,
-      retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-      onRetry: (e) async {
-        Log.error('downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo].value!.url}',
-            (e as DioError).message);
-        gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes -=
-            gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value;
-        gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = 0;
-      },
-    ).catchError((error, stack) {
-      if (error is! DioError) {
-        throw error;
+            },
+          ),
+        ),
+        maxAttempts: downloadRetryTimes,
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        onRetry: (e) async {
+          Log.error('downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo].value!.url}',
+              (e as DioError).message);
+          gid2SpeedComputer[gallery.gid]!.allImageDownloadedBytes -=
+              gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value;
+          gid2SpeedComputer[gallery.gid]!.imageDownloadedBytes[serialNo].value = 0;
+        },
+      );
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.cancel) {
+        return;
       }
-      if (error.type == DioErrorType.cancel) {
+      if (e.error is EHException) {
+        Log.error('Download Error', e.error.msg);
+        snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        pauseAllDownloadGallery();
         return;
       }
       Log.error(
           'downloadImage: $serialNo failed $downloadRetryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo].value!.url}');
       _reParseImageUrlAndDownload(gallery, serialNo, downloadPath);
+      return;
+    }
+
+    Log.verbose('downloadImage: $serialNo success', false);
+    gid2downloadProgress[gallery.gid]!.update((progress) {
+      progress?.curCount++;
+      progress?.hasDownloaded[serialNo] = true;
     });
+    gid2Images[gallery.gid]![serialNo].update((image) {
+      image?.downloadStatus = DownloadStatus.downloaded;
+    });
+
+    await _updateDownloadedImageStatus(gid2Images[gallery.gid]![serialNo].value!.url);
+
+    /// all image has been downloaded
+    if (gid2downloadProgress[gallery.gid]!.value.curCount == gid2downloadProgress[gallery.gid]!.value.totalCount) {
+      gid2downloadProgress[gallery.gid]!.update((progress) {
+        progress?.downloadStatus = DownloadStatus.downloaded;
+      });
+      await _updateGalleryStatus(gallery.gid, DownloadStatus.downloaded);
+      gid2SpeedComputer[gallery.gid]!.dispose();
+    }
   }
 
   /// the image's url may be invalid, try re-parse and then download

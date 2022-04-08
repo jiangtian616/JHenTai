@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,12 +10,15 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../setting/eh_setting.dart';
 import '../../../utils/route_util.dart';
 
 class SettingEHPage extends StatelessWidget {
-  const SettingEHPage({Key? key}) : super(key: key);
+  SettingEHPage({Key? key}) : super(key: key) {
+    EHSetting.refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +63,29 @@ class SettingEHPage extends StatelessWidget {
                 trailing: Switch(
                   value: EHSetting.redirect2EH.value,
                   onChanged: EHSetting.saveRedirect2EH,
+                ),
+              ),
+            if (UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('imageLimits'.tr),
+                trailing: SizedBox(
+                  width: 150,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      LoadingStateIndicator(
+                        loadingState: EHSetting.refreshState.value,
+                        width: 40,
+                        indicatorRadius: 10,
+                        idleWidget: const IconButton(
+                          onPressed: EHSetting.refresh,
+                          icon: Icon(Icons.refresh, size: 20),
+                        ),
+                        errorWidgetSameWithIdle: true,
+                      ),
+                      Text('${EHSetting.currentConsumption} / ${EHSetting.totalLimit}'),
+                    ],
+                  ),
                 ),
               ),
           ],

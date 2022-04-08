@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -23,6 +20,7 @@ class ReadPageState {
   late Rx<LoadingState> imageHrefParsingState = LoadingState.idle.obs;
   late List<Rxn<GalleryImage>> images;
   List<Rx<LoadingState>>? imageUrlParsingStates;
+  late List<RxnString> errorMsg;
 
   bool isMenuOpen = false;
 

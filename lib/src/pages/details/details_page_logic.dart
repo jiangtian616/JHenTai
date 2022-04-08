@@ -253,8 +253,21 @@ class DetailsPageLogic extends GetxController {
     update([bodyId]);
   }
 
+  Future<void> handleTapUploader(String author) async {
+    if (isAtTop(Routes.search)) {
+      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = 'uploader:"$author"';
+      searchPageLogic.searchMore();
+    } else {
+      toNamed(
+        Routes.search,
+        arguments: 'uploader:"$author"',
+      );
+    }
+  }
+
   Future<void> handleTapFavorite() async {
-    if (state.addFavoriteState == LoadingState.loading) {
+    if (state.favoriteState == LoadingState.loading) {
       return;
     }
     if (!FavoriteSetting.inited) {
@@ -268,29 +281,49 @@ class DetailsPageLogic extends GetxController {
       return;
     }
 
-    state.addFavoriteState = LoadingState.loading;
+    state.favoriteState = LoadingState.loading;
     update([addFavoriteStateId]);
     try {
       if (favIndex == state.gallery?.favoriteTagIndex) {
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
+        FavoriteSetting.decrementFavByIndex(favIndex);
         state.gallery!.removeFavorite();
       } else {
         await EHRequest.requestAddFavorite(state.gallery!.gid, state.gallery!.token, favIndex);
+        FavoriteSetting.incrementFavByIndex(favIndex);
+        FavoriteSetting.decrementFavByIndex(state.gallery?.favoriteTagIndex);
         state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames[favIndex]);
       }
+      FavoriteSetting.save();
     } on DioError catch (e) {
       Log.error('favoriteGalleryFailed'.tr, e.message);
       snack('favoriteGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      state.addFavoriteState = LoadingState.error;
+      state.favoriteState = LoadingState.error;
       update([addFavoriteStateId]);
       return;
     }
-    state.addFavoriteState = LoadingState.idle;
+    state.favoriteState = LoadingState.idle;
     update([addFavoriteStateId]);
 
     /// update homePage and searchPage status
     Get.find<GallerysViewLogic>().update([bodyId]);
     SearchPageLogic.current?.update([bodyId]);
+  }
+
+  Future<void> searchSimilar() async {
+    /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
+    String title = state.gallery!.title.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim();
+
+    if (isAtTop(Routes.search)) {
+      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '"$title"';
+      searchPageLogic.searchMore();
+    } else {
+      toNamed(
+        Routes.search,
+        arguments: '"$title"',
+      );
+    }
   }
 
   Future<void> handleTapRating() async {

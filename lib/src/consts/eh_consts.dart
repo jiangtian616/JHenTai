@@ -13,9 +13,11 @@ class EHConsts {
 
   static String get EXPopular => 'https://exhentai.org/popular';
 
-  static String get EApi => 'https://api.e-hentai.org/api.php';
+  static String get EApi => EHSetting.site.value == 'EH' ? EHApi : EXApi;
 
-  static String get EXApi => 'https://api.exhentai.org/api.php';
+  static String get EHApi => 'https://api.e-hentai.org/api.php';
+
+  static String get EXApi => 'https://exhentai.org/api.php';
 
   static String get EHome => 'https://e-hentai.org/home.php';
 
@@ -69,7 +71,6 @@ class EHConsts {
     'exhentai.org': '178.175.129.254',
     'upld.e-hentai.org': '94.100.18.249',
     'api.e-hentai.org': '178.162.147.246',
-    'api.exhentai.org': '178.175.128.252',
     'forums.e-hentai.org': '94.100.18.243',
     'ehgt.org': '37.48.89.44',
     // 'raw.githubusercontent.com': '178.175.129.254',

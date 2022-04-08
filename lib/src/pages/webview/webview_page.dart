@@ -1,15 +1,9 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
-import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../utils/route_util.dart';
 
 typedef OnPageStartedCallback = Future<void> Function(String url, WebViewController controller);
 

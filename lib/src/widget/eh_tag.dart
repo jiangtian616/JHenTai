@@ -90,12 +90,12 @@ class _EHTagState extends State<EHTag> {
   void _searchTag() {
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tagData.namespace}:${widget.tagData.key}';
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tagData.namespace}:"${widget.tagData.key}\$"';
       searchPageLogic.searchMore();
     } else {
       toNamed(
         Routes.search,
-        arguments: '${widget.tagData.namespace}:${widget.tagData.key}',
+        arguments: '${widget.tagData.namespace}:"${widget.tagData.key}\$"',
       );
     }
   }

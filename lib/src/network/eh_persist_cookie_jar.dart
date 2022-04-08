@@ -12,8 +12,8 @@ class EHPersistCookieJar extends DefaultCookieJar {
   /// Whether persisting the cookies that without "expires" or "max-age" attribute;
   final bool persistSession;
 
-  final IndexKey = '.index';
-  final DomainsKey = '.domains';
+  final IndexKey = 'hosts';
+  final DomainsKey = 'domains';
 
   late Storage storage;
 

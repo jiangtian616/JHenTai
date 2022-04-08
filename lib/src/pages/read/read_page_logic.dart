@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -15,6 +16,7 @@ import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../database/database.dart';
+import '../../model/gallery_image.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
@@ -45,12 +47,13 @@ class ReadPageLogic extends GetxController {
         List<GalleryThumbnail> parsedThumbnails = Get.arguments as List<GalleryThumbnail>;
         state.thumbnails = List.generate(
           state.pageCount,
-              (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
+          (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
           growable: true,
         );
       }
       state.images = List.generate(state.pageCount, (index) => Rxn(null));
       state.imageUrlParsingStates = List.generate(state.pageCount, (index) => LoadingState.idle.obs);
+      state.errorMsg = List.generate(state.pageCount, (index) => RxnString(null));
     }
 
     /// record reading progress
@@ -79,19 +82,25 @@ class ReadPageLogic extends GetxController {
     List<GalleryThumbnail> newThumbnails;
     try {
       newThumbnails = await retry(
-            () async =>
-        await EHRequest.requestDetailPage(
+        () async => await EHRequest.requestDetailPage(
           galleryUrl: state.galleryUrl,
           thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
           parser: EHSpiderParser.detailPage2Thumbnails,
         ),
         maxAttempts: 3,
+        retryIf: (e) => e is DioError && e.error is! EHException,
       );
     } on DioError catch (e) {
       Log.error('get thumbnails error!', e);
       state.imageHrefParsingState.value = LoadingState.error;
+      if (e.error is EHException) {
+        state.errorMsg[index].value = e.error.msg;
+        return;
+      }
+      await beginParsingImageHref(index);
       return;
     }
+
     int from = index ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i].value = newThumbnails[i];
@@ -107,20 +116,27 @@ class ReadPageLogic extends GetxController {
 
     state.imageUrlParsingStates![index].value = LoadingState.loading;
 
-    retry(
-          () =>
-          EHRequest.requestImagePage(
-            state.thumbnails[index].value!.href,
-            parser: EHSpiderParser.imagePage2GalleryImage,
-          ),
-      maxAttempts: 3,
-    ).then((image) {
-      state.images[index].value = image;
-      state.imageUrlParsingStates![index].value = LoadingState.success;
-    }).catchError((error) {
-      Log.error('parse gallery image failed, index: ${index.toString()}', (error as DioError).message);
+    GalleryImage image;
+    try {
+      image = await retry(
+        () => EHRequest.requestImagePage(
+          state.thumbnails[index].value!.href,
+          parser: EHSpiderParser.imagePage2GalleryImage,
+        ),
+        maxAttempts: 3,
+        retryIf: (e) => e is DioError && e.error is! EHException,
+      );
+    } on DioError catch (e) {
+      Log.error('parse gallery image failed, index: ${index.toString()}', e.message);
       state.imageUrlParsingStates![index].value = LoadingState.error;
-    });
+      if (e.error is EHException) {
+        state.errorMsg[index].value = e.error.msg;
+      }
+      return;
+    }
+
+    state.images[index].value = image;
+    state.imageUrlParsingStates![index].value = LoadingState.success;
   }
 
   /// attention! [Prev] page is the first page which is not totally shown that in the viewport and before.

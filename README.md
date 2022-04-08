@@ -49,7 +49,7 @@ mush thanks to these projects🙇‍
 ## Main Features
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
-- [x] search, search suggestion, tap tag to search, file search
+- [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download
 - [x] favorite, rating, torrent, archive
 - [x] password login, Cookie login, web login
@@ -61,7 +61,6 @@ mush thanks to these projects🙇‍
 
 ## Feature Todo
 
-- [ ] jump to a certain page
 - [ ] support My Tags
 - [ ] support resume download task after re-install by using download folder
 - [ ] customize Archive Page, support automatic unzip and read directly

@@ -64,10 +64,11 @@ class SiteSetting {
   }
 
   static Future<void> _clear() async {
+    frontPageDisplayType.value = FrontPageDisplayType.compact;
     isLargeThumbnail.value = false;
     thumbnailRows.value = 4;
     thumbnailsCountPerPage.value = 40;
-    _save();
+    Get.find<StorageService>().remove('siteSetting');
     Log.info('clear SiteSetting success', false);
   }
 

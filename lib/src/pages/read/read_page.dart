@@ -137,7 +137,9 @@ class ReadPage extends StatelessWidget {
               errorWidget: const Icon(Icons.warning, color: Colors.yellow),
             ),
             Text(
-              state.imageHrefParsingState.value == LoadingState.error ? 'parsePageFailed'.tr : 'parsingPage'.tr,
+              state.imageHrefParsingState.value == LoadingState.error
+                  ? state.errorMsg[index].value ?? 'parsePageFailed'.tr
+                  : 'parsingPage'.tr,
               style: state.readPageTextStyle(),
             ).marginOnly(top: 8),
             Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
@@ -165,7 +167,9 @@ class ReadPage extends StatelessWidget {
               ),
             if (state.type == 'local') const CircularProgressIndicator(),
             Text(
-              state.imageUrlParsingStates?[index].value == LoadingState.error ? 'parseURLFailed'.tr : 'parsingURL'.tr,
+              state.imageUrlParsingStates?[index].value == LoadingState.error
+                  ? state.errorMsg[index].value ?? 'parseURLFailed'.tr
+                  : 'parsingURL'.tr,
               style: state.readPageTextStyle(),
             ).marginOnly(top: 8),
             Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
@@ -192,7 +196,7 @@ class ReadPage extends StatelessWidget {
       children: [
         IconTextButton(
           iconData: Icons.error,
-          text: Text('networkError'.tr, style: this.state.readPageTextStyle()),
+          text: Text(this.state.errorMsg[index].value ?? 'networkError'.tr, style: this.state.readPageTextStyle()),
           onPressed: state.reLoadImage,
         ),
         Text(index.toString(), style: this.state.readPageTextStyle()),

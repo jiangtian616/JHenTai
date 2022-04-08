@@ -48,7 +48,7 @@ class EHRequest {
       receiveTimeout: 6000,
     ));
 
-    _cookieJar = EHPersistCookieJar(storage: FileStorage(join(PathSetting.appSupportDir.path, ".cookies")));
+    _cookieJar = EHPersistCookieJar(storage: FileStorage(join(PathSetting.getVisibleDir().path, "cookies")));
     await _cookieJar.forceInit();
 
     /// init [nw] cookie
@@ -71,7 +71,16 @@ class EHRequest {
           return handler.reject(
             DioError(
               requestOptions: response.requestOptions,
+              response: response,
               error: EHException(type: EHExceptionType.banned, msg: response.data),
+            ),
+          );
+        }
+        if (response.data.toString().startsWith('You have exceeded your image')) {
+          return handler.reject(
+            DioError(
+              requestOptions: response.requestOptions,
+              error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
             ),
           );
         }

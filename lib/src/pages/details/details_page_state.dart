@@ -15,14 +15,14 @@ class DetailsPageState {
   late LoadingState loadingPageState;
   late LoadingState loadingDetailsState;
   late LoadingState loadingThumbnailsState;
-  late LoadingState addFavoriteState;
+  late LoadingState favoriteState;
 
   DetailsPageState() {
     nextPageIndexToLoadThumbnails = 1;
     loadingPageState = LoadingState.loading;
     loadingDetailsState = LoadingState.idle;
     loadingThumbnailsState = LoadingState.idle;
-    addFavoriteState = LoadingState.idle;
+    favoriteState = LoadingState.idle;
   }
 
   /// called when refresh

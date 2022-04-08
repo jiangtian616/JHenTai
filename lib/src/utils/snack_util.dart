@@ -8,7 +8,11 @@ void snack(
   SnackPosition? snackPosition,
   bool dense = false,
   double maxWidth = 200,
+  bool closeBefore = false,
 }) {
+  if (closeBefore) {
+    Get.closeAllSnackbars();
+  }
   Get.snackbar(
     title,
     message,

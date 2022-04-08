@@ -7,6 +7,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
@@ -239,9 +240,16 @@ class EHSpiderParser {
 
     /// height: 1600px; width: 1124px;
     String style = img.attributes['style']!;
+    String url = img.attributes['src']!;
 
+    if (url.contains('509.gif')) {
+      throw DioError(
+        requestOptions: response.requestOptions,
+        error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
+      );
+    }
     return GalleryImage(
-      url: img.attributes['src']!,
+      url: url,
       height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
       width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
     );
@@ -316,6 +324,19 @@ class EHSpiderParser {
             : false;
     map['thumbnailRows'] =
         int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
+    return map;
+  }
+
+  static Map<String, int> homePage2ImageLimit(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    Map<String, int> map = {
+      'currentConsumption': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+      'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
+      'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
+    };
+
     return map;
   }
 

@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'dart:async';
 import 'package:blur/blur.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
@@ -99,6 +98,7 @@ Future<void> init() async {
 Future<void> onReady() async {
   FavoriteSetting.refresh();
   SiteSetting.refresh();
+  EHSetting.refresh();
 
   ReadSetting.init();
 }

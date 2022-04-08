@@ -99,6 +99,7 @@ class zh_CN {
       'parsePageFailed': "解析页面错误",
       'parseURLFailed': "解析URL错误",
       'loading': "加载中",
+      'exceedImageLimits': "超出图片配额限制",
 
       /// setting page
       'account': '账户',
@@ -121,6 +122,7 @@ class zh_CN {
       'redirect2EH': '画廊链接重定向至表站(如果可用)',
       'redirect2Hints': '会先尝试解析表站',
       'pleaseLogInToOperate': '请登陆后操作',
+      'imageLimits': '图片配额',
 
       /// style setting page
       'enableTagZHTranslation': '开启标签中文翻译',

@@ -1,12 +1,21 @@
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:retry/retry.dart';
 
 import '../service/storage_service.dart';
+import '../utils/eh_spider_parser.dart';
 
 class EHSetting {
   static RxString site = 'EH'.obs;
   static RxBool redirect2EH = false.obs;
+  static Rx<LoadingState> refreshState = LoadingState.idle.obs;
+  static RxInt currentConsumption = (-1).obs;
+  static RxInt totalLimit = 5000.obs;
+  static RxInt resetCost = (-1).obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('EHSetting');
@@ -19,10 +28,42 @@ class EHSetting {
 
     /// listen to logout
     ever(UserSetting.userName, (v) {
-      if (!UserSetting.hasLoggedIn()) {
-        site.value = 'EH';
+      if (UserSetting.hasLoggedIn()) {
+        refresh();
+      } else {
+        _clear();
       }
     });
+  }
+
+  static void refresh() async {
+    /// only refresh when logged in
+    if (!UserSetting.hasLoggedIn()) {
+      return;
+    }
+
+    refreshState.value = LoadingState.loading;
+    Map<String, int> map = {};
+    try {
+      await retry(
+        () async {
+          map = await EHRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
+        },
+        retryIf: (e) => e is DioError,
+        maxAttempts: 3,
+      );
+    } on DioError catch (e) {
+      Log.error('refresh EHSetting fail', e.message);
+      refreshState.value = LoadingState.error;
+      return;
+    }
+
+    currentConsumption.value = map['currentConsumption']!;
+    totalLimit.value = map['totalLimit']!;
+    resetCost.value = map['resetCost']!;
+    refreshState.value = LoadingState.idle;
+    _save();
+    Log.info('refresh EHSetting success', false);
   }
 
   static saveSite(String site) {
@@ -35,19 +76,33 @@ class EHSetting {
     _save();
   }
 
+  static saveTotalLimit(int totalLimit) {
+    EHSetting.totalLimit.value = totalLimit;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('EHSetting', _toMap());
+  }
+
+  static Future<void> _clear() async {
+    site.value = 'EH';
+    currentConsumption.value = -1;
+    Get.find<StorageService>().remove('EHSetting');
+    Log.info('clear EHSetting success', false);
   }
 
   static Map<String, dynamic> _toMap() {
     return {
       'site': site.value,
       'redirect2EH': redirect2EH.value,
+      'totalLimit': totalLimit.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     site.value = map['site'];
     redirect2EH.value = map['redirect2EH'];
+    totalLimit.value = map['totalLimit'];
   }
 }

@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -60,11 +59,8 @@ class FavoriteSetting {
   }
 
   static Future<void> refresh() async {
-    /// only init when logged in
+    /// only refresh when logged in
     if (!UserSetting.hasLoggedIn()) {
-      return;
-    }
-    if (inited) {
       return;
     }
 
@@ -73,7 +69,7 @@ class FavoriteSetting {
         () async {
           favoriteTagNames2Count = await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTags);
           favoriteTagNames = favoriteTagNames2Count.keys.toList();
-          _save();
+          save();
         },
         retryIf: (e) => e is DioError,
         maxAttempts: 3,
@@ -86,7 +82,23 @@ class FavoriteSetting {
     Log.info('refresh FavoriteSetting success', false);
   }
 
-  static Future<void> _save() async {
+  static void incrementFavByIndex(int? index) async {
+    if (index == null || index < 0 || index >= 10) {
+      return;
+    }
+    favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =
+        favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]]! + 1;
+  }
+
+  static void decrementFavByIndex(int? index) async {
+    if (index == null || index < 0 || index >= 10) {
+      return;
+    }
+    favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =
+        favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]]! - 1;
+  }
+
+  static Future<void> save() async {
     await Get.find<StorageService>().write('favoriteSetting', _toMap());
   }
 

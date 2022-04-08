@@ -99,6 +99,7 @@ class en_US {
       'parsePageFailed': "Parse Page Failed",
       'parseURLFailed': "Parse URL Failed",
       'loading': "Loading",
+      'exceedImageLimits': "Exceed Image Limits",
 
       /// setting page
       'account': 'Account',
@@ -121,6 +122,7 @@ class en_US {
       'redirect2EH': 'Redirect to EH site if Available',
       'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
+      'imageLimits': 'Image Limits',
 
       /// style setting page
       'enableTagZHTranslation': 'Translate tag name into chinese',
