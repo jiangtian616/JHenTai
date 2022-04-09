@@ -63,6 +63,12 @@ class DetailsPage extends StatelessWidget {
                 color: Theme.of(context).appBarTheme.titleTextStyle?.color,
                 fontWeight: FontWeight.bold,
               ),
+              actions: [
+                IconButton(
+                  onPressed: detailsPageLogic.shareGallery,
+                  icon: const Icon(Icons.share),
+                )
+              ],
             ),
             body: Builder(
               builder: (context) {

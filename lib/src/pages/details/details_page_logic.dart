@@ -18,6 +18,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../consts/eh_consts.dart';
 import '../../model/gallery.dart';
@@ -251,6 +252,10 @@ class DetailsPageLogic extends GetxController {
     state.nextPageIndexToLoadThumbnails++;
     state.loadingThumbnailsState = LoadingState.idle;
     update([bodyId]);
+  }
+
+  Future<void> shareGallery() async {
+    Share.share(state.gallery!.galleryUrl);
   }
 
   Future<void> handleTapUploader(String author) async {

@@ -53,7 +53,7 @@ mush thanks to these projects🙇‍
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task
-- [x] favorite, rating, torrent, archive
+- [x] favorite, rating, torrent, archive, share
 - [x] password login, Cookie login, web login
 - [x] support EX site
 - [x] vote for Tag
@@ -63,11 +63,11 @@ mush thanks to these projects🙇‍
 
 ## Feature Todo
 
+- [ ] automatically launch url in clipboard
 - [ ] support My Tags
-- [ ] support sharing gallery
-- [ ] support sharing favorite
 - [ ] customize Archive Page, support automatic unzip and read directly
 - [ ] customize Statistic Page
+- [ ] support sharing favorite
 
 ## Improvement & Todo
 
