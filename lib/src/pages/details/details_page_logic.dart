@@ -67,7 +67,7 @@ class DetailsPageLogic extends GetxController {
       return;
     }
 
-    /// enter from downloadPage or url
+    /// enter from downloadPage or url or clipboard
     if (arg is String) {
       getFullPage();
     }
@@ -142,6 +142,7 @@ class DetailsPageLogic extends GetxController {
     state.gallery!.pageCount = state.galleryDetails!.pageCount;
     state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
     state.loadingPageState = LoadingState.success;
+    state.loadingDetailsState = LoadingState.success;
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     update([bodyId]);

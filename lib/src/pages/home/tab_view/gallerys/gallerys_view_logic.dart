@@ -1,9 +1,12 @@
 import 'dart:math';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/main.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
@@ -38,6 +41,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       update([appBarId]);
     });
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    handleUrlInClipBoard();
+    AppListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+    super.onReady();
   }
 
   /// pull-down
@@ -292,6 +302,30 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       tabController.index = tabController.index + 1;
     }
     update([tabBarId, bodyId]);
+  }
+
+  /// a gallery url exists in clipboard, show dialog to check whether enter detail page
+  void resumeAndHandleUrlInClipBoard(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      handleUrlInClipBoard();
+    }
+  }
+
+  /// a gallery url exists in clipboard, show dialog to check whether enter detail page
+  void handleUrlInClipBoard() async{
+    String text = await FlutterClipboard.paste();
+    if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
+      return;
+    }
+
+    snack(
+      'galleryUrlDetected'.tr,
+      '${'galleryUrlDetectedHint'.tr}: $text',
+      onTap: (snackbar) {
+        toNamed(Routes.details, arguments: text);
+      },
+      longDuration: true,
+    );
   }
 
   /// in case that new gallery is uploaded.

@@ -9,6 +9,7 @@ void snack(
   bool dense = false,
   double maxWidth = 200,
   bool closeBefore = false,
+  OnTap? onTap,
 }) {
   if (closeBefore) {
     Get.closeAllSnackbars();
@@ -21,5 +22,6 @@ void snack(
     maxWidth: dense ? maxWidth : null,
     backgroundColor: Colors.black.withOpacity(0.7),
     colorText: Colors.white70,
+    onTap: onTap,
   );
 }

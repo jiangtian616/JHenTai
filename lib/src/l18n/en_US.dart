@@ -52,6 +52,8 @@ class en_US {
       'jumpPageTo': 'Jump Page To',
       'range': 'Range',
       'current': 'Current',
+      'galleryUrlDetected': 'Found Gallery Url in Clipboard',
+      'galleryUrlDetectedHint': 'Tap to enter detail page',
 
       /// details page
       'read': 'Read',

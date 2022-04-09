@@ -103,22 +103,39 @@ Future<void> onReady() async {
   ReadSetting.init();
 }
 
+typedef DidChangePlatformBrightnessCallback = void Function();
+typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
+
 class AppListener extends StatefulWidget {
+  static final List<DidChangePlatformBrightnessCallback> _didChangePlatformBrightnessCallbacks = [];
+  static final List<DidChangeAppLifecycleStateCallback> _didChangeAppLifecycleStateCallbacks = [];
+
   final Widget child;
 
   const AppListener({Key? key, required this.child}) : super(key: key);
 
   @override
   State<AppListener> createState() => _AppListenerState();
+
+  static void registerDidChangePlatformBrightnessCallback(DidChangePlatformBrightnessCallback callback) {
+    _didChangePlatformBrightnessCallbacks.add(callback);
+  }
+
+  static void registerDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
+    _didChangeAppLifecycleStateCallbacks.add(callback);
+  }
 }
 
 class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
-  AppLifecycleState state = AppLifecycleState.resumed;
+  AppLifecycleState _state = AppLifecycleState.resumed;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
+
+    AppListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
+    AppListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
   }
 
   @override
@@ -129,17 +146,30 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
+    for (DidChangePlatformBrightnessCallback callback in AppListener._didChangePlatformBrightnessCallbacks) {
+      callback.call();
+    }
+    super.didChangePlatformBrightness();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    for (DidChangeAppLifecycleStateCallback callback in AppListener._didChangeAppLifecycleStateCallbacks) {
+      callback.call(state);
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  void _changeTheme() {
     if (StyleSetting.themeMode.value != ThemeMode.system) {
       return;
     }
     Get.changeThemeMode(
       WidgetsBinding.instance?.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
     );
-    super.didChangePlatformBrightness();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  void _blurAppPage(AppLifecycleState state) {
     if (SecuritySetting.enableBlur.isFalse) {
       return;
     }
@@ -151,27 +181,28 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
         FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
       } else {
         setState(() {
-          this.state = state;
+          _state = state;
         });
       }
     }
     if (state == AppLifecycleState.resumed) {
       if (GetPlatform.isAndroid) {
         FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+
         /// resume appbar color
-        SystemChrome.setSystemUIOverlayStyle(Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
+        SystemChrome.setSystemUIOverlayStyle(
+            Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
       } else {
         setState(() {
-          this.state = state;
+          _state = state;
         });
       }
     }
-    super.didChangeAppLifecycleState(state);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (GetPlatform.isAndroid || state == AppLifecycleState.resumed) {
+    if (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) {
       return widget.child;
     }
 

@@ -52,6 +52,8 @@ class zh_CN {
       'jumpPageTo': '跳转页面至',
       'range': '范围',
       'current': '当前',
+      'galleryUrlDetected': '剪切板里发现画廊链接',
+      'galleryUrlDetectedHint': '点击进入详情页面',
 
       /// details page
       'read': '阅读',

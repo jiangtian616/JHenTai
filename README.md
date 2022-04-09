@@ -63,7 +63,6 @@ mush thanks to these projects🙇‍
 
 ## Feature Todo
 
-- [ ] automatically launch url in clipboard
 - [ ] support My Tags
 - [ ] customize Archive Page, support automatic unzip and read directly
 - [ ] customize Statistic Page
