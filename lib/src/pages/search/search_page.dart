@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/search/search_page_state.dart';
 
 import '../../config/global_config.dart';
@@ -190,13 +191,17 @@ class SearchPagePage extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 7,
                       children: history
-                          .map((keyword) => GestureDetector(
-                                onTap: () {
-                                  state.tabBarConfig.searchConfig.keyword = keyword;
-                                  logic.searchMore();
-                                },
-                                child: EHTag(tagData: TagData(namespace: '', key: keyword)),
-                              ))
+                          .map(
+                            (keyword) => GestureDetector(
+                              onTap: () {
+                                state.tabBarConfig.searchConfig.keyword = keyword;
+                                logic.searchMore();
+                              },
+                              child: EHTag(
+                                tag: GalleryTag(tagData: TagData(namespace: '', key: keyword)),
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ),

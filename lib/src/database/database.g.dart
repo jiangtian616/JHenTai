@@ -885,6 +885,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
 class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
+  final String? translatedNamespace;
   final String? tagName;
   final String? fullTagName;
   final String? intro;
@@ -892,6 +893,7 @@ class TagData extends DataClass implements Insertable<TagData> {
   TagData(
       {required this.namespace,
       required this.key,
+      this.translatedNamespace,
       this.tagName,
       this.fullTagName,
       this.intro,
@@ -903,6 +905,8 @@ class TagData extends DataClass implements Insertable<TagData> {
           .mapFromDatabaseResponse(data['${effectivePrefix}namespace'])!,
       key: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}_key'])!,
+      translatedNamespace: const StringType().mapFromDatabaseResponse(
+          data['${effectivePrefix}translatedNamespace']),
       tagName: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}tagName']),
       fullTagName: const StringType()
@@ -918,6 +922,9 @@ class TagData extends DataClass implements Insertable<TagData> {
     final map = <String, Expression>{};
     map['namespace'] = Variable<String>(namespace);
     map['_key'] = Variable<String>(key);
+    if (!nullToAbsent || translatedNamespace != null) {
+      map['translatedNamespace'] = Variable<String?>(translatedNamespace);
+    }
     if (!nullToAbsent || tagName != null) {
       map['tagName'] = Variable<String?>(tagName);
     }
@@ -937,6 +944,9 @@ class TagData extends DataClass implements Insertable<TagData> {
     return TagCompanion(
       namespace: Value(namespace),
       key: Value(key),
+      translatedNamespace: translatedNamespace == null && nullToAbsent
+          ? const Value.absent()
+          : Value(translatedNamespace),
       tagName: tagName == null && nullToAbsent
           ? const Value.absent()
           : Value(tagName),
@@ -956,6 +966,8 @@ class TagData extends DataClass implements Insertable<TagData> {
     return TagData(
       namespace: serializer.fromJson<String>(json['namespace']),
       key: serializer.fromJson<String>(json['_key']),
+      translatedNamespace:
+          serializer.fromJson<String?>(json['translatedNamespace']),
       tagName: serializer.fromJson<String?>(json['tagName']),
       fullTagName: serializer.fromJson<String?>(json['fullTagName']),
       intro: serializer.fromJson<String?>(json['intro']),
@@ -968,6 +980,7 @@ class TagData extends DataClass implements Insertable<TagData> {
     return <String, dynamic>{
       'namespace': serializer.toJson<String>(namespace),
       '_key': serializer.toJson<String>(key),
+      'translatedNamespace': serializer.toJson<String?>(translatedNamespace),
       'tagName': serializer.toJson<String?>(tagName),
       'fullTagName': serializer.toJson<String?>(fullTagName),
       'intro': serializer.toJson<String?>(intro),
@@ -978,6 +991,7 @@ class TagData extends DataClass implements Insertable<TagData> {
   TagData copyWith(
           {String? namespace,
           String? key,
+          String? translatedNamespace,
           String? tagName,
           String? fullTagName,
           String? intro,
@@ -985,6 +999,7 @@ class TagData extends DataClass implements Insertable<TagData> {
       TagData(
         namespace: namespace ?? this.namespace,
         key: key ?? this.key,
+        translatedNamespace: translatedNamespace ?? this.translatedNamespace,
         tagName: tagName ?? this.tagName,
         fullTagName: fullTagName ?? this.fullTagName,
         intro: intro ?? this.intro,
@@ -995,6 +1010,7 @@ class TagData extends DataClass implements Insertable<TagData> {
     return (StringBuffer('TagData(')
           ..write('namespace: $namespace, ')
           ..write('key: $key, ')
+          ..write('translatedNamespace: $translatedNamespace, ')
           ..write('tagName: $tagName, ')
           ..write('fullTagName: $fullTagName, ')
           ..write('intro: $intro, ')
@@ -1004,14 +1020,15 @@ class TagData extends DataClass implements Insertable<TagData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(namespace, key, tagName, fullTagName, intro, links);
+  int get hashCode => Object.hash(
+      namespace, key, translatedNamespace, tagName, fullTagName, intro, links);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TagData &&
           other.namespace == this.namespace &&
           other.key == this.key &&
+          other.translatedNamespace == this.translatedNamespace &&
           other.tagName == this.tagName &&
           other.fullTagName == this.fullTagName &&
           other.intro == this.intro &&
@@ -1021,6 +1038,7 @@ class TagData extends DataClass implements Insertable<TagData> {
 class TagCompanion extends UpdateCompanion<TagData> {
   final Value<String> namespace;
   final Value<String> key;
+  final Value<String?> translatedNamespace;
   final Value<String?> tagName;
   final Value<String?> fullTagName;
   final Value<String?> intro;
@@ -1028,6 +1046,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
   const TagCompanion({
     this.namespace = const Value.absent(),
     this.key = const Value.absent(),
+    this.translatedNamespace = const Value.absent(),
     this.tagName = const Value.absent(),
     this.fullTagName = const Value.absent(),
     this.intro = const Value.absent(),
@@ -1036,6 +1055,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
   TagCompanion.insert({
     required String namespace,
     required String key,
+    this.translatedNamespace = const Value.absent(),
     this.tagName = const Value.absent(),
     this.fullTagName = const Value.absent(),
     this.intro = const Value.absent(),
@@ -1045,6 +1065,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
   static Insertable<TagData> custom({
     Expression<String>? namespace,
     Expression<String>? key,
+    Expression<String?>? translatedNamespace,
     Expression<String?>? tagName,
     Expression<String?>? fullTagName,
     Expression<String?>? intro,
@@ -1053,6 +1074,8 @@ class TagCompanion extends UpdateCompanion<TagData> {
     return RawValuesInsertable({
       if (namespace != null) 'namespace': namespace,
       if (key != null) '_key': key,
+      if (translatedNamespace != null)
+        'translatedNamespace': translatedNamespace,
       if (tagName != null) 'tagName': tagName,
       if (fullTagName != null) 'fullTagName': fullTagName,
       if (intro != null) 'intro': intro,
@@ -1063,6 +1086,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
   TagCompanion copyWith(
       {Value<String>? namespace,
       Value<String>? key,
+      Value<String?>? translatedNamespace,
       Value<String?>? tagName,
       Value<String?>? fullTagName,
       Value<String?>? intro,
@@ -1070,6 +1094,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
     return TagCompanion(
       namespace: namespace ?? this.namespace,
       key: key ?? this.key,
+      translatedNamespace: translatedNamespace ?? this.translatedNamespace,
       tagName: tagName ?? this.tagName,
       fullTagName: fullTagName ?? this.fullTagName,
       intro: intro ?? this.intro,
@@ -1085,6 +1110,9 @@ class TagCompanion extends UpdateCompanion<TagData> {
     }
     if (key.present) {
       map['_key'] = Variable<String>(key.value);
+    }
+    if (translatedNamespace.present) {
+      map['translatedNamespace'] = Variable<String?>(translatedNamespace.value);
     }
     if (tagName.present) {
       map['tagName'] = Variable<String?>(tagName.value);
@@ -1106,6 +1134,7 @@ class TagCompanion extends UpdateCompanion<TagData> {
     return (StringBuffer('TagCompanion(')
           ..write('namespace: $namespace, ')
           ..write('key: $key, ')
+          ..write('translatedNamespace: $translatedNamespace, ')
           ..write('tagName: $tagName, ')
           ..write('fullTagName: $fullTagName, ')
           ..write('intro: $intro, ')
@@ -1132,6 +1161,13 @@ class Tag extends Table with TableInfo<Tag, TagData> {
       type: const StringType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  final VerificationMeta _translatedNamespaceMeta =
+      const VerificationMeta('translatedNamespace');
+  late final GeneratedColumn<String?> translatedNamespace =
+      GeneratedColumn<String?>('translatedNamespace', aliasedName, true,
+          type: const StringType(),
+          requiredDuringInsert: false,
+          $customConstraints: '');
   final VerificationMeta _tagNameMeta = const VerificationMeta('tagName');
   late final GeneratedColumn<String?> tagName = GeneratedColumn<String?>(
       'tagName', aliasedName, true,
@@ -1159,7 +1195,7 @@ class Tag extends Table with TableInfo<Tag, TagData> {
       $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns =>
-      [namespace, key, tagName, fullTagName, intro, links];
+      [namespace, key, translatedNamespace, tagName, fullTagName, intro, links];
   @override
   String get aliasedName => _alias ?? 'tag';
   @override
@@ -1180,6 +1216,12 @@ class Tag extends Table with TableInfo<Tag, TagData> {
           _keyMeta, key.isAcceptableOrUnknown(data['_key']!, _keyMeta));
     } else if (isInserting) {
       context.missing(_keyMeta);
+    }
+    if (data.containsKey('translatedNamespace')) {
+      context.handle(
+          _translatedNamespaceMeta,
+          translatedNamespace.isAcceptableOrUnknown(
+              data['translatedNamespace']!, _translatedNamespaceMeta));
     }
     if (data.containsKey('tagName')) {
       context.handle(_tagNameMeta,
@@ -1405,13 +1447,20 @@ abstract class _$AppDb extends GeneratedDatabase {
         }).map(tag.mapFromRow);
   }
 
-  Future<int> insertTag(String namespace, String key, String? tagName,
-      String? fullTagName, String? intro, String? links) {
+  Future<int> insertTag(
+      String namespace,
+      String key,
+      String? translatedNamespace,
+      String? tagName,
+      String? fullTagName,
+      String? intro,
+      String? links) {
     return customInsert(
-      'insert into tag\r\nvalues (:namespace, :key, :tagName, :fullTagName, :intro, :links)',
+      'insert into tag\r\nvalues (:namespace, :key, :translatedNamespace, :tagName, :fullTagName, :intro, :links)',
       variables: [
         Variable<String>(namespace),
         Variable<String>(key),
+        Variable<String?>(translatedNamespace),
         Variable<String?>(tagName),
         Variable<String?>(fullTagName),
         Variable<String?>(intro),

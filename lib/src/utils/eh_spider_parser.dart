@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
@@ -12,6 +13,7 @@ import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -74,7 +76,7 @@ class EHSpiderParser {
     List<String>? parts = galleryUrl.split('/');
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
-    LinkedHashMap<String, List<TagData>> tags = detailPage2Tags(document);
+    LinkedHashMap<String, List<GalleryTag>> tags = detailPage2Tags(document);
 
     Gallery gallery = Gallery(
       gid: int.parse(parts[4]),
@@ -98,7 +100,7 @@ class EHSpiderParser {
           : document.querySelector('#favoritelink')?.text,
       galleryUrl: galleryUrl,
       tags: tags,
-      language: tags['language']?[0].key,
+      language: tags['language']?[0].tagData.key,
       uploader: document.querySelector('#gdn > a')?.text ?? '',
       publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
     );
@@ -139,8 +141,8 @@ class EHSpiderParser {
     return map;
   }
 
-  static LinkedHashMap<String, List<TagData>> detailPage2Tags(Document document) {
-    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
+  static LinkedHashMap<String, List<GalleryTag>> detailPage2Tags(Document document) {
+    LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
 
     List<Element> trs = document.querySelectorAll('#taglist > table > tbody > tr').toList();
     for (Element tr in trs) {
@@ -157,7 +159,7 @@ class EHSpiderParser {
         String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
         String key = list.length == 1 ? list[0].substring(3).replaceAll('\_', ' ') : list[1].replaceAll('\_', ' ');
 
-        tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
+        tags.putIfAbsent(namespace, () => []).add(GalleryTag(tagData: TagData(namespace: namespace, key: key)));
       }
     }
     return tags;
@@ -425,7 +427,7 @@ class EHSpiderParser {
   }
 
   static Gallery _parseCompactGallery(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = _parseCompactGalleryTags(tr);
+    LinkedHashMap<String, List<GalleryTag>> tags = _parseCompactGalleryTags(tr);
     GalleryImage? cover = _parseCompactGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? '';
     List<String> parts = galleryUrl.split('/');
@@ -444,7 +446,7 @@ class EHSpiderParser {
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
       galleryUrl: galleryUrl,
       tags: tags,
-      language: tags['language']?[0].key,
+      language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl4c.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2c > div:nth-child(2) > [id]')?.text ?? '',
     );
@@ -453,7 +455,7 @@ class EHSpiderParser {
   }
 
   static Gallery _parseExtendedGallery(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = _parseExtendedGalleryTags(tr);
+    LinkedHashMap<String, List<GalleryTag>> tags = _parseExtendedGalleryTags(tr);
     GalleryImage? cover = _parseExtendedGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl1e > div > a')?.attributes['href'] ?? '';
     List<String> parts = galleryUrl.split('/');
@@ -472,7 +474,7 @@ class EHSpiderParser {
       favoriteTagName: tr.querySelector('.gl3e > [id][style]')?.attributes['title'],
       galleryUrl: galleryUrl,
       tags: tags,
-      language: tags['language']?[0].key,
+      language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl3e > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl3e > div[id]')?.text ?? '',
     );
@@ -505,9 +507,8 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static LinkedHashMap<String, List<TagData>> _parseCompactGalleryTags(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
-
+  static LinkedHashMap<String, List<GalleryTag>> _parseCompactGalleryTags(Element tr) {
+    LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
     List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
     for (Element tagDiv in tagDivs) {
       /// eg: language:english
@@ -516,20 +517,28 @@ class EHSpiderParser {
         continue;
       }
 
-      /// some tag doesn't has a type
+      /// some tag doesn't has a namespace
       List<String> list = pair.split(':').toList();
       String namespace = list[0].isNotEmpty ? list[0] : 'temp';
       String key = list[1];
+      TagData tagData = TagData(namespace: namespace, key: key);
 
-      tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
+      String style = tagDiv.attributes['style'] ?? '';
+      String? color = RegExp(r'color:#(.*?);').firstMatch(style)?.group(1);
+      String? backgroundColor = RegExp(r'background:radial-gradient\(#.*,#(.*)\)').firstMatch(style)?.group(1);
+
+      tags.putIfAbsent(namespace, () => []).add(GalleryTag(
+            tagData: tagData,
+            color: color == null ? null : Color(int.parse('FF$color', radix: 16)),
+            backgroundColor: backgroundColor == null ? null : Color(int.parse('FF$backgroundColor', radix: 16)),
+          ));
     }
     return tags;
   }
 
-  static LinkedHashMap<String, List<TagData>> _parseExtendedGalleryTags(Element tr) {
-    LinkedHashMap<String, List<TagData>> tags = LinkedHashMap();
-
-    List<Element> tagDivs = tr.querySelectorAll('.gt').toList();
+  static LinkedHashMap<String, List<GalleryTag>> _parseExtendedGalleryTags(Element tr) {
+    LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
+    List<Element> tagDivs = tr.querySelectorAll('.gl2e > div > a > div > div:nth-child(1) > table > tbody > tr > td > div').toList();
     for (Element tagDiv in tagDivs) {
       /// eg: language:english
       String pair = tagDiv.attributes['title'] ?? '';
@@ -537,12 +546,21 @@ class EHSpiderParser {
         continue;
       }
 
-      /// some tag doesn't has a type
+      /// some tag doesn't has a namespace
       List<String> list = pair.split(':').toList();
       String namespace = list[0].isNotEmpty ? list[0] : 'temp';
       String key = list[1];
+      TagData tagData = TagData(namespace: namespace, key: key);
 
-      tags.putIfAbsent(namespace, () => []).add(TagData(namespace: namespace, key: key));
+      String style = tagDiv.attributes['style'] ?? '';
+      String? color = RegExp(r'color:#(.*?);').firstMatch(style)?.group(1);
+      String? backgroundColor = RegExp(r'background:radial-gradient\(#.*,#(.*)\)').firstMatch(style)?.group(1);
+
+      tags.putIfAbsent(namespace, () => []).add(GalleryTag(
+        tagData: tagData,
+        color: color == null ? null : Color(int.parse('FF$color', radix: 16)),
+        backgroundColor: backgroundColor == null ? null : Color(int.parse('FF$backgroundColor', radix: 16)),
+      ));
     }
     return tags;
   }

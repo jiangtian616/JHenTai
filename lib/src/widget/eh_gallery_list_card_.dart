@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
+import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
-import '../database/database.dart';
 import '../model/gallery_image.dart';
 import '../utils/date_util.dart';
 import 'eh_image.dart';
@@ -122,12 +122,10 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTagWaterFlow(Map<String, List<TagData>> tags) {
-    List<MapEntry<String, TagData>> mergedList = [];
-    tags.forEach((namespace, tagDatas) {
-      for (TagData tagData in tagDatas) {
-        mergedList.add(MapEntry(namespace, tagData));
-      }
+  Widget _buildTagWaterFlow(Map<String, List<GalleryTag>> tags) {
+    List<GalleryTag> mergedList = [];
+    tags.forEach((namespace, galleryTags) {
+        mergedList.addAll(galleryTags);
     });
 
     return SizedBox(
@@ -143,7 +141,7 @@ class EHGalleryListCard extends StatelessWidget {
         ),
         itemCount: mergedList.length,
         itemBuilder: (BuildContext context, int index) => EHTag(
-          tagData: mergedList[index].value,
+          tag: mergedList[index],
           fontSize: 12,
           textHeight: 1.2,
           borderRadius: 4,

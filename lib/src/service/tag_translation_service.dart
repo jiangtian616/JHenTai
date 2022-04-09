@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -13,6 +14,7 @@ import 'package:retry/retry.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
+import '../model/gallery_tag.dart';
 import '../setting/style_setting.dart';
 import '../utils/log.dart';
 
@@ -59,7 +61,14 @@ class TagTranslationService extends GetxService {
         String intro = value['intro'];
         String links = value['links'];
         tagList.add(TagData(
-            namespace: namespace, key: _key, tagName: tagName, fullTagName: fullTagName, intro: intro, links: links));
+          namespace: namespace,
+          key: _key,
+          translatedNamespace: LocaleConsts.tagNamespace[namespace],
+          tagName: tagName,
+          fullTagName: fullTagName,
+          intro: intro,
+          links: links,
+        ));
       });
     }
 
@@ -75,7 +84,7 @@ class TagTranslationService extends GetxService {
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
     if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       Future.wait(gallerys.map((gallery) {
-        return getTagMapTranslation(gallery.tags).then((value) => gallery.tags = value);
+        return translateTagMap(gallery.tags);
       }).toList());
     }
   }
@@ -83,14 +92,14 @@ class TagTranslationService extends GetxService {
   Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetail> galleryDetails) async {
     if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
       Future.wait(galleryDetails.map((galleryDetail) {
-        return getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
+        return translateTagMap(galleryDetail.fullTags);
       }).toList());
     }
   }
 
   Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetail galleryDetail) async {
     if (StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success) {
-      await getTagMapTranslation(galleryDetail.fullTags).then((value) => galleryDetail.fullTags = value);
+      await translateTagMap(galleryDetail.fullTags);
     }
   }
 
@@ -103,23 +112,19 @@ class TagTranslationService extends GetxService {
     return await appDb.searchTags('%$keyword%').get();
   }
 
-  Future<LinkedHashMap<String, List<TagData>>> getTagMapTranslation(LinkedHashMap<String, List<TagData>> tags) async {
-    LinkedHashMap<String, List<TagData>> translatedTags = LinkedHashMap();
+  /// won't translate keys
+  Future<void> translateTagMap(LinkedHashMap<String, List<GalleryTag>> tags) async {
+    List<Future> futures = [];
 
-    Iterator iterator = tags.entries.iterator;
-    while (iterator.moveNext()) {
-      MapEntry<String, List<TagData>> entry = iterator.current;
-      String namespace = entry.key;
-      List<TagData> tagDatas = entry.value;
-
-      String newNamespace = (await getTagTranslation('rows', namespace))?.tagName ?? namespace;
-      List<TagData> newTagDatas = [];
-      for (TagData tagData in tagDatas) {
-        newTagDatas.add((await getTagTranslation(tagData.namespace, tagData.key)) ?? tagData);
+    tags.forEach((namespace, tags) {
+      for (GalleryTag tag in tags) {
+        futures.add(
+          getTagTranslation(namespace, tag.tagData.key).then((TagData? value) => tag.tagData = value ?? tag.tagData),
+        );
       }
-      translatedTags[newNamespace] = newTagDatas;
-    }
-    return translatedTags;
+    });
+
+    await Future.wait(futures);
   }
 
   Future<List> _getDataList() async {
@@ -162,6 +167,7 @@ class TagTranslationService extends GetxService {
         await appDb.insertTag(
           tag.namespace,
           tag.key,
+          tag.translatedNamespace,
           tag.tagName,
           tag.fullTagName,
           tag.intro,

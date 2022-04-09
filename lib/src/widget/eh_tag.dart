@@ -13,6 +13,7 @@ import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart
 import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
+import '../model/gallery_tag.dart';
 import '../pages/search/search_page_logic.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
@@ -20,8 +21,8 @@ import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 
 class EHTag extends StatefulWidget {
-  final TagData tagData;
-  final bool withColor;
+  final GalleryTag tag;
+  final bool addNameSpaceColor;
   final double borderRadius;
   final double fontSize;
   final double textHeight;
@@ -30,8 +31,8 @@ class EHTag extends StatefulWidget {
 
   const EHTag({
     Key? key,
-    required this.tagData,
-    this.withColor = false,
+    required this.tag,
+    this.addNameSpaceColor = false,
     this.borderRadius = 7,
     this.fontSize = 13,
     this.textHeight = 1.3,
@@ -49,25 +50,27 @@ class _EHTagState extends State<EHTag> {
     Widget tag = ClipRRect(
       borderRadius: BorderRadius.circular(widget.borderRadius),
       child: Container(
-        color: widget.withColor
-            ? ColorConsts.zhTagCategoryColor[widget.tagData.key] ?? ColorConsts.tagCategoryColor[widget.tagData.key]!
-            : Get.theme.brightness == Brightness.light
-                ? Colors.grey.shade200
-                : Colors.grey.shade800,
+        color: widget.tag.backgroundColor ??
+            (widget.addNameSpaceColor
+                ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ??
+                    ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
+                : Get.theme.brightness == Brightness.light
+                    ? Colors.grey.shade200
+                    : Colors.grey.shade800),
         padding: widget.padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              widget.tagData.tagName ?? widget.tagData.key,
+              widget.tag.tagData.tagName ?? widget.tag.tagData.key,
               style: TextStyle(
                 fontSize: widget.fontSize,
                 height: widget.textHeight,
-                color: widget.withColor
-                    ? Colors.black
-                    : Get.theme.brightness == Brightness.light
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade300,
+                color:widget.tag.color ?? (widget.addNameSpaceColor
+                        ? Colors.black
+                        : Get.theme.brightness == Brightness.light
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade300),
               ),
             ),
           ],
@@ -90,18 +93,18 @@ class _EHTagState extends State<EHTag> {
   void _searchTag() {
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tagData.namespace}:"${widget.tagData.key}\$"';
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
       searchPageLogic.searchMore();
     } else {
       toNamed(
         Routes.search,
-        arguments: '${widget.tagData.namespace}:"${widget.tagData.key}\$"',
+        arguments: '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"',
       );
     }
   }
 
   void _showDialog() {
-    Get.dialog(_TagDialog(tagData: widget.tagData));
+    Get.dialog(_TagDialog(tagData: widget.tag.tagData));
   }
 }
 

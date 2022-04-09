@@ -1,7 +1,7 @@
 import 'dart:collection';
 
-import '../database/database.dart';
 import 'gallery_comment.dart';
+import 'gallery_tag.dart';
 import 'gallery_thumbnail.dart';
 
 class GalleryDetail {
@@ -14,7 +14,7 @@ class GalleryDetail {
   String torrentCount;
   String torrentPageUrl;
   String archivePageUrl;
-  LinkedHashMap<String, List<TagData>> fullTags;
+  LinkedHashMap<String, List<GalleryTag>> fullTags;
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
 

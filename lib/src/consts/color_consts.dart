@@ -18,7 +18,7 @@ class ColorConsts {
   };
 
   /// color for category tag
-  static const Map<String, Color> tagCategoryColor = {
+  static const Map<String, Color> tagNameSpaceColor = {
     'language': Color(0xfff5dff5),
     'artist': Color(0xffccd9cd),
     'character': Color(0xffc8c8e7),
@@ -35,9 +35,10 @@ class ColorConsts {
   };
 
   /// color for category tag
-  static const Map<String, Color> zhTagCategoryColor = {
+  static const Map<String, Color> zhTagNameSpaceColor = {
     '语言': Color(0xfff5dff5),
     '艺术家': Color(0xffccd9cd),
+    '作者': Color(0xffccd9cd),
     '角色': Color(0xffc8c8e7),
     '女性': Color(0xffdbceee),
     '男性': Color(0xfffdd7d7),

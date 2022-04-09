@@ -19,4 +19,21 @@ class LocaleConsts {
     'zh_CN': '简体中文',
     'en_US': 'English',
   };
+
+  static const Map<String, String> tagNamespace = {
+    'rows': '分类',
+    'language': '语言',
+    'artist': '作者',
+    'character': '角色',
+    'female': '女性',
+    'male': '男性',
+    'parody': '原作',
+    'group': '团队',
+    'mixed': '混合',
+    'Coser': '角色扮演者',
+    'cosplayer': '角色扮演者',
+    'reclass': '重新分类',
+    'temp': '临时',
+    'other': '其他',
+  };
 }

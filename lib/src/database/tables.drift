@@ -25,12 +25,13 @@ CREATE TABLE image
 
 CREATE TABLE tag
 (
-    namespace   TEXT NOT NULL,
-    _key        TEXT NOT NULL,
-    tagName     TEXT,
-    fullTagName TEXT,
-    intro       TEXT,
-    links       TEXT,
+    namespace           TEXT NOT NULL,
+    _key                TEXT NOT NULL,
+    translatedNamespace TEXT,
+    tagName             TEXT,
+    fullTagName         TEXT,
+    intro               TEXT,
+    links               TEXT,
     primary key (namespace, _key)
 );
 
@@ -127,7 +128,7 @@ LIMIT 35;
 
 insertTag:
 insert into tag
-values (:namespace, :key, :tagName, :fullTagName, :intro, :links);
+values (:namespace, :key, :translatedNamespace, :tagName, :fullTagName, :intro, :links);
 
 deleteAllTags:
 delete

@@ -10,9 +10,11 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -425,7 +427,7 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTags(LinkedHashMap<String, List<TagData>> tagList) {
+  Widget _buildTags(LinkedHashMap<String, List<GalleryTag>> tagList) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
@@ -437,8 +439,16 @@ class DetailsPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EHTag(
-                        tagData: TagData(namespace: 'rows', key: entry.key),
-                        withColor: true,
+                        tag: GalleryTag(
+                          tagData: TagData(
+                            namespace: 'rows',
+                            key: entry.key,
+                            tagName: StyleSetting.enableTagZHTranslation.isTrue
+                                ? LocaleConsts.tagNamespace[entry.key]
+                                : null,
+                          ),
+                        ),
+                        addNameSpaceColor: true,
                       ).marginOnly(right: 10),
 
                       /// use [expanded] and [wrap] to implement 'flex-wrap'
@@ -446,7 +456,7 @@ class DetailsPage extends StatelessWidget {
                         child: Wrap(
                           spacing: 5,
                           runSpacing: 5,
-                          children: entry.value.map((tagData) => EHTag(tagData: tagData, enableTapping: true)).toList(),
+                          children: entry.value.map((tag) => EHTag(tag: tag, enableTapping: true)).toList(),
                         ),
                       ),
                     ],
