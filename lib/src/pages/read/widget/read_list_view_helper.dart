@@ -35,8 +35,8 @@ class ReadListViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.scrollOrJump2PrevPage,
-            onDoubleTap: logic.scrollOrJump2PrevPage,
+            onTap: logic.toPrevPage,
+            onDoubleTap: logic.toPrevPage,
           ),
         ),
         Expanded(
@@ -60,8 +60,8 @@ class ReadListViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.scrollOrJump2NextPage,
-            onDoubleTap: logic.scrollOrJump2NextPage,
+            onTap: logic.toNextPage,
+            onDoubleTap: logic.toNextPage,
           ),
         ),
       ],

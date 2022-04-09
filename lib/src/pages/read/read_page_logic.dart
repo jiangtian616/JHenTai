@@ -140,7 +140,7 @@ class ReadPageLogic extends GetxController {
   }
 
   /// attention! [Prev] page is the first page which is not totally shown that in the viewport and before.
-  void scrollOrJump2PrevPage() {
+  void toPrevPage() {
     int targetIndex;
 
     if (state.itemScrollController.isAttached) {
@@ -150,11 +150,11 @@ class ReadPageLogic extends GetxController {
       targetIndex = (state.pageController!.page! - 1).toInt();
     }
 
-    scrollOrJump2Page(max(targetIndex, 0));
+    toPage(max(targetIndex, 0));
   }
 
   /// attention! [next] page is the first page which is not totally shown that in the viewport and behind.
-  void scrollOrJump2NextPage() {
+  void toNextPage() {
     int targetIndex;
 
     if (state.itemScrollController.isAttached) {
@@ -165,36 +165,41 @@ class ReadPageLogic extends GetxController {
     } else {
       targetIndex = (state.pageController!.page! + 1).toInt();
     }
-    scrollOrJump2Page(min(targetIndex, state.pageCount));
+    toPage(min(targetIndex, state.pageCount));
   }
 
-  void scrollOrJump2Page(int pageIndex) {
-    if (ReadSetting.enablePageTurnAnime.isTrue) {
-      if (state.itemScrollController.isAttached) {
-        state.itemScrollController.scrollTo(
-          index: pageIndex,
-          duration: const Duration(milliseconds: 200),
-        );
-      }
-      if (state.pageController?.hasClients ?? false) {
-        state.pageController?.animateToPage(
-          pageIndex,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-        );
-      }
-      update(['menu']);
+  void toPage(int pageIndex) {
+    if (ReadSetting.enablePageTurnAnime.isFalse) {
+      jump2Page(pageIndex);
     } else {
-      state.itemScrollController.jumpTo(index: pageIndex);
-      state.pageController?.jumpToPage(pageIndex);
+      scroll2Page(pageIndex);
     }
+  }
+
+  void scroll2Page(int pageIndex) {
+    if (state.itemScrollController.isAttached) {
+      state.itemScrollController.scrollTo(
+        index: pageIndex,
+        duration: const Duration(milliseconds: 200),
+      );
+    } else if (state.pageController?.hasClients ?? false) {
+      state.pageController?.animateToPage(
+        pageIndex,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.ease,
+      );
+    }
+    update(['menu']);
   }
 
   void jump2Page(int pageIndex) {
     if (state.itemScrollController.isAttached) {
-      state.itemScrollController.jumpTo(index: pageIndex);
-    }
-    if (state.pageController?.hasClients ?? false) {
+      /// [jump] will redraw image and cause a blink, use [scrollTo] instead
+      state.itemScrollController.scrollTo(
+        index: pageIndex,
+        duration: const Duration(milliseconds: 1),
+      );
+    } else if (state.pageController?.hasClients ?? false) {
       state.pageController?.jumpToPage(pageIndex);
     }
     update(['menu']);

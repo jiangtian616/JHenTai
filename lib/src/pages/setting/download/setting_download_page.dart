@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
 
 class SettingDownloadPage extends StatelessWidget {
   const SettingDownloadPage({Key? key}) : super(key: key);
@@ -87,6 +87,22 @@ class SettingDownloadPage extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            ListTile(
+              title: Text('enableStoreMetadataForRestore'.tr),
+              trailing: Switch(
+                value: DownloadSetting.enableStoreMetadataForRestore.value,
+                onChanged: (value) => DownloadSetting.saveEnableStoreMetadataToRestore(value),
+              ),
+              subtitle: Text('enableStoreMetadataForRestoreHint'.tr),
+            ),
+            ListTile(
+              title: Text('restoreDownloadTasks'.tr),
+              subtitle: Text('restoreDownloadTasksHint'.tr),
+              onTap: () async {
+                int restoredCount = await Get.find<DownloadService>().restore();
+                snack('restoreDownloadTasksSuccess'.tr, '${'restoredCount'.tr}: $restoredCount');
+              },
             ),
           ],
         ).paddingSymmetric(vertical: 16);

@@ -4,7 +4,9 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 ## Description
 
-An E-Hentai app for mobile
+An E-Hentai app for mobile.
+
+Still in starting stage, welcome to submit issues.
 
 ## Download & Install
 
@@ -50,7 +52,7 @@ mush thanks to these projects🙇‍
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
-- [x] online reading and download
+- [x] online reading and download, support restore download task
 - [x] favorite, rating, torrent, archive
 - [x] password login, Cookie login, web login
 - [x] support EX site
@@ -62,7 +64,8 @@ mush thanks to these projects🙇‍
 ## Feature Todo
 
 - [ ] support My Tags
-- [ ] support resume download task after re-install by using download folder
+- [ ] support sharing gallery
+- [ ] support sharing favorite
 - [ ] customize Archive Page, support automatic unzip and read directly
 - [ ] customize Statistic Page
 

@@ -83,7 +83,7 @@ class FavoriteSetting {
   }
 
   static void incrementFavByIndex(int? index) async {
-    if (index == null || index < 0 || index >= 10) {
+    if (index == null || index < 0 || index >= favoriteTagNames.length) {
       return;
     }
     favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =
@@ -91,7 +91,7 @@ class FavoriteSetting {
   }
 
   static void decrementFavByIndex(int? index) async {
-    if (index == null || index < 0 || index >= 10) {
+    if (index == null || index < 0 || index >= favoriteTagNames.length) {
       return;
     }
     favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =

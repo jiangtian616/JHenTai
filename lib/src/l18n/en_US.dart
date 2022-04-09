@@ -225,6 +225,12 @@ class en_US {
       'downloadTaskConcurrency': 'Download Task Concurrency',
       'needRestart': 'Need Restart',
       'downloadTimeout': 'Download Timeout',
+      'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
+      'enableStoreMetadataForRestoreHint': 'Disable this, you can\'t restore download tasks',
+      'restoreDownloadTasks': 'Restore Download Tasks',
+      'restoreDownloadTasksHint': 'Restore download record through download directories',
+      'restoreDownloadTasksSuccess': 'Restore Download Tasks Success',
+      'restoredCount': 'Restored task count',
 
       /// tag namespace
       'language': 'Language',
