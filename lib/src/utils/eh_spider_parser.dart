@@ -16,7 +16,9 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
+import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/utils/color_util.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
@@ -342,6 +344,44 @@ class EHSpiderParser {
     return map;
   }
 
+  static Map<String, dynamic> myTagsPage2TagSetNamesAndTagSetsAndApikey(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
+    List<String> tagSetNames = options.map((o) => o.text).toList();
+
+    List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div').sublist(1);
+    List<TagSet> tagSets = tagDivs.map(
+      (div) {
+        String pair = div.querySelector('div:nth-child(1) > a > div')?.attributes['title'] ?? '';
+
+        /// some tag doesn't has a namespace
+        List<String> list = pair.split(':').toList();
+        String namespace = list[0].isNotEmpty ? list[0] : 'temp';
+        String key = list[1];
+        TagData tagData = TagData(namespace: namespace, key: key);
+
+        return TagSet(
+          tagId: int.parse(div.querySelector('div:nth-child(1) > a > div')!.attributes['id']!.split('_')[1]),
+          tagData: tagData,
+          watched: div.querySelector('div:nth-child(3) > label > input[checked=checked]') != null,
+          hidden: div.querySelector('div:nth-child(5) > label > input[checked=checked]') != null,
+          color: aRGBString2Color(div.querySelector('div:nth-child(9) > input')?.attributes['value']),
+          weight: int.parse(div.querySelector('div:nth-child(11) > input')!.attributes['value']!),
+        );
+      },
+    ).toList();
+
+    String apikey = RegExp(r'apikey = \"(.*)\"').firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!.group(1)!;
+
+    return {
+      'tagSetNames': tagSetNames,
+      'tagSets': tagSets,
+      'apikey': apikey,
+    };
+  }
+
   static String imageLookup2RedirectUrl(Response response) {
     return response.headers['Location']!.first;
   }
@@ -538,7 +578,8 @@ class EHSpiderParser {
 
   static LinkedHashMap<String, List<GalleryTag>> _parseExtendedGalleryTags(Element tr) {
     LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
-    List<Element> tagDivs = tr.querySelectorAll('.gl2e > div > a > div > div:nth-child(1) > table > tbody > tr > td > div').toList();
+    List<Element> tagDivs =
+        tr.querySelectorAll('.gl2e > div > a > div > div:nth-child(1) > table > tbody > tr > td > div').toList();
     for (Element tagDiv in tagDivs) {
       /// eg: language:english
       String pair = tagDiv.attributes['title'] ?? '';
@@ -557,10 +598,10 @@ class EHSpiderParser {
       String? backgroundColor = RegExp(r'background:radial-gradient\(#.*,#(.*)\)').firstMatch(style)?.group(1);
 
       tags.putIfAbsent(namespace, () => []).add(GalleryTag(
-        tagData: tagData,
-        color: color == null ? null : Color(int.parse('FF$color', radix: 16)),
-        backgroundColor: backgroundColor == null ? null : Color(int.parse('FF$backgroundColor', radix: 16)),
-      ));
+            tagData: tagData,
+            color: color == null ? null : Color(int.parse('FF$color', radix: 16)),
+            backgroundColor: backgroundColor == null ? null : Color(int.parse('FF$backgroundColor', radix: 16)),
+          ));
     }
     return tags;
   }

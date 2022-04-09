@@ -66,7 +66,8 @@ class _EHTagState extends State<EHTag> {
               style: TextStyle(
                 fontSize: widget.fontSize,
                 height: widget.textHeight,
-                color:widget.tag.color ?? (widget.addNameSpaceColor
+                color: widget.tag.color ??
+                    (widget.addNameSpaceColor
                         ? Colors.black
                         : Get.theme.brightness == Brightness.light
                             ? Colors.grey.shade800
@@ -93,7 +94,8 @@ class _EHTagState extends State<EHTag> {
   void _searchTag() {
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword =
+          '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
       searchPageLogic.searchMore();
     } else {
       toNamed(
@@ -120,6 +122,8 @@ class _TagDialog extends StatefulWidget {
 class _TagDialogState extends State<_TagDialog> {
   LoadingState voteUpState = LoadingState.idle;
   LoadingState voteDownState = LoadingState.idle;
+  LoadingState addWatchedTagState = LoadingState.idle;
+  LoadingState addHiddenTagState = LoadingState.idle;
 
   @override
   Widget build(BuildContext context) {
@@ -146,10 +150,26 @@ class _TagDialogState extends State<_TagDialog> {
               ),
               successWidget: DoneWidget(),
             ),
+            LoadingStateIndicator(
+              loadingState: addWatchedTagState,
+              idleWidget: GestureDetector(
+                onTap: () => _addNewTagSet(true),
+                child: Icon(Icons.favorite, color: Get.theme.primaryColorLight),
+              ),
+              successWidget: DoneWidget(),
+            ),
+            LoadingStateIndicator(
+              loadingState: addHiddenTagState,
+              idleWidget: GestureDetector(
+                onTap: () => _addNewTagSet(false),
+                child: Icon(Icons.visibility_off, color: Colors.grey.shade700),
+              ),
+              successWidget: DoneWidget(),
+            ),
             if (widget.tagData.tagName != null)
               GestureDetector(
                 onTap: () => _showInfo(),
-                child: Icon(Icons.visibility, color: Colors.blue.shade700),
+                child: Icon(Icons.description, color: Colors.blue.shade700),
               ),
           ],
         )
@@ -207,7 +227,7 @@ class _TagDialogState extends State<_TagDialog> {
     return true;
   }
 
-  _showInfo() {
+  void _showInfo() {
     back();
 
     String content = widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!;
@@ -243,6 +263,57 @@ class _TagDialogState extends State<_TagDialog> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _addNewTagSet(bool watch) async {
+    if (!UserSetting.hasLoggedIn()) {
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      return;
+    }
+
+    setState(() {
+      if (watch) {
+        addWatchedTagState = LoadingState.loading;
+      } else {
+        addHiddenTagState = LoadingState.loading;
+      }
+    });
+
+    try {
+      await EHRequest.requestAddTagSet(
+        tag: '${widget.tagData.namespace}:${widget.tagData.key}',
+        tagWeight: 10,
+        watch: watch,
+        hidden: !watch,
+      );
+    } on DioError catch (e) {
+      Log.error('addNewTagSetFailed'.tr, e.message);
+      snack('addNewTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      setState(() {
+        if (watch) {
+          addWatchedTagState = LoadingState.error;
+        } else {
+          addHiddenTagState = LoadingState.error;
+        }
+      });
+      return;
+    }
+
+    setState(() {
+      if (watch) {
+        addWatchedTagState = LoadingState.success;
+      } else {
+        addHiddenTagState = LoadingState.success;
+      }
+    });
+
+    Log.info('addNewTagSetSuccess'.tr, false);
+    snack(
+      watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr,
+      'addNewTagSetSuccessHint'.tr,
+      longDuration: true,
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 }

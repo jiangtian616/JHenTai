@@ -85,6 +85,11 @@ class zh_CN {
       'beginToDownload': '开始下载',
       'resumeDownload': '继续下载',
       'pauseDownload': '暂停下载',
+      'addNewTagSetSuccess': '添加新标签数据成功',
+      'addNewWatchedTagSetSuccess': '添加新关注标签成功',
+      'addNewHiddenTagSetSuccess': '添加新隐藏标签成功',
+      'addNewTagSetSuccessHint': '你可以在 设置->EH->我的标签 查看你的所有标签',
+      'addNewTagSetFailed': '添加新标签数据失败',
 
       /// comment page
       'newComment': '新评论',
@@ -125,6 +130,14 @@ class zh_CN {
       'redirect2Hints': '会先尝试解析表站',
       'pleaseLogInToOperate': '请登陆后操作',
       'imageLimits': '图片配额',
+
+      /// tag setting page
+      'myTags': '我的标签',
+      'myTagsHint': '管理关注和隐藏的标签',
+      'getTagSetFailed': '获取标签数据失败',
+      'updateTagSetFailed': '更新标签数据失败',
+      'deleteTagSetSuccess': '删除标签数据成功',
+      'deleteTagSetFailed': '删除标签数据失败',
 
       /// style setting page
       'enableTagZHTranslation': '开启标签中文翻译',

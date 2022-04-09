@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -412,7 +413,7 @@ class DetailsPage extends StatelessWidget {
                 onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapArchive,
               ),
               IconTextButton(
-                iconData: FontAwesomeIcons.chartLine,
+                iconData: Icons.analytics,
                 iconSize: 28,
                 text: Text(
                   'statistic'.tr,
@@ -556,37 +557,43 @@ class DetailsPage extends StatelessWidget {
           tag: tag,
           builder: (logic) {
             return SliverGrid(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                if (index == galleryDetails.thumbnails.length - 1 &&
-                    detailsPageState.loadingThumbnailsState == LoadingState.idle) {
-                  /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
-                  /// that hints circular build.
-                  /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
-                  /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-                  /// the callback is added once.
-                  SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-                    detailsPageLogic.loadMoreThumbnails();
-                  });
-                }
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index == galleryDetails.thumbnails.length - 1 &&
+                      detailsPageState.loadingThumbnailsState == LoadingState.idle) {
+                    /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
+                    /// that hints circular build.
+                    /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
+                    /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+                    /// the callback is added once.
+                    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+                      detailsPageLogic.loadMoreThumbnails();
+                    });
+                  }
 
-                GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
-                return Column(
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: () => detailsPageLogic.goToReadPage(index),
-                          child: thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                  GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
+                  return KeepAliveWrapper(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: GestureDetector(
+                              onTap: () => detailsPageLogic.goToReadPage(index),
+                              child:
+                                  thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                            ),
+                          ),
                         ),
-                      ),
+                        Text(
+                          (index + 1).toString(),
+                          style: const TextStyle(color: Colors.grey),
+                        ).paddingOnly(top: 3),
+                      ],
                     ),
-                    Text(
-                      (index + 1).toString(),
-                      style: const TextStyle(color: Colors.grey),
-                    ).paddingOnly(top: 3),
-                  ],
-                );
-              }, childCount: galleryDetails.thumbnails.length),
+                  );
+                },
+                childCount: galleryDetails.thumbnails.length,
+              ),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 mainAxisExtent: 220,
                 maxCrossAxisExtent: 150,

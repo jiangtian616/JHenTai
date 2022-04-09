@@ -56,14 +56,13 @@ mush thanks to these projects🙇‍
 - [x] favorite, rating, torrent, archive, share
 - [x] password login, Cookie login, web login
 - [x] support EX site
-- [x] vote for Tag
+- [x] vote for Tag, watch and hidden tags
 - [x] comment, vote for comment
 - [x] domain fronting
 - [x] Fingerprint unlock
 
 ## Feature Todo
 
-- [ ] support My Tags
 - [ ] customize Archive Page, support automatic unzip and read directly
 - [ ] customize Statistic Page
 - [ ] support sharing favorite

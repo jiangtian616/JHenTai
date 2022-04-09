@@ -85,6 +85,11 @@ class en_US {
       'beginToDownload': 'Begin To Download',
       'resumeDownload': 'Resume Download',
       'pauseDownload': 'Pause Download',
+      'addNewTagSetSuccess': 'Add New Tag Set Success',
+      'addNewWatchedTagSetSuccess': 'Add New Watched Tag Set Success',
+      'addNewHiddenTagSetSuccess': 'Add New Hidden Tag Set Success',
+      'addNewTagSetSuccessHint': 'You can check your tags at Setting->EH->My Tags',
+      'addNewTagSetFailed': 'Add New Tag Set Failed',
 
       /// comment page
       'newComment': 'New Comment',
@@ -125,6 +130,14 @@ class en_US {
       'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
       'imageLimits': 'Image Limits',
+
+      /// tag setting page
+      'myTags': 'My Tags',
+      'myTagsHint': 'manage watched and hidden tags',
+      'getTagSetFailed': 'Get Tag Set Failed',
+      'updateTagSetFailed': 'Update Tag Set Failed',
+      'deleteTagSetSuccess': 'Delete Tag Set Success',
+      'deleteTagSetFailed': 'Delete Tag Set Failed',
 
       /// style setting page
       'enableTagZHTranslation': 'Translate tag name into chinese',

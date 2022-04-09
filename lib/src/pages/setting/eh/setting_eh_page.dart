@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -87,6 +86,13 @@ class SettingEHPage extends StatelessWidget {
                     ],
                   ),
                 ),
+              ),
+            if (UserSetting.hasLoggedIn())
+              ListTile(
+                title: Text('myTags'.tr),
+                subtitle: Text('myTagsHint'.tr),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
+                onTap: () => toNamed(Routes.tagSets),
               ),
           ],
         );

@@ -6,11 +6,10 @@ import 'package:jhentai/src/pages/read/read_page.dart';
 import 'package:jhentai/src/pages/search/search_page.dart';
 import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
-import 'package:jhentai/src/pages/setting/advanced/log/log_list_page.dart';
-import 'package:jhentai/src/pages/setting/advanced/log/log_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
+import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
 import 'package:jhentai/src/pages/setting/style/setting_style_page.dart';
@@ -20,6 +19,8 @@ import 'package:jhentai/src/pages/webview/webview_page.dart';
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
+import '../pages/setting/advanced/loglist/log/log_page.dart';
+import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/single_image/single_image.dart';
 import 'EHPage.dart';
 
@@ -36,6 +37,7 @@ class Routes {
   static const String search = "/search";
   static const String webview = "/webview";
 
+  static const String settingPrefix = "/setting_";
   static const String settingAccount = "/setting_account";
   static const String settingEH = "/setting_EH";
   static const String settingStyle = "/setting_style";
@@ -46,10 +48,11 @@ class Routes {
   static const String settingAbout = "/setting_about";
 
   static const String login = "/setting_account/login";
-  static const String logList = "/logList";
-  static const String log = "/logList/log";
 
-  static const String settingPrefix = "/setting_";
+  static const String tagSets = "/setting_EH/tagSets";
+
+  static const String logList = "/setting_advanced/logList";
+  static const String log = "/setting_advanced/logList/log";
 
   static List<EHPage> pages = <EHPage>[
     EHPage(
@@ -142,6 +145,12 @@ class Routes {
     EHPage(
       name: login,
       page: () => LoginPage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: tagSets,
+      page: () => TagSetsPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

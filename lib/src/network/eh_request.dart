@@ -131,6 +131,7 @@ class EHRequest {
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
     /// never warn about offensive gallery
     cookies.add(Cookie("nw", "1"));
+    Log.info('store cookies: ${cookies.toString()}',false);
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
     Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
   }
@@ -362,6 +363,112 @@ class EHRequest {
 
   static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(EHConsts.EUconfig);
+    return parser(response);
+  }
+
+  static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required EHHtmlParser<T> parser}) async {
+    Response response = await _dio.get(
+      EHConsts.EMyTags,
+      queryParameters: {'tagset': tagSetNo},
+    );
+    return parser(response);
+  }
+
+  static Future<T> requestAddTagSet<T>({
+    required String tag,
+    String? tagColor,
+    required int tagWeight,
+    required bool watch,
+    required bool hidden,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Map data = {
+      'usertag_action': "add",
+      'tagname_new': tag,
+      'tagcolor_new': tagColor ?? "",
+      'usertag_target': 0,
+      'tagweight_new': tagWeight,
+    };
+
+    if (hidden) {
+      data['taghide_new'] = 'on';
+    }
+    if (watch) {
+      data['tagwatch_new'] = 'on';
+    }
+
+    Response response;
+    try {
+      response = await _dio.post(
+        EHConsts.EMyTags,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+        data: data,
+      );
+    } on DioError catch (e) {
+      if (e.response?.statusCode != 302) {
+        rethrow;
+      }
+      response = e.response!;
+    }
+
+    parser ??= noOpParser;
+    return parser(response);
+  }
+
+  static Future<T> requestDeleteTagSet<T>({
+    required int tagSetId,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response response;
+    try {
+      response = await _dio.post(
+        EHConsts.EMyTags,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+        data: {
+          'usertag_action': 'mass',
+          'tagname_new': '',
+          'tagcolor_new': '',
+          'usertag_target': 0,
+          'tagweight_new': 10,
+          'modify_usertags[]': tagSetId,
+        },
+      );
+    } on DioError catch (e) {
+      if (e.response?.statusCode != 302) {
+        rethrow;
+      }
+      response = e.response!;
+    }
+
+    parser ??= noOpParser;
+    return parser(response);
+  }
+
+  static Future<T> requestUpdateTagSet<T>({
+    required int apiuid,
+    required String apikey,
+    required int tagId,
+    required String? tagColor,
+    required int tagWeight,
+    required bool watch,
+    required bool hidden,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response response = await _dio.post(
+      EHConsts.EHApi,
+      options: Options(contentType: Headers.jsonContentType),
+      data: {
+        'method': "setusertag",
+        'apiuid': apiuid,
+        'apikey': apikey,
+        'tagcolor': tagColor ?? "",
+        'taghide': hidden ? 1 : 0,
+        'tagwatch': watch ? 1 : 0,
+        'tagid': tagId,
+        'tagweight': tagWeight.toString(),
+      },
+    );
+    parser ??= noOpParser;
     return parser(response);
   }
 

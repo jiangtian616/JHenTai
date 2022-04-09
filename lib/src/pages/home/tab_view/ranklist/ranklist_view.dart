@@ -30,10 +30,11 @@ class _RanklistViewState extends State<RanklistView> {
     return Scaffold(
       appBar: AppBar(
         title: GetBuilder<RanklistViewLogic>(
-            id: 'appBarTitleId',
-            builder: (logic) {
-              return Text('${state.ranklistType.name.tr} ${'ranklist'.tr}');
-            }),
+          id: 'appBarTitleId',
+          builder: (logic) {
+            return Text('${state.ranklistType.name.tr} ${'ranklist'.tr}');
+          },
+        ),
         centerTitle: true,
         elevation: 1,
         actions: [
