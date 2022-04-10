@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
+import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
 import 'package:jhentai/src/pages/search/search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -404,14 +405,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleTapStatistic() async {
-    List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
-    toNamed(
-      Routes.webview,
-      arguments: {
-        'url': '${EHConsts.EStat}?gid=${state.gallery!.gid}&t=${state.gallery!.token}',
-        'cookies': CookieUtil.parse2String(cookies)
-      },
-    );
+    Get.dialog(const StatDialog());
   }
 
   void goToReadPage([int? index]) {

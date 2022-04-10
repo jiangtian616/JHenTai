@@ -7,6 +7,7 @@
 E-hentai 的一个移动端app。
 
 仍在起步阶段，欢迎提交issue。
+
 ## 下载&安装
 
 [下载](https://github.com/jiangtian616/JHenTai/releases)
@@ -37,16 +38,19 @@ E-hentai 的一个移动端app。
 
 ## 截图
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" src="screenshot/3.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/2.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
+<img width="250" src="screenshot/4.jpg"/>
 
-<img width="770" src="screenshot/4.png"/>
+<img width="770" src="screenshot/0.png"/>
 
 ## 主要功能
 
 - [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页
 - [x] 在线阅读与下载，支持恢复下载记录
-- [x] 收藏、评分、磁力、归档、分享
+- [x] 收藏、评分、磁力、归档、统计、分享
 - [x] 账号密码登录、Cookie登录、Web登录
 - [x] 支持里站
 - [x] Tag翻译、Tag投票、关注Tag、隐藏Tag
@@ -56,9 +60,7 @@ E-hentai 的一个移动端app。
 
 ## 功能Todo
 
-- [ ] 接入E站本身的My Tags
 - [ ] 自定义归档视图，支持下载完后自动解压、阅读
-- [ ] 自定义统计视图
 - [ ] 支持收藏夹分享
 
 ## 优化Todo
@@ -73,6 +75,8 @@ E-hentai 的一个移动端app。
 4. 在 `/lib/src/l18n/locale_text.dart ` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 
 ## 已知bug
+
+1. 本地Cookie文件记录会因不明原因而损坏，导致登录状态失效。日志中可以见到 `_hostSet hasn't been initializeed` 等字样，暂时可以通过注销再重新登陆解决。
 
 ## 主要dart依赖
 

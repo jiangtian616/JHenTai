@@ -100,15 +100,19 @@ class _TorrentDialogState extends State<TorrentDialog> {
       state.gallery!.token,
       EHSpiderParser.torrentPage2GalleryTorrent,
     ).then((value) {
-      setState(() {
-        galleryTorrents = value;
-        loadingState = LoadingState.success;
-      });
+      if(mounted) {
+        setState(() {
+          galleryTorrents = value;
+          loadingState = LoadingState.success;
+        });
+      }
     }).catchError((error) {
       Log.error(error);
-      setState(() {
-        loadingState = LoadingState.error;
-      });
+      if(mounted) {
+        setState(() {
+          loadingState = LoadingState.error;
+        });
+      }
     });
   }
 }

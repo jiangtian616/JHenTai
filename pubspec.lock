@@ -1122,6 +1122,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0"
+  syncfusion_flutter_charts:
+    dependency: "direct main"
+    description:
+      name: syncfusion_flutter_charts
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "20.1.47+1"
+  syncfusion_flutter_core:
+    dependency: transitive
+    description:
+      name: syncfusion_flutter_core
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "20.1.47"
   synchronized:
     dependency: transitive
     description:

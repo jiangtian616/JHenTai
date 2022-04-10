@@ -55,15 +55,6 @@ class SettingEHPage extends StatelessWidget {
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: _gotoSiteSettingPage,
               ),
-            if (UserSetting.hasLoggedIn() && EHSetting.site.value == 'EX')
-              ListTile(
-                title: Text('redirect2EH'.tr),
-                subtitle: Text('redirect2Hints'.tr),
-                trailing: Switch(
-                  value: EHSetting.redirect2EH.value,
-                  onChanged: EHSetting.saveRedirect2EH,
-                ),
-              ),
             if (UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('imageLimits'.tr),

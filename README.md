@@ -44,16 +44,19 @@ mush thanks to these projects🙇‍
 
 ## screenshot
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" src="screenshot/3.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/2.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
+<img width="250" src="screenshot/4.jpg"/>
 
-<img width="770" src="screenshot/4.png"/>
+<img width="770" src="screenshot/0.png"/>
 
 ## Main Features
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task
-- [x] favorite, rating, torrent, archive, share
+- [x] favorite, rating, torrent, archive, statistics, share
 - [x] password login, Cookie login, web login
 - [x] support EX site
 - [x] vote for Tag, watch and hidden tags
@@ -64,7 +67,6 @@ mush thanks to these projects🙇‍
 ## Feature Todo
 
 - [ ] customize Archive Page, support automatic unzip and read directly
-- [ ] customize Statistic Page
 - [ ] support sharing favorite
 
 ## Improvement & Todo
@@ -80,6 +82,11 @@ mush thanks to these projects🙇‍
    => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 
 ## Bug
+
+1. Local cookie file will be broken in some cases, causing login status invalid, and now I don't know why.
+In logs, we can see errors like `_hostSet hasn't been initializeed`. 
+Can be solved by logout and login again temporarily.
+
 
 ## Main Dart Dependencies
 

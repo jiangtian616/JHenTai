@@ -113,7 +113,7 @@ class TagSetsPage extends StatelessWidget {
                     },
                   ),
                   trailing: SizedBox(
-                    width: 120,
+                    width: 100,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -121,7 +121,7 @@ class TagSetsPage extends StatelessWidget {
                           id: '$updateWatchedStateId-${tagSet.tagId}',
                           builder: (logic) {
                             return LoadingStateIndicator(
-                              width: 50,
+                              width: 45,
                               loadingState: state.updateTagState,
                               idleWidget: IconButton(
                                 onPressed: () => logic.handleTapWatchButton(index),
@@ -138,7 +138,7 @@ class TagSetsPage extends StatelessWidget {
                           id: '$updateHiddenStateId-${tagSet.tagId}',
                           builder: (logic) {
                             return LoadingStateIndicator(
-                              width: 50,
+                              width: 45,
                               loadingState: state.updateTagState,
                               idleWidget: IconButton(
                                 onPressed: () => logic.handleTapHiddenButton(index),

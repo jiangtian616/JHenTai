@@ -90,6 +90,16 @@ class en_US {
       'addNewHiddenTagSetSuccess': 'Add New Hidden Tag Set Success',
       'addNewTagSetSuccessHint': 'You can check your tags at Setting->EH->My Tags',
       'addNewTagSetFailed': 'Add New Tag Set Failed',
+      'VisitorStatistics': 'Visitor Statistics',
+      'invisible2UserWithoutDonation': 'This gallery\'s stats is invisible to user without donation',
+      'getGalleryStatisticsFailed': 'Get Gallery Statistics Failed',
+      'totalVisits': 'Total Visits',
+      'visits': 'Visits',
+      'imageAccesses': 'Image Accesses',
+      'period': 'Period',
+      'ranking': 'Ranking',
+      'score': 'Score',
+      'NotOnTheList': 'Not on the list',
 
       /// comment page
       'newComment': 'New Comment',

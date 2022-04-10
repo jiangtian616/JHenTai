@@ -131,7 +131,7 @@ class EHRequest {
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
     /// never warn about offensive gallery
     cookies.add(Cookie("nw", "1"));
-    Log.info('store cookies: ${cookies.toString()}',false);
+    Log.info('store cookies: ${cookies.toString()}', false);
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
     Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
   }
@@ -208,40 +208,8 @@ class EHRequest {
     CancelToken? cancelToken,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response;
-
-    if (EHSetting.redirect2EH.isFalse || galleryUrl.startsWith(EHConsts.EHIndex)) {
-      response = await _dio.get(
-        galleryUrl,
-        queryParameters: {'p': thumbnailsPageNo},
-        cancelToken: cancelToken,
-        options: useCacheIfAvailable
-            ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-            : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
-      );
-      return parser(response);
-    }
-
-    Log.verbose('try redirect to EH site', false);
-    try {
-      response = await _dio.get(
-        galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
-        queryParameters: {'p': thumbnailsPageNo},
-        cancelToken: cancelToken,
-        options: useCacheIfAvailable
-            ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-            : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
-      );
-      return parser(response);
-    } on DioError catch (e) {
-      if (e.response?.statusCode != 404) {
-        rethrow;
-      }
-      Log.verbose('redirect to EH 404', false);
-    }
-
-    response = await _dio.get(
-      galleryUrl,
+    Response response = await _dio.get(
+      EHSetting.site.value == 'EH' ? galleryUrl : galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex),
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
       options: useCacheIfAvailable
@@ -371,6 +339,15 @@ class EHRequest {
       EHConsts.EMyTags,
       queryParameters: {'tagset': tagSetNo},
     );
+    return parser(response);
+  }
+
+  static Future<T> requestStatPage<T>({
+    required int gid,
+    required String token,
+    required EHHtmlParser<T> parser,
+  }) async {
+    Response<String> response = await _dio.get('${EHConsts.EStat}?gid=$gid&t=$token');
     return parser(response);
   }
 
