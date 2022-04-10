@@ -87,7 +87,8 @@ class RanklistViewLogic extends GetxController {
 
     tagTranslationService.translateGalleryTagsIfNeeded(state.ranklistGallery[curType]!);
     tagTranslationService.translateGalleryDetailsTagsIfNeeded(state.ranklistGalleryDetails[curType]!);
-    state.getRanklistLoadingState[curType] = LoadingState.noMore;
+    state.getRanklistLoadingState[curType] =
+        state.ranklistGallery[curType]!.isNotEmpty ? LoadingState.noMore : LoadingState.noData;
     update([bodyId]);
   }
 

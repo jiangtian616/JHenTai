@@ -88,7 +88,10 @@ class LoadingStateIndicator extends StatelessWidget {
         child = noMoreWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));
         break;
       case LoadingState.success:
-        child = successWidget ?? const SizedBox();
+        if (successWidget != null) {
+          return successWidget!;
+        }
+        child = const SizedBox();
         break;
       case LoadingState.noData:
         child = GestureDetector(

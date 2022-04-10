@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
@@ -13,6 +14,7 @@ import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
@@ -373,13 +375,49 @@ class EHSpiderParser {
       },
     ).toList();
 
-    String apikey = RegExp(r'apikey = \"(.*)\"').firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!.group(1)!;
+    String apikey = RegExp(r'apikey = \"(.*)\"')
+        .firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!
+        .group(1)!;
 
     return {
       'tagSetNames': tagSetNames,
       'tagSets': tagSets,
       'apikey': apikey,
     };
+  }
+
+  static GalleryStats statPage2GalleryStats(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    Element rankScoreTbody = document.querySelector('.stuffbox > div > div > table > tbody')!;
+    Element yearlyStatTbody = document.querySelector('.stuffbox > div > div:nth-child(1) > table > tbody')!;
+    Element monthlyStatTbody = document.querySelector('.stuffbox > div > div:nth-child(2) > table > tbody')!;
+    Element dailyStatTbody = document.querySelector('.stuffbox > table > tbody')!;
+
+    return GalleryStats(
+      totalVisits: int.parse(
+          document.querySelector('.stuffbox > div > div > p:nth-child(3) > strong')!.text.replaceAll(',', '')),
+      allTimeRanking: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      allTimeScore: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      yearRanking: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      yearScore: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      monthRanking: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      monthScore: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      dayRanking: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      dayScore: int.tryParse(
+          rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      yearlyStats: _parseStats(yearlyStatTbody),
+      monthlyStats: _parseStats(monthlyStatTbody),
+      dailyStats: _parseStats(dailyStatTbody),
+    );
   }
 
   static String imageLookup2RedirectUrl(Response response) {
@@ -894,5 +932,35 @@ class EHSpiderParser {
   static String _galleryDetailDocument2Apikey(Document document) {
     String script = document.querySelector('.gm')?.previousElementSibling?.text ?? '';
     return RegExp(r'var apikey = "(\w+)"').firstMatch(script)?.group(1) ?? '';
+  }
+
+  static List<VisitStat> _parseStats(Element tbody) {
+    List<String> periods = tbody.querySelectorAll('tr:nth-child(4) > .stdk').map((e) => e.text).toList();
+    List<String> visits = tbody.querySelectorAll('tr:nth-child(6) > .stdv').map((e) => e.text).toList();
+    List<String> hits = tbody.querySelectorAll('tr:nth-child(8) > .stdv').map((e) => e.text).toList();
+
+    double _parseNumber(String s) {
+      if (s.endsWith('K')) {
+        return double.parse(s.substring(0, s.length - 1)) * 1000;
+      }
+      if (s.endsWith('M')) {
+        return double.parse(s.substring(0, s.length - 1)) * 1000 * 1000;
+      }
+      return double.parse(s);
+    }
+
+    List<VisitStat> stats = periods
+        .mapIndexed(
+          (index, period) => VisitStat(
+            period: period,
+            visits: _parseNumber(visits[index]),
+            hits: _parseNumber(hits[index]),
+          ),
+        )
+        .toList();
+
+    /// remove empty data
+    int beginIndex = stats.indexWhere((stat) => stat.visits > 0);
+    return stats.sublist(beginIndex);
   }
 }

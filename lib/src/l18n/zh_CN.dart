@@ -90,6 +90,16 @@ class zh_CN {
       'addNewHiddenTagSetSuccess': '添加新隐藏标签成功',
       'addNewTagSetSuccessHint': '你可以在 设置->EH->我的标签 查看你的所有标签',
       'addNewTagSetFailed': '添加新标签数据失败',
+      'VisitorStatistics': '访问数据',
+      'invisible2UserWithoutDonation': '该画廊统计数据对未捐赠用户不可见',
+      'getGalleryStatisticsFailed': '获取画廊统计数据失败',
+      'totalVisits': '总访问量',
+      'visits': '访问数',
+      'imageAccesses': '图片访问数',
+      'period': '时间段',
+      'ranking': '排行',
+      'score': '分数',
+      'NotOnTheList': '未上榜',
 
       /// comment page
       'newComment': '新评论',

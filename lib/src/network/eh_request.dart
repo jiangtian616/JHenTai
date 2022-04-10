@@ -342,6 +342,15 @@ class EHRequest {
     return parser(response);
   }
 
+  static Future<T> requestStatPage<T>({
+    required int gid,
+    required String token,
+    required EHHtmlParser<T> parser,
+  }) async {
+    Response<String> response = await _dio.get('${EHConsts.EStat}?gid=$gid&t=$token');
+    return parser(response);
+  }
+
   static Future<T> requestAddTagSet<T>({
     required String tag,
     String? tagColor,
