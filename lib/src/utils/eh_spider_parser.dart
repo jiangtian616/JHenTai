@@ -961,6 +961,6 @@ class EHSpiderParser {
 
     /// remove empty data
     int beginIndex = stats.indexWhere((stat) => stat.visits > 0);
-    return stats.sublist(beginIndex);
+    return beginIndex == -1 ? [] : stats.sublist(beginIndex);
   }
 }
