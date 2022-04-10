@@ -11,7 +11,6 @@ import '../utils/eh_spider_parser.dart';
 
 class EHSetting {
   static RxString site = 'EH'.obs;
-  static RxBool redirect2EH = false.obs;
   static Rx<LoadingState> refreshState = LoadingState.idle.obs;
   static RxInt currentConsumption = (-1).obs;
   static RxInt totalLimit = 5000.obs;
@@ -71,11 +70,6 @@ class EHSetting {
     _save();
   }
 
-  static saveRedirect2EH(bool redirect2EH) {
-    EHSetting.redirect2EH.value = redirect2EH;
-    _save();
-  }
-
   static saveTotalLimit(int totalLimit) {
     EHSetting.totalLimit.value = totalLimit;
     _save();
@@ -95,14 +89,12 @@ class EHSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'site': site.value,
-      'redirect2EH': redirect2EH.value,
       'totalLimit': totalLimit.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     site.value = map['site'];
-    redirect2EH.value = map['redirect2EH'];
     totalLimit.value = map['totalLimit'];
   }
 }
