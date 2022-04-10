@@ -35,6 +35,7 @@ class ReadPageLogic extends GetxController {
     state.galleryUrl = Get.parameters['galleryUrl']!;
     state.readIndexRecord = storageService.read('readIndexRecord::${state.gid}') ?? 0;
     state.pageController = PageController(initialPage: state.initialIndex);
+    state.errorMsg = List.generate(state.pageCount, (index) => RxnString(null));
 
     if (state.type == 'local') {
       GalleryDownloadedData gallery = Get.arguments as GalleryDownloadedData;
@@ -44,6 +45,7 @@ class ReadPageLogic extends GetxController {
       if (Get.arguments == null) {
         state.thumbnails = List.generate(state.pageCount, (index) => Rxn(null), growable: true);
       } else {
+        /// has load some thumbnails at detail page
         List<GalleryThumbnail> parsedThumbnails = Get.arguments as List<GalleryThumbnail>;
         state.thumbnails = List.generate(
           state.pageCount,
@@ -53,7 +55,6 @@ class ReadPageLogic extends GetxController {
       }
       state.images = List.generate(state.pageCount, (index) => Rxn(null));
       state.imageUrlParsingStates = List.generate(state.pageCount, (index) => LoadingState.idle.obs);
-      state.errorMsg = List.generate(state.pageCount, (index) => RxnString(null));
     }
 
     /// record reading progress
@@ -91,7 +92,7 @@ class ReadPageLogic extends GetxController {
         retryIf: (e) => e is DioError && e.error is! EHException,
       );
     } on DioError catch (e) {
-      Log.error('get thumbnails error!', e);
+      Log.error('get thumbnails error!', e.message);
       state.imageHrefParsingState.value = LoadingState.error;
       if (e.error is EHException) {
         state.errorMsg[index].value = e.error.msg;

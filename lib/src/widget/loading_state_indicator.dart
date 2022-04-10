@@ -79,7 +79,10 @@ class LoadingStateIndicator extends StatelessWidget {
                   ));
         break;
       case LoadingState.idle:
-        child = idleWidget ?? CupertinoActivityIndicator(radius: indicatorRadius);
+        if (idleWidget != null) {
+          return idleWidget!;
+        }
+        child = CupertinoActivityIndicator(radius: indicatorRadius);
         break;
       case LoadingState.noMore:
         child = noMoreWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));

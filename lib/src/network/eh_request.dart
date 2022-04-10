@@ -209,7 +209,7 @@ class EHRequest {
     required EHHtmlParser<T> parser,
   }) async {
     Response response = await _dio.get(
-      EHSetting.site.value == 'EH' ? galleryUrl : galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+      EHSetting.site.value == 'EH' ? galleryUrl : galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex),
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
       options: useCacheIfAvailable
