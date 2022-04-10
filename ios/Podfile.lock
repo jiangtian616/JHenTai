@@ -50,6 +50,8 @@ PODS:
   - SDWebImage (5.12.5):
     - SDWebImage/Core (= 5.12.5)
   - SDWebImage/Core (5.12.5)
+  - share_plus (0.0.1):
+    - Flutter
   - sqflite (0.0.2):
     - Flutter
     - FMDB (>= 2.7.5)
@@ -89,6 +91,7 @@ DEPENDENCIES:
   - local_auth (from `.symlinks/plugins/local_auth/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -120,6 +123,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_ios:
     :path: ".symlinks/plugins/path_provider_ios/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
   sqlite3_flutter_libs:
@@ -145,6 +150,7 @@ SPEC CHECKSUMS:
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   SDWebImage: 0905f1b7760fc8ac4198cae0036600d67478751e
+  share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   sqlite3: e26e8422c1f5780d0a3db283eb095a03a10e121c
   sqlite3_flutter_libs: e21c8c90448ce608a0d685e717727c46f37c6695
