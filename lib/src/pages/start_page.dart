@@ -16,42 +16,47 @@ late Routing leftRouting;
 late Routing rightRouting;
 
 class StartPage extends StatelessWidget {
-  const StartPage({Key? key}) : super(key: key);
+  DateTime? _lastPopTime;
+
+  StartPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     /// use LayoutBuilder to listen to resize of window
-    return LayoutBuilder(
-      builder: (context, constraints) => Obx(
-        () {
-          if (StyleSetting.enableTabletLayout.isFalse) {
-            StyleSetting.currentEnableTabletLayout.value = false;
-            return HomePage();
-          }
+    return WillPopScope(
+      onWillPop: _handlePopApp,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Obx(
+          () {
+            if (StyleSetting.enableTabletLayout.isFalse) {
+              StyleSetting.currentEnableTabletLayout.value = false;
+              return HomePage();
+            }
 
-          if (fullScreenWidth < 600) {
-            StyleSetting.currentEnableTabletLayout.value = false;
-            untilBlankPage();
-            return HomePage();
-          }
+            if (fullScreenWidth < 600) {
+              StyleSetting.currentEnableTabletLayout.value = false;
+              untilBlankPage();
+              return HomePage();
+            }
 
-          StyleSetting.currentEnableTabletLayout.value = true;
+            StyleSetting.currentEnableTabletLayout.value = true;
 
-          /// tablet layout
-          return Row(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(child: _leftScreen()),
-                    Container(width: 0.3, color: Colors.black),
-                  ],
+            /// tablet layout
+            return Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(child: _leftScreen()),
+                      Container(width: 0.3, color: Colors.black),
+                    ],
+                  ),
                 ),
-              ),
-              Expanded(child: _rightScreen()),
-            ],
-          );
-        },
+                Expanded(child: _rightScreen()),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -117,5 +122,20 @@ class StartPage extends StatelessWidget {
         );
       },
     );
+  }
+
+  /// double tap back button to exit app
+  Future<bool> _handlePopApp() {
+    if (_lastPopTime == null) {
+      _lastPopTime = DateTime.now();
+      return Future.value(false);
+    }
+
+    if (DateTime.now().difference(_lastPopTime!).inMilliseconds <= 400) {
+      return Future.value(true);
+    }
+
+    _lastPopTime = DateTime.now();
+    return Future.value(false);
   }
 }

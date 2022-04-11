@@ -23,13 +23,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
-import 'eh_persist_cookie_jar.dart';
 
 typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
-  static late final EHPersistCookieJar _cookieJar;
+  static late final PersistCookieJar _cookieJar;
 
   static CacheOptions cacheOption = CacheOptions(
     store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
@@ -48,13 +47,18 @@ class EHRequest {
       receiveTimeout: 6000,
     ));
 
-    _cookieJar = EHPersistCookieJar(storage: FileStorage(join(PathSetting.getVisibleDir().path, "cookies")));
+    _cookieJar = PersistCookieJar(storage: FileStorage(join(PathSetting.getVisibleDir().path, "cookies")));
     await _cookieJar.forceInit();
 
-    /// init [nw] cookie
-    if ((await _cookieJar.loadForRequest(Uri.parse('https://e-hentai.org'))).isEmpty) {
-      await storeEhCookiesForAllUri([]);
-    }
+    /// force load cookies into memory
+    await Future.wait(
+      EHConsts.host2Ip.entries.map(
+        (entry) => Future.wait([
+          _cookieJar.loadForRequest(Uri.parse(entry.key)),
+          _cookieJar.loadForRequest(Uri.parse(entry.value)),
+        ]),
+      ),
+    );
 
     /// error handler
     _dio.interceptors.add(InterceptorsWrapper(
@@ -129,9 +133,6 @@ class EHRequest {
   }
 
   static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
-    /// never warn about offensive gallery
-    cookies.add(Cookie("nw", "1"));
-    Log.info('store cookies: ${cookies.toString()}', false);
     Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
     Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
   }
@@ -142,7 +143,6 @@ class EHRequest {
 
   static Future<void> removeAllCookies() async {
     await _cookieJar.deleteAll();
-    await storeEhCookiesForAllUri([]);
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {

@@ -73,44 +73,41 @@ class DetailsPage extends StatelessWidget {
                 )
               ],
             ),
-            body: Builder(
-              builder: (context) {
-                Gallery? gallery = detailsPageState.gallery;
+            body: () {
+              Gallery? gallery = detailsPageState.gallery;
+              if (gallery == null) {
+                return _buildLoadingPageIndicator();
+              }
 
-                if (gallery == null) {
-                  return _buildLoadingPageIndicator();
-                }
-
-                return Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        width: 0.2,
-                        color: Get.theme.appBarTheme.foregroundColor!,
-                      ),
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      width: 0.2,
+                      color: Get.theme.appBarTheme.foregroundColor!,
                     ),
                   ),
-                  child: CustomScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    slivers: [
-                      CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
-                      _buildHeader(gallery, detailsPageState.galleryDetails, context),
-                      _buildDetails(gallery, detailsPageState.galleryDetails),
-                      _buildActions(gallery, detailsPageState.galleryDetails, context),
-                      if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
-                        _buildTags(detailsPageState.galleryDetails!.fullTags),
-                      _buildLoadingDetailsIndicator(),
-                      if (detailsPageState.galleryDetails != null)
-                        _buildCommentsIndicator(detailsPageState.galleryDetails!),
-                      if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
-                        _buildComments(detailsPageState.galleryDetails!),
-                      if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
-                      if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-                    ],
-                  ).paddingOnly(top: 10, left: 15, right: 15),
-                );
-              },
-            ),
+                ),
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
+                    _buildHeader(gallery, detailsPageState.galleryDetails, context),
+                    _buildDetails(gallery, detailsPageState.galleryDetails),
+                    _buildActions(gallery, detailsPageState.galleryDetails, context),
+                    if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
+                      _buildTags(detailsPageState.galleryDetails!.fullTags),
+                    _buildLoadingDetailsIndicator(),
+                    if (detailsPageState.galleryDetails != null)
+                      _buildCommentsIndicator(detailsPageState.galleryDetails!),
+                    if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
+                      _buildComments(detailsPageState.galleryDetails!),
+                    if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
+                    if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+                  ],
+                ).paddingOnly(top: 10, left: 15, right: 15),
+              );
+            }(),
           );
         });
   }
@@ -392,7 +389,7 @@ class DetailsPage extends StatelessWidget {
                   'similar'.tr,
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
-                onPressed: detailsPageState.galleryDetails == null ? null :detailsPageLogic.searchSimilar,
+                onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.searchSimilar,
               ),
               IconTextButton(
                 iconData: FontAwesomeIcons.magnet,

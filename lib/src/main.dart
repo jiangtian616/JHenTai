@@ -160,6 +160,14 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
   }
 
+  @override
+  Widget build(BuildContext context) {
+    if (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) {
+      return widget.child;
+    }
+    return Blur(blur: 100, child: widget.child);
+  }
+
   void _changeTheme() {
     if (StyleSetting.themeMode.value != ThemeMode.system) {
       return;
@@ -198,17 +206,5 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
         });
       }
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) {
-      return widget.child;
-    }
-
-    return Blur(
-      blur: 100,
-      child: widget.child,
-    );
   }
 }

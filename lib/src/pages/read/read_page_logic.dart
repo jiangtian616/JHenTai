@@ -169,6 +169,7 @@ class ReadPageLogic extends GetxController {
     } else {
       targetIndex = (state.pageController!.page! + 1).toInt();
     }
+
     toPage(min(targetIndex, state.pageCount));
   }
 

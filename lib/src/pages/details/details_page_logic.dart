@@ -182,7 +182,7 @@ class DetailsPageLogic extends GetxController {
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
 
-    /// Attention! At development stage, if enter into detail page and exit very quickly, [update] will throw
+    /// Attention! At development stage, if enter into detail page and exit very quickly, [update] will cause
     /// an fatal exception because page has been destroyed, in order to avoid it in production stage, may be
     /// we should check route first. todo: check whether this happen at production stage too.
     update([bodyId]);
