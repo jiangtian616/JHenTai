@@ -12,6 +12,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/size_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:retry/retry.dart';
@@ -240,7 +241,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void _scroll2Page(int pageIndex) {
-    if (state.itemScrollController.isAttached) {
+    if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       state.itemScrollController.scrollTo(
         index: pageIndex,
         duration: const Duration(milliseconds: 200),
@@ -272,18 +273,32 @@ class ReadPageLogic extends GetxController {
   }
 
   void _scroll2NextScreen() {
-    ItemPosition lastPosition = getCurrentVisibleItems().last;
-
-    if (lastPosition.itemTrailingEdge == 1) {
-      _toNextImage();
-    } else {}
+    state.itemScrollController.scrollOffset(
+      offset: _getVisibleHeight(),
+      duration: const Duration(milliseconds: 200),
+    );
   }
 
-  void _jump2NextScreen() {}
+  void _jump2NextScreen() {
+    state.itemScrollController.scrollOffset(
+      offset: _getVisibleHeight(),
+      duration: const Duration(milliseconds: 1),
+    );
+  }
 
-  void _scroll2PrevScreen() {}
+  void _scroll2PrevScreen() {
+    state.itemScrollController.scrollOffset(
+      offset: -_getVisibleHeight(),
+      duration: const Duration(milliseconds: 200),
+    );
+  }
 
-  void _jump2PrevScreen() {}
+  void _jump2PrevScreen() {
+    state.itemScrollController.scrollOffset(
+      offset: -_getVisibleHeight(),
+      duration: const Duration(milliseconds: 1),
+    );
+  }
 
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
@@ -332,5 +347,11 @@ class ReadPageLogic extends GetxController {
     positions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
     (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
     return positions;
+  }
+
+  double _getVisibleHeight() {
+    return screenHeight -
+        Get.mediaQuery.padding.bottom -
+        (ReadSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
   }
 }

@@ -6,6 +6,8 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import 'widget/eh_scrollable_positioned_list.dart' as mine;
+
 class ReadPageState {
   /// local / online
   late String type;
@@ -24,7 +26,7 @@ class ReadPageState {
 
   bool isMenuOpen = false;
 
-  final ItemScrollController itemScrollController = ItemScrollController();
+  final mine.ItemScrollController itemScrollController = mine.ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
   final PhotoViewScaleStateController photoViewScaleStateController = PhotoViewScaleStateController();
 

@@ -22,7 +22,7 @@ class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
-  static Rx<TurnPageMode> turnPageMode = TurnPageMode.image.obs;
+  static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
 

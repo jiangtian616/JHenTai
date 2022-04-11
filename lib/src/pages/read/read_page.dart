@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/widget/eh_photo_view_gallery.dart';
+import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/size_util.dart';
@@ -15,7 +16,6 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../service/download_service.dart';
 import '../../utils/route_util.dart';
@@ -47,7 +47,7 @@ class ReadPage extends StatelessWidget {
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
-        child: ScrollablePositionedList.separated(
+        child: EHScrollablePositionedList.separated(
           minCacheExtent: state.type == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
           initialScrollIndex: state.initialIndex,
           itemCount: state.pageCount,

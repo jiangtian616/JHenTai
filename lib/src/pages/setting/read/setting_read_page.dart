@@ -56,7 +56,7 @@ class SettingReadPage extends StatelessWidget {
                 ],
               ),
             ),
-            if (false)
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
               ListTile(
                 title: Text('turnPageMode'.tr),
                 subtitle: Text('turnPageModeHint'.tr),
