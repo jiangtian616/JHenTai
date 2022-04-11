@@ -170,18 +170,19 @@ class DownloadService extends GetxService {
         return;
       }
 
-      String imagePath = _getImageDownloadPath(gallery, serialNo);
+      String imageAbsolutePath = _getImageDownloadAbsolutePath(gallery, serialNo);
+      String imageRelativePath = _getImageDownloadRelativePath(gallery, serialNo);
 
       /// no parsed url, parse from page first
       if (gid2Images[gallery.gid]![serialNo].value == null) {
-        await _getGalleryImageUrl(gallery, serialNo, imagePath);
+        await _getGalleryImageUrl(gallery, serialNo, imageRelativePath);
       }
 
       if (gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
         return;
       }
 
-      _downloadGalleryImage(gallery, serialNo, imagePath);
+      _downloadGalleryImage(gallery, serialNo, imageAbsolutePath);
     }
   }
 
@@ -418,7 +419,18 @@ class DownloadService extends GetxService {
     );
   }
 
-  String _getImageDownloadPath(GalleryDownloadedData gallery, int serialNo) {
+  String _getImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo) {
+    return path.relative(
+      path.join(
+        downloadPath,
+        '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+        '$serialNo.jpg',
+      ),
+      from: PathSetting.getVisibleDir().path,
+    );
+  }
+
+  String _getImageDownloadAbsolutePath(GalleryDownloadedData gallery, int serialNo) {
     return path.join(
       downloadPath,
       '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),

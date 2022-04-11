@@ -7,7 +7,9 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:path/path.dart' as path;
 
+import '../setting/path_setting.dart';
 import '../utils/route_util.dart';
 
 /// responsible for all network and local images, depends on :
@@ -94,7 +96,7 @@ class _EHImageState extends State<EHImage> {
                 : const Center(child: CircularProgressIndicator());
           }
           return ExtendedImage.file(
-            io.File(widget.galleryImage.path!),
+            io.File(path.join(PathSetting.getVisibleDir().path, widget.galleryImage.path!)),
             key: key,
             height: widget.adaptive ? null : widget.galleryImage.height,
             width: widget.adaptive ? null : widget.galleryImage.width,

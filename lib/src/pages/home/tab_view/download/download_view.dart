@@ -415,8 +415,8 @@ class DownloadView extends StatelessWidget {
       index,
       (context, Animation<double> animation) => FadeTransition(
         opacity: animation,
-        child: ScaleTransition(
-          scale: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
           child: _removedItemBuilder(context, gallery, image, downloadStatus, downloadProgress, speedComputer),
         ),
       ),
