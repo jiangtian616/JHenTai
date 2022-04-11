@@ -236,7 +236,6 @@ class ReadPageLogic extends GetxController {
 
   void hideSystemBarIfNeeded(bool hide) {
     if (hide) {
-      /// bugs issue: https://github.com/flutter/flutter/issues/95403
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     } else {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);

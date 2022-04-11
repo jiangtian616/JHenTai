@@ -10,7 +10,7 @@ enum ReadDirection {
 }
 
 class ReadSetting {
-  static RxBool enableImmersiveMode = false.obs;
+  static RxBool enableImmersiveMode = true.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxInt preloadDistance = 1.obs;
