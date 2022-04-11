@@ -236,7 +236,7 @@ class _StatDialogState extends State<StatDialog> {
               name: 'visits'.tr,
               dataSource: datasource,
               enableTooltip: true,
-              animationDuration: 1000,
+              animationDuration: 400,
               xValueMapper: (VisitStat stat, _) => stat.period,
               yValueMapper: (VisitStat stat, _) => stat.visits,
               markerSettings: MarkerSettings(
@@ -249,7 +249,7 @@ class _StatDialogState extends State<StatDialog> {
               name: 'imageAccesses'.tr,
               dataSource: datasource,
               enableTooltip: true,
-              animationDuration: 1000,
+              animationDuration: 400,
               xValueMapper: (VisitStat stat, _) => stat.period,
               yValueMapper: (VisitStat stat, _) => stat.hits,
               yAxisName: 'imageAccesses',

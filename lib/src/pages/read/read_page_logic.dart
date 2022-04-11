@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
@@ -60,18 +61,23 @@ class ReadPageLogic extends GetxController {
 
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
-      handleReadProgress(state.itemPositionsListener.itemPositions.value.first.index);
+      recordReadProgress(getCurrentVisibleItems().first.index);
+    });
+
+    /// when direction changes, keep read position
+    ever(ReadSetting.readDirection, (value) {
+      state.initialIndex = state.readIndexRecord;
+      state.pageController = PageController(initialPage: state.readIndexRecord);
     });
   }
 
   @override
   void onClose() {
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
-    if (DetailsPageLogic.current != null) {
-      DetailsPageLogic.current!.update([bodyId]);
-    }
 
-    showSystemBard();
+    /// update read progress in detail page
+    DetailsPageLogic.current?.update([bodyId]);
+    restoreSystemBar();
     super.onClose();
   }
 
@@ -143,26 +149,62 @@ class ReadPageLogic extends GetxController {
     state.imageUrlParsingStates![index].value = LoadingState.success;
   }
 
-  /// attention! [Prev] page is the first page which is not totally shown that in the viewport and before.
-  void toPrevPage() {
+  /// to prev image or screen
+  void toPrev() {
+    switch (ReadSetting.turnPageMode.value) {
+      case TurnPageMode.image:
+        return _toPrevImage();
+      case TurnPageMode.screen:
+        return _toPrevScreen();
+      case TurnPageMode.adaptive:
+        List<ItemPosition> positions = getCurrentVisibleItems();
+        if (positions.length > 1) {
+          return _toPrevImage();
+        }
+        return _toPrevScreen();
+    }
+  }
+
+  /// to next image or screen
+  void toNext() {
+    switch (ReadSetting.turnPageMode.value) {
+      case TurnPageMode.image:
+        return _toNextImage();
+      case TurnPageMode.screen:
+        return _toNextScreen();
+      case TurnPageMode.adaptive:
+        List<ItemPosition> positions = getCurrentVisibleItems();
+        if (positions.length > 1) {
+          return _toNextImage();
+        }
+        return _toNextScreen();
+    }
+  }
+
+  void _toPrevImage() {
     int targetIndex;
 
-    if (state.itemScrollController.isAttached) {
-      ItemPosition firstPosition = state.itemPositionsListener.itemPositions.value.first;
+    /// ListView
+    if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+      ItemPosition firstPosition = getCurrentVisibleItems().first;
       targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
-    } else {
+      _toPage(max(targetIndex, 0));
+    }
+
+    /// PageView
+    else {
       targetIndex = (state.pageController!.page! - 1).toInt();
     }
 
-    toPage(max(targetIndex, 0));
+    _toPage(max(targetIndex, 0));
   }
 
-  /// attention! [next] page is the first page which is not totally shown that in the viewport and behind.
-  void toNextPage() {
+  /// scroll or jump until last image in viewport currently reach top
+  void _toNextImage() {
     int targetIndex;
 
-    if (state.itemScrollController.isAttached) {
-      ItemPosition lastPosition = state.itemPositionsListener.itemPositions.value.last;
+    if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+      ItemPosition lastPosition = getCurrentVisibleItems().last;
       targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
           ? lastPosition.index
           : lastPosition.index + 1;
@@ -170,18 +212,34 @@ class ReadPageLogic extends GetxController {
       targetIndex = (state.pageController!.page! + 1).toInt();
     }
 
-    toPage(min(targetIndex, state.pageCount));
+    _toPage(min(targetIndex, state.pageCount));
   }
 
-  void toPage(int pageIndex) {
+  void _toNextScreen() {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
-      jump2Page(pageIndex);
+      _jump2NextScreen();
     } else {
-      scroll2Page(pageIndex);
+      _scroll2NextScreen();
     }
   }
 
-  void scroll2Page(int pageIndex) {
+  void _toPrevScreen() {
+    if (ReadSetting.enablePageTurnAnime.isFalse) {
+      _jump2PrevScreen();
+    } else {
+      _scroll2PrevScreen();
+    }
+  }
+
+  void _toPage(int pageIndex) {
+    if (ReadSetting.enablePageTurnAnime.isFalse) {
+      _jump2Page(pageIndex);
+    } else {
+      _scroll2Page(pageIndex);
+    }
+  }
+
+  void _scroll2Page(int pageIndex) {
     if (state.itemScrollController.isAttached) {
       state.itemScrollController.scrollTo(
         index: pageIndex,
@@ -197,18 +255,35 @@ class ReadPageLogic extends GetxController {
     update(['menu']);
   }
 
-  void jump2Page(int pageIndex) {
-    if (state.itemScrollController.isAttached) {
+  void _jump2Page(int pageIndex) {
+    if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       /// [jump] will redraw image and cause a blink, use [scrollTo] instead
-      state.itemScrollController.scrollTo(
-        index: pageIndex,
-        duration: const Duration(milliseconds: 1),
-      );
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+        state.itemScrollController.scrollTo(
+          index: pageIndex,
+          duration: const Duration(milliseconds: 1),
+        );
+        update(['menu']);
+      });
     } else if (state.pageController?.hasClients ?? false) {
       state.pageController?.jumpToPage(pageIndex);
+      update(['menu']);
     }
-    update(['menu']);
   }
+
+  void _scroll2NextScreen() {
+    ItemPosition lastPosition = getCurrentVisibleItems().last;
+
+    if (lastPosition.itemTrailingEdge == 1) {
+      _toNextImage();
+    } else {}
+  }
+
+  void _jump2NextScreen() {}
+
+  void _scroll2PrevScreen() {}
+
+  void _jump2PrevScreen() {}
 
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
@@ -227,10 +302,10 @@ class ReadPageLogic extends GetxController {
   }
 
   void handleSlideEnd(double value) {
-    jump2Page((value - 1).toInt());
+    _jump2Page((value - 1).toInt());
   }
 
-  void handleReadProgress(int index) {
+  void recordReadProgress(int index) {
     state.readIndexRecord = index;
     update(['menu']);
   }
@@ -243,7 +318,19 @@ class ReadPageLogic extends GetxController {
     }
   }
 
-  void showSystemBard() {
+  void restoreSystemBar() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  List<ItemPosition> getCurrentVisibleItems() {
+    return _filterAndSortItems(state.itemPositionsListener.itemPositions.value);
+  }
+
+  /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of
+  /// them are not in viewport
+  List<ItemPosition> _filterAndSortItems(Iterable<ItemPosition> positions) {
+    positions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
+    (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
+    return positions;
   }
 }

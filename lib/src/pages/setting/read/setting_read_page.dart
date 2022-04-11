@@ -26,6 +26,13 @@ class SettingReadPage extends StatelessWidget {
               ),
             ),
             ListTile(
+              title: Text('enablePageTurnAnime'.tr),
+              trailing: Switch(
+                value: ReadSetting.enablePageTurnAnime.value,
+                onChanged: (value) => ReadSetting.saveEnablePageTurnAnime(value),
+              ),
+            ),
+            ListTile(
               title: Text('readDirection'.tr),
               trailing: DropdownButton<ReadDirection>(
                 value: ReadSetting.readDirection.value,
@@ -49,13 +56,32 @@ class SettingReadPage extends StatelessWidget {
                 ],
               ),
             ),
-            ListTile(
-              title: Text('enablePageTurnAnime'.tr),
-              trailing: Switch(
-                value: ReadSetting.enablePageTurnAnime.value,
-                onChanged: (value) => ReadSetting.saveEnablePageTurnAnime(value),
+            if (false)
+              ListTile(
+                title: Text('turnPageMode'.tr),
+                subtitle: Text('turnPageModeHint'.tr),
+                trailing: DropdownButton<TurnPageMode>(
+                  value: ReadSetting.turnPageMode.value,
+                  elevation: 4,
+                  onChanged: (TurnPageMode? newValue) {
+                    ReadSetting.saveTurnPageMode(newValue!);
+                  },
+                  items: [
+                    DropdownMenuItem(
+                      child: Text('image'.tr),
+                      value: TurnPageMode.image,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('screen'.tr),
+                      value: TurnPageMode.screen,
+                    ),
+                    DropdownMenuItem(
+                      child: Text('adaptive'.tr),
+                      value: TurnPageMode.adaptive,
+                    ),
+                  ],
+                ),
               ),
-            ),
             if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
               ListTile(
                 title: Text('preloadDistanceInOnlineMode'.tr),

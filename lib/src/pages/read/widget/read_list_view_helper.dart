@@ -35,8 +35,8 @@ class ReadListViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.toPrevPage,
-            onDoubleTap: logic.toPrevPage,
+            onTap: logic.toPrev,
+            onDoubleTap: logic.toPrev,
           ),
         ),
         Expanded(
@@ -60,8 +60,8 @@ class ReadListViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.toNextPage,
-            onDoubleTap: logic.toNextPage,
+            onTap: logic.toNext,
+            onDoubleTap: logic.toNext,
           ),
         ),
       ],
@@ -104,7 +104,7 @@ class ReadListViewHelper extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           curve: Curves.ease,
           bottom: 0,
-          height: state.isMenuOpen ? GlobalConfig.bottomMenuHeight + context.mediaQuery.padding.bottom : 0,
+          height: state.isMenuOpen ? GlobalConfig.bottomMenuHeight : 0,
           child: ColoredBox(
             color: Colors.black.withOpacity(0.8),
             child: Column(

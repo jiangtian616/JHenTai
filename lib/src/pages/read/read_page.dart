@@ -65,7 +65,7 @@ class ReadPage extends StatelessWidget {
       pageController: state.pageController,
       cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       itemCount: state.pageCount,
-      onPageChanged: logic.handleReadProgress,
+      onPageChanged: logic.recordReadProgress,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,
@@ -93,11 +93,11 @@ class ReadPage extends StatelessWidget {
           logic.beginParsingImageUrl(index);
         }
 
-        /// just like a listener
-        downloadService.gid2Images[state.gid]?[index].value;
-
         return _buildParsingImageIndicator(context, index);
       }
+
+      /// just like a listener for download situation
+      downloadService.gid2Images[state.gid]?[index].value;
 
       FittedSizes fittedSizes = applyBoxFit(
         BoxFit.contain,

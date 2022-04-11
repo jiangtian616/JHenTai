@@ -9,10 +9,20 @@ enum ReadDirection {
   right2left,
 }
 
+enum TurnPageMode {
+  image,
+  screen,
+
+  /// if one image covers the whole screen => screen
+  /// else => image
+  adaptive,
+}
+
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
+  static Rx<TurnPageMode> turnPageMode = TurnPageMode.image.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
 
@@ -41,6 +51,11 @@ class ReadSetting {
     _save();
   }
 
+  static saveTurnPageMode(TurnPageMode value) {
+    turnPageMode.value = value;
+    _save();
+  }
+
   static savePreloadDistance(int value) {
     preloadDistance.value = value;
     _save();
@@ -59,6 +74,7 @@ class ReadSetting {
     return {
       'readDirection': readDirection.value.index,
       'enablePageTurnAnime': enablePageTurnAnime.value,
+      'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
       'enableImmersiveMode': enableImmersiveMode.value,
@@ -68,6 +84,7 @@ class ReadSetting {
   static _initFromMap(Map<String, dynamic> map) {
     readDirection.value = ReadDirection.values[map['readDirection']];
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
+    turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
     enableImmersiveMode.value = map['enableImmersiveMode'];
