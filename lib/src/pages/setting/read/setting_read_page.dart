@@ -18,6 +18,14 @@ class SettingReadPage extends StatelessWidget {
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
             ListTile(
+              title: Text('enableImmersiveMode'.tr),
+              subtitle: Text('enableImmersiveHint'.tr),
+              trailing: Switch(
+                value: ReadSetting.enableImmersiveMode.value,
+                onChanged: (value) => ReadSetting.saveEnableImmersiveMode(value),
+              ),
+            ),
+            ListTile(
               title: Text('readDirection'.tr),
               trailing: DropdownButton<ReadDirection>(
                 value: ReadSetting.readDirection.value,

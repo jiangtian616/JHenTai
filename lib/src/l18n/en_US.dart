@@ -180,6 +180,8 @@ class en_US {
       'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
 
       /// read setting page
+      'enableImmersiveMode': 'Enable Immersive Mode',
+      'enableImmersiveHint': 'Hide System Bar',
       'readDirection': 'Read Direction',
       'top2bottom': 'Top to Bottom',
       'left2right': 'Left to Right',

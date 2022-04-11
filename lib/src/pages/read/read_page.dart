@@ -33,6 +33,7 @@ class ReadPage extends StatelessWidget {
       value: SystemUiOverlayStyle.light,
       child: ReadListViewHelper(
         child: Obx(() {
+          logic.hideSystemBarIfNeeded(ReadSetting.enableImmersiveMode.isTrue);
           return ReadSetting.readDirection.value == ReadDirection.top2bottom ? _buildListView() : _buildPageView();
         }),
       ),

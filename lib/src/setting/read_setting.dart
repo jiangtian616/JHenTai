@@ -10,6 +10,7 @@ enum ReadDirection {
 }
 
 class ReadSetting {
+  static RxBool enableImmersiveMode = false.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxInt preloadDistance = 1.obs;
@@ -23,6 +24,11 @@ class ReadSetting {
     } else {
       Log.verbose('init ReadSetting success: default', false);
     }
+  }
+
+  static saveEnableImmersiveMode(bool value) {
+    enableImmersiveMode.value = value;
+    _save();
   }
 
   static saveReadDirection(ReadDirection value) {
@@ -55,6 +61,7 @@ class ReadSetting {
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
+      'enableImmersiveMode': enableImmersiveMode.value,
     };
   }
 
@@ -63,5 +70,6 @@ class ReadSetting {
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
+    enableImmersiveMode.value = map['enableImmersiveMode'];
   }
 }

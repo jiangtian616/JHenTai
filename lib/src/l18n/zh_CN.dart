@@ -180,6 +180,8 @@ class zh_CN {
       'enableBlurBackgroundApp': '在任务栏中模糊应用页面',
 
       /// read setting page
+      'enableImmersiveMode': '开启沉浸模式',
+      'enableImmersiveHint': '隐藏系统状态栏和底部导航栏',
       'readDirection': '阅读方向',
       'top2bottom': '从上至下',
       'left2right': '从左至右',

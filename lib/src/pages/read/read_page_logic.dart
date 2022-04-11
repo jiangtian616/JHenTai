@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -69,6 +70,8 @@ class ReadPageLogic extends GetxController {
     if (DetailsPageLogic.current != null) {
       DetailsPageLogic.current!.update([bodyId]);
     }
+
+    showSystemBard();
     super.onClose();
   }
 
@@ -229,5 +232,18 @@ class ReadPageLogic extends GetxController {
   void handleReadProgress(int index) {
     state.readIndexRecord = index;
     update(['menu']);
+  }
+
+  void hideSystemBarIfNeeded(bool hide) {
+    if (hide) {
+      /// bugs issue: https://github.com/flutter/flutter/issues/95403
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+  }
+
+  void showSystemBard() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 }

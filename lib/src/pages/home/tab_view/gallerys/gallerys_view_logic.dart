@@ -161,7 +161,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.loadingState[tabIndex] = LoadingState.idle;
     }
 
-    update([appBarId, bodyId]);
+    update([appBarId, bodyId, loadingStateId]);
   }
 
   Future<void> jumpPage(int pageIndex) async {
@@ -312,7 +312,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
-  void handleUrlInClipBoard() async{
+  void handleUrlInClipBoard() async {
     String text = await FlutterClipboard.paste();
     if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
       return;
@@ -338,20 +338,30 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
 
     List<dynamic> gallerysAndPageCount;
-    if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.history) {
-      gallerysAndPageCount = await _getHistoryGallerys();
-    } else if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.favorite &&
-        !UserSetting.hasLoggedIn()) {
-      gallerysAndPageCount = [<Gallery>[], 0];
-    } else if (TabBarSetting.configs[tabIndex].searchConfig.searchType == SearchType.watched &&
-        !UserSetting.hasLoggedIn()) {
-      gallerysAndPageCount = [<Gallery>[], 0];
-    } else {
-      gallerysAndPageCount = await EHRequest.requestGalleryPage(
-        pageNo: pageNo,
-        searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
-        parser: EHSpiderParser.galleryPage2GalleryList,
-      );
+    switch (TabBarSetting.configs[tabIndex].searchConfig.searchType) {
+      case SearchType.history:
+        gallerysAndPageCount = await _getHistoryGallerys();
+        break;
+      case SearchType.favorite:
+        if (!UserSetting.hasLoggedIn()) {
+          gallerysAndPageCount = [<Gallery>[], 0];
+          break;
+        }
+        continue end;
+      case SearchType.watched:
+        if (!UserSetting.hasLoggedIn()) {
+          gallerysAndPageCount = [<Gallery>[], 0];
+          break;
+        }
+        continue end;
+      end:
+      case SearchType.popular:
+      case SearchType.gallery:
+        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+          pageNo: pageNo,
+          searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
+          parser: EHSpiderParser.galleryPage2GalleryList,
+        );
     }
 
     await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
