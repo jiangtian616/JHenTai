@@ -5,6 +5,7 @@ import 'gallery_tag.dart';
 import 'gallery_thumbnail.dart';
 
 class GalleryDetail {
+  String rawTitle;
   int ratingCount;
   double realRating;
   String size;
@@ -19,6 +20,7 @@ class GalleryDetail {
   List<GalleryThumbnail> thumbnails;
 
   GalleryDetail({
+    required this.rawTitle,
     required this.ratingCount,
     required this.realRating,
     required this.size,

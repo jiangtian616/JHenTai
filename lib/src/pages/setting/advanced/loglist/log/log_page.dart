@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/size_util.dart';
 import 'package:path/path.dart';
+import 'package:share_plus/share_plus.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({Key? key}) : super(key: key);
@@ -28,6 +29,7 @@ class _LogPageState extends State<LogPage> {
         centerTitle: true,
         elevation: 1,
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        actions: [IconButton(onPressed: () => _shareLog(log as io.File), icon: const Icon(Icons.share))],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -42,8 +44,12 @@ class _LogPageState extends State<LogPage> {
               fontFamily: io.Platform.isAndroid ? 'monospace' : 'PingFang HK',
             ),
           ),
-        ).paddingOnly(top: 8),
+        ).paddingOnly(top: 8, left: 4, right: 4),
       ),
     );
+  }
+
+  void _shareLog(io.File file) {
+    Share.shareFiles([file.path], text: basename(file.path));
   }
 }

@@ -392,7 +392,7 @@ class DetailsPage extends StatelessWidget {
                   'similar'.tr,
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
-                onPressed: detailsPageLogic.searchSimilar,
+                onPressed: detailsPageState.galleryDetails == null ? null :detailsPageLogic.searchSimilar,
               ),
               IconTextButton(
                 iconData: FontAwesomeIcons.magnet,

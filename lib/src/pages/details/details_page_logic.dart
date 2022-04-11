@@ -319,7 +319,7 @@ class DetailsPageLogic extends GetxController {
 
   Future<void> searchSimilar() async {
     /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
-    String title = state.gallery!.title.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim();
+    String title = state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim();
 
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;

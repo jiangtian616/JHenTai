@@ -8,7 +8,6 @@ class Gallery {
   int gid;
   String token;
   String title;
-  String? japaneseTitle;
   String category;
   GalleryImage cover;
   int? pageCount;
@@ -53,7 +52,6 @@ class Gallery {
     required this.gid,
     required this.token,
     required this.title,
-    this.japaneseTitle,
     required this.category,
     required this.cover,
     this.pageCount,

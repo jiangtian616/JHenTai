@@ -86,7 +86,6 @@ class EHSpiderParser {
       gid: int.parse(parts[4]),
       token: parts[5],
       title: document.querySelector('#gn')?.text ?? '',
-      japaneseTitle: document.querySelector('#gj')?.text,
       category: document.querySelector('#gdc > .cs')?.text ?? '',
       cover: GalleryImage(
         url: coverMatch.group(3)!,
@@ -117,6 +116,7 @@ class EHSpiderParser {
     Document document = parse(html);
 
     GalleryDetail galleryDetail = GalleryDetail(
+      rawTitle: document.querySelector('#gn')!.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
