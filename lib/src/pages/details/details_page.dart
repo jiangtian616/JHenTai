@@ -308,7 +308,7 @@ class DetailsPage extends StatelessWidget {
                 iconSize: 28,
                 onPressed: detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.goToReadPage(),
                 text: Text(
-                  'read'.tr + (readIndexRecord > 0 ? ' P' + (readIndexRecord + 1).toString() : ''),
+                  (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}'),
                   style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                 ),
               ),
