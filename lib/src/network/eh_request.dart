@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -28,7 +29,7 @@ typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
-  static late final PersistCookieJar _cookieJar;
+  static late final EHCookieManager cookieManager;
 
   static CacheOptions cacheOption = CacheOptions(
     store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
@@ -46,19 +47,6 @@ class EHRequest {
       connectTimeout: 5000,
       receiveTimeout: 6000,
     ));
-
-    _cookieJar = PersistCookieJar(storage: FileStorage(join(PathSetting.getVisibleDir().path, "cookies")));
-    await _cookieJar.forceInit();
-
-    /// force load cookies into memory
-    await Future.wait(
-      EHConsts.host2Ip.entries.map(
-        (entry) => Future.wait([
-          _cookieJar.loadForRequest(Uri.parse('https://${entry.key}')),
-          _cookieJar.loadForRequest(Uri.parse('https://${entry.value}')),
-        ]),
-      ),
-    );
 
     /// error handler
     _dio.interceptors.add(InterceptorsWrapper(
@@ -119,30 +107,15 @@ class EHRequest {
       };
     };
 
+
     /// cookies
-    _dio.interceptors.add(EHCookieManager(_cookieJar));
+    cookieManager = Get.find<EHCookieManager>();
+    _dio.interceptors.add(cookieManager);
 
     /// cache
     _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
 
     Log.verbose('init EHRequest success', false);
-  }
-
-  static Future<void> storeEhCookiesStringForAllUri(String cookiesString) async {
-    await storeEhCookiesForAllUri(CookieUtil.parse2Cookies(cookiesString));
-  }
-
-  static Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
-    Future.wait(EHConsts.host2Ip.keys.map((host) => _storeCookies('https://' + host, cookies)));
-    Future.wait(EHConsts.host2Ip.values.map((ip) => _storeCookies('https://' + ip, cookies)));
-  }
-
-  static Future<List<Cookie>> getCookie(Uri uri) async {
-    return _cookieJar.loadForRequest(uri);
-  }
-
-  static Future<void> removeAllCookies() async {
-    await _cookieJar.deleteAll();
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
@@ -163,7 +136,7 @@ class EHRequest {
   }
 
   static Future<void> requestLogout() async {
-    removeAllCookies();
+    cookieManager.removeAllCookies();
     UserSetting.clear();
     CookieManager().clearCookies();
   }
@@ -562,9 +535,5 @@ class EHRequest {
       response = e.response;
     }
     return parser(response!);
-  }
-
-  static Future<void> _storeCookies(String uri, List<Cookie> cookies) async {
-    await _cookieJar.saveFromResponse(Uri.parse(uri), cookies);
   }
 }

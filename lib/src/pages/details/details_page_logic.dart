@@ -24,6 +24,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../consts/eh_consts.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
+import '../../network/eh_cookie_manager.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
@@ -396,7 +397,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleTapArchive() async {
-    List<Cookie> cookies = await EHRequest.getCookie(Uri.parse(EHConsts.EIndex));
+    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
     toNamed(
       Routes.webview,
       arguments: {
