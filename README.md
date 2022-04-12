@@ -85,11 +85,6 @@ mush thanks to these projects🙇‍
 
 ## Bug
 
-1. Local cookie file will be broken in some cases, causing login status invalid, and now I don't know why.
-In logs, we can see errors like `_hostSet hasn't been initializeed`. 
-Can be solved by logout and login again temporarily.
-
-
 ## Main Dart Dependencies
 
 - dependency management, state management, l18n, NoSQL: get

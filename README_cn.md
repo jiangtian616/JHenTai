@@ -78,8 +78,6 @@ E-hentai 的一个移动端app。
 
 ## 已知bug
 
-1. 本地Cookie文件记录会因不明原因而损坏，导致登录状态失效。日志中可以见到 `_hostSet hasn't been initializeed` 等字样，暂时可以通过注销再重新登陆解决。
-
 ## 主要dart依赖
 
 - 依赖管理、状态管理、国际化、NoSQL：get
