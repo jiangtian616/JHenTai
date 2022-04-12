@@ -80,7 +80,7 @@ class ReadPage extends StatelessWidget {
     return Obx(() {
       /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
       if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
-        if (state.imageHrefParsingState.value == LoadingState.idle) {
+        if (state.imageHrefParsingState == LoadingState.idle) {
           logic.beginParsingImageHref(index);
         }
         if (state.type == 'online' || state.images[index].value == null) {
@@ -129,23 +129,28 @@ class ReadPage extends StatelessWidget {
       onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageHref(index)),
       child: SizedBox(
         height: screenHeight / 2,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            LoadingStateIndicator(
-              userCupertinoIndicator: false,
-              loadingState: state.imageHrefParsingState.value,
-              idleWidget: const CircularProgressIndicator(),
-              errorWidget: const Icon(Icons.warning, color: Colors.yellow),
-            ),
-            Text(
-              state.imageHrefParsingState.value == LoadingState.error
-                  ? state.errorMsg[index].value ?? 'parsePageFailed'.tr
-                  : 'parsingPage'.tr,
-              style: state.readPageTextStyle(),
-            ).marginOnly(top: 8),
-            Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-          ],
+        child: GetBuilder<ReadPageLogic>(
+          id: imageHrefParsingStateId,
+          builder: (logic) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                LoadingStateIndicator(
+                  userCupertinoIndicator: false,
+                  loadingState: state.imageHrefParsingState,
+                  idleWidget: const CircularProgressIndicator(),
+                  errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+                ),
+                Text(
+                  state.imageHrefParsingState == LoadingState.error
+                      ? state.errorMsg[index].value ?? 'parsePageFailed'.tr
+                      : 'parsingPage'.tr,
+                  style: state.readPageTextStyle(),
+                ).marginOnly(top: 8),
+                Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+              ],
+            );
+          },
         ),
       ),
     );

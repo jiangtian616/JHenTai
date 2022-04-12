@@ -19,7 +19,7 @@ class ReadPageState {
   late int gid;
   late String galleryUrl;
   late List<Rxn<GalleryThumbnail>> thumbnails;
-  late Rx<LoadingState> imageHrefParsingState = LoadingState.idle.obs;
+  LoadingState imageHrefParsingState = LoadingState.idle;
   late List<Rxn<GalleryImage>> images;
   List<Rx<LoadingState>>? imageUrlParsingStates;
   late List<RxnString> errorMsg;

@@ -25,6 +25,8 @@ import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import 'read_page_state.dart';
 
+const String imageHrefParsingStateId = 'imageHrefParsingStateId';
+
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
   final DownloadService downloadService = Get.find();
@@ -82,13 +84,20 @@ class ReadPageLogic extends GetxController {
     super.onClose();
   }
 
-  Future<void> beginParsingImageHref(int index) async {
-    if (state.imageHrefParsingState.value == LoadingState.loading) {
+  void beginParsingImageHref(int index) {
+    if (state.imageHrefParsingState == LoadingState.loading) {
       return;
     }
-    Log.info('begin to load Thumbnails from $index', false);
 
-    state.imageHrefParsingState.value = LoadingState.loading;
+    state.imageHrefParsingState = LoadingState.loading;
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+      _doBeginParsingImageHref(index);
+    });
+  }
+
+  Future<void> _doBeginParsingImageHref(int index) async {
+    Log.info('begin to load Thumbnails from $index', false);
+    update([imageHrefParsingStateId]);
 
     List<GalleryThumbnail> newThumbnails;
     try {
@@ -103,12 +112,12 @@ class ReadPageLogic extends GetxController {
       );
     } on DioError catch (e) {
       Log.error('get thumbnails error!', e.message);
-      state.imageHrefParsingState.value = LoadingState.error;
+      state.imageHrefParsingState = LoadingState.error;
       if (e.error is EHException) {
         state.errorMsg[index].value = e.error.msg;
         return;
       }
-      await beginParsingImageHref(index);
+      await _doBeginParsingImageHref(index);
       return;
     }
 
@@ -116,7 +125,7 @@ class ReadPageLogic extends GetxController {
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i].value = newThumbnails[i];
     }
-    state.imageHrefParsingState.value = LoadingState.success;
+    state.imageHrefParsingState = LoadingState.idle;
     return;
   }
 

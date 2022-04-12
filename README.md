@@ -94,6 +94,6 @@ mush thanks to these projects🙇‍
 
 ## About Compiling
 
-This project use FlutterFire to collect crashlytics, you can add your firebase config or disable it by steps :
-1. Open `main.dart`, delete `Firebase.initializeApp` in method `init`
-2. At the same position, add a line: `await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);`
+This project use FlutterFire to collect crashlytics, you can add your firebase config or disable it by  :
+1. Delete row 80-83 in `main.dart`, which related to initialization with firebase.
+2. Remove dependency `firebase_core` and `firebase_crashlytics` in `pubspec.yaml`
