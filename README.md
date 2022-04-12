@@ -97,3 +97,8 @@ Can be solved by logout and login again temporarily.
 - image: extendedImage
 - database: drift
 
+## About Compiling
+
+This project use FlutterFire to collect crashlytics, you can add your firebase config or disable it by steps :
+1. Open `main.dart`, delete `Firebase.initializeApp` in method `init`
+2. At the same position, add a line: `await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);`

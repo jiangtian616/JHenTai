@@ -87,3 +87,9 @@ E-hentai 的一个移动端app。
 - 图片：extendedImage
 - 数据库：drift
 
+## 编译相关
+
+本项目使用了FlutterFire统计崩溃数据，可增加自己的firebase配置或者通过以下步骤关闭：
+1. 在`main.dart`的`init`方法中删除`Firebase.initializeApp`
+2. 在删除的位置增加`await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);`
+

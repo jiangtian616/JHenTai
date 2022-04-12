@@ -6,6 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'firebase_options.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
@@ -32,7 +35,7 @@ import 'network/eh_cookie_manager.dart';
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
-    FlutterError.presentError(details);
+    FirebaseCrashlytics.instance.recordFlutterError(details);
   };
 
   runZonedGuarded(() async {
@@ -40,6 +43,7 @@ void main() async {
     runApp(const MyApp());
   }, (Object error, StackTrace stack) {
     Log.error(error, null, stack);
+    FirebaseCrashlytics.instance.recordError(error, stack);
   });
 }
 
@@ -71,6 +75,10 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await PathSetting.init();
 

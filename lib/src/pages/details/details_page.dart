@@ -239,9 +239,11 @@ class DetailsPage extends StatelessWidget {
                       ).marginOnly(left: 2),
                     ],
                   ),
-                  Text(
-                    galleryDetails?.size ?? '',
-                    style: const TextStyle(fontSize: 13),
+                  FadeIn(
+                    child: Text(
+                      galleryDetails?.size ?? '',
+                      style: const TextStyle(fontSize: 13),
+                    ),
                   ),
                   Row(
                     children: [
@@ -251,7 +253,7 @@ class DetailsPage extends StatelessWidget {
                         color: Colors.grey,
                       ),
                       Text(
-                        gallery.pageCount.toString(),
+                        gallery.pageCount == null ? '...' : gallery.pageCount.toString(),
                         style: const TextStyle(fontSize: 13),
                       ).marginOnly(left: 2),
                     ],
@@ -269,7 +271,7 @@ class DetailsPage extends StatelessWidget {
                         color: Colors.red,
                       ),
                       Text(
-                        galleryDetails?.favoriteCount.toString() ?? '0',
+                        galleryDetails?.favoriteCount.toString() ?? '...',
                         style: const TextStyle(fontSize: 13),
                       ).marginOnly(left: 2),
                     ],
