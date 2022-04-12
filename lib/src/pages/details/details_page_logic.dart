@@ -415,9 +415,8 @@ class DetailsPageLogic extends GetxController {
     if (downloadService.gid2downloadProgress[state.gallery!.gid] != null) {
       toNamed(
         Routes.read,
-        arguments: state.gallery!.toGalleryDownloadedData(),
         parameters: {
-          'type': 'local',
+          'mode': 'local',
           'gid': state.gallery!.gid.toString(),
           'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),
@@ -427,11 +426,8 @@ class DetailsPageLogic extends GetxController {
     } else {
       toNamed(
         Routes.read,
-
-        /// parsed thumbnails, don't need to parse again
-        arguments: state.galleryDetails?.thumbnails,
         parameters: {
-          'type': 'online',
+          'mode': 'online',
           'gid': state.gallery!.gid.toString(),
           'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
           'pageCount': state.gallery!.pageCount.toString(),

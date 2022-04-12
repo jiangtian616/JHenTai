@@ -25,79 +25,58 @@ import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import 'read_page_state.dart';
 
-const String imageHrefParsingStateId = 'imageHrefParsingStateId';
+const String itemId = 'itemId';
+const String parseImageHrefsStateId = 'parseImageHrefsStateId';
+const String parseImageUrlStateId = 'parseImageUrlStateId';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
+  late Worker readDirectionListener;
 
-  ReadPageLogic() {
-    state.type = Get.parameters['type']!;
-    state.initialIndex = int.parse(Get.parameters['initialIndex']!);
-    state.pageCount = int.parse(Get.parameters['pageCount']!);
-    state.gid = int.parse(Get.parameters['gid']!);
-    state.galleryUrl = Get.parameters['galleryUrl']!;
-    state.readIndexRecord = storageService.read('readIndexRecord::${state.gid}') ?? 0;
-    state.pageController = PageController(initialPage: state.initialIndex);
-    state.errorMsg = List.generate(state.pageCount, (index) => RxnString(null));
-
-    if (state.type == 'local') {
-      GalleryDownloadedData gallery = Get.arguments as GalleryDownloadedData;
-      state.thumbnails = downloadService.gid2ImageHrefs[gallery.gid]!;
-      state.images = downloadService.gid2Images[gallery.gid]!;
-    } else if (state.type == 'online') {
-      if (Get.arguments == null) {
-        state.thumbnails = List.generate(state.pageCount, (index) => Rxn(null), growable: true);
-      } else {
-        /// has load some thumbnails at detail page
-        List<GalleryThumbnail> parsedThumbnails = Get.arguments as List<GalleryThumbnail>;
-        state.thumbnails = List.generate(
-          state.pageCount,
-          (index) => index < parsedThumbnails.length ? Rxn(parsedThumbnails[index]) : Rxn(null),
-          growable: true,
-        );
-      }
-      state.images = List.generate(state.pageCount, (index) => Rxn(null));
-      state.imageUrlParsingStates = List.generate(state.pageCount, (index) => LoadingState.idle.obs);
-    }
-
+  @override
+  void onInit() {
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
       recordReadProgress(getCurrentVisibleItems().first.index);
     });
 
     /// when direction changes, keep read position
-    ever(ReadSetting.readDirection, (value) {
+    readDirectionListener = ever(ReadSetting.readDirection, (value) {
       state.initialIndex = state.readIndexRecord;
       state.pageController = PageController(initialPage: state.readIndexRecord);
     });
+
+    super.onInit();
   }
 
   @override
   void onClose() {
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
+    restoreSystemBar();
+    readDirectionListener.dispose();
 
     /// update read progress in detail page
     DetailsPageLogic.current?.update([bodyId]);
-    restoreSystemBar();
+
     super.onClose();
   }
 
-  void beginParsingImageHref(int index) {
-    if (state.imageHrefParsingState == LoadingState.loading) {
+  void beginToParseImageHref(int index) {
+    if (state.parseImageHrefsState == LoadingState.loading) {
       return;
     }
 
-    state.imageHrefParsingState = LoadingState.loading;
+    state.parseImageHrefsState = LoadingState.loading;
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-      _doBeginParsingImageHref(index);
+      _parseImageHref(index);
     });
   }
 
-  Future<void> _doBeginParsingImageHref(int index) async {
-    Log.info('begin to load Thumbnails from $index', false);
-    update([imageHrefParsingStateId]);
+  Future<void> _parseImageHref(int index) async {
+    Log.verbose('begin to load Thumbnails from $index', false);
+    update([parseImageHrefsStateId]);
 
     List<GalleryThumbnail> newThumbnails;
     try {
@@ -109,15 +88,16 @@ class ReadPageLogic extends GetxController {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
+        onRetry: (e) => Log.error('get thumbnails error!', (e as DioError).message),
       );
     } on DioError catch (e) {
-      Log.error('get thumbnails error!', e.message);
-      state.imageHrefParsingState = LoadingState.error;
+      state.parseImageHrefsState = LoadingState.error;
       if (e.error is EHException) {
-        state.errorMsg[index].value = e.error.msg;
-        return;
+        state.errorMsg[index] = e.error.msg;
+      } else {
+        state.errorMsg[index] = 'parsePageFailed'.tr;
       }
-      await _doBeginParsingImageHref(index);
+      update([parseImageHrefsStateId]);
       return;
     }
 
@@ -125,16 +105,25 @@ class ReadPageLogic extends GetxController {
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i].value = newThumbnails[i];
     }
-    state.imageHrefParsingState = LoadingState.idle;
-    return;
+    state.parseImageHrefsState = LoadingState.idle;
+    for (int i = 0; i < newThumbnails.length; i++) {
+      update(['$itemId::${index + i}']);
+    }
   }
 
-  Future<void> beginParsingImageUrl(int index) async {
-    if (state.imageUrlParsingStates![index].value == LoadingState.loading) {
+  void beginToParseImageUrl(int index) {
+    if (state.parseImageUrlStates[index] == LoadingState.loading) {
       return;
     }
+    state.parseImageUrlStates[index] = LoadingState.loading;
+    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+      _parseImageUrl(index);
+    });
+  }
 
-    state.imageUrlParsingStates![index].value = LoadingState.loading;
+  Future<void> _parseImageUrl(int index) async {
+    Log.verbose('begin to parse image url of $index', false);
+    update(['$parseImageHrefsStateId::$index']);
 
     GalleryImage image;
     try {
@@ -145,18 +134,22 @@ class ReadPageLogic extends GetxController {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
+        onRetry: (e) => Log.error('parse gallery image failed, index: ${index.toString()}', (e as DioError).message),
       );
     } on DioError catch (e) {
-      Log.error('parse gallery image failed, index: ${index.toString()}', e.message);
-      state.imageUrlParsingStates![index].value = LoadingState.error;
+      state.parseImageUrlStates[index] = LoadingState.error;
       if (e.error is EHException) {
-        state.errorMsg[index].value = e.error.msg;
+        state.errorMsg[index] = e.error.msg;
+      } else {
+        state.errorMsg[index] = 'parseURLFailed'.tr;
       }
+      update(['$parseImageHrefsStateId::$index']);
       return;
     }
 
     state.images[index].value = image;
-    state.imageUrlParsingStates![index].value = LoadingState.success;
+    state.parseImageUrlStates[index] = LoadingState.success;
+    update(['$itemId::$index']);
   }
 
   /// to prev image or screen

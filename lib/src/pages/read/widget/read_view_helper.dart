@@ -8,12 +8,12 @@ import '../../../utils/size_util.dart';
 import '../../start_page.dart';
 import '../read_page_logic.dart';
 
-class ReadListViewHelper extends StatelessWidget {
-  final logic = Get.put(ReadPageLogic());
+class ReadViewHelper extends StatelessWidget {
+  final logic = Get.find<ReadPageLogic>();
   final state = Get.find<ReadPageLogic>().state;
   final Widget child;
 
-  ReadListViewHelper({Key? key, required this.child}) : super(key: key);
+  ReadViewHelper({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

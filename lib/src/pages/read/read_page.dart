@@ -6,24 +6,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
+import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_photo_view_gallery.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
-import 'package:jhentai/src/pages/read/widget/read_list_view_helper.dart';
+import 'package:jhentai/src/pages/read/widget/read_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../service/download_service.dart';
 import '../../utils/route_util.dart';
 
 class ReadPage extends StatelessWidget {
-  final logic = Get.put(ReadPageLogic());
-  final state = Get.find<ReadPageLogic>().state;
+  final ReadPageLogic logic = Get.put(ReadPageLogic());
+  final ReadPageState state = Get.find<ReadPageLogic>().state;
   final DownloadService downloadService = Get.find();
 
   ReadPage({Key? key}) : super(key: key);
@@ -32,7 +34,7 @@ class ReadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: ReadListViewHelper(
+      child: ReadViewHelper(
         child: Obx(() {
           logic.hideSystemBarIfNeeded(ReadSetting.enableImmersiveMode.isTrue);
           return ReadSetting.readDirection.value == ReadDirection.top2bottom ? _buildListView() : _buildPageView();
@@ -49,12 +51,13 @@ class ReadPage extends StatelessWidget {
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
         child: EHScrollablePositionedList.separated(
-          minCacheExtent: state.type == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
+          minCacheExtent: state.mode == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
           initialScrollIndex: state.initialIndex,
           itemCount: state.pageCount,
           itemScrollController: state.itemScrollController,
           itemPositionsListener: state.itemPositionsListener,
-          itemBuilder: (context, index) => _buildItem(context, index),
+          itemBuilder: (context, index) =>
+              state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
           separatorBuilder: (BuildContext context, int index) => const Divider(height: 6),
         ),
       ),
@@ -71,80 +74,101 @@ class ReadPage extends StatelessWidget {
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
-        child: _buildItem(context, index),
+        child: state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
       ),
     );
   }
 
-  Widget _buildItem(BuildContext context, int index) {
+  /// online mode: parsing and loading automatically while scrolling
+  Widget _buildItemInOnlineMode(BuildContext context, int index) {
+    return GetBuilder<ReadPageLogic>(
+      id: '$itemId::$index',
+      builder: (logic) {
+        /// step 1: parse image href if needed. check if thumbnail's info exists, if not, [parse] one page of thumbnails to get
+        /// image hrefs.
+        if (state.thumbnails[index].value == null) {
+          if (state.parseImageHrefsState == LoadingState.idle) {
+            logic.beginToParseImageHref(index);
+          }
+          return _buildParsingHrefsIndicator(context, index);
+        }
+
+        /// step 2: parse image url.
+        if (state.images[index].value == null) {
+          if (state.parseImageUrlStates[index] == LoadingState.idle) {
+            logic.beginToParseImageUrl(index);
+          }
+          return _buildParsingUrlIndicator(context, index);
+        }
+
+        /// step 3: use url to load image
+        FittedSizes fittedSizes = _getImageFittedSize(state.images[index].value!);
+        return KeepAliveWrapper(
+          child: EHImage(
+            enableLongPressToRefresh: true,
+            containerHeight: fittedSizes.destination.height,
+            containerWidth: fittedSizes.destination.width,
+            galleryImage: state.images[index].value!,
+            adaptive: true,
+            fit: BoxFit.contain,
+            loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+            failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+          ),
+        );
+      },
+    );
+  }
+
+  /// local mode: wait for download service to parse and download
+  Widget _buildItemInLocalMode(BuildContext context, int index) {
     return Obx(() {
-      /// step 1: parsing thumbnail if needed. check thumbnail info whether exists, if not, [parse] one page of thumbnails
-      if (state.thumbnails.isEmpty || state.thumbnails[index].value == null) {
-        if (state.imageHrefParsingState == LoadingState.idle) {
-          logic.beginParsingImageHref(index);
-        }
-        if (state.type == 'online' || state.images[index].value == null) {
-          return _buildParsingThumbnailsIndicator(context, index);
-        }
+      /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
+      /// we don't need to wait parsing thumbnail.
+      if (state.thumbnails[index].value == null && state.images[index].value == null) {
+        return _buildWaitParsingHrefsIndicator(context, index);
       }
 
-      /// step 2: parsing image url. [parse] one image's raw data
+      /// step 2: wait for parsing image's url.
       if (state.images[index].value == null) {
-        if (state.imageUrlParsingStates?[index].value == LoadingState.idle) {
-          logic.beginParsingImageUrl(index);
-        }
-
-        return _buildParsingImageIndicator(context, index);
+        return _buildWaitParsingUrlIndicator(context, index);
       }
 
-      /// just like a listener for download situation
-      downloadService.gid2Images[state.gid]?[index].value;
-
-      FittedSizes fittedSizes = applyBoxFit(
-        BoxFit.contain,
-        Size(state.images[index].value!.width, state.images[index].value!.height),
-        Size(fullScreenWidth, double.infinity),
-      );
-
-      /// step 3 load image : use url to [load] image
+      /// step 3: use url to load image
+      FittedSizes fittedSizes = _getImageFittedSize(state.images[index].value!);
       return KeepAliveWrapper(
         child: EHImage(
-          enableLongPressToRefresh: state.type == 'online',
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
           galleryImage: state.images[index].value!,
           adaptive: true,
           fit: BoxFit.contain,
-          loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-          failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
           downloadingWidgetBuilder: () => _downloadingWidgetBuilder(context, index),
         ),
       );
     });
   }
 
-  Widget _buildParsingThumbnailsIndicator(BuildContext context, int index) {
+  /// wait for [logic] to parse image href in online mode
+  Widget _buildParsingHrefsIndicator(BuildContext context, int index) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageHref(index)),
+      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginToParseImageHref(index)),
       child: SizedBox(
         height: screenHeight / 2,
         child: GetBuilder<ReadPageLogic>(
-          id: imageHrefParsingStateId,
+          id: parseImageHrefsStateId,
           builder: (logic) {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 LoadingStateIndicator(
                   userCupertinoIndicator: false,
-                  loadingState: state.imageHrefParsingState,
+                  loadingState: state.parseImageHrefsState,
                   idleWidget: const CircularProgressIndicator(),
                   errorWidget: const Icon(Icons.warning, color: Colors.yellow),
                 ),
                 Text(
-                  state.imageHrefParsingState == LoadingState.error
-                      ? state.errorMsg[index].value ?? 'parsePageFailed'.tr
-                      : 'parsingPage'.tr,
+                  state.parseImageHrefsState == LoadingState.error ? state.errorMsg[index]! : 'parsingPage'.tr,
                   style: state.readPageTextStyle(),
                 ).marginOnly(top: 8),
                 Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
@@ -156,36 +180,68 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildParsingImageIndicator(BuildContext context, int index) {
+  /// wait for [logic] to parse image url in online mode
+  Widget _buildParsingUrlIndicator(BuildContext context, int index) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginParsingImageUrl(index)),
+      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginToParseImageUrl(index)),
       child: SizedBox(
         height: screenHeight / 2,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (state.type == 'online')
-              LoadingStateIndicator(
-                userCupertinoIndicator: false,
-                loadingState: state.imageUrlParsingStates![index].value,
-                idleWidget: const CircularProgressIndicator(),
-                errorWidget: const Icon(Icons.warning, color: Colors.yellow),
-              ),
-            if (state.type == 'local') const CircularProgressIndicator(),
-            Text(
-              state.imageUrlParsingStates?[index].value == LoadingState.error
-                  ? state.errorMsg[index].value ?? 'parseURLFailed'.tr
-                  : 'parsingURL'.tr,
-              style: state.readPageTextStyle(),
-            ).marginOnly(top: 8),
-            Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-          ],
-        ),
+        child: GetBuilder<ReadPageLogic>(
+            id: '$parseImageUrlStateId::$index',
+            builder: (logic) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingStateIndicator(
+                    userCupertinoIndicator: false,
+                    loadingState: state.parseImageUrlStates[index],
+                    idleWidget: const CircularProgressIndicator(),
+                    errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+                  ),
+                  Text(
+                    state.parseImageUrlStates[index] == LoadingState.error ? state.errorMsg[index]! : 'parsingURL'.tr,
+                    style: state.readPageTextStyle(),
+                  ).marginOnly(top: 8),
+                  Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+                ],
+              );
+            }),
       ),
     );
   }
 
+  /// wait for [DownloadService] to parse image href in local mode
+  Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
+    return SizedBox(
+      height: screenHeight / 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          Text('parsingPage'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
+          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+        ],
+      ),
+    );
+  }
+
+  /// wait for [DownloadService] to parse image url in local mode
+  Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
+    return SizedBox(
+      height: screenHeight / 2,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const CircularProgressIndicator(),
+          Text('parsingURL'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
+          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
+        ],
+      ),
+    );
+  }
+
+  /// loading for online mode
   Widget _loadingWidgetBuilder(BuildContext context, int index, double progress) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -197,13 +253,15 @@ class ReadPage extends StatelessWidget {
     );
   }
 
+  /// failed for online mode
   Widget _failedWidgetBuilder(BuildContext context, int index, ExtendedImageState state) {
+    Log.warning(state.lastException, false);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
           iconData: Icons.error,
-          text: Text(this.state.errorMsg[index].value ?? 'networkError'.tr, style: this.state.readPageTextStyle()),
+          text: Text('networkError'.tr, style: this.state.readPageTextStyle()),
           onPressed: state.reLoadImage,
         ),
         Text(index.toString(), style: this.state.readPageTextStyle()),
@@ -211,6 +269,7 @@ class ReadPage extends StatelessWidget {
     );
   }
 
+  /// downloaded for local mode
   Widget _downloadingWidgetBuilder(BuildContext context, int index) {
     return Obx(() {
       SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
@@ -226,6 +285,14 @@ class ReadPage extends StatelessWidget {
         ],
       );
     });
+  }
+
+  FittedSizes _getImageFittedSize(GalleryImage image) {
+    return applyBoxFit(
+      BoxFit.contain,
+      Size(image.width, image.height),
+      Size(fullScreenWidth, double.infinity),
+    );
   }
 
   void _showReParseBottomSheet(BuildContext context, ErrorTapCallback callback) {

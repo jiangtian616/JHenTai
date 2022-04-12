@@ -449,9 +449,8 @@ class DownloadView extends StatelessWidget {
 
     toNamed(
       Routes.read,
-      arguments: gallery,
       parameters: {
-        'type': 'local',
+        'mode': 'local',
         'gid': gallery.gid.toString(),
         'initialIndex': readIndexRecord.toString(),
         'pageCount': gallery.pageCount.toString(),
