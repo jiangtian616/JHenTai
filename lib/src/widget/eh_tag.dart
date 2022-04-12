@@ -141,6 +141,7 @@ class _TagDialogState extends State<_TagDialog> {
                 child: Icon(Icons.thumb_up, color: Colors.green.shade700),
               ),
               successWidget: const DoneWidget(),
+              errorTapCallback: () => _vote(true),
             ),
             LoadingStateIndicator(
               loadingState: voteDownState,
@@ -148,7 +149,8 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _vote(false),
                 child: Icon(Icons.thumb_down, color: Colors.red.shade700),
               ),
-              successWidget: DoneWidget(),
+              successWidget: const DoneWidget(),
+              errorTapCallback: () => _vote(false),
             ),
             LoadingStateIndicator(
               loadingState: addWatchedTagState,
@@ -156,7 +158,8 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _addNewTagSet(true),
                 child: Icon(Icons.favorite, color: Get.theme.primaryColorLight),
               ),
-              successWidget: DoneWidget(),
+              successWidget: const DoneWidget(),
+              errorTapCallback: () => _addNewTagSet(true),
             ),
             LoadingStateIndicator(
               loadingState: addHiddenTagState,
@@ -164,7 +167,8 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _addNewTagSet(false),
                 child: Icon(Icons.visibility_off, color: Colors.grey.shade700),
               ),
-              successWidget: DoneWidget(),
+              successWidget: const DoneWidget(),
+              errorTapCallback: () => _addNewTagSet(false),
             ),
             if (widget.tagData.tagName != null)
               GestureDetector(

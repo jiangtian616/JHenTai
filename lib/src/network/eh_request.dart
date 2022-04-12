@@ -54,8 +54,8 @@ class EHRequest {
     await Future.wait(
       EHConsts.host2Ip.entries.map(
         (entry) => Future.wait([
-          _cookieJar.loadForRequest(Uri.parse(entry.key)),
-          _cookieJar.loadForRequest(Uri.parse(entry.value)),
+          _cookieJar.loadForRequest(Uri.parse('https://${entry.key}')),
+          _cookieJar.loadForRequest(Uri.parse('https://${entry.value}')),
         ]),
       ),
     );
