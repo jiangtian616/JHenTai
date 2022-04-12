@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
@@ -14,6 +15,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../../network/eh_cookie_manager.dart';
 import '../../../../utils/cookie_util.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
@@ -22,6 +24,7 @@ import 'login_page_state.dart';
 
 class LoginPageLogic extends GetxController {
   final LoginPageState state = LoginPageState();
+  final EHCookieManager cookieManager = Get.find<EHCookieManager>();
 
   void changeLoginType() {
     state.loginType = (state.loginType == LoginType.cookie ? LoginType.password : LoginType.cookie);
@@ -100,7 +103,7 @@ class LoginPageLogic extends GetxController {
 
     int ipbMemberId = int.parse(match.group(1)!);
     String ipbPassHash = match.group(2)!;
-    EHRequest.storeEhCookiesForAllUri([
+    cookieManager.storeEhCookiesForAllUri([
       Cookie('ipb_member_id', ipbMemberId.toString()),
       Cookie('ipb_pass_hash', ipbPassHash),
     ]);
@@ -120,7 +123,7 @@ class LoginPageLogic extends GetxController {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
-      await EHRequest.removeAllCookies();
+      await cookieManager.removeAllCookies();
       update();
       return;
     }
@@ -137,7 +140,7 @@ class LoginPageLogic extends GetxController {
     } else {
       state.loginState = LoadingState.error;
       update();
-      await EHRequest.removeAllCookies();
+      await cookieManager.removeAllCookies();
       snack('loginFail'.tr, 'invalidCookie'.tr);
     }
   }
@@ -174,7 +177,7 @@ class LoginPageLogic extends GetxController {
       predicate: (route) => route.settings.name == Routes.settingAccount,
     );
 
-    await EHRequest.storeEhCookiesForAllUri(cookies);
+    await cookieManager.storeEhCookiesForAllUri(cookies);
     String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
     UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
   }

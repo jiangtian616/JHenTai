@@ -27,6 +27,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import 'config/theme_config.dart';
+import 'network/eh_cookie_manager.dart';
 
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -88,6 +89,8 @@ Future<void> init() async {
   FavoriteSetting.init();
 
   EHSetting.init();
+
+  await EHCookieManager.init();
 
   DownloadSetting.init();
   await EHRequest.init();
