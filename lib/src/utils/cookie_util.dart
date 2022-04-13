@@ -2,15 +2,23 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 
+import 'log.dart';
+
 class CookieUtil {
   static List<Cookie> parse2Cookies(String? cookiesString) {
-    if (cookiesString == null) {
-      return <Cookie>[];
-    }
-    return cookiesString.split('; ').map((pair) {
-      List<String> nameAndValue = pair.split('=');
-      return Cookie(nameAndValue[0], nameAndValue[1]);
-    }).toList();
+    return callWithParamsUploadIfErrorOccurs(
+      () {
+        if (cookiesString == null) {
+          return <Cookie>[];
+        }
+        return cookiesString.split(';').map((pair) {
+          List<String> nameAndValue = pair.trim().split('=');
+          return Cookie(nameAndValue[0], nameAndValue[1]);
+        }).toList();
+      },
+      params: cookiesString,
+      defaultValue: [],
+    );
   }
 
   static String parse2String(List<Cookie> cookies) {

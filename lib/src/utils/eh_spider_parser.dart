@@ -25,6 +25,7 @@ import 'package:jhentai/src/utils/color_util.dart';
 import '../database/database.dart';
 import '../model/gallery.dart';
 import '../pages/home/tab_view/ranklist/ranklist_view_state.dart';
+import 'log.dart';
 
 T noOpParser<T>(v) => v as T;
 
@@ -222,21 +223,26 @@ class EHSpiderParser {
   }
 
   static LinkedHashMap<String, int> favoritePage2FavoriteTags(Response response) {
-    String html = response.data! as String;
-    Document document = parse(html);
-    List<Element> divs = document.querySelectorAll('.nosel > .fp');
+    return callWithParamsUploadIfErrorOccurs(
+      () {
+        String html = response.data! as String;
+        Document document = parse(html);
+        List<Element> divs = document.querySelectorAll('.nosel > .fp');
 
-    /// not favorite tag
-    divs.removeLast();
-    LinkedHashMap<String, int> tagNames2Count = LinkedHashMap();
+        /// not favorite tag
+        divs.removeLast();
+        LinkedHashMap<String, int> tagNames2Count = LinkedHashMap();
 
-    for (Element div in divs) {
-      String tagName = div.querySelector('div:last-child')?.text ?? '';
-      int favoriteCount = int.parse(div.querySelector('div:first-child')?.text ?? '0');
-      tagNames2Count.putIfAbsent(tagName, () => favoriteCount);
-    }
+        for (Element div in divs) {
+          String tagName = div.querySelector('div:last-child')?.text ?? '';
+          int favoriteCount = int.parse(div.querySelector('div:first-child')?.text ?? '0');
+          tagNames2Count.putIfAbsent(tagName, () => favoriteCount);
+        }
 
-    return tagNames2Count;
+        return tagNames2Count;
+      },
+      params: response,
+    );
   }
 
   static GalleryImage imagePage2GalleryImage(Response response) {
@@ -297,53 +303,64 @@ class EHSpiderParser {
   }
 
   static Map<String, dynamic> settingPage2SiteSetting(Response response) {
-    String html = response.data! as String;
-    Document document = parse(html);
-    List<Element> items = document.querySelectorAll('.optouter');
-    Map<String, dynamic> map = {};
+    return callWithParamsUploadIfErrorOccurs(
+      () {
+        String html = response.data! as String;
+        Document document = parse(html);
+        List<Element> items = document.querySelectorAll('.optouter');
+        Map<String, dynamic> map = {};
 
-    Element frontPageSetting = items[6];
-    String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
+        Element frontPageSetting = items[6];
+        String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
 
-    switch (type) {
-      case ' Minimal':
-        map['frontPageDisplayType'] = FrontPageDisplayType.minimal;
-        break;
-      case ' Minimal+':
-        map['frontPageDisplayType'] = FrontPageDisplayType.minimalPlus;
-        break;
-      case ' Compact':
-        map['frontPageDisplayType'] = FrontPageDisplayType.compact;
-        break;
-      case ' Extended':
-        map['frontPageDisplayType'] = FrontPageDisplayType.extended;
-        break;
-      case ' Thumbnail':
-        map['frontPageDisplayType'] = FrontPageDisplayType.thumbnail;
-        break;
-    }
+        switch (type) {
+          case ' Minimal':
+            map['frontPageDisplayType'] = FrontPageDisplayType.minimal;
+            break;
+          case ' Minimal+':
+            map['frontPageDisplayType'] = FrontPageDisplayType.minimalPlus;
+            break;
+          case ' Compact':
+            map['frontPageDisplayType'] = FrontPageDisplayType.compact;
+            break;
+          case ' Extended':
+            map['frontPageDisplayType'] = FrontPageDisplayType.extended;
+            break;
+          case ' Thumbnail':
+            map['frontPageDisplayType'] = FrontPageDisplayType.thumbnail;
+            break;
+        }
 
-    Element thumbnailSetting = items[18];
-    map['isLargeThumbnail'] =
-        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
-            ? true
-            : false;
-    map['thumbnailRows'] =
-        int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
-    return map;
+        Element thumbnailSetting = items[18];
+        map['isLargeThumbnail'] =
+            thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
+                ? true
+                : false;
+        map['thumbnailRows'] =
+            int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
+        return map;
+      },
+      params: response,
+    );
   }
 
   static Map<String, int> homePage2ImageLimit(Response response) {
-    String html = response.data! as String;
-    Document document = parse(html);
+    return callWithParamsUploadIfErrorOccurs(
+      () {
+        String html = response.data! as String;
+        Document document = parse(html);
 
-    Map<String, int> map = {
-      'currentConsumption': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
-      'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
-      'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
-    };
+        Map<String, int> map = {
+          'currentConsumption':
+              int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+          'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
+          'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
+        };
 
-    return map;
+        return map;
+      },
+      params: response,
+    );
   }
 
   static Map<String, dynamic> myTagsPage2TagSetNamesAndTagSetsAndApikey(Response response) {

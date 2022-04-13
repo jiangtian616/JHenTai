@@ -1,5 +1,8 @@
 import 'dart:io' as io;
 
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -75,5 +78,26 @@ class Log {
     if (logDirectory.existsSync()) {
       logDirectory.delete(recursive: true);
     }
+  }
+}
+
+T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? defaultValue}) {
+  try {
+    return func.call();
+  } on Exception catch (e) {
+    Log.error('operationFailed'.tr, e);
+
+    Iterable<DiagnosticsNode> infos;
+    if (params is List) {
+      infos = (params).map((e) => ErrorDescription(e.toString()));
+    } else {
+      infos = [ErrorDescription(params.toString())];
+    }
+
+    FirebaseCrashlytics.instance.recordError(e, null, information: infos);
+    if (defaultValue == null) {
+      rethrow;
+    }
+    return defaultValue;
   }
 }
