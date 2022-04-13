@@ -18,7 +18,7 @@ class SingleImagePage extends StatelessWidget {
       body: Container(
         constraints: const BoxConstraints.expand(),
         color: Colors.white,
-        child: EHImage(
+        child: EHImage.network(
           galleryImage:  Get.arguments,
           adaptive: true,
           fit: BoxFit.contain,

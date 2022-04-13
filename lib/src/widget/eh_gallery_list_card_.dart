@@ -76,7 +76,7 @@ class EHGalleryListCard extends StatelessWidget {
 
   Widget _buildCover(GalleryImage image) {
     return Obx(() {
-      return EHImage(
+      return EHImage.network(
         containerHeight: withTags ? 200 : 125,
         containerWidth: withTags ? 140 : 85,
         adaptive: true,

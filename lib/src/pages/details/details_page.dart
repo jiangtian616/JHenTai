@@ -137,7 +137,7 @@ class DetailsPage extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: Obx(() {
-                    return EHImage(
+                    return EHImage.network(
                       containerHeight: 200,
                       containerWidth: 140,
                       galleryImage: gallery.cover,
@@ -618,7 +618,7 @@ class DetailsPage extends StatelessWidget {
 
           return ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: EHImage(
+            child: EHImage.network(
               galleryImage: GalleryImage(
                 url: thumbnail.thumbUrl,
                 height: fittedSizes.destination.height,
@@ -645,7 +645,7 @@ class DetailsPage extends StatelessWidget {
   }
 
   Widget _buildLargeThumbnail(GalleryThumbnail thumbnail) {
-    return EHImage(
+    return EHImage.network(
       containerHeight: 200,
       galleryImage: GalleryImage(
         url: thumbnail.thumbUrl,

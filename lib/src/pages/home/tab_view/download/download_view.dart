@@ -121,7 +121,7 @@ class DownloadView extends StatelessWidget {
             );
           }
 
-          return EHImage(
+          return EHImage.file(
             containerHeight: 130,
             containerWidth: 110,
             galleryImage: image,
@@ -310,7 +310,7 @@ class DownloadView extends StatelessWidget {
       );
     }
 
-    return EHImage(
+    return EHImage.file(
       containerHeight: 130,
       containerWidth: 110,
       galleryImage: image,
