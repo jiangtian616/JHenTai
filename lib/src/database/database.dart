@@ -18,7 +18,7 @@ class AppDb extends _$AppDb {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(p.join(PathSetting.getVisibleDir().path, 'db.sqlite'));
+    final file = io.File(p.join(PathSetting.appSupportDir.path, 'db.sqlite'));
     return NativeDatabase(file);
   });
 }

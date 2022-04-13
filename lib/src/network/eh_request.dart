@@ -32,7 +32,7 @@ class EHRequest {
   static late final EHCookieManager cookieManager;
 
   static CacheOptions cacheOption = CacheOptions(
-    store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
+    store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
     policy: CachePolicy.noCache,
     hitCacheOnErrorExcept: [401, 403],
     maxStale: const Duration(seconds: 60),

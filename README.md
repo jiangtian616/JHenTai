@@ -87,10 +87,10 @@ mush thanks to these projects🙇‍
 
 ## Main Dart Dependencies
 
-- dependency management, state management, l18n, NoSQL: get
-- network: dio
-- image: extendedImage
-- database: drift
+- [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL
+- [dio](https://pub.flutter-io.cn/packages?q=dio): network
+- [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
+- [drift](https://pub.flutter-io.cn/packages/drift): database
 
 ## About Compiling
 

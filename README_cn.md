@@ -12,9 +12,9 @@ E-hentai 的一个移动端app。
 
 [下载](https://github.com/jiangtian616/JHenTai/releases)
 
-安卓安装： 下载对应自己设置架构的apk文件，直接安装即可。
+安卓安装:  下载对应自己设置架构的apk文件，直接安装即可。
 
-苹果安装： 下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
+苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
 ## 开发动机
 
@@ -24,13 +24,13 @@ E-hentai 的一个移动端app。
 
 ## 参考与借鉴
 
-布局样式参考：
+布局样式参考: 
 
-- [FEhviewer](https://github.com/honjow/FEhViewer) ：主要
+- [FEhviewer](https://github.com/honjow/FEhViewer) : 主要
 - [EHPanda](https://github.com/tatsuz0u/EhPanda)
 - [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
-标签翻译数据库：
+标签翻译数据库: 
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
@@ -80,13 +80,13 @@ E-hentai 的一个移动端app。
 
 ## 主要dart依赖
 
-- 依赖管理、状态管理、国际化、NoSQL：get
-- 网络：dio
-- 图片：extendedImage
-- 数据库：drift
+- [get](https://pub.flutter-io.cn/packages/get): 依赖管理、状态管理、国际化、NoSQL
+- [dio](https://pub.flutter-io.cn/packages?q=dio): 网络
+- [extendedImage](https://pub.flutter-io.cn/packages/extended_image): 图片
+- [drift](https://pub.flutter-io.cn/packages/drift): 数据库
 
 ## 编译相关
 
-本项目使用了FlutterFire统计崩溃数据，可增加自己的firebase配置或者通过以下步骤关闭：
+本项目使用了FlutterFire统计崩溃数据，可增加自己的firebase配置或者通过以下步骤关闭: 
 1. 删除 `main.dart` 80~83行初始化Firebase的相关代码
 2. 删除 `pubspec.yaml`中`firebase_core`和`firebase_crashlytics`依赖
