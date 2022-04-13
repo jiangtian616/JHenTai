@@ -74,7 +74,16 @@ class ReadPage extends StatelessWidget {
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
-        child: state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
+        child: Obx(() {
+          Widget item =
+              state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index);
+
+          if (ReadSetting.enableAutoScaleUp.isTrue) {
+            item = Center(child: SingleChildScrollView(child: item));
+          }
+
+          return item;
+        }),
       ),
     );
   }

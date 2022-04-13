@@ -194,6 +194,8 @@ class zh_CN {
       'preloadDistanceInOnlineMode': '在线模式预载距离',
       'ScreenHeight': '屏幕高度',
       'preloadPageCount': '预载图片数量',
+      'enableAutoScaleUp': '自动放大长图片',
+      'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 
       /// log page
       'logList': '日志列表',

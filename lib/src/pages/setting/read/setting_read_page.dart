@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
@@ -57,113 +58,132 @@ class SettingReadPage extends StatelessWidget {
               ),
             ),
             if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
-              ListTile(
-                title: Text('turnPageMode'.tr),
-                subtitle: Text('turnPageModeHint'.tr),
-                trailing: DropdownButton<TurnPageMode>(
-                  value: ReadSetting.turnPageMode.value,
-                  elevation: 4,
-                  onChanged: (TurnPageMode? newValue) {
-                    ReadSetting.saveTurnPageMode(newValue!);
-                  },
-                  items: [
-                    DropdownMenuItem(
-                      child: Text('image'.tr),
-                      value: TurnPageMode.image,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('screen'.tr),
-                      value: TurnPageMode.screen,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('adaptive'.tr),
-                      value: TurnPageMode.adaptive,
-                    ),
-                  ],
+              FadeIn(
+                key: const Key('turnPageMode'),
+                child: ListTile(
+                  title: Text('turnPageMode'.tr),
+                  subtitle: Text('turnPageModeHint'.tr),
+                  trailing: DropdownButton<TurnPageMode>(
+                    value: ReadSetting.turnPageMode.value,
+                    elevation: 4,
+                    onChanged: (TurnPageMode? newValue) {
+                      ReadSetting.saveTurnPageMode(newValue!);
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        child: Text('image'.tr),
+                        value: TurnPageMode.image,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('screen'.tr),
+                        value: TurnPageMode.screen,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('adaptive'.tr),
+                        value: TurnPageMode.adaptive,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
-              ListTile(
-                title: Text('preloadDistanceInOnlineMode'.tr),
-                subtitle: Text('needRestart'.tr),
-                trailing: SizedBox(
-                  width: 150,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      DropdownButton<int>(
-                        value: ReadSetting.preloadDistance.value,
-                        elevation: 4,
-                        onChanged: (int? newValue) {
-                          ReadSetting.savePreloadDistance(newValue!);
-                        },
-                        items: const [
-                          DropdownMenuItem(
-                            child: Text('0'),
-                            value: 0,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('1'),
-                            value: 1,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('2'),
-                            value: 2,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('3'),
-                            value: 3,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('5'),
-                            value: 5,
-                          ),
-                          DropdownMenuItem(
-                            child: Text('10'),
-                            value: 10,
-                          ),
-                        ],
+              FadeIn(
+                key: const Key('preloadDistanceInOnlineMode'),
+                child: ListTile(
+                  title: Text('preloadDistanceInOnlineMode'.tr),
+                  subtitle: Text('needRestart'.tr),
+                  trailing: SizedBox(
+                    width: 150,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        DropdownButton<int>(
+                          value: ReadSetting.preloadDistance.value,
+                          elevation: 4,
+                          onChanged: (int? newValue) {
+                            ReadSetting.savePreloadDistance(newValue!);
+                          },
+                          items: const [
+                            DropdownMenuItem(
+                              child: Text('0'),
+                              value: 0,
+                            ),
+                            DropdownMenuItem(
+                              child: Text('1'),
+                              value: 1,
+                            ),
+                            DropdownMenuItem(
+                              child: Text('2'),
+                              value: 2,
+                            ),
+                            DropdownMenuItem(
+                              child: Text('3'),
+                              value: 3,
+                            ),
+                            DropdownMenuItem(
+                              child: Text('5'),
+                              value: 5,
+                            ),
+                            DropdownMenuItem(
+                              child: Text('10'),
+                              value: 10,
+                            ),
+                          ],
+                        ),
+                        Text('ScreenHeight'.tr).marginSymmetric(horizontal: 12),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+              FadeIn(
+                child: ListTile(
+                  title: Text('preloadPageCount'.tr),
+                  trailing: DropdownButton<int>(
+                    value: ReadSetting.preloadPageCount.value,
+                    elevation: 4,
+                    onChanged: (int? newValue) {
+                      ReadSetting.savePreloadPageCount(newValue!);
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        child: Text('0'),
+                        value: 0,
                       ),
-                      Text('ScreenHeight'.tr).marginSymmetric(horizontal: 12),
+                      DropdownMenuItem(
+                        child: Text('1'),
+                        value: 1,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('2'),
+                        value: 2,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('3'),
+                        value: 3,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('5'),
+                        value: 5,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('10'),
+                        value: 10,
+                      ),
                     ],
                   ),
                 ),
               ),
             if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
-              ListTile(
-                title: Text('preloadPageCount'.tr),
-                trailing: DropdownButton<int>(
-                  value: ReadSetting.preloadPageCount.value,
-                  elevation: 4,
-                  onChanged: (int? newValue) {
-                    ReadSetting.savePreloadPageCount(newValue!);
-                  },
-                  items: const [
-                    DropdownMenuItem(
-                      child: Text('0'),
-                      value: 0,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('1'),
-                      value: 1,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('2'),
-                      value: 2,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('3'),
-                      value: 3,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('5'),
-                      value: 5,
-                    ),
-                    DropdownMenuItem(
-                      child: Text('10'),
-                      value: 10,
-                    ),
-                  ],
+              FadeIn(
+                child: ListTile(
+                  title: Text('enableAutoScaleUp'.tr),
+                  subtitle: Text('enableAutoScaleUpHints'.tr),
+                  trailing: Switch(
+                    value: ReadSetting.enableAutoScaleUp.value,
+                    onChanged: (value) => ReadSetting.saveEnableAutoScaleUp(value),
+                  ),
                 ),
               ),
           ],

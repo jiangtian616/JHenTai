@@ -133,7 +133,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     LoadingState prevState = state.loadingState[tabIndex];
     state.loadingState[tabIndex] = LoadingState.loading;
-    if (prevState == LoadingState.error) {
+    if (prevState == LoadingState.error || prevState == LoadingState.noData) {
       update([loadingStateId]);
     }
 

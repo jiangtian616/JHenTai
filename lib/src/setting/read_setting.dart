@@ -25,6 +25,7 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
+  static RxBool enableAutoScaleUp = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -66,6 +67,11 @@ class ReadSetting {
     _save();
   }
 
+  static saveEnableAutoScaleUp(bool value) {
+    enableAutoScaleUp.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -78,6 +84,7 @@ class ReadSetting {
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
       'enableImmersiveMode': enableImmersiveMode.value,
+      'enableAutoScaleUp': enableAutoScaleUp.value,
     };
   }
 
@@ -88,5 +95,6 @@ class ReadSetting {
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
     enableImmersiveMode.value = map['enableImmersiveMode'];
+    enableAutoScaleUp.value = map['enableAutoScaleUp'];
   }
 }

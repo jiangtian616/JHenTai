@@ -194,6 +194,8 @@ class en_US {
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
       'ScreenHeight': 'Screen Height',
       'preloadPageCount': 'Preload Page Count',
+      'enableAutoScaleUp': 'Enable Auto Scale up long image',
+      'enableAutoScaleUpHints': 'Make image width same as screen width',
 
       /// log page
       'logList': 'Log List',

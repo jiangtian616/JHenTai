@@ -13,13 +13,13 @@ class SingleImagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => back(currentRoute: Routes.singleImagePage)),
+        leading: BackButton(onPressed: () => back(currentRoute: Routes.singleImagePage, closeOverlays: true)),
       ),
       body: Container(
         constraints: const BoxConstraints.expand(),
         color: Colors.white,
         child: EHImage.network(
-          galleryImage:  Get.arguments,
+          galleryImage: Get.arguments,
           adaptive: true,
           fit: BoxFit.contain,
           mode: ExtendedImageMode.gesture,
