@@ -12,14 +12,17 @@ import 'eh_gallery_waterflow_card.dart';
 
 /// act as a List or WaterfallFlow according to Style Setting
 Widget EHGalleryCollection({
+  Key? key,
   required List<Gallery> gallerys,
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
   VoidCallback? handleLoadMore,
+  bool keepPosition = true,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
     return FlutterSliverList(
+      key: key,
       delegate: FlutterListViewDelegate(
         (BuildContext context, int index) {
           if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
@@ -50,6 +53,7 @@ Widget EHGalleryCollection({
 
   Widget _buildGalleryWaterfallFlow() {
     return SliverPadding(
+      key: key,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       sliver: SliverWaterfallFlow(
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(

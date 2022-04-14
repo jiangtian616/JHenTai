@@ -343,6 +343,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   Widget _buildGalleryCollection(int tabIndex) {
     return EHGalleryCollection(
+      key: gallerysViewState.galleryCollectionKeys[tabIndex],
       gallerys: gallerysViewState.gallerys[tabIndex],
       loadingState: gallerysViewState.loadingState[tabIndex],
       handleTapCard: gallerysViewLogic.handleTapCard,

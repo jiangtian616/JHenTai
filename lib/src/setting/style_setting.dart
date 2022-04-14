@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
@@ -18,6 +19,7 @@ enum CoverMode {
 }
 
 class StyleSetting {
+  static Rx<Locale> language = window.locale.obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;

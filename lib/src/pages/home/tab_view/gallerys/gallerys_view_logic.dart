@@ -83,6 +83,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.gallerys[tabIndex].clear();
     state.gallerys[tabIndex] = gallerysAndPageCount[0];
     state.pageCount[tabIndex] = gallerysAndPageCount[1];
+    state.galleryCollectionKeys[tabIndex] = UniqueKey();
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;
     } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
@@ -174,7 +175,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.gallerys[tabIndex].clear();
     state.loadingState[tabIndex] = LoadingState.loading;
     update([bodyId]);
-
 
     pageIndex = max(pageIndex, 0);
     pageIndex = min(pageIndex, state.pageCount[tabIndex] - 1);
