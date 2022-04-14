@@ -5,7 +5,7 @@ import 'package:local_auth/local_auth.dart';
 import '../service/storage_service.dart';
 
 class SecuritySetting {
-  static RxBool enableBlur = true.obs;
+  static RxBool enableBlur = false.obs;
   static RxBool enableFingerPrintLock = false.obs;
 
   static bool supportFingerPrintLock = false;
