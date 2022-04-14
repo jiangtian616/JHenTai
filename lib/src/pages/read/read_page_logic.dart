@@ -123,7 +123,7 @@ class ReadPageLogic extends GetxController {
 
   Future<void> _parseImageUrl(int index) async {
     Log.verbose('begin to parse image url of $index', false);
-    update(['$parseImageHrefsStateId::$index']);
+    update(['$parseImageUrlStateId::$index']);
 
     GalleryImage image;
     try {
@@ -143,7 +143,7 @@ class ReadPageLogic extends GetxController {
       } else {
         state.errorMsg[index] = 'parseURLFailed'.tr;
       }
-      update(['$parseImageHrefsStateId::$index']);
+      update(['$parseImageUrlStateId::$index']);
       return;
     }
 

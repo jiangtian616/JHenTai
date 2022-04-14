@@ -285,7 +285,9 @@ class EHRequest {
     Response<String> response = await _dio.post(
       href,
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions() : null,
+      options: useCacheIfAvailable
+          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
     return parser(response);
   }

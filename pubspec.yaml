@@ -55,7 +55,7 @@ dependencies:
   share_plus: ^4.0.3
   syncfusion_flutter_charts: ^20.1.47+1
   firebase_core: ^1.14.0
-  firebase_crashlytics: ^2.6.1
+  firebase_crashlytics: ^2.6.2
 
 dev_dependencies:
   flutter_test:

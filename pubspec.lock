@@ -385,14 +385,14 @@ packages:
       name: firebase_crashlytics
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.6.1"
+    version: "2.6.2"
   firebase_crashlytics_platform_interface:
     dependency: transitive
     description:
       name: firebase_crashlytics_platform_interface
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.2.2"
+    version: "3.2.3"
   fixnum:
     dependency: transitive
     description:
