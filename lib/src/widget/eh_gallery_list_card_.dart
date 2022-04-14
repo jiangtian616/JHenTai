@@ -24,49 +24,40 @@ class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
   final TapCardCallback handleTapCard;
   final bool withTags;
-  final bool keepAlive;
 
   const EHGalleryListCard({
     Key? key,
     required this.gallery,
     required this.handleTapCard,
     this.withTags = true,
-    this.keepAlive = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    /// 1. in order to keep position for each TabBarView after changing to another TabBarView,
-    /// we should make the sliver widget in CustomScrollView mixin with [AutomaticKeepAliveClientMixin].
-    /// 2. we use a handy class [KeepAliveWrapper] to avoid write with AutomaticKeepAliveClientMixin,
-    /// they are equal in fact.
-    return KeepAliveWrapper(
-      keepAlive: keepAlive,
-      child: GestureDetector(
-        onTap: () => handleTapCard(gallery),
-        child: FadeIn(
-          child: Container(
-            height: withTags ? 200 : 125,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  blurRadius: 5,
-                  spreadRadius: 1,
-                  offset: const Offset(3, 3),
-                )
+    return GestureDetector(
+      onTap: () => handleTapCard(gallery),
+      child: FadeIn(
+        child: Container(
+          height: withTags ? 200 : 125,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                blurRadius: 5,
+                spreadRadius: 1,
+                offset: const Offset(3, 3),
+              )
+            ],
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(15),
+            child: Row(
+              children: [
+                _buildCover(gallery.cover),
+                _buildInfo(gallery),
               ],
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Row(
-                children: [
-                  _buildCover(gallery.cover),
-                  _buildInfo(gallery),
-                ],
-              ),
             ),
           ),
         ),
