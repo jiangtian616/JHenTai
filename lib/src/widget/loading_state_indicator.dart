@@ -35,6 +35,7 @@ class LoadingStateIndicator extends StatelessWidget {
   final Widget? successWidget;
   final Widget? errorWidget;
   final bool errorWidgetSameWithIdle;
+  final bool successWidgetSameWithIdle;
 
   const LoadingStateIndicator({
     Key? key,
@@ -52,6 +53,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.successWidget,
     this.errorWidget,
     this.errorWidgetSameWithIdle = false,
+    this.successWidgetSameWithIdle = false,
   }) : super(key: key);
 
   @override
@@ -88,6 +90,9 @@ class LoadingStateIndicator extends StatelessWidget {
         child = noMoreWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));
         break;
       case LoadingState.success:
+        if (successWidgetSameWithIdle == true) {
+          return idleWidget!;
+        }
         if (successWidget != null) {
           return successWidget!;
         }

@@ -39,11 +39,12 @@ class TagTranslationService extends GetxService {
     super.onInit();
   }
 
-  Future<void> updateDatabase() async {
+  Future<void> refresh() async {
     if (loadingState.value == LoadingState.loading) {
       return;
     }
     loadingState.value = LoadingState.loading;
+    downloadProgress.value = '0 MB';
 
     List dataList = await _getDataList();
     if (dataList.isEmpty) {

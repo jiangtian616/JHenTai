@@ -122,36 +122,36 @@ class SettingStylePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('enableTagZHTranslation'.tr),
-                  if (tagTranslationService.loadingState.value == LoadingState.success)
-                    Text(
-                      '${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
-                  if (tagTranslationService.loadingState.value == LoadingState.loading)
-                    Text(
-                      'downloadTagTranslationHint'.tr + tagTranslationService.downloadProgress.value,
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                    ),
-                ],
+              title: Text('enableTagZHTranslation'.tr),
+              subtitle: Text(
+                tagTranslationService.loadingState.value == LoadingState.success
+                    ? '${'version'.tr}: ${tagTranslationService.timeStamp.value!}'
+                    : tagTranslationService.loadingState.value == LoadingState.loading
+                        ? '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}'
+                        : '',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
               ),
               trailing: SizedBox(
                 width: 120,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (tagTranslationService.loadingState.value == LoadingState.loading &&
-                        StyleSetting.enableTagZHTranslation.isTrue)
-                      const CupertinoActivityIndicator().marginOnly(right: 8),
+                    LoadingStateIndicator(
+                      loadingState: tagTranslationService.loadingState.value,
+                      width: 40,
+                      idleWidget: IconButton(
+                        onPressed: tagTranslationService.refresh,
+                        icon: const Icon(Icons.refresh),
+                      ),
+                      errorWidgetSameWithIdle: true,
+                      successWidgetSameWithIdle: true,
+                    ),
                     Switch(
                       value: StyleSetting.enableTagZHTranslation.value,
                       onChanged: (value) {
                         StyleSetting.saveEnableTagZHTranslation(value);
-                        if (value == true) {
-                          Get.find<TagTranslationService>().updateDatabase();
+                        if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
+                          Get.find<TagTranslationService>().refresh();
                         }
                       },
                     )
