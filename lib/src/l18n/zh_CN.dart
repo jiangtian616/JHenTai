@@ -116,6 +116,7 @@ class zh_CN {
       'parsePageFailed': "解析页面错误",
       'parseURLFailed': "解析URL错误",
       'loading': "加载中",
+      'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
 
       /// setting page

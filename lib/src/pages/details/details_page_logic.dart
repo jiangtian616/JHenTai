@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
@@ -346,18 +347,19 @@ class DetailsPageLogic extends GetxController {
   void handleTapDownload() {
     DownloadService downloadService = Get.find<DownloadService>();
     Gallery gallery = state.gallery!;
+    GalleryDownloadProgress? downloadProgress = downloadService.gid2downloadProgress[gallery.gid];
 
-    if (downloadService.gid2downloadProgress[gallery.gid] == null) {
+    if (downloadProgress == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
       snack('beginToDownload'.tr, gallery.title);
       return;
     }
 
-    if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.paused) {
+    if (downloadProgress.downloadStatus == DownloadStatus.paused) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData(), isFirstDownload: false);
       snack('resume'.tr, gallery.title);
       return;
-    } else if (downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus == DownloadStatus.downloading) {
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
       snack('pause'.tr, gallery.title);
     }

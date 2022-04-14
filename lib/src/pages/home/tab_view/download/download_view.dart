@@ -1,4 +1,3 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -15,26 +14,25 @@ import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 
-class DownloadView extends StatelessWidget {
+class DownloadView extends StatefulWidget {
+  const DownloadView({Key? key}) : super(key: key);
+
+  @override
+  State<DownloadView> createState() => _DownloadViewState();
+}
+
+class _DownloadViewState extends State<DownloadView> {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  late int galleryLength;
 
-  late int galleryLength = downloadService.gallerys.length;
-
-  DownloadView({Key? key}) : super(key: key) {
-    /// manually handle add or delete item
-    ever<List<GalleryDownloadedData>>(
-      downloadService.gallerys,
-      (gallerys) {
-        if (gallerys.length > galleryLength) {
-          _listKey.currentState?.insertItem(0);
-        }
-        galleryLength = gallerys.length;
-      },
-      condition: () => downloadService.gallerys.length != galleryLength,
-    );
+  @override
+  void initState() {
+    galleryLength = downloadService.gallerys.length;
+    super.initState();
   }
 
   @override
@@ -45,11 +43,16 @@ class DownloadView extends StatelessWidget {
         title: Text('download'.tr),
         elevation: 1,
       ),
-      body: AnimatedList(
-        key: _listKey,
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        initialItemCount: galleryLength,
-        itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+      body: GetBuilder<DownloadService>(
+        initState: _listen2AddItem,
+        builder: (_) {
+          return AnimatedList(
+            key: _listKey,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            initialItemCount: galleryLength,
+            itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+          );
+        },
       ),
     );
   }
@@ -107,13 +110,13 @@ class DownloadView extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toNamed(Routes.details, arguments: gallery.galleryUrl),
-      child: Obx(
-        () {
-          GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
+      child: GetBuilder<DownloadService>(
+        id: '$imageUrlId::${gallery.gid}::0',
+        builder: (_) {
+          GalleryImage? image = downloadService.gid2Images[gallery.gid]![0];
 
           /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
-          if (image == null ||
-              image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
+          if (image?.downloadStatus != DownloadStatus.downloaded) {
             return const SizedBox(
               height: 130,
               width: 110,
@@ -124,7 +127,7 @@ class DownloadView extends StatelessWidget {
           return EHImage.file(
             containerHeight: 130,
             containerWidth: 110,
-            galleryImage: image,
+            galleryImage: image!,
             adaptive: true,
             fit: BoxFit.cover,
           );
@@ -195,27 +198,30 @@ class DownloadView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             EHGalleryCategoryTag(category: gallery.category),
-            Obx(() {
-              DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
-              return GestureDetector(
-                onTap: () {
-                  downloadStatus == DownloadStatus.paused
-                      ? downloadService.downloadGallery(gallery, isFirstDownload: false)
-                      : downloadService.pauseDownloadGallery(gallery);
-                },
-                child: Icon(
-                  downloadStatus == DownloadStatus.paused
-                      ? Icons.play_arrow
-                      : downloadStatus == DownloadStatus.downloading
-                          ? Icons.pause
-                          : Icons.done,
-                  size: 26,
-                  color: downloadStatus == DownloadStatus.downloading
-                      ? Get.theme.primaryColorLight
-                      : Get.theme.primaryColor,
-                ),
-              );
-            }),
+            GetBuilder<DownloadService>(
+              id: '$galleryDownloadProgressId::${gallery.gid}',
+              builder: (_) {
+                DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.downloadStatus;
+                return GestureDetector(
+                  onTap: () {
+                    downloadStatus == DownloadStatus.paused
+                        ? downloadService.downloadGallery(gallery, isFirstDownload: false)
+                        : downloadService.pauseDownloadGallery(gallery);
+                  },
+                  child: Icon(
+                    downloadStatus == DownloadStatus.paused
+                        ? Icons.play_arrow
+                        : downloadStatus == DownloadStatus.downloading
+                            ? Icons.pause
+                            : Icons.done,
+                    size: 26,
+                    color: downloadStatus == DownloadStatus.downloading
+                        ? Get.theme.primaryColorLight
+                        : Get.theme.primaryColor,
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ],
@@ -223,203 +229,80 @@ class DownloadView extends StatelessWidget {
   }
 
   Widget _buildFooter(GalleryDownloadedData gallery) {
-    return Obx(() {
-      DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
-      SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
-      return Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
+    return GetBuilder<DownloadService>(
+      id: '$galleryDownloadProgressId::${gallery.gid}',
+      builder: (_) {
+        GalleryDownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!;
+        SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (downloadProgress.downloadStatus == DownloadStatus.downloading)
+                  GetBuilder<DownloadService>(
+                    id: '$speedComputerId::${gallery.gid}',
+                    builder: (logic) {
+                      return Text(
+                        speedComputer.speed,
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      );
+                    },
+                  ),
+                const Expanded(child: SizedBox()),
                 Text(
-                  speedComputer.speed.value,
+                  '${downloadProgress.curCount}/${downloadProgress.totalCount}',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade600,
                   ),
                 ),
-              const Expanded(child: SizedBox()),
-              Text(
-                '${downloadProgress.curCount}/${downloadProgress.totalCount}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-            ],
-          ),
-          if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
-            SizedBox(
-              height: 3,
-              child: LinearProgressIndicator(
-                value: downloadProgress.curCount / downloadProgress.totalCount,
-                color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? Get.theme.primaryColorLight
-                    : Get.theme.primaryColor,
-              ),
-            ).marginOnly(top: 4),
-        ],
-      );
-    });
-  }
-
-  /// remove Obx() in removedItem
-  Widget _removedItemBuilder(
-    BuildContext context,
-    GalleryDownloadedData gallery,
-    GalleryImage? image,
-    DownloadStatus downloadStatus,
-    DownloadProgress downloadProgress,
-    SpeedComputer speedComputer,
-  ) {
-    return Container(
-      height: 130,
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            spreadRadius: 1,
-            offset: const Offset(0.3, 1),
-          )
-        ],
-        borderRadius: BorderRadius.circular(15),
-      ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Row(
-          children: [
-            _buildRemovedCover(image),
-            _buildRemovedInfo(gallery, downloadStatus, downloadProgress, speedComputer),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRemovedCover(GalleryImage? image) {
-    if (image == null ||
-        image.downloadStatus != DownloadStatus.downloading && image.downloadStatus != DownloadStatus.downloaded) {
-      return const SizedBox(
-        height: 130,
-        width: 110,
-        child: CupertinoActivityIndicator(),
-      );
-    }
-
-    return EHImage.file(
-      containerHeight: 130,
-      containerWidth: 110,
-      galleryImage: image,
-      adaptive: true,
-      fit: BoxFit.cover,
-    );
-  }
-
-  Widget _buildRemovedInfo(GalleryDownloadedData gallery, DownloadStatus downloadStatus,
-      DownloadProgress downloadProgress, SpeedComputer speedComputer) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(gallery),
-          const Expanded(child: SizedBox()),
-          _buildRemovedCenter(gallery, downloadStatus),
-          _buildRemovedFooter(
-            gallery,
-            downloadProgress,
-            speedComputer,
-          ).marginOnly(top: 4),
-        ],
-      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
-    );
-  }
-
-  Widget _buildRemovedCenter(GalleryDownloadedData gallery, DownloadStatus downloadStatus) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            EHGalleryCategoryTag(category: gallery.category),
-            Icon(
-              downloadStatus == DownloadStatus.paused
-                  ? Icons.play_arrow
-                  : downloadStatus == DownloadStatus.downloading
-                      ? Icons.pause
-                      : Icons.done,
-              size: 26,
-              color:
-                  downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+              ],
             ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRemovedFooter(
-      GalleryDownloadedData gallery, DownloadProgress downloadProgress, SpeedComputer speedComputer) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
             if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
-              Text(
-                speedComputer.speed.value,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+              SizedBox(
+                height: 3,
+                child: LinearProgressIndicator(
+                  value: downloadProgress.curCount / downloadProgress.totalCount,
+                  color: downloadProgress.downloadStatus == DownloadStatus.downloading
+                      ? Get.theme.primaryColorLight
+                      : Get.theme.primaryColor,
                 ),
-              ),
-            const Expanded(child: SizedBox()),
-            Text(
-              '${downloadProgress.curCount}/${downloadProgress.totalCount}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
-            ),
+              ).marginOnly(top: 4),
           ],
-        ),
-        if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
-          SizedBox(
-            height: 3,
-            child: LinearProgressIndicator(
-              value: downloadProgress.curCount / downloadProgress.totalCount,
-              color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                  ? Get.theme.primaryColorLight
-                  : Get.theme.primaryColor,
-            ),
-          ).marginOnly(top: 4),
-      ],
+        );
+      },
+    );
+  }
+
+  void _listen2AddItem(GetBuilderState<DownloadService> state) {
+    downloadService.addListenerId(
+      downloadGallerysId,
+      () {
+        if (downloadService.gallerys.length > galleryLength) {
+          _listKey.currentState?.insertItem(0);
+        }
+        galleryLength = downloadService.gallerys.length;
+      },
     );
   }
 
   void _handleRemoveItem(BuildContext context, int index) {
-    GalleryDownloadedData gallery = downloadService.gallerys[index];
-    GalleryImage? image = downloadService.gid2Images[gallery.gid]![0].value;
-    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus;
-    DownloadProgress downloadProgress = downloadService.gid2downloadProgress[gallery.gid]!.value;
-    SpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
-
-    downloadService.deleteGallery(gallery);
-
     _listKey.currentState?.removeItem(
       index,
       (context, Animation<double> animation) => FadeTransition(
         opacity: animation,
         child: SizeTransition(
           sizeFactor: animation,
-          child: _removedItemBuilder(context, gallery, image, downloadStatus, downloadProgress, speedComputer),
+          child: _itemBuilder(context, index),
         ),
       ),
+    );
+
+    /// wait delete anime
+    Future.delayed(
+      const Duration(milliseconds: 1000),
+      () => downloadService.deleteGallery(downloadService.gallerys[index]),
     );
   }
 

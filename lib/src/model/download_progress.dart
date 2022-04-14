@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:jhentai/src/model/gallery_image.dart';
 
 /// progress of gallery download
-class DownloadProgress {
+class GalleryDownloadProgress {
   DownloadStatus downloadStatus;
 
   /// total images count
@@ -14,7 +14,7 @@ class DownloadProgress {
 
   late List<bool> hasDownloaded;
 
-  DownloadProgress({
+  GalleryDownloadProgress({
     this.downloadStatus = DownloadStatus.downloading,
     required this.totalCount,
     List<bool>? hasDownloaded,
@@ -32,8 +32,8 @@ class DownloadProgress {
     };
   }
 
-  factory DownloadProgress.fromJson(Map<String, dynamic> json) {
-    return DownloadProgress(
+  factory GalleryDownloadProgress.fromJson(Map<String, dynamic> json) {
+    return GalleryDownloadProgress(
       downloadStatus: DownloadStatus.values[json["downloadStatus"]],
       totalCount: json["totalCount"],
       hasDownloaded: (jsonDecode(json["hasDownloaded"]) as List).cast<bool>(),

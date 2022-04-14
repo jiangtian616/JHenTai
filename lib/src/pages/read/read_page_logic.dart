@@ -103,7 +103,7 @@ class ReadPageLogic extends GetxController {
 
     int from = index ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
     for (int i = 0; i < newThumbnails.length; i++) {
-      state.thumbnails[from + i].value = newThumbnails[i];
+      state.thumbnails[from + i] = newThumbnails[i];
     }
     state.parseImageHrefsState = LoadingState.idle;
     for (int i = 0; i < newThumbnails.length; i++) {
@@ -111,17 +111,17 @@ class ReadPageLogic extends GetxController {
     }
   }
 
-  void beginToParseImageUrl(int index) {
+  void beginToParseImageUrl(int index, bool reParse) {
     if (state.parseImageUrlStates[index] == LoadingState.loading) {
       return;
     }
     state.parseImageUrlStates[index] = LoadingState.loading;
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-      _parseImageUrl(index);
+      _parseImageUrl(index, reParse);
     });
   }
 
-  Future<void> _parseImageUrl(int index) async {
+  Future<void> _parseImageUrl(int index, bool reParse) async {
     Log.verbose('begin to parse image url of $index', false);
     update(['$parseImageUrlStateId::$index']);
 
@@ -129,8 +129,9 @@ class ReadPageLogic extends GetxController {
     try {
       image = await retry(
         () => EHRequest.requestImagePage(
-          state.thumbnails[index].value!.href,
+          state.thumbnails[index]!.href,
           parser: EHSpiderParser.imagePage2GalleryImage,
+          useCacheIfAvailable: !reParse,
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
@@ -147,7 +148,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    state.images[index].value = image;
+    state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
     update(['$itemId::$index']);
   }

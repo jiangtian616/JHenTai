@@ -19,9 +19,9 @@ class ReadPageState {
   late int pageCount;
 
   /// property used for parsing and loading
-  late List<Rxn<GalleryThumbnail>> thumbnails;
+  late List<GalleryThumbnail?> thumbnails;
   LoadingState parseImageHrefsState = LoadingState.idle;
-  late List<Rxn<GalleryImage>> images;
+  late List<GalleryImage?> images;
   late List<LoadingState> parseImageUrlStates;
   late List<String?> errorMsg;
 
@@ -50,8 +50,8 @@ class ReadPageState {
       thumbnails = Get.find<DownloadService>().gid2ImageHrefs[gid]!;
       images = Get.find<DownloadService>().gid2Images[gid]!;
     } else {
-      thumbnails = List.generate(pageCount, (index) => Rxn(null), growable: true);
-      images = List.generate(pageCount, (index) => Rxn(null));
+      thumbnails = List.generate(pageCount, (index) => null, growable: true);
+      images = List.generate(pageCount, (index) => null);
       parseImageUrlStates = List.generate(pageCount, (index) => LoadingState.idle);
     }
     errorMsg = List.generate(pageCount, (index) => null);

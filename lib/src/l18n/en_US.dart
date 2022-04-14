@@ -116,6 +116,7 @@ class en_US {
       'parsePageFailed': "Parse Page Failed",
       'parseURLFailed': "Parse URL Failed",
       'loading': "Loading",
+      'paused': 'Paused',
       'exceedImageLimits': "Exceed Image Limits",
 
       /// setting page

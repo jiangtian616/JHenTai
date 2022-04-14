@@ -26,6 +26,7 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
+import '../../model/download_progress.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../service/download_service.dart';
 import '../../service/storage_service.dart';
@@ -319,20 +320,22 @@ class DetailsPage extends StatelessWidget {
                 iconSize: 30,
                 onPressed:
                     detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
-                text: Obx(() {
-                  return Text(
-                    downloadService.gid2downloadProgress[gallery.gid] == null
-                        ? 'download'.tr
-                        : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
-                                DownloadStatus.paused
-                            ? 'resume'.tr
-                            : downloadService.gid2downloadProgress[gallery.gid]!.value.downloadStatus ==
-                                    DownloadStatus.downloaded
-                                ? 'finished'.tr
-                                : 'pause'.tr,
-                    style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
-                  );
-                }),
+                text: GetBuilder<DownloadService>(
+                  id: '$galleryDownloadProgressId::${gallery.gid}',
+                  builder: (_) {
+                    GalleryDownloadProgress? downloadProgress = downloadService.gid2downloadProgress[gallery.gid];
+                    return Text(
+                      downloadProgress == null
+                          ? 'download'.tr
+                          : downloadProgress.downloadStatus == DownloadStatus.paused
+                              ? 'resume'.tr
+                              : downloadProgress.downloadStatus == DownloadStatus.downloaded
+                                  ? 'finished'.tr
+                                  : 'pause'.tr,
+                      style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                    );
+                  },
+                ),
               ),
               GetBuilder<DetailsPageLogic>(
                   id: addFavoriteStateId,

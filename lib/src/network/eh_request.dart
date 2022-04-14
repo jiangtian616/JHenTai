@@ -35,7 +35,7 @@ class EHRequest {
     store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
     policy: CachePolicy.noCache,
     hitCacheOnErrorExcept: [401, 403],
-    maxStale: const Duration(seconds: 60),
+    maxStale: const Duration(hours: 1),
     priority: CachePriority.normal,
     cipher: null,
     keyBuilder: CacheOptions.defaultCacheKeyBuilder,
@@ -283,7 +283,7 @@ class EHRequest {
     bool useCacheIfAvailable = true,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.post(
+    Response<String> response = await _dio.get(
       href,
       cancelToken: cancelToken,
       options: useCacheIfAvailable

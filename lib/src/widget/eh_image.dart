@@ -16,6 +16,7 @@ typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
 typedef CompletedWidgetBuilder = Widget Function(ExtendedImageState state);
 typedef DownloadingWidgetBuilder = Widget Function();
+typedef PausedWidgetBuilder = Widget Function();
 
 class EHImage extends StatefulWidget {
   final GalleryImage galleryImage;
@@ -28,8 +29,9 @@ class EHImage extends StatefulWidget {
   final InitGestureConfigHandler? initGestureConfigHandler;
   LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   FailedWidgetBuilder? failedWidgetBuilder;
-  CompletedWidgetBuilder? completedWidgetBuilder;
   DownloadingWidgetBuilder? downloadingWidgetBuilder;
+  PausedWidgetBuilder? pausedWidgetBuilder;
+  CompletedWidgetBuilder? completedWidgetBuilder;
 
   EHImage.file({
     Key? key,
@@ -42,6 +44,7 @@ class EHImage extends StatefulWidget {
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
     this.downloadingWidgetBuilder,
+    this.pausedWidgetBuilder,
     this.completedWidgetBuilder,
   }) : super(key: key);
 
@@ -122,9 +125,14 @@ class _EHImageState extends State<EHImage> {
   }
 
   Widget buildFileImage(BuildContext context) {
+    if (widget.galleryImage.downloadStatus == DownloadStatus.paused) {
+      return widget.pausedWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
+    }
+
     if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
       return widget.downloadingWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
     }
+
     return ExtendedImage.file(
       io.File(path.join(PathSetting.getVisibleDir().path, widget.galleryImage.path!)),
       key: key,
