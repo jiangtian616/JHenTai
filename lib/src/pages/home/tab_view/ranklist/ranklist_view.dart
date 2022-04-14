@@ -80,7 +80,6 @@ class _RanklistViewState extends State<RanklistView> {
         ? _buildCenterStatusIndicator()
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            key: PageStorageKey(state.ranklistType.name),
             slivers: <Widget>[
               _buildRefreshIndicator(),
               _buildGalleryCollection(),
@@ -127,6 +126,8 @@ class _RanklistViewState extends State<RanklistView> {
 
   Widget _buildGalleryCollection() {
     return EHGalleryCollection(
+      key: state.listKey,
+      keepPosition: false,
       gallerys: state.ranklistGallery[state.ranklistType]!,
       loadingState: state.getRanklistLoadingState[state.ranklistType]!,
       handleTapCard: logic.handleTapCard,

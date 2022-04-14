@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
@@ -27,9 +28,6 @@ class RanklistViewLogic extends GetxController {
     RanklistType curType = state.ranklistType;
 
     if (state.getRanklistLoadingState[curType] == LoadingState.loading) {
-      return;
-    }
-    if (state.getRanklistLoadingState[curType] == LoadingState.noMore) {
       return;
     }
 
@@ -81,9 +79,9 @@ class RanklistViewLogic extends GetxController {
     }
 
     results.removeWhere((r) => r == null);
-    state.ranklistGallery[curType]?.addAll(results.map((r) => r!['gallery'] as Gallery).toList());
-    state.ranklistGalleryDetails[curType]?.addAll(results.map((r) => r!['galleryDetails'] as GalleryDetail).toList());
-    state.ranklistGalleryDetailsApikey[curType]?.addAll(results.map((r) => r!['apikey'] as String).toList());
+    state.ranklistGallery[curType] = (results.map((r) => r!['gallery'] as Gallery).toList());
+    state.ranklistGalleryDetails[curType] = (results.map((r) => r!['galleryDetails'] as GalleryDetail).toList());
+    state.ranklistGalleryDetailsApikey[curType] = (results.map((r) => r!['apikey'] as String).toList());
 
     tagTranslationService.translateGalleryTagsIfNeeded(state.ranklistGallery[curType]!);
     tagTranslationService.translateGalleryDetailsTagsIfNeeded(state.ranklistGalleryDetails[curType]!);
@@ -93,10 +91,8 @@ class RanklistViewLogic extends GetxController {
   }
 
   Future<void> handleRefresh() async {
-    state.ranklistGallery[state.ranklistType]?.clear();
-    state.getRanklistLoadingState[state.ranklistType] = LoadingState.idle;
-    update([bodyId]);
-    getRanklist();
+    state.listKey = UniqueKey();
+    return getRanklist();
   }
 
   Future<void> handleTapCard(Gallery gallery) async {
@@ -115,8 +111,11 @@ class RanklistViewLogic extends GetxController {
   Future<void> handleChangeRanklist(RanklistType result) async {
     if (result != state.ranklistType) {
       state.ranklistType = result;
+      state.listKey = UniqueKey();
       update([bodyId]);
-      getRanklist();
+      if (state.getRanklistLoadingState[result] != LoadingState.noMore) {
+        getRanklist();
+      }
     }
     state.ranklistType = result;
     update(['appBarTitleId']);

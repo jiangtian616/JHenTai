@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -16,6 +17,8 @@ class RanklistViewState {
   late Map<RanklistType, List<String>> ranklistGalleryDetailsApikey;
 
   late Map<RanklistType, LoadingState> getRanklistLoadingState;
+
+  Key listKey = UniqueKey();
 
   RanklistViewState() {
     ranklistType = RanklistType.day;
@@ -43,6 +46,5 @@ class RanklistViewState {
       RanklistType.month: LoadingState.idle,
       RanklistType.day: LoadingState.idle,
     };
-    ;
   }
 }

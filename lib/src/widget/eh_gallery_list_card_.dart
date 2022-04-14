@@ -131,7 +131,6 @@ class EHGalleryListCard extends StatelessWidget {
     return SizedBox(
       height: 70,
       child: WaterfallFlow.builder(
-        key: UniqueKey(),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
