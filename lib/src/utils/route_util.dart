@@ -109,7 +109,7 @@ void until({String? currentRoute, required RoutePredicate predicate}) {
 
 /// pop all pages in right screen if exists
 void untilBlankPage() {
-  if (!Get.keys.containsKey(right)) {
+  if (!Get.keys.containsKey(right) || Get.keys[right]?.currentContext == null) {
     return;
   }
   Get.until(

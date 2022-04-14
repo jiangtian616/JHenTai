@@ -33,6 +33,8 @@ class StartPage extends StatelessWidget {
               return HomePage();
             }
 
+            /// enabled tablet layout but currently device width < 600(change device orientation or split screen),
+            /// not show tablet layout.
             if (fullScreenWidth < 600) {
               StyleSetting.currentEnableTabletLayout.value = false;
               untilBlankPage();
