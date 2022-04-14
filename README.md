@@ -76,11 +76,15 @@ mush thanks to these projects🙇‍
 
 ## Translation
 
+> [languageCode](https://github.com/unicode-org/cldr/blob/master/common/validity/language.xml)
+>
+> [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
+
 1. Copy `/lib/src/l18n/en_US.dart ` and rename to `{your_languageCode}_{your_countryCode}.dart`
 2. Rename classname in new file(optional)
 3. Modify k-v pairs in method `keys` ,translate values to your language
-4. Enter `/lib/src/l18n/locale_text.dart ` ,add a new k-v pair in method `keys`
-   => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
+4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys` => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
+5. Enter `/lib/src/consts/locale_consts.dart`, add a new k-v pair in property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}`
 
 ## Bug
 

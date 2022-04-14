@@ -5,7 +5,7 @@ import 'package:jhentai/src/l18n/zh_CN.dart';
 class LocaleText extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
-        'en': en_US.keys(),
+        'en_US': en_US.keys(),
         'zh_CN': zh_CN.keys(),
       };
 }

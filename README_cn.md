@@ -70,10 +70,15 @@ E-hentai 的一个移动端app。
 
 ## 国际化步骤
 
-1. 复制 `/lib/src/l18n/en_US.dart ` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
+> [languageCode](https://github.com/unicode-org/cldr/blob/master/common/validity/language.xml)
+> 
+> [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
+
+1. 复制 `/lib/src/l18n/en_US.dart` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
 2. 更改新文件的主类名字(可选)
 3. 修改keys方法返回的所有键值对，将value翻译为你的语言
-4. 在 `/lib/src/l18n/locale_text.dart ` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
+4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
+5. 在 `/lib/src/consts/locale_consts.dart` 的`localeCode2Description`属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`
 
 ## 已知bug
 

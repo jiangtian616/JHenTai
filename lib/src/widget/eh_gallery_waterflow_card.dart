@@ -83,7 +83,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           const Expanded(child: SizedBox()),
           if (gallery.language != null)
             Text(
-              LocaleConsts.language2Code[gallery.language] ?? '',
+              LocaleConsts.language2Abbreviation[gallery.language] ?? '',
               style: const TextStyle(fontSize: 10, color: Colors.white70),
             ).marginOnly(right: 4),
           if (gallery.pageCount != null)

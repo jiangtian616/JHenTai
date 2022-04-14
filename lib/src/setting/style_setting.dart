@@ -1,7 +1,11 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/setting/tab_bar_setting.dart';
+import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';
@@ -19,7 +23,10 @@ enum CoverMode {
 }
 
 class StyleSetting {
-  static Rx<Locale> language = window.locale.obs;
+  static Rx<Locale> locale = (LocaleConsts.localeCode2Description.containsKey(window.locale.toString())
+          ? window.locale
+          : const Locale('en', 'US'))
+      .obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
@@ -40,6 +47,13 @@ class StyleSetting {
     } else {
       Log.verbose('init StyleSetting success: default', false);
     }
+  }
+
+  static saveLanguage(Locale locale) async {
+    StyleSetting.locale.value = locale;
+    _save();
+    Get.updateLocale(locale);
+    TabBarSetting.reset();
   }
 
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
@@ -84,6 +98,7 @@ class StyleSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
+      'locale': locale.value.toString(),
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
@@ -93,6 +108,7 @@ class StyleSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
+    locale.value = localeCode2Locale(map['locale']);
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];

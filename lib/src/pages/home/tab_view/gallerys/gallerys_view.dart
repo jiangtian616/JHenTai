@@ -166,8 +166,8 @@ class GallerysView extends StatelessWidget {
             minHeight: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight,
             maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.tabBarHeight,
 
-            /// make sure the color changes with theme's change
-            otherCondition: Get.theme.appBarTheme.backgroundColor,
+            /// make sure the color changes with theme
+            otherCondition: Get.theme.hashCode,
             child: Column(
               children: [
                 // use Expanded so the AppBar can shrink or expand when scrolling between [minExtent] and [maxExtent]

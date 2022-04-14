@@ -268,7 +268,7 @@ class zh_CN {
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',
       'enableStoreMetadataForRestoreHint': '关闭此项会提升一定性能，但无法再恢复记录',
-      'restoreDownloadTasksHint': '通过检查下载目录里存在的文件夹来恢复下载记录',
+      'restoreDownloadTasksHint': '通过下载元数据来恢复下载记录',
       'restoreDownloadTasksSuccess': '恢复下载任务成功',
       'restoredCount': '恢复任务数',
 

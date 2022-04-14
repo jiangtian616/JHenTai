@@ -46,7 +46,7 @@ class AdvancedSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? 1000 * 3600);
+    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge']);
     enableDomainFronting.value = map['enableDomainFronting'];
     enableLogging.value = map['enableLogging'];
   }

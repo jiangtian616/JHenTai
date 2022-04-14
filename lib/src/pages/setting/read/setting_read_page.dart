@@ -93,7 +93,7 @@ class SettingReadPage extends StatelessWidget {
                   title: Text('preloadDistanceInOnlineMode'.tr),
                   subtitle: Text('needRestart'.tr),
                   trailing: SizedBox(
-                    width: 150,
+                    width: 160,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [

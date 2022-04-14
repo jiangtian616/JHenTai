@@ -77,6 +77,27 @@ class TabBarSetting {
     await Get.find<StorageService>().write('tabBarSetting', _toMap());
   }
 
+  static Future<void> reset() async {
+    configs.value = <TabBarConfig>[
+      TabBarConfig(name: 'gallery'.tr, searchConfig: SearchConfig()),
+      TabBarConfig(
+        name: 'popular'.tr,
+        searchConfig: SearchConfig(searchType: SearchType.popular),
+        isDeleteAble: false,
+        isEditable: false,
+      ),
+      TabBarConfig(name: 'favorite'.tr, searchConfig: SearchConfig(searchType: SearchType.favorite)),
+      TabBarConfig(name: 'watched'.tr, searchConfig: SearchConfig(searchType: SearchType.watched)),
+      TabBarConfig(
+        name: 'history'.tr,
+        searchConfig: SearchConfig(searchType: SearchType.history),
+        isDeleteAble: false,
+        isEditable: false,
+      ),
+    ];
+    await Get.find<StorageService>().remove('tabBarSetting');
+  }
+
   static Map<String, dynamic> _toMap() {
     return {
       'settings': jsonEncode(configs),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingAboutPage extends StatefulWidget {
   const SettingAboutPage({Key? key}) : super(key: key);
@@ -52,6 +53,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
           ListTile(
             title: const Text('Github'),
             subtitle: SelectableText(gitRepo),
+            onTap: () => launch(gitRepo),
           ),
         ],
       ).paddingSymmetric(horizontal: 6),

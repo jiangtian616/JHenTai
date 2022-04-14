@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../utils/size_util.dart';
@@ -24,6 +27,25 @@ class SettingStylePage extends StatelessWidget {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
+            ListTile(
+              title: Text('language'.tr),
+              trailing: DropdownButton<Locale>(
+                value: StyleSetting.locale.value,
+                elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
+                onChanged: (Locale? newValue) {
+                  StyleSetting.saveLanguage(newValue!);
+                },
+                items: LocaleText()
+                    .keys
+                    .keys
+                    .map((localeCode) => DropdownMenuItem(
+                          child: Text(LocaleConsts.localeCode2Description[localeCode]!),
+                          value: localeCode2Locale(localeCode),
+                        ))
+                    .toList(),
+              ),
+            ),
             ListTile(
               title: Text('themeMode'.tr),
               trailing: DropdownButton<ThemeMode>(
