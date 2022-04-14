@@ -31,16 +31,9 @@ class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
 
-  static CacheOptions cacheOption = CacheOptions(
-    store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
-    policy: CachePolicy.noCache,
-    hitCacheOnErrorExcept: [401, 403],
-    maxStale: const Duration(hours: 1),
-    priority: CachePriority.normal,
-    cipher: null,
-    keyBuilder: CacheOptions.defaultCacheKeyBuilder,
-    allowPostMethod: false,
-  );
+  static get cacheOption => EHCacheInterceptor.defaultCacheOption.copyWith(
+        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+      );
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -106,7 +99,6 @@ class EHRequest {
         return EHConsts.host2Ip.containsValue(host);
       };
     };
-
 
     /// cookies
     cookieManager = Get.find<EHCookieManager>();

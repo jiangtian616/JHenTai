@@ -4,7 +4,11 @@ import 'package:dio_cache_interceptor/src/model/cache_cipher.dart';
 import 'package:dio_cache_interceptor/src/model/cache_strategy.dart';
 import 'package:dio_cache_interceptor/src/model/cache_options.dart';
 import 'package:dio_cache_interceptor/src/util/response_extension.dart';
+import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:path/path.dart';
+
+import '../setting/path_setting.dart';
 
 /// copied from [DioCacheInterceptor] and only edit in line 180, to make property [max-style] valid and act like [max-age].
 class EHCacheInterceptor extends Interceptor {
@@ -12,6 +16,16 @@ class EHCacheInterceptor extends Interceptor {
   static const String _postMethodName = 'POST';
   final CacheOptions _options;
   final CacheStore _store;
+
+  static CacheOptions defaultCacheOption = CacheOptions(
+    store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
+    policy: CachePolicy.noCache,
+    hitCacheOnErrorExcept: [401, 403],
+    priority: CachePriority.normal,
+    cipher: null,
+    keyBuilder: CacheOptions.defaultCacheKeyBuilder,
+    allowPostMethod: false,
+  );
 
   EHCacheInterceptor({required CacheOptions options})
       : assert(options.store != null),

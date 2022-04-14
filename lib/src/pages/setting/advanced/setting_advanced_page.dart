@@ -39,6 +39,40 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               ),
             ),
             ListTile(
+              title: Text('pageCacheMaxAge'.tr),
+              subtitle: Text('pageCacheMaxAgeHint'.tr),
+              trailing: DropdownButton<Duration>(
+                value: AdvancedSetting.pageCacheMaxAge.value,
+                elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
+                onChanged: (Duration? newValue) {
+                  AdvancedSetting.savePageCacheMaxAge(newValue!);
+                },
+                items: [
+                  DropdownMenuItem(
+                    child: Text('oneMinute'.tr),
+                    value: const Duration(minutes: 1),
+                  ),
+                  DropdownMenuItem(
+                    child: Text('tenMinute'.tr),
+                    value: const Duration(minutes: 10),
+                  ),
+                  DropdownMenuItem(
+                    child: Text('oneHour'.tr),
+                    value: const Duration(hours: 1),
+                  ),
+                  DropdownMenuItem(
+                    child: Text('oneDay'.tr),
+                    value: const Duration(days: 1),
+                  ),
+                  DropdownMenuItem(
+                    child: Text('threeDay'.tr),
+                    value: const Duration(days: 3),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
               title: Text('enableLogging'.tr),
               trailing: Switch(
                 value: AdvancedSetting.enableLogging.value,

@@ -1,13 +1,12 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:local_auth/local_auth.dart';
 
 import '../service/storage_service.dart';
 
 class AdvancedSetting {
+  static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   static RxBool enableDomainFronting = false.obs;
   static RxBool enableLogging = true.obs;
-
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
@@ -17,6 +16,11 @@ class AdvancedSetting {
     } else {
       Log.verbose('init AdvancedSetting success: default', false);
     }
+  }
+
+  static savePageCacheMaxAge(Duration pageCacheMaxAge) {
+    AdvancedSetting.pageCacheMaxAge.value = pageCacheMaxAge;
+    _save();
   }
 
   static saveEnableDomainFronting(bool enableDomainFronting) {
@@ -35,12 +39,14 @@ class AdvancedSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
+      'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
       'enableDomainFronting': enableDomainFronting.value,
       'enableLogging': enableLogging.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
+    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? 1000 * 3600);
     enableDomainFronting.value = map['enableDomainFronting'];
     enableLogging.value = map['enableLogging'];
   }

@@ -171,6 +171,13 @@ class zh_CN {
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',
       'enableLogging': '开启日志',
+      'pageCacheMaxAge': '页面缓存时间',
+      'pageCacheMaxAgeHint': '你可以通过刷新页面来更新缓存',
+      'oneMinute': '1 分钟',
+      'tenMinute': '10 分钟',
+      'oneHour': '1 小时',
+      'oneDay': '1 天',
+      'threeDay': '3 天',
       'openLog': '查看日志',
       'clearLogs': '清除日志',
       'clearImagesCache': '清除图片缓存',

@@ -170,6 +170,13 @@ class en_US {
 
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',
+      'pageCacheMaxAge': 'Page Cache Max Age',
+      'pageCacheMaxAgeHint': 'You can update cache by refresh page',
+      'oneMinute': '1 Minute',
+      'tenMinute': '10 Minute',
+      'oneHour': '1 Hour',
+      'oneDay': '1 Day',
+      'threeDay': '3 Day',
       'enableLogging': 'Enable Logging',
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
