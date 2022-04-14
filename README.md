@@ -69,7 +69,6 @@ mush thanks to these projects🙇‍
 ## Feature Todo
 
 - [ ] customize Archive Page, support automatic unzip and read directly
-- [ ] support sharing favorite
 
 ## Improvement & Todo
 

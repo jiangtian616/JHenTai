@@ -144,7 +144,7 @@ class EHRequest {
   static Future<T> requestHomePage<T>({EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.get(EHConsts.EHome);
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestForum<T>(int ipbMemberId, EHHtmlParser<T> parser) async {
@@ -154,7 +154,7 @@ class EHRequest {
         'showuser': ipbMemberId,
       },
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   /// [url]: used for file search
@@ -230,7 +230,8 @@ class EHRequest {
   static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(EHConsts.EFavorite);
-    return parser(response);
+
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   /// favcat: the favorite tag index
@@ -306,7 +307,7 @@ class EHRequest {
 
   static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(EHConsts.EUconfig);
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required EHHtmlParser<T> parser}) async {
