@@ -174,7 +174,7 @@ class EHRequest {
         ...?searchConfig?.toQueryParameters(),
       },
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestDetailPage<T>({
@@ -192,12 +192,12 @@ class EHRequest {
           ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
           : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestRankPage<T>(EHHtmlParser<T> parser) async {
     Response<String> response = await _dio.get(EHConsts.ERanklist);
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating,
@@ -214,10 +214,10 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
-  static Future<T> requestPopupPage<T>(int gid, String token, String act, T Function(String html) parser) async {
+  static Future<T> requestPopupPage<T>(int gid, String token, String act, EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(
       EHConsts.EPopup,
@@ -227,7 +227,7 @@ class EHRequest {
         'act': act,
       },
     );
-    return parser.call(response.data!);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
@@ -256,7 +256,7 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestRemoveFavorite<T>(int gid, String token, {EHHtmlParser<T>? parser}) async {
@@ -277,7 +277,7 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestImagePage<T>(
@@ -293,7 +293,7 @@ class EHRequest {
           ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
           : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
@@ -305,7 +305,7 @@ class EHRequest {
       },
       options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
@@ -318,7 +318,7 @@ class EHRequest {
       EHConsts.EMyTags,
       queryParameters: {'tagset': tagSetNo},
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestStatPage<T>({
@@ -327,7 +327,7 @@ class EHRequest {
     required EHHtmlParser<T> parser,
   }) async {
     Response<String> response = await _dio.get('${EHConsts.EStat}?gid=$gid&t=$token');
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestAddTagSet<T>({
@@ -368,7 +368,7 @@ class EHRequest {
     }
 
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestDeleteTagSet<T>({
@@ -397,7 +397,7 @@ class EHRequest {
     }
 
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestUpdateTagSet<T>({
@@ -425,7 +425,7 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> download<T>({
@@ -467,7 +467,7 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp,
@@ -485,7 +485,7 @@ class EHRequest {
       },
     );
     parser ??= noOpParser;
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
   static Future<T> requestTagSuggestion<T>(String keyword, EHHtmlParser<T> parser) async {
@@ -496,7 +496,7 @@ class EHRequest {
         'text': keyword,
       },
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestSendComment<T>({
@@ -511,7 +511,7 @@ class EHRequest {
         'commenttext_new': content,
       },
     );
-    return parser(response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestLookup<T>({
@@ -540,6 +540,6 @@ class EHRequest {
       }
       response = e.response;
     }
-    return parser(response!);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response!), params: response);
   }
 }

@@ -9,6 +9,7 @@ import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Log {
   static Logger? _log;
@@ -95,6 +96,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     }
 
     FirebaseCrashlytics.instance.recordError(e, null, information: infos);
+    Sentry.captureException(e);
     if (defaultValue == null) {
       rethrow;
     }
