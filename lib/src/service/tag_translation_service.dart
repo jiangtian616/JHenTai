@@ -40,6 +40,10 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> refresh() async {
+    if (StyleSetting.enableTagZHTranslation.isFalse) {
+      return;
+    }
+
     if (loadingState.value == LoadingState.loading) {
       return;
     }
