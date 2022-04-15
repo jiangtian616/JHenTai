@@ -36,16 +36,15 @@ class Gallery {
 
   GalleryDownloadedData toGalleryDownloadedData() {
     return GalleryDownloadedData(
-      gid: gid,
-      token: token,
-      title: title,
-      category: category,
-      pageCount: pageCount!,
-      galleryUrl: galleryUrl,
-      uploader: uploader,
-      publishTime: publishTime,
-      downloadStatusIndex: DownloadStatus.downloading.index
-    );
+        gid: gid,
+        token: token,
+        title: title,
+        category: category,
+        pageCount: pageCount!,
+        galleryUrl: galleryUrl,
+        uploader: uploader,
+        publishTime: publishTime,
+        downloadStatusIndex: DownloadStatus.downloading.index);
   }
 
   Gallery({
@@ -66,4 +65,53 @@ class Gallery {
     this.uploader,
     required this.publishTime,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'gid': this.gid,
+      'token': this.token,
+      'title': this.title,
+      'category': this.category,
+      'cover': this.cover.toJson(),
+      'pageCount': this.pageCount,
+      'rating': this.rating,
+      'hasRated': this.hasRated,
+      'isFavorite': this.isFavorite,
+      'favoriteTagIndex': this.favoriteTagIndex,
+      'favoriteTagName': this.favoriteTagName,
+      'galleryUrl': this.galleryUrl,
+      'tags': this.tags,
+      'language': this.language,
+      'uploader': this.uploader,
+      'publishTime': this.publishTime,
+    };
+  }
+
+  factory Gallery.fromJson(Map<String, dynamic> map) {
+    return Gallery(
+      gid: map['gid'],
+      token: map['token'],
+      title: map['title'],
+      category: map['category'],
+      cover: GalleryImage.fromJson(map['cover']),
+      pageCount: map['pageCount'],
+      rating: map['rating'],
+      hasRated: map['hasRated'],
+      isFavorite: map['isFavorite'],
+      favoriteTagIndex: map['favoriteTagIndex'],
+      favoriteTagName: map['favoriteTagName'],
+      galleryUrl: map['galleryUrl'],
+      tags: LinkedHashMap.of(
+        (map['tags'] as Map).map(
+          (key, value) => MapEntry(
+            key,
+            (value as List).map((e) => GalleryTag.fromJson(e)).toList(),
+          ),
+        ),
+      ),
+      language: map['language'],
+      uploader: map['uploader'],
+      publishTime: map['publishTime'],
+    );
+  }
 }

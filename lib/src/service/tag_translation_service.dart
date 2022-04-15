@@ -33,6 +33,7 @@ class TagTranslationService extends GetxService {
     Log.verbose('init TagTranslationService success', false);
   }
 
+  @override
   void onInit() {
     loadingState.value = LoadingState.values[storageService.read('TagTranslationServiceLoadingState') ?? 0];
     timeStamp.value = storageService.read('TagTranslationServiceTimestamp');

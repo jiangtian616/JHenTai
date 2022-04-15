@@ -96,7 +96,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     }
 
     FirebaseCrashlytics.instance.recordError(e, null, information: infos);
-    Sentry.captureException(e);
+    Sentry.captureException(e, hint: params.toString());
     if (defaultValue == null) {
       rethrow;
     }

@@ -27,6 +27,7 @@ import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../network/eh_cookie_manager.dart';
 import '../../service/download_service.dart';
+import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/cookie_util.dart';
@@ -47,6 +48,7 @@ class DetailsPageLogic extends GetxController {
   final DetailsPageState state = DetailsPageState();
   final DownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
+  final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
 
   static final List<DetailsPageLogic> _stack = <DetailsPageLogic>[];
@@ -66,13 +68,13 @@ class DetailsPageLogic extends GetxController {
     /// enter from galleryPage
     if (arg is Gallery) {
       state.gallery = arg;
-      getDetails();
+      getDetails().then((_) => historyService.record(state.gallery!));
       return;
     }
 
     /// enter from downloadPage or url or clipboard
     if (arg is String) {
-      getFullPage();
+      getFullPage().then((_) => historyService.record(state.gallery!));
     }
 
     /// enter from ranklist view
@@ -82,29 +84,10 @@ class DetailsPageLogic extends GetxController {
       state.apikey = arg[2];
       state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
+      historyService.record(state.gallery!);
       update([bodyId]);
       return;
     }
-  }
-
-  @override
-  void onReady() {
-    /// record history
-    List<String> historyUrls = storageService.read<List>('history')?.cast<String>() ?? <String>[];
-    String curUrl;
-
-    if (Get.arguments is Gallery) {
-      curUrl = (Get.arguments as Gallery).galleryUrl;
-    } else if (Get.arguments is String) {
-      curUrl = Get.arguments;
-    } else {
-      curUrl = (Get.arguments[0] as Gallery).galleryUrl;
-    }
-
-    historyUrls.removeWhere((historyUrl) => historyUrl == curUrl);
-    historyUrls.insert(0, curUrl);
-    storageService.write('history', historyUrls);
-    super.onReady();
   }
 
   @override

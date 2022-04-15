@@ -41,5 +41,4 @@ class GalleryImage {
       downloadStatus: DownloadStatus.values[json["downloadStatus"]],
     );
   }
-//
 }

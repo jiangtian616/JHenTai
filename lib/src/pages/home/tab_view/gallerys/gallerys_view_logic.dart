@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:clipboard/clipboard.dart';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +10,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -34,6 +34,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   final GallerysViewState state = GallerysViewState();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
+  final HistoryService historyService = Get.find();
+
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
 
   void onInit() {
@@ -80,7 +82,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     }
 
     state.nextPageIndexToLoad[tabIndex] = 1;
-    state.gallerys[tabIndex].clear();
     state.gallerys[tabIndex] = gallerysAndPageCount[0];
     state.pageCount[tabIndex] = gallerysAndPageCount[1];
     state.galleryCollectionKeys[tabIndex] = UniqueKey();
@@ -340,7 +341,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     List<dynamic> gallerysAndPageCount;
     switch (TabBarSetting.configs[tabIndex].searchConfig.searchType) {
       case SearchType.history:
-        gallerysAndPageCount = await _getHistoryGallerys();
+        await Future.delayed(const Duration(milliseconds: 500));
+        gallerysAndPageCount = [historyService.history, historyService.history.isEmpty ? 0 : 1];
         break;
       case SearchType.favorite:
         if (!UserSetting.hasLoggedIn()) {
@@ -366,39 +368,5 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
     return gallerysAndPageCount;
-  }
-
-  Future<List<dynamic>> _getHistoryGallerys() async {
-    List<String>? galleryUrls = storageService.read<List>('history')?.cast<String>();
-    if (galleryUrls == null) {
-      return [<Gallery>[], 0];
-    }
-
-    List<Gallery?> gallerys = List.generate(galleryUrls.length, (index) => null);
-    try {
-      await Future.wait(
-        galleryUrls
-            .mapIndexed(
-              (index, url) => EHRequest.requestDetailPage(galleryUrl: url, parser: EHSpiderParser.detailPage2Gallery)
-                  .then((value) => gallerys[index] = value)
-                  .catchError((error) {
-                /// 404 => hide or remove
-                if (error.response?.statusCode != 404) {
-                  Log.error('${'getSomeOfGallerysFailed'.tr}:$url', error.message);
-                } else {
-                  Log.info('Gallery 404: $url', false);
-                }
-                throw error;
-              }),
-            )
-            .toList(),
-      );
-    } on DioError catch (e) {
-      snack('getSomeOfGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-    }
-
-    gallerys.removeWhere((r) => r == null);
-
-    return [gallerys.cast<Gallery>(), 1];
   }
 }

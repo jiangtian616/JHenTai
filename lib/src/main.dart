@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:jhentai/src/service/history_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'firebase_options.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
@@ -108,6 +109,7 @@ Future<void> init() async {
   TagTranslationService.init();
   StyleSetting.init();
   TabBarSetting.init();
+  HistoryService.init();
 
   SiteSetting.init();
   FavoriteSetting.init();
