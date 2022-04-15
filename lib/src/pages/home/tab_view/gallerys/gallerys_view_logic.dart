@@ -28,6 +28,7 @@ import '../../../../model/gallery.dart';
 String appBarId = 'appBarId';
 String tabBarId = 'tabBarId';
 String bodyId = 'bodyId';
+String refreshStateId = 'refreshStateId';
 String loadingStateId = 'loadingStateId';
 
 class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin {
@@ -38,6 +39,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
 
+  @override
   void onInit() {
     tabController.addListener(() {
       update([appBarId]);
@@ -63,12 +65,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// pull-down to refresh
   Future<void> handleRefresh(int tabIndex) async {
-    if (state.loadingState[tabIndex] == LoadingState.loading) {
+    if (state.refreshState[tabIndex] == LoadingState.loading) {
       return;
     }
 
-    state.loadingState[tabIndex] = LoadingState.loading;
-    update([loadingStateId]);
+    state.refreshState[tabIndex] = LoadingState.loading;
+    update([refreshStateId]);
 
     List<dynamic> gallerysAndPageCount;
     try {
@@ -76,8 +78,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     } on DioError catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      state.loadingState[tabIndex] = LoadingState.error;
-      update([loadingStateId]);
+      state.refreshState[tabIndex] = LoadingState.error;
+      update([refreshStateId]);
       return;
     }
 
@@ -86,11 +88,11 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.pageCount[tabIndex] = gallerysAndPageCount[1];
     state.galleryCollectionKeys[tabIndex] = UniqueKey();
     if (state.pageCount[tabIndex] == 0) {
-      state.loadingState[tabIndex] = LoadingState.noData;
+      state.refreshState[tabIndex] = LoadingState.noData;
     } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
-      state.loadingState[tabIndex] = LoadingState.noMore;
+      state.refreshState[tabIndex] = LoadingState.noMore;
     } else {
-      state.loadingState[tabIndex] = LoadingState.idle;
+      state.refreshState[tabIndex] = LoadingState.idle;
     }
     update([bodyId]);
   }
@@ -229,10 +231,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     TabBarSetting.addTab(tabBarConfig);
 
     state.tabBarNames.add(tabBarConfig.name);
-    state.gallerys.add(List.empty(growable: true));
+    state.refreshState.add(LoadingState.idle);
     state.loadingState.add(LoadingState.idle);
     state.pageCount.add(-1);
+    state.prevPageIndexToLoad.add(-1);
     state.nextPageIndexToLoad.add(0);
+    state.gallerys.add(List.empty(growable: true));
+    state.galleryCollectionKeys.add(UniqueKey());
 
     /// to change the length of a existing TabController, replace it by a new one.
     TabController oldController = tabController;
@@ -248,10 +253,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     TabBarSetting.removeTab(index);
     state.tabBarNames.removeAt(index);
-    state.gallerys.removeAt(index);
+    state.refreshState.removeAt(index);
     state.loadingState.removeAt(index);
     state.pageCount.removeAt(index);
+    state.prevPageIndexToLoad.removeAt(index);
     state.nextPageIndexToLoad.removeAt(index);
+    state.gallerys.removeAt(index);
+    state.galleryCollectionKeys.removeAt(index);
 
     /// to change the length of a existing TabController, replace it by a new one.
     TabController oldController = tabController;
@@ -283,16 +291,22 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     if (newIndex != state.tabBarNames.length - 1) {
       state.tabBarNames.insert(newIndex, state.tabBarNames.removeAt(oldIndex));
-      state.gallerys.insert(newIndex, state.gallerys.removeAt(oldIndex));
+      state.refreshState.insert(newIndex, state.refreshState.removeAt(oldIndex));
       state.loadingState.insert(newIndex, state.loadingState.removeAt(oldIndex));
       state.pageCount.insert(newIndex, state.pageCount.removeAt(oldIndex));
+      state.prevPageIndexToLoad.insert(newIndex, state.prevPageIndexToLoad.removeAt(oldIndex));
       state.nextPageIndexToLoad.insert(newIndex, state.nextPageIndexToLoad.removeAt(oldIndex));
+      state.gallerys.insert(newIndex, state.gallerys.removeAt(oldIndex));
+      state.galleryCollectionKeys.insert(newIndex, state.galleryCollectionKeys.removeAt(oldIndex));
     } else {
       state.tabBarNames.add(state.tabBarNames.removeAt(oldIndex));
-      state.gallerys.add(state.gallerys.removeAt(oldIndex));
+      state.refreshState.add(state.refreshState.removeAt(oldIndex));
       state.loadingState.add(state.loadingState.removeAt(oldIndex));
       state.pageCount.add(state.pageCount.removeAt(oldIndex));
+      state.prevPageIndexToLoad.add(state.prevPageIndexToLoad.removeAt(oldIndex));
       state.nextPageIndexToLoad.add(state.nextPageIndexToLoad.removeAt(oldIndex));
+      state.gallerys.add(state.gallerys.removeAt(oldIndex));
+      state.galleryCollectionKeys.add(state.galleryCollectionKeys.removeAt(oldIndex));
     }
 
     if (tabController.index == oldIndex) {

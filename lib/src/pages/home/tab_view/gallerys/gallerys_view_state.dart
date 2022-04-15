@@ -7,6 +7,8 @@ import '../../../../model/gallery.dart';
 class GallerysViewState {
   late List<String> tabBarNames;
 
+  late List<LoadingState> refreshState;
+
   late List<LoadingState> loadingState;
 
   late List<int> prevPageIndexToLoad;
@@ -22,6 +24,7 @@ class GallerysViewState {
   GallerysViewState() {
     tabBarNames = TabBarSetting.configs.map((config) => config.name).toList();
 
+    refreshState = List.generate(tabBarNames.length, (index) => LoadingState.idle);
     loadingState = List.generate(tabBarNames.length, (index) => LoadingState.idle);
     prevPageIndexToLoad = List.generate(tabBarNames.length, (index) => -1);
     nextPageIndexToLoad = List.generate(tabBarNames.length, (index) => 0);
