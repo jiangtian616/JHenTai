@@ -106,6 +106,7 @@ class _EHImageState extends State<EHImage> {
         cancelToken: cancelToken,
         imageCacheName: widget.galleryImage.url,
         handleLoadingProgress: widget.loadingWidgetBuilder != null,
+        printError: false,
         loadStateChanged: (ExtendedImageState state) {
           switch (state.extendedImageLoadState) {
             case LoadState.loading:
