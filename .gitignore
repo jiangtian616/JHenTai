@@ -44,4 +44,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
 /lib/src/firebase_options.dart
+/assets/sentry_dsn

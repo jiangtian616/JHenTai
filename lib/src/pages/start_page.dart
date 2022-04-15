@@ -4,6 +4,7 @@ import 'package:jhentai/src/pages/blank_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../utils/route_util.dart';
 import '../utils/size_util.dart';
@@ -68,7 +69,7 @@ class StartPage extends StatelessWidget {
       key: Get.nestedKey(left),
 
       /// make sure controller is destroyed automatically and route args is passed properly
-      observers: [GetObserver((routing) => leftRouting = routing!, Get.routing)],
+      observers: [GetObserver((routing) => leftRouting = routing!, Get.routing), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.home),
@@ -98,7 +99,7 @@ class StartPage extends StatelessWidget {
   Widget _rightScreen() {
     return Navigator(
       key: Get.nestedKey(right),
-      observers: [GetObserver((routing) => rightRouting = routing!, Get.routing)],
+      observers: [GetObserver((routing) => rightRouting = routing!, Get.routing), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'dart:async';
 import 'package:blur/blur.dart';
 import 'package:flutter/foundation.dart';
@@ -9,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'firebase_options.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -37,6 +37,7 @@ void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
     FirebaseCrashlytics.instance.recordFlutterError(details);
+    Sentry.captureException(details.exception, stackTrace: details.stack);
   };
 
   runZonedGuarded(() async {
@@ -45,6 +46,7 @@ void main() async {
   }, (Object error, StackTrace stack) {
     Log.error(error, null, stack);
     FirebaseCrashlytics.instance.recordError(error, stack);
+    Sentry.captureException(error, stackTrace: stack);
   });
 }
 
@@ -59,12 +61,12 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeConfig.dark,
       themeMode: StyleSetting.themeMode.value,
       locale: StyleSetting.locale.value,
-      fallbackLocale: const Locale('en','US'),
+      fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
 
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
-      navigatorObservers: [GetXRouterObserver()],
+      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => AppListener(child: child!),
 
       /// enable swipe back feature
@@ -76,6 +78,14 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  String? dsn;
+  try {
+    dsn = await rootBundle.loadString('assets/sentry_dsn');
+  } catch (_) {}
+  if (dsn != null) {
+    await SentryFlutter.init((options) => options.dsn = dsn);
+  }
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   if (kDebugMode) {
