@@ -37,7 +37,9 @@ void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
     FirebaseCrashlytics.instance.recordFlutterError(details);
-    Sentry.captureException(details.exception, stackTrace: details.stack);
+    if (!kDebugMode) {
+      Sentry.captureException(details.exception, stackTrace: details.stack);
+    }
   };
 
   runZonedGuarded(() async {
@@ -46,7 +48,9 @@ void main() async {
   }, (Object error, StackTrace stack) {
     Log.error(error, null, stack);
     FirebaseCrashlytics.instance.recordError(error, stack);
-    Sentry.captureException(error, stackTrace: stack);
+    if (!kDebugMode) {
+      Sentry.captureException(error, stackTrace: stack);
+    }
   });
 }
 
@@ -83,7 +87,7 @@ Future<void> init() async {
   try {
     dsn = await rootBundle.loadString('assets/sentry_dsn');
   } catch (_) {}
-  if (dsn != null) {
+  if (dsn != null && !kDebugMode) {
     await SentryFlutter.init((options) => options.dsn = dsn);
   }
 
