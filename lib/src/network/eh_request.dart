@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
@@ -14,12 +13,9 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:path/path.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'eh_cache_interceptor.dart';
@@ -42,36 +38,51 @@ class EHRequest {
     ));
 
     /// error handler
-    _dio.interceptors.add(InterceptorsWrapper(
-      onResponse: (response, handler) {
-        if ((response.data.toString()).isEmpty) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.blankBody, msg: "sadPanda".tr),
-            ),
-          );
-        }
-        if (response.data.toString().startsWith('Your IP address')) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              response: response,
-              error: EHException(type: EHExceptionType.banned, msg: response.data),
-            ),
-          );
-        }
-        if (response.data.toString().startsWith('You have exceeded your image')) {
-          return handler.reject(
-            DioError(
-              requestOptions: response.requestOptions,
-              error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
-            ),
-          );
-        }
-        handler.next(response);
-      },
-    ));
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onResponse: (response, handler) {
+          if ((response.data.toString()).isEmpty) {
+            return handler.reject(
+              DioError(
+                requestOptions: response.requestOptions,
+                error: EHException(type: EHExceptionType.blankBody, msg: "sadPanda".tr),
+              ),
+            );
+          }
+          if (response.data.toString().startsWith('Your IP address')) {
+            return handler.reject(
+              DioError(
+                requestOptions: response.requestOptions,
+                response: response,
+                error: EHException(type: EHExceptionType.banned, msg: response.data),
+              ),
+            );
+          }
+          if (response.data.toString().startsWith('You have exceeded your image')) {
+            return handler.reject(
+              DioError(
+                requestOptions: response.requestOptions,
+                error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
+              ),
+            );
+          }
+          handler.next(response);
+        },
+        onError: (e, ErrorInterceptorHandler handler) {
+          if (e.response?.statusCode != 404) {
+            handler.next(e);
+            return;
+          }
+          if (!EHConsts.host2Ip.containsKey(e.requestOptions.uri.host) &&
+              !EHConsts.host2Ip.containsValue(e.requestOptions.uri.host)) {
+            handler.next(e);
+            return;
+          }
+          e.error = 'invisibleHints'.tr;
+          handler.next(e);
+        },
+      ),
+    );
 
     /// domain fronting
     _dio.interceptors.add(InterceptorsWrapper(
