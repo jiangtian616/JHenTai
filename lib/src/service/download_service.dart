@@ -35,7 +35,7 @@ const String speedComputerId = 'SpeedComputerId';
 class DownloadService extends GetxController {
   final executor = Executor(concurrency: DownloadSetting.downloadTaskConcurrency.value);
   static const int retryTimes = 3;
-  static const String _metadata = 'metadata';
+  static const String _metadata = '.metadata';
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
@@ -419,6 +419,7 @@ class DownloadService extends GetxController {
     /// all image has been downloaded
     if (downloadProgress.curCount == downloadProgress.totalCount) {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
+      gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.downloaded.index);
       await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.downloaded);
       gid2SpeedComputer[gallery.gid]!.dispose();
       update(['$galleryDownloadProgressId::${gallery.gid}']);
