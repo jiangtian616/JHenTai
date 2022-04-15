@@ -123,14 +123,17 @@ class SettingStylePage extends StatelessWidget {
             ),
             ListTile(
               title: Text('enableTagZHTranslation'.tr),
-              subtitle: Text(
-                tagTranslationService.loadingState.value == LoadingState.success
-                    ? '${'version'.tr}: ${tagTranslationService.timeStamp.value!}'
-                    : tagTranslationService.loadingState.value == LoadingState.loading
-                        ? '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}'
-                        : '',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
+              subtitle: tagTranslationService.loadingState.value == LoadingState.success
+                  ? Text(
+                      '${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    )
+                  : tagTranslationService.loadingState.value == LoadingState.loading
+                      ? Text(
+                          '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}',
+                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                        )
+                      : null,
               trailing: SizedBox(
                 width: 120,
                 child: Row(
