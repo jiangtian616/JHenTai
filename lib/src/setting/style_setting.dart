@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
-import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -23,10 +22,7 @@ enum CoverMode {
 }
 
 class StyleSetting {
-  static Rx<Locale> locale = (LocaleConsts.localeCode2Description.containsKey(window.locale.toString())
-          ? window.locale
-          : const Locale('en', 'US'))
-      .obs;
+  static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
