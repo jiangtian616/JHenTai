@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
+import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -254,7 +255,8 @@ class GallerysView extends StatelessWidget {
           controller: logic.tabController,
           children: List.generate(
             TabBarSetting.configs.length,
-            (tabIndex) => GalleryTabBarView(tabIndex: tabIndex),
+            /// keep offset for each tab
+            (tabIndex) => KeepAliveWrapper(child: GalleryTabBarView(tabIndex: tabIndex)),
           ),
         );
       },

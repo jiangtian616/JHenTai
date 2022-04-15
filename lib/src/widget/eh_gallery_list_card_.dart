@@ -123,6 +123,9 @@ class EHGalleryListCard extends StatelessWidget {
       height: 70,
       child: WaterfallFlow.builder(
         scrollDirection: Axis.horizontal,
+        /// disable keepScrollOffset because we used [PageStorageKey] in ranklist view, which leads to
+        /// a conflict with this WaterfallFlow
+        controller: ScrollController(keepScrollOffset: false),
         physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,

@@ -1,6 +1,6 @@
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -17,15 +17,13 @@ Widget EHGalleryCollection({
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
   VoidCallback? handleLoadMore,
-  bool keepPosition = true,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
-    return SliverFixedExtentList(
+    return FlutterSliverList(
       key: key,
-      itemExtent: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
+      delegate: FlutterListViewDelegate(
+            (BuildContext context, int index) {
           if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
             /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
             /// that hints circular build.
@@ -37,16 +35,17 @@ Widget EHGalleryCollection({
             });
           }
           return Obx(() {
-            return KeepAliveWrapper(
-              child: EHGalleryListCard(
-                gallery: gallerys[index],
-                handleTapCard: (gallery) => handleTapCard(gallery),
-                withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-              ),
+            return EHGalleryListCard(
+              gallery: gallerys[index],
+              handleTapCard: (gallery) => handleTapCard(gallery),
+              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
             ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
           });
         },
         childCount: gallerys.length,
+        keepPosition: true,
+        onItemKey: (index) => gallerys[index].galleryUrl,
+        preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
       ),
     );
   }
