@@ -4,6 +4,8 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 import 'package:executor/executor.dart';
 
+import '../exception/cancel_exception.dart';
+
 /// copied from [package:executor/executor.dart] and replace [_waiting] ListQueue by PriorityQueue
 abstract class EHExecutor {
   /// The maximum number of tasks running concurrently.
@@ -42,6 +44,9 @@ abstract class EHExecutor {
   /// If [withWaiting] is set, it will include the waiting tasks too.
   Future join({bool withWaiting = false});
 
+  /// If task is in waiting queue, remove it
+  void cancelTask(AsyncTask task);
+
   /// Notifies the listeners about a state change in [Executor], for example:
   /// - one or more tasks have started
   /// - one or more tasks have completed
@@ -57,6 +62,7 @@ abstract class EHExecutor {
 class _EHExecutor implements EHExecutor {
   int _concurrency;
   Rate? _rate;
+  final Map<AsyncTask, _PriorityItem> task2WaitingItem = {};
   final PriorityQueue<_PriorityItem> _waiting = PriorityQueue<_PriorityItem>((a, b) => a.priority - b.priority);
   final ListQueue<_PriorityItem> _running = ListQueue<_PriorityItem>();
   final ListQueue<DateTime> _started = ListQueue<DateTime>();
@@ -105,8 +111,16 @@ class _EHExecutor implements EHExecutor {
     if (isClosing) throw Exception('Executor doesn\'t accept tasks.');
     final item = _PriorityItem<R>(priority);
     _waiting.add(item);
+    task2WaitingItem[task] = item;
     _trigger();
-    await item.trigger.future;
+    try {
+      await item.trigger.future;
+    } catch (e) {
+      item.result.completeError(e);
+      return item.result.future;
+    } finally {
+      task2WaitingItem.remove(task);
+    }
     if (isClosing) {
       item.result.completeError(TimeoutException('Executor is closing'));
     } else {
@@ -181,6 +195,18 @@ class _EHExecutor implements EHExecutor {
     }
     if (futures.isEmpty) return Future.value();
     return Future.wait(futures);
+  }
+
+  @override
+  void cancelTask(AsyncTask task) {
+    if (!task2WaitingItem.containsKey(task)) {
+      return;
+    }
+
+    _PriorityItem item = task2WaitingItem[task]!;
+    _waiting.remove(item);
+
+    item.trigger.completeError(CancelException());
   }
 
   @override

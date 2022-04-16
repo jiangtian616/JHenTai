@@ -106,6 +106,31 @@ class _DownloadViewState extends State<DownloadView> {
     );
   }
 
+  Widget _removeItemBuilder() {
+    return Container(
+      height: 130,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+
+        /// covered when in dark mode
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            spreadRadius: 1,
+            offset: const Offset(0.3, 1),
+          )
+        ],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Row(),
+      ),
+    );
+  }
+
   Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -211,7 +236,7 @@ class _DownloadViewState extends State<DownloadView> {
                               : downloadService.pauseDownloadGallery(gallery);
                         },
                   child: downloadStatus == DownloadStatus.switching
-                      ? const CupertinoActivityIndicator(radius: 13)
+                      ? const SizedBox(height: 26, child: CupertinoActivityIndicator(radius: 10))
                       : Icon(
                           downloadStatus == DownloadStatus.paused
                               ? Icons.play_arrow
@@ -292,21 +317,17 @@ class _DownloadViewState extends State<DownloadView> {
   }
 
   void _handleRemoveItem(BuildContext context, int index) {
+    downloadService.deleteGallery(downloadService.gallerys[index]);
+
     _listKey.currentState?.removeItem(
       index,
       (context, Animation<double> animation) => FadeTransition(
         opacity: animation,
         child: SizeTransition(
           sizeFactor: animation,
-          child: _itemBuilder(context, index),
+          child: _removeItemBuilder(),
         ),
       ),
-    );
-
-    /// wait delete anime
-    Future.delayed(
-      const Duration(milliseconds: 1000),
-      () => downloadService.deleteGallery(downloadService.gallerys[index]),
     );
   }
 

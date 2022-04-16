@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/exception/cancel_exception.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -43,6 +44,7 @@ class DownloadService extends GetxController {
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
+  Map<int, List<AsyncTask>> gid2Tasks = {};
   Map<int, CancelToken> gid2CancelToken = {};
   Map<int, GalleryDownloadProgress> gid2downloadProgress = <int, GalleryDownloadProgress>{};
   Map<int, List<GalleryThumbnail?>> gid2ImageHrefs = {};
@@ -140,7 +142,7 @@ class DownloadService extends GetxController {
       }
 
       /// url has been parsed, download directly
-      if (gid2Images[gallery.gid]?[serialNo] != null){
+      if (gid2Images[gallery.gid]?[serialNo] != null) {
         _downloadGalleryImage(gallery, serialNo);
         continue;
       }
@@ -166,27 +168,37 @@ class DownloadService extends GetxController {
     await Future.wait(gallerys.map((g) => pauseDownloadGallery(g)).toList());
   }
 
-  Future<void> pauseDownloadGallery(GalleryDownloadedData gallery) async {
+  Future<void> pauseDownloadGallery(GalleryDownloadedData gallery, [bool shouldUpdate = true]) async {
     if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
       return;
     }
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
+    if (shouldUpdate) {
+      update(['$galleryDownloadProgressId::${gallery.gid}']);
+    }
 
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.paused);
+
+    for (AsyncTask task in gid2Tasks[gallery.gid]!) {
+      executor.cancelTask(task);
+    }
+    gid2Tasks[gallery.gid]!.clear();
     gid2CancelToken[gallery.gid]!.cancel();
     gid2SpeedComputer[gallery.gid]!.pause();
 
     for (GalleryImage? image in gid2Images[gallery.gid]!) {
       if (image?.downloadStatus == DownloadStatus.downloading) {
         image?.downloadStatus = DownloadStatus.paused;
-        update(['$imageId::${gallery.gid}']);
+        if (shouldUpdate) {
+          update(['$imageId::${gallery.gid}']);
+        }
       }
     }
 
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.paused;
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
-
+    if (shouldUpdate) {
+      update(['$galleryDownloadProgressId::${gallery.gid}']);
+    }
     Log.info('pause download gallery: ${gallery.gid}', false);
   }
 
@@ -196,6 +208,9 @@ class DownloadService extends GetxController {
     }
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
     update(['$galleryDownloadProgressId::${gallery.gid}']);
+
+    /// avoid a immediate resume after pause
+    // await Future.delayed(const Duration(milliseconds: 300));
 
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.downloading);
     gid2CancelToken[gallery.gid] = CancelToken();
@@ -216,7 +231,7 @@ class DownloadService extends GetxController {
   }
 
   Future<void> deleteGallery(GalleryDownloadedData gallery) async {
-    await pauseDownloadGallery(gallery);
+    await pauseDownloadGallery(gallery, false);
     await _clearGalleryDownloadInfoInDatabase(gallery.gid);
     await _clearDownloadedImageInDisk(gallery);
     _clearGalleryDownloadInfoInMemory(gallery);
@@ -262,41 +277,24 @@ class DownloadService extends GetxController {
     return restoredCount;
   }
 
-  bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
-    return gid2downloadProgress[gallery.gid] == null ||
-        gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
-  }
-
   Future<void> _parseGalleryImageHref(GalleryDownloadedData gallery, int serialNo) async {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return;
+    }
+
+    AsyncTask<List<GalleryThumbnail>> task = _parseGalleryImageHrefTask(gallery, serialNo);
+    gid2Tasks[gallery.gid]!.add(task);
+
     List<GalleryThumbnail> newThumbnails;
-
     try {
-      List<GalleryThumbnail>? result = await retry(
-        () => executor.scheduleTask(
-          serialNo * 100000,
-          () {
-            if (_taskHasBeenPausedOrRemoved(gallery)) {
-              return null;
-            }
-
-            Log.verbose('begin to parse image hrefs', false);
-            return EHRequest.requestDetailPage(
-              galleryUrl: gallery.galleryUrl,
-              thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
-              cancelToken: gid2CancelToken[gallery.gid],
-              parser: EHSpiderParser.detailPage2Thumbnails,
-            );
-          },
-        ),
+      newThumbnails = await retry(
+        () => executor.scheduleTask(serialNo * 100000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
         onRetry: (e) => Log.error('parse image hrefs failed, retry', (e as DioError).message),
         maxAttempts: retryTimes,
       );
-
-      if (result == null) {
-        return;
-      }
-      newThumbnails = result;
+    } on CancelException catch (e) {
+      return;
     } on DioError catch (e) {
       if (e.type == DioErrorType.cancel) {
         return;
@@ -309,6 +307,8 @@ class DownloadService extends GetxController {
       }
       await _parseGalleryImageHref(gallery, serialNo);
       return;
+    } finally {
+      gid2Tasks[gallery.gid]?.remove(task);
     }
 
     int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
@@ -319,35 +319,35 @@ class DownloadService extends GetxController {
     Log.verbose('parse image hrefs success', false);
   }
 
+  AsyncTask<List<GalleryThumbnail>> _parseGalleryImageHrefTask(GalleryDownloadedData gallery, int serialNo) {
+    return () {
+      Log.verbose('begin to parse image hrefs', false);
+      return EHRequest.requestDetailPage(
+        galleryUrl: gallery.galleryUrl,
+        thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
+        cancelToken: gid2CancelToken[gallery.gid],
+        parser: EHSpiderParser.detailPage2Thumbnails,
+      );
+    };
+  }
+
   Future<void> _parseGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, [bool useCache = true]) async {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return;
+    }
+
     GalleryImage image;
-
+    AsyncTask<GalleryImage> task = _parseGalleryImageUrlTask(gallery, serialNo, useCache);
+    gid2Tasks[gallery.gid]!.add(task);
     try {
-      GalleryImage? result = await retry(
-        () => executor.scheduleTask(
-          serialNo * 10000,
-          () {
-            if (_taskHasBeenPausedOrRemoved(gallery)) {
-              return null;
-            }
-
-            Log.verbose('begin to parse image url: $serialNo', false);
-            return EHRequest.requestImagePage(
-              gid2ImageHrefs[gallery.gid]![serialNo]!.href,
-              cancelToken: gid2CancelToken[gallery.gid],
-              useCacheIfAvailable: useCache,
-              parser: EHSpiderParser.imagePage2GalleryImage,
-            );
-          },
-        ),
+      image = await retry(
+        () => executor.scheduleTask(serialNo * 10000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
         onRetry: (e) => Log.error('parseImageUrl failed, retry', (e as DioError).message),
         maxAttempts: retryTimes,
       );
-      if (result == null) {
-        return;
-      }
-      image = result;
+    } on CancelException catch (e) {
+      return;
     } on DioError catch (e) {
       if (e.type == DioErrorType.cancel) {
         return;
@@ -360,6 +360,8 @@ class DownloadService extends GetxController {
       }
       await _parseGalleryImageUrl(gallery, serialNo, useCache);
       return;
+    } finally {
+      gid2Tasks[gallery.gid]?.remove(task);
     }
 
     gid2Images[gallery.gid]![serialNo] = image;
@@ -369,35 +371,33 @@ class DownloadService extends GetxController {
     Log.verbose('parse image url: $serialNo success', false);
   }
 
+  AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo,
+      [bool useCache = true]) {
+    return () {
+      Log.verbose('begin to parse image url: $serialNo', false);
+      return EHRequest.requestImagePage(
+        gid2ImageHrefs[gallery.gid]![serialNo]!.href,
+        cancelToken: gid2CancelToken[gallery.gid],
+        useCacheIfAvailable: useCache,
+        parser: EHSpiderParser.imagePage2GalleryImage,
+      );
+    };
+  }
+
   Future<void> _downloadGalleryImage(GalleryDownloadedData gallery, int serialNo) async {
     if (_taskHasBeenPausedOrRemoved(gallery)) {
       return;
     }
 
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
-
     image.downloadStatus = DownloadStatus.downloading;
     update(['$imageId::${gallery.gid}', '$imageUrlId::${gallery.gid}::$serialNo']);
 
+    AsyncTask<void> task = _downloadGalleryImageTask(gallery, serialNo, image.url);
+    gid2Tasks[gallery.gid]!.add(task);
     try {
-      dynamic result = await retry(
-        () => executor.scheduleTask(
-          serialNo,
-          () {
-            if (_taskHasBeenPausedOrRemoved(gallery)) {
-              return null;
-            }
-
-            Log.verbose('begin to download image: $serialNo', false);
-            return EHRequest.download(
-              url: image.url,
-              path: _computeImageDownloadAbsolutePath(gallery, serialNo),
-              cancelToken: gid2CancelToken[gallery.gid],
-              onReceiveProgress: (int count, int total) =>
-                  gid2SpeedComputer[gallery.gid]!.updateProgress(count, total, serialNo),
-            );
-          },
-        ),
+      await retry(
+        () => executor.scheduleTask(serialNo, task),
         maxAttempts: retryTimes,
         retryIf: (e) =>
             e is DioError &&
@@ -412,9 +412,8 @@ class DownloadService extends GetxController {
           gid2SpeedComputer[gallery.gid]!.resetProgress(serialNo);
         },
       );
-      if (result == null) {
-        return;
-      }
+    } on CancelException catch (e) {
+      return;
     } on DioError catch (e) {
       if (e.type == DioErrorType.cancel) {
         return;
@@ -430,6 +429,8 @@ class DownloadService extends GetxController {
       );
       _reParseImageUrlAndDownload(gallery, serialNo);
       return;
+    } finally {
+      gid2Tasks[gallery.gid]?.remove(task);
     }
 
     Log.verbose('download image: $serialNo success', false);
@@ -455,6 +456,19 @@ class DownloadService extends GetxController {
     if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
       _saveGalleryDownloadInfoInDisk(gallery);
     }
+  }
+
+  AsyncTask<void> _downloadGalleryImageTask(GalleryDownloadedData gallery, int serialNo, String url) {
+    return () {
+      Log.verbose('begin to download image: $serialNo', false);
+      return EHRequest.download(
+        url: url,
+        path: _computeImageDownloadAbsolutePath(gallery, serialNo),
+        cancelToken: gid2CancelToken[gallery.gid],
+        onReceiveProgress: (int count, int total) =>
+            gid2SpeedComputer[gallery.gid]!.updateProgress(count, total, serialNo),
+      );
+    };
   }
 
   /// the image's url may be invalid, try re-parse and then download
@@ -500,6 +514,7 @@ class DownloadService extends GetxController {
     } else {
       gallerys.add(gallery);
     }
+    gid2Tasks[gallery.gid] = [];
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2downloadProgress[gallery.gid] = GalleryDownloadProgress(totalCount: gallery.pageCount);
     gid2Images[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
@@ -513,6 +528,7 @@ class DownloadService extends GetxController {
 
   void _clearGalleryDownloadInfoInMemory(GalleryDownloadedData gallery) {
     gallerys.remove(gallery);
+    gid2Tasks.remove(gallery.gid);
     gid2downloadProgress.remove(gallery.gid);
     gid2Images.remove(gallery.gid);
     gid2ImageHrefs.remove(gallery.gid);
@@ -612,6 +628,7 @@ class DownloadService extends GetxController {
   /// restore
   void _restoreDownloadInfoInMemory(GalleryDownloadedData gallery, List<GalleryImage?> images) {
     gallerys.insert(0, gallery);
+    gid2Tasks[gallery.gid] = [];
     gid2CancelToken[gallery.gid] = CancelToken();
     List<bool> hasDownloaded =
         images.map((image) => image?.downloadStatus == DownloadStatus.downloaded ? true : false).toList();
@@ -627,6 +644,11 @@ class DownloadService extends GetxController {
       () => update(['$speedComputerId::${gallery.gid}']),
     );
     update([downloadGallerysId]);
+  }
+
+  bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
+    return gid2downloadProgress[gallery.gid] == null ||
+        gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
   }
 }
 
