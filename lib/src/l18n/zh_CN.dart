@@ -262,9 +262,13 @@ class zh_CN {
 
       /// download setting page
       'downloadPath': '下载路径',
-      'downloadTaskConcurrency': '同时下载任务数量',
+      'downloadTaskConcurrency': '同时下载图片数量',
       'needRestart': '需要重启',
       'downloadTimeout': '单次下载超时时间',
+      'speedLimit': '速度限制',
+      'speedLimitHint': '下载太快可能会被限制',
+      'per': '每',
+      'images': '图片',
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',
       'enableStoreMetadataForRestoreHint': '关闭此项会提升一定性能，但无法再恢复记录',

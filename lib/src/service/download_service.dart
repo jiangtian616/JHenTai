@@ -33,7 +33,10 @@ const String speedComputerId = 'SpeedComputerId';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxController {
-  final executor = Executor(concurrency: DownloadSetting.downloadTaskConcurrency.value);
+  final executor = Executor(
+    concurrency: DownloadSetting.downloadTaskConcurrency.value,
+    rate: Rate(DownloadSetting.maximum.value, DownloadSetting.period.value),
+  );
   static const int retryTimes = 3;
   static const String _metadata = '.metadata';
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
@@ -141,19 +144,21 @@ class DownloadService extends GetxController {
         continue;
       }
 
-      /// no parsed href, parse from thumbnails first
+      /// url has been parsed, download directly
+      if (gid2Images[gallery.gid]?[serialNo] != null){
+        _downloadGalleryImage(gallery, serialNo);
+        continue;
+      }
+
+      /// no parsed href and url, parse from thumbnails first
       if (gid2ImageHrefs[gallery.gid]?[serialNo] == null) {
         await _parseGalleryImageHref(gallery, serialNo);
       }
 
-      /// no parsed url, parse from page first
-      if (gid2Images[gallery.gid]?[serialNo] == null) {
-        _parseGalleryImageUrl(gallery, serialNo).then((_) {
-          _downloadGalleryImage(gallery, serialNo);
-        });
-      } else {
+      /// parse url and then download
+      _parseGalleryImageUrl(gallery, serialNo).then((_) {
         _downloadGalleryImage(gallery, serialNo);
-      }
+      });
 
       /// check if download task has been paused or removed
       if (_taskHasBeenPausedOrRemoved(gallery)) {
@@ -262,6 +267,8 @@ class DownloadService extends GetxController {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
             }
+
+            Log.verbose('begin to parse image hrefs', false);
             return EHRequest.requestDetailPage(
               galleryUrl: gallery.galleryUrl,
               thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
@@ -311,6 +318,8 @@ class DownloadService extends GetxController {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
             }
+
+            Log.verbose('begin to parse image url: $serialNo', false);
             return EHRequest.requestImagePage(
               gid2ImageHrefs[gallery.gid]![serialNo]!.href,
               cancelToken: gid2CancelToken[gallery.gid],
@@ -358,7 +367,6 @@ class DownloadService extends GetxController {
     image.downloadStatus = DownloadStatus.downloading;
     update(['$imageId::${gallery.gid}', '$imageUrlId::${gallery.gid}::$serialNo']);
 
-    Log.verbose('begin to download image: $serialNo', false);
     try {
       dynamic result = await retry(
         () => executor.scheduleTask(
@@ -366,6 +374,8 @@ class DownloadService extends GetxController {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
             }
+            Log.verbose('begin to download image: $serialNo', false);
+
             return EHRequest.download(
               url: image.url,
               path: _computeImageDownloadAbsolutePath(gallery, serialNo),
@@ -433,6 +443,9 @@ class DownloadService extends GetxController {
   /// the image's url may be invalid, try re-parse and then download
   Future<void> _reParseImageUrlAndDownload(GalleryDownloadedData gallery, int serialNo) async {
     await appDb.deleteImage(gid2Images[gallery.gid]![serialNo]!.url);
+    if (gid2ImageHrefs[gallery.gid]?[serialNo] == null) {
+      await _parseGalleryImageHref(gallery, serialNo);
+    }
     await _parseGalleryImageUrl(gallery, serialNo, false);
     _downloadGalleryImage(gallery, serialNo);
   }

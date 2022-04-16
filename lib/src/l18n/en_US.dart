@@ -263,8 +263,12 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'downloadTaskConcurrency': 'Download Task Concurrency',
+      'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need Restart',
+      'speedLimit': 'Speed Limit',
+      'speedLimitHint': 'Download too fast may lead to a ban',
+      'per': 'per',
+      'images': 'images',
       'downloadTimeout': 'Download Timeout',
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
       'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
