@@ -6,7 +6,9 @@ import 'package:executor/executor.dart';
 
 import '../exception/cancel_exception.dart';
 
-/// copied from [package:executor/executor.dart] and replace [_waiting] ListQueue by PriorityQueue
+/// copied from [package:executor/executor.dart] and
+/// 1. replace [_waiting] ListQueue by PriorityQueue
+/// 2. add [cancelTask]
 abstract class EHExecutor {
   /// The maximum number of tasks running concurrently.
   int concurrency = 1;
