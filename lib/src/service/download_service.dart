@@ -267,6 +267,7 @@ class DownloadService extends GetxController {
 
       int success = await _restoreDownloadInfoDatabase(gallery, images);
       if (success < 0) {
+        Log.error('restore download failed. Gallery: ${gallery.title}');
         deleteGallery(gallery);
         continue;
       }
@@ -616,16 +617,22 @@ class DownloadService extends GetxController {
       return success;
     }
 
-    List<int> successes = await Future.wait(
-      images.mapIndexed((index, image) {
+    success = await appDb.transaction(() async {
+      int serialNo = 0;
+      Iterator iterator = images.iterator;
+      while (iterator.moveNext()) {
+        GalleryImage? image = iterator.current;
         if (image == null) {
-          return Future.value(1);
+          serialNo++;
+          continue;
         }
-        return _saveNewImageInfoInDatabase(image, index, gallery.gid);
-      }).toList(),
-    );
+        await _saveNewImageInfoInDatabase(image, serialNo++, gallery.gid);
+      }
 
-    return successes.any((e) => e <= 0) ? -1 : 1;
+      return 1;
+    }).catchError((_) => -1);
+
+    return success;
   }
 
   /// restore
