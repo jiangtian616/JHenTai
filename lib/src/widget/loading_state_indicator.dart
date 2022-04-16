@@ -19,6 +19,7 @@ enum LoadingState {
 
 typedef ErrorTapCallback = void Function();
 typedef NoDataTapCallback = void Function();
+typedef SuccessWidgetBuilder = Widget Function();
 
 class LoadingStateIndicator extends StatelessWidget {
   final double? height;
@@ -32,7 +33,7 @@ class LoadingStateIndicator extends StatelessWidget {
   final Widget? loadingWidget;
   final Widget? noMoreWidget;
   final Widget? noDataWidget;
-  final Widget? successWidget;
+  final SuccessWidgetBuilder? successWidgetBuilder;
   final Widget? errorWidget;
   final bool errorWidgetSameWithIdle;
   final bool successWidgetSameWithIdle;
@@ -50,7 +51,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.loadingWidget,
     this.noMoreWidget,
     this.noDataWidget,
-    this.successWidget,
+    this.successWidgetBuilder,
     this.errorWidget,
     this.errorWidgetSameWithIdle = false,
     this.successWidgetSameWithIdle = false,
@@ -93,8 +94,8 @@ class LoadingStateIndicator extends StatelessWidget {
         if (successWidgetSameWithIdle == true) {
           return idleWidget!;
         }
-        if (successWidget != null) {
-          return successWidget!;
+        if (successWidgetBuilder != null) {
+          return successWidgetBuilder!();
         }
         child = const SizedBox();
         break;

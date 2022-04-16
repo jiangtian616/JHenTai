@@ -4,7 +4,7 @@ import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../utils/route_util.dart';
-import '../../../utils/size_util.dart';
+import '../../../utils/screen_size_util.dart';
 import '../../start_page.dart';
 import '../read_page_logic.dart';
 

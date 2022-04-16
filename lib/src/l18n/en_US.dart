@@ -100,6 +100,11 @@ class en_US {
       'ranking': 'Ranking',
       'score': 'Score',
       'NotOnTheList': 'Not on the list',
+      'getGalleryArchiveFailed': 'Get Gallery Archive Failed',
+      'original': 'Original',
+      'resample': 'Resample',
+      'beginToDownloadArchive': 'Begin to Download Archive',
+      'beginToDownloadArchiveHint': 'You can check progress at Download -> Archive',
 
       /// comment page
       'newComment': 'New Comment',
@@ -210,6 +215,13 @@ class en_US {
 
       /// download page
       'delete': 'Delete',
+      'unlocking': 'unlocking',
+      'waitingForDownloadPageUrl': 'Waiting For Download',
+      'waitingForDownloadUrl': 'Waiting For Download',
+      'downloaded': 'Downloaded',
+      'downloadFailed': 'DownloadFailed',
+      'unpacking': 'Unpacking',
+      'completed': 'Completed',
 
       /// search dialog
       'searchConfig': 'Search Config',

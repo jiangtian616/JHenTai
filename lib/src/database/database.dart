@@ -8,7 +8,7 @@ import 'package:path/path.dart' as p;
 
 part 'database.g.dart';
 
-@DriftDatabase(include: {'tables.drift'})
+@DriftDatabase(include: {'gallery_downloaded.drift', 'archive_downloaded.drift', 'tag.drift'})
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 

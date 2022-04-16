@@ -8,7 +8,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../utils/size_util.dart';
+import '../../../utils/screen_size_util.dart';
 
 class SettingStylePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();

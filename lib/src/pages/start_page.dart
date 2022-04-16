@@ -7,7 +7,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../utils/route_util.dart';
-import '../utils/size_util.dart';
+import '../utils/screen_size_util.dart';
 
 const int left = 1;
 const int right = 2;

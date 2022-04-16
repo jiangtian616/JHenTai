@@ -94,7 +94,7 @@ class _RatingDialogState extends State<RatingDialog> {
                       ),
                     ),
                   ),
-                  successWidget: const DoneWidget(outline: true),
+                  successWidgetBuilder: () => const DoneWidget(outline: true),
                   errorWidgetSameWithIdle: true,
                 ),
               )
@@ -121,7 +121,8 @@ class _RatingDialogState extends State<RatingDialog> {
         UserSetting.ipbMemberId.value!,
         detailsPageState.apikey,
         (rating * 2).toInt(),
-      )).data;
+      ))
+          .data;
     } on DioError catch (e) {
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);

@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 
@@ -36,15 +37,36 @@ class Gallery {
 
   GalleryDownloadedData toGalleryDownloadedData() {
     return GalleryDownloadedData(
-        gid: gid,
-        token: token,
-        title: title,
-        category: category,
-        pageCount: pageCount!,
-        galleryUrl: galleryUrl,
-        uploader: uploader,
-        publishTime: publishTime,
-        downloadStatusIndex: DownloadStatus.downloading.index);
+      gid: gid,
+      token: token,
+      title: title,
+      category: category,
+      pageCount: pageCount!,
+      galleryUrl: galleryUrl,
+      uploader: uploader,
+      publishTime: publishTime,
+      downloadStatusIndex: DownloadStatus.downloading.index,
+    );
+  }
+
+  ArchiveDownloadedData toArchiveDownloadedData(String archivePageUrl, bool isOriginal, int size) {
+    return ArchiveDownloadedData(
+      gid: gid,
+      token: token,
+      title: title,
+      category: category,
+      pageCount: pageCount!,
+      galleryUrl: galleryUrl,
+      uploader: uploader,
+      size: size,
+      coverUrl: cover.url,
+      coverHeight: cover.height,
+      coverWidth: cover.width,
+      publishTime: publishTime,
+      archiveStatusIndex: ArchiveStatus.unlocking.index,
+      archivePageUrl: archivePageUrl,
+      isOriginal: isOriginal,
+    );
   }
 
   Gallery({

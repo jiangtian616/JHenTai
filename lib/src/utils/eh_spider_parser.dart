@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/base_gallery.dart';
+import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -326,9 +327,9 @@ class EHSpiderParser {
 
     Element thumbnailSetting = items[18];
     map['isLargeThumbnail'] =
-    thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
-        ? true
-        : false;
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
+            ? true
+            : false;
     map['thumbnailRows'] =
         int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
     return map;
@@ -339,8 +340,7 @@ class EHSpiderParser {
     Document document = parse(html);
 
     Map<String, int> map = {
-      'currentConsumption':
-      int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+      'currentConsumption': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
       'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
       'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
     };
@@ -426,6 +426,20 @@ class EHSpiderParser {
     return response.headers['Location']!.first;
   }
 
+  static String? unlockArchivePage2DownloadArchivePageUrl(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    return document.querySelector('#continue > a')?.attributes['href'];
+  }
+
+  static String downloadArchivePage2DownloadUrl(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    return document.querySelector('#db > p > a')!.attributes['href']!;
+  }
+
   static String _parseLoginErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
       return 'needCaptcha'.tr;
@@ -495,6 +509,37 @@ class EHSpiderParser {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 2];
     return int.parse(td?.querySelector('a')?.text ?? '1');
+  }
+
+  static GalleryArchive archivePage2Archive(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+    return GalleryArchive(
+      gpCount: int.parse(
+        RegExp(r'([\d,]+) GP')
+            .firstMatch(document.querySelector('#db > p:nth-child(4)')!.text)!
+            .group(1)!
+            .replaceAll(',', ''),
+      ),
+      creditCount: int.parse(
+        RegExp(r'([\d,]+) Credits')
+            .firstMatch(document.querySelector('#db > p:nth-child(4)')!.text)!
+            .group(1)!
+            .replaceAll(',', ''),
+      ),
+      originalCost: int.parse(
+        document.querySelector('#db > div > div > div > strong')!.text.replaceAll(',', '').replaceFirst('Free!', '0'),
+      ),
+      resampleCost: int.parse(
+        document
+            .querySelector('#db > div > div:nth-child(3) > div > strong')!
+            .text
+            .replaceAll(',', '')
+            .replaceFirst('Free!', '0'),
+      ),
+      originalSize: document.querySelector('#db > div > div > p > strong')!.text,
+      resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')!.text,
+    );
   }
 
   static List<TagData> tagSuggestion2TagList(Response response) {

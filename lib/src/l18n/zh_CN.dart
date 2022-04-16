@@ -100,6 +100,11 @@ class zh_CN {
       'ranking': '排行',
       'score': '分数',
       'NotOnTheList': '未上榜',
+      'getGalleryArchiveFailed': '获取归档数据失败',
+      'original': '原始',
+      'resample': '压缩',
+      'beginToDownloadArchive': '开始下载归档',
+      'beginToDownloadArchiveHint': '可在 下载 -> 归档 确认进度',
 
       /// comment page
       'newComment': '新评论',
@@ -210,6 +215,13 @@ class zh_CN {
 
       /// download page
       'delete': '删除',
+      'unlocking': '解锁归档中',
+      'waitingForDownloadPageUrl': '等待下载中',
+      'waitingForDownloadUrl': '等待下载中',
+      'downloaded': '下载完成',
+      'downloadFailed': '下载失败',
+      'unpacking': '解压中',
+      'completed': '已完成',
 
       /// search dialog
       'searchConfig': '搜索配置',

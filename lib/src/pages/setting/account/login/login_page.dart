@@ -8,7 +8,7 @@ import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../../utils/size_util.dart';
+import '../../../../utils/screen_size_util.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginPageLogic logic = Get.put<LoginPageLogic>(LoginPageLogic());
@@ -136,7 +136,7 @@ class LoginPage extends StatelessWidget {
                           height: 56,
                           loadingState: state.loginState,
                           errorWidgetSameWithIdle: true,
-                          successWidget: const DoneWidget(outline: true),
+                          successWidgetBuilder: () => const DoneWidget(outline: true),
                           idleWidget: FloatingActionButton(
                             onPressed: logic.handleLogin,
                             elevation: 2,

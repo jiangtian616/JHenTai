@@ -47,8 +47,9 @@ class ReadPageState {
 
     /// property used for parsing and loading
     if (mode == 'local') {
-      thumbnails = Get.find<DownloadService>().gid2ImageHrefs[gid]!;
-      images = Get.find<DownloadService>().gid2Images[gid]!;
+      thumbnails =
+          Get.find<DownloadService>().gid2ImageHrefs[gid] ?? List.generate(pageCount, (index) => null, growable: true);
+      images = Get.arguments ?? Get.find<DownloadService>().gid2Images[gid]!;
     } else {
       thumbnails = List.generate(pageCount, (index) => null, growable: true);
       images = List.generate(pageCount, (index) => null);

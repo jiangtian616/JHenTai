@@ -12,7 +12,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/service/download_service.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/size_util.dart';
+import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:retry/retry.dart';

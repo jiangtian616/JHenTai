@@ -43,7 +43,7 @@ class _StatDialogState extends State<StatDialog> {
       children: [
         LoadingStateIndicator(
           loadingState: loadingState,
-          successWidget: CupertinoSlidingSegmentedControl<String>(
+          successWidgetBuilder: () => CupertinoSlidingSegmentedControl<String>(
             groupValue: graphType,
             children: {
               'allTime': Text('allTime'.tr).paddingSymmetric(horizontal: 12),

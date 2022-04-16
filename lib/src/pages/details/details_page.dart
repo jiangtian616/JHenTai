@@ -33,7 +33,7 @@ import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
-import '../../utils/size_util.dart';
+import '../../utils/screen_size_util.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import 'details_page_logic.dart';
 import 'details_page_state.dart';
@@ -323,7 +323,7 @@ class DetailsPage extends StatelessWidget {
                 text: GetBuilder<DownloadService>(
                   id: '$galleryDownloadProgressId::${gallery.gid}',
                   builder: (_) {
-                    GalleryDownloadProgress? downloadProgress = downloadService.gid2downloadProgress[gallery.gid];
+                    GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
                     return Text(
                       downloadProgress == null
                           ? 'download'.tr

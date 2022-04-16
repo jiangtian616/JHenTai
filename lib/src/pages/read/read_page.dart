@@ -14,7 +14,7 @@ import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart
 import 'package:jhentai/src/pages/read/widget/read_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/size_util.dart';
+import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -225,7 +225,7 @@ class ReadPage extends StatelessWidget {
 
   /// wait for [DownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[state.gid]!.downloadStatus;
+    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
 
     return SizedBox(
       height: screenHeight / 2,
@@ -246,7 +246,7 @@ class ReadPage extends StatelessWidget {
 
   /// wait for [DownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2downloadProgress[state.gid]!.downloadStatus;
+    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
 
     return SizedBox(
       height: screenHeight / 2,
@@ -296,11 +296,11 @@ class ReadPage extends StatelessWidget {
   /// downloaded for local mode
   Widget _downloadingWidgetBuilder(int index) {
     return GetBuilder<DownloadService>(
-      id: '$speedComputerId::${state.gid}',
+      id: '$galleryDownloadSpeedComputerId::${state.gid}',
       builder: (_) {
-        SpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
+        GalleryDownloadSpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
-        int totalBytes = speedComputer.imageTotalBytes[index];
+        int totalBytes = speedComputer.imageBytes[index];
 
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -433,7 +433,7 @@ class EHRequest {
     required String path,
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
-    Options? options,
+    int? receiveTimeout,
     EHHtmlParser<T>? parser,
   }) async {
     Response response = await _dio.download(
@@ -441,11 +441,10 @@ class EHRequest {
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
-      options: options ??
-          Options(
-            receiveTimeout: DownloadSetting.timeout.value * 1000,
-            extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
-          ),
+      options: Options(
+        receiveTimeout: receiveTimeout ?? DownloadSetting.timeout.value * 1000,
+        extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
+      ),
     );
     parser ??= noOpParser;
     return parser(response);
@@ -541,5 +540,49 @@ class EHRequest {
       response = e.response;
     }
     return callWithParamsUploadIfErrorOccurs(() => parser(response!), params: response);
+  }
+
+  static Future<T> requestUnlockArchive<T>({
+    required String url,
+    required int gid,
+    required String token,
+    required String or,
+    required bool isOriginal,
+    CancelToken? cancelToken,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response response = await _dio.post(
+      url,
+      queryParameters: {
+        'gid': gid,
+        'token': token,
+        'or': or,
+      },
+      data: FormData.fromMap({
+        'dltype': isOriginal ? 'org' : 'res',
+        'dlcheck': isOriginal ? 'Download Original Archive' : 'Download Resample Archive',
+      }),
+      cancelToken: cancelToken,
+    );
+
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
+  static Future<T> request<T>({
+    required String url,
+    bool useCacheIfAvailable = true,
+    CancelToken? cancelToken,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response? response = await _dio.get(
+      url,
+      options: useCacheIfAvailable
+          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
+          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+      cancelToken: cancelToken,
+    );
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 }

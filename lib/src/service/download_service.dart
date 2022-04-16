@@ -12,6 +12,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:retry/retry.dart';
 import 'package:get/get.dart';
@@ -29,7 +30,7 @@ const String imageId = 'imageId';
 const String imageHrefsId = 'imageHrefsId';
 const String imageUrlId = 'imageUrlId';
 const String galleryDownloadProgressId = 'galleryDownloadProgressId';
-const String speedComputerId = 'SpeedComputerId';
+const String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxController {
@@ -40,10 +41,10 @@ class DownloadService extends GetxController {
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
   Map<int, CancelToken> gid2CancelToken = {};
-  Map<int, GalleryDownloadProgress> gid2downloadProgress = <int, GalleryDownloadProgress>{};
+  Map<int, GalleryDownloadProgress> gid2DownloadProgress = <int, GalleryDownloadProgress>{};
   Map<int, List<GalleryThumbnail?>> gid2ImageHrefs = {};
   Map<int, List<GalleryImage?>> gid2Images = <int, List<GalleryImage?>>{};
-  Map<int, SpeedComputer> gid2SpeedComputer = {};
+  Map<int, GalleryDownloadSpeedComputer> gid2SpeedComputer = {};
 
   static Future<void> init() async {
     io.Directory(downloadPath).createSync(recursive: true);
@@ -71,7 +72,7 @@ class DownloadService extends GetxController {
 
       if (gallerys.isEmpty || gallerys.last.gid != gallery.gid) {
         _initGalleryDownloadInfoInMemory(gallery, insertAtFirst: false);
-        gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.values[result.galleryDownloadStatusIndex];
+        gid2DownloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.values[result.galleryDownloadStatusIndex];
       }
 
       /// no image in this gallery has been downloaded
@@ -89,8 +90,8 @@ class DownloadService extends GetxController {
       gid2Images[gallery.gid]![result.serialNo!] = image;
 
       if (image.downloadStatus == DownloadStatus.downloaded) {
-        gid2downloadProgress[gallery.gid]!.curCount++;
-        gid2downloadProgress[gallery.gid]!.hasDownloaded[result.serialNo!] = true;
+        gid2DownloadProgress[gallery.gid]!.curCount++;
+        gid2DownloadProgress[gallery.gid]!.hasDownloaded[result.serialNo!] = true;
       }
     }
 
@@ -111,7 +112,7 @@ class DownloadService extends GetxController {
   /// step 3: download image
   Future<void> downloadGallery(GalleryDownloadedData gallery,
       {bool isFirstDownload = true, ProgressCallback? onReceiveProgress, CancelToken? cancelToken}) async {
-    if (isFirstDownload && gid2downloadProgress.containsKey(gallery.gid)) {
+    if (isFirstDownload && gid2DownloadProgress.containsKey(gallery.gid)) {
       return;
     }
 
@@ -131,11 +132,11 @@ class DownloadService extends GetxController {
     }
 
     /// Check if need resume
-    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused) {
+    if (gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused) {
       await resumeDownloadGallery(gallery);
     }
 
-    for (int serialNo = 0; serialNo < gid2downloadProgress[gallery.gid]!.totalCount; serialNo++) {
+    for (int serialNo = 0; serialNo < gid2DownloadProgress[gallery.gid]!.totalCount; serialNo++) {
       /// has downloaded this image
       if (gid2Images[gallery.gid]?[serialNo]?.downloadStatus == DownloadStatus.downloaded) {
         continue;
@@ -168,7 +169,7 @@ class DownloadService extends GetxController {
 
   Future<void> pauseDownloadGallery(GalleryDownloadedData gallery) async {
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.paused);
-    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.paused;
+    gid2DownloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.paused;
     gid2CancelToken[gallery.gid]!.cancel();
     gid2SpeedComputer[gallery.gid]!.pause();
     update(['$galleryDownloadProgressId::${gallery.gid}']);
@@ -185,7 +186,7 @@ class DownloadService extends GetxController {
 
   Future<void> resumeDownloadGallery(GalleryDownloadedData gallery) async {
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.downloading);
-    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.downloading;
+    gid2DownloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.downloading;
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2SpeedComputer[gallery.gid]!.start();
     update(['$galleryDownloadProgressId::${gallery.gid}']);
@@ -248,8 +249,8 @@ class DownloadService extends GetxController {
   }
 
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
-    return gid2downloadProgress[gallery.gid] == null ||
-        gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
+    return gid2DownloadProgress[gallery.gid] == null ||
+        gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
   }
 
   Future<void> _parseGalleryImageHref(GalleryDownloadedData gallery, int serialNo) async {
@@ -407,7 +408,7 @@ class DownloadService extends GetxController {
 
     Log.verbose('download image: $serialNo success', false);
 
-    GalleryDownloadProgress downloadProgress = gid2downloadProgress[gallery.gid]!;
+    GalleryDownloadProgress downloadProgress = gid2DownloadProgress[gallery.gid]!;
     downloadProgress.curCount++;
     downloadProgress.hasDownloaded[serialNo] = true;
     update(['$galleryDownloadProgressId::${gallery.gid}']);
@@ -471,19 +472,19 @@ class DownloadService extends GetxController {
       gallerys.add(gallery);
     }
     gid2CancelToken[gallery.gid] = CancelToken();
-    gid2downloadProgress[gallery.gid] = GalleryDownloadProgress(totalCount: gallery.pageCount);
+    gid2DownloadProgress[gallery.gid] = GalleryDownloadProgress(totalCount: gallery.pageCount);
     gid2Images[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
     gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
-    gid2SpeedComputer[gallery.gid] = SpeedComputer(
+    gid2SpeedComputer[gallery.gid] = GalleryDownloadSpeedComputer(
       gallery.pageCount,
-      () => update(['$speedComputerId::${gallery.gid}']),
+      () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
     );
     update([downloadGallerysId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   void _clearGalleryDownloadInfoInMemory(GalleryDownloadedData gallery) {
     gallerys.remove(gallery);
-    gid2downloadProgress.remove(gallery.gid);
+    gid2DownloadProgress.remove(gallery.gid);
     gid2Images.remove(gallery.gid);
     gid2ImageHrefs.remove(gallery.gid);
     gid2SpeedComputer[gallery.gid]!.dispose();
@@ -585,89 +586,41 @@ class DownloadService extends GetxController {
     gid2CancelToken[gallery.gid] = CancelToken();
     List<bool> hasDownloaded =
         images.map((image) => image?.downloadStatus == DownloadStatus.downloaded ? true : false).toList();
-    gid2downloadProgress[gallery.gid] = GalleryDownloadProgress(
+    gid2DownloadProgress[gallery.gid] = GalleryDownloadProgress(
       downloadStatus: DownloadStatus.paused,
       totalCount: gallery.pageCount,
       hasDownloaded: hasDownloaded,
     );
     gid2Images[gallery.gid] = images;
     gid2ImageHrefs[gallery.gid] = List.generate(gallery.pageCount, (index) => null);
-    gid2SpeedComputer[gallery.gid] = SpeedComputer(
+    gid2SpeedComputer[gallery.gid] = GalleryDownloadSpeedComputer(
       gallery.pageCount,
-      () => update(['$speedComputerId::${gallery.gid}']),
+      () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
     );
     update([downloadGallerysId]);
   }
 }
 
 /// compute gallery download speed during last period every second
-class SpeedComputer {
-  Timer? timer;
-
-  String speed = '0 B/s';
-
+class GalleryDownloadSpeedComputer extends SpeedComputer {
   late List<int> imageDownloadedBytes;
-  late List<int> imageTotalBytes;
+  late List<int> imageBytes;
 
-  int allImageDownloadedBytesLastTime = 0;
-  int allImageDownloadedBytes = 0;
-
-  VoidCallback updateCallback;
-
-  SpeedComputer(int pageCount, this.updateCallback)
+  GalleryDownloadSpeedComputer(int pageCount, VoidCallback updateCallback)
       : imageDownloadedBytes = List.generate(pageCount, (index) => 0),
-        imageTotalBytes = List.generate(pageCount, (index) => 1);
-
-  void start() {
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      int prevDownloadedBytesLast = allImageDownloadedBytesLastTime;
-      allImageDownloadedBytesLastTime = allImageDownloadedBytes;
-
-      double difference = 0.0 + allImageDownloadedBytes - prevDownloadedBytesLast;
-      if (difference <= 0) {
-        speed = '0 B/s';
-        return;
-      }
-      if (difference < 1024) {
-        speed = '${difference.toStringAsFixed(2)} B/s';
-        return;
-      }
-      difference /= 1024;
-      if (difference < 1024) {
-        speed = '${difference.toStringAsFixed(2)} KB/s';
-        return;
-      }
-      difference /= 1024;
-      if (difference < 1024) {
-        speed = '${difference.toStringAsFixed(2)} MB/s';
-        return;
-      }
-      difference /= 1024;
-      speed = '${difference.toStringAsFixed(2)} GB/s';
-
-      updateCallback.call();
-    });
-  }
-
-  void pause() {
-    timer?.cancel();
-    speed = '0 KB/s';
-  }
+        imageBytes = List.generate(pageCount, (index) => 1),
+        super(updateCallback: updateCallback);
 
   void updateProgress(int count, int total, int serialNo) {
-    imageTotalBytes[serialNo] = total;
-    allImageDownloadedBytes -= imageDownloadedBytes[serialNo];
+    imageBytes[serialNo] = total;
+    downloadedBytes -= imageDownloadedBytes[serialNo];
     imageDownloadedBytes[serialNo] = count;
-    allImageDownloadedBytes += count;
+    downloadedBytes += imageDownloadedBytes[serialNo];
   }
 
   /// one image download failed
   void resetProgress(int serialNo) {
-    allImageDownloadedBytes -= imageDownloadedBytes[serialNo];
+    downloadedBytes -= imageDownloadedBytes[serialNo];
     imageDownloadedBytes[serialNo] = 0;
-  }
-
-  void dispose() {
-    timer?.cancel();
   }
 }

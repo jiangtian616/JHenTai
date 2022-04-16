@@ -1,0 +1,46 @@
+CREATE TABLE archive_downloaded
+(
+    gid                INT  NOT NULL,
+    token              TEXT NOT NULL,
+    title              TEXT NOT NULL,
+    category           TEXT NOT NULL,
+    pageCount          INT  NOT NULL,
+    galleryUrl         TEXT NOT NULL,
+    coverUrl           TEXT NOT NULL,
+    coverHeight        REAL NOT NULL,
+    coverWidth         REAL NOT NULL,
+    uploader           TEXT,
+    size               INT  NOT NULL,
+    publishTime        TEXT NOT NULL,
+    archiveStatusIndex INT  NOT NULL,
+    archivePageUrl     TEXT NOT NULL,
+    downloadPageUrl    TEXT NULL,
+    downloadUrl        TEXT NULL,
+    isOriginal         BOOL NOT NULL,
+    insertTime         TEXT,
+    PRIMARY KEY (gid, isOriginal)
+);
+
+selectArchives:
+SELECT *
+FROM archive_downloaded
+ORDER BY insertTime DESC;
+
+insertArchive:
+insert into archive_downloaded
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :coverHeight, :coverWidth, :uploader, :size,
+        :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal, :insertTime);
+
+deleteArchive:
+delete
+from archive_downloaded
+where gid = :gid
+  AND isOriginal = :isOriginal;
+
+updateArchive:
+update archive_downloaded
+set archiveStatusIndex = :archiveStatusIndex,
+    downloadPageUrl    = :downloadPageUrl,
+    downloadUrl        = :downloadUrl
+where gid = :gid
+  AND isOriginal = :isOriginal;

@@ -1,0 +1,43 @@
+CREATE TABLE tag
+(
+    namespace           TEXT NOT NULL,
+    _key                TEXT NOT NULL,
+    translatedNamespace TEXT,
+    tagName             TEXT,
+    fullTagName         TEXT,
+    intro               TEXT,
+    links               TEXT,
+    primary key (namespace, _key)
+);
+
+selectTagByNamespaceAndKey:
+select *
+from tag
+where namespace = :namespace
+  and _key = :key;
+
+selectTagsByKey:
+select *
+from tag
+where _key = :key;
+
+selectAllTags:
+select *
+from tag;
+
+searchTags
+    (REQUIRED :pattern AS TEXT)
+    :
+select *
+from tag
+where _key LIKE :pattern
+   OR tagName LIKE :pattern
+LIMIT 35;
+
+insertTag:
+insert into tag
+values (:namespace, :key, :translatedNamespace, :tagName, :fullTagName, :intro, :links);
+
+deleteAllTags:
+delete
+from tag;

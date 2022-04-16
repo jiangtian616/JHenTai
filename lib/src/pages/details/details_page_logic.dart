@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
@@ -330,7 +331,7 @@ class DetailsPageLogic extends GetxController {
   void handleTapDownload() {
     DownloadService downloadService = Get.find<DownloadService>();
     Gallery gallery = state.gallery!;
-    GalleryDownloadProgress? downloadProgress = downloadService.gid2downloadProgress[gallery.gid];
+    GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
 
     if (downloadProgress == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
@@ -382,14 +383,11 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleTapArchive() async {
-    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-    toNamed(
-      Routes.webview,
-      arguments: {
-        'url': state.galleryDetails!.archivePageUrl,
-        'cookies': CookieUtil.parse2String(cookies),
-      },
-    );
+    if (!UserSetting.hasLoggedIn()) {
+      showLoginSnack();
+      return;
+    }
+    Get.dialog(const ArchiveDialog());
   }
 
   Future<void> handleTapStatistic() async {
@@ -397,7 +395,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   void goToReadPage([int? index]) {
-    if (downloadService.gid2downloadProgress[state.gallery!.gid] != null) {
+    if (downloadService.gid2DownloadProgress[state.gallery!.gid] != null) {
       toNamed(
         Routes.read,
         parameters: {
