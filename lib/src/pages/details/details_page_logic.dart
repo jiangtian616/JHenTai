@@ -339,7 +339,7 @@ class DetailsPageLogic extends GetxController {
     }
 
     if (downloadProgress.downloadStatus == DownloadStatus.paused) {
-      downloadService.downloadGallery(gallery.toGalleryDownloadedData(), isFirstDownload: false);
+      downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
       snack('resume'.tr, gallery.title);
       return;
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {

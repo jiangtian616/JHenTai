@@ -203,22 +203,26 @@ class _DownloadViewState extends State<DownloadView> {
               builder: (_) {
                 DownloadStatus downloadStatus = downloadService.gid2downloadProgress[gallery.gid]!.downloadStatus;
                 return GestureDetector(
-                  onTap: () {
-                    downloadStatus == DownloadStatus.paused
-                        ? downloadService.downloadGallery(gallery, isFirstDownload: false)
-                        : downloadService.pauseDownloadGallery(gallery);
-                  },
-                  child: Icon(
-                    downloadStatus == DownloadStatus.paused
-                        ? Icons.play_arrow
-                        : downloadStatus == DownloadStatus.downloading
-                            ? Icons.pause
-                            : Icons.done,
-                    size: 26,
-                    color: downloadStatus == DownloadStatus.downloading
-                        ? Get.theme.primaryColorLight
-                        : Get.theme.primaryColor,
-                  ),
+                  onTap: downloadStatus == DownloadStatus.switching
+                      ? null
+                      : () {
+                          downloadStatus == DownloadStatus.paused
+                              ? downloadService.resumeDownloadGallery(gallery)
+                              : downloadService.pauseDownloadGallery(gallery);
+                        },
+                  child: downloadStatus == DownloadStatus.switching
+                      ? const CupertinoActivityIndicator(radius: 13)
+                      : Icon(
+                          downloadStatus == DownloadStatus.paused
+                              ? Icons.play_arrow
+                              : downloadStatus == DownloadStatus.downloading
+                                  ? Icons.pause
+                                  : Icons.done,
+                          size: 26,
+                          color: downloadStatus == DownloadStatus.downloading
+                              ? Get.theme.primaryColorLight
+                              : Get.theme.primaryColor,
+                        ),
                 );
               },
             ),

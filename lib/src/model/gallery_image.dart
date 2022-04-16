@@ -1,5 +1,6 @@
 enum DownloadStatus {
   none,
+  switching,
   paused,
   downloading,
   downloaded,

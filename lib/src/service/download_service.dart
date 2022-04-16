@@ -22,6 +22,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as path;
 
 import '../model/gallery_image.dart';
+import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 
 const String downloadGallerysId = 'downloadGallerysId';
@@ -33,7 +34,7 @@ const String speedComputerId = 'SpeedComputerId';
 
 /// responsible for local images meta-data and download all images of a gallery
 class DownloadService extends GetxController {
-  final executor = Executor(
+  final executor = EHExecutor(
     concurrency: DownloadSetting.downloadTaskConcurrency.value,
     rate: Rate(DownloadSetting.maximum.value, DownloadSetting.period.value),
   );
@@ -112,8 +113,7 @@ class DownloadService extends GetxController {
   /// step 1: get image href from its thumbnail, if thumbnail haven't been parsed, parse thumbnail first.
   /// step 2: get image url by parsing page (with href parsed last step)
   /// step 3: download image
-  Future<void> downloadGallery(GalleryDownloadedData gallery,
-      {bool isFirstDownload = true, ProgressCallback? onReceiveProgress, CancelToken? cancelToken}) async {
+  Future<void> downloadGallery(GalleryDownloadedData gallery, {bool isFirstDownload = true}) async {
     if (isFirstDownload && gid2downloadProgress.containsKey(gallery.gid)) {
       return;
     }
@@ -131,11 +131,6 @@ class DownloadService extends GetxController {
         _saveGalleryDownloadInfoInDisk(gallery);
       }
       gid2SpeedComputer[gallery.gid]!.start();
-    }
-
-    /// Check if need resume
-    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused) {
-      await resumeDownloadGallery(gallery);
     }
 
     for (int serialNo = 0; serialNo < gid2downloadProgress[gallery.gid]!.totalCount; serialNo++) {
@@ -172,11 +167,15 @@ class DownloadService extends GetxController {
   }
 
   Future<void> pauseDownloadGallery(GalleryDownloadedData gallery) async {
+    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
+      return;
+    }
+    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
+
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.paused);
-    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.paused;
     gid2CancelToken[gallery.gid]!.cancel();
     gid2SpeedComputer[gallery.gid]!.pause();
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
 
     for (GalleryImage? image in gid2Images[gallery.gid]!) {
       if (image?.downloadStatus == DownloadStatus.downloading) {
@@ -185,15 +184,22 @@ class DownloadService extends GetxController {
       }
     }
 
+    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.paused;
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
+
     Log.info('pause download gallery: ${gallery.gid}', false);
   }
 
   Future<void> resumeDownloadGallery(GalleryDownloadedData gallery) async {
+    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
+      return;
+    }
+    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
+
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.downloading);
-    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.downloading;
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2SpeedComputer[gallery.gid]!.start();
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
 
     for (GalleryImage? image in gid2Images[gallery.gid]!) {
       if (image?.downloadStatus == DownloadStatus.paused) {
@@ -202,7 +208,11 @@ class DownloadService extends GetxController {
       }
     }
 
+    gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.downloading;
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
+
     Log.info('resume download gallery: ${gallery.gid}', false);
+    downloadGallery(gallery, isFirstDownload: false);
   }
 
   Future<void> deleteGallery(GalleryDownloadedData gallery) async {
@@ -263,6 +273,7 @@ class DownloadService extends GetxController {
     try {
       List<GalleryThumbnail>? result = await retry(
         () => executor.scheduleTask(
+          serialNo * 100000,
           () {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
@@ -314,6 +325,7 @@ class DownloadService extends GetxController {
     try {
       GalleryImage? result = await retry(
         () => executor.scheduleTask(
+          serialNo * 10000,
           () {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
@@ -370,12 +382,13 @@ class DownloadService extends GetxController {
     try {
       dynamic result = await retry(
         () => executor.scheduleTask(
+          serialNo,
           () {
             if (_taskHasBeenPausedOrRemoved(gallery)) {
               return null;
             }
-            Log.verbose('begin to download image: $serialNo', false);
 
+            Log.verbose('begin to download image: $serialNo', false);
             return EHRequest.download(
               url: image.url,
               path: _computeImageDownloadAbsolutePath(gallery, serialNo),
@@ -386,7 +399,11 @@ class DownloadService extends GetxController {
           },
         ),
         maxAttempts: retryTimes,
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        retryIf: (e) =>
+            e is DioError &&
+            e.type != DioErrorType.cancel &&
+            e.error is! EHException &&
+            (e.response == null || e.response!.statusCode != 403),
         onRetry: (e) {
           Log.error(
             'downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo]!.url}',
