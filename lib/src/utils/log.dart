@@ -12,29 +12,41 @@ import 'package:path/path.dart' as path;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 class Log {
-  static Logger? _log;
-  static Logger? _logFile;
+  static Logger? _logger;
+  static Logger? _verboseFileLogger;
+  static Logger? _warningFileLogger;
 
-  static late final logPath;
+  static late final String logDirPath;
 
   static Future<void> init() async {
     if (AdvancedSetting.enableLogging.value == false) {
       return;
     }
 
-    logPath = path.join(PathSetting.getVisibleDir().path, 'logs');
-    io.File logFile = io.File(path.join(logPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
-    await logFile.create(recursive: true);
-
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1);
     LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, printTime: true);
     LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, noBoxingByDefault: true);
+    _logger = Logger(printer: devPrinter);
 
-    _log = Logger(printer: devPrinter);
-    _logFile = Logger(
+    logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
+
+    io.File verboseLogFile =
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}.log'));
+    await verboseLogFile.create(recursive: true);
+    _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: ProductionFilter(),
-      output: FileOutput(file: logFile),
+      output: FileOutput(file: verboseLogFile),
+    );
+
+    io.File waringLogFile =
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}_waring.log'));
+    await waringLogFile.create(recursive: true);
+    _warningFileLogger = Logger(
+      level: Level.warning,
+      printer: prodPrinterWithBox,
+      filter: ProductionFilter(),
+      output: FileOutput(file: waringLogFile),
     );
 
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
@@ -42,27 +54,29 @@ class Log {
   }
 
   static void verbose(Object? msg, [bool withStack = true]) {
-    _log?.v(msg, null, withStack ? null : StackTrace.empty);
-    _logFile?.v(msg, null, withStack ? null : StackTrace.empty);
+    _logger?.v(msg, null, withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void info(Object? msg, [bool withStack = true]) {
-    _log?.i(msg, null, withStack ? null : StackTrace.empty);
-    _logFile?.i(msg, null, withStack ? null : StackTrace.empty);
+    _logger?.i(msg, null, withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.i(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void warning(Object? msg, [bool withStack = true]) {
-    _log?.w(msg, null, withStack ? null : StackTrace.empty);
-    _logFile?.w(msg, null, withStack ? null : StackTrace.empty);
+    _logger?.w(msg, null, withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
+    _warningFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void error(Object? msg, [Object? error, StackTrace? stackTrace]) {
-    _log?.e(msg, error, stackTrace);
-    _logFile?.e(msg, error, stackTrace);
+    _logger?.e(msg, error, stackTrace);
+    _verboseFileLogger?.e(msg, error, stackTrace);
+    _warningFileLogger?.e(msg, error, stackTrace);
   }
 
   static String getSizeInKB() {
-    io.Directory logDirectory = io.Directory(logPath);
+    io.Directory logDirectory = io.Directory(logDirPath);
     if (!logDirectory.existsSync()) {
       return '0KB';
     }
