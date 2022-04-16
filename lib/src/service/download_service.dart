@@ -624,27 +624,35 @@ class SpeedComputer {
       allImageDownloadedBytesLastTime = allImageDownloadedBytes;
 
       double difference = 0.0 + allImageDownloadedBytes - prevDownloadedBytesLast;
+
       if (difference <= 0) {
         speed = '0 B/s';
+        updateCallback.call();
         return;
       }
+
       if (difference < 1024) {
         speed = '${difference.toStringAsFixed(2)} B/s';
+        updateCallback.call();
         return;
       }
+
       difference /= 1024;
       if (difference < 1024) {
         speed = '${difference.toStringAsFixed(2)} KB/s';
+        updateCallback.call();
         return;
       }
+
       difference /= 1024;
       if (difference < 1024) {
         speed = '${difference.toStringAsFixed(2)} MB/s';
+        updateCallback.call();
         return;
       }
+
       difference /= 1024;
       speed = '${difference.toStringAsFixed(2)} GB/s';
-
       updateCallback.call();
     });
   }
