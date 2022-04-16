@@ -607,7 +607,10 @@ class DownloadService extends GetxController {
 
   /// restore
   Future<int> _restoreDownloadInfoDatabase(GalleryDownloadedData gallery, List<GalleryImage?> images) async {
-    gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.paused.index);
+    if (gallery.downloadStatusIndex == DownloadStatus.downloading.index) {
+      gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.paused.index);
+    }
+
     int success = await _saveNewGalleryDownloadInfoInDatabase(gallery);
     if (success <= 0) {
       return success;
@@ -633,7 +636,9 @@ class DownloadService extends GetxController {
     List<bool> hasDownloaded =
         images.map((image) => image?.downloadStatus == DownloadStatus.downloaded ? true : false).toList();
     gid2downloadProgress[gallery.gid] = GalleryDownloadProgress(
-      downloadStatus: DownloadStatus.paused,
+      downloadStatus: gallery.downloadStatusIndex == DownloadStatus.downloading.index
+          ? DownloadStatus.paused
+          : DownloadStatus.values[gallery.downloadStatusIndex],
       totalCount: gallery.pageCount,
       hasDownloaded: hasDownloaded,
     );
