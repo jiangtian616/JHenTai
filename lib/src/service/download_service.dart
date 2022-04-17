@@ -291,7 +291,7 @@ class DownloadService extends GetxController {
       newThumbnails = await retry(
         () => executor.scheduleTask(serialNo * 100000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
-        onRetry: (e) => Log.error('parse image hrefs failed, retry', (e as DioError).message),
+        onRetry: (e) => Log.info('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on CancelException catch (e) {
@@ -301,7 +301,7 @@ class DownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.error('Download Error', e.error.msg);
+        Log.info('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         pauseAllDownloadGallery();
         return;
@@ -344,7 +344,7 @@ class DownloadService extends GetxController {
       image = await retry(
         () => executor.scheduleTask(serialNo * 10000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
-        onRetry: (e) => Log.error('parseImageUrl failed, retry', (e as DioError).message),
+        onRetry: (e) => Log.info('ParseImageUrl failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on CancelException catch (e) {
@@ -354,7 +354,7 @@ class DownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.error('Download Error', e.error.msg);
+        Log.info('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         await pauseAllDownloadGallery();
         return;
@@ -406,9 +406,8 @@ class DownloadService extends GetxController {
             e.error is! EHException &&
             (e.response == null || e.response!.statusCode != 403),
         onRetry: (e) {
-          Log.error(
-            'downloadImage: $serialNo failed, retry. url:${gid2Images[gallery.gid]![serialNo]!.url}',
-            (e as DioError).message,
+          Log.info(
+            'DownloadImage: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${gid2Images[gallery.gid]![serialNo]!.url}',
           );
           gid2SpeedComputer[gallery.gid]!.resetProgress(serialNo);
         },
@@ -420,12 +419,12 @@ class DownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.error('Download Error', e.error.msg);
+        Log.info('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         pauseAllDownloadGallery();
         return;
       }
-      Log.error(
+      Log.info(
         'downloadImage: $serialNo failed $retryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo]!.url}',
       );
       _reParseImageUrlAndDownload(gallery, serialNo);
