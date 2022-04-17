@@ -99,7 +99,7 @@ Future<void> init() async {
 
   await PathSetting.init();
 
-  await GetStorage.init();
+  await GetStorage.init(StorageService.storageFileName);
   StorageService.init();
 
   await AdvancedSetting.init();
