@@ -68,13 +68,13 @@ class DetailsPageLogic extends GetxController {
     /// enter from galleryPage
     if (arg is Gallery) {
       state.gallery = arg;
-      getDetails().then((_) => historyService.record(state.gallery!));
+      getDetails().then((_) => historyService.record(state.gallery));
       return;
     }
 
     /// enter from downloadPage or url or clipboard
     if (arg is String) {
-      getFullPage().then((_) => historyService.record(state.gallery!));
+      getFullPage().then((_) => historyService.record(state.gallery));
     }
 
     /// enter from ranklist view
@@ -84,7 +84,7 @@ class DetailsPageLogic extends GetxController {
       state.apikey = arg[2];
       state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
       state.loadingDetailsState = LoadingState.success;
-      historyService.record(state.gallery!);
+      historyService.record(state.gallery);
       update([bodyId]);
       return;
     }

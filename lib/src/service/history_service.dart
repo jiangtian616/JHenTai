@@ -25,7 +25,10 @@ class HistoryService extends GetxService {
     super.onInit();
   }
 
-  void record(Gallery gallery) {
+  void record(Gallery? gallery) {
+    if (gallery == null) {
+      return;
+    }
     history.removeWhere((element) => element.gid == gallery.gid);
     history.insert(0, gallery);
     storageService.write('history', history);
