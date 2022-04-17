@@ -40,7 +40,7 @@ class DownloadService extends GetxController {
     rate: Rate(DownloadSetting.maximum.value, DownloadSetting.period.value),
   );
   static const int retryTimes = 3;
-  static const String _metadata = 'metadata';
+  static const String _metadata = '.metadata';
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
