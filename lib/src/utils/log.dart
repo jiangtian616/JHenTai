@@ -75,7 +75,7 @@ class Log {
     _warningFileLogger?.e(msg, error, stackTrace);
   }
 
-  static String getSizeInKB() {
+  static String getSize() {
     io.Directory logDirectory = io.Directory(logDirPath);
     if (!logDirectory.existsSync()) {
       return '0KB';
@@ -85,7 +85,13 @@ class Log {
         .listSync()
         .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
 
-    return (totalBytes / 1024).toStringAsFixed(2) + 'KB';
+    if (totalBytes < 1024) {
+      return '${totalBytes}B';
+    }
+    if (totalBytes < 1024 * 1024) {
+      return '${(totalBytes / 1024).toStringAsFixed(2)}KB';
+    }
+    return '${(totalBytes / 1024 / 1024).toStringAsFixed(2)}MB';
   }
 
   static void clear() {
