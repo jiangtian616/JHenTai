@@ -202,15 +202,16 @@ class DownloadService extends GetxController {
     Log.info('pause download gallery: ${gallery.gid}', false);
   }
 
+  Future<void> resumeAllDownloadGallery() async {
+    await Future.wait(gallerys.map((g) => resumeDownloadGallery(g)).toList());
+  }
+
   Future<void> resumeDownloadGallery(GalleryDownloadedData gallery) async {
     if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
       return;
     }
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
     update(['$galleryDownloadProgressId::${gallery.gid}']);
-
-    /// avoid a immediate resume after pause
-    // await Future.delayed(const Duration(milliseconds: 300));
 
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.downloading);
     gid2CancelToken[gallery.gid] = CancelToken();

@@ -42,6 +42,18 @@ class _DownloadViewState extends State<DownloadView> {
         centerTitle: true,
         title: Text('download'.tr),
         elevation: 1,
+        actions: downloadService.gallerys.isEmpty
+            ? null
+            : [
+                IconButton(
+                  onPressed: downloadService.resumeAllDownloadGallery,
+                  icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+                ),
+                IconButton(
+                  onPressed: downloadService.pauseAllDownloadGallery,
+                  icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+                ),
+              ],
       ),
       body: GetBuilder<DownloadService>(
         initState: _listen2AddItem,
