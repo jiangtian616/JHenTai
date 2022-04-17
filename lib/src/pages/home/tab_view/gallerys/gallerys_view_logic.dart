@@ -39,6 +39,8 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
 
+  String? _lastDetectedUrl;
+
   @override
   void onInit() {
     tabController.addListener(() {
@@ -332,6 +334,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
       return;
     }
+
+    /// show snack only once
+    if (text == _lastDetectedUrl) {
+      return;
+    }
+
+    _lastDetectedUrl = text;
 
     snack(
       'galleryUrlDetected'.tr,
