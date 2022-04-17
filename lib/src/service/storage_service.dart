@@ -5,7 +5,7 @@ import 'package:jhentai/src/setting/path_setting.dart';
 import '../utils/log.dart';
 
 class StorageService extends GetxService {
-  final GetStorage _storage = GetStorage('GetStorage', PathSetting.appSupportDir.path);
+  final GetStorage _storage = GetStorage('.GetStorage', PathSetting.appSupportDir.path);
 
   static void init() {
     Get.put(StorageService());
