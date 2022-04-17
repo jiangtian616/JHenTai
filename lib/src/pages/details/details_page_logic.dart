@@ -163,6 +163,7 @@ class DetailsPageLogic extends GetxController {
     state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
     state.apikey = galleryDetailsAndApikey['apikey'];
     state.gallery!.pageCount = state.galleryDetails!.pageCount;
+    state.gallery!.uploader = state.galleryDetails!.uploader;
     state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
