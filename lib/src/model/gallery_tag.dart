@@ -27,4 +27,9 @@ class GalleryTag {
       tagData: TagData.fromJson(map['tagData']),
     );
   }
+
+  @override
+  String toString() {
+    return 'GalleryTag{color: $color, backgroundColor: $backgroundColor, tagData: $tagData}';
+  }
 }
