@@ -23,7 +23,8 @@ class ReadPageState {
   LoadingState parseImageHrefsState = LoadingState.idle;
   late List<GalleryImage?> images;
   late List<LoadingState> parseImageUrlStates;
-  late List<String?> errorMsg;
+  late String? parseImageHrefErrorMsg;
+  late List<String?> parseImageUrlErrorMsg;
 
   /// property used for build page
   late int readIndexRecord;
@@ -55,7 +56,7 @@ class ReadPageState {
       images = List.generate(pageCount, (index) => null);
       parseImageUrlStates = List.generate(pageCount, (index) => LoadingState.idle);
     }
-    errorMsg = List.generate(pageCount, (index) => null);
+    parseImageUrlErrorMsg = List.generate(pageCount, (index) => null);
   }
 
   TextStyle readPageTextStyle() {

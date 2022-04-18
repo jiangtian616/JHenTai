@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -26,17 +25,19 @@ class EHCookieManager extends CookieManager {
     /// which causes [_cookieJar] init failed, thus no hosts are load into memory.
     /// Temporarily, if error occurs, try load hosts manually.
     try {
-      await _cookieJar.forceInit();
+      String? str = await _cookieJar.storage.read(_cookieJar.IndexKey);
+      if (str != null && str.isNotEmpty) {
+        json.decode(str);
+      }
     } on Exception catch (e) {
       Log.warning('cookieJar init failed, use default setting', false);
-      FirebaseCrashlytics.instance.recordError(e, null);
       Set<String> defaultHostSet = EHConsts.host2Ip.entries.fold<Set<String>>(
         <String>{},
         (previousValue, entry) => previousValue..addAll([entry.key, entry.value]),
       );
       await _cookieJar.storage.write(_cookieJar.IndexKey, json.encode(defaultHostSet.toList()));
-      await _cookieJar.forceInit();
     }
+    await _cookieJar.forceInit();
 
     /// eagerly load cookie into memory
     await Future.wait(

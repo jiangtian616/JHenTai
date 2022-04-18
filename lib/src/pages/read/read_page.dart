@@ -180,7 +180,7 @@ class ReadPage extends StatelessWidget {
                   errorWidget: const Icon(Icons.warning, color: Colors.yellow),
                 ),
                 Text(
-                  state.parseImageHrefsState == LoadingState.error ? state.errorMsg[index]! : 'parsingPage'.tr,
+                  state.parseImageHrefsState == LoadingState.error ? state.parseImageHrefErrorMsg! : 'parsingPage'.tr,
                   style: state.readPageTextStyle(),
                 ).marginOnly(top: 8),
                 Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
@@ -212,7 +212,7 @@ class ReadPage extends StatelessWidget {
                     errorWidget: const Icon(Icons.warning, color: Colors.yellow),
                   ),
                   Text(
-                    state.parseImageUrlStates[index] == LoadingState.error ? state.errorMsg[index]! : 'parsingURL'.tr,
+                    state.parseImageUrlStates[index] == LoadingState.error ? state.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
                     style: state.readPageTextStyle(),
                   ).marginOnly(top: 8),
                   Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),

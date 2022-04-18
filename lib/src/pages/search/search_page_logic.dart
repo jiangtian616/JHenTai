@@ -97,7 +97,6 @@ class SearchPageLogic extends GetxController {
           parser: EHSpiderParser.galleryPage2GalleryList,
         );
       }
-
     } on DioError catch (e) {
       Log.error('searchFailed'.tr, e.message);
       snack('searchFailed'.tr, e.message);
@@ -157,7 +156,6 @@ class SearchPageLogic extends GetxController {
           parser: EHSpiderParser.galleryPage2GalleryList,
         );
       }
-
     } on DioError catch (e) {
       Log.error('searchFailed'.tr, e.message);
       snack('searchFailed'.tr, e.message);
@@ -217,7 +215,6 @@ class SearchPageLogic extends GetxController {
           parser: EHSpiderParser.galleryPage2GalleryList,
         );
       }
-
     } on DioError catch (e) {
       Log.error('searchFailed'.tr, e.message);
       snack('searchFailed'.tr, e.message);
@@ -316,9 +313,14 @@ class SearchPageLogic extends GetxController {
   }
 
   Future<void> handlePickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-    );
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+    } on Exception catch (e) {
+      Log.error('Pick file failed', e);
+    }
 
     if (result == null) {
       return;

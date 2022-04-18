@@ -5,6 +5,8 @@ import '../service/storage_service.dart';
 
 class DownloadSetting {
   static RxInt downloadTaskConcurrency = 6.obs;
+  static RxInt maximum = 2.obs;
+  static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxInt timeout = 10.obs;
   static RxBool enableStoreMetadataForRestore = true.obs;
 
@@ -18,8 +20,18 @@ class DownloadSetting {
     }
   }
 
-  static saveDownloadTaskConcurrency(int value) {
-    downloadTaskConcurrency.value = value;
+  static saveDownloadTaskConcurrency(int downloadTaskConcurrency) {
+    DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
+    _save();
+  }
+
+  static saveMaximum(int maximum) {
+    DownloadSetting.maximum.value = maximum;
+    _save();
+  }
+
+  static savePeriod(Duration period) {
+    DownloadSetting.period.value = period;
     _save();
   }
 
@@ -40,6 +52,8 @@ class DownloadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
+      'maximum': maximum.value,
+      'period': period.value.inMilliseconds,
       'timeout': timeout.value,
       'enableStoreMetadataForRestore': enableStoreMetadataForRestore.value,
     };
@@ -47,6 +61,8 @@ class DownloadSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
+    maximum.value = map['maximum'];
+    period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
     enableStoreMetadataForRestore.value = map['enableStoreMetadataForRestore'];
   }

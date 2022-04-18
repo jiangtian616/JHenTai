@@ -94,9 +94,3 @@ mush thanks to these projects🙇‍
 - [dio](https://pub.flutter-io.cn/packages?q=dio): network
 - [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
 - [drift](https://pub.flutter-io.cn/packages/drift): database
-
-## About Compiling
-
-This project use FlutterFire to collect crashlytics, you can add your firebase config or disable it by  :
-1. Delete row 80-83 in `main.dart`, which related to initialization with firebase.
-2. Remove dependency `firebase_core` and `firebase_crashlytics` in `pubspec.yaml`

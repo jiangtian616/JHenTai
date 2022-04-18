@@ -119,6 +119,7 @@ class EHSpiderParser {
 
     GalleryDetail galleryDetail = GalleryDetail(
       rawTitle: document.querySelector('#gn')!.text,
+      uploader: document.querySelector('#gdn > a')!.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
@@ -236,6 +237,11 @@ class EHSpiderParser {
       String tagName = div.querySelector('div:last-child')?.text ?? '';
       int favoriteCount = int.parse(div.querySelector('div:first-child')?.text ?? '0');
       tagNames2Count.putIfAbsent(tagName, () => favoriteCount);
+    }
+
+    /// todo: remove
+    if (tagNames2Count.length != 10) {
+      Log.upload(StateError('Error favorites count!'), params: response);
     }
 
     return tagNames2Count;

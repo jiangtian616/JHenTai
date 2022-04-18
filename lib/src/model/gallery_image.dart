@@ -1,5 +1,6 @@
 enum DownloadStatus {
   none,
+  switching,
   paused,
   downloading,
   downloaded,
@@ -40,5 +41,10 @@ class GalleryImage {
       path: json["path"],
       downloadStatus: DownloadStatus.values[json["downloadStatus"]],
     );
+  }
+
+  @override
+  String toString() {
+    return 'GalleryImage{url: $url, height: $height, width: $width, path: $path, downloadStatus: $downloadStatus}';
   }
 }

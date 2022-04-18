@@ -20,7 +20,7 @@ class _LogListPageState extends State<LogListPage> {
 
   @override
   void initState() {
-    io.Directory logDir = io.Directory(Log.logPath);
+    io.Directory logDir = io.Directory(Log.logDirPath);
     if (logDir.existsSync()) {
       logs = logDir.listSync();
       logs.sort((a, b) => b.statSync().changed.difference(a.statSync().changed).inMicroseconds);

@@ -88,9 +88,3 @@ E-hentai 的一个移动端app。
 - [dio](https://pub.flutter-io.cn/packages?q=dio): 网络
 - [extendedImage](https://pub.flutter-io.cn/packages/extended_image): 图片
 - [drift](https://pub.flutter-io.cn/packages/drift): 数据库
-
-## 编译相关
-
-本项目使用了FlutterFire统计崩溃数据，可增加自己的firebase配置或者通过以下步骤关闭: 
-1. 删除 `main.dart` 80~83行初始化Firebase的相关代码
-2. 删除 `pubspec.yaml`中`firebase_core`和`firebase_crashlytics`依赖

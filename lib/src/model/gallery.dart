@@ -136,4 +136,9 @@ class Gallery {
       publishTime: map['publishTime'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime}';
+  }
 }

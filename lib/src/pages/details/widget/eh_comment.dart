@@ -73,7 +73,6 @@ class _EHCommentState extends State<EHComment> {
                 child: HtmlWidget(
                   _wrapUrlInATag(widget.comment.content),
                   textStyle: const TextStyle(fontSize: 12),
-                  onTapUrl: _handleTapUrl,
                   factoryBuilder: () => _WidgetFactoryWithTextMaxLine(
                     maxLines: widget.maxLines,
                     overflow: TextOverflow.ellipsis,
@@ -144,8 +143,8 @@ class _EHCommentState extends State<EHComment> {
 
   /// some url link doesn't be wrapped in <a href='xxx'></a>, to help html parse, we manually add it.
   String _wrapUrlInATag(String html) {
-    RegExp reg = RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-)+))');
-    RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-)+))').allMatches(html).map((e) => e.group(0)).toList();
+    RegExp reg = RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%)+))');
+    reg.allMatches(html).map((e) => e.group(0)).toList();
     return html.replaceAllMapped(reg, (Match match) {
       String url = match.group(2)!;
       return match.group(1)! + '''<a href = "$url">$url</a>''';
@@ -184,11 +183,7 @@ class _EHCommentState extends State<EHComment> {
       return false;
     }
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
-      if (Get.currentRoute == Routes.comment) {
-        offNamed(Routes.details, arguments: url);
-      } else {
-        toNamed(Routes.details, arguments: url, preventDuplicates: false);
-      }
+      toNamed(Routes.details, arguments: url, offAllBefore: false);
       return true;
     }
     return await launch(url);

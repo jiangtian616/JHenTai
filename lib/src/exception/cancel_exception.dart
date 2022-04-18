@@ -1,0 +1,1 @@
+class CancelException implements Exception {}

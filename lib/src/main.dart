@@ -10,6 +10,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
@@ -36,19 +37,18 @@ import 'network/eh_cookie_manager.dart';
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
-    if (!kDebugMode) {
-      Sentry.captureException(details.exception, stackTrace: details.stack);
-    }
+    Log.upload(details.exception, stackTrace: details.stack);
   };
 
   runZonedGuarded(() async {
     await init();
     runApp(const MyApp());
   }, (Object error, StackTrace stack) {
-    Log.error(error, null, stack);
-    if (!kDebugMode) {
-      Sentry.captureException(error, stackTrace: stack);
+    if (error is UploadException) {
+      return;
     }
+    Log.error(error, null, stack);
+    Log.upload(error, stackTrace: stack);
   });
 }
 
@@ -91,7 +91,7 @@ Future<void> init() async {
 
   await PathSetting.init();
 
-  await GetStorage.init();
+  await GetStorage.init(StorageService.storageFileName);
   StorageService.init();
 
   await AdvancedSetting.init();

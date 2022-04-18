@@ -89,7 +89,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               title: Text('clearLogs'.tr),
               subtitle: Text('longPress2Clear'.tr),
               trailing: Text(
-                Log.getSizeInKB(),
+                Log.getSize(),
                 style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
               ).marginOnly(right: 8),
               onLongPress: () {
