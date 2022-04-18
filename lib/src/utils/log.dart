@@ -16,7 +16,7 @@ class Log {
   static Logger? _verboseFileLogger;
   static Logger? _warningFileLogger;
 
-  static late final String logDirPath;
+  static final String logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
   static Future<void> init() async {
     if (AdvancedSetting.enableLogging.value == false) {
@@ -27,8 +27,6 @@ class Log {
     LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, printTime: true);
     LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
-
-    logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
     io.File verboseLogFile =
         io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}_verbose.log'));
