@@ -29,7 +29,7 @@ class Log {
     _logger = Logger(printer: devPrinter);
 
     io.File verboseLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}_verbose.log'));
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}.log'));
     await verboseLogFile.create(recursive: true);
     _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
@@ -38,7 +38,7 @@ class Log {
     );
 
     io.File waringLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd HH:mm:mm').format(DateTime.now())}_error.log'));
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_error.log'));
     await waringLogFile.create(recursive: true);
     _warningFileLogger = Logger(
       level: Level.warning,
