@@ -11,6 +11,7 @@ Future<T?>? toNamed<T>(
   String routeName, {
   dynamic arguments,
   bool preventDuplicates = true,
+  bool? offAllBefore,
   Map<String, String>? parameters,
   int? id,
 }) {
@@ -34,7 +35,7 @@ Future<T?>? toNamed<T>(
     );
   }
 
-  if (page.offAllBefore) {
+  if (offAllBefore ?? page.offAllBefore) {
     Get.until(
       (route) => route.settings.name == Routes.blank,
       id: right,

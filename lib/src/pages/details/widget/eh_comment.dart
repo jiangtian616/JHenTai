@@ -73,7 +73,6 @@ class _EHCommentState extends State<EHComment> {
                 child: HtmlWidget(
                   _wrapUrlInATag(widget.comment.content),
                   textStyle: const TextStyle(fontSize: 12),
-                  onTapUrl: _handleTapUrl,
                   factoryBuilder: () => _WidgetFactoryWithTextMaxLine(
                     maxLines: widget.maxLines,
                     overflow: TextOverflow.ellipsis,
@@ -184,11 +183,7 @@ class _EHCommentState extends State<EHComment> {
       return false;
     }
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
-      if (Get.currentRoute == Routes.comment) {
-        offNamed(Routes.details, arguments: url);
-      } else {
-        toNamed(Routes.details, arguments: url, preventDuplicates: false);
-      }
+      toNamed(Routes.details, arguments: url, offAllBefore: false);
       return true;
     }
     return await launch(url);
