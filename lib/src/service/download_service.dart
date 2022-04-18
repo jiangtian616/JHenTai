@@ -168,7 +168,7 @@ class DownloadService extends GetxController {
   }
 
   Future<void> pauseDownloadGallery(GalleryDownloadedData gallery, [bool shouldUpdate = true]) async {
-    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
+    if (gid2downloadProgress[gallery.gid]!.downloadStatus != DownloadStatus.downloading) {
       return;
     }
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
@@ -206,7 +206,7 @@ class DownloadService extends GetxController {
   }
 
   Future<void> resumeDownloadGallery(GalleryDownloadedData gallery) async {
-    if (gid2downloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.switching) {
+    if (gid2downloadProgress[gallery.gid]!.downloadStatus != DownloadStatus.paused) {
       return;
     }
     gid2downloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.switching;
