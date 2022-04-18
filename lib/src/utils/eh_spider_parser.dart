@@ -238,6 +238,11 @@ class EHSpiderParser {
       tagNames2Count.putIfAbsent(tagName, () => favoriteCount);
     }
 
+    /// todo: remove
+    if (tagNames2Count.length != 10) {
+      Log.upload(StateError('Error favorites count!'), params: response);
+    }
+
     return tagNames2Count;
   }
 
@@ -327,9 +332,9 @@ class EHSpiderParser {
 
     Element thumbnailSetting = items[18];
     map['isLargeThumbnail'] =
-    thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
-        ? true
-        : false;
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
+            ? true
+            : false;
     map['thumbnailRows'] =
         int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
     return map;
@@ -340,8 +345,7 @@ class EHSpiderParser {
     Document document = parse(html);
 
     Map<String, int> map = {
-      'currentConsumption':
-      int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+      'currentConsumption': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
       'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
       'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
     };
