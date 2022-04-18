@@ -91,12 +91,12 @@ class ReadPageLogic extends GetxController {
         onRetry: (e) => Log.error('get thumbnails error!', (e as DioError).message),
       );
     } on DioError catch (e) {
-      state.parseImageHrefsState = LoadingState.error;
       if (e.error is EHException) {
-        state.errorMsg[index] = e.error.msg;
+        state.parseImageHrefErrorMsg = e.error.msg;
       } else {
-        state.errorMsg[index] = 'parsePageFailed'.tr;
+        state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
       }
+      state.parseImageHrefsState = LoadingState.error;
       update([parseImageHrefsStateId]);
       return;
     }
@@ -140,9 +140,9 @@ class ReadPageLogic extends GetxController {
     } on DioError catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
       if (e.error is EHException) {
-        state.errorMsg[index] = e.error.msg;
+        state.parseImageUrlErrorMsg[index] = e.error.msg;
       } else {
-        state.errorMsg[index] = 'parseURLFailed'.tr;
+        state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
       }
       update(['$parseImageUrlStateId::$index']);
       return;
