@@ -9,7 +9,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
-import 'package:jhentai/src/service/download_service.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
@@ -31,7 +31,7 @@ const String parseImageUrlStateId = 'parseImageUrlStateId';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
-  final DownloadService downloadService = Get.find();
+  final GalleryDownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
   late Worker readDirectionListener;
 

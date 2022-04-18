@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/service/download_service.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 
@@ -21,7 +21,7 @@ class SettingDownloadPage extends StatelessWidget {
           children: [
             ListTile(
               title: Text('downloadPath'.tr),
-              subtitle: Text(DownloadService.downloadPath),
+              subtitle: Text(GalleryDownloadService.downloadPath),
             ),
             ListTile(
               title: Text('downloadTaskConcurrency'.tr),
@@ -169,7 +169,7 @@ class SettingDownloadPage extends StatelessWidget {
               title: Text('restoreDownloadTasks'.tr),
               subtitle: Text('restoreDownloadTasksHint'.tr),
               onTap: () async {
-                int restoredCount = await Get.find<DownloadService>().restore();
+                int restoredCount = await Get.find<GalleryDownloadService>().restore();
                 snack('restoreDownloadTasksSuccess'.tr, '${'restoredCount'.tr}: $restoredCount');
               },
             ),

@@ -34,7 +34,7 @@ const String galleryDownloadProgressId = 'galleryDownloadProgressId';
 const String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
 
 /// responsible for local images meta-data and download all images of a gallery
-class DownloadService extends GetxController {
+class GalleryDownloadService extends GetxController {
   final executor = EHExecutor(
     concurrency: DownloadSetting.downloadTaskConcurrency.value,
     rate: Rate(DownloadSetting.maximum.value, DownloadSetting.period.value),
@@ -53,7 +53,7 @@ class DownloadService extends GetxController {
 
   static Future<void> init() async {
     io.Directory(downloadPath).createSync(recursive: true);
-    Get.put(DownloadService(), permanent: true);
+    Get.put(GalleryDownloadService(), permanent: true);
   }
 
   @override

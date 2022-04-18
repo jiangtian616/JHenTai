@@ -20,13 +20,13 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../service/download_service.dart';
+import '../../service/gallery_download_service.dart';
 import '../../utils/route_util.dart';
 
 class ReadPage extends StatelessWidget {
   final ReadPageLogic logic = Get.put(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
-  final DownloadService downloadService = Get.find();
+  final GalleryDownloadService downloadService = Get.find();
 
   ReadPage({Key? key}) : super(key: key);
 
@@ -129,7 +129,7 @@ class ReadPage extends StatelessWidget {
 
   /// local mode: wait for download service to parse and download
   Widget _buildItemInLocalMode(BuildContext context, int index) {
-    return GetBuilder<DownloadService>(
+    return GetBuilder<GalleryDownloadService>(
       id: '$imageId::${state.gid}',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
@@ -223,7 +223,7 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  /// wait for [DownloadService] to parse image href in local mode
+  /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
     DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
 
@@ -244,7 +244,7 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  /// wait for [DownloadService] to parse image url in local mode
+  /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
     DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
 
@@ -295,7 +295,7 @@ class ReadPage extends StatelessWidget {
 
   /// downloaded for local mode
   Widget _downloadingWidgetBuilder(int index) {
-    return GetBuilder<DownloadService>(
+    return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadSpeedComputerId::${state.gid}',
       builder: (_) {
         GalleryDownloadSpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;

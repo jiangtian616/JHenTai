@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -15,7 +14,7 @@ import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/service/download_service.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -114,7 +113,7 @@ Future<void> init() async {
   await EHRequest.init();
 
   await ArchiveDownloadService.init();
-  await DownloadService.init();
+  await GalleryDownloadService.init();
 }
 
 Future<void> onReady() async {

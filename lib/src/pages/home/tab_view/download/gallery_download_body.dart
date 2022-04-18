@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/service/download_service.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 
 import '../../../../model/download_progress.dart';
 import '../../../../model/gallery_image.dart';
@@ -24,7 +24,7 @@ class GalleryDownloadBody extends StatefulWidget {
 class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
-  final DownloadService downloadService = Get.find();
+  final GalleryDownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
 
   late int gallerysCount;
@@ -37,7 +37,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<DownloadService>(
+    return GetBuilder<GalleryDownloadService>(
       initState: _listen2AddItem,
       builder: (_) {
         return AnimatedList(
@@ -99,11 +99,36 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
+  Widget _removeItemBuilder() {
+    return Container(
+      height: 130,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+
+        /// covered when in dark mode
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            spreadRadius: 1,
+            offset: const Offset(0.3, 1),
+          )
+        ],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Row(),
+      ),
+    );
+  }
+
   Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toNamed(Routes.details, arguments: gallery.galleryUrl),
-      child: GetBuilder<DownloadService>(
+      child: GetBuilder<GalleryDownloadService>(
         id: '$imageUrlId::${gallery.gid}::0',
         builder: (_) {
           GalleryImage? image = downloadService.gid2Images[gallery.gid]![0];
@@ -191,27 +216,31 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             EHGalleryCategoryTag(category: gallery.category),
-            GetBuilder<DownloadService>(
+            GetBuilder<GalleryDownloadService>(
               id: '$galleryDownloadProgressId::${gallery.gid}',
               builder: (_) {
                 DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[gallery.gid]!.downloadStatus;
                 return GestureDetector(
-                  onTap: () {
-                    downloadStatus == DownloadStatus.paused
-                        ? downloadService.downloadGallery(gallery, isFirstDownload: false)
-                        : downloadService.pauseDownloadGallery(gallery);
-                  },
-                  child: Icon(
-                    downloadStatus == DownloadStatus.paused
-                        ? Icons.play_arrow
-                        : downloadStatus == DownloadStatus.downloading
-                            ? Icons.pause
-                            : Icons.done,
-                    size: 26,
-                    color: downloadStatus == DownloadStatus.downloading
-                        ? Get.theme.primaryColorLight
-                        : Get.theme.primaryColor,
-                  ),
+                  onTap: downloadStatus == DownloadStatus.switching
+                      ? null
+                      : () {
+                          downloadStatus == DownloadStatus.paused
+                              ? downloadService.resumeDownloadGallery(gallery)
+                              : downloadService.pauseDownloadGallery(gallery);
+                        },
+                  child: downloadStatus == DownloadStatus.switching
+                      ? const SizedBox(height: 26, child: CupertinoActivityIndicator(radius: 10))
+                      : Icon(
+                          downloadStatus == DownloadStatus.paused
+                              ? Icons.play_arrow
+                              : downloadStatus == DownloadStatus.downloading
+                                  ? Icons.pause
+                                  : Icons.done,
+                          size: 26,
+                          color: downloadStatus == DownloadStatus.downloading
+                              ? Get.theme.primaryColorLight
+                              : Get.theme.primaryColor,
+                        ),
                 );
               },
             ),
@@ -222,7 +251,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   }
 
   Widget _buildFooter(GalleryDownloadedData gallery) {
-    return GetBuilder<DownloadService>(
+    return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadProgressId::${gallery.gid}',
       builder: (_) {
         GalleryDownloadProgress downloadProgress = downloadService.gid2DownloadProgress[gallery.gid]!;
@@ -233,7 +262,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (downloadProgress.downloadStatus == DownloadStatus.downloading)
-                  GetBuilder<DownloadService>(
+                  GetBuilder<GalleryDownloadService>(
                     id: '$galleryDownloadSpeedComputerId::${gallery.gid}',
                     builder: (logic) {
                       return Text(
@@ -268,7 +297,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  void _listen2AddItem(GetBuilderState<DownloadService> state) {
+  void _listen2AddItem(GetBuilderState<GalleryDownloadService> state) {
     downloadService.addListenerId(
       downloadGallerysId,
       () {
@@ -281,21 +310,17 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   }
 
   void _handleRemoveItem(BuildContext context, int index) {
+    downloadService.deleteGallery(downloadService.gallerys[index]);
+
     _listKey.currentState?.removeItem(
       index,
       (context, Animation<double> animation) => FadeTransition(
         opacity: animation,
         child: SizeTransition(
           sizeFactor: animation,
-          child: _itemBuilder(context, index),
+          child: _removeItemBuilder(),
         ),
       ),
-    );
-
-    /// wait delete anime
-    Future.delayed(
-      const Duration(milliseconds: 1000),
-      () => downloadService.deleteGallery(downloadService.gallerys[index]),
     );
   }
 

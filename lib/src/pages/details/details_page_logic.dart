@@ -23,15 +23,12 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../consts/eh_consts.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
-import '../../network/eh_cookie_manager.dart';
-import '../../service/download_service.dart';
+import '../../service/gallery_download_service.dart';
 import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
-import '../../utils/cookie_util.dart';
 import '../../utils/route_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'details_page_state.dart';
@@ -47,7 +44,7 @@ class DetailsPageLogic extends GetxController {
   String tag;
 
   final DetailsPageState state = DetailsPageState();
-  final DownloadService downloadService = Get.find();
+  final GalleryDownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
@@ -330,7 +327,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   void handleTapDownload() {
-    DownloadService downloadService = Get.find<DownloadService>();
+    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     Gallery gallery = state.gallery!;
     GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
 

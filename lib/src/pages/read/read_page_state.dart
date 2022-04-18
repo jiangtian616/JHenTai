@@ -7,7 +7,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../service/download_service.dart';
+import '../../service/gallery_download_service.dart';
 import 'widget/eh_scrollable_positioned_list.dart' as mine;
 
 class ReadPageState {
@@ -49,8 +49,8 @@ class ReadPageState {
     /// property used for parsing and loading
     if (mode == 'local') {
       thumbnails =
-          Get.find<DownloadService>().gid2ImageHrefs[gid] ?? List.generate(pageCount, (index) => null, growable: true);
-      images = Get.arguments ?? Get.find<DownloadService>().gid2Images[gid]!;
+          Get.find<GalleryDownloadService>().gid2ImageHrefs[gid] ?? List.generate(pageCount, (index) => null, growable: true);
+      images = Get.arguments ?? Get.find<GalleryDownloadService>().gid2Images[gid]!;
     } else {
       thumbnails = List.generate(pageCount, (index) => null, growable: true);
       images = List.generate(pageCount, (index) => null);

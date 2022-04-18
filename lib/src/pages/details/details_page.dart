@@ -28,7 +28,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../database/database.dart';
 import '../../model/download_progress.dart';
 import '../../model/gallery_thumbnail.dart';
-import '../../service/download_service.dart';
+import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
@@ -44,7 +44,7 @@ class DetailsPage extends StatelessWidget {
   late final DetailsPageLogic detailsPageLogic;
   late final DetailsPageState detailsPageState;
 
-  final DownloadService downloadService = Get.find();
+  final GalleryDownloadService downloadService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
 
@@ -320,7 +320,7 @@ class DetailsPage extends StatelessWidget {
                 iconSize: 30,
                 onPressed:
                     detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
-                text: GetBuilder<DownloadService>(
+                text: GetBuilder<GalleryDownloadService>(
                   id: '$galleryDownloadProgressId::${gallery.gid}',
                   builder: (_) {
                     GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
