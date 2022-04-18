@@ -76,6 +76,10 @@ class Log {
   }
 
   static Future<void> upload(dynamic throwable, {dynamic stackTrace, dynamic params}) async {
+    if (_shouldDismissUpload(throwable)) {
+      return;
+    }
+
     String paramsString = _cleanPrivacy(params.toString());
 
     if (paramsString.length <= 1000) {
@@ -117,6 +121,14 @@ class Log {
     if (logDirectory.existsSync()) {
       logDirectory.delete(recursive: true);
     }
+  }
+
+  static bool _shouldDismissUpload(throwable) {
+    if (throwable is StateError && throwable.message.contains('Failed to load https')) {
+      return true;
+    }
+
+    return false;
   }
 
   static String _cleanPrivacy(String raw) {
