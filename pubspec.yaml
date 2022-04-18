@@ -54,8 +54,6 @@ dependencies:
   animate_do: ^2.1.0
   share_plus: ^4.0.3
   syncfusion_flutter_charts: ^20.1.47+1
-  firebase_core: ^1.14.0
-  firebase_crashlytics: ^2.6.2
   sentry_flutter: ^6.4.0
 
 dev_dependencies:

@@ -1,7 +1,5 @@
 import 'dart:io' as io;
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -10,6 +8,8 @@ import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '../exception/upload_exception.dart';
 
 class Log {
   static Logger? _logger;
@@ -75,6 +75,24 @@ class Log {
     _warningFileLogger?.e(msg, error, stackTrace);
   }
 
+  static Future<void> upload(dynamic throwable, {dynamic stackTrace, dynamic params}) async {
+    String paramsString = _cleanPrivacy(params.toString());
+
+    if (paramsString.length <= 1000) {
+      Sentry.captureException(
+        throwable,
+        stackTrace: stackTrace,
+        withScope: (scope) => scope.setContexts('params', paramsString),
+      );
+    } else {
+      Sentry.captureException(
+        throwable,
+        stackTrace: stackTrace,
+        withScope: (scope) => scope.addAttachment(SentryAttachment.fromIntList(paramsString.codeUnits, 'params.txt')),
+      );
+    }
+  }
+
   static String getSize() {
     io.Directory logDirectory = io.Directory(logDirPath);
     if (!logDirectory.existsSync()) {
@@ -100,6 +118,11 @@ class Log {
       logDirectory.delete(recursive: true);
     }
   }
+
+  static String _cleanPrivacy(String raw) {
+    String pattern = r'(password|secret|passwd|api_key|apikey|auth) = ("|\w)+';
+    return raw.replaceAll(RegExp(pattern), '');
+  }
 }
 
 T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? defaultValue}) {
@@ -107,18 +130,9 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     return func.call();
   } on Exception catch (e) {
     Log.error('operationFailed'.tr, e);
-
-    Iterable<DiagnosticsNode> infos;
-    if (params is List) {
-      infos = (params).map((e) => ErrorDescription(e.toString()));
-    } else {
-      infos = [ErrorDescription(params.toString())];
-    }
-
-    FirebaseCrashlytics.instance.recordError(e, null, information: infos);
-    Sentry.captureException(e, hint: params.toString());
+    Log.upload(e, params: params);
     if (defaultValue == null) {
-      rethrow;
+      throw UploadException(e);
     }
     return defaultValue;
   }

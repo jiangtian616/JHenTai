@@ -6,11 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'firebase_options.dart';
+import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
@@ -37,21 +35,18 @@ import 'network/eh_cookie_manager.dart';
 void main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
-    FirebaseCrashlytics.instance.recordFlutterError(details);
-    if (!kDebugMode) {
-      Sentry.captureException(details.exception, stackTrace: details.stack);
-    }
+    Log.upload(details.exception, stackTrace: details.stack);
   };
 
   runZonedGuarded(() async {
     await init();
     runApp(const MyApp());
   }, (Object error, StackTrace stack) {
-    Log.error(error, null, stack);
-    FirebaseCrashlytics.instance.recordError(error, stack);
-    if (!kDebugMode) {
-      Sentry.captureException(error, stackTrace: stack);
+    if (error is UploadException) {
+      return;
     }
+    Log.error(error, null, stack);
+    Log.upload(error, stackTrace: stack);
   });
 }
 
@@ -90,11 +85,6 @@ Future<void> init() async {
   } catch (_) {}
   if (dsn != null && !kDebugMode) {
     await SentryFlutter.init((options) => options.dsn = dsn);
-  }
-
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  if (kDebugMode) {
-    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
 
   await PathSetting.init();
