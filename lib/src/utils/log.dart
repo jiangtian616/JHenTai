@@ -74,21 +74,25 @@ class Log {
     _warningFileLogger?.e(msg, error, stackTrace);
   }
 
-  static Future<void> upload(dynamic throwable, {dynamic stackTrace, dynamic params}) async {
+  static Future<void> upload(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
     if (_shouldDismissUpload(throwable)) {
       return;
     }
 
-    Map<String, dynamic> contextsAndAttachments = _extractExtrasAndAttachments(throwable, stackTrace, params);
-    Map<String, dynamic> extras = contextsAndAttachments['extras'];
-    List<SentryAttachment> attachments = contextsAndAttachments['attachments'];
+    extraInfos = _extractExtraInfos(throwable, stackTrace, extraInfos);
 
     Sentry.captureException(
       throwable,
       stackTrace: stackTrace,
       withScope: (scope) {
-        extras.forEach((key, value) => scope.setExtra(key, value));
-        attachments.forEach((attachment) => scope.addAttachment(attachment));
+        extraInfos?.forEach((key, value) {
+          String cleanedValue = _cleanPrivacy(value.toString());
+          if (cleanedValue.length < 1000) {
+            scope.setExtra(key, cleanedValue);
+          } else {
+            scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.txt'));
+          }
+        });
       },
     );
   }
@@ -99,9 +103,14 @@ class Log {
       return '0KB';
     }
 
-    int totalBytes = logDirectory
-        .listSync()
-        .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+    int totalBytes = -1;
+    try {
+      totalBytes = logDirectory
+          .listSync()
+          .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+    } on Exception catch (e) {
+      Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
+    }
 
     if (totalBytes < 1024) {
       return '${totalBytes}B';
@@ -127,35 +136,17 @@ class Log {
     return false;
   }
 
-  static Map<String, dynamic> _extractExtrasAndAttachments(throwable, stackTrace, params) {
-    Map<String, dynamic> extras = {};
-    List<SentryAttachment> attachments = [];
-
-    /// params
-    if (params != null) {
-      String paramsString = _cleanPrivacy(params.toString());
-      _setExtraOrAttachment('params', paramsString, extras, attachments);
-    }
+  static Map<String, dynamic> _extractExtraInfos(
+      dynamic throwable, dynamic stackTrace, Map<String, dynamic>? extraInfos) {
+    extraInfos ??= {};
 
     if (throwable is JsonUnsupportedObjectError) {
-      _setExtraOrAttachment('object', throwable.unsupportedObject.toString(), extras, attachments);
-      _setExtraOrAttachment('cause', throwable.cause.toString(), extras, attachments);
-      _setExtraOrAttachment('partialResult', throwable.partialResult.toString(), extras, attachments);
+      extraInfos['object'] = throwable.unsupportedObject;
+      extraInfos['cause'] = throwable.cause;
+      extraInfos['partialResult'] = throwable.partialResult;
     }
 
-    return {
-      'extras': extras,
-      'attachments': attachments,
-    };
-  }
-
-  static void _setExtraOrAttachment(
-      String name, String value, Map<String, dynamic> extras, List<SentryAttachment> attachments) {
-    if (value.length <= 1000) {
-      extras[name] = value;
-    } else {
-      attachments.add(SentryAttachment.fromIntList(value.codeUnits, '$name.txt'));
-    }
+    return extraInfos;
   }
 
   static String _cleanPrivacy(String raw) {
@@ -169,7 +160,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     return func.call();
   } on Exception catch (e) {
     Log.error('operationFailed'.tr, e);
-    Log.upload(e, params: params);
+    Log.upload(e, extraInfos: {'params': params});
     if (defaultValue == null) {
       throw UploadException(e);
     }
