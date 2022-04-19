@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:get/get.dart';
@@ -78,21 +79,18 @@ class Log {
       return;
     }
 
-    String paramsString = _cleanPrivacy(params.toString());
+    Map<String, dynamic> contextsAndAttachments = _extractExtrasAndAttachments(throwable, stackTrace, params);
+    Map<String, dynamic> extras = contextsAndAttachments['extras'];
+    List<SentryAttachment> attachments = contextsAndAttachments['attachments'];
 
-    if (paramsString.length <= 1000) {
-      Sentry.captureException(
-        throwable,
-        stackTrace: stackTrace,
-        withScope: (scope) => scope.setContexts('params', paramsString),
-      );
-    } else {
-      Sentry.captureException(
-        throwable,
-        stackTrace: stackTrace,
-        withScope: (scope) => scope.addAttachment(SentryAttachment.fromIntList(paramsString.codeUnits, 'params.txt')),
-      );
-    }
+    Sentry.captureException(
+      throwable,
+      stackTrace: stackTrace,
+      withScope: (scope) {
+        extras.forEach((key, value) => scope.setExtra(key, value));
+        attachments.forEach((attachment) => scope.addAttachment(attachment));
+      },
+    );
   }
 
   static String getSize() {
@@ -127,6 +125,37 @@ class Log {
     }
 
     return false;
+  }
+
+  static Map<String, dynamic> _extractExtrasAndAttachments(throwable, stackTrace, params) {
+    Map<String, dynamic> extras = {};
+    List<SentryAttachment> attachments = [];
+
+    /// params
+    if (params != null) {
+      String paramsString = _cleanPrivacy(params.toString());
+      _setExtraOrAttachment('params', paramsString, extras, attachments);
+    }
+
+    if (throwable is JsonUnsupportedObjectError) {
+      _setExtraOrAttachment('object', throwable.unsupportedObject.toString(), extras, attachments);
+      _setExtraOrAttachment('cause', throwable.cause.toString(), extras, attachments);
+      _setExtraOrAttachment('partialResult', throwable.partialResult.toString(), extras, attachments);
+    }
+
+    return {
+      'extras': extras,
+      'attachments': attachments,
+    };
+  }
+
+  static void _setExtraOrAttachment(
+      String name, String value, Map<String, dynamic> extras, List<SentryAttachment> attachments) {
+    if (value.length <= 1000) {
+      extras[name] = value;
+    } else {
+      attachments.add(SentryAttachment.fromIntList(value.codeUnits, '$name.txt'));
+    }
   }
 
   static String _cleanPrivacy(String raw) {
