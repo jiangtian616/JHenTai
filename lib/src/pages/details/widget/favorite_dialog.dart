@@ -25,17 +25,15 @@ class FavoriteDialog extends StatelessWidget {
       content: SizedBox(
         height: 400,
         child: Column(
-          children: FavoriteSetting.favoriteTagNames2Count.entries
+          children: FavoriteSetting.favoriteTagNames
               .mapIndexed(
-                (index, entry) => ListTile(
+                (index, tagName) => ListTile(
                   dense: true,
                   selected: detailsPageState.gallery?.favoriteTagIndex == index,
                   visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
-                  leading: Text(
-                    entry.key,
-                  ),
+                  leading: Text(tagName),
                   trailing: Text(
-                    entry.value.toString(),
+                    FavoriteSetting.favoriteCounts[index].toString(),
                     style: Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
                   ),
                   onTap: () => back(result: index),
@@ -48,13 +46,8 @@ class FavoriteDialog extends StatelessWidget {
       actionsAlignment: MainAxisAlignment.center,
       actions: <Widget>[
         TextButton(
-          child: Text(
-            'cancel'.tr,
-            style: const TextStyle(fontSize: 16),
-          ),
-          onPressed: () {
-            back();
-          },
+          child: Text('cancel'.tr, style: const TextStyle(fontSize: 16)),
+          onPressed: () => back(),
         ),
       ],
     );

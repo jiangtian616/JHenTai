@@ -224,27 +224,28 @@ class EHSpiderParser {
     return divs.map((div) => div.querySelector('div:nth-child(5)')?.text ?? '').toList();
   }
 
-  static LinkedHashMap<String, int> favoritePage2FavoriteTags(Response response) {
+  static Map<String, List> favoritePage2FavoriteTagsAndCounts(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
     List<Element> divs = document.querySelectorAll('.nosel > .fp');
 
     /// not favorite tag
     divs.removeLast();
-    LinkedHashMap<String, int> tagNames2Count = LinkedHashMap();
+
+    List<String> favoriteTagNames = [];
+    List<int> favoriteCounts = [];
 
     for (Element div in divs) {
       String tagName = div.querySelector('div:last-child')?.text ?? '';
       int favoriteCount = int.parse(div.querySelector('div:first-child')?.text ?? '0');
-      tagNames2Count.putIfAbsent(tagName, () => favoriteCount);
+      favoriteTagNames.add(tagName);
+      favoriteCounts.add(favoriteCount);
     }
 
-    /// todo: remove
-    if (tagNames2Count.length != 10) {
-      Log.upload(StateError('Error favorites count!'), params: response);
-    }
-
-    return tagNames2Count;
+    return {
+      'favoriteTagNames': favoriteTagNames,
+      'favoriteCounts': favoriteCounts,
+    };
   }
 
   static GalleryImage imagePage2GalleryImage(Response response) {

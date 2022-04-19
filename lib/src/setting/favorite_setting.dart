@@ -24,20 +24,9 @@ class FavoriteSetting {
     'Favorite 8',
     'Favorite 9',
   ];
-  static LinkedHashMap<String, int> favoriteTagNames2Count = LinkedHashMap<String, int>.of({
-    'Favorite 0': -1,
-    'Favorite 1': -1,
-    'Favorite 2': -1,
-    'Favorite 3': -1,
-    'Favorite 4': -1,
-    'Favorite 5': -1,
-    'Favorite 6': -1,
-    'Favorite 7': -1,
-    'Favorite 8': -1,
-    'Favorite 9': -1,
-  });
+  static List<int> favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
-  static bool get inited => favoriteTagNames2Count['Favorite 0'] != -1;
+  static bool get inited => favoriteTagNames[0] != 'Favorite 0' || favoriteCounts[0] != -1;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('favoriteSetting');
@@ -67,8 +56,10 @@ class FavoriteSetting {
     try {
       await retry(
         () async {
-          favoriteTagNames2Count = await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTags);
-          favoriteTagNames = favoriteTagNames2Count.keys.toList();
+          Map<String, List> map =
+              await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTagsAndCounts);
+          favoriteTagNames = map['favoriteTagNames'] as List<String>;
+          favoriteCounts = map['favoriteCounts'] as List<int>;
           save();
         },
         retryIf: (e) => e is DioError,
@@ -86,16 +77,14 @@ class FavoriteSetting {
     if (index == null || index < 0 || index >= favoriteTagNames.length) {
       return;
     }
-    favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =
-        favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]]! + 1;
+    favoriteCounts[index]++;
   }
 
   static void decrementFavByIndex(int? index) async {
     if (index == null || index < 0 || index >= favoriteTagNames.length) {
       return;
     }
-    favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]] =
-        favoriteTagNames2Count[FavoriteSetting.favoriteTagNames[index]]! - 1;
+    favoriteCounts[index]--;
   }
 
   static Future<void> save() async {
@@ -114,17 +103,7 @@ class FavoriteSetting {
       'Favorite 7',
       'Favorite 8',
     ];
-    favoriteTagNames2Count = LinkedHashMap<String, int>.of({
-      'Favorite 0': -1,
-      'Favorite 1': -1,
-      'Favorite 2': -1,
-      'Favorite 3': -1,
-      'Favorite 4': -1,
-      'Favorite 5': -1,
-      'Favorite 6': -1,
-      'Favorite 7': -1,
-      'Favorite 8': -1,
-    });
+    favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     Get.find<StorageService>().remove('favoriteSetting');
     Log.info('clear FavoriteSetting success', false);
   }
@@ -132,13 +111,12 @@ class FavoriteSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'favoriteTagNames': jsonEncode(favoriteTagNames),
-      'favoriteTagNames2Count': jsonEncode(favoriteTagNames2Count),
+      'favoriteCounts': jsonEncode(favoriteCounts),
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     favoriteTagNames = (jsonDecode(map['favoriteTagNames']) as List).cast<String>();
-    favoriteTagNames2Count = LinkedHashMap.of(
-        (jsonDecode(map['favoriteTagNames2Count']) as Map).map((key, value) => MapEntry<String, int>(key, value)));
+    favoriteCounts = (jsonDecode(map['favoriteCounts']) as List).cast<int>();
   }
 }
