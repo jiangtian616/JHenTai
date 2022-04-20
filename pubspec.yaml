@@ -57,6 +57,7 @@ dependencies:
   sentry_flutter: ^6.4.0
   archive: ^3.3.0
   image_size_getter: ^2.1.0
+  fluttertoast: ^8.0.9
 
 dev_dependencies:
   flutter_test:
