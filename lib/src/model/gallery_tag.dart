@@ -14,16 +14,16 @@ class GalleryTag {
 
   Map<String, dynamic> toJson() {
     return {
-      'color': this.color,
-      'backgroundColor': this.backgroundColor,
+      'color': this.color?.value,
+      'backgroundColor': this.backgroundColor?.value,
       'tagData': this.tagData.toJson(),
     };
   }
 
   factory GalleryTag.fromJson(Map<String, dynamic> map) {
     return GalleryTag(
-      color: map['color'],
-      backgroundColor: map['backgroundColor'],
+      color: map['color'] == null ? null : Color(map['color']),
+      backgroundColor: map['backgroundColor'] == null ? null : Color(map['backgroundColor']),
       tagData: TagData.fromJson(map['tagData']),
     );
   }
