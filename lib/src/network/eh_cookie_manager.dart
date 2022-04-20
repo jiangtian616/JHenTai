@@ -25,6 +25,7 @@ class EHCookieManager extends CookieManager {
     /// which causes [_cookieJar] init failed, thus no hosts are load into memory.
     /// Temporarily, if error occurs, try load hosts manually.
     try {
+      await _cookieJar.storage.init(true, false);
       String? str = await _cookieJar.storage.read(_cookieJar.IndexKey);
       if (str != null && str.isNotEmpty) {
         json.decode(str);
@@ -37,6 +38,7 @@ class EHCookieManager extends CookieManager {
       );
       await _cookieJar.storage.write(_cookieJar.IndexKey, json.encode(defaultHostSet.toList()));
     }
+
     await _cookieJar.forceInit();
 
     /// eagerly load cookie into memory

@@ -58,17 +58,15 @@ mush thanks to these projects🙇‍
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task
+- [x] archive download and automatic unpacking and reading
 - [x] favorite, rating, torrent, archive, statistics, share
 - [x] password login, Cookie login, web login
-- [x] support EX site
+- [x] support EX site(domain fronting optional)
 - [x] vote for Tag, watch and hidden tags
 - [x] comment, vote for comment
-- [x] domain fronting
 - [x] Fingerprint unlock
 
 ## Feature Todo
-
-- [ ] customize Archive Page, support automatic unzip and read directly
 
 ## Improvement & Todo
 
