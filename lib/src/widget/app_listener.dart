@@ -9,10 +9,12 @@ import '../setting/style_setting.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
+typedef AppLaunchCallback = void Function(BuildContext context);
 
 class AppListener extends StatefulWidget {
   static final List<DidChangePlatformBrightnessCallback> _didChangePlatformBrightnessCallbacks = [];
   static final List<DidChangeAppLifecycleStateCallback> _didChangeAppLifecycleStateCallbacks = [];
+  static final List<AppLaunchCallback> _appLaunchCallbacks = [];
 
   final Widget child;
 
@@ -28,6 +30,10 @@ class AppListener extends StatefulWidget {
   static void registerDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
     _didChangeAppLifecycleStateCallbacks.add(callback);
   }
+
+  static void registerAppLaunchCallback(AppLaunchCallback callback) {
+    _appLaunchCallbacks.add(callback);
+  }
 }
 
 class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
@@ -40,6 +46,7 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
 
     AppListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
     AppListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
+    AppListener._appLaunchCallbacks.forEach((callback) => callback.call(context));
   }
 
   @override

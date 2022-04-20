@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 FToast _fToast = FToast();
 
 void toast(
-  BuildContext context, {
-  required String msg,
+  BuildContext context,
+  String msg, {
   bool isCenter = true,
   bool isShort = true,
 }) {
