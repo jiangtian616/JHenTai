@@ -558,6 +558,12 @@ class EHSpiderParser {
     return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }
 
+  static String githubReleasePage2LatestVersion(Response response) {
+    List releases = response.data!;
+    Map latestRelease = releases[0];
+    return latestRelease['tag_name'];
+  }
+
   static Gallery _parseCompactGallery(Element tr) {
     LinkedHashMap<String, List<GalleryTag>> tags = _parseCompactGalleryTags(tr);
     GalleryImage? cover = _parseCompactGalleryCover(tr);

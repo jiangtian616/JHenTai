@@ -7,6 +7,7 @@ class AdvancedSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   static RxBool enableDomainFronting = false.obs;
   static RxBool enableLogging = true.obs;
+  static RxBool enableCheckUpdate = true.obs;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
@@ -33,6 +34,11 @@ class AdvancedSetting {
     _save();
   }
 
+  static saveEnableCheckUpdate(bool enableCheckUpdate) {
+    AdvancedSetting.enableCheckUpdate.value = enableCheckUpdate;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('advancedSetting', _toMap());
   }
@@ -42,6 +48,7 @@ class AdvancedSetting {
       'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
       'enableDomainFronting': enableDomainFronting.value,
       'enableLogging': enableLogging.value,
+      'enableCheckUpdate': enableCheckUpdate.value,
     };
   }
 
@@ -49,5 +56,6 @@ class AdvancedSetting {
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge']);
     enableDomainFronting.value = map['enableDomainFronting'];
     enableLogging.value = map['enableLogging'];
+    enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
   }
 }

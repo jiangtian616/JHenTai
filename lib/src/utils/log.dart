@@ -52,7 +52,7 @@ class Log {
     verbose('init LogUtil success', false);
   }
 
-  static void verbose(Object? msg, [bool withStack = true]) {
+  static void verbose(Object? msg, [bool withStack = false]) {
     _logger?.v(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.v(msg, null, withStack ? null : StackTrace.empty);
   }

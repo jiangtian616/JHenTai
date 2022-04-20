@@ -28,6 +28,12 @@ class en_US {
       /// start page
       'TapAgainToExit': 'Tap again to exit',
 
+      /// update dialog
+      'availableUpdate': 'Available Update!',
+      'LatestVersion': 'Latest version',
+      'CurrentVersion': 'Current version',
+      'checkNow': 'Check Now',
+
       /// login page
       'login': 'Login',
       'logout': 'Logout',
@@ -190,6 +196,7 @@ class en_US {
       'clearLogs': 'Clear Logs',
       'clearImagesCache': 'Clear Images Cache',
       'longPress2Clear': 'Long Press to Clear',
+      'checkUpdateAfterLaunchingApp': 'Check update after launching app',
 
       /// security setting page
       'enableFingerPrintLock': 'Enable FingerPrint Lock',

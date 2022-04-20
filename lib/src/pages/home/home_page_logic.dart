@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/log.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:retry/retry.dart';
 
 import '../../config/global_config.dart';
+import '../../widget/update_dialog.dart';
 import 'home_page_state.dart';
 
 class HomePageLogic extends GetxController {
   final HomePageState state = HomePageState();
+
+  @override
+  void onReady() {
+    _checkUpdate();
+    super.onReady();
+  }
 
   /// tap another bar -> change index
   /// at gallery bar and tap gallery bar again -> scroll to top
@@ -51,6 +64,7 @@ class HomePageLogic extends GetxController {
 
       Future.delayed(
         const Duration(milliseconds: 0),
+
         /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
         () => scrollController?.animateTo(
           -GlobalConfig.refreshTriggerPullDistance,
@@ -61,5 +75,32 @@ class HomePageLogic extends GetxController {
     }
 
     state.lastTapTime = DateTime.now();
+  }
+
+  Future<void> _checkUpdate() async {
+    if (AdvancedSetting.enableCheckUpdate.isFalse) {
+      return;
+    }
+
+    String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
+
+    String latestVersion = await retry(
+      () => EHRequest.request(
+        url: url,
+        useCacheIfAvailable: false,
+        parser: EHSpiderParser.githubReleasePage2LatestVersion,
+      ),
+      maxAttempts: 3,
+    );
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String currentVersion = 'v${packageInfo.version}+${packageInfo.buildNumber}';
+    if (latestVersion == currentVersion) {
+      Log.verbose('Already in latest version');
+      return;
+    }
+
+    Log.verbose('Find new version');
+    Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
   }
 }

@@ -109,6 +109,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 setState(() {});
               },
             ),
+            ListTile(
+              title: Text('checkUpdateAfterLaunchingApp'.tr),
+              trailing: Switch(
+                value: AdvancedSetting.enableCheckUpdate.value,
+                onChanged: (value) => AdvancedSetting.saveEnableCheckUpdate(value),
+              ),
+            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

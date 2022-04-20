@@ -28,6 +28,12 @@ class zh_CN {
       /// start page
       'TapAgainToExit': '再按一次退出',
 
+      /// update dialog
+      'availableUpdate': '有可用的更新!',
+      'LatestVersion': '最新版本',
+      'CurrentVersion': '当前版本',
+      'checkNow': '查看',
+
       /// login page
       'login': '登录',
       'logout': '注销',
@@ -190,6 +196,7 @@ class zh_CN {
       'clearLogs': '清除日志',
       'clearImagesCache': '清除图片缓存',
       'longPress2Clear': '长按清除',
+      'checkUpdateAfterLaunchingApp': '启动应用时检查更新',
 
       /// security setting page
       'enableFingerPrintLock': '开启指纹锁',
