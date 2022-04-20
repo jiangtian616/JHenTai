@@ -16,7 +16,7 @@ void toast(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(25.0),
-      color: Get.isDarkMode ? Colors.white.withOpacity(0.9) : Colors.black.withOpacity(0.75),
+      color: Get.isDarkMode ? Colors.white.withOpacity(0.9) : Colors.black.withOpacity(0.9),
     ),
     child: Text(msg, style: TextStyle(color: Get.isDarkMode ? Colors.black : Colors.white)),
   );
@@ -26,7 +26,7 @@ void toast(
     toastDuration: Duration(seconds: isShort ? 1 : 2),
     positionedToastBuilder: (context, child) {
       return Positioned(
-        bottom: 200.0,
+        bottom: 150.0,
         left: 24.0,
         right: 24.0,
         child: child,

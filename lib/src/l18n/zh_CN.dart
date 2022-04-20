@@ -25,6 +25,9 @@ class zh_CN {
       'localizedReason': '请验证以继续',
       'tap2Auth': '点击以验证',
 
+      /// start page
+      'TapAgainToExit': '再按一次退出',
+
       /// login page
       'login': '登录',
       'logout': '注销',

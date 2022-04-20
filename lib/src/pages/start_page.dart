@@ -4,6 +4,7 @@ import 'package:jhentai/src/pages/blank_page.dart';
 import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../utils/route_util.dart';
@@ -25,7 +26,7 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     /// use LayoutBuilder to listen to resize of window
     return WillPopScope(
-      onWillPop: _handlePopApp,
+      onWillPop: () => _handlePopApp(context),
       child: LayoutBuilder(
         builder: (context, constraints) => Obx(
           () {
@@ -128,7 +129,7 @@ class StartPage extends StatelessWidget {
   }
 
   /// double tap back button to exit app
-  Future<bool> _handlePopApp() {
+  Future<bool> _handlePopApp(BuildContext context) {
     if (_lastPopTime == null) {
       _lastPopTime = DateTime.now();
       return Future.value(false);
@@ -139,6 +140,7 @@ class StartPage extends StatelessWidget {
     }
 
     _lastPopTime = DateTime.now();
+    toast(context, 'TapAgainToExit'.tr);
     return Future.value(false);
   }
 }

@@ -25,6 +25,9 @@ class en_US {
       'localizedReason': 'Please authenticate to continue',
       'tap2Auth': 'Tap to Authenticate',
 
+      /// start page
+      'TapAgainToExit': 'Tap again to exit',
+
       /// login page
       'login': 'Login',
       'logout': 'Logout',
