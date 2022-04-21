@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:blur/blur.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,6 +51,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static SentryNavigatorObserver sentryNavigatorObserver = SentryNavigatorObserver();
+
   const MyApp({Key? key}) : super(key: key);
 
   @override
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
-      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
+      navigatorObservers: [GetXRouterObserver(), sentryNavigatorObserver],
       builder: (context, child) => AppListener(child: child!),
 
       /// enable swipe back feature
