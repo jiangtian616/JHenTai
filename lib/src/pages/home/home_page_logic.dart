@@ -84,16 +84,23 @@ class HomePageLogic extends GetxController {
     }
 
     String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
+    String latestVersion;
 
-    String latestVersion = (await retry(
-      () => EHRequest.request(
-        url: url,
-        useCacheIfAvailable: false,
-        parser: EHSpiderParser.githubReleasePage2LatestVersion,
-      ),
-      maxAttempts: 3,
-    ))
-        .trim().split('+')[0];
+    try {
+      latestVersion = (await retry(
+        () => EHRequest.request(
+          url: url,
+          useCacheIfAvailable: false,
+          parser: EHSpiderParser.githubReleasePage2LatestVersion,
+        ),
+        maxAttempts: 3,
+      ))
+          .trim()
+          .split('+')[0];
+    } on Exception catch (_) {
+      Log.info('check update failed');
+      return;
+    }
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String currentVersion = 'v${packageInfo.version}'.trim();
