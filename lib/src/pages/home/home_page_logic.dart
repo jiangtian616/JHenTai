@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -84,23 +85,24 @@ class HomePageLogic extends GetxController {
 
     String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
 
-    String latestVersion = await retry(
+    String latestVersion = (await retry(
       () => EHRequest.request(
         url: url,
         useCacheIfAvailable: false,
         parser: EHSpiderParser.githubReleasePage2LatestVersion,
       ),
       maxAttempts: 3,
-    );
+    ))
+        .trim().split('+')[0];
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String currentVersion = 'v${packageInfo.version}+${packageInfo.buildNumber}';
+    String currentVersion = 'v${packageInfo.version}'.trim();
+    Log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
+
     if (latestVersion == currentVersion) {
-      Log.verbose('Already in latest version');
       return;
     }
 
-    Log.verbose('Find new version');
     Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
   }
 }

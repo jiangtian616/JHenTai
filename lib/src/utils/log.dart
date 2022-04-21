@@ -57,7 +57,7 @@ class Log {
     _verboseFileLogger?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
-  static void info(Object? msg, [bool withStack = true]) {
+  static void info(Object? msg, [bool withStack = false]) {
     _logger?.i(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.i(msg, null, withStack ? null : StackTrace.empty);
   }

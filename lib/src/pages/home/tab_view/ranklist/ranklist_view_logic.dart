@@ -58,6 +58,10 @@ class RanklistViewLogic extends GetxController {
                 galleryUrl: baseGallery.galleryUrl,
                 parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
               ).then((value) => results[index] = value).catchError((error) {
+                if (error is! DioError) {
+                  throw error;
+                }
+
                 /// 404 => hide or remove
                 if (error.response?.statusCode != 404) {
                   Log.error('${'getSomeOfGallerysFailed'.tr}: ${baseGallery.galleryUrl}', error.message);
