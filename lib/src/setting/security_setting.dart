@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:local_auth/local_auth.dart';
@@ -25,6 +27,15 @@ class SecuritySetting {
   static saveEnableBlur(bool enableBlur) {
     SecuritySetting.enableBlur.value = enableBlur;
     _save();
+
+    if (enableBlur) {
+      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+    } else {
+      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+    }
+    /// resume appbar color
+    SystemChrome.setSystemUIOverlayStyle(
+        Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
   }
 
   static saveEnableFingerPrintLock(bool enableFingerPrintLock) {
