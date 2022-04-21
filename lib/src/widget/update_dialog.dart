@@ -20,7 +20,7 @@ class UpdateDialog extends StatelessWidget {
       content: Column(
         children: [
           Text('${'LatestVersion'.tr}: $latestVersion'),
-          Text('${'CurrentVersion'.tr}: $latestVersion'),
+          Text('${'CurrentVersion'.tr}: $currentVersion'),
         ],
       ),
       actions: [
