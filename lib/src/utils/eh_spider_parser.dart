@@ -544,15 +544,16 @@ class EHSpiderParser {
       originalCost: int.parse(
         document.querySelector('#db > div > div > div > strong')!.text.replaceAll(',', '').replaceFirst('Free!', '0'),
       ),
-      resampleCost: int.parse(
-        document
-            .querySelector('#db > div > div:nth-child(3) > div > strong')!
-            .text
-            .replaceAll(',', '')
-            .replaceFirst('Free!', '0'),
-      ),
       originalSize: document.querySelector('#db > div > div > p > strong')!.text,
-      resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')!.text,
+      resampleCost: int.tryParse(
+        document
+                .querySelector('#db > div > div:nth-child(3) > div > strong')
+                ?.text
+                .replaceAll(',', '')
+                .replaceFirst('Free!', '0') ??
+            '',
+      ),
+      resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')?.text,
     );
   }
 

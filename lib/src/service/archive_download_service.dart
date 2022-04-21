@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
@@ -83,7 +84,7 @@ class ArchiveDownloadService extends GetxController {
       await _doDownloadArchive(archive, downloadUrl);
     }
 
-    if (archiveStatuses.get(archive.gid, archive.isOriginal) == ArchiveStatus.paused) {
+    if (_taskHasBeenPausedOrRemoved(archive)) {
       return;
     }
 
@@ -156,6 +157,10 @@ class ArchiveDownloadService extends GetxController {
   /// If unlocked before, request will return [DownloadPageUrl] immediately.
   /// Otherwise return null.
   Future<String?> _requestUnlock(ArchiveDownloadedData archive) async {
+    if (_taskHasBeenPausedOrRemoved(archive)) {
+      return null;
+    }
+
     String? downloadPageUrl;
     try {
       downloadPageUrl = await retry(
@@ -168,11 +173,14 @@ class ArchiveDownloadService extends GetxController {
           cancelToken: cancelTokens.get(archive.gid, archive.isOriginal),
           parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
         ),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
         onRetry: (e) => Log.info('request unlock archive failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on DioError catch (e) {
+      if (e.type == DioErrorType.cancel) {
+        return null;
+      }
       return await _requestUnlock(archive);
     }
 
@@ -191,6 +199,10 @@ class ArchiveDownloadService extends GetxController {
 
   /// Circularly check if archive is prepared
   Future<String> _getDownloadPageUrl(ArchiveDownloadedData archive) async {
+    if (_taskHasBeenPausedOrRemoved(archive)) {
+      return '';
+    }
+
     String downloadPageUrl;
     try {
       downloadPageUrl = await retry(
@@ -214,6 +226,10 @@ class ArchiveDownloadService extends GetxController {
 
   Future<String> _getDownloadUrl(ArchiveDownloadedData archive, String downloadPageUrl,
       [bool useCacheIfAvailable = true]) async {
+    if (_taskHasBeenPausedOrRemoved(archive)) {
+      return '';
+    }
+
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.waitingForDownloadUrl.index);
     _updateArchive(archive);
 
@@ -231,6 +247,9 @@ class ArchiveDownloadService extends GetxController {
         maxAttempts: retryTimes,
       );
     } on DioError catch (e) {
+      if (e.type == DioErrorType.cancel) {
+        return '';
+      }
       return await _getDownloadUrl(archive, downloadPageUrl);
     }
 
@@ -240,6 +259,10 @@ class ArchiveDownloadService extends GetxController {
   }
 
   Future<void> _doDownloadArchive(ArchiveDownloadedData archive, String downloadUrl) async {
+    if (_taskHasBeenPausedOrRemoved(archive)) {
+      return;
+    }
+
     Log.verbose('Begin to download archive', false);
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.downloading.index);
     _updateArchive(archive);
@@ -397,12 +420,17 @@ class ArchiveDownloadService extends GetxController {
     }
   }
 
-  void _clearDownloadedItemsInDisk(ArchiveDownloadedData archive)  {
+  void _clearDownloadedItemsInDisk(ArchiveDownloadedData archive) {
     _clearDownloadedArchiveInDisk(archive);
 
     io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }
+  }
+
+  bool _taskHasBeenPausedOrRemoved(ArchiveDownloadedData archive) {
+    return archiveStatuses.get(archive.gid, archive.isOriginal) == null ||
+        archiveStatuses.get(archive.gid, archive.isOriginal) == ArchiveStatus.paused;
   }
 }

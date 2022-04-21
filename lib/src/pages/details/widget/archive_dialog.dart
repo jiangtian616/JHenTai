@@ -83,12 +83,15 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                   ),
                   Column(
                     children: [
-                      Text(
-                        archive.resampleCost == 0 ? 'Free!' : '${archive.resampleCost} C',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                      if (archive.resampleCost != null)
+                        Text(
+                          archive.resampleCost == 0 ? 'Free!' : '${archive.resampleCost} C',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                       ElevatedButton(
-                        onPressed: archive.resampleCost > archive.creditCount ? null : () => _downloadArchive(false),
+                        onPressed: archive.resampleCost == null || archive.resampleCost! > archive.creditCount
+                            ? null
+                            : () => _downloadArchive(false),
                         child: Row(
                           children: [
                             const Text('Resample'),
@@ -96,7 +99,8 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                           ],
                         ),
                       ),
-                      Text(archive.resampleSize, style: Theme.of(context).textTheme.bodySmall),
+                      if (archive.resampleCost != null)
+                        Text(archive.resampleSize!, style: Theme.of(context).textTheme.bodySmall),
                     ],
                   )
                 ],
@@ -145,7 +149,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
   }
 
   int _computeSizeInBytes(bool isOriginal) {
-    String sizeString = isOriginal ? archive.originalSize : archive.resampleSize;
+    String sizeString = isOriginal ? archive.originalSize : archive.resampleSize!;
 
     List<String> parts = sizeString.split(' ');
     double number = double.parse(parts[0]);

@@ -37,6 +37,7 @@ class _DownloadViewState extends State<DownloadView> {
               icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
             ),
           IconButton(
+            key: const Key('1'),
             onPressed: () => setState(() {
               _showArchiveBody = !_showArchiveBody;
             }),
@@ -45,8 +46,18 @@ class _DownloadViewState extends State<DownloadView> {
         ],
       ),
       body: _showArchiveBody
-          ? FadeIn(key: const Key('1'), child: const ArchiveDownloadBody())
-          : FadeIn(child: const GalleryDownloadBody()),
+          ? FadeIn(
+              key: const Key('1'),
+              child: const ArchiveDownloadBody(
+                key: PageStorageKey('ArchiveDownloadBody'),
+              ),
+            )
+          : FadeIn(
+              key: const Key('2'),
+              child: const GalleryDownloadBody(
+                key: PageStorageKey('GalleryDownloadBody'),
+              ),
+            ),
     );
   }
 }
