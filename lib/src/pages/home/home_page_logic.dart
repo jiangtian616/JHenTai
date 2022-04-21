@@ -61,7 +61,7 @@ class HomePageLogic extends GetxController {
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
       /// reset [prevPageIndexToLoad] to refresh rather than load prev page
       GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-      gallerysViewLogic.state.prevPageIndexToLoad[gallerysViewLogic.tabController.index] = -1;
+      gallerysViewLogic.state.prevPageIndexToLoad[gallerysViewLogic.tabController.index] = null;
 
       Future.delayed(
         const Duration(milliseconds: 0),

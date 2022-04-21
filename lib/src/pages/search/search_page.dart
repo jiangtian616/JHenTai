@@ -357,6 +357,10 @@ class SearchPagePage extends StatelessWidget {
       loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,
       handleLoadMore: () => logic.searchMore(isRefresh: false),
+
+      /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
+      keepPosition:
+          state.tabBarConfig.searchConfig.pageAtMost == null && state.tabBarConfig.searchConfig.pageAtLeast == null,
     );
   }
 }

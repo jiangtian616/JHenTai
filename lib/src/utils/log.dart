@@ -165,5 +165,12 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
       throw UploadException(e);
     }
     return defaultValue;
+  } on Error catch (e) {
+    Log.error('operationFailed'.tr, e);
+    Log.upload(e, extraInfos: {'params': params});
+    if (defaultValue == null) {
+      throw UploadException(e);
+    }
+    return defaultValue;
   }
 }

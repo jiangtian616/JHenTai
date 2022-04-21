@@ -17,13 +17,14 @@ Widget EHGalleryCollection({
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
   VoidCallback? handleLoadMore,
+  bool keepPosition = true,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
     return FlutterSliverList(
       key: key,
       delegate: FlutterListViewDelegate(
-            (BuildContext context, int index) {
+        (BuildContext context, int index) {
           if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
             /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
             /// that hints circular build.
@@ -43,8 +44,9 @@ Widget EHGalleryCollection({
           });
         },
         childCount: gallerys.length,
-        keepPosition: true,
+        keepPosition: keepPosition,
         onItemKey: (index) => gallerys[index].galleryUrl,
+        onIsPermanent: (_) => true,
         preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
       ),
     );

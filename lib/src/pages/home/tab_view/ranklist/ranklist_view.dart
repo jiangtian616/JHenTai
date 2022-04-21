@@ -131,6 +131,7 @@ class _RanklistViewState extends State<RanklistView> {
       gallerys: state.ranklistGallery[state.ranklistType]!,
       loadingState: state.getRanklistLoadingState[state.ranklistType]!,
       handleTapCard: logic.handleTapCard,
+      keepPosition: false,
     );
   }
 }

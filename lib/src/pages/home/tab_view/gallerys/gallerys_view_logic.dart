@@ -58,7 +58,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// pull-down
   Future<void> handlePullDown(int tabIndex) async {
-    if (state.prevPageIndexToLoad[tabIndex] == -1) {
+    if (state.prevPageIndexToLoad[tabIndex] == null) {
       await handleRefresh(tabIndex);
     } else {
       await loadBefore(tabIndex);
@@ -74,9 +74,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.refreshState[tabIndex] = LoadingState.loading;
     update([refreshStateId]);
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
-      gallerysAndPageCount = await _getGallerysByPage(tabIndex, 0);
+      gallerysAndPageInfo = await _getGallerysAndPageInfoByPage(tabIndex, 0);
     } on DioError catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
@@ -86,15 +86,19 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     }
 
     state.nextPageIndexToLoad[tabIndex] = 1;
-    state.gallerys[tabIndex] = gallerysAndPageCount[0];
-    state.pageCount[tabIndex] = gallerysAndPageCount[1];
+    state.gallerys[tabIndex] = gallerysAndPageInfo[0];
+    state.pageCount[tabIndex] = gallerysAndPageInfo[1];
+    state.prevPageIndexToLoad[tabIndex] = gallerysAndPageInfo[2];
+    state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
     state.galleryCollectionKeys[tabIndex] = UniqueKey();
+
+    state.refreshState[tabIndex] = LoadingState.idle;
     if (state.pageCount[tabIndex] == 0) {
-      state.refreshState[tabIndex] = LoadingState.noData;
-    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
-      state.refreshState[tabIndex] = LoadingState.noMore;
+      state.loadingState[tabIndex] = LoadingState.noData;
+    } else if (state.nextPageIndexToLoad[tabIndex] == null) {
+      state.loadingState[tabIndex] = LoadingState.noMore;
     } else {
-      state.refreshState[tabIndex] = LoadingState.idle;
+      state.loadingState[tabIndex] = LoadingState.idle;
     }
     update([bodyId]);
   }
@@ -111,9 +115,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       update([loadingStateId]);
     }
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
-      gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.prevPageIndexToLoad[tabIndex]);
+      gallerysAndPageInfo = await _getGallerysAndPageInfoByPage(tabIndex, state.prevPageIndexToLoad[tabIndex]!);
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
@@ -122,12 +126,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    _cleanDuplicateGallery(gallerysAndPageCount[0] as List<Gallery>, state.gallerys[tabIndex]);
-    state.gallerys[tabIndex].insertAll(0, gallerysAndPageCount[0]);
-    state.pageCount[tabIndex] = gallerysAndPageCount[1];
-    state.prevPageIndexToLoad[tabIndex]--;
-    state.loadingState[tabIndex] = LoadingState.idle;
+    _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys[tabIndex]);
+    state.gallerys[tabIndex].insertAll(0, gallerysAndPageInfo[0]);
+    state.pageCount[tabIndex] = gallerysAndPageInfo[1];
+    state.prevPageIndexToLoad[tabIndex] = gallerysAndPageInfo[2];
+    state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
 
+    state.loadingState[tabIndex] = LoadingState.idle;
     update([bodyId]);
   }
 
@@ -143,9 +148,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       update([loadingStateId]);
     }
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
-      gallerysAndPageCount = await _getGallerysByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]);
+      gallerysAndPageInfo = await _getGallerysAndPageInfoByPage(tabIndex, state.nextPageIndexToLoad[tabIndex]!);
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
@@ -154,19 +159,18 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    _cleanDuplicateGallery(gallerysAndPageCount[0] as List<Gallery>, state.gallerys[tabIndex]);
-    state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
-    state.pageCount[tabIndex] = gallerysAndPageCount[1];
-    state.nextPageIndexToLoad[tabIndex]++;
+    _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys[tabIndex]);
+    state.gallerys[tabIndex].addAll(gallerysAndPageInfo[0]);
+    state.pageCount[tabIndex] = gallerysAndPageInfo[1];
+    state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
+
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;
-      state.nextPageIndexToLoad[tabIndex] = 0;
-    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
+    } else if (state.nextPageIndexToLoad[tabIndex] == null) {
       state.loadingState[tabIndex] = LoadingState.noMore;
     } else {
       state.loadingState[tabIndex] = LoadingState.idle;
     }
-
     update([appBarId, bodyId, loadingStateId]);
   }
 
@@ -183,12 +187,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
     pageIndex = max(pageIndex, 0);
     pageIndex = min(pageIndex, state.pageCount[tabIndex] - 1);
-    state.prevPageIndexToLoad[tabIndex] = pageIndex - 1;
-    state.nextPageIndexToLoad[tabIndex] = pageIndex;
+    state.prevPageIndexToLoad[tabIndex] = null;
+    state.nextPageIndexToLoad[tabIndex] = null;
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
-      gallerysAndPageCount = await _getGallerysByPage(tabIndex, pageIndex);
+      gallerysAndPageInfo = await _getGallerysAndPageInfoByPage(tabIndex, pageIndex);
     } on DioError catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
@@ -197,12 +201,14 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    state.gallerys[tabIndex].addAll(gallerysAndPageCount[0]);
-    state.pageCount[tabIndex] = gallerysAndPageCount[1];
-    state.nextPageIndexToLoad[tabIndex]++;
+    state.gallerys[tabIndex].addAll(gallerysAndPageInfo[0]);
+    state.pageCount[tabIndex] = gallerysAndPageInfo[1];
+    state.prevPageIndexToLoad[tabIndex] = gallerysAndPageInfo[2];
+    state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
+
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;
-    } else if (state.pageCount[tabIndex] == state.nextPageIndexToLoad[tabIndex]) {
+    } else if (state.nextPageIndexToLoad[tabIndex] == null) {
       state.loadingState[tabIndex] = LoadingState.noMore;
     } else {
       state.loadingState[tabIndex] = LoadingState.idle;
@@ -214,7 +220,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     int? pageIndex = await Get.dialog(
       JumpPageDialog(
         totalPageNo: state.pageCount[tabController.index],
-        currentNo: state.nextPageIndexToLoad[tabController.index],
+        currentNo: state.nextPageIndexToLoad[tabController.index] ?? state.pageCount[tabController.index],
       ),
     );
     if (pageIndex != null) {
@@ -358,38 +364,38 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
         .removeWhere((newGallery) => gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
   }
 
-  Future<List<dynamic>> _getGallerysByPage(int tabIndex, int pageNo) async {
+  Future<List<dynamic>> _getGallerysAndPageInfoByPage(int tabIndex, int pageNo) async {
     Log.info('get Tab $tabIndex gallery data, pageNo:$pageNo', false);
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     switch (TabBarSetting.configs[tabIndex].searchConfig.searchType) {
       case SearchType.history:
         await Future.delayed(const Duration(milliseconds: 500));
-        gallerysAndPageCount = [historyService.history, historyService.history.isEmpty ? 0 : 1];
+        gallerysAndPageInfo = [historyService.history, historyService.history.isEmpty ? 0 : 1, null, null];
         break;
       case SearchType.favorite:
         if (!UserSetting.hasLoggedIn()) {
-          gallerysAndPageCount = [<Gallery>[], 0];
+          gallerysAndPageInfo = [<Gallery>[], 0, null, null];
           break;
         }
         continue end;
       case SearchType.watched:
         if (!UserSetting.hasLoggedIn()) {
-          gallerysAndPageCount = [<Gallery>[], 0];
+          gallerysAndPageInfo = [<Gallery>[], 0, null, null];
           break;
         }
         continue end;
       end:
       case SearchType.popular:
       case SearchType.gallery:
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
           pageNo: pageNo,
           searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
     }
 
-    await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageCount[0]);
-    return gallerysAndPageCount;
+    await tagTranslationService.translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+    return gallerysAndPageInfo;
   }
 }

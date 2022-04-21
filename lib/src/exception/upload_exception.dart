@@ -1,10 +1,10 @@
 class UploadException implements Exception {
-  Exception innerException;
+  Object innerError;
 
-  UploadException(this.innerException);
+  UploadException(this.innerError);
 
   @override
   String toString() {
-    return 'UploadException{innerException: $innerException}';
+    return 'UploadException{innerError: $innerError}';
   }
 }

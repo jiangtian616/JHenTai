@@ -255,6 +255,7 @@ class GallerysView extends StatelessWidget {
           controller: logic.tabController,
           children: List.generate(
             TabBarSetting.configs.length,
+
             /// keep offset for each tab
             (tabIndex) => KeepAliveWrapper(child: GalleryTabBarView(tabIndex: tabIndex)),
           ),
@@ -350,6 +351,10 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
       loadingState: gallerysViewState.loadingState[tabIndex],
       handleTapCard: gallerysViewLogic.handleTapCard,
       handleLoadMore: () => gallerysViewLogic.loadMore(tabIndex),
+
+      /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
+      keepPosition: TabBarSetting.configs[tabIndex].searchConfig.pageAtMost == null &&
+          TabBarSetting.configs[tabIndex].searchConfig.pageAtLeast == null,
     );
   }
 }

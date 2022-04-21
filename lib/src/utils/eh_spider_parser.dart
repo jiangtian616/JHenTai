@@ -52,7 +52,7 @@ class EHSpiderParser {
     return map;
   }
 
-  static List<dynamic> galleryPage2GalleryList(Response response) {
+  static List<dynamic> galleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -60,17 +60,17 @@ class EHSpiderParser {
 
     switch (inlineType) {
       case 'Minimal':
-        return _compactGalleryPage2GalleryList(response);
+        return _compactGalleryPage2GalleryListAndPageInfo(response);
       case 'Minimal+':
-        return _compactGalleryPage2GalleryList(response);
+        return _compactGalleryPage2GalleryListAndPageInfo(response);
       case 'Compact':
-        return _compactGalleryPage2GalleryList(response);
+        return _compactGalleryPage2GalleryListAndPageInfo(response);
       case 'Extended':
-        return _extendedGalleryPage2GalleryList(response);
+        return _extendedGalleryPage2GalleryListAndPageInfo(response);
       case 'Thumbnail':
-        return _thumbnailGalleryPage2GalleryList(response);
+        return _thumbnailGalleryPage2GalleryListAndPageInfo(response);
       default:
-        return _compactGalleryPage2GalleryList(response);
+        return _compactGalleryPage2GalleryListAndPageInfo(response);
     }
   }
 
@@ -119,7 +119,7 @@ class EHSpiderParser {
 
     GalleryDetail galleryDetail = GalleryDetail(
       rawTitle: document.querySelector('#gn')!.text,
-      uploader: document.querySelector('#gdn > a')!.text,
+      uploader: document.querySelector('#gdn > a')?.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
@@ -454,68 +454,75 @@ class EHSpiderParser {
     return 'userNameOrPasswordMismatch'.tr;
   }
 
-  static List<dynamic> _compactGalleryPage2GalleryList(Response response) {
+  static List<dynamic> _compactGalleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
-    /// no data
-    if (galleryListElements.isEmpty) {
-      return [<Gallery>[], 0];
-    }
-
-    /// remove table header
-    galleryListElements.removeAt(0);
-
-    /// remove ad or [no result row]
-    galleryListElements.removeWhere((element) => element.children.length == 1);
+    /// remove table header and ad
+    galleryListElements.removeWhere((element) => element.children.length == 1 || element.querySelector('th') != null);
     List<Gallery> gallerys = galleryListElements.map((e) => _parseCompactGallery(e)).toList();
 
-    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
-    return [gallerys, pageCount];
+    int pageCount = galleryPage2TotalPageCount(document);
+    int? prevPageIndex = galleryPage2PrevPageIndex(document);
+    int? nextPageIndex = galleryPage2NextPageIndex(document);
+
+    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
   }
 
-  static List<dynamic> _extendedGalleryPage2GalleryList(Response response) {
+  static List<dynamic> _extendedGalleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.glte > tbody > tr');
 
-    /// no data
-    if (galleryListElements.isEmpty) {
-      return [<Gallery>[], 0];
-    }
-
     /// remove ad
     galleryListElements.removeWhere((element) => element.children.length == 1);
     List<Gallery> gallerys = galleryListElements.map((e) => _parseExtendedGallery(e)).toList();
 
-    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
-    return [gallerys, pageCount];
+    int pageCount = galleryPage2TotalPageCount(document);
+    int? prevPageIndex = galleryPage2PrevPageIndex(document);
+    int? nextPageIndex = galleryPage2NextPageIndex(document);
+
+    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
   }
 
-  static List<dynamic> _thumbnailGalleryPage2GalleryList(Response response) {
+  static List<dynamic> _thumbnailGalleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.gld > div');
-
-    /// no data
-    if (galleryListElements.isEmpty) {
-      return [<Gallery>[], 0];
-    }
-
     List<Gallery> gallerys = galleryListElements.map((e) => _parseThumbnailGallery(e)).toList();
 
-    int pageCount = gallerys.isEmpty ? 0 : galleryPage2TotalPageCount(document);
-    return [gallerys, pageCount];
+    int pageCount = galleryPage2TotalPageCount(document);
+    int? prevPageIndex = galleryPage2PrevPageIndex(document);
+    int? nextPageIndex = galleryPage2NextPageIndex(document);
+
+    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
   }
 
   static int galleryPage2TotalPageCount(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
-    Element? td = tr?.children[tr.children.length - 2];
-    return int.parse(td?.querySelector('a')?.text ?? '1');
+    if (tr == null || tr.children.isEmpty) {
+      return 0;
+    }
+    Element td = tr.children[tr.children.length - 2];
+    return int.parse(td.querySelector('a')!.text);
+  }
+
+  static int? galleryPage2NextPageIndex(Document document) {
+    Element? tr = document.querySelector('.ptt > tbody > tr');
+    Element? td = tr?.children[tr.children.length - 1];
+    return int.tryParse(
+        RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '');
+  }
+
+  static int? galleryPage2PrevPageIndex(Document document) {
+    Element? tr = document.querySelector('.ptt > tbody > tr');
+    Element? td = tr?.children[0];
+    return int.tryParse(
+        RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '0');
   }
 
   static GalleryArchive archivePage2Archive(Response response) {

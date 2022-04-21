@@ -6,7 +6,7 @@ import 'gallery_thumbnail.dart';
 
 class GalleryDetail {
   String rawTitle;
-  String uploader;
+  String? uploader;
   int ratingCount;
   double realRating;
   String size;
@@ -21,7 +21,7 @@ class GalleryDetail {
 
   GalleryDetail({
     required this.rawTitle,
-    required this.uploader,
+    this.uploader,
     required this.ratingCount,
     required this.realRating,
     required this.size,

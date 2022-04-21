@@ -61,7 +61,7 @@ class SearchPageLogic extends GetxController {
   }
 
   Future<void> handlePullDown() async {
-    if (state.prevPageNoToLoad != -1) {
+    if (state.prevPageNoToLoad != null) {
       await loadBefore();
     } else {
       await searchMore(isRefresh: true);
@@ -82,19 +82,19 @@ class SearchPageLogic extends GetxController {
     state.loadingState = LoadingState.loading;
     update([bodyId]);
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
       if (state.redirectUrl == null) {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
-          pageNo: state.prevPageNoToLoad,
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+          pageNo: state.prevPageNoToLoad!,
           searchConfig: state.tabBarConfig.searchConfig,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       } else {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
           url: state.redirectUrl,
-          pageNo: state.prevPageNoToLoad,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          pageNo: state.prevPageNoToLoad!,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       }
     } on DioError catch (e) {
@@ -105,20 +105,14 @@ class SearchPageLogic extends GetxController {
       return;
     }
 
-    state.gallerys.insertAll(0, gallerysAndPageCount[0]);
-    state.pageCount = gallerysAndPageCount[1];
-    state.prevPageNoToLoad--;
-    if (state.pageCount == 0) {
-      state.loadingState = LoadingState.noData;
-      state.prevPageNoToLoad = -1;
-    } else if (state.pageCount == state.nextPageNoToLoad) {
-      state.loadingState = LoadingState.noMore;
-    } else {
-      state.loadingState = LoadingState.idle;
-    }
+    state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
+    state.pageCount = gallerysAndPageInfo[1];
+    state.nextPageNoToLoad = gallerysAndPageInfo[2];
+    state.prevPageNoToLoad = gallerysAndPageInfo[3];
 
     await tagTranslationService.translateGalleryTagsIfNeeded(state.gallerys);
-    _writeHistory();
+
+    state.loadingState = LoadingState.idle;
     update([appBarId, bodyId]);
   }
 
@@ -141,19 +135,19 @@ class SearchPageLogic extends GetxController {
     state.loadingState = LoadingState.loading;
     update([bodyId]);
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
       if (state.redirectUrl == null) {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
-          pageNo: state.nextPageNoToLoad,
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+          pageNo: state.nextPageNoToLoad!,
           searchConfig: state.tabBarConfig.searchConfig,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       } else {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
           url: state.redirectUrl,
-          pageNo: state.nextPageNoToLoad,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          pageNo: state.nextPageNoToLoad!,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       }
     } on DioError catch (e) {
@@ -164,13 +158,13 @@ class SearchPageLogic extends GetxController {
       return;
     }
 
-    state.gallerys.addAll(gallerysAndPageCount[0]);
-    state.pageCount = gallerysAndPageCount[1];
-    state.nextPageNoToLoad++;
+    state.gallerys.addAll(gallerysAndPageInfo[0]);
+    state.pageCount = gallerysAndPageInfo[1];
+    state.prevPageNoToLoad = gallerysAndPageInfo[2];
+    state.nextPageNoToLoad = gallerysAndPageInfo[3];
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
-      state.prevPageNoToLoad = -1;
-    } else if (state.pageCount == state.nextPageNoToLoad) {
+    } else if (state.nextPageNoToLoad == null) {
       state.loadingState = LoadingState.noMore;
     } else {
       state.loadingState = LoadingState.idle;
@@ -195,24 +189,24 @@ class SearchPageLogic extends GetxController {
     state.gallerys.clear();
     pageIndex = max(pageIndex, 0);
     pageIndex = min(pageIndex, state.pageCount - 1);
-    state.nextPageNoToLoad = pageIndex;
-    state.prevPageNoToLoad = pageIndex - 1;
+    state.nextPageNoToLoad = null;
+    state.prevPageNoToLoad = null;
     state.loadingState = LoadingState.loading;
     update([bodyId]);
 
-    List<dynamic> gallerysAndPageCount;
+    List<dynamic> gallerysAndPageInfo;
     try {
       if (state.redirectUrl == null) {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
-          pageNo: state.nextPageNoToLoad,
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+          pageNo: pageIndex,
           searchConfig: state.tabBarConfig.searchConfig,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       } else {
-        gallerysAndPageCount = await EHRequest.requestGalleryPage(
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
           url: state.redirectUrl,
           pageNo: pageIndex,
-          parser: EHSpiderParser.galleryPage2GalleryList,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
         );
       }
     } on DioError catch (e) {
@@ -223,26 +217,23 @@ class SearchPageLogic extends GetxController {
       return;
     }
 
-    state.gallerys.addAll(gallerysAndPageCount[0]);
-    state.pageCount = gallerysAndPageCount[1];
-    state.nextPageNoToLoad++;
-    if (state.pageCount == 0) {
-      state.loadingState = LoadingState.noData;
-      state.prevPageNoToLoad = -1;
-    } else if (state.pageCount == state.nextPageNoToLoad) {
+    state.gallerys.addAll(gallerysAndPageInfo[0]);
+    state.pageCount = gallerysAndPageInfo[1];
+    state.nextPageNoToLoad = gallerysAndPageInfo[2];
+    state.prevPageNoToLoad = gallerysAndPageInfo[3];
+    if (state.nextPageNoToLoad == null) {
       state.loadingState = LoadingState.noMore;
     } else {
       state.loadingState = LoadingState.idle;
     }
 
     await tagTranslationService.translateGalleryTagsIfNeeded(state.gallerys);
-    _writeHistory();
     update([appBarId, bodyId]);
   }
 
   Future<void> handleOpenJumpDialog() async {
     int? pageIndex = await Get.dialog(
-      JumpPageDialog(totalPageNo: state.pageCount, currentNo: state.nextPageNoToLoad),
+      JumpPageDialog(totalPageNo: state.pageCount, currentNo: state.nextPageNoToLoad ?? state.pageCount),
     );
     if (pageIndex != null) {
       jumpPage(pageIndex);

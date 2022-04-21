@@ -9,8 +9,8 @@ class SearchPageState {
   TabBarConfig tabBarConfig = TabBarConfig(name: '', searchConfig: SearchConfig());
 
   List<Gallery> gallerys = <Gallery>[];
-  int nextPageNoToLoad = 0;
-  int prevPageNoToLoad = -1;
+  int? nextPageNoToLoad = 0;
+  int? prevPageNoToLoad;
   int pageCount = -1;
   LoadingState loadingState = LoadingState.success;
   String? redirectUrl;
