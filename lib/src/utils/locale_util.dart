@@ -7,7 +7,10 @@ Locale localeCode2Locale(String localeCode) {
   if (parts.length == 1) {
     return Locale(parts[0]);
   }
-  return Locale(parts[0], parts[1]);
+  if (parts.length == 2) {
+    return Locale(parts[0], parts[1]);
+  }
+  return Locale(parts[0], parts[2]);
 }
 
 Locale computeDefaultLocale(Locale windowLocale) {
