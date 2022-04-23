@@ -1,3 +1,8 @@
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-brightgreen)
+![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
+[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
+[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
+
 # JHenTai
 
 [English](https://github.com/jiangtian616/JHenTai/blob/master/README.md) | 简体中文
@@ -24,13 +29,13 @@ E-hentai 的一个移动端app。
 
 ## 参考与借鉴
 
-布局样式参考: 
+布局样式参考:
 
 - [FEhviewer](https://github.com/honjow/FEhViewer) : 主要
 - [EHPanda](https://github.com/tatsuz0u/EhPanda)
 - [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
-标签翻译数据库: 
+标签翻译数据库:
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
@@ -39,12 +44,15 @@ E-hentai 的一个移动端app。
 ## 截图
 
 ### 画廊页 & 搜索页
+
 <img width="250" style="margin-right:10px" src="screenshot/1.jpg"/><img width="250" style="margin-right:10px" src="screenshot/2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
 
 ### 画廊详情页
+
 <img width="250" src="screenshot/4.jpg"/>
 
 ### 平板双栏模式
+
 <img width="770" src="screenshot/0.png"/>
 
 ## 主要功能
@@ -69,14 +77,15 @@ E-hentai 的一个移动端app。
 ## 国际化步骤
 
 > [languageCode](https://github.com/unicode-org/cldr/blob/master/common/validity/language.xml)
-> 
+>
 > [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
 
 1. 复制 `/lib/src/l18n/en_US.dart` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
 2. 更改新文件的主类名字(可选)
 3. 修改keys方法返回的所有键值对，将value翻译为你的语言
 4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
-5. 在 `/lib/src/consts/locale_consts.dart` 的`localeCode2Description`属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`
+5. 在 `/lib/src/consts/locale_consts.dart` 的`localeCode2Description`
+   属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`
 
 ## 已知bug
 

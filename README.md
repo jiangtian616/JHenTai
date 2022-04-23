@@ -1,3 +1,8 @@
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS-brightgreen)
+![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
+[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
+[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
+
 # JHenTai
 
 English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md)
