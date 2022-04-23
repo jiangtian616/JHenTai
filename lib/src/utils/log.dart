@@ -132,7 +132,9 @@ class Log {
     if (throwable is StateError && throwable.message.contains('Failed to load https')) {
       return true;
     }
-
+    if (throwable is StateError && throwable.message.contains('User cancel request')) {
+      return true;
+    }
     return false;
   }
 

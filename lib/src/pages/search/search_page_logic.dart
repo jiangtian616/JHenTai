@@ -292,10 +292,14 @@ class SearchPageLogic extends GetxController {
         tagTranslationService.loadingState.value == LoadingState.success) {
       state.suggestions = await tagTranslationService.searchTags(state.tabBarConfig.searchConfig.keyword!);
     } else {
-      state.suggestions = await EHRequest.requestTagSuggestion(
-        state.tabBarConfig.searchConfig.keyword!,
-        EHSpiderParser.tagSuggestion2TagList,
-      );
+      try {
+        state.suggestions = await EHRequest.requestTagSuggestion(
+          state.tabBarConfig.searchConfig.keyword!,
+          EHSpiderParser.tagSuggestion2TagList,
+        );
+      } on DioError catch (e) {
+        Log.error('Request tag suggestion failed', e);
+      }
     }
 
     if (state.showSuggestionAndHistory) {
