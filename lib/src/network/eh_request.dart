@@ -27,10 +27,6 @@ class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
 
-  static get cacheOption => EHCacheInterceptor.defaultCacheOption.copyWith(
-        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
-      );
-
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
       connectTimeout: 5000,
@@ -102,7 +98,7 @@ class EHRequest {
         String ip = EHConsts.host2Ip[host]!;
         Uri newUri = rawUri.replace(host: ip);
         Map<String, dynamic> newHeaders = {...options.headers, 'host': host};
-        handler.next(options.copyWith(path: newUri.toString(), headers: newHeaders));
+        handler.next(options.copyWith(path: '${newUri.scheme}://${newUri.host}${newUri.path}', headers: newHeaders));
       },
     ));
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
@@ -116,7 +112,7 @@ class EHRequest {
     _dio.interceptors.add(cookieManager);
 
     /// cache
-    _dio.interceptors.add(EHCacheInterceptor(options: cacheOption));
+    _dio.interceptors.add(Get.find<EHCacheInterceptor>());
 
     Log.verbose('init EHRequest success', false);
   }
@@ -189,8 +185,8 @@ class EHRequest {
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
       options: useCacheIfAvailable
-          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          ? EHCacheInterceptor.cacheOption.toOptions()
+          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
@@ -290,21 +286,19 @@ class EHRequest {
       href,
       cancelToken: cancelToken,
       options: useCacheIfAvailable
-          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          ? EHCacheInterceptor.cacheOption.toOptions()
+          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
     );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
   static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(
-      EHConsts.ETorrent,
-      queryParameters: {
-        'gid': gid,
-        't': token,
-      },
-      options: cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions(),
-    );
+    Response<String> response = await _dio.get(EHConsts.ETorrent,
+        queryParameters: {
+          'gid': gid,
+          't': token,
+        },
+        options: EHCacheInterceptor.cacheOption.toOptions());
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
@@ -443,7 +437,7 @@ class EHRequest {
       cancelToken: cancelToken,
       options: Options(
         receiveTimeout: receiveTimeout ?? DownloadSetting.timeout.value * 1000,
-        extra: cacheOption.copyWith(policy: CachePolicy.forceCache).toExtra(),
+        extra: EHCacheInterceptor.cacheOption.toExtra(),
       ),
     );
     parser ??= noOpParser;
@@ -578,8 +572,8 @@ class EHRequest {
     Response? response = await _dio.get(
       url,
       options: useCacheIfAvailable
-          ? cacheOption.copyWith(policy: CachePolicy.forceCache).toOptions()
-          : cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          ? EHCacheInterceptor.cacheOption.toOptions()
+          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
       cancelToken: cancelToken,
     );
     parser ??= noOpParser;

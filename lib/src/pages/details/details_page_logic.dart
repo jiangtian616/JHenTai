@@ -2,9 +2,14 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
@@ -29,12 +34,13 @@ import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
-import '../home/tab_view/gallerys/gallerys_view_logic.dart';
+import '../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 import 'details_page_state.dart';
 
 String bodyId = 'bodyId';
 String loadingStateId = 'loadingStateId';
 String addFavoriteStateId = 'addFavoriteStateId';
+String ratingStateId = 'ratingStateId';
 String thumbnailsId = 'thumbnailsId';
 
 class DetailsPageLogic extends GetxController {
@@ -294,11 +300,14 @@ class DetailsPageLogic extends GetxController {
       update([addFavoriteStateId]);
       return;
     }
+
+    _removeCache();
+
     state.favoriteState = LoadingState.idle;
     update([addFavoriteStateId]);
 
     /// update homePage and searchPage status
-    Get.find<GallerysViewLogic>().update([bodyId]);
+    Get.find<g.GallerysViewLogic>().update([bodyId]);
     SearchPageLogic.current?.update([bodyId]);
   }
 
@@ -319,10 +328,51 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> handleTapRating() async {
-    Get.dialog(
+    double? rating = await Get.dialog(
       const RatingDialog(),
       barrierColor: Colors.black38,
     );
+
+    /// not selected
+    if (rating == null) {
+      return;
+    }
+
+    state.ratingState = LoadingState.loading;
+    update([ratingStateId]);
+
+    String data;
+    try {
+      data = (await EHRequest.requestSubmitRating<Response>(
+        state.gallery!.gid,
+        state.gallery!.token,
+        UserSetting.ipbMemberId.value!,
+        state.apikey,
+        (rating * 2).toInt(),
+      ))
+          .data;
+    } on DioError catch (e) {
+      Log.error('ratingFailed'.tr, e.message);
+      snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      state.ratingState = LoadingState.error;
+      update([ratingStateId]);
+      return;
+    }
+
+    /// eg: {"rating_avg":0.93000000000000005,"rating_usr":0.5,"rating_cnt":21,"rating_cls":"ir irr"}
+    Map<String, dynamic> respMap = jsonDecode(data);
+    state.gallery!.hasRated = true;
+    state.gallery!.rating = double.parse(respMap['rating_usr'].toString());
+    state.galleryDetails!.ratingCount = respMap['rating_cnt'];
+    state.galleryDetails!.realRating = double.parse(respMap['rating_avg'].toString());
+
+    state.ratingState = LoadingState.idle;
+
+    _removeCache();
+
+    update([bodyId]);
+    Get.find<g.GallerysViewLogic>().update([g.bodyId]);
+    update([ratingStateId]);
   }
 
   void handleTapDownload() {
@@ -415,5 +465,9 @@ class DetailsPageLogic extends GetxController {
         },
       );
     }
+  }
+
+  void _removeCache() {
+    Get.find<EHCacheInterceptor>().removeCacheByUrl('${state.gallery!.galleryUrl}?p=0');
   }
 }

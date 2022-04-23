@@ -370,22 +370,34 @@ class DetailsPage extends StatelessWidget {
                       errorWidgetSameWithIdle: true,
                     );
                   }),
-              IconTextButton(
-                iconData: gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
-                iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
-                iconSize: 28,
-                text: Text(
-                  gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Get.theme.appBarTheme.titleTextStyle?.color,
-                  ),
-                ),
-                onPressed: detailsPageState.galleryDetails == null
-                    ? null
-                    : UserSetting.hasLoggedIn()
-                        ? detailsPageLogic.handleTapRating
-                        : detailsPageLogic.showLoginSnack,
+              GetBuilder<DetailsPageLogic>(
+                id: ratingStateId,
+                tag: tag,
+                builder: (logic) {
+                  return LoadingStateIndicator(
+                    width: max(77, (screenWidth - 15 * 2) / 7),
+                    loadingState: detailsPageState.ratingState,
+                    idleWidget: IconTextButton(
+                      iconData:
+                      gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
+                      iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
+                      iconSize: 28,
+                      text: Text(
+                        gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Get.theme.appBarTheme.titleTextStyle?.color,
+                        ),
+                      ),
+                      onPressed: detailsPageState.galleryDetails == null
+                          ? null
+                          : UserSetting.hasLoggedIn()
+                          ? detailsPageLogic.handleTapRating
+                          : detailsPageLogic.showLoginSnack,
+                    ),
+                    errorWidgetSameWithIdle: true,
+                  );
+                },
               ),
               IconTextButton(
                 iconData: Icons.saved_search,

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:animate_do/animate_do.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';

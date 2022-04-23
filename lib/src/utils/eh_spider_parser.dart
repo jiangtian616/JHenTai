@@ -97,7 +97,7 @@ class EHSpiderParser {
       pageCount: int.parse(
           (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       rating: _parseGalleryRating(document.querySelector('#grt2')!),
-      hasRated: document.querySelector('#grt2 > #rating_image .ir.irg') != null ? true : false,
+      hasRated: document.querySelector('#rating_image.ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
       favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null
@@ -586,7 +586,8 @@ class EHSpiderParser {
       cover: cover!,
       pageCount: _parseCompactGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
-      hasRated: tr.querySelector('.gl2c > div:nth-child(2) > .ir.irb') != null ? true : false,
+      hasRated:
+          tr.querySelector('.gl2c > div:nth-child(2) > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseCompactGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
@@ -614,7 +615,7 @@ class EHSpiderParser {
       cover: cover!,
       pageCount: _parseExtendedGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
-      hasRated: tr.querySelector('.gl3e > .ir.irb') != null ? true : false,
+      hasRated: tr.querySelector('.gl3e > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: tr.querySelector('.gl3e > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseExtendedGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl3e > [id][style]')?.attributes['title'],
@@ -641,7 +642,7 @@ class EHSpiderParser {
       cover: cover!,
       pageCount: _parseThumbnailGalleryPageCount(div),
       rating: _parseGalleryRating(div),
-      hasRated: div.querySelector('.gl5t > div > .ir.irb') != null ? true : false,
+      hasRated: div.querySelector('.gl5t > div > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: div.querySelector('.gl5t > div > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseThumbnailGalleryFavoriteTagIndex(div),
       favoriteTagName: div.querySelector('.gl5t > div > [id][style]')?.attributes['title'],

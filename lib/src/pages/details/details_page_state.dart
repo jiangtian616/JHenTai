@@ -16,6 +16,7 @@ class DetailsPageState {
   late LoadingState loadingDetailsState;
   late LoadingState loadingThumbnailsState;
   late LoadingState favoriteState;
+  late LoadingState ratingState;
 
   DetailsPageState() {
     nextPageIndexToLoadThumbnails = 1;
@@ -23,6 +24,7 @@ class DetailsPageState {
     loadingDetailsState = LoadingState.idle;
     loadingThumbnailsState = LoadingState.idle;
     favoriteState = LoadingState.idle;
+    ratingState = LoadingState.idle;
   }
 
   /// called when refresh

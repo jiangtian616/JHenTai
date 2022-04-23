@@ -5,19 +5,23 @@ import 'package:dio_cache_interceptor/src/model/cache_strategy.dart';
 import 'package:dio_cache_interceptor/src/model/cache_options.dart';
 import 'package:dio_cache_interceptor/src/util/response_extension.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
+import '../setting/advanced_setting.dart';
 import '../setting/path_setting.dart';
 
-/// copied from [DioCacheInterceptor] and only edit in line 180, to make property [max-style] valid and act like [max-age].
+/// copied from [DioCacheInterceptor]
 class EHCacheInterceptor extends Interceptor {
   static const String _getMethodName = 'GET';
   static const String _postMethodName = 'POST';
   final CacheOptions _options;
   final CacheStore _store;
 
-  static CacheOptions defaultCacheOption = CacheOptions(
+  static CacheOptions noCacheOption = CacheOptions(
     store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
     policy: CachePolicy.noCache,
     hitCacheOnErrorExcept: [401, 403],
@@ -27,10 +31,20 @@ class EHCacheInterceptor extends Interceptor {
     allowPostMethod: false,
   );
 
+  static CacheOptions get cacheOption => noCacheOption.copyWith(
+        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+        policy: CachePolicy.forceCache,
+      );
+
   EHCacheInterceptor({required CacheOptions options})
       : assert(options.store != null),
         _options = options,
         _store = options.store!;
+
+  static Future<void> init() async {
+    Get.put<EHCacheInterceptor>(EHCacheInterceptor(options: noCacheOption));
+    Log.verbose('init EHCacheInterceptor success');
+  }
 
   @override
   void onRequest(
@@ -147,6 +161,21 @@ class EHCacheInterceptor extends Interceptor {
     }
 
     handler.next(err);
+  }
+
+  Future<void> removeCacheByUrl(String url) async {
+    RequestOptions request = RequestOptions(path: url);
+    CacheOptions cacheOptions = _getCacheOptions(request);
+    CacheStore cacheStore = _getCacheStore(cacheOptions);
+    await cacheStore.delete(cacheOptions.keyBuilder(request));
+
+    for (MapEntry entry in EHConsts.host2Ip.entries) {
+      url = url.replaceFirst(entry.key, entry.value);
+    }
+    request = RequestOptions(path: url);
+    cacheOptions = _getCacheOptions(request);
+    cacheStore = _getCacheStore(cacheOptions);
+    await cacheStore.delete(cacheOptions.keyBuilder(request));
   }
 
   /// Gets cache options from given [request]
