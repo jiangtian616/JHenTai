@@ -51,8 +51,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  static SentryNavigatorObserver sentryNavigatorObserver = SentryNavigatorObserver();
-
   const MyApp({Key? key}) : super(key: key);
 
   @override
@@ -68,7 +66,7 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
-      navigatorObservers: [GetXRouterObserver(), sentryNavigatorObserver],
+      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => AppListener(child: child!),
 
       /// enable swipe back feature
