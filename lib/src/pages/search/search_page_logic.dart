@@ -129,6 +129,7 @@ class SearchPageLogic extends GetxController {
 
     if (isRefresh) {
       state.gallerys.clear();
+      state.prevPageNoToLoad = null;
       state.nextPageNoToLoad = 0;
       state.pageCount = -1;
     }
@@ -328,6 +329,7 @@ class SearchPageLogic extends GetxController {
     }
 
     state.gallerys.clear();
+    state.prevPageNoToLoad = null;
     state.nextPageNoToLoad = 0;
     state.pageCount = -1;
     state.loadingState = LoadingState.loading;
