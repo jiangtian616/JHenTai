@@ -35,13 +35,11 @@ Widget EHGalleryCollection({
               handleLoadMore();
             });
           }
-          return Obx(() {
-            return EHGalleryListCard(
-              gallery: gallerys[index],
-              handleTapCard: (gallery) => handleTapCard(gallery),
-              withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-            ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
-          });
+          return EHGalleryListCard(
+            gallery: gallerys[index],
+            handleTapCard: (gallery) => handleTapCard(gallery),
+            withTags: StyleSetting.listMode.value == ListMode.listWithTags,
+          ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
         },
         childCount: gallerys.length,
         keepPosition: keepPosition,

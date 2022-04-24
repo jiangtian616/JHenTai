@@ -7,6 +7,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as path;
 
 import '../setting/path_setting.dart';
@@ -104,7 +105,7 @@ class _EHImageState extends State<EHImage> {
         mode: widget.mode,
         initGestureConfigHandler: widget.initGestureConfigHandler,
         cancelToken: cancelToken,
-        imageCacheName: widget.galleryImage.url,
+        clearMemoryCacheWhenDispose: true,
         handleLoadingProgress: widget.loadingWidgetBuilder != null,
         printError: false,
         loadStateChanged: (ExtendedImageState state) {
@@ -142,6 +143,7 @@ class _EHImageState extends State<EHImage> {
       fit: widget.fit,
       mode: widget.mode,
       enableLoadState: true,
+      clearMemoryCacheWhenDispose: true,
       loadStateChanged: (ExtendedImageState state) {
         if (state.extendedImageLoadState == LoadState.completed) {
           return FadeIn(

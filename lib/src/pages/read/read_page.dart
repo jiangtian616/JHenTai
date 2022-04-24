@@ -112,16 +112,14 @@ class ReadPage extends StatelessWidget {
 
         /// step 3: use url to load image
         FittedSizes fittedSizes = _getImageFittedSize(state.images[index]!);
-        return KeepAliveWrapper(
-          child: EHImage.network(
-            containerHeight: fittedSizes.destination.height,
-            containerWidth: fittedSizes.destination.width,
-            galleryImage: state.images[index]!,
-            adaptive: true,
-            fit: BoxFit.contain,
-            loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-            failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-          ),
+        return EHImage.network(
+          containerHeight: fittedSizes.destination.height,
+          containerWidth: fittedSizes.destination.width,
+          galleryImage: state.images[index]!,
+          adaptive: true,
+          fit: BoxFit.contain,
+          loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+          failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
         );
       },
     );
