@@ -36,6 +36,11 @@ class EHCacheInterceptor extends Interceptor {
         policy: CachePolicy.forceCache,
       );
 
+  static CacheOptions get refreshCacheOption => noCacheOption.copyWith(
+    maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+    policy: CachePolicy.refreshForceCache,
+  );
+
   EHCacheInterceptor({required CacheOptions options})
       : assert(options.store != null),
         _options = options,

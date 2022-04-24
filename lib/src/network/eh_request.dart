@@ -186,7 +186,7 @@ class EHRequest {
       cancelToken: cancelToken,
       options: useCacheIfAvailable
           ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
@@ -287,7 +287,7 @@ class EHRequest {
       cancelToken: cancelToken,
       options: useCacheIfAvailable
           ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
@@ -573,7 +573,7 @@ class EHRequest {
       url,
       options: useCacheIfAvailable
           ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.cacheOption.copyWith(policy: CachePolicy.refreshForceCache).toOptions(),
+          : EHCacheInterceptor.refreshCacheOption.toOptions(),
       cancelToken: cancelToken,
     );
     parser ??= noOpParser;
