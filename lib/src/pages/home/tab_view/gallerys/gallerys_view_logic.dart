@@ -385,8 +385,15 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
           break;
         }
         continue end;
-      end:
       case SearchType.popular:
+        gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+          pageNo: pageNo,
+          searchConfig: TabBarSetting.configs[tabIndex].searchConfig,
+          parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+        );
+        gallerysAndPageInfo[1] = 1;
+        break;
+      end:
       case SearchType.gallery:
         gallerysAndPageInfo = await EHRequest.requestGalleryPage(
           pageNo: pageNo,
