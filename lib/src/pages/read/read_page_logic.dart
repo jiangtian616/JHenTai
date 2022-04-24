@@ -155,6 +155,10 @@ class ReadPageLogic extends GetxController {
 
   /// to prev image or screen
   void toPrev() {
+    if (ReadSetting.readDirection.value != ReadDirection.top2bottom) {
+      return _toPrevImage();
+    }
+
     switch (ReadSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toPrevImage();
@@ -171,6 +175,10 @@ class ReadPageLogic extends GetxController {
 
   /// to next image or screen
   void toNext() {
+    if (ReadSetting.readDirection.value != ReadDirection.top2bottom) {
+      return _toNextImage();
+    }
+
     switch (ReadSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toNextImage();

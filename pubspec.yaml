@@ -54,7 +54,7 @@ dependencies:
   animate_do: ^2.1.0
   share_plus: ^4.0.3
   syncfusion_flutter_charts: ^20.1.47+1
-  sentry_flutter: ^6.5.0
+  sentry_flutter: ^6.5.1
   archive: ^3.3.0
   image_size_getter: ^2.1.0
   fluttertoast: ^8.0.9
