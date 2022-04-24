@@ -30,13 +30,6 @@ class TabBarSetting {
   ].obs;
 
   static void addTab(TabBarConfig tabBarConfig) {
-    if (tabBarConfig.name.isEmpty) {
-      return;
-    }
-    if (configs.firstWhereOrNull((config) => config.name == tabBarConfig.name) != null) {
-      return;
-    }
-
     configs.add(tabBarConfig);
     _save();
   }

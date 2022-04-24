@@ -234,6 +234,13 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
 
   /// add customized tab
   void handleAddTab(TabBarConfig tabBarConfig) {
+    if (tabBarConfig.name.isEmpty) {
+      return;
+    }
+    if (TabBarSetting.configs.firstWhereOrNull((config) => config.name == tabBarConfig.name) != null) {
+      return;
+    }
+
     Log.info('add a tab', false);
     TabBarSetting.addTab(tabBarConfig);
 
