@@ -28,7 +28,9 @@ class JumpPageDialog extends StatelessWidget {
         TextButton(
           child: Text('OK'.tr),
           onPressed: () {
-            back(result: int.parse(controller.text) - 1);
+            if (controller.text.isNotEmpty) {
+              back(result: int.parse(controller.text) - 1);
+            }
           },
         ),
       ],

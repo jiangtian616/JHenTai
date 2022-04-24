@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
+import 'package:jhentai/src/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';

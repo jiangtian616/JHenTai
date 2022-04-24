@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/widget/jump_page_dialog.dart';
+import 'package:jhentai/src/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
