@@ -327,7 +327,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     } else if (newIndex <= tabController.index && tabController.index < oldIndex) {
       tabController.index = tabController.index + 1;
     }
-    update([tabBarId, bodyId]);
+    update([tabBarId]);
   }
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
