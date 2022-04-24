@@ -25,8 +25,9 @@ enum EHTabBarConfigDialogType {
 class EHTabBarConfigDialog extends StatefulWidget {
   final TabBarConfig? tabBarConfig;
   final EHTabBarConfigDialogType type;
+  final int? configIndex;
 
-  const EHTabBarConfigDialog({Key? key, this.tabBarConfig, required this.type}) : super(key: key);
+  const EHTabBarConfigDialog({Key? key, this.tabBarConfig, required this.type, this.configIndex}) : super(key: key);
 
   @override
   _EHTabBarConfigDialogState createState() => _EHTabBarConfigDialogState();
@@ -46,7 +47,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
   void deactivate() {
     /// notify listeners to rebuild page and save new config
     if (widget.type == EHTabBarConfigDialogType.update) {
-      gallerysViewLogic.handleUpdateTab(tabBarConfig);
+      gallerysViewLogic.handleUpdateTab(widget.configIndex!, tabBarConfig);
     } else if (widget.type == EHTabBarConfigDialogType.addTabBar) {
       gallerysViewLogic.handleAddTab(tabBarConfig);
     }

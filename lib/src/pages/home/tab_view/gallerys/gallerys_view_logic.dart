@@ -283,14 +283,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   }
 
   /// update tab
-  void handleUpdateTab(TabBarConfig tabBarConfig) {
+  void handleUpdateTab(int index, TabBarConfig tabBarConfig) {
     Log.info('update a tab', false);
-
-    int index = state.tabBarNames.indexWhere((name) => name == tabBarConfig.name);
 
     TabBarSetting.updateTab(index, tabBarConfig);
     state.tabBarNames[index] = tabBarConfig.name;
-    update([tabBarId, bodyId]);
+    update([tabBarId]);
   }
 
   /// reOrder tab

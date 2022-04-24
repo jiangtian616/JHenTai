@@ -120,6 +120,7 @@ class GallerysView extends StatelessWidget {
                                             EHTabBarConfigDialog(
                                               tabBarConfig: TabBarSetting.configs[index],
                                               type: EHTabBarConfigDialogType.update,
+                                              configIndex: index,
                                             ),
                                           ),
                                         )
