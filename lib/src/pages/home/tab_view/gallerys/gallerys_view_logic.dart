@@ -281,7 +281,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     /// to change the length of a existing TabController, replace it by a new one.
     TabController oldController = tabController;
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
-    tabController.index = max(oldController.index - 1, 0);
+    tabController.index = index > oldController.index ? oldController.index : max(oldController.index - 1, 0);
     tabController.addListener(() {
       update([appBarId]);
     });

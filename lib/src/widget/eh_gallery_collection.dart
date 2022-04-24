@@ -17,7 +17,7 @@ Widget EHGalleryCollection({
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
   VoidCallback? handleLoadMore,
-  bool keepPosition = true,
+  bool keepPosition = false,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top

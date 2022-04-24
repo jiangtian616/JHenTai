@@ -519,10 +519,13 @@ class EHSpiderParser {
   }
 
   static int? galleryPage2PrevPageIndex(Document document) {
-    Element? tr = document.querySelector('.ptt > tbody > tr');
-    Element? td = tr?.children[0];
+    Element? a = document.querySelector('.ptt > tbody > tr')?.children[0].querySelector('a');
+    if (a == null) {
+      return null;
+    }
+
     return int.tryParse(
-        RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '0');
+        RegExp(r'page=(\d+)').firstMatch(a.attributes['href'] ?? '')?.group(1) ?? '0');
   }
 
   static GalleryArchive archivePage2Archive(Response response) {

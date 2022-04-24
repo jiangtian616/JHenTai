@@ -354,7 +354,8 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
       handleLoadMore: () => gallerysViewLogic.loadMore(tabIndex),
 
       /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
-      keepPosition: TabBarSetting.configs[tabIndex].searchConfig.pageAtMost == null &&
+      keepPosition: gallerysViewState.prevPageIndexToLoad[tabIndex] != null &&
+          TabBarSetting.configs[tabIndex].searchConfig.pageAtMost == null &&
           TabBarSetting.configs[tabIndex].searchConfig.pageAtLeast == null,
     );
   }
