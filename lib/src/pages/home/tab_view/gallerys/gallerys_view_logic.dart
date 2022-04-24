@@ -85,7 +85,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       return;
     }
 
-    state.nextPageIndexToLoad[tabIndex] = 1;
     state.gallerys[tabIndex] = gallerysAndPageInfo[0];
     state.pageCount[tabIndex] = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad[tabIndex] = gallerysAndPageInfo[2];
@@ -242,7 +241,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.refreshState.add(LoadingState.idle);
     state.loadingState.add(LoadingState.idle);
     state.pageCount.add(-1);
-    state.prevPageIndexToLoad.add(-1);
+    state.prevPageIndexToLoad.add(null);
     state.nextPageIndexToLoad.add(0);
     state.gallerys.add(List.empty(growable: true));
     state.galleryCollectionKeys.add(UniqueKey());
@@ -251,6 +250,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     TabController oldController = tabController;
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
     tabController.index = oldController.index;
+    tabController.addListener(() {
+      update([appBarId]);
+    });
     oldController.dispose();
     update([tabBarId, bodyId]);
   }
@@ -273,6 +275,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     TabController oldController = tabController;
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
     tabController.index = max(oldController.index - 1, 0);
+    tabController.addListener(() {
+      update([appBarId]);
+    });
     oldController.dispose();
     update([tabBarId, bodyId]);
   }
