@@ -25,6 +25,15 @@ void toast(
     child: toast,
     toastDuration: Duration(seconds: isShort ? 1 : 2),
     positionedToastBuilder: (context, child) {
+      if (isCenter) {
+        return Positioned(
+          top: 50,
+          bottom: 50,
+          left: 24,
+          right: 24,
+          child: child,
+        );
+      }
       return Positioned(
         bottom: 150.0,
         left: 24.0,

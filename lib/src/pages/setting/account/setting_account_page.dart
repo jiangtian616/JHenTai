@@ -1,17 +1,18 @@
 import 'dart:io';
 
 import 'package:clipboard/clipboard.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../network/eh_cookie_manager.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
 
 class SettingAccountPage extends StatelessWidget {
   const SettingAccountPage({Key? key}) : super(key: key);
@@ -47,7 +48,7 @@ class SettingAccountPage extends StatelessWidget {
               ListTile(
                 title: Text('copyCookies'.tr),
                 subtitle: Text('tap2Copy'.tr),
-                onTap: _copyCookie,
+                onTap: () => _copyCookie(context),
               ),
           ],
         ).paddingSymmetric(vertical: 16);
@@ -55,10 +56,10 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Future<void> _copyCookie() async {
+  Future<void> _copyCookie(BuildContext context) async {
     List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
     await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
-    snack('success'.tr, 'hasCopiedToClipboard'.tr);
+    toast(context, 'hasCopiedToClipboard'.tr);
   }
 }
 
@@ -67,32 +68,20 @@ class _LogoutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      contentPadding: const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 4.0),
-      title: Center(
-        child: Text(
-          'logout'.tr + ' ?',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+    return CupertinoAlertDialog(
+      title: Text('logout'.tr + ' ?'),
+      actions: [
+        CupertinoDialogAction(
+          child: Text('cancel'.tr),
+          onPressed: () => back(),
         ),
-      ),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            TextButton(
-              child: Text('cancel'.tr),
-              onPressed: () => back(),
-            ),
-            TextButton(
-              child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
-              onPressed: () async {
-                EHRequest.requestLogout();
-                until(predicate: (route) => !Get.isDialogOpen!);
-              },
-            ),
-          ],
-        )
+        CupertinoDialogAction(
+          child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
+          onPressed: () {
+            EHRequest.requestLogout();
+            until(predicate: (route) => !Get.isDialogOpen!);
+          },
+        ),
       ],
     );
   }
