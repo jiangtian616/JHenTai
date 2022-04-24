@@ -115,7 +115,7 @@ class GallerysView extends StatelessWidget {
                                   ),
                                   trailing: TabBarSetting.configs[index].isEditable
                                       ? InkWell(
-                                          child: const Icon(FontAwesomeIcons.bars, size: 16).marginOnly(right: 4),
+                                          child: const Icon(FontAwesomeIcons.bars, size: 16).marginOnly(right: 4).paddingOnly(left: 30),
                                           onTap: () => Get.dialog(
                                             EHTabBarConfigDialog(
                                               tabBarConfig: TabBarSetting.configs[index],

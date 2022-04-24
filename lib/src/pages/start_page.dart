@@ -140,7 +140,7 @@ class StartPage extends StatelessWidget {
     }
 
     _lastPopTime = DateTime.now();
-    toast(context, 'TapAgainToExit'.tr);
+    toast(context, 'TapAgainToExit'.tr, isCenter: false);
     return Future.value(false);
   }
 }
