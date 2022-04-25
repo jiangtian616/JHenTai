@@ -34,6 +34,7 @@ import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
+import '../../utils/toast_util.dart';
 import '../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 import 'details_page_state.dart';
 
@@ -375,7 +376,7 @@ class DetailsPageLogic extends GetxController {
     update([ratingStateId]);
   }
 
-  void handleTapDownload() {
+  void handleTapDownload(BuildContext context) {
     GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     Gallery gallery = state.gallery!;
     GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
@@ -383,16 +384,17 @@ class DetailsPageLogic extends GetxController {
     if (downloadProgress == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
       snack('beginToDownload'.tr, gallery.title);
+      toast(context, '${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
 
     if (downloadProgress.downloadStatus == DownloadStatus.paused) {
       downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
-      snack('resume'.tr, gallery.title);
+      toast(context, '${'resume'.tr}： ${gallery.gid}', isCenter: false);
       return;
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
-      snack('pause'.tr, gallery.title);
+      toast(context, '${'pause'.tr}： ${gallery.gid}', isCenter: false);
     }
   }
 

@@ -319,7 +319,7 @@ class DetailsPage extends StatelessWidget {
                 iconData: Icons.download,
                 iconSize: 30,
                 onPressed:
-                    detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
+                    detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(context),
                 text: GetBuilder<GalleryDownloadService>(
                   id: '$galleryDownloadProgressId::${gallery.gid}',
                   builder: (_) {
