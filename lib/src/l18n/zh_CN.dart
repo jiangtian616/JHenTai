@@ -120,6 +120,7 @@ class zh_CN {
       'commentTooShort': '评论过短',
       'sendCommentFailed': '发送评论失败',
       'voteCommentFailed': '投票评论失败',
+      'unknownUser': '未知用户',
 
       /// EHImage
       'reloadImage': "重新加载图片",

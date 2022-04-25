@@ -53,13 +53,15 @@ class _EHCommentState extends State<EHComment> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  widget.comment.userName,
+                  widget.comment.userName ?? 'unknownUser'.tr,
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: widget.comment.userName == UserSetting.userName.value
-                        ? Get.theme.primaryColorLight
-                        : Get.theme.primaryColor,
+                    color: widget.comment.userName == null
+                        ? Colors.grey.shade600
+                        : widget.comment.userName == UserSetting.userName.value
+                            ? Get.theme.primaryColorLight
+                            : Get.theme.primaryColor,
                   ),
                 ),
                 Text(

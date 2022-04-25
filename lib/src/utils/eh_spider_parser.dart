@@ -936,7 +936,7 @@ class EHSpiderParser {
         .map(
           (element) => GalleryComment(
             id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
-            userName: element.querySelector('.c2 > .c3')?.children[0].text ?? '',
+            userName: element.querySelector('.c2 > .c3 > a')?.text,
             score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
             content: element.querySelector('.c6')?.outerHtml ?? '',
             time: _parsePostedLocalTime(element),
@@ -947,11 +947,11 @@ class EHSpiderParser {
   }
 
   static String _parsePostedLocalTime(Element element) {
-    /// eg: 'Posted on 10 March 2022, 03:49 by: hibiki'
+    /// eg: 'Posted on 10 March 2022, 03:49[ by: hibiki]'
     String postedTimeDesc = element.querySelector('.c2 > .c3')?.text ?? '';
 
     /// eg: '10 March 2022, 03:49'
-    String postedTimeString = RegExp(r'Posted on (.+, .+) by:').firstMatch(postedTimeDesc)?.group(1) ?? '';
+    String postedTimeString = RegExp(r'Posted on (.+, .+)( by:)?').firstMatch(postedTimeDesc)?.group(1) ?? '';
     final DateTime postedUTCTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(postedTimeString).toLocal();
     final String postedLocalTime = DateFormat('yyyy-MM-dd HH:mm').format(postedUTCTime);
 

@@ -120,6 +120,7 @@ class en_US {
       'commentTooShort': 'Comment is Too Short',
       'sendCommentFailed': 'Send Comment Failed',
       'voteCommentFailed': 'Vote Comment Failed',
+      'unknownUser': 'Unknown User',
 
       /// EHImage
       'reloadImage': "Reload Image",
