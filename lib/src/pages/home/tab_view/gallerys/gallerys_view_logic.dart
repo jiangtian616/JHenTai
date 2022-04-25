@@ -327,14 +327,20 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.galleryCollectionKeys.add(state.galleryCollectionKeys.removeAt(oldIndex));
     }
 
+    TabController oldController = tabController;
+    tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
     if (tabController.index == oldIndex) {
       tabController.index = newIndex;
-    } else if (oldIndex < tabController.index && tabController.index <= newIndex) {
-      tabController.index = tabController.index - 1;
-    } else if (newIndex <= tabController.index && tabController.index < oldIndex) {
-      tabController.index = tabController.index + 1;
+    } else if (oldIndex < oldController.index && oldController.index <= newIndex) {
+      tabController.index = oldController.index - 1;
+    } else if (newIndex <= oldController.index && oldController.index < oldIndex) {
+      tabController.index = oldController.index + 1;
     }
-    update([tabBarId]);
+    tabController.addListener(() {
+      update([appBarId]);
+    });
+    oldController.dispose();
+    update([tabBarId, bodyId]);
   }
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
