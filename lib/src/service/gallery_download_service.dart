@@ -1,7 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
@@ -44,6 +44,7 @@ class GalleryDownloadService extends GetxController {
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
+  Map<int, int> gid2ThumbnailsCountPerPage = {};
   Map<int, List<AsyncTask>> gid2Tasks = {};
   Map<int, CancelToken> gid2CancelToken = {};
   Map<int, GalleryDownloadProgress> gid2DownloadProgress = <int, GalleryDownloadProgress>{};
@@ -103,6 +104,7 @@ class GalleryDownloadService extends GetxController {
     /// resume if status is [downloading]
     for (GalleryDownloadedData g in gallerys) {
       if (g.downloadStatusIndex == DownloadStatus.downloading.index) {
+        gid2SpeedComputer[g.gid]!.start();
         downloadGallery(g, isFirstDownload: false);
       }
     }
@@ -315,12 +317,19 @@ class GalleryDownloadService extends GetxController {
       gid2Tasks[gallery.gid]?.remove(task);
     }
 
-    int from = serialNo ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
+    gid2ThumbnailsCountPerPage[gallery.gid] = max(newThumbnails.length, 20);
+
+    int from = serialNo ~/ gid2ThumbnailsCountPerPage[gallery.gid]! * gid2ThumbnailsCountPerPage[gallery.gid]!;
     for (int i = 0; i < newThumbnails.length; i++) {
       gid2ImageHrefs[gallery.gid]![from + i] = newThumbnails[i];
     }
     update(['$imageId::${gallery.gid}', '$imageHrefsId::${gallery.gid}']);
     Log.verbose('parse image hrefs success', false);
+
+    /// some gallery's [thumbnailsCountPerPage] is not equal to default setting
+    if (gid2ImageHrefs[gallery.gid]![serialNo] == null) {
+      await _parseGalleryImageHref(gallery, serialNo);
+    }
   }
 
   AsyncTask<List<GalleryThumbnail>> _parseGalleryImageHrefTask(GalleryDownloadedData gallery, int serialNo) {
@@ -328,7 +337,7 @@ class GalleryDownloadService extends GetxController {
       Log.verbose('begin to parse image hrefs', false);
       return EHRequest.requestDetailPage(
         galleryUrl: gallery.galleryUrl,
-        thumbnailsPageNo: serialNo ~/ SiteSetting.thumbnailsCountPerPage.value,
+        thumbnailsPageNo: serialNo ~/ gid2ThumbnailsCountPerPage[gallery.gid]!,
         cancelToken: gid2CancelToken[gallery.gid],
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
@@ -519,6 +528,7 @@ class GalleryDownloadService extends GetxController {
     } else {
       gallerys.add(gallery);
     }
+    gid2ThumbnailsCountPerPage[gallery.gid] = SiteSetting.thumbnailsCountPerPage.value;
     gid2Tasks[gallery.gid] = [];
     gid2CancelToken[gallery.gid] = CancelToken();
     gid2DownloadProgress[gallery.gid] = GalleryDownloadProgress(totalCount: gallery.pageCount);
@@ -533,6 +543,7 @@ class GalleryDownloadService extends GetxController {
 
   void _clearGalleryDownloadInfoInMemory(GalleryDownloadedData gallery) {
     gallerys.remove(gallery);
+    gid2ThumbnailsCountPerPage.remove(gallery.gid);
     gid2Tasks.remove(gallery.gid);
     gid2DownloadProgress.remove(gallery.gid);
     gid2Images.remove(gallery.gid);
@@ -642,6 +653,7 @@ class GalleryDownloadService extends GetxController {
   /// restore
   void _restoreDownloadInfoInMemory(GalleryDownloadedData gallery, List<GalleryImage?> images) {
     gallerys.insert(0, gallery);
+    gid2ThumbnailsCountPerPage[gallery.gid] = SiteSetting.thumbnailsCountPerPage.value;
     gid2Tasks[gallery.gid] = [];
     gid2CancelToken[gallery.gid] = CancelToken();
     List<bool> hasDownloaded =
