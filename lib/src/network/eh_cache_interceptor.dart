@@ -37,9 +37,9 @@ class EHCacheInterceptor extends Interceptor {
       );
 
   static CacheOptions get refreshCacheOption => noCacheOption.copyWith(
-    maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
-    policy: CachePolicy.refreshForceCache,
-  );
+        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+        policy: CachePolicy.refreshForceCache,
+      );
 
   EHCacheInterceptor({required CacheOptions options})
       : assert(options.store != null),
@@ -181,6 +181,10 @@ class EHCacheInterceptor extends Interceptor {
     cacheOptions = _getCacheOptions(request);
     cacheStore = _getCacheStore(cacheOptions);
     await cacheStore.delete(cacheOptions.keyBuilder(request));
+  }
+
+  Future<void> removeAllCache() async {
+    await _store.clean();
   }
 
   /// Gets cache options from given [request]

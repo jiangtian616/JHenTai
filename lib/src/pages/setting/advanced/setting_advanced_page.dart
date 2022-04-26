@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -108,6 +109,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 await clearDiskCachedImages();
                 setState(() {});
               },
+            ),
+            ListTile(
+              title: Text('clearPageCache'.tr),
+              subtitle: Text('longPress2Clear'.tr),
+              onLongPress: Get.find<EHCacheInterceptor>().removeAllCache,
             ),
             ListTile(
               title: Text('checkUpdateAfterLaunchingApp'.tr),
