@@ -14,6 +14,7 @@ class ColorConsts {
     'Asian Porn': Color(0xfffe93ff),
     'Western': Color(0xff14e723),
     'Misc': Color(0xff9e9e9e),
+    'Private': Color(0xff000000),
     'other': Colors.white,
   };
 
