@@ -51,6 +51,7 @@ class ReadPage extends StatelessWidget {
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
         child: EHScrollablePositionedList.separated(
+          physics: const ClampingScrollPhysics(),
           minCacheExtent: state.mode == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
           initialScrollIndex: state.initialIndex,
           itemCount: state.pageCount,
@@ -66,6 +67,7 @@ class ReadPage extends StatelessWidget {
 
   Widget _buildPageView() {
     return EHPhotoViewGallery.builder(
+      scrollPhysics: const ClampingScrollPhysics(),
       pageController: state.pageController,
       cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       itemCount: state.pageCount,
