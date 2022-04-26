@@ -9,6 +9,7 @@ import '../../../../model/download_progress.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/storage_service.dart';
+import '../../../../setting/style_setting.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_image.dart';
@@ -142,13 +143,15 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
             );
           }
 
-          return EHImage.file(
-            containerHeight: 130,
-            containerWidth: 110,
-            galleryImage: image!,
-            adaptive: true,
-            fit: BoxFit.cover,
-          );
+          return Obx(() {
+            return EHImage.file(
+              containerHeight: 130,
+              containerWidth: 110,
+              galleryImage: image!,
+              adaptive: true,
+              fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+            );
+          });
         },
       ),
     );

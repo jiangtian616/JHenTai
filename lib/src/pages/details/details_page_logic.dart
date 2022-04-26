@@ -383,7 +383,6 @@ class DetailsPageLogic extends GetxController {
 
     if (downloadProgress == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
-      snack('beginToDownload'.tr, gallery.title);
       toast(context, '${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }

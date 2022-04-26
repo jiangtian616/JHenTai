@@ -9,6 +9,7 @@ import 'package:jhentai/src/service/archive_download_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/storage_service.dart';
+import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
@@ -130,17 +131,19 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toNamed(Routes.details, arguments: archive.galleryUrl),
-      child: EHImage.network(
-        containerHeight: 130,
-        containerWidth: 110,
-        galleryImage: GalleryImage(
-          url: archive.coverUrl,
-          width: archive.coverWidth,
-          height: archive.coverHeight,
-        ),
-        adaptive: true,
-        fit: BoxFit.cover,
-      ),
+      child: Obx(() {
+        return EHImage.network(
+          containerHeight: 130,
+          containerWidth: 110,
+          galleryImage: GalleryImage(
+            url: archive.coverUrl,
+            width: archive.coverWidth,
+            height: archive.coverHeight,
+          ),
+          adaptive: true,
+          fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+        );
+      }),
     );
   }
 
@@ -230,7 +233,8 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
                     id: '$speedComputerId::${archive.gid}::${archive.isOriginal}',
                     builder: (logic) {
                       return Text(
-                        '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
+                        '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size
+                            .toDouble())}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -271,7 +275,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   void _listen2AddItem(GetBuilderState<ArchiveDownloadService> state) {
     archiveDownloadService.addListenerId(
       downloadArchivesId,
-      () {
+          () {
         if (archiveDownloadService.archives.length > archivesCount) {
           _listKey.currentState?.insertItem(0);
         }
@@ -285,34 +289,36 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
 
     _listKey.currentState?.removeItem(
       index,
-      (context, Animation<double> animation) => FadeTransition(
-        opacity: animation,
-        child: SizeTransition(
-          sizeFactor: animation,
-          child: _removeItemBuilder(),
-        ),
-      ),
+          (context, Animation<double> animation) =>
+          FadeTransition(
+            opacity: animation,
+            child: SizeTransition(
+              sizeFactor: animation,
+              child: _removeItemBuilder(),
+            ),
+          ),
     );
   }
 
   void _showDeleteBottomSheet(ArchiveDownloadedData archive, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              _handleRemoveItem(context, index);
-              back();
-            },
+      builder: (BuildContext context) =>
+          CupertinoActionSheet(
+            actions: <CupertinoActionSheetAction>[
+              CupertinoActionSheetAction(
+                child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+                onPressed: () {
+                  _handleRemoveItem(context, index);
+                  back();
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: Text('cancel'.tr),
+              onPressed: () => back(),
+            ),
           ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => back(),
-        ),
-      ),
     );
   }
 

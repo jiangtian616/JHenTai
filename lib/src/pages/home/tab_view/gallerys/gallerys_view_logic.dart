@@ -251,6 +251,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.prevPageIndexToLoad.add(null);
     state.nextPageIndexToLoad.add(0);
     state.gallerys.add(List.empty(growable: true));
+    state.tabBarViewKeys.add(UniqueKey());
     state.galleryCollectionKeys.add(UniqueKey());
 
     /// to change the length of a existing TabController, replace it by a new one.
@@ -276,6 +277,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     state.prevPageIndexToLoad.removeAt(index);
     state.nextPageIndexToLoad.removeAt(index);
     state.gallerys.removeAt(index);
+    state.tabBarViewKeys.removeAt(index);
     state.galleryCollectionKeys.removeAt(index);
 
     /// to change the length of a existing TabController, replace it by a new one.
@@ -315,7 +317,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.prevPageIndexToLoad.insert(newIndex, state.prevPageIndexToLoad.removeAt(oldIndex));
       state.nextPageIndexToLoad.insert(newIndex, state.nextPageIndexToLoad.removeAt(oldIndex));
       state.gallerys.insert(newIndex, state.gallerys.removeAt(oldIndex));
-      state.galleryCollectionKeys.insert(newIndex, state.galleryCollectionKeys.removeAt(oldIndex));
+      state.tabBarViewKeys.insert(newIndex, state.tabBarViewKeys.removeAt(oldIndex));
     } else {
       state.tabBarNames.add(state.tabBarNames.removeAt(oldIndex));
       state.refreshState.add(state.refreshState.removeAt(oldIndex));
@@ -324,8 +326,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       state.prevPageIndexToLoad.add(state.prevPageIndexToLoad.removeAt(oldIndex));
       state.nextPageIndexToLoad.add(state.nextPageIndexToLoad.removeAt(oldIndex));
       state.gallerys.add(state.gallerys.removeAt(oldIndex));
-      state.galleryCollectionKeys.add(state.galleryCollectionKeys.removeAt(oldIndex));
+      state.tabBarViewKeys.add(state.tabBarViewKeys.removeAt(oldIndex));
     }
+    state.galleryCollectionKeys = List.generate(state.tabBarNames.length, (index) => UniqueKey());
 
     TabController oldController = tabController;
     tabController = TabController(length: TabBarSetting.configs.length, vsync: this);

@@ -259,7 +259,7 @@ class GallerysView extends StatelessWidget {
 
             /// keep offset for each tab
             (tabIndex) => KeepAliveWrapper(
-              child: GalleryTabBarView(key: UniqueKey(), tabIndex: tabIndex),
+              child: GalleryTabBarView(key: gallerysViewState.tabBarViewKeys[tabIndex], tabIndex: tabIndex),
             ),
           ),
         );

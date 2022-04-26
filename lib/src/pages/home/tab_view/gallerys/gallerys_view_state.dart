@@ -19,6 +19,8 @@ class GallerysViewState {
 
   late List<List<Gallery>> gallerys;
 
+  late List<Key> tabBarViewKeys;
+
   late List<Key> galleryCollectionKeys;
 
   GallerysViewState() {
@@ -30,6 +32,7 @@ class GallerysViewState {
     nextPageIndexToLoad = List.generate(tabBarNames.length, (index) => 0);
     pageCount = List.generate(tabBarNames.length, (index) => -1);
     gallerys = List.generate(tabBarNames.length, (index) => List.empty(growable: true));
+    tabBarViewKeys = List.generate(tabBarNames.length, (index) => UniqueKey());
     galleryCollectionKeys = List.generate(tabBarNames.length, (index) => UniqueKey());
   }
 }
