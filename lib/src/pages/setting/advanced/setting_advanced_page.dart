@@ -35,6 +35,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           children: [
             ListTile(
               title: Text('enableDomainFronting'.tr),
+              subtitle: Text('bypassSNIBlocking'.tr),
               trailing: Switch(
                 value: AdvancedSetting.enableDomainFronting.value,
                 onChanged: (value) => AdvancedSetting.saveEnableDomainFronting(value),

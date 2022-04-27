@@ -52,7 +52,7 @@ dependencies:
   blur: ^3.1.0
   flutter_windowmanager: ^0.2.0
   animate_do: ^2.1.0
-  share_plus: ^4.0.3
+  share_plus: ^4.0.4
   syncfusion_flutter_charts: ^20.1.47+1
   sentry_flutter: ^6.5.1
   archive: ^3.3.0

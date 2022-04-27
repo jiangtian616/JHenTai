@@ -88,17 +88,17 @@ class EHRequest {
           return;
         }
 
-        Uri rawUri = options.uri;
-        String host = rawUri.host;
+        String rawPath = options.path;
+        String host = options.uri.host;
         if (!EHConsts.host2Ip.containsKey(host)) {
           handler.next(options);
           return;
         }
 
-        String ip = EHConsts.host2Ip[host]!;
-        Uri newUri = rawUri.replace(host: ip);
-        Map<String, dynamic> newHeaders = {...options.headers, 'host': host};
-        handler.next(options.copyWith(path: '${newUri.scheme}://${newUri.host}${newUri.path}', headers: newHeaders));
+        handler.next(options.copyWith(
+          path: rawPath.replaceFirst(host, EHConsts.host2Ip[host]!),
+          headers: {...options.headers, 'host': host},
+        ));
       },
     ));
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {

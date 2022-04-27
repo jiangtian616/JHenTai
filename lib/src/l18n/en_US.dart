@@ -185,6 +185,7 @@ class en_US {
 
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',
+      'bypassSNIBlocking': 'Bypass SNI Blocking',
       'pageCacheMaxAge': 'Page Cache Max Age',
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'oneMinute': '1 Minute',
