@@ -317,7 +317,7 @@ class GalleryDownloadService extends GetxController {
       gid2Tasks[gallery.gid]?.remove(task);
     }
 
-    gid2ThumbnailsCountPerPage[gallery.gid] = max(newThumbnails.length, 20);
+    gid2ThumbnailsCountPerPage[gallery.gid] = (newThumbnails.length / 20).ceil() * 20;
 
     int from = serialNo ~/ gid2ThumbnailsCountPerPage[gallery.gid]! * gid2ThumbnailsCountPerPage[gallery.gid]!;
     for (int i = 0; i < newThumbnails.length; i++) {
