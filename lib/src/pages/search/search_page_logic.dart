@@ -161,7 +161,6 @@ class SearchPageLogic extends GetxController {
 
     state.gallerys.addAll(gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
-    state.prevPageNoToLoad = gallerysAndPageInfo[2];
     state.nextPageNoToLoad = gallerysAndPageInfo[3];
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
