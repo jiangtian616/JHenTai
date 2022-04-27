@@ -50,6 +50,10 @@ class _LogPageState extends State<LogPage> {
   }
 
   void _shareLog(io.File file) {
-    Share.shareFiles([file.path], text: basename(file.path));
+    Share.shareFiles(
+      [file.path],
+      text: basename(file.path),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight / 2),
+    );
   }
 }

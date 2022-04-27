@@ -22,6 +22,7 @@ import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
@@ -249,7 +250,10 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> shareGallery() async {
-    Share.share(state.gallery!.galleryUrl);
+    Share.share(
+      state.gallery!.galleryUrl,
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight / 2),
+    );
   }
 
   Future<void> handleTapUploader(String author) async {
