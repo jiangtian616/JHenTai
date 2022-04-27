@@ -199,6 +199,7 @@ class zh_CN {
       'longPress2Clear': '长按清除',
       'checkUpdateAfterLaunchingApp': '启动应用时检查更新',
       'clearPageCache': '清除页面缓存',
+      'clearSuccess': '清除成功',
 
       /// security setting page
       'enableFingerPrintLock': '开启指纹锁',

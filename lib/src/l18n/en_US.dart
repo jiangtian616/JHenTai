@@ -199,6 +199,7 @@ class en_US {
       'longPress2Clear': 'Long Press to Clear',
       'checkUpdateAfterLaunchingApp': 'Check update after launching app',
       'clearPageCache': 'Clear Page Cache',
+      'clearSuccess': 'Clear Success',
 
       /// security setting page
       'enableFingerPrintLock': 'Enable FingerPrint Lock',

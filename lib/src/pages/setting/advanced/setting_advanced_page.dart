@@ -7,6 +7,7 @@ import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
@@ -95,7 +96,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               ).marginOnly(right: 8),
               onLongPress: () {
                 Log.clear();
-                setState(() {});
+                setState(() {
+                  toast(context, 'clearSuccess'.tr, isCenter: false);
+                });
               },
             ),
             ListTile(
@@ -107,13 +110,18 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               ).marginOnly(right: 8),
               onLongPress: () async {
                 await clearDiskCachedImages();
-                setState(() {});
+                setState(() {
+                  toast(context, 'clearSuccess'.tr, isCenter: false);
+                });
               },
             ),
             ListTile(
               title: Text('clearPageCache'.tr),
               subtitle: Text('longPress2Clear'.tr),
-              onLongPress: Get.find<EHCacheInterceptor>().removeAllCache,
+              onLongPress: () async {
+                await Get.find<EHCacheInterceptor>().removeAllCache();
+                toast(context, 'clearSuccess'.tr, isCenter: false);
+              },
             ),
             ListTile(
               title: Text('checkUpdateAfterLaunchingApp'.tr),
