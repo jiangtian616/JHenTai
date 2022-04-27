@@ -12,7 +12,7 @@ import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 
 class FavoriteSetting {
-  static List<String> favoriteTagNames = [
+  static RxList<String> favoriteTagNames = [
     'Favorite 0',
     'Favorite 1',
     'Favorite 2',
@@ -23,7 +23,7 @@ class FavoriteSetting {
     'Favorite 7',
     'Favorite 8',
     'Favorite 9',
-  ];
+  ].obs;
   static List<int> favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
 
   static bool get inited => favoriteTagNames[0] != 'Favorite 0' || favoriteCounts[0] != -1;
@@ -58,7 +58,7 @@ class FavoriteSetting {
         () async {
           Map<String, List> map =
               await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTagsAndCounts);
-          favoriteTagNames = map['favoriteTagNames'] as List<String>;
+          favoriteTagNames.value = map['favoriteTagNames'] as List<String>;
           favoriteCounts = map['favoriteCounts'] as List<int>;
           save();
         },
@@ -92,7 +92,7 @@ class FavoriteSetting {
   }
 
   static Future<void> _clear() async {
-    favoriteTagNames = [
+    favoriteTagNames.value = [
       'Favorite 0',
       'Favorite 1',
       'Favorite 2',
@@ -110,13 +110,13 @@ class FavoriteSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
-      'favoriteTagNames': jsonEncode(favoriteTagNames),
+      'favoriteTagNames': jsonEncode(favoriteTagNames.value),
       'favoriteCounts': jsonEncode(favoriteCounts),
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    favoriteTagNames = (jsonDecode(map['favoriteTagNames']) as List).cast<String>();
+    favoriteTagNames.value = (jsonDecode(map['favoriteTagNames']) as List).cast<String>();
     favoriteCounts = (jsonDecode(map['favoriteCounts']) as List).cast<int>();
   }
 }

@@ -24,23 +24,25 @@ class FavoriteDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       content: SizedBox(
         height: 400,
-        child: Column(
-          children: FavoriteSetting.favoriteTagNames
-              .mapIndexed(
-                (index, tagName) => ListTile(
-                  dense: true,
-                  selected: detailsPageState.gallery?.favoriteTagIndex == index,
-                  visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
-                  leading: Text(tagName),
-                  trailing: Text(
-                    FavoriteSetting.favoriteCounts[index].toString(),
-                    style: Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
+        child: Obx(() {
+          return Column(
+            children: FavoriteSetting.favoriteTagNames
+                .mapIndexed(
+                  (index, tagName) => ListTile(
+                    dense: true,
+                    selected: detailsPageState.gallery?.favoriteTagIndex == index,
+                    visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
+                    leading: Text(tagName),
+                    trailing: Text(
+                      FavoriteSetting.favoriteCounts[index].toString(),
+                      style: Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
+                    ),
+                    onTap: () => back(result: index),
                   ),
-                  onTap: () => back(result: index),
-                ),
-              )
-              .toList(),
-        ),
+                )
+                .toList(),
+          );
+        }),
       ),
       contentPadding: const EdgeInsets.only(top: 18, left: 12, right: 12),
       actionsAlignment: MainAxisAlignment.center,
