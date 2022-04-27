@@ -252,7 +252,7 @@ class DetailsPageLogic extends GetxController {
   Future<void> shareGallery() async {
     Share.share(
       state.gallery!.galleryUrl,
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight / 2),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
   }
 

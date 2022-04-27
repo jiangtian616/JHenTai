@@ -53,7 +53,7 @@ class _LogPageState extends State<LogPage> {
     Share.shareFiles(
       [file.path],
       text: basename(file.path),
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight / 2),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
   }
 }
