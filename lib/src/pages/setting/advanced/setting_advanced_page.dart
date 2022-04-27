@@ -98,7 +98,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               onLongPress: () {
                 Log.clear();
                 setState(() {
-                  toast(context, 'clearSuccess'.tr, isCenter: false);
+                  toast('clearSuccess'.tr, isCenter: false);
                 });
               },
             ),
@@ -112,7 +112,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               onLongPress: () async {
                 await clearDiskCachedImages();
                 setState(() {
-                  toast(context, 'clearSuccess'.tr, isCenter: false);
+                  toast('clearSuccess'.tr, isCenter: false);
                 });
               },
             ),
@@ -121,7 +121,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               subtitle: Text('longPress2Clear'.tr),
               onLongPress: () async {
                 await Get.find<EHCacheInterceptor>().removeAllCache();
-                toast(context, 'clearSuccess'.tr, isCenter: false);
+                toast('clearSuccess'.tr, isCenter: false);
               },
             ),
             ListTile(

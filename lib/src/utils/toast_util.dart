@@ -4,13 +4,14 @@ import 'package:get/get.dart';
 
 FToast _fToast = FToast();
 
-void toast(
-  BuildContext context,
-  String msg, {
-  bool isCenter = true,
-  bool isShort = true,
-}) {
+void initToast(BuildContext context) {
   _fToast.init(context);
+}
+
+void toast(String msg, {bool isCenter = true, bool isShort = true}) {
+  if (_fToast.context == null) {
+    return;
+  }
 
   Widget toast = Container(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -21,6 +22,7 @@ void toast(
     child: Text(msg, style: TextStyle(color: Get.isDarkMode ? Colors.black : Colors.white)),
   );
 
+  _fToast.removeCustomToast();
   _fToast.showToast(
     child: toast,
     toastDuration: Duration(seconds: isShort ? 1 : 2),

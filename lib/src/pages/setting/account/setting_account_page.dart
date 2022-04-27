@@ -48,7 +48,7 @@ class SettingAccountPage extends StatelessWidget {
               ListTile(
                 title: Text('copyCookies'.tr),
                 subtitle: Text('tap2Copy'.tr),
-                onTap: () => _copyCookie(context),
+                onTap: () => _copyCookie(),
               ),
           ],
         ).paddingSymmetric(vertical: 16);
@@ -56,10 +56,10 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Future<void> _copyCookie(BuildContext context) async {
+  Future<void> _copyCookie() async {
     List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
     await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
-    toast(context, 'hasCopiedToClipboard'.tr);
+    toast( 'hasCopiedToClipboard'.tr);
   }
 }
 

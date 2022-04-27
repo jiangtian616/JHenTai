@@ -24,9 +24,11 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    initToast(context);
+
     /// use LayoutBuilder to listen to resize of window
     return WillPopScope(
-      onWillPop: () => _handlePopApp(context),
+      onWillPop: () => _handlePopApp(),
       child: LayoutBuilder(
         builder: (context, constraints) => Obx(
           () {
@@ -129,7 +131,7 @@ class StartPage extends StatelessWidget {
   }
 
   /// double tap back button to exit app
-  Future<bool> _handlePopApp(BuildContext context) {
+  Future<bool> _handlePopApp() {
     if (_lastPopTime == null) {
       _lastPopTime = DateTime.now();
       return Future.value(false);
@@ -140,7 +142,7 @@ class StartPage extends StatelessWidget {
     }
 
     _lastPopTime = DateTime.now();
-    toast(context, 'TapAgainToExit'.tr, isCenter: false);
+    toast('TapAgainToExit'.tr, isCenter: false);
     return Future.value(false);
   }
 }

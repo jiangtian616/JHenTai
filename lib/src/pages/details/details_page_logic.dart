@@ -380,24 +380,24 @@ class DetailsPageLogic extends GetxController {
     update([ratingStateId]);
   }
 
-  void handleTapDownload(BuildContext context) {
+  void handleTapDownload() {
     GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     Gallery gallery = state.gallery!;
     GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
 
     if (downloadProgress == null) {
       downloadService.downloadGallery(gallery.toGalleryDownloadedData());
-      toast(context, '${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+      toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
 
     if (downloadProgress.downloadStatus == DownloadStatus.paused) {
       downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
-      toast(context, '${'resume'.tr}： ${gallery.gid}', isCenter: false);
+      toast('${'resume'.tr}： ${gallery.gid}', isCenter: false);
       return;
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
-      toast(context, '${'pause'.tr}： ${gallery.gid}', isCenter: false);
+      toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
     }
   }
 

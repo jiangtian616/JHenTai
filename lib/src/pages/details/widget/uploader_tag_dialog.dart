@@ -35,20 +35,20 @@ class _UploaderTagDialogState extends State<UploaderTagDialog> {
             LoadingStateIndicator(
               loadingState: addWatchedTagState,
               idleWidget: GestureDetector(
-                onTap: () => _addNewTagSet(context, true),
+                onTap: () => _addNewTagSet(true),
                 child: Icon(Icons.favorite, color: Get.theme.primaryColorLight),
               ),
               successWidgetBuilder: () => const DoneWidget(),
-              errorTapCallback: () => _addNewTagSet(context, true),
+              errorTapCallback: () => _addNewTagSet(true),
             ),
             LoadingStateIndicator(
               loadingState: addHiddenTagState,
               idleWidget: GestureDetector(
-                onTap: () => _addNewTagSet(context, false),
+                onTap: () => _addNewTagSet(false),
                 child: Icon(Icons.visibility_off, color: Colors.grey.shade700),
               ),
               successWidgetBuilder: () => const DoneWidget(),
-              errorTapCallback: () => _addNewTagSet(context, false),
+              errorTapCallback: () => _addNewTagSet(false),
             ),
           ],
         )
@@ -56,10 +56,10 @@ class _UploaderTagDialogState extends State<UploaderTagDialog> {
     );
   }
 
-  Future<void> _addNewTagSet(BuildContext context, bool watch) async {
-    toast(context, 'needLoginToOperate'.tr);
+  Future<void> _addNewTagSet(bool watch) async {
+    toast('needLoginToOperate'.tr);
     if (!UserSetting.hasLoggedIn()) {
-      toast(context, 'needLoginToOperate'.tr);
+      toast('needLoginToOperate'.tr);
       return;
     }
 
