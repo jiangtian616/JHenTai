@@ -28,11 +28,15 @@ class SecuritySetting {
     SecuritySetting.enableBlur.value = enableBlur;
     _save();
 
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
     if (enableBlur) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     } else {
       FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
     }
+
     /// resume appbar color
     SystemChrome.setSystemUIOverlayStyle(
         Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
