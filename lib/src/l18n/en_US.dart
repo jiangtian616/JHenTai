@@ -306,6 +306,8 @@ class en_US {
       'restoreDownloadTasksHint': 'Restore download tasks by metadata',
       'restoreDownloadTasksSuccess': 'Restore Download Tasks Success',
       'restoredCount': 'Restored task count',
+      'restoredGalleryCount': 'Restored gallery count',
+      'restoredArchiveCount': 'Restored archive count',
 
       /// tag namespace
       'language': 'Language',

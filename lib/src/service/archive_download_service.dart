@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io;
 import 'package:archive/archive_io.dart';
 import 'package:collection/collection.dart';
@@ -9,6 +10,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:path/path.dart';
@@ -28,6 +30,7 @@ class ArchiveDownloadService extends GetxController {
   static final downloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static const int retryTimes = 3;
   static const int waitTimes = 6;
+  static const String _metadata = '.archive.metadata';
 
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Table<int, bool, ArchiveStatus> archiveStatuses = Table();
@@ -46,7 +49,6 @@ class ArchiveDownloadService extends GetxController {
 
     for (ArchiveDownloadedData archive in archives) {
       _initArchiveDownloadInfoInMemory(archive, insertAtFirst: false);
-      archiveStatuses.put(archive.gid, archive.isOriginal, ArchiveStatus.values[archive.archiveStatusIndex]);
       if (archive.archiveStatusIndex != ArchiveStatus.paused.index &&
           archive.archiveStatusIndex != ArchiveStatus.completed.index) {
         downloadArchive(archive, isFirstDownload: false);
@@ -138,6 +140,7 @@ class ArchiveDownloadService extends GetxController {
     io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
     List<io.FileSystemEntity> files = directory.listSync();
     files.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+    files = files.where((image) => extension(image.path) == '.jpg').toList();
 
     List<GalleryImage?> images = List.generate(files.length, (index) => null);
     files.forEachIndexed((index, file) {
@@ -152,6 +155,48 @@ class ArchiveDownloadService extends GetxController {
     });
 
     return images.cast<GalleryImage>();
+  }
+
+  /// use meta in each gallery folder to restore download status, then sync to database.
+  /// this is used after re-install app, or share download folder to another user.
+  Future<int> restore() async {
+    io.Directory downloadDir = io.Directory(downloadPath);
+    if (!downloadDir.existsSync()) {
+      return 0;
+    }
+
+    int restoredCount = 0;
+    List<io.FileSystemEntity> galleryDirs = downloadDir.listSync();
+    for (io.FileSystemEntity galleryDir in galleryDirs) {
+      io.File metadataFile = io.File(join(galleryDir.path, _metadata));
+      if (!metadataFile.existsSync()) {
+        continue;
+      }
+
+      Map metadata = jsonDecode(metadataFile.readAsStringSync());
+      ArchiveDownloadedData archive = ArchiveDownloadedData.fromJson(metadata as Map<String, dynamic>);
+
+      /// skip if exists
+      if (archiveStatuses.containsKey(archive.gid, archive.isOriginal)) {
+        continue;
+      }
+
+      if (archive.archiveStatusIndex == ArchiveStatus.downloading.index) {
+        archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.paused.index);
+      }
+
+      int success = await _saveNewArchiveDownloadInfoInDatabase(archive);
+      if (success < 0) {
+        Log.error('restore download failed. Gallery: ${archive.title}');
+        deleteArchive(archive);
+        continue;
+      }
+      _initArchiveDownloadInfoInMemory(archive);
+
+      restoredCount++;
+    }
+
+    return restoredCount;
   }
 
   /// If unlocked before, request will return [DownloadPageUrl] immediately.
@@ -318,7 +363,12 @@ class ArchiveDownloadService extends GetxController {
     extractArchiveToDisk(unpackedDir, _computeArchiveUnpackingPath(archive));
     _clearDownloadedArchiveInDisk(archive);
 
-    _updateArchive(archive.copyWith(archiveStatusIndex: ArchiveStatus.completed.index));
+    archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.completed.index);
+    _updateArchive(archive);
+
+    if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
+      _saveGalleryDownloadInfoInDisk(archive);
+    }
   }
 
   String _computeArchiveDownloadPath(ArchiveDownloadedData archive) {
@@ -367,7 +417,7 @@ class ArchiveDownloadService extends GetxController {
       archives.add(archive);
     }
     cancelTokens.put(archive.gid, archive.isOriginal, CancelToken());
-    archiveStatuses.put(archive.gid, archive.isOriginal, ArchiveStatus.unlocking);
+    archiveStatuses.put(archive.gid, archive.isOriginal, ArchiveStatus.values[archive.archiveStatusIndex]);
     speedComputers.put(
       archive.gid,
       archive.isOriginal,
@@ -432,5 +482,14 @@ class ArchiveDownloadService extends GetxController {
   bool _taskHasBeenPausedOrRemoved(ArchiveDownloadedData archive) {
     return archiveStatuses.get(archive.gid, archive.isOriginal) == null ||
         archiveStatuses.get(archive.gid, archive.isOriginal) == ArchiveStatus.paused;
+  }
+
+  void _saveGalleryDownloadInfoInDisk(ArchiveDownloadedData archive) {
+    io.File file = io.File(join(_computeArchiveUnpackingPath(archive), _metadata));
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
+    }
+
+    file.writeAsStringSync(jsonEncode(archive.toJson()));
   }
 }
