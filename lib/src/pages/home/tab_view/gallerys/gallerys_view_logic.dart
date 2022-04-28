@@ -371,7 +371,12 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       'galleryUrlDetected'.tr,
       '${'galleryUrlDetectedHint'.tr}: $text',
       onTap: (snackbar) {
-        toNamed(Routes.details, arguments: text);
+        toNamed(
+          Routes.details,
+          arguments: text,
+          offAllBefore: false,
+          preventDuplicates: false,
+        );
       },
       longDuration: true,
     );
