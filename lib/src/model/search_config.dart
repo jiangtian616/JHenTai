@@ -153,6 +153,10 @@ class SearchConfig {
     }
 
     if (searchType == SearchType.favorite) {
+      if (keyword != null) {
+        params['f_search'] = keyword;
+      }
+
       if (searchFavoriteCategoryIndex != null) {
         params['favcat'] = searchFavoriteCategoryIndex;
       }
