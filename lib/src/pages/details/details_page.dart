@@ -95,6 +95,8 @@ class DetailsPage extends StatelessWidget {
                     CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
                     _buildHeader(gallery, detailsPageState.galleryDetails, context),
                     _buildDetails(gallery, detailsPageState.galleryDetails),
+                    if (detailsPageState.galleryDetails?.newVersionGalleryUrl != null)
+                      _buildNewVersionHint(detailsPageState.galleryDetails!.newVersionGalleryUrl!),
                     _buildActions(gallery, detailsPageState.galleryDetails, context),
                     if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
                       _buildTags(detailsPageState.galleryDetails!.fullTags),
@@ -293,6 +295,26 @@ class DetailsPage extends StatelessWidget {
     );
   }
 
+  Widget _buildNewVersionHint(String parentGalleryUrl) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 24),
+      sliver: SliverToBoxAdapter(
+        child: SizedBox(
+          height: 50,
+          child: TextButton(
+            child: Text('thisGalleryHasANewVersion'.tr),
+            onPressed: () => toNamed(
+              Routes.details,
+              arguments: parentGalleryUrl,
+              offAllBefore: false,
+              preventDuplicates: false,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildActions(Gallery gallery, GalleryDetail? galleryDetails, BuildContext context) {
     int readIndexRecord = storageService.read('readIndexRecord::${detailsPageState.gallery!.gid}') ?? 0;
 
@@ -329,9 +351,11 @@ class DetailsPage extends StatelessWidget {
                           ? 'download'.tr
                           : downloadProgress.downloadStatus == DownloadStatus.paused
                               ? 'resume'.tr
-                              : downloadProgress.downloadStatus == DownloadStatus.downloaded
-                                  ? 'finished'.tr
-                                  : 'pause'.tr,
+                              : downloadProgress.downloadStatus == DownloadStatus.downloading
+                                  ? 'pause'.tr
+                                  : detailsPageState.galleryDetails?.newVersionGalleryUrl == null
+                                      ? 'finished'.tr
+                                      : 'update'.tr,
                       style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
                     );
                   },
@@ -379,8 +403,9 @@ class DetailsPage extends StatelessWidget {
                     loadingState: detailsPageState.ratingState,
                     idleWidget: IconTextButton(
                       iconData:
-                      gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
-                      iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
+                          gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
+                      iconColor:
+                          gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
                       iconSize: 28,
                       text: Text(
                         gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
@@ -392,8 +417,8 @@ class DetailsPage extends StatelessWidget {
                       onPressed: detailsPageState.galleryDetails == null
                           ? null
                           : UserSetting.hasLoggedIn()
-                          ? detailsPageLogic.handleTapRating
-                          : detailsPageLogic.showLoginSnack,
+                              ? detailsPageLogic.handleTapRating
+                              : detailsPageLogic.showLoginSnack,
                     ),
                     errorWidgetSameWithIdle: true,
                   );

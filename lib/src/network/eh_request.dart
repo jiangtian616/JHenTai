@@ -29,7 +29,7 @@ class EHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: 5000,
+      connectTimeout: 6000,
       receiveTimeout: 6000,
     ));
 

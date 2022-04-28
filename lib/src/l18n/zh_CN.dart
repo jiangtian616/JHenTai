@@ -77,6 +77,7 @@ class zh_CN {
       'resume': "继续下载",
       'pause': '暂停',
       'finished': '已完成',
+      'update': '更新',
       'submit': '提交',
       'chooseFavorite': '选择收藏夹',
       'uploader': '上传者',
@@ -114,6 +115,9 @@ class zh_CN {
       'resample': '压缩',
       'beginToDownloadArchive': '开始下载归档',
       'beginToDownloadArchiveHint': '可在 下载 -> 归档 确认进度',
+      'updateGalleryError': '更新画廊失败',
+      'thisGalleryHasANewVersion': '该画廊有新版本',
+      'hasUpdated': '已更新',
 
       /// comment page
       'newComment': '新评论',
@@ -301,6 +305,7 @@ class zh_CN {
       'restoreDownloadTasksHint': '通过下载元数据来恢复下载记录',
       'restoreDownloadTasksSuccess': '恢复下载任务成功',
       'restoredCount': '恢复任务数',
+      'removeOldGalleryAfterUpdate': '更新画廊后删除旧画廊',
 
       /// tag namespace
       'language': '语言',

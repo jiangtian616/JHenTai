@@ -113,11 +113,11 @@ class EHSpiderParser {
     return gallery;
   }
 
-  static Map<String, dynamic> detailPage2DetailAndApikey(Response response) {
+  static GalleryDetail detailPage2Detail(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
-    GalleryDetail galleryDetail = GalleryDetail(
+    return GalleryDetail(
       rawTitle: document.querySelector('#gn')!.text,
       uploader: document.querySelector('#gdn > a')?.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
@@ -134,12 +134,21 @@ class EHSpiderParser {
           document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl:
           document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      newVersionGalleryUrl: document.querySelectorAll('#gnd > a').lastOrNull?.attributes['href'],
       fullTags: detailPage2Tags(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: detailPage2Thumbnails(response),
     );
+  }
 
-    return {'galleryDetails': galleryDetail, 'apikey': _galleryDetailDocument2Apikey(document)};
+  static Map<String, dynamic> detailPage2DetailAndApikey(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    return {
+      'galleryDetails': detailPage2Detail(response),
+      'apikey': _galleryDetailDocument2Apikey(document),
+    };
   }
 
   static Map<String, dynamic> detailPage2GalleryAndDetailAndApikey(Response response) {
@@ -252,6 +261,7 @@ class EHSpiderParser {
     String html = response.data! as String;
     Document document = parse(html);
     Element img = document.querySelector('#img')!;
+    Element a = document.querySelector('#i6 > a')!;
 
     /// height: 1600px; width: 1124px;
     String style = img.attributes['style']!;
@@ -263,10 +273,12 @@ class EHSpiderParser {
         error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
       );
     }
+
     return GalleryImage(
       url: url,
       height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
       width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
+      imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
     );
   }
 
@@ -524,8 +536,7 @@ class EHSpiderParser {
       return null;
     }
 
-    return int.tryParse(
-        RegExp(r'page=(\d+)').firstMatch(a.attributes['href'] ?? '')?.group(1) ?? '0');
+    return int.tryParse(RegExp(r'page=(\d+)').firstMatch(a.attributes['href'] ?? '')?.group(1) ?? '0');
   }
 
   static GalleryArchive archivePage2Archive(Response response) {

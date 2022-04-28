@@ -1232,6 +1232,7 @@ class GalleryDownloadedData extends DataClass
   final String category;
   final int pageCount;
   final String galleryUrl;
+  final String? oldVersionGalleryUrl;
   final String? uploader;
   final String publishTime;
   final int downloadStatusIndex;
@@ -1243,6 +1244,7 @@ class GalleryDownloadedData extends DataClass
       required this.category,
       required this.pageCount,
       required this.galleryUrl,
+      this.oldVersionGalleryUrl,
       this.uploader,
       required this.publishTime,
       required this.downloadStatusIndex,
@@ -1263,6 +1265,8 @@ class GalleryDownloadedData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}pageCount'])!,
       galleryUrl: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}galleryUrl'])!,
+      oldVersionGalleryUrl: const StringType().mapFromDatabaseResponse(
+          data['${effectivePrefix}oldVersionGalleryUrl']),
       uploader: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}uploader']),
       publishTime: const StringType()
@@ -1282,6 +1286,9 @@ class GalleryDownloadedData extends DataClass
     map['category'] = Variable<String>(category);
     map['pageCount'] = Variable<int>(pageCount);
     map['galleryUrl'] = Variable<String>(galleryUrl);
+    if (!nullToAbsent || oldVersionGalleryUrl != null) {
+      map['oldVersionGalleryUrl'] = Variable<String?>(oldVersionGalleryUrl);
+    }
     if (!nullToAbsent || uploader != null) {
       map['uploader'] = Variable<String?>(uploader);
     }
@@ -1301,6 +1308,9 @@ class GalleryDownloadedData extends DataClass
       category: Value(category),
       pageCount: Value(pageCount),
       galleryUrl: Value(galleryUrl),
+      oldVersionGalleryUrl: oldVersionGalleryUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(oldVersionGalleryUrl),
       uploader: uploader == null && nullToAbsent
           ? const Value.absent()
           : Value(uploader),
@@ -1322,6 +1332,8 @@ class GalleryDownloadedData extends DataClass
       category: serializer.fromJson<String>(json['category']),
       pageCount: serializer.fromJson<int>(json['pageCount']),
       galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
+      oldVersionGalleryUrl:
+          serializer.fromJson<String?>(json['oldVersionGalleryUrl']),
       uploader: serializer.fromJson<String?>(json['uploader']),
       publishTime: serializer.fromJson<String>(json['publishTime']),
       downloadStatusIndex:
@@ -1339,6 +1351,7 @@ class GalleryDownloadedData extends DataClass
       'category': serializer.toJson<String>(category),
       'pageCount': serializer.toJson<int>(pageCount),
       'galleryUrl': serializer.toJson<String>(galleryUrl),
+      'oldVersionGalleryUrl': serializer.toJson<String?>(oldVersionGalleryUrl),
       'uploader': serializer.toJson<String?>(uploader),
       'publishTime': serializer.toJson<String>(publishTime),
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
@@ -1353,6 +1366,7 @@ class GalleryDownloadedData extends DataClass
           String? category,
           int? pageCount,
           String? galleryUrl,
+          String? oldVersionGalleryUrl,
           String? uploader,
           String? publishTime,
           int? downloadStatusIndex,
@@ -1364,6 +1378,7 @@ class GalleryDownloadedData extends DataClass
         category: category ?? this.category,
         pageCount: pageCount ?? this.pageCount,
         galleryUrl: galleryUrl ?? this.galleryUrl,
+        oldVersionGalleryUrl: oldVersionGalleryUrl ?? this.oldVersionGalleryUrl,
         uploader: uploader ?? this.uploader,
         publishTime: publishTime ?? this.publishTime,
         downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
@@ -1378,6 +1393,7 @@ class GalleryDownloadedData extends DataClass
           ..write('category: $category, ')
           ..write('pageCount: $pageCount, ')
           ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
           ..write('uploader: $uploader, ')
           ..write('publishTime: $publishTime, ')
           ..write('downloadStatusIndex: $downloadStatusIndex, ')
@@ -1387,8 +1403,18 @@ class GalleryDownloadedData extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(gid, token, title, category, pageCount,
-      galleryUrl, uploader, publishTime, downloadStatusIndex, insertTime);
+  int get hashCode => Object.hash(
+      gid,
+      token,
+      title,
+      category,
+      pageCount,
+      galleryUrl,
+      oldVersionGalleryUrl,
+      uploader,
+      publishTime,
+      downloadStatusIndex,
+      insertTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1399,6 +1425,7 @@ class GalleryDownloadedData extends DataClass
           other.category == this.category &&
           other.pageCount == this.pageCount &&
           other.galleryUrl == this.galleryUrl &&
+          other.oldVersionGalleryUrl == this.oldVersionGalleryUrl &&
           other.uploader == this.uploader &&
           other.publishTime == this.publishTime &&
           other.downloadStatusIndex == this.downloadStatusIndex &&
@@ -1413,6 +1440,7 @@ class GalleryDownloadedCompanion
   final Value<String> category;
   final Value<int> pageCount;
   final Value<String> galleryUrl;
+  final Value<String?> oldVersionGalleryUrl;
   final Value<String?> uploader;
   final Value<String> publishTime;
   final Value<int> downloadStatusIndex;
@@ -1424,6 +1452,7 @@ class GalleryDownloadedCompanion
     this.category = const Value.absent(),
     this.pageCount = const Value.absent(),
     this.galleryUrl = const Value.absent(),
+    this.oldVersionGalleryUrl = const Value.absent(),
     this.uploader = const Value.absent(),
     this.publishTime = const Value.absent(),
     this.downloadStatusIndex = const Value.absent(),
@@ -1436,6 +1465,7 @@ class GalleryDownloadedCompanion
     required String category,
     required int pageCount,
     required String galleryUrl,
+    this.oldVersionGalleryUrl = const Value.absent(),
     this.uploader = const Value.absent(),
     required String publishTime,
     required int downloadStatusIndex,
@@ -1454,6 +1484,7 @@ class GalleryDownloadedCompanion
     Expression<String>? category,
     Expression<int>? pageCount,
     Expression<String>? galleryUrl,
+    Expression<String?>? oldVersionGalleryUrl,
     Expression<String?>? uploader,
     Expression<String>? publishTime,
     Expression<int>? downloadStatusIndex,
@@ -1466,6 +1497,8 @@ class GalleryDownloadedCompanion
       if (category != null) 'category': category,
       if (pageCount != null) 'pageCount': pageCount,
       if (galleryUrl != null) 'galleryUrl': galleryUrl,
+      if (oldVersionGalleryUrl != null)
+        'oldVersionGalleryUrl': oldVersionGalleryUrl,
       if (uploader != null) 'uploader': uploader,
       if (publishTime != null) 'publishTime': publishTime,
       if (downloadStatusIndex != null)
@@ -1481,6 +1514,7 @@ class GalleryDownloadedCompanion
       Value<String>? category,
       Value<int>? pageCount,
       Value<String>? galleryUrl,
+      Value<String?>? oldVersionGalleryUrl,
       Value<String?>? uploader,
       Value<String>? publishTime,
       Value<int>? downloadStatusIndex,
@@ -1492,6 +1526,7 @@ class GalleryDownloadedCompanion
       category: category ?? this.category,
       pageCount: pageCount ?? this.pageCount,
       galleryUrl: galleryUrl ?? this.galleryUrl,
+      oldVersionGalleryUrl: oldVersionGalleryUrl ?? this.oldVersionGalleryUrl,
       uploader: uploader ?? this.uploader,
       publishTime: publishTime ?? this.publishTime,
       downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
@@ -1520,6 +1555,10 @@ class GalleryDownloadedCompanion
     if (galleryUrl.present) {
       map['galleryUrl'] = Variable<String>(galleryUrl.value);
     }
+    if (oldVersionGalleryUrl.present) {
+      map['oldVersionGalleryUrl'] =
+          Variable<String?>(oldVersionGalleryUrl.value);
+    }
     if (uploader.present) {
       map['uploader'] = Variable<String?>(uploader.value);
     }
@@ -1544,6 +1583,7 @@ class GalleryDownloadedCompanion
           ..write('category: $category, ')
           ..write('pageCount: $pageCount, ')
           ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
           ..write('uploader: $uploader, ')
           ..write('publishTime: $publishTime, ')
           ..write('downloadStatusIndex: $downloadStatusIndex, ')
@@ -1595,6 +1635,13 @@ class GalleryDownloaded extends Table
       type: const StringType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  final VerificationMeta _oldVersionGalleryUrlMeta =
+      const VerificationMeta('oldVersionGalleryUrl');
+  late final GeneratedColumn<String?> oldVersionGalleryUrl =
+      GeneratedColumn<String?>('oldVersionGalleryUrl', aliasedName, true,
+          type: const StringType(),
+          requiredDuringInsert: false,
+          $customConstraints: '');
   final VerificationMeta _uploaderMeta = const VerificationMeta('uploader');
   late final GeneratedColumn<String?> uploader = GeneratedColumn<String?>(
       'uploader', aliasedName, true,
@@ -1629,6 +1676,7 @@ class GalleryDownloaded extends Table
         category,
         pageCount,
         galleryUrl,
+        oldVersionGalleryUrl,
         uploader,
         publishTime,
         downloadStatusIndex,
@@ -1679,6 +1727,12 @@ class GalleryDownloaded extends Table
               data['galleryUrl']!, _galleryUrlMeta));
     } else if (isInserting) {
       context.missing(_galleryUrlMeta);
+    }
+    if (data.containsKey('oldVersionGalleryUrl')) {
+      context.handle(
+          _oldVersionGalleryUrlMeta,
+          oldVersionGalleryUrl.isAcceptableOrUnknown(
+              data['oldVersionGalleryUrl']!, _oldVersionGalleryUrlMeta));
     }
     if (data.containsKey('uploader')) {
       context.handle(_uploaderMeta,
@@ -1733,6 +1787,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   final double height;
   final double width;
   final String path;
+  final String imageHash;
   final int downloadStatusIndex;
   ImageData(
       {required this.url,
@@ -1741,6 +1796,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       required this.height,
       required this.width,
       required this.path,
+      required this.imageHash,
       required this.downloadStatusIndex});
   factory ImageData.fromData(Map<String, dynamic> data, {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1757,6 +1813,8 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           .mapFromDatabaseResponse(data['${effectivePrefix}width'])!,
       path: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}path'])!,
+      imageHash: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}imageHash'])!,
       downloadStatusIndex: const IntType().mapFromDatabaseResponse(
           data['${effectivePrefix}downloadStatusIndex'])!,
     );
@@ -1770,6 +1828,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     map['height'] = Variable<double>(height);
     map['width'] = Variable<double>(width);
     map['path'] = Variable<String>(path);
+    map['imageHash'] = Variable<String>(imageHash);
     map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
     return map;
   }
@@ -1782,6 +1841,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       height: Value(height),
       width: Value(width),
       path: Value(path),
+      imageHash: Value(imageHash),
       downloadStatusIndex: Value(downloadStatusIndex),
     );
   }
@@ -1796,6 +1856,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       height: serializer.fromJson<double>(json['height']),
       width: serializer.fromJson<double>(json['width']),
       path: serializer.fromJson<String>(json['path']),
+      imageHash: serializer.fromJson<String>(json['imageHash']),
       downloadStatusIndex:
           serializer.fromJson<int>(json['downloadStatusIndex']),
     );
@@ -1810,6 +1871,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       'height': serializer.toJson<double>(height),
       'width': serializer.toJson<double>(width),
       'path': serializer.toJson<String>(path),
+      'imageHash': serializer.toJson<String>(imageHash),
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
     };
   }
@@ -1821,6 +1883,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           double? height,
           double? width,
           String? path,
+          String? imageHash,
           int? downloadStatusIndex}) =>
       ImageData(
         url: url ?? this.url,
@@ -1829,6 +1892,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
         height: height ?? this.height,
         width: width ?? this.width,
         path: path ?? this.path,
+        imageHash: imageHash ?? this.imageHash,
         downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
       );
   @override
@@ -1840,14 +1904,15 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           ..write('height: $height, ')
           ..write('width: $width, ')
           ..write('path: $path, ')
+          ..write('imageHash: $imageHash, ')
           ..write('downloadStatusIndex: $downloadStatusIndex')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(url, serialNo, gid, height, width, path, downloadStatusIndex);
+  int get hashCode => Object.hash(
+      url, serialNo, gid, height, width, path, imageHash, downloadStatusIndex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1858,6 +1923,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           other.height == this.height &&
           other.width == this.width &&
           other.path == this.path &&
+          other.imageHash == this.imageHash &&
           other.downloadStatusIndex == this.downloadStatusIndex);
 }
 
@@ -1868,6 +1934,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   final Value<double> height;
   final Value<double> width;
   final Value<String> path;
+  final Value<String> imageHash;
   final Value<int> downloadStatusIndex;
   const ImageCompanion({
     this.url = const Value.absent(),
@@ -1876,6 +1943,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     this.height = const Value.absent(),
     this.width = const Value.absent(),
     this.path = const Value.absent(),
+    this.imageHash = const Value.absent(),
     this.downloadStatusIndex = const Value.absent(),
   });
   ImageCompanion.insert({
@@ -1885,6 +1953,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     required double height,
     required double width,
     required String path,
+    required String imageHash,
     required int downloadStatusIndex,
   })  : url = Value(url),
         serialNo = Value(serialNo),
@@ -1892,6 +1961,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
         height = Value(height),
         width = Value(width),
         path = Value(path),
+        imageHash = Value(imageHash),
         downloadStatusIndex = Value(downloadStatusIndex);
   static Insertable<ImageData> custom({
     Expression<String>? url,
@@ -1900,6 +1970,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     Expression<double>? height,
     Expression<double>? width,
     Expression<String>? path,
+    Expression<String>? imageHash,
     Expression<int>? downloadStatusIndex,
   }) {
     return RawValuesInsertable({
@@ -1909,6 +1980,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       if (height != null) 'height': height,
       if (width != null) 'width': width,
       if (path != null) 'path': path,
+      if (imageHash != null) 'imageHash': imageHash,
       if (downloadStatusIndex != null)
         'downloadStatusIndex': downloadStatusIndex,
     });
@@ -1921,6 +1993,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       Value<double>? height,
       Value<double>? width,
       Value<String>? path,
+      Value<String>? imageHash,
       Value<int>? downloadStatusIndex}) {
     return ImageCompanion(
       url: url ?? this.url,
@@ -1929,6 +2002,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       height: height ?? this.height,
       width: width ?? this.width,
       path: path ?? this.path,
+      imageHash: imageHash ?? this.imageHash,
       downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
     );
   }
@@ -1954,6 +2028,9 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     if (path.present) {
       map['path'] = Variable<String>(path.value);
     }
+    if (imageHash.present) {
+      map['imageHash'] = Variable<String>(imageHash.value);
+    }
     if (downloadStatusIndex.present) {
       map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
     }
@@ -1969,6 +2046,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
           ..write('height: $height, ')
           ..write('width: $width, ')
           ..write('path: $path, ')
+          ..write('imageHash: $imageHash, ')
           ..write('downloadStatusIndex: $downloadStatusIndex')
           ..write(')'))
         .toString();
@@ -1985,7 +2063,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
       'url', aliasedName, false,
       type: const StringType(),
       requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _serialNoMeta = const VerificationMeta('serialNo');
   late final GeneratedColumn<int?> serialNo = GeneratedColumn<int?>(
       'serialNo', aliasedName, false,
@@ -2016,6 +2094,12 @@ class Image extends Table with TableInfo<Image, ImageData> {
       type: const StringType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
+  final VerificationMeta _imageHashMeta = const VerificationMeta('imageHash');
+  late final GeneratedColumn<String?> imageHash = GeneratedColumn<String?>(
+      'imageHash', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
   final VerificationMeta _downloadStatusIndexMeta =
       const VerificationMeta('downloadStatusIndex');
   late final GeneratedColumn<int?> downloadStatusIndex = GeneratedColumn<int?>(
@@ -2025,7 +2109,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
       $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns =>
-      [url, serialNo, gid, height, width, path, downloadStatusIndex];
+      [url, serialNo, gid, height, width, path, imageHash, downloadStatusIndex];
   @override
   String get aliasedName => _alias ?? 'image';
   @override
@@ -2071,6 +2155,12 @@ class Image extends Table with TableInfo<Image, ImageData> {
     } else if (isInserting) {
       context.missing(_pathMeta);
     }
+    if (data.containsKey('imageHash')) {
+      context.handle(_imageHashMeta,
+          imageHash.isAcceptableOrUnknown(data['imageHash']!, _imageHashMeta));
+    } else if (isInserting) {
+      context.missing(_imageHashMeta);
+    }
     if (data.containsKey('downloadStatusIndex')) {
       context.handle(
           _downloadStatusIndexMeta,
@@ -2083,7 +2173,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {url};
+  Set<GeneratedColumn> get $primaryKey => {url, gid};
   @override
   ImageData map(Map<String, dynamic> data, {String? tablePrefix}) {
     return ImageData.fromData(data,
@@ -2095,6 +2185,8 @@ class Image extends Table with TableInfo<Image, ImageData> {
     return Image(attachedDatabase, alias);
   }
 
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY (url, gid)'];
   @override
   bool get dontWriteConstraints => true;
 }
@@ -2257,7 +2349,7 @@ abstract class _$AppDb extends GeneratedDatabase {
 
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC',
+        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       oldVersionGalleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -2270,6 +2362,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         category: row.read<String>('category'),
         pageCount: row.read<int>('pageCount'),
         galleryUrl: row.read<String>('galleryUrl'),
+        oldVersionGalleryUrl: row.read<String?>('oldVersionGalleryUrl'),
         uploader: row.read<String?>('uploader'),
         publishTime: row.read<String>('publishTime'),
         galleryDownloadStatusIndex: row.read<int>('galleryDownloadStatusIndex'),
@@ -2279,6 +2372,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         height: row.read<double?>('height'),
         width: row.read<double?>('width'),
         path: row.read<String?>('path'),
+        imageHash: row.read<String?>('imageHash'),
         imageDownloadStatusIndex: row.read<int?>('imageDownloadStatusIndex'),
       );
     });
@@ -2300,12 +2394,13 @@ abstract class _$AppDb extends GeneratedDatabase {
       String category,
       int pageCount,
       String galleryUrl,
+      String? oldVersionGalleryUrl,
       String? uploader,
       String publishTime,
       int downloadStatusIndex,
       String? insertTime) {
     return customInsert(
-      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex, :insertTime)',
+      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,\r\n        :downloadStatusIndex, :insertTime)',
       variables: [
         Variable<int>(gid),
         Variable<String>(token),
@@ -2313,6 +2408,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<String>(category),
         Variable<int>(pageCount),
         Variable<String>(galleryUrl),
+        Variable<String?>(oldVersionGalleryUrl),
         Variable<String?>(uploader),
         Variable<String>(publishTime),
         Variable<int>(downloadStatusIndex),
@@ -2352,9 +2448,9 @@ abstract class _$AppDb extends GeneratedDatabase {
   }
 
   Future<int> insertImage(String url, int serialNo, int gid, double height,
-      double width, String path, int downloadStatusIndex) {
+      double width, String path, String imageHash, int downloadStatusIndex) {
     return customInsert(
-      'insert into image\r\nvalues (:url, :serialNo, :gid, :height, :width, :path, :downloadStatusIndex)',
+      'insert into image\r\nvalues (:url, :serialNo, :gid, :height, :width, :path, :imageHash, :downloadStatusIndex)',
       variables: [
         Variable<String>(url),
         Variable<int>(serialNo),
@@ -2362,25 +2458,30 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<double>(height),
         Variable<double>(width),
         Variable<String>(path),
+        Variable<String>(imageHash),
         Variable<int>(downloadStatusIndex)
       ],
       updates: {image},
     );
   }
 
-  Future<int> updateImage(int downloadStatusIndex, String url) {
+  Future<int> updateImage(int downloadStatusIndex, int gid, String url) {
     return customUpdate(
-      'update image\r\nset downloadStatusIndex = :downloadStatusIndex\r\nwhere url = :url',
-      variables: [Variable<int>(downloadStatusIndex), Variable<String>(url)],
+      'update image\r\nset downloadStatusIndex = :downloadStatusIndex\r\nwhere gid = :gid\r\n  AND url = :url',
+      variables: [
+        Variable<int>(downloadStatusIndex),
+        Variable<int>(gid),
+        Variable<String>(url)
+      ],
       updates: {image},
       updateKind: UpdateKind.update,
     );
   }
 
-  Future<int> deleteImage(String url) {
+  Future<int> deleteImage(int gid, String url) {
     return customUpdate(
-      'delete\r\nfrom image\r\nwhere url = :url',
-      variables: [Variable<String>(url)],
+      'delete\r\nfrom image\r\nwhere gid = :gid\r\n  AND url = :url',
+      variables: [Variable<int>(gid), Variable<String>(url)],
       updates: {image},
       updateKind: UpdateKind.delete,
     );
@@ -2409,6 +2510,7 @@ class SelectGallerysWithImagesResult {
   final String category;
   final int pageCount;
   final String galleryUrl;
+  final String? oldVersionGalleryUrl;
   final String? uploader;
   final String publishTime;
   final int galleryDownloadStatusIndex;
@@ -2418,6 +2520,7 @@ class SelectGallerysWithImagesResult {
   final double? height;
   final double? width;
   final String? path;
+  final String? imageHash;
   final int? imageDownloadStatusIndex;
   SelectGallerysWithImagesResult({
     required this.gid,
@@ -2426,6 +2529,7 @@ class SelectGallerysWithImagesResult {
     required this.category,
     required this.pageCount,
     required this.galleryUrl,
+    this.oldVersionGalleryUrl,
     this.uploader,
     required this.publishTime,
     required this.galleryDownloadStatusIndex,
@@ -2435,6 +2539,7 @@ class SelectGallerysWithImagesResult {
     this.height,
     this.width,
     this.path,
+    this.imageHash,
     this.imageDownloadStatusIndex,
   });
 }

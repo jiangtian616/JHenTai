@@ -398,6 +398,10 @@ class DetailsPageLogic extends GetxController {
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
       toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded &&
+        state.galleryDetails?.newVersionGalleryUrl != null) {
+      downloadService.updateGallery(gallery.toGalleryDownloadedData(), state.galleryDetails!.newVersionGalleryUrl!);
+      toast('${'update'.tr}： ${gallery.gid}', isCenter: false);
     }
   }
 

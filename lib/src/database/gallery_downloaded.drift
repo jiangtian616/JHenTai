@@ -1,26 +1,30 @@
 CREATE TABLE gallery_downloaded
 (
-    gid                 INT  NOT NULL PRIMARY KEY,
-    token               TEXT NOT NULL,
-    title               TEXT NOT NULL,
-    category            TEXT NOT NULL,
-    pageCount           INT  NOT NULL,
-    galleryUrl          TEXT NOT NULL,
-    uploader            TEXT,
-    publishTime         TEXT NOT NULL,
-    downloadStatusIndex INT  NOT NULL,
-    insertTime          TEXT
+    gid                  INT  NOT NULL PRIMARY KEY,
+    token                TEXT NOT NULL,
+    title                TEXT NOT NULL,
+    category             TEXT NOT NULL,
+    pageCount            INT  NOT NULL,
+    galleryUrl           TEXT NOT NULL,
+    oldVersionGalleryUrl TEXT,
+    uploader             TEXT,
+    publishTime          TEXT NOT NULL,
+    downloadStatusIndex  INT  NOT NULL,
+    insertTime           TEXT
 );
 
 CREATE TABLE image
 (
-    url                 TEXT NOT NULL PRIMARY KEY,
+    url                 TEXT NOT NULL,
     serialNo            INT  NOT NULL,
     gid                 INT  NOT NULL REFERENCES gallery_downloaded (gid),
     height              REAL NOT NULL,
     width               REAL NOT NULL,
     path                TEXT NOT NULL,
-    downloadStatusIndex INT  NOT NULL
+    imageHash           TEXT NOT NULL,
+    downloadStatusIndex INT  NOT NULL,
+    PRIMARY KEY (url, gid)
+
 );
 
 selectGallerysWithImages:
@@ -30,6 +34,7 @@ SELECT g.gid,
        category,
        pageCount,
        galleryUrl,
+       oldVersionGalleryUrl,
        uploader,
        publishTime,
        g.downloadStatusIndex as galleryDownloadStatusIndex,
@@ -39,6 +44,7 @@ SELECT g.gid,
        height,
        width,
        path,
+       imageHash,
        i.downloadStatusIndex as imageDownloadStatusIndex
 FROM gallery_downloaded g
          left join image i on g.gid = i.gid
@@ -51,7 +57,8 @@ ORDER BY insertTime DESC;
 
 insertGallery:
 insert into gallery_downloaded
-values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :uploader, :publishTime, :downloadStatusIndex, :insertTime);
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,
+        :downloadStatusIndex, :insertTime);
 
 deleteGallery:
 delete
@@ -72,17 +79,19 @@ where gid = :gid;
 
 insertImage:
 insert into image
-values (:url, :serialNo, :gid, :height, :width, :path, :downloadStatusIndex);
+values (:url, :serialNo, :gid, :height, :width, :path, :imageHash, :downloadStatusIndex);
 
 updateImage:
 update image
 set downloadStatusIndex = :downloadStatusIndex
-where url = :url;
+where gid = :gid
+  AND url = :url;
 
 deleteImage:
 delete
 from image
-where url = :url;
+where gid = :gid
+  AND url = :url;
 
 deleteImagesWithGid:
 delete

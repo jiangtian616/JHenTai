@@ -24,9 +24,9 @@ class Log {
       return;
     }
 
-    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1);
-    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, printTime: true);
-    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, colors: false, noBoxingByDefault: true);
+    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
+    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
 
     io.File verboseLogFile =

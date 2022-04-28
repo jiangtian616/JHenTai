@@ -77,6 +77,7 @@ class en_US {
       'resume': "Resume",
       'pause': 'Pause',
       'finished': 'Finished',
+      'update': 'Update',
       'submit': 'Submit',
       'chooseFavorite': 'Choose Favorite',
       'uploader': 'Uploader',
@@ -114,6 +115,9 @@ class en_US {
       'resample': 'Resample',
       'beginToDownloadArchive': 'Begin to Download Archive',
       'beginToDownloadArchiveHint': 'You can check progress at Download -> Archive',
+      'updateGalleryError': 'Update Gallery Error',
+      'thisGalleryHasANewVersion': 'This gallery has a new version',
+      'hasUpdated': 'Has updated',
 
       /// comment page
       'newComment': 'New Comment',
