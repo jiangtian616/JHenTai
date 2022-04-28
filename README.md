@@ -62,7 +62,7 @@ mush thanks to these projects🙇‍
 
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
-- [x] online reading and download, support restore download task
+- [x] online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a new version   
 - [x] archive download and automatic unpacking and reading
 - [x] favorite, rating, torrent, archive, statistics, share
 - [x] password login, Cookie login, web login
