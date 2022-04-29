@@ -130,7 +130,7 @@ class GallerysView extends StatelessWidget {
                                       return;
                                     }
                                     gallerysViewLogic.tabController.animateTo(index);
-                                    back();
+                                    back(currentRoute: Routes.home);
                                   },
                                 ),
                               ),
