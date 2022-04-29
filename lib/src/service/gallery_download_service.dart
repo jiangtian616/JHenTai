@@ -297,7 +297,7 @@ class GalleryDownloadService extends GetxController {
       int success = await _restoreDownloadInfoDatabase(gallery, images);
       if (success < 0) {
         Log.error('restore download failed. Gallery: ${gallery.title}');
-        deleteGallery(gallery);
+        _clearGalleryDownloadInfoInDatabase(gallery.gid);
         continue;
       }
       _restoreDownloadInfoInMemory(gallery, images);
