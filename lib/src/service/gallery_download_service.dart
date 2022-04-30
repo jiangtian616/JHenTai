@@ -668,7 +668,7 @@ class GalleryDownloadService extends GetxController {
 
   Future<void> _updateImageDownloadStatus(
       GalleryImage image, int gid, int serialNo, DownloadStatus downloadStatus) async {
-    await _updateImageDownloadStatusInDatabase(gid, image.url);
+    await _updateImageDownloadStatusInDatabase(gid, image.url, downloadStatus);
 
     image.downloadStatus = downloadStatus;
     update(['$imageId::$gid', '$imageUrlId::$gid::$serialNo']);
@@ -679,8 +679,8 @@ class GalleryDownloadService extends GetxController {
   }
 
   /// a image has been downloaded successfully, update its status
-  Future<int> _updateImageDownloadStatusInDatabase(int gid, String url) {
-    return appDb.updateImage(DownloadStatus.downloaded.index, gid, url);
+  Future<int> _updateImageDownloadStatusInDatabase(int gid, String url, DownloadStatus downloadStatus) {
+    return appDb.updateImage(downloadStatus.index, gid, url);
   }
 
   Future<void> _updateProgressAfterImageDownloaded(int gid, int serialNo) async {
