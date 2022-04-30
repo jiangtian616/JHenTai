@@ -32,7 +32,8 @@ class en_US {
       'availableUpdate': 'Available Update!',
       'LatestVersion': 'Latest version',
       'CurrentVersion': 'Current version',
-      'checkNow': 'Check Now',
+      'check': 'Check',
+      'dismiss': 'Dismiss',
 
       /// login page
       'login': 'Login',

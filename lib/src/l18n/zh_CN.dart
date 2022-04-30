@@ -32,7 +32,8 @@ class zh_CN {
       'availableUpdate': '有可用的更新!',
       'LatestVersion': '最新版本',
       'CurrentVersion': '当前版本',
-      'checkNow': '查看',
+      'check': '查看',
+      'dismiss': '忽略',
 
       /// login page
       'login': '登录',

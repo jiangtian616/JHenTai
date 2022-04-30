@@ -1,13 +1,20 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../service/storage_service.dart';
+
 class UpdateDialog extends StatelessWidget {
+  final StorageService storageService = Get.find();
+
   final String currentVersion;
   final String latestVersion;
 
-  const UpdateDialog({
+  static const String dismissVersion = 'dismissVersion';
+
+  UpdateDialog({
     Key? key,
     required this.currentVersion,
     required this.latestVersion,
@@ -25,11 +32,16 @@ class UpdateDialog extends StatelessWidget {
       ),
       actions: [
         CupertinoDialogAction(
-          child: Text('cancel'.tr),
-          onPressed: back,
+          child: Text('${'dismiss'.tr} $latestVersion'),
+          textStyle: TextStyle(color: Colors.red.shade400, fontSize: 16),
+          onPressed: () {
+            storageService.write(dismissVersion, latestVersion);
+            back();
+          },
         ),
         CupertinoDialogAction(
-          child: Text('checkNow'.tr),
+          child: Text('check'.tr),
+          textStyle: TextStyle(fontSize: 16),
           onPressed: () {
             back();
             launch('https://github.com/jiangtian616/JHenTai/releases');

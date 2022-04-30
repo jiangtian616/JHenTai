@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
 import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -16,6 +17,8 @@ import 'home_page_state.dart';
 
 class HomePageLogic extends GetxController {
   final HomePageState state = HomePageState();
+
+  final StorageService storageService = Get.find();
 
   @override
   void onReady() {
@@ -99,6 +102,11 @@ class HomePageLogic extends GetxController {
           .split('+')[0];
     } on Exception catch (_) {
       Log.info('check update failed');
+      return;
+    }
+
+    String? dismissVersion = storageService.read(UpdateDialog.dismissVersion);
+    if (dismissVersion == latestVersion) {
       return;
     }
 
