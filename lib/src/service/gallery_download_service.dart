@@ -516,21 +516,27 @@ class GalleryDownloadService extends GetxController {
   }
 
   String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo) {
+    GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
+    String ext = image.url.split('.').last;
+
     return path.relative(
       path.join(
         downloadPath,
         '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
-        '$serialNo.jpg',
+        '$serialNo.$ext',
       ),
       from: PathSetting.getVisibleDir().path,
     );
   }
 
   String _computeImageDownloadAbsolutePath(GalleryDownloadedData gallery, int serialNo) {
+    GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
+    String ext = image.url.split('.').last;
+
     return path.join(
       downloadPath,
       '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
-      '$serialNo.jpg',
+      '$serialNo.$ext',
     );
   }
 

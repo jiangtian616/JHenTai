@@ -58,6 +58,17 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                     ),
                   ),
                   Text(archive.creditCount.toString()).marginOnly(left: 2),
+                  CircleAvatar(
+                    radius: 9,
+                    backgroundColor: Get.theme.primaryColor,
+                    child: const Center(
+                      child: Text(
+                        'G',
+                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ).marginOnly(left: 16),
+                  Text(archive.gpCount.toString()).marginOnly(left: 2),
                 ],
               ),
               Row(
@@ -65,12 +76,9 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                 children: [
                   Column(
                     children: [
-                      Text(
-                        archive.originalCost == 0 ? 'Free!' : '${archive.originalCost} C',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
+                      Text(archive.originalCost, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: archive.originalCost > archive.creditCount ? null : () => _downloadArchive(true),
+                        onPressed: canAffordDownload(true) ? () => _downloadArchive(true) : null,
                         child: Row(
                           children: [
                             const Text('Original'),
@@ -84,14 +92,9 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                   Column(
                     children: [
                       if (archive.resampleCost != null)
-                        Text(
-                          archive.resampleCost == 0 ? 'Free!' : '${archive.resampleCost} C',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
+                        Text(archive.resampleCost!, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: archive.resampleCost == null || archive.resampleCost! > archive.creditCount
-                            ? null
-                            : () => _downloadArchive(false),
+                        onPressed: canAffordDownload(false) ? () => _downloadArchive(false) : null,
                         child: Row(
                           children: [
                             const Text('Resample'),
@@ -135,6 +138,29 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
     setState(() {
       loadingState = LoadingState.success;
     });
+  }
+
+  bool canAffordDownload(bool isOriginal) {
+    if (isOriginal) {
+      if (archive.originalCost.contains('Free')) {
+        return true;
+      }
+      if (archive.originalCost.contains('GP')) {
+        return archive.gpCount >= int.parse(archive.originalCost.split(' ')[0]);
+      }
+      return archive.creditCount >= int.parse(archive.originalCost.split(' ')[0]);
+    } else {
+      if (archive.resampleCost == null || archive.resampleCost == 'N/A') {
+        return false;
+      }
+      if (archive.resampleCost!.contains('Free')) {
+        return true;
+      }
+      if (archive.resampleCost!.contains('GP')) {
+        return archive.gpCount >= int.parse(archive.resampleCost!.split(' ')[0]);
+      }
+      return archive.creditCount >= int.parse(archive.resampleCost!.split(' ')[0]);
+    }
   }
 
   void _downloadArchive(bool isOriginal) {

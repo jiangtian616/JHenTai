@@ -14,10 +14,10 @@ class GalleryArchive {
   int gpCount;
   int creditCount;
 
-  int originalCost;
+  String originalCost;
   String originalSize;
 
-  int? resampleCost;
+  String? resampleCost;
   String? resampleSize;
 
   GalleryArchive({

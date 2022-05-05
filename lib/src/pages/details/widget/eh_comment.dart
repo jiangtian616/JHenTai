@@ -145,7 +145,7 @@ class _EHCommentState extends State<EHComment> {
 
   /// some url link doesn't be wrapped in <a href='xxx'></a>, to help html parse, we manually add it.
   String _wrapUrlInATag(String html) {
-    RegExp reg = RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%)+))');
+    RegExp reg = RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@)+))');
     reg.allMatches(html).map((e) => e.group(0)).toList();
     return html.replaceAllMapped(reg, (Match match) {
       String url = match.group(2)!;

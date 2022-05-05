@@ -289,7 +289,7 @@ class EHRequest {
           ? EHCacheInterceptor.cacheOption.toOptions()
           : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return parser(response);
   }
 
   static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
