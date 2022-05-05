@@ -281,15 +281,9 @@ class ReadPageLogic extends GetxController {
 
   void _jump2Page(int pageIndex) {
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
-      /// [jump] will redraw image and cause a blink, use [scrollTo] instead
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        state.itemScrollController.scrollTo(
-          index: pageIndex,
-          duration: const Duration(milliseconds: 1),
-        );
-        update(['menu']);
-      });
-    } else if (state.pageController?.hasClients ?? false) {
+      state.itemScrollController.jumpTo(index: pageIndex);
+      update(['menu']);
+    } else {
       state.pageController?.jumpToPage(pageIndex);
       update(['menu']);
     }
