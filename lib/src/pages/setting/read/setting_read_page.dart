@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
+import 'auto_mode_interval_dialog.dart';
+
 class SettingReadPage extends StatelessWidget {
   const SettingReadPage({Key? key}) : super(key: key);
 
@@ -64,6 +66,44 @@ class SettingReadPage extends StatelessWidget {
                 ],
               ),
             ),
+            ListTile(
+              title: Text('autoModeInterval'.tr),
+              trailing: InkWell(
+                onTap: _showAutoModeIntervalDialog,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${ReadSetting.autoModeInterval.value}s', style: const TextStyle(fontSize: 16)),
+                    const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(left: 8, right: 4)
+                  ],
+                ),
+              ),
+            ),
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
+              FadeIn(
+                key: const Key('autoModeStyle'),
+                child: ListTile(
+                  title: Text('autoModeStyle'.tr),
+                  trailing: DropdownButton<AutoModeStyle>(
+                    value: ReadSetting.autoModeStyle.value,
+                    elevation: 4,
+                    alignment: AlignmentDirectional.centerEnd,
+                    onChanged: (AutoModeStyle? newValue) {
+                      ReadSetting.saveAutoModeStyle(newValue!);
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        child: Text('scroll'.tr),
+                        value: AutoModeStyle.scroll,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('turnPage'.tr),
+                        value: AutoModeStyle.turnPage,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
               FadeIn(
                 key: const Key('turnPageMode'),
@@ -197,5 +237,14 @@ class SettingReadPage extends StatelessWidget {
         ).paddingSymmetric(vertical: 16);
       }),
     );
+  }
+
+  void _showAutoModeIntervalDialog() async {
+    double? interval = await Get.dialog(const AutoModeIntervalDialog());
+    if (interval == null) {
+      return;
+    }
+
+    ReadSetting.saveAutoModeInterval(interval);
   }
 }

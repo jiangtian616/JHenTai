@@ -18,11 +18,18 @@ enum TurnPageMode {
   adaptive,
 }
 
+enum AutoModeStyle {
+  scroll,
+  turnPage,
+}
+
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
   static RxBool showStatusInfo = true.obs;
-  static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
+  static RxDouble autoModeInterval = 2.0.obs;
+  static Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
+  static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
@@ -45,6 +52,16 @@ class ReadSetting {
 
   static saveShowStatusInfo(bool value) {
     showStatusInfo.value = value;
+    _save();
+  }
+
+  static saveAutoModeInterval(double value) {
+    autoModeInterval.value = value;
+    _save();
+  }
+
+  static saveAutoModeStyle(AutoModeStyle value) {
+    autoModeStyle.value = value;
     _save();
   }
 
@@ -86,8 +103,10 @@ class ReadSetting {
     return {
       'enableImmersiveMode': enableImmersiveMode.value,
       'showStatusInfo': showStatusInfo.value,
-      'readDirection': readDirection.value.index,
       'enablePageTurnAnime': enablePageTurnAnime.value,
+      'autoModeInterval': autoModeInterval.value,
+      'autoModeStyle': autoModeStyle.value.index,
+      'readDirection': readDirection.value.index,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
@@ -98,8 +117,10 @@ class ReadSetting {
   static _initFromMap(Map<String, dynamic> map) {
     enableImmersiveMode.value = map['enableImmersiveMode'];
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
-    readDirection.value = ReadDirection.values[map['readDirection']];
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
+    autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
+    autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
+    readDirection.value = ReadDirection.values[map['readDirection']];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];

@@ -87,6 +87,16 @@ class ReadViewHelper extends StatelessWidget {
               actionsIconTheme: const IconThemeData(color: Colors.white),
               backgroundColor: Colors.black.withOpacity(0.8),
               actions: [
+                GetBuilder<ReadPageLogic>(
+                  id: autoModeId,
+                  builder: (logic) {
+                    return IconButton(
+                      onPressed: logic.toggleAutoMode,
+                      icon: const Icon(Icons.schedule),
+                      color: state.autoMode ? Colors.blue : null,
+                    );
+                  },
+                ),
                 IconButton(
                   onPressed: () => toNamed(Routes.settingRead, id: fullScreen),
                   icon: const Icon(Icons.settings),

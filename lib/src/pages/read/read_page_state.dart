@@ -30,6 +30,7 @@ class ReadPageState {
   /// property used for build page
   late int readIndexRecord;
   bool isMenuOpen = false;
+  bool autoMode = false;
   Battery battery = Battery();
   int batteryLevel = 100;
 

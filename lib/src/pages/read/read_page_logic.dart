@@ -31,6 +31,7 @@ const String parseImageUrlStateId = 'parseImageUrlStateId';
 const String currentTimeId = 'currentTimeId';
 const String batteryId = 'batteryId';
 const String pageNoId = 'pageNoId';
+const String autoModeId = 'autoModeId';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
@@ -39,6 +40,7 @@ class ReadPageLogic extends GetxController {
 
   late Worker readDirectionListener;
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
+  Timer? autoModeTimer;
 
   @override
   void onInit() {
@@ -53,6 +55,7 @@ class ReadPageLogic extends GetxController {
       state.pageController = PageController(initialPage: state.readIndexRecord);
     });
 
+    /// refresh current time and battery level info
     refreshCurrentTimeAndBatteryLevelTimer = Timer.periodic(
       const Duration(seconds: 1),
       (_) => update([currentTimeId, batteryId]),
@@ -73,6 +76,76 @@ class ReadPageLogic extends GetxController {
     DetailsPageLogic.current?.update([bodyId]);
 
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    autoModeTimer?.cancel();
+  }
+
+  void toggleAutoMode() {
+    if (state.autoMode) {
+      _closeAutoMode();
+    } else {
+      _enterAutoMode();
+    }
+  }
+
+  void _enterAutoMode() {
+    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll &&
+        ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+      _enterAutoModeByScroll();
+    } else {
+      _enterAutoModeByTurnPage();
+    }
+  }
+
+  void _enterAutoModeByScroll() {
+    int restPageCount = state.pageCount - state.readIndexRecord - 1;
+    double offset = restPageCount * screenHeight;
+    double totalTime = restPageCount * ReadSetting.autoModeInterval.value;
+
+    toggleMenu();
+
+    state.autoMode = true;
+    update([autoModeId]);
+
+    state.itemScrollController.scrollOffset(
+      offset: offset,
+      duration: Duration(milliseconds: (totalTime * 1000).toInt()),
+    );
+  }
+
+  void _enterAutoModeByTurnPage() {
+    state.autoMode = true;
+    update([autoModeId]);
+
+    toggleMenu();
+
+    autoModeTimer = Timer.periodic(
+      Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
+      (timer) {
+        /// stop when at bottom
+        if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+          ItemPosition lastPosition = getCurrentVisibleItems().last;
+
+          /// sometimes itemTrailingEdge is not equal to 1.0
+          if (lastPosition.index == state.pageCount - 1 && lastPosition.itemTrailingEdge <= 1.2) {
+            _closeAutoMode();
+            return;
+          }
+        } else {
+          if (state.readIndexRecord == state.pageCount - 1) {
+            _closeAutoMode();
+            return;
+          }
+        }
+
+        toNext();
+      },
+    );
+  }
+
+  void _closeAutoMode() {
+    autoModeTimer?.cancel();
+    state.autoMode = false;
+    update([autoModeId]);
   }
 
   void beginToParseImageHref(int index) {
@@ -263,16 +336,16 @@ class ReadPageLogic extends GetxController {
     }
   }
 
-  void _scroll2Page(int pageIndex) {
+  void _scroll2Page(int pageIndex, [Duration? duration]) {
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       state.itemScrollController.scrollTo(
         index: pageIndex,
-        duration: const Duration(milliseconds: 200),
+        duration: duration ?? const Duration(milliseconds: 200),
       );
     } else if (state.pageController?.hasClients ?? false) {
       state.pageController?.animateToPage(
         pageIndex,
-        duration: const Duration(milliseconds: 200),
+        duration: duration ?? const Duration(milliseconds: 200),
         curve: Curves.ease,
       );
     }
@@ -318,6 +391,13 @@ class ReadPageLogic extends GetxController {
   }
 
   void toggleMenu() {
+    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll &&
+        ReadSetting.readDirection.value == ReadDirection.top2bottom &&
+        state.autoMode) {
+      _closeAutoMode();
+      return;
+    }
+
     state.isMenuOpen = !state.isMenuOpen;
     update(['menu']);
   }

@@ -214,8 +214,12 @@ class en_US {
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',
       'enableImmersiveHint': 'Hide System Bar',
-      'showStatusInfo': 'Show status at bottom',
       'readDirection': 'Read Direction',
+      'showStatusInfo': 'Show status at bottom',
+      'autoModeInterval': 'Turn page interval in auto mode',
+      'autoModeStyle': 'Auto mode style',
+      'scroll': 'Scroll',
+      'turnPage': 'Turn page',
       'top2bottom': 'Top to Bottom',
       'left2right': 'Left to Right',
       'right2left': 'Right to Left',
