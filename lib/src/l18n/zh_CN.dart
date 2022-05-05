@@ -215,6 +215,7 @@ class zh_CN {
       'enableImmersiveMode': '开启沉浸模式',
       'enableImmersiveHint': '隐藏系统状态栏和底部导航栏',
       'readDirection': '阅读方向',
+      'showStatusInfo': '底部显示状态信息',
       'top2bottom': '从上至下',
       'left2right': '从左至右',
       'right2left': '从右至左',

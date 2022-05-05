@@ -214,6 +214,7 @@ class en_US {
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',
       'enableImmersiveHint': 'Hide System Bar',
+      'showStatusInfo': 'Show status at bottom',
       'readDirection': 'Read Direction',
       'top2bottom': 'Top to Bottom',
       'left2right': 'Left to Right',

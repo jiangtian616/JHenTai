@@ -20,6 +20,7 @@ enum TurnPageMode {
 
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
+  static RxBool showStatusInfo = true.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
@@ -39,6 +40,11 @@ class ReadSetting {
 
   static saveEnableImmersiveMode(bool value) {
     enableImmersiveMode.value = value;
+    _save();
+  }
+
+  static saveShowStatusInfo(bool value) {
+    showStatusInfo.value = value;
     _save();
   }
 
@@ -78,23 +84,25 @@ class ReadSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
+      'enableImmersiveMode': enableImmersiveMode.value,
+      'showStatusInfo': showStatusInfo.value,
       'readDirection': readDirection.value.index,
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
-      'enableImmersiveMode': enableImmersiveMode.value,
       'enableAutoScaleUp': enableAutoScaleUp.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
+    enableImmersiveMode.value = map['enableImmersiveMode'];
+    showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
     readDirection.value = ReadDirection.values[map['readDirection']];
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
-    enableImmersiveMode.value = map['enableImmersiveMode'];
     enableAutoScaleUp.value = map['enableAutoScaleUp'];
   }
 }

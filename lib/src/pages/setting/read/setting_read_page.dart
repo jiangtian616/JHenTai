@@ -27,6 +27,13 @@ class SettingReadPage extends StatelessWidget {
               ),
             ),
             ListTile(
+              title: Text('showStatusInfo'.tr),
+              trailing: Switch(
+                value: ReadSetting.showStatusInfo.value,
+                onChanged: (value) => ReadSetting.saveShowStatusInfo(value),
+              ),
+            ),
+            ListTile(
               title: Text('enablePageTurnAnime'.tr),
               trailing: Switch(
                 value: ReadSetting.enablePageTurnAnime.value,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:battery_plus/battery_plus.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -29,6 +30,9 @@ class ReadPageState {
   /// property used for build page
   late int readIndexRecord;
   bool isMenuOpen = false;
+  Battery battery = Battery();
+  int batteryLevel = 100;
+
   final mine.ItemScrollController itemScrollController = mine.ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
   final PhotoViewScaleStateController photoViewScaleStateController = PhotoViewScaleStateController();
@@ -43,13 +47,14 @@ class ReadPageState {
     pageCount = int.parse(Get.parameters['pageCount']!);
 
     /// property used for build page
-    readIndexRecord = Get.find<StorageService>().read('readIndexRecord::${gid}') ?? 0;
+    readIndexRecord = Get.find<StorageService>().read('readIndexRecord::$gid') ?? 0;
+    battery.batteryLevel.then((value) => batteryLevel = value);
     pageController = PageController(initialPage: initialIndex);
 
     /// property used for parsing and loading
     if (mode == 'local') {
-      thumbnails =
-          Get.find<GalleryDownloadService>().gid2ImageHrefs[gid] ?? List.generate(pageCount, (index) => null, growable: true);
+      thumbnails = Get.find<GalleryDownloadService>().gid2ImageHrefs[gid] ??
+          List.generate(pageCount, (index) => null, growable: true);
       images = Get.arguments ?? Get.find<GalleryDownloadService>().gid2Images[gid]!;
     } else {
       thumbnails = List.generate(pageCount, (index) => null, growable: true);

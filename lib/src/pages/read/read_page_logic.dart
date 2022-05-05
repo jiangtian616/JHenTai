@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -18,7 +19,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../database/database.dart';
 import '../../model/gallery_image.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
@@ -28,12 +28,17 @@ import 'read_page_state.dart';
 const String itemId = 'itemId';
 const String parseImageHrefsStateId = 'parseImageHrefsStateId';
 const String parseImageUrlStateId = 'parseImageUrlStateId';
+const String currentTimeId = 'currentTimeId';
+const String batteryId = 'batteryId';
+const String pageNoId = 'pageNoId';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
   final GalleryDownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
+
   late Worker readDirectionListener;
+  late Timer refreshCurrentTimeAndBatteryLevelTimer;
 
   @override
   void onInit() {
@@ -48,11 +53,18 @@ class ReadPageLogic extends GetxController {
       state.pageController = PageController(initialPage: state.readIndexRecord);
     });
 
+    refreshCurrentTimeAndBatteryLevelTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => update([currentTimeId, batteryId]),
+    );
+
     super.onInit();
   }
 
   @override
   void onClose() {
+    super.onClose();
+
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
     restoreSystemBar();
     readDirectionListener.dispose();
@@ -60,7 +72,7 @@ class ReadPageLogic extends GetxController {
     /// update read progress in detail page
     DetailsPageLogic.current?.update([bodyId]);
 
-    super.onClose();
+    refreshCurrentTimeAndBatteryLevelTimer.cancel();
   }
 
   void beginToParseImageHref(int index) {
@@ -324,7 +336,7 @@ class ReadPageLogic extends GetxController {
 
   void handleSlide(double value) {
     state.readIndexRecord = (value - 1).toInt();
-    update(['menu']);
+    update(['menu', pageNoId]);
   }
 
   void handleSlideEnd(double value) {
@@ -333,7 +345,7 @@ class ReadPageLogic extends GetxController {
 
   void recordReadProgress(int index) {
     state.readIndexRecord = index;
-    update(['menu']);
+    update(['menu', pageNoId]);
   }
 
   void hideSystemBarIfNeeded(bool hide) {

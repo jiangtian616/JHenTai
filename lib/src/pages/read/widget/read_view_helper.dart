@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../../../utils/route_util.dart';
 import '../../../utils/screen_size_util.dart';
@@ -20,6 +22,7 @@ class ReadViewHelper extends StatelessWidget {
     return Stack(
       children: [
         child,
+        _buildInfo(context),
         _buildGestureRegion(),
         _buildTopMenu(context),
         _buildBottomMenu(context),
@@ -143,5 +146,77 @@ class ReadViewHelper extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _buildInfo(BuildContext context) {
+    return Obx(() {
+      if (ReadSetting.showStatusInfo.isFalse) {
+        return const SizedBox();
+      }
+      return GetBuilder<ReadPageLogic>(
+        id: 'menu',
+        builder: (logic) {
+          return state.isMenuOpen
+              ? const SizedBox()
+              : Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        GetBuilder<ReadPageLogic>(
+                          id: pageNoId,
+                          builder: (logic) {
+                            return Text(
+                              '${state.readIndexRecord + 1}/${state.pageCount}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none,
+                              ),
+                            );
+                          },
+                        ).marginOnly(right: 8),
+                        GetBuilder<ReadPageLogic>(
+                          id: currentTimeId,
+                          builder: (logic) {
+                            return Text(
+                              DateFormat('HH:mm').format(DateTime.now()),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none,
+                              ),
+                            );
+                          },
+                        ).marginOnly(right: 8),
+                        GetBuilder<ReadPageLogic>(
+                          id: batteryId,
+                          builder: (logic) {
+                            return Text(
+                              '${state.batteryLevel}%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.none,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ).paddingOnly(right: 32, top: 3, bottom: 1, left: 6),
+                  ),
+                );
+        },
+      );
+    });
   }
 }
