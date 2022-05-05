@@ -90,7 +90,7 @@ class Log {
           if (cleanedValue.length < 1000) {
             scope.setExtra(key, cleanedValue);
           } else {
-            scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.txt'));
+            scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
           }
         });
       },
