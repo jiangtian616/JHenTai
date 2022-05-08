@@ -11,6 +11,6 @@ class GetXRouterObserver extends NavigatorObserver {
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) async {
-    RouterReportManager.reportRouteDispose(route);
+    RouterReportManager.reportRouteWillDispose(route);
   }
 }
