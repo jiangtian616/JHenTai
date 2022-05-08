@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
@@ -23,7 +24,12 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
           itemExtent: 30,
           onSelectedItemChanged: (index) => interval = (index + 1) * 0.5,
           scrollController: FixedExtentScrollController(initialItem: interval ~/ 0.5 - 1),
-          itemBuilder: (BuildContext context, int index) => Text('${(index + 1) * 0.5} s'),
+          itemBuilder: (BuildContext context, int index) => Center(
+            child: Text(
+              '${(index + 1) * 0.5} s',
+              style: TextStyle(color: Get.isDarkMode ? Colors.white : Colors.black),
+            ),
+          ),
           childCount: 39,
         ),
       ),
