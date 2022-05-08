@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/scheduler.dart';
@@ -18,6 +19,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:throttling/throttling.dart';
 
 import '../../model/gallery_image.dart';
 import '../../service/storage_service.dart';
@@ -32,6 +34,10 @@ const String currentTimeId = 'currentTimeId';
 const String batteryId = 'batteryId';
 const String pageNoId = 'pageNoId';
 const String autoModeId = 'autoModeId';
+const String topMenuId = 'topMenuId';
+const String bottomMenuId = 'bottomMenuId';
+const String thumbnailsId = 'thumbnailsId';
+const String sliderId = 'sliderId';
 
 class ReadPageLogic extends GetxController {
   final ReadPageState state = ReadPageState();
@@ -42,11 +48,33 @@ class ReadPageLogic extends GetxController {
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   Timer? autoModeTimer;
 
+  final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
+
   @override
   void onInit() {
     /// record reading progress
     state.itemPositionsListener.itemPositions.addListener(() {
-      recordReadProgress(getCurrentVisibleItems().first.index);
+      int firstImageIndex = getCurrentVisibleItems().first.index;
+      recordReadProgress(firstImageIndex);
+
+      /// sync thumbnails list index
+      if (ReadSetting.showThumbnails.isFalse) {
+        return;
+      }
+      int? firstThumbnailIndex = getCurrentVisibleThumbnails().firstOrNull?.index;
+      if (firstThumbnailIndex == null) {
+        return;
+      }
+
+      /// If a new scroll starts before previous scroll end, the previous scroll will be cancelled. So if user keeps scrolling
+      /// the list, the scroll of the thumbnail list will be delayed until the user stops scrolling. We use Throttling to avoid.
+      _thr.throttle(() {
+        if ((firstImageIndex - firstThumbnailIndex).abs() <= 5) {
+          scrollThumbnailsToIndex(firstImageIndex);
+        } else {
+          jumpThumbnailsToIndex(firstImageIndex);
+        }
+      });
     });
 
     /// when direction changes, keep read position
@@ -330,7 +358,7 @@ class ReadPageLogic extends GetxController {
 
   void _toPage(int pageIndex) {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
-      _jump2Page(pageIndex);
+      jump2Page(pageIndex);
     } else {
       _scroll2Page(pageIndex);
     }
@@ -349,16 +377,16 @@ class ReadPageLogic extends GetxController {
         curve: Curves.ease,
       );
     }
-    update(['menu']);
+    update([sliderId]);
   }
 
-  void _jump2Page(int pageIndex) {
+  void jump2Page(int pageIndex) {
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       state.itemScrollController.jumpTo(index: pageIndex);
-      update(['menu']);
+      update([sliderId]);
     } else {
       state.pageController?.jumpToPage(pageIndex);
-      update(['menu']);
+      update([sliderId]);
     }
   }
 
@@ -390,6 +418,19 @@ class ReadPageLogic extends GetxController {
     );
   }
 
+  void jumpThumbnailsToIndex(int index) {
+    state.thumbnailsScrollController.jumpTo(
+      index: max(0, index - 2),
+    );
+  }
+
+  void scrollThumbnailsToIndex(int index) {
+    state.thumbnailsScrollController.scrollTo(
+      index: max(0, index - 2),
+      duration: const Duration(milliseconds: 200),
+    );
+  }
+
   void toggleMenu() {
     if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll &&
         ReadSetting.readDirection.value == ReadDirection.top2bottom &&
@@ -399,7 +440,7 @@ class ReadPageLogic extends GetxController {
     }
 
     state.isMenuOpen = !state.isMenuOpen;
-    update(['menu']);
+    update([bottomMenuId, topMenuId]);
   }
 
   void onScaleEnd(BuildContext context, ScaleEndDetails details, PhotoViewControllerValue controllerValue) {
@@ -410,16 +451,16 @@ class ReadPageLogic extends GetxController {
 
   void handleSlide(double value) {
     state.readIndexRecord = (value - 1).toInt();
-    update(['menu', pageNoId]);
+    update([sliderId, pageNoId]);
   }
 
   void handleSlideEnd(double value) {
-    _jump2Page((value - 1).toInt());
+    jump2Page((value - 1).toInt());
   }
 
   void recordReadProgress(int index) {
     state.readIndexRecord = index;
-    update(['menu', pageNoId]);
+    update([sliderId, pageNoId]);
   }
 
   void hideSystemBarIfNeeded(bool hide) {
@@ -436,6 +477,10 @@ class ReadPageLogic extends GetxController {
 
   List<ItemPosition> getCurrentVisibleItems() {
     return _filterAndSortItems(state.itemPositionsListener.itemPositions.value);
+  }
+
+  List<ItemPosition> getCurrentVisibleThumbnails() {
+    return _filterAndSortItems(state.thumbnailPositionsListener.itemPositions.value);
   }
 
   /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of

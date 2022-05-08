@@ -4,5 +4,6 @@ class GlobalConfig {
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
-  static const double bottomMenuHeight = 90;
+  static const double bottomMenuHeight = 220;
+  static const double bottomMenuHeightWithoutThumbnails = 100;
 }

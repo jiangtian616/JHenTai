@@ -1262,6 +1262,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.4.9"
+  throttling:
+    dependency: "direct main"
+    description:
+      name: throttling
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0"
   timing:
     dependency: transitive
     description:

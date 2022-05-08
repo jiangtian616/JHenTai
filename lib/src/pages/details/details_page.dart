@@ -22,12 +22,12 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
+import 'package:jhentai/src/widget/eh_thumbnail.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
 import '../../model/download_progress.dart';
-import '../../model/gallery_thumbnail.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
@@ -610,7 +610,6 @@ class DetailsPage extends StatelessWidget {
                     });
                   }
 
-                  GalleryThumbnail thumbnail = galleryDetails.thumbnails[index];
                   return KeepAliveWrapper(
                     child: Column(
                       children: [
@@ -618,8 +617,10 @@ class DetailsPage extends StatelessWidget {
                           child: Center(
                             child: GestureDetector(
                               onTap: () => detailsPageLogic.goToReadPage(index),
-                              child:
-                                  thumbnail.isLarge ? _buildLargeThumbnail(thumbnail) : _buildSmallThumbnail(thumbnail),
+                              child: EHThumbnail(
+                                containerHeight: 200,
+                                galleryThumbnail: galleryDetails.thumbnails[index],
+                              ),
                             ),
                           ),
                         ),
@@ -641,57 +642,6 @@ class DetailsPage extends StatelessWidget {
               ),
             );
           }),
-    );
-  }
-
-  Widget _buildSmallThumbnail(GalleryThumbnail thumbnail) {
-    return ConstrainedBox(
-      /// 220-16-4
-      constraints: const BoxConstraints(maxHeight: 200),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          /// there's a bug that after cropping, the image's length-width ratio remains(equal to the raw image),
-          /// so choose to assign the size manually.
-          Size imageSize = Size(thumbnail.thumbWidth!, thumbnail.thumbHeight!);
-          Size size = Size(constraints.maxWidth, constraints.maxHeight);
-          FittedSizes fittedSizes = applyBoxFit(BoxFit.contain, imageSize, size);
-
-          return ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: EHImage.network(
-              galleryImage: GalleryImage(
-                url: thumbnail.thumbUrl,
-                height: fittedSizes.destination.height,
-                width: fittedSizes.destination.width,
-              ),
-              completedWidgetBuilder: (ExtendedImageState state) {
-                /// crop image because raw image consists of 10 thumbnails in row
-                return ExtendedRawImage(
-                  image: state.extendedImageInfo?.image,
-                  fit: BoxFit.fill,
-                  sourceRect: Rect.fromLTRB(
-                    thumbnail.offSet!,
-                    0,
-                    thumbnail.offSet! + thumbnail.thumbWidth!,
-                    thumbnail.thumbHeight!,
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildLargeThumbnail(GalleryThumbnail thumbnail) {
-    return EHImage.network(
-      containerHeight: 200,
-      galleryImage: GalleryImage(
-        url: thumbnail.thumbUrl,
-        height: thumbnail.thumbHeight!,
-        width: thumbnail.thumbWidth!,
-      ),
     );
   }
 }

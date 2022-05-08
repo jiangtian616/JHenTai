@@ -29,6 +29,13 @@ class SettingReadPage extends StatelessWidget {
               ),
             ),
             ListTile(
+              title: Text('showThumbnails'.tr),
+              trailing: Switch(
+                value: ReadSetting.showThumbnails.value,
+                onChanged: (value) => ReadSetting.saveShowThumbnails(value),
+              ),
+            ),
+            ListTile(
               title: Text('showStatusInfo'.tr),
               trailing: Switch(
                 value: ReadSetting.showStatusInfo.value,

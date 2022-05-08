@@ -36,7 +36,10 @@ class ReadPageState {
 
   final mine.ItemScrollController itemScrollController = mine.ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ItemScrollController thumbnailsScrollController = ItemScrollController();
+  final ItemPositionsListener thumbnailPositionsListener = ItemPositionsListener.create();
   final PhotoViewScaleStateController photoViewScaleStateController = PhotoViewScaleStateController();
+
   PageController? pageController;
 
   ReadPageState() {

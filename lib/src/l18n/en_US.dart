@@ -215,6 +215,7 @@ class en_US {
       'enableImmersiveMode': 'Enable Immersive Mode',
       'enableImmersiveHint': 'Hide System Bar',
       'readDirection': 'Read Direction',
+      'showThumbnails': 'Show thumbnails',
       'showStatusInfo': 'Show status at bottom',
       'autoModeInterval': 'Turn page interval in auto mode',
       'autoModeStyle': 'Auto mode style',

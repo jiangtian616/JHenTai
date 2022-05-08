@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/widget/eh_thumbnail.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../service/gallery_download_service.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/screen_size_util.dart';
+import '../../../widget/eh_image.dart';
+import '../../../widget/loading_state_indicator.dart';
 import '../../start_page.dart';
 import '../read_page_logic.dart';
 
@@ -30,141 +36,13 @@ class ReadViewHelper extends StatelessWidget {
     );
   }
 
-  /// turn page and pop menu gesture
-  Widget _buildGestureRegion() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: logic.toPrev,
-            onDoubleTap: logic.toPrev,
-          ),
-        ),
-        Expanded(
-          flex: 4,
-          child: Column(
-            children: [
-              const Expanded(flex: 1, child: SizedBox()),
-              Expanded(
-                flex: 2,
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: logic.toggleMenu,
-                  onDoubleTap: logic.toggleMenu,
-                ),
-              ),
-              const Expanded(flex: 1, child: SizedBox()),
-            ],
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: logic.toNext,
-            onDoubleTap: logic.toNext,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTopMenu(BuildContext context) {
-    return GetBuilder<ReadPageLogic>(
-      id: 'menu',
-      builder: (logic) {
-        return AnimatedPositioned(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-          height: state.isMenuOpen ? GlobalConfig.appBarHeight + context.mediaQuery.padding.top : 0,
-          child: SizedBox(
-            height: GlobalConfig.appBarHeight + context.mediaQuery.padding.top,
-            width: fullScreenWidth,
-            child: AppBar(
-              iconTheme: const IconThemeData(color: Colors.white),
-              actionsIconTheme: const IconThemeData(color: Colors.white),
-              backgroundColor: Colors.black.withOpacity(0.8),
-              actions: [
-                GetBuilder<ReadPageLogic>(
-                  id: autoModeId,
-                  builder: (logic) {
-                    return IconButton(
-                      onPressed: logic.toggleAutoMode,
-                      icon: const Icon(Icons.schedule),
-                      color: state.autoMode ? Colors.blue : null,
-                    );
-                  },
-                ),
-                IconButton(
-                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen),
-                  icon: const Icon(Icons.settings),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildBottomMenu(BuildContext context) {
-    return GetBuilder<ReadPageLogic>(
-      id: 'menu',
-      builder: (logic) {
-        return AnimatedPositioned(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-          bottom: 0,
-          height: state.isMenuOpen ? GlobalConfig.bottomMenuHeight : 0,
-          child: ColoredBox(
-            color: Colors.black.withOpacity(0.8),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: fullScreenWidth,
-                  child: Row(
-                    children: [
-                      Text(
-                        (state.readIndexRecord + 1).toString(),
-                        style: state.readPageTextStyle(),
-                      ).marginSymmetric(horizontal: 16),
-                      Expanded(
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Slider(
-                            min: 1,
-                            max: state.pageCount.toDouble(),
-                            value: state.readIndexRecord + 1.0,
-                            thumbColor: Colors.white,
-                            onChanged: logic.handleSlide,
-                            onChangeEnd: logic.handleSlideEnd,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        state.pageCount.toString(),
-                        style: state.readPageTextStyle(),
-                      ).marginSymmetric(horizontal: 16),
-                    ],
-                  ).marginOnly(top: 8),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildInfo(BuildContext context) {
     return Obx(() {
       if (ReadSetting.showStatusInfo.isFalse) {
         return const SizedBox();
       }
       return GetBuilder<ReadPageLogic>(
-        id: 'menu',
+        id: bottomMenuId,
         builder: (logic) {
           return state.isMenuOpen
               ? const SizedBox()
@@ -228,5 +106,222 @@ class ReadViewHelper extends StatelessWidget {
         },
       );
     });
+  }
+
+  /// turn page and pop menu gesture
+  Widget _buildGestureRegion() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: logic.toPrev,
+            onDoubleTap: logic.toPrev,
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: Column(
+            children: [
+              const Expanded(flex: 1, child: SizedBox()),
+              Expanded(
+                flex: 2,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: logic.toggleMenu,
+                  onDoubleTap: logic.toggleMenu,
+                ),
+              ),
+              const Expanded(flex: 1, child: SizedBox()),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: logic.toNext,
+            onDoubleTap: logic.toNext,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopMenu(BuildContext context) {
+    return GetBuilder<ReadPageLogic>(
+      id: topMenuId,
+      builder: (logic) {
+        return AnimatedPositioned(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+          height: state.isMenuOpen ? GlobalConfig.appBarHeight + context.mediaQuery.padding.top : 0,
+          child: SizedBox(
+            height: GlobalConfig.appBarHeight + context.mediaQuery.padding.top,
+            width: fullScreenWidth,
+            child: AppBar(
+              iconTheme: const IconThemeData(color: Colors.white),
+              actionsIconTheme: const IconThemeData(color: Colors.white),
+              backgroundColor: Colors.black.withOpacity(0.8),
+              actions: [
+                GetBuilder<ReadPageLogic>(
+                  id: autoModeId,
+                  builder: (logic) {
+                    return IconButton(
+                      onPressed: logic.toggleAutoMode,
+                      icon: const Icon(Icons.schedule),
+                      color: state.autoMode ? Colors.blue : null,
+                    );
+                  },
+                ),
+                IconButton(
+                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen),
+                  icon: const Icon(Icons.settings),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomMenu(BuildContext context) {
+    return GetBuilder<ReadPageLogic>(
+      id: bottomMenuId,
+      builder: (logic) {
+        return Obx(() {
+          return AnimatedPositioned(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.ease,
+            bottom: 0,
+            height: !state.isMenuOpen
+                ? 0
+                : ReadSetting.showThumbnails.isTrue
+                    ? GlobalConfig.bottomMenuHeight
+                    : GlobalConfig.bottomMenuHeightWithoutThumbnails,
+            child: ColoredBox(
+              color: Colors.black.withOpacity(0.8),
+              child: Column(
+                children: [
+                  if (ReadSetting.showThumbnails.isTrue) _buildThumbnails().marginOnly(top: 12),
+                  _buildSlider().marginOnly(top: 8),
+                ],
+              ),
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  Widget _buildThumbnails() {
+    return SizedBox(
+      width: fullScreenWidth,
+      height: 120,
+      child: ScrollablePositionedList.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        minCacheExtent: 1 * fullScreenWidth,
+        initialScrollIndex: state.initialIndex,
+        itemCount: state.pageCount,
+        itemScrollController: state.thumbnailsScrollController,
+        itemPositionsListener: state.thumbnailPositionsListener,
+        itemBuilder: (_, index) => SizedBox(
+          width: 80,
+          height: 100,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => logic.jump2Page(index),
+                  child:
+                      state.mode == 'online' ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                ),
+              ),
+              Text(
+                (index + 1).toString(),
+                style: state.readPageTextStyle().copyWith(fontSize: 9),
+              ).marginOnly(top: 4),
+            ],
+          ),
+        ),
+        separatorBuilder: (BuildContext context, int index) => const Divider(indent: 4),
+      ),
+    );
+  }
+
+  Widget _buildThumbnailInOnlineMode(int index) {
+    return GetBuilder<ReadPageLogic>(
+      id: '$itemId::$index',
+      builder: (logic) {
+        if (state.thumbnails[index] == null) {
+          if (state.parseImageHrefsState == LoadingState.idle) {
+            logic.beginToParseImageHref(index);
+          }
+          return const Center();
+        }
+
+        return Center(
+          child: EHThumbnail(galleryThumbnail: state.thumbnails[index]!),
+        );
+      },
+    );
+  }
+
+  Widget _buildThumbnailInLocalMode(int index) {
+    return GetBuilder<GalleryDownloadService>(
+      id: '$imageId::${state.gid}',
+      builder: (_) {
+        if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+          return const Center();
+        }
+
+        return EHImage.file(
+          galleryImage: state.images[index]!,
+          adaptive: true,
+          fit: BoxFit.contain,
+        );
+      },
+    );
+  }
+
+  Widget _buildSlider() {
+    return GetBuilder<ReadPageLogic>(
+      id: sliderId,
+      builder: (logic) {
+        return SizedBox(
+          width: fullScreenWidth,
+          child: Row(
+            children: [
+              Text(
+                (state.readIndexRecord + 1).toString(),
+                style: state.readPageTextStyle(),
+              ).marginSymmetric(horizontal: 16),
+              Expanded(
+                child: Material(
+                  color: Colors.transparent,
+                  child: Slider(
+                    min: 1,
+                    max: state.pageCount.toDouble(),
+                    value: state.readIndexRecord + 1.0,
+                    thumbColor: Colors.white,
+                    onChanged: logic.handleSlide,
+                    onChangeEnd: logic.handleSlideEnd,
+                  ),
+                ),
+              ),
+              Text(
+                state.pageCount.toString(),
+                style: state.readPageTextStyle(),
+              ).marginSymmetric(horizontal: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

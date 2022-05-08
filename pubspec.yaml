@@ -59,6 +59,7 @@ dependencies:
   image_size_getter: ^2.1.0
   fluttertoast: ^8.0.9
   battery_plus: ^2.1.3
+  throttling: ^1.0.0
 
 dev_dependencies:
   flutter_test:
