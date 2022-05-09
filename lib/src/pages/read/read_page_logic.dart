@@ -52,28 +52,29 @@ class ReadPageLogic extends GetxController {
 
   @override
   void onInit() {
-    /// record reading progress
+    /// record reading progress and sync thumbnails list index
     state.itemPositionsListener.itemPositions.addListener(() {
       int firstImageIndex = getCurrentVisibleItems().first.index;
       recordReadProgress(firstImageIndex);
 
-      /// sync thumbnails list index
       if (ReadSetting.showThumbnails.isFalse) {
         return;
       }
+
       int? firstThumbnailIndex = getCurrentVisibleThumbnails().firstOrNull?.index;
+      int? lastThumbnailIndex = getCurrentVisibleThumbnails().lastOrNull?.index;
       if (firstThumbnailIndex == null) {
+        return;
+      }
+      /// No more thumbnails, do not scroll more
+      if (lastThumbnailIndex == state.pageCount - 1 && firstImageIndex > firstThumbnailIndex) {
         return;
       }
 
       /// If a new scroll starts before previous scroll end, the previous scroll will be cancelled. So if user keeps scrolling
       /// the list, the scroll of the thumbnail list will be delayed until the user stops scrolling. We use Throttling to avoid.
       _thr.throttle(() {
-        if ((firstImageIndex - firstThumbnailIndex).abs() <= 5) {
-          scrollThumbnailsToIndex(firstImageIndex);
-        } else {
-          jumpThumbnailsToIndex(firstImageIndex);
-        }
+        scrollThumbnailsToIndex(firstImageIndex);
       });
     });
 
