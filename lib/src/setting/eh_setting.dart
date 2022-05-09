@@ -26,7 +26,7 @@ class EHSetting {
     }
 
     /// listen to logout
-    ever(UserSetting.userName, (v) {
+    ever(UserSetting.ipbMemberId, (v) {
       if (UserSetting.hasLoggedIn()) {
         refresh();
       } else {

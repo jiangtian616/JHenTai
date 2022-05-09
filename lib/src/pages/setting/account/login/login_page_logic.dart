@@ -77,7 +77,6 @@ class LoginPageLogic extends GetxController {
         ipbMemberId: userInfoOrErrorMsg['ipbMemberId'],
         ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
       );
-      FavoriteSetting.init();
 
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 700));

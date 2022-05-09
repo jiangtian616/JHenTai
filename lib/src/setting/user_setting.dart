@@ -24,13 +24,13 @@ class UserSetting {
     required String ipbPassHash,
   }) async {
     UserSetting.userName.value = userName;
-    UserSetting.ipbMemberId.value = ipbMemberId;
     UserSetting.ipbPassHash.value = ipbPassHash;
+    UserSetting.ipbMemberId.value = ipbMemberId;
     _save();
   }
 
   static bool hasLoggedIn() {
-    return userName.value != null;
+    return ipbMemberId.value != null;
   }
 
   static String getCookies() {
