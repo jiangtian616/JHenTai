@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
@@ -112,7 +111,7 @@ class GalleryDownloadService extends GetxController {
       }
     }
 
-    Log.verbose('init DownloadService success, download task count: ${gallerys.length}', false);
+    Log.verbose('init DownloadService success, download task count: ${gallerys.length}');
     super.onInit();
   }
 
@@ -125,7 +124,7 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
-    Log.info('begin to download gallery: ${gallery.gid}', false);
+    Log.info('begin to download gallery: ${gallery.gid}');
 
     /// Firstly record downloaded gallery
     if (isFirstDownload) {
@@ -198,7 +197,7 @@ class GalleryDownloadService extends GetxController {
     }
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
-    Log.info('pause download gallery: ${gallery.gid}', false);
+    Log.info('pause download gallery: ${gallery.gid}');
   }
 
   Future<void> resumeAllDownloadGallery() async {
@@ -226,7 +225,7 @@ class GalleryDownloadService extends GetxController {
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
 
-    Log.info('resume download gallery: ${gallery.gid}', false);
+    Log.info('resume download gallery: ${gallery.gid}');
     downloadGallery(gallery, isFirstDownload: false);
   }
 
@@ -245,7 +244,7 @@ class GalleryDownloadService extends GetxController {
       newGallery = gallery.toGalleryDownloadedData();
     } on DioError catch (e) {
       if (e.error is EHException) {
-        Log.info('${'updateGalleryError'.tr}, reason: ${e.error.msg}', false);
+        Log.info('${'updateGalleryError'.tr}, reason: ${e.error.msg}');
         snack('updateGalleryError'.tr, e.error.msg, longDuration: true, closeBefore: true);
         pauseAllDownloadGallery();
         return;
@@ -264,7 +263,7 @@ class GalleryDownloadService extends GetxController {
     _clearGalleryDownloadInfoInMemory(gallery);
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
-    Log.info('delete download gallery: ${gallery.gid}', false);
+    Log.info('delete download gallery: ${gallery.gid}');
   }
 
   /// use meta in each gallery folder to restore download status, then sync to database.
@@ -321,7 +320,7 @@ class GalleryDownloadService extends GetxController {
       newThumbnails = await retry(
         () => executor.scheduleTask(serialNo * 100000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
-        onRetry: (e) => Log.info('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}', false),
+        onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on CancelException catch (e) {
@@ -331,7 +330,7 @@ class GalleryDownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.info('Download Error, reason: ${e.error.msg}', false);
+        Log.download('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         pauseAllDownloadGallery();
         return;
@@ -349,7 +348,7 @@ class GalleryDownloadService extends GetxController {
       gid2ImageHrefs[gallery.gid]![from + i] = newThumbnails[i];
     }
     update(['$imageId::${gallery.gid}', '$imageHrefsId::${gallery.gid}']);
-    Log.verbose('parse image hrefs success', false);
+    Log.download('parse image hrefs success');
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting
     if (gid2ImageHrefs[gallery.gid]![serialNo] == null) {
@@ -359,7 +358,7 @@ class GalleryDownloadService extends GetxController {
 
   AsyncTask<List<GalleryThumbnail>> _parseGalleryImageHrefTask(GalleryDownloadedData gallery, int thumbnailsPageNo) {
     return () {
-      Log.verbose('begin to parse image hrefs', false);
+      Log.download('begin to parse image hrefs');
       return EHRequest.requestDetailPage(
         galleryUrl: gallery.galleryUrl,
         thumbnailsPageNo: thumbnailsPageNo,
@@ -381,7 +380,7 @@ class GalleryDownloadService extends GetxController {
       image = await retry(
         () => executor.scheduleTask(serialNo * 10000, task),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
-        onRetry: (e) => Log.info('ParseImageUrl failed, retry. Reason: ${(e as DioError).message}', false),
+        onRetry: (e) => Log.download('ParseImageUrl failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on CancelException catch (e) {
@@ -391,7 +390,7 @@ class GalleryDownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.info('Download Error, reason: ${e.error.msg}', false);
+        Log.download('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         await pauseAllDownloadGallery();
         return;
@@ -406,13 +405,13 @@ class GalleryDownloadService extends GetxController {
     image.path = _computeImageDownloadRelativePath(gallery, serialNo);
     image.downloadStatus = DownloadStatus.downloading;
     await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
-    Log.verbose('parse image url: $serialNo success', false);
+    Log.download('parse image url: $serialNo success');
   }
 
   AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo,
       [bool useCache = true]) {
     return () {
-      Log.verbose('begin to parse image url: $serialNo', false);
+      Log.download('begin to parse image url: $serialNo');
       return EHRequest.requestImagePage(
         gid2ImageHrefs[gallery.gid]![serialNo]!.href,
         cancelToken: gid2CancelToken[gallery.gid],
@@ -450,9 +449,8 @@ class GalleryDownloadService extends GetxController {
             e.error is! EHException &&
             (e.response == null || e.response!.statusCode != 403),
         onRetry: (e) {
-          Log.info(
+          Log.download(
             'DownloadImage: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${gid2Images[gallery.gid]![serialNo]!.url}',
-            false,
           );
           gid2SpeedComputer[gallery.gid]!.resetProgress(serialNo);
         },
@@ -464,14 +462,13 @@ class GalleryDownloadService extends GetxController {
         return;
       }
       if (e.error is EHException) {
-        Log.info('Download Error, reason: ${e.error.msg}', false);
+        Log.download('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         pauseAllDownloadGallery();
         return;
       }
-      Log.info(
+      Log.download(
         'downloadImage: $serialNo failed $retryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo]!.url}',
-        false,
       );
       _reParseImageUrlAndDownload(gallery, serialNo);
       return;
@@ -479,7 +476,7 @@ class GalleryDownloadService extends GetxController {
       gid2Tasks[gallery.gid]?.remove(task);
     }
 
-    Log.verbose('download image: $serialNo success', false);
+    Log.download('download image: $serialNo success');
 
     await _updateImageDownloadStatus(image, gallery.gid, serialNo, DownloadStatus.downloaded);
     _updateProgressAfterImageDownloaded(gallery.gid, serialNo);
@@ -487,7 +484,7 @@ class GalleryDownloadService extends GetxController {
 
   AsyncTask<void> _downloadGalleryImageTask(GalleryDownloadedData gallery, int serialNo, String url) {
     return () {
-      Log.verbose('begin to download image: $serialNo', false);
+      Log.download('begin to download image: $serialNo');
       return EHRequest.download(
         url: url,
         path: _computeImageDownloadAbsolutePath(gallery, serialNo),
@@ -557,7 +554,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   Future<void> _copyImageInfo(GalleryDownloadedData newGallery, int newImageSerialNo, GalleryImage oldImage) async {
-    Log.verbose('copy old image, serialNo: $newImageSerialNo');
+    Log.download('copy old image, serialNo: $newImageSerialNo');
 
     GalleryImage newImage = gid2Images[newGallery.gid]![newImageSerialNo]!;
 

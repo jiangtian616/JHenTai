@@ -16,6 +16,7 @@ class Log {
   static Logger? _logger;
   static Logger? _verboseFileLogger;
   static Logger? _warningFileLogger;
+  static Logger? _downloadFileLogger;
 
   static final String logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
@@ -25,8 +26,10 @@ class Log {
     }
 
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
-    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
-    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
+    LogPrinter prodPrinterWithBox =
+        PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox =
+        PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
 
     io.File verboseLogFile =
@@ -46,6 +49,15 @@ class Log {
       printer: prodPrinterWithBox,
       filter: ProductionFilter(),
       output: FileOutput(file: waringLogFile),
+    );
+
+    io.File downloadLogFile =
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_download.log'));
+    await downloadLogFile.create(recursive: true);
+    _downloadFileLogger = Logger(
+      printer: prodPrinterWithoutBox,
+      filter: ProductionFilter(),
+      output: FileOutput(file: downloadLogFile),
     );
 
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
@@ -72,6 +84,11 @@ class Log {
     _logger?.e(msg, error, stackTrace);
     _verboseFileLogger?.e(msg, error, stackTrace);
     _warningFileLogger?.e(msg, error, stackTrace);
+  }
+
+  static void download(Object? msg) {
+    _logger?.v(msg, null, StackTrace.empty);
+    _downloadFileLogger?.v(msg, null, StackTrace.empty);
   }
 
   static Future<void> upload(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {

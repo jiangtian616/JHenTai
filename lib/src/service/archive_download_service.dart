@@ -55,7 +55,7 @@ class ArchiveDownloadService extends GetxController {
       }
     }
 
-    Log.verbose('init ArchiveDownloadService success. Tasks count: ${archives.length}', false);
+    Log.verbose('init ArchiveDownloadService success. Tasks count: ${archives.length}');
     super.onInit();
   }
 
@@ -67,7 +67,7 @@ class ArchiveDownloadService extends GetxController {
     if (isFirstDownload && archiveStatuses.get(archive.gid, archive.isOriginal) != null) {
       return;
     }
-    Log.verbose('Begin to handle archive', false);
+    Log.info('Begin to handle archive');
 
     if (isFirstDownload) {
       int success = await _saveNewArchiveDownloadInfoInDatabase(archive);
@@ -104,7 +104,7 @@ class ArchiveDownloadService extends GetxController {
     await _clearArchiveDownloadInfoInDatabase(archive.gid, archive.isOriginal);
     _clearDownloadedItemsInDisk(archive);
     _clearArchiveDownloadInfoInMemory(archive.gid, archive.isOriginal);
-    Log.info('delete download archive: ${archive.gid}', false);
+    Log.info('delete download archive: ${archive.gid}');
   }
 
   Future<void> pauseDownloadArchive(int gid, bool isOriginal) async {
@@ -219,7 +219,7 @@ class ArchiveDownloadService extends GetxController {
           parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
         ),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
-        onRetry: (e) => Log.info('request unlock archive failed, retry. Reason: ${(e as DioError).message}'),
+        onRetry: (e) => Log.download('request unlock archive failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on DioError catch (e) {
@@ -258,7 +258,7 @@ class ArchiveDownloadService extends GetxController {
           }
           throw RetryException();
         },
-        onRetry: (e) => Log.info('Wait for download page url.'),
+        onRetry: (e) => Log.download('Wait for download page url.'),
         maxAttempts: waitTimes,
       );
     } on RetryException catch (e) {
@@ -288,7 +288,7 @@ class ArchiveDownloadService extends GetxController {
           useCacheIfAvailable: useCacheIfAvailable,
         ),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-        onRetry: (e) => Log.info('parse download url failed, retry. Reason: ${(e as DioError).message}'),
+        onRetry: (e) => Log.download('parse download url failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
     } on DioError catch (e) {
@@ -308,7 +308,7 @@ class ArchiveDownloadService extends GetxController {
       return;
     }
 
-    Log.verbose('Begin to download archive', false);
+    Log.download('Begin to download archive');
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.downloading.index);
     _updateArchive(archive);
 
@@ -327,7 +327,7 @@ class ArchiveDownloadService extends GetxController {
         retryIf: (e) =>
             e is DioError && e.type != DioErrorType.cancel && (e.response == null || e.response!.statusCode != 410),
         onRetry: (e) {
-          Log.info('Download archive failed, retry. Reason: ${(e as DioError).message}, url:$downloadUrl');
+          Log.download('Download archive failed, retry. Reason: ${(e as DioError).message}, url:$downloadUrl');
           speedComputers.get(archive.gid, archive.isOriginal)!.downloadedBytes = 0;
         },
       );
@@ -336,7 +336,7 @@ class ArchiveDownloadService extends GetxController {
         return;
       }
       if (e.response?.statusCode == 410) {
-        Log.warning('download archive 410, try re-parse. Archive: ${archive.gid}', false);
+        Log.download('download archive 410, try re-parse. Archive: ${archive.gid}');
         await _reParseDownloadUrlAndDownload(archive);
       }
       await _doDownloadArchive(archive, downloadUrl);
