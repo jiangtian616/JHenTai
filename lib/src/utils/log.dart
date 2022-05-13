@@ -17,6 +17,9 @@ class Log {
   static Logger? _verboseFileLogger;
   static Logger? _warningFileLogger;
   static Logger? _downloadFileLogger;
+  static late io.File _verboseLogFile;
+  static late io.File _waringLogFile;
+  static late io.File _downloadLogFile;
 
   static final String logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
@@ -32,32 +35,31 @@ class Log {
         PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
 
-    io.File verboseLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}.log'));
-    await verboseLogFile.create(recursive: true);
+    _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}.log'));
+    await _verboseLogFile.create(recursive: true);
     _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: ProductionFilter(),
-      output: FileOutput(file: verboseLogFile),
+      output: FileOutput(file: _verboseLogFile),
     );
 
-    io.File waringLogFile =
+    _waringLogFile =
         io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_error.log'));
-    await waringLogFile.create(recursive: true);
+    await _waringLogFile.create(recursive: true);
     _warningFileLogger = Logger(
       level: Level.warning,
       printer: prodPrinterWithBox,
       filter: ProductionFilter(),
-      output: FileOutput(file: waringLogFile),
+      output: FileOutput(file: _waringLogFile),
     );
 
-    io.File downloadLogFile =
+    _downloadLogFile =
         io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_download.log'));
-    await downloadLogFile.create(recursive: true);
+    await _downloadLogFile.create(recursive: true);
     _downloadFileLogger = Logger(
       printer: prodPrinterWithoutBox,
       filter: ProductionFilter(),
-      output: FileOutput(file: downloadLogFile),
+      output: FileOutput(file: _downloadLogFile),
     );
 
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
@@ -110,6 +112,13 @@ class Log {
             scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
           }
         });
+
+        scope.addAttachment(
+            SentryAttachment.fromIntList(_verboseLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
+        scope.addAttachment(
+            SentryAttachment.fromIntList(_waringLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
+        scope.addAttachment(
+            SentryAttachment.fromIntList(_downloadLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
       },
     );
   }
