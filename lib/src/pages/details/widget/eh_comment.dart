@@ -5,7 +5,9 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -160,23 +162,26 @@ class _EHCommentState extends State<EHComment> {
     }
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
-    EHRequest.voteComment(
-      detailsPageState.gallery!.gid,
-      detailsPageState.gallery!.token,
-      UserSetting.ipbMemberId.value!,
-      detailsPageState.apikey,
-      commentId,
-      isVotingUp,
-    ).then((result) {
-      setState(() {
-        int score = jsonDecode(result)['comment_score'];
-        widget.comment.score = score >= 0 ? '+' + score.toString() : score.toString();
-      });
-    }).catchError((error) {
-      Log.error('vote comment failed', (error as DioError).message);
-      snack('vote comment failed', error.message);
-    });
+    Response response;
+    try {
+      response = await EHRequest.voteComment(
+        detailsPageState.gallery!.gid,
+        detailsPageState.gallery!.token,
+        UserSetting.ipbMemberId.value!,
+        detailsPageState.apikey,
+        commentId,
+        isVotingUp,
+      );
+    } on DioError catch (e) {
+      Log.error('voteCommentFailed'.tr, e.message);
+      snack('voteCommentFailed'.tr, e.message);
+      return false;
+    }
 
+    setState(() {
+      int score = jsonDecode(response.toString())['comment_score'];
+      widget.comment.score = score >= 0 ? '+' + score.toString() : score.toString();
+    });
     return true;
   }
 
