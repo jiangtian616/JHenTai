@@ -20,7 +20,7 @@ import '../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
 
 String appBarId = 'appBarId';
-String searchField = 'searchField';
+String searchFieldId = 'searchFieldId';
 String bodyId = 'bodyId';
 String loadingStateId = 'loadingStateId';
 
@@ -134,7 +134,7 @@ class SearchPageLogic extends GetxController {
       state.pageCount = -1;
     }
     state.loadingState = LoadingState.loading;
-    update([bodyId]);
+    update([bodyId, searchFieldId]);
 
     List<dynamic> gallerysAndPageInfo;
     try {
@@ -242,7 +242,7 @@ class SearchPageLogic extends GetxController {
 
   void toggleBodyType() {
     state.showSuggestionAndHistory = !state.showSuggestionAndHistory;
-    update([appBarId, searchField, bodyId]);
+    update([appBarId, searchFieldId, bodyId]);
   }
 
   void _writeHistory() {
@@ -333,7 +333,7 @@ class SearchPageLogic extends GetxController {
     state.pageCount = -1;
     state.loadingState = LoadingState.loading;
     state.tabBarConfig.searchConfig.keyword = null;
-    update([bodyId, searchField]);
+    update([bodyId, searchFieldId]);
 
     try {
       state.redirectUrl = await EHRequest.requestLookup(

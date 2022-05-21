@@ -112,7 +112,7 @@ class SearchPagePage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: GetBuilder<SearchPageLogic>(
-                            id: searchField,
+                            id: searchFieldId,
                             tag: tag,
                             builder: (logic) {
                               return CupertinoSearchTextField(
