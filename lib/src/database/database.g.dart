@@ -2173,7 +2173,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {url, gid};
+  Set<GeneratedColumn> get $primaryKey => {gid, serialNo};
   @override
   ImageData map(Map<String, dynamic> data, {String? tablePrefix}) {
     return ImageData.fromData(data,
@@ -2186,7 +2186,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
   }
 
   @override
-  List<String> get customConstraints => const ['PRIMARY KEY (url, gid)'];
+  List<String> get customConstraints => const ['PRIMARY KEY (gid, serialNo)'];
   @override
   bool get dontWriteConstraints => true;
 }

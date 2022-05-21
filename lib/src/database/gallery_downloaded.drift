@@ -23,7 +23,7 @@ CREATE TABLE image
     path                TEXT NOT NULL,
     imageHash           TEXT NOT NULL,
     downloadStatusIndex INT  NOT NULL,
-    PRIMARY KEY (url, gid)
+    PRIMARY KEY (gid, serialNo)
 
 );
 
