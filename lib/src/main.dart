@@ -94,8 +94,6 @@ Future<void> init() async {
   await GetStorage.init(StorageService.storageFileName);
   StorageService.init();
 
-  ReLoginService.init();
-
   await AdvancedSetting.init();
   await SecuritySetting.init();
   await Log.init();
@@ -112,6 +110,8 @@ Future<void> init() async {
 
   await EHCookieManager.init();
   EHCacheInterceptor.init();
+
+  ReLoginService.init();
 
   DownloadSetting.init();
   await EHRequest.init();

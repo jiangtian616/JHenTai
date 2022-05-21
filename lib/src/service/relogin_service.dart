@@ -20,7 +20,7 @@ class ReLoginService extends GetxService {
   void onInit() async {
     super.onInit();
 
-    if (!needReLogin || !UserSetting.hasLoggedIn()) {
+    if (!needReLogin) {
       return;
     }
 
@@ -29,11 +29,14 @@ class ReLoginService extends GetxService {
 
     String? lastVersion = storageService.read<String>('lastVersion');
 
+    Log.verbose('last version:$lastVersion, current version:$currentVersion', false);
     if (lastVersion == currentVersion) {
       return;
     }
+
     storageService.write('lastVersion', currentVersion);
 
+    Log.verbose('Logout due to app update', false);
     await EHRequest.requestLogout();
   }
 }

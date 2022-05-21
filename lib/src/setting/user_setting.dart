@@ -38,10 +38,10 @@ class UserSetting {
   }
 
   static void clear() {
+    Get.find<StorageService>().remove('userSetting');
     userName.value = null;
     ipbMemberId.value = null;
     ipbPassHash.value = null;
-    Get.find<StorageService>().remove('userSetting');
   }
 
   static Future<void> _save() async {

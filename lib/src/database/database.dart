@@ -14,6 +14,20 @@ class AppDb extends _$AppDb {
 
   @override
   int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (Migrator m) async {
+        await m.createAll();
+      },
+      onUpgrade: (Migrator m, int from, int to) async {
+        if (from == 1) {
+          await m.alterTable(TableMigration(image));
+        }
+      },
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
