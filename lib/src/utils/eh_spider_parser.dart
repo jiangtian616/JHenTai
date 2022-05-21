@@ -274,11 +274,14 @@ class EHSpiderParser {
       );
     }
 
-    return GalleryImage(
-      url: url,
-      height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
-      width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
-      imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
+    return callWithParamsUploadIfErrorOccurs(
+      () => GalleryImage(
+        url: url,
+        height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
+        width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
+        imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
+      ),
+      params: response,
     );
   }
 
