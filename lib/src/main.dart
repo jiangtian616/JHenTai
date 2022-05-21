@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
+import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/widget/app_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'exception/upload_exception.dart';
@@ -92,6 +93,8 @@ Future<void> init() async {
 
   await GetStorage.init(StorageService.storageFileName);
   StorageService.init();
+
+  ReLoginService.init();
 
   await AdvancedSetting.init();
   await SecuritySetting.init();
