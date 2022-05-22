@@ -23,7 +23,7 @@ class _DownloadViewState extends State<DownloadView> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: _showArchiveBody ? Text('archive'.tr) : Text('gallery'.tr),
+        title: _showArchiveBody ? Text('archive'.tr) : Text('download'.tr),
         elevation: 1,
         actions: [
           if (downloadService.gallerys.isNotEmpty && !_showArchiveBody)
