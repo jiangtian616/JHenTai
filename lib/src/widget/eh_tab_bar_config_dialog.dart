@@ -91,9 +91,18 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
                     CupertinoSlidingSegmentedControl<SearchType>(
                       groupValue: tabBarConfig.searchConfig.searchType,
                       children: {
-                        SearchType.gallery: Text('gallery'.tr).paddingSymmetric(horizontal: 10),
-                        SearchType.favorite: Text('favorite'.tr).paddingSymmetric(horizontal: 10),
-                        SearchType.watched: Text('watched'.tr).paddingSymmetric(horizontal: 10),
+                        SearchType.gallery: ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 40),
+                          child: Center(child: Text('gallery'.tr)),
+                        ),
+                        SearchType.favorite: ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 40),
+                          child: Center(child: Text('favorite'.tr)),
+                        ),
+                        SearchType.watched: ConstrainedBox(
+                          constraints: const BoxConstraints(minWidth: 40),
+                          child: Center(child: Text('watched'.tr)),
+                        ),
                       },
                       onValueChanged: (type) {
                         setState(() {

@@ -51,12 +51,17 @@ mush thanks to these projects🙇‍
 
 ### Gallery & Search
 <img width="250" style="margin-right:10px" src="screenshot/1.jpg"/><img width="250" style="margin-right:10px" src="screenshot/2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
+<img width="250" src="screenshot/filter_en.jpg"/>
 
 ### Gallery Detail
-<img width="250" src="screenshot/4.jpg"/>
+<img width="250" src="screenshot/detail_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/torrent_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/archive_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
 
 ### Tablet Layout
 <img width="770" src="screenshot/0.png"/>
+
+### Setting & Download & Read
+<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/read.jpg" style="margin-right:10px" />
 
 ## Main Features
 

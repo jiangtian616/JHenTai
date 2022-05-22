@@ -278,9 +278,9 @@ class en_US {
       'searchName': 'Search Name',
       'searchTags': 'Search Tags',
       'searchNote': 'Search Note',
-      'allTime': 'All-Time',
+      'allTime': 'All',
       'year': 'Year',
-      'month': 'Month',
+      'month': 'Mon',
       'day': 'Day',
 
       /// ranklist view

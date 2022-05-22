@@ -53,9 +53,10 @@ class LoginPage extends StatelessWidget {
                                 onEditingComplete: () => FocusScope.of(context).requestFocus(state.passwordFocusNode),
                                 onChanged: (userName) => state.userName = userName,
                                 style: const TextStyle(color: Colors.black),
+                                textAlignVertical: TextAlignVertical.center,
                                 decoration: InputDecoration(
                                   hintText: 'userName'.tr,
-                                  hintStyle: TextStyle(color: Colors.grey.shade700),
+                                  hintStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                                   border: InputBorder.none,
                                   prefixIcon: Icon(Icons.account_circle, size: 22, color: Colors.grey.shade600),
                                 ),
@@ -73,10 +74,11 @@ class LoginPage extends StatelessWidget {
                                 style: const TextStyle(color: Colors.black),
                                 onChanged: (password) => state.password = password,
                                 onFieldSubmitted: (v) => logic.handleLogin(),
+                                textAlignVertical: TextAlignVertical.center,
                                 decoration: InputDecoration(
                                   hintText: 'password'.tr,
                                   border: InputBorder.none,
-                                  hintStyle: TextStyle(color: Colors.grey.shade700),
+                                  hintStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                                   prefixIcon: Icon(Icons.key, size: 22, color: Colors.grey.shade600),
                                   suffixIcon: InkWell(
                                     child: state.obscureText
