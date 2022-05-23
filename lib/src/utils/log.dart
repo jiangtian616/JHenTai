@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -113,12 +114,18 @@ class Log {
           }
         });
 
-        scope.addAttachment(
-            SentryAttachment.fromIntList(_verboseLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
-        scope.addAttachment(
-            SentryAttachment.fromIntList(_waringLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
-        scope.addAttachment(
-            SentryAttachment.fromIntList(_downloadLogFile.readAsBytesSync(), path.basename(_verboseLogFile.path)));
+        Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
+        Uint8List warningAttachment = _waringLogFile.readAsBytesSync();
+        Uint8List downloadAttachment = _downloadLogFile.readAsBytesSync();
+        if (verboseAttachment.isNotEmpty) {
+          scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+        }
+        if (warningAttachment.isNotEmpty) {
+          scope.addAttachment(SentryAttachment.fromUint8List(warningAttachment, path.basename(_waringLogFile.path)));
+        }
+        if (downloadAttachment.isNotEmpty) {
+          scope.addAttachment(SentryAttachment.fromUint8List(downloadAttachment, path.basename(_downloadLogFile.path)));
+        }
       },
     );
   }

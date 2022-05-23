@@ -236,7 +236,7 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> _parseImageUrl(int index, bool reParse) async {
-    Log.verbose('begin to parse image url of $index', false);
+    Log.download('begin to parse image url of $index');
     update(['$parseImageUrlStateId::$index']);
 
     GalleryImage image;

@@ -251,6 +251,17 @@ class EHSpiderParser {
       favoriteCounts.add(favoriteCount);
     }
 
+    if (favoriteTagNames.length < 10 || favoriteCounts.length < 10) {
+      Log.upload(
+        Exception('Favorites parsed error!'),
+        extraInfos: {
+          'html': html,
+          'favoriteTagNames': favoriteTagNames,
+          'favoriteCounts': favoriteCounts,
+        },
+      );
+    }
+
     return {
       'favoriteTagNames': favoriteTagNames,
       'favoriteCounts': favoriteCounts,
