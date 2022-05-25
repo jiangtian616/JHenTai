@@ -33,7 +33,9 @@ class _WebviewPageState extends State<WebviewPage> {
         )
         .toList();
     onPageStarted = (url) {
-      Get.arguments['onPageStarted']?.call(url, controller);
+      if (Get.arguments['onPageStarted'] != null) {
+        Get.arguments['onPageStarted'].call(url, controller);
+      }
     };
   }
 

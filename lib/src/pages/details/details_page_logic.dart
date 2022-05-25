@@ -346,16 +346,16 @@ class DetailsPageLogic extends GetxController {
     state.ratingState = LoadingState.loading;
     update([ratingStateId]);
 
-    String data;
+    Map<String, dynamic> ratingInfo;
     try {
-      data = (await EHRequest.requestSubmitRating<Response>(
+      ratingInfo = await EHRequest.requestSubmitRating(
         state.gallery!.gid,
         state.gallery!.token,
         UserSetting.ipbMemberId.value!,
         state.apikey,
         (rating * 2).toInt(),
-      ))
-          .data;
+        parser: EHSpiderParser.galleryRatingResponse2RatingInfo,
+      );
     } on DioError catch (e) {
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
@@ -365,11 +365,10 @@ class DetailsPageLogic extends GetxController {
     }
 
     /// eg: {"rating_avg":0.93000000000000005,"rating_usr":0.5,"rating_cnt":21,"rating_cls":"ir irr"}
-    Map<String, dynamic> respMap = jsonDecode(data);
     state.gallery!.hasRated = true;
-    state.gallery!.rating = double.parse(respMap['rating_usr'].toString());
-    state.galleryDetails!.ratingCount = respMap['rating_cnt'];
-    state.galleryDetails!.realRating = double.parse(respMap['rating_avg'].toString());
+    state.gallery!.rating = ratingInfo['rating_usr'];
+    state.galleryDetails!.ratingCount = ratingInfo['rating_cnt'];
+    state.galleryDetails!.realRating = ratingInfo['rating_avg'];
 
     state.ratingState = LoadingState.idle;
 

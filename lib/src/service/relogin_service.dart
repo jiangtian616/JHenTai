@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../utils/log.dart';
@@ -9,7 +8,7 @@ import '../utils/log.dart';
 class ReLoginService extends GetxService {
   final StorageService storageService = Get.find();
 
-  final bool needReLogin = true;
+  final bool needReLogin = false;
 
   static void init() {
     Get.put(ReLoginService());

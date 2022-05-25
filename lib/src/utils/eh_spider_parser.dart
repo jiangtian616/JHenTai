@@ -473,6 +473,17 @@ class EHSpiderParser {
     return document.querySelector('#db > p > a')!.attributes['href']!;
   }
 
+  static Map<String, dynamic> galleryRatingResponse2RatingInfo(Response response) {
+    String data = response.data! as String;
+    Map<String, dynamic> respMap = jsonDecode(data);
+
+    return {
+      'rating_usr': double.parse(respMap['rating_usr'].toString()),
+      'rating_cnt': respMap['rating_cnt'],
+      'rating_avg': double.parse(respMap['rating_avg'].toString()),
+    };
+  }
+
   static String _parseLoginErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
       return 'needCaptcha'.tr;
