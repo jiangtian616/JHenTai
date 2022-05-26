@@ -22,7 +22,7 @@ class AppDb extends _$AppDb {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        if (from == 1) {
+        if (from < 2) {
           await m.alterTable(TableMigration(image));
         }
       },
