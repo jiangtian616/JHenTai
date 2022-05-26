@@ -31,6 +31,7 @@ class ArchiveDownloadService extends GetxController {
   static const int retryTimes = 3;
   static const int waitTimes = 6;
   static const String _metadata = '.archive.metadata';
+  static const int _maxTitleLength = 100;
 
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Table<int, bool, ArchiveStatus> archiveStatuses = Table();
@@ -372,16 +373,26 @@ class ArchiveDownloadService extends GetxController {
   }
 
   String _computeArchiveDownloadPath(ArchiveDownloadedData archive) {
+    String title = archive.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    if (title.length > _maxTitleLength) {
+      title = title.substring(0, _maxTitleLength);
+    }
+
     return join(
       downloadPath,
-      'Archive - ${archive.gid} - ${archive.title}.zip'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+      'Archive - ${archive.gid} - $title.zip',
     );
   }
 
   String _computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
+    String title = archive.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    if (title.length > _maxTitleLength) {
+      title = title.substring(0, _maxTitleLength);
+    }
+
     return join(
       downloadPath,
-      'Archive - ${archive.gid} - ${archive.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+      'Archive - ${archive.gid} - $title',
     );
   }
 

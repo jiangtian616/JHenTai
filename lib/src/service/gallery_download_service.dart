@@ -42,6 +42,7 @@ class GalleryDownloadService extends GetxController {
   static const int retryTimes = 3;
   static const String _metadata = '.metadata';
   static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
+  static const int _maxTitleLength = 100;
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
   Map<int, int> gid2ThumbnailsCountPerPage = {};
@@ -506,20 +507,28 @@ class GalleryDownloadService extends GetxController {
   }
 
   String _computeGalleryDownloadPath(GalleryDownloadedData gallery) {
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    if (title.length > _maxTitleLength) {
+      title = title.substring(0, _maxTitleLength);
+    }
     return path.join(
       downloadPath,
-      '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+      '${gallery.gid} - $title',
     );
   }
 
   String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo) {
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    if (title.length > _maxTitleLength) {
+      title = title.substring(0, _maxTitleLength);
+    }
 
     return path.relative(
       path.join(
         downloadPath,
-        '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+        '${gallery.gid} - $title',
         '$serialNo.$ext',
       ),
       from: PathSetting.getVisibleDir().path,
@@ -529,10 +538,14 @@ class GalleryDownloadService extends GetxController {
   String _computeImageDownloadAbsolutePath(GalleryDownloadedData gallery, int serialNo) {
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    if (title.length > _maxTitleLength) {
+      title = title.substring(0, _maxTitleLength);
+    }
 
     return path.join(
       downloadPath,
-      '${gallery.gid} - ${gallery.title}'.replaceAll(RegExp(r'[/|?,:*"<>]'), ' '),
+      '${gallery.gid} - $title',
       '$serialNo.$ext',
     );
   }
