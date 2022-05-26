@@ -102,6 +102,7 @@ class FavoriteSetting {
       'Favorite 6',
       'Favorite 7',
       'Favorite 8',
+      'Favorite 9',
     ];
     favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     Get.find<StorageService>().remove('favoriteSetting');
