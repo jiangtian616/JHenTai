@@ -345,6 +345,7 @@ class SearchPagePage extends StatelessWidget {
             builder: (logic) {
               return LoadingStateIndicator(
                 loadingState: state.loadingState,
+                errorTapCallback: () => logic.searchMore(isRefresh: false),
               );
             }),
       ),
