@@ -12,6 +12,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -162,15 +163,16 @@ class _EHCommentState extends State<EHComment> {
     }
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
-    Response response;
+    int score;
     try {
-      response = await EHRequest.voteComment(
+      score = await EHRequest.voteComment(
         detailsPageState.gallery!.gid,
         detailsPageState.gallery!.token,
         UserSetting.ipbMemberId.value!,
         detailsPageState.apikey,
         commentId,
         isVotingUp,
+        parser: EHSpiderParser.votingCommentResponse2Score
       );
     } on DioError catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
@@ -179,7 +181,6 @@ class _EHCommentState extends State<EHComment> {
     }
 
     setState(() {
-      int score = jsonDecode(response.toString())['comment_score'];
       widget.comment.score = score >= 0 ? '+' + score.toString() : score.toString();
     });
     return true;

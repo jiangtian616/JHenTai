@@ -484,6 +484,10 @@ class EHSpiderParser {
     };
   }
 
+  static int votingCommentResponse2Score(Response response) {
+    return jsonDecode(response.toString())['comment_score'];
+  }
+
   static String _parseLoginErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
       return 'needCaptcha'.tr;
