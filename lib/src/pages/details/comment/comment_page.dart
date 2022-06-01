@@ -55,6 +55,7 @@ class _CommentPageState extends State<CommentPage> {
                 (comment) => EHComment(
                   comment: comment,
                   canTapUrl: true,
+                  showVotingButtons: comments.every((comment) => comment.userName != UserSetting.userName.value),
                 ).marginOnly(bottom: 8),
               )
               .toList(),
@@ -177,6 +178,8 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
       sendCommentState = LoadingState.idle;
     });
     snack('sendCommentFailed'.tr, errMsg);
+
+    DetailsPageLogic.current?.update([bodyId]);
     return;
   }
 }

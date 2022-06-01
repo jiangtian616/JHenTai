@@ -28,6 +28,7 @@ class EHComment extends StatefulWidget {
   final double? height;
   final int? maxLines;
   final bool canTapUrl;
+  final bool showVotingButtons;
 
   const EHComment({
     Key? key,
@@ -35,6 +36,7 @@ class EHComment extends StatefulWidget {
     this.height,
     this.maxLines,
     this.canTapUrl = false,
+    this.showVotingButtons = true,
   }) : super(key: key);
 
   @override
@@ -111,7 +113,7 @@ class _EHCommentState extends State<EHComment> {
                     ),
                   ),
                 const Expanded(child: SizedBox()),
-                if (widget.comment.score.isNotEmpty)
+                if (widget.showVotingButtons && widget.comment.score.isNotEmpty)
                   LikeButton(
                     size: 18,
                     likeBuilder: (isLiked) => Icon(
@@ -121,7 +123,7 @@ class _EHCommentState extends State<EHComment> {
                     ),
                     onTap: (isLiked) => _handleVotingComment(widget.comment.id, true),
                   ).marginOnly(right: 14),
-                if (widget.comment.score.isNotEmpty)
+                if (widget.showVotingButtons && widget.comment.score.isNotEmpty)
                   LikeButton(
                     size: 18,
                     likeBuilder: (isLiked) => Icon(
@@ -165,15 +167,9 @@ class _EHCommentState extends State<EHComment> {
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     int score;
     try {
-      score = await EHRequest.voteComment(
-        detailsPageState.gallery!.gid,
-        detailsPageState.gallery!.token,
-        UserSetting.ipbMemberId.value!,
-        detailsPageState.apikey,
-        commentId,
-        isVotingUp,
-        parser: EHSpiderParser.votingCommentResponse2Score
-      );
+      score = await EHRequest.voteComment(detailsPageState.gallery!.gid, detailsPageState.gallery!.token,
+          UserSetting.ipbMemberId.value!, detailsPageState.apikey, commentId, isVotingUp,
+          parser: EHSpiderParser.votingCommentResponse2Score);
     } on DioError catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
       snack('voteCommentFailed'.tr, e.message);

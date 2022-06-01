@@ -560,7 +560,12 @@ class DetailsPage extends StatelessWidget {
                 .map(
                   (comment) => GestureDetector(
                     onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
-                    child: EHComment(comment: comment, maxLines: 4),
+                    child: EHComment(
+                      comment: comment,
+                      maxLines: 4,
+                      showVotingButtons:
+                          galleryDetails.comments.every((comment) => comment.userName != UserSetting.userName.value),
+                    ),
                   ).marginOnly(right: 10),
                 )
                 .toList(),
