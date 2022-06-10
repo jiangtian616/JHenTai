@@ -708,6 +708,7 @@ class GalleryDownloadService extends GetxController {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
       _updateGalleryDownloadStatus(
           gallerys.firstWhere((e) => e.gid == gid).copyWith(downloadStatusIndex: DownloadStatus.downloaded.index));
+      _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));
       gid2SpeedComputer[gid]!.dispose();
     }
 
