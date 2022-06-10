@@ -70,7 +70,6 @@ class ReadPage extends StatelessWidget {
       pageController: state.pageController,
       cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       itemCount: state.pageCount,
-      onPageChanged: logic.recordReadProgress,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,

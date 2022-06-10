@@ -115,16 +115,8 @@ class Log {
         });
 
         Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
-        Uint8List warningAttachment = _waringLogFile.readAsBytesSync();
-        Uint8List downloadAttachment = _downloadLogFile.readAsBytesSync();
         if (verboseAttachment.isNotEmpty) {
           scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
-        }
-        if (warningAttachment.isNotEmpty) {
-          scope.addAttachment(SentryAttachment.fromUint8List(warningAttachment, path.basename(_waringLogFile.path)));
-        }
-        if (downloadAttachment.isNotEmpty) {
-          scope.addAttachment(SentryAttachment.fromUint8List(downloadAttachment, path.basename(_downloadLogFile.path)));
         }
       },
     );

@@ -242,9 +242,17 @@ class ReadViewHelper extends StatelessWidget {
                       state.mode == 'online' ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
                 ),
               ),
-              Text(
-                (index + 1).toString(),
-                style: state.readPageTextStyle().copyWith(fontSize: 9),
+              GetBuilder<ReadPageLogic>(
+                id: thumbnailsId,
+                builder: (logic) {
+                  return Text(
+                    (index + 1).toString(),
+                    style: state.readPageTextStyle().copyWith(
+                          fontSize: 9,
+                          color: logic.getCurrentIndex() == index ? Get.theme.primaryColorLight : null,
+                        ),
+                  );
+                },
               ).marginOnly(top: 4),
             ],
           ),

@@ -53,35 +53,16 @@ class ReadPageLogic extends GetxController {
   @override
   void onInit() {
     /// record reading progress and sync thumbnails list index
-    state.itemPositionsListener.itemPositions.addListener(() {
-      int firstImageIndex = getCurrentVisibleItems().first.index;
-      recordReadProgress(firstImageIndex);
-
-      if (ReadSetting.showThumbnails.isFalse) {
-        return;
-      }
-
-      int? firstThumbnailIndex = getCurrentVisibleThumbnails().firstOrNull?.index;
-      int? lastThumbnailIndex = getCurrentVisibleThumbnails().lastOrNull?.index;
-      if (firstThumbnailIndex == null) {
-        return;
-      }
-      /// No more thumbnails, do not scroll more
-      if (lastThumbnailIndex == state.pageCount - 1 && firstImageIndex > firstThumbnailIndex) {
-        return;
-      }
-
-      /// If a new scroll starts before previous scroll end, the previous scroll will be cancelled. So if user keeps scrolling
-      /// the list, the scroll of the thumbnail list will be delayed until the user stops scrolling. We use Throttling to avoid.
-      _thr.throttle(() {
-        scrollThumbnailsToIndex(firstImageIndex);
-      });
-    });
+    state.itemPositionsListener.itemPositions.addListener(_readProgressListenerForTopBottomDirection);
+    state.pageController?.addListener(_readProgressListenerForLeftRightDirection);
 
     /// when direction changes, keep read position
     readDirectionListener = ever(ReadSetting.readDirection, (value) {
       state.initialIndex = state.readIndexRecord;
+
+      state.pageController!.dispose();
       state.pageController = PageController(initialPage: state.readIndexRecord);
+      state.pageController?.addListener(_readProgressListenerForLeftRightDirection);
     });
 
     /// refresh current time and battery level info
@@ -152,7 +133,7 @@ class ReadPageLogic extends GetxController {
       (timer) {
         /// stop when at bottom
         if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
-          ItemPosition lastPosition = getCurrentVisibleItems().last;
+          ItemPosition lastPosition = getCurrentVisibleItemsForTopBottomDirection().last;
 
           /// sometimes itemTrailingEdge is not equal to 1.0
           if (lastPosition.index == state.pageCount - 1 && lastPosition.itemTrailingEdge <= 1.2) {
@@ -279,7 +260,7 @@ class ReadPageLogic extends GetxController {
       case TurnPageMode.screen:
         return _toPrevScreen();
       case TurnPageMode.adaptive:
-        List<ItemPosition> positions = getCurrentVisibleItems();
+        List<ItemPosition> positions = getCurrentVisibleItemsForTopBottomDirection();
         if (positions.length > 1) {
           return _toPrevImage();
         }
@@ -299,7 +280,7 @@ class ReadPageLogic extends GetxController {
       case TurnPageMode.screen:
         return _toNextScreen();
       case TurnPageMode.adaptive:
-        List<ItemPosition> positions = getCurrentVisibleItems();
+        List<ItemPosition> positions = getCurrentVisibleItemsForTopBottomDirection();
         if (positions.length > 1) {
           return _toNextImage();
         }
@@ -312,7 +293,7 @@ class ReadPageLogic extends GetxController {
 
     /// ListView
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
-      ItemPosition firstPosition = getCurrentVisibleItems().first;
+      ItemPosition firstPosition = getCurrentVisibleItemsForTopBottomDirection().first;
       targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
       _toPage(max(targetIndex, 0));
     }
@@ -330,7 +311,7 @@ class ReadPageLogic extends GetxController {
     int targetIndex;
 
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
-      ItemPosition lastPosition = getCurrentVisibleItems().last;
+      ItemPosition lastPosition = getCurrentVisibleItemsForTopBottomDirection().last;
       targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
           ? lastPosition.index
           : lastPosition.index + 1;
@@ -461,7 +442,7 @@ class ReadPageLogic extends GetxController {
 
   void recordReadProgress(int index) {
     state.readIndexRecord = index;
-    update([sliderId, pageNoId]);
+    update([sliderId, pageNoId, thumbnailsId]);
   }
 
   void hideSystemBarIfNeeded(bool hide) {
@@ -476,7 +457,67 @@ class ReadPageLogic extends GetxController {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
-  List<ItemPosition> getCurrentVisibleItems() {
+  void _readProgressListenerForTopBottomDirection() {
+    int firstImageIndex = getCurrentVisibleItemsForTopBottomDirection().first.index;
+    recordReadProgress(firstImageIndex);
+
+    if (ReadSetting.showThumbnails.isFalse) {
+      return;
+    }
+
+    int? firstThumbnailIndex = getCurrentVisibleThumbnails().firstOrNull?.index;
+    int? lastThumbnailIndex = getCurrentVisibleThumbnails().lastOrNull?.index;
+    if (firstThumbnailIndex == null) {
+      return;
+    }
+
+    /// No more thumbnails, do not scroll more
+    if (lastThumbnailIndex == state.pageCount - 1 && firstImageIndex > firstThumbnailIndex) {
+      return;
+    }
+
+    /// If a new scroll starts before previous scroll end, the previous scroll will be cancelled. So if user keeps scrolling
+    /// the list, the scroll of the thumbnail list will be delayed until the user stops scrolling. We use Throttling to avoid.
+    _thr.throttle(() {
+      scrollThumbnailsToIndex(firstImageIndex);
+    });
+  }
+
+  void _readProgressListenerForLeftRightDirection() {
+    int currentPage = state.pageController!.page!.toInt();
+    recordReadProgress(currentPage);
+
+    if (ReadSetting.showThumbnails.isFalse) {
+      return;
+    }
+
+    int? firstThumbnailIndex = getCurrentVisibleThumbnails().firstOrNull?.index;
+    int? lastThumbnailIndex = getCurrentVisibleThumbnails().lastOrNull?.index;
+    if (firstThumbnailIndex == null) {
+      return;
+    }
+
+    /// No more thumbnails, do not scroll more
+    if (lastThumbnailIndex == state.pageCount - 1 && currentPage > firstThumbnailIndex) {
+      return;
+    }
+
+    /// If a new scroll starts before previous scroll end, the previous scroll will be cancelled. So if user keeps scrolling
+    /// the list, the scroll of the thumbnail list will be delayed until the user stops scrolling. We use Throttling to avoid.
+    _thr.throttle(() {
+      scrollThumbnailsToIndex(currentPage);
+    });
+  }
+
+  int? getCurrentIndex() {
+    if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+      return getCurrentVisibleItemsForTopBottomDirection().firstOrNull?.index;
+    } else {
+      return state.pageController?.page?.toInt();
+    }
+  }
+
+  List<ItemPosition> getCurrentVisibleItemsForTopBottomDirection() {
     return _filterAndSortItems(state.itemPositionsListener.itemPositions.value);
   }
 
