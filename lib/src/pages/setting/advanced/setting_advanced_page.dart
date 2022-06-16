@@ -138,15 +138,20 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   String _getImagesCacheSize() {
-    io.Directory cacheImagesDirectory = io.Directory(join(PathSetting.tempDir.path, cacheImageFolderName));
-    if (!cacheImagesDirectory.existsSync()) {
+    try {
+      io.Directory cacheImagesDirectory = io.Directory(join(PathSetting.tempDir.path, cacheImageFolderName));
+      if (!cacheImagesDirectory.existsSync()) {
+        return '0KB';
+      }
+
+      int totalBytes = cacheImagesDirectory
+          .listSync()
+          .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+
+      return (totalBytes / 1024 / 1024).toStringAsFixed(2) + 'MB';
+    } on Exception catch (e) {
+      Log.upload(e);
       return '0KB';
     }
-
-    int totalBytes = cacheImagesDirectory
-        .listSync()
-        .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
-
-    return (totalBytes / 1024 / 1024).toStringAsFixed(2) + 'MB';
   }
 }
