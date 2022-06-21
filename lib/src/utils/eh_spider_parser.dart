@@ -572,23 +572,28 @@ class EHSpiderParser {
     String html = response.data! as String;
     Document document = parse(html);
     return GalleryArchive(
-      gpCount: int.parse(
+      gpCount: int.tryParse(
         RegExp(r'([\d,]+) GP')
-            .firstMatch(document.querySelector('#db > p:nth-child(4)')!.text)!
-            .group(1)!
-            .replaceAll(',', ''),
+                .firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')
+                ?.group(1)
+                ?.replaceAll(',', '') ??
+            '',
       ),
-      creditCount: int.parse(
+      creditCount: int.tryParse(
         RegExp(r'([\d,]+) Credits')
-            .firstMatch(document.querySelector('#db > p:nth-child(4)')!.text)!
-            .group(1)!
-            .replaceAll(',', ''),
+                .firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')
+                ?.group(1)
+                ?.replaceAll(',', '') ??
+            '',
       ),
       originalCost: document.querySelector('#db > div > div > div > strong')!.text.replaceAll(',', ''),
       originalSize: document.querySelector('#db > div > div > p > strong')!.text,
+      downloadOriginalHint: document.querySelector('#db > div > div > form > div > input')!.attributes['value']!,
       resampleCost:
           document.querySelector('#db > div > div:nth-child(3) > div > strong')?.text.replaceAll(',', '') ?? '',
       resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')?.text,
+      downloadResampleHint:
+          document.querySelector('#db > div > div:nth-child(3) > form > div > input')!.attributes['value']!,
     );
   }
 

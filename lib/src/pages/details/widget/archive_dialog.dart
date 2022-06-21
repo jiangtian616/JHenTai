@@ -44,33 +44,34 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
           successWidgetBuilder: () => Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 9,
-                    backgroundColor: Get.theme.primaryColor,
-                    child: const Center(
-                      child: Text(
-                        'C',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              if (archive.creditCount != null && archive.gpCount != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 9,
+                      backgroundColor: Get.theme.primaryColor,
+                      child: const Center(
+                        child: Text(
+                          'C',
+                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  ),
-                  Text(archive.creditCount.toString()).marginOnly(left: 2),
-                  CircleAvatar(
-                    radius: 9,
-                    backgroundColor: Get.theme.primaryColor,
-                    child: const Center(
-                      child: Text(
-                        'G',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    Text(archive.creditCount.toString()).marginOnly(left: 2),
+                    CircleAvatar(
+                      radius: 9,
+                      backgroundColor: Get.theme.primaryColor,
+                      child: const Center(
+                        child: Text(
+                          'G',
+                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ).marginOnly(left: 16),
-                  Text(archive.gpCount.toString()).marginOnly(left: 2),
-                ],
-              ),
+                    ).marginOnly(left: 16),
+                    Text(archive.gpCount.toString()).marginOnly(left: 2),
+                  ],
+                ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -78,7 +79,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                     children: [
                       Text(archive.originalCost, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: canAffordDownload(true) ? () => _downloadArchive(true) : null,
+                        onPressed: _canAffordDownload(true) ? () => _downloadArchive(true) : null,
                         child: Row(
                           children: [
                             const Text('Original'),
@@ -94,7 +95,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                       if (archive.resampleCost != null)
                         Text(archive.resampleCost!, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: canAffordDownload(false) ? () => _downloadArchive(false) : null,
+                        onPressed: _canAffordDownload(false) ? () => _downloadArchive(false) : null,
                         child: Row(
                           children: [
                             const Text('Resample'),
@@ -140,26 +141,36 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
     });
   }
 
-  bool canAffordDownload(bool isOriginal) {
+  bool _canAffordDownload(bool isOriginal) {
     if (isOriginal) {
       if (archive.originalCost.contains('Free')) {
         return true;
       }
-      if (archive.originalCost.contains('GP')) {
-        return archive.gpCount >= int.parse(archive.originalCost.split(' ')[0]);
+
+      /// ex site
+      if (archive.downloadOriginalHint.contains('Insufficient Funds')) {
+        return false;
       }
-      return archive.creditCount >= int.parse(archive.originalCost.split(' ')[0]);
+      if (archive.originalCost.contains('GP')) {
+        return (archive.gpCount ?? double.maxFinite) >= int.parse(archive.originalCost.split(' ')[0]);
+      }
+      return (archive.creditCount ?? double.maxFinite) >= int.parse(archive.originalCost.split(' ')[0]);
     } else {
       if (archive.resampleCost == null || archive.resampleCost == 'N/A') {
+        return false;
+      }
+
+      /// ex site
+      if (archive.downloadResampleHint.contains('Insufficient Funds')) {
         return false;
       }
       if (archive.resampleCost!.contains('Free')) {
         return true;
       }
       if (archive.resampleCost!.contains('GP')) {
-        return archive.gpCount >= int.parse(archive.resampleCost!.split(' ')[0]);
+        return (archive.gpCount ?? double.maxFinite) >= int.parse(archive.resampleCost!.split(' ')[0]);
       }
-      return archive.creditCount >= int.parse(archive.resampleCost!.split(' ')[0]);
+      return (archive.creditCount ?? double.maxFinite) >= int.parse(archive.resampleCost!.split(' ')[0]);
     }
   }
 

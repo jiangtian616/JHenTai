@@ -11,21 +11,25 @@ enum ArchiveStatus {
 }
 
 class GalleryArchive {
-  int gpCount;
-  int creditCount;
+  int? gpCount;
+  int? creditCount;
 
   String originalCost;
   String originalSize;
+  String downloadOriginalHint;
 
   String? resampleCost;
   String? resampleSize;
+  String downloadResampleHint;
 
   GalleryArchive({
-    required this.gpCount,
-    required this.creditCount,
+    this.gpCount,
+    this.creditCount,
     required this.originalCost,
     required this.originalSize,
+    required this.downloadOriginalHint,
     this.resampleCost,
     this.resampleSize,
+    required this.downloadResampleHint,
   });
 }
