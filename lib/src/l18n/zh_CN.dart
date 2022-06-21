@@ -313,6 +313,8 @@ class zh_CN {
       'restoreDownloadTasksSuccess': '恢复下载任务成功',
       'restoredCount': '恢复任务数',
       'removeOldGalleryAfterUpdate': '更新画廊后删除旧画廊',
+      'restoredGalleryCount': '恢复画廊数目',
+      'restoredArchiveCount': '恢复归档数目',
 
       /// tag namespace
       'language': '语言',
