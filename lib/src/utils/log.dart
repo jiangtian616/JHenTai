@@ -114,9 +114,11 @@ class Log {
           }
         });
 
-        Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
-        if (verboseAttachment.isNotEmpty) {
-          scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+        if (_shouldUploadLog(stackTrace)) {
+          Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
+          if (verboseAttachment.isNotEmpty) {
+            scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+          }
         }
       },
     );
@@ -161,6 +163,19 @@ class Log {
       return true;
     }
     return false;
+  }
+
+  static bool _shouldUploadLog(dynamic stackTrace) {
+    if (stackTrace == null) {
+      return true;
+    }
+
+    /// todo:
+    if (stackTrace.toString().contains('Scrollable.recommendDeferredLoadingForContext')) {
+      return false;
+    }
+
+    return true;
   }
 
   static Map<String, dynamic> _extractExtraInfos(
