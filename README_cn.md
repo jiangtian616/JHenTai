@@ -94,6 +94,8 @@ E-hentai 的一个移动端app。
 
 ## 已知bug
 
+1. 阅读页面采取上下滚动方向时，有极小几率产生bug，导致无法正确读取当前页码；涉及第三方库。
+
 ## 主要dart依赖
 
 - [get](https://pub.flutter-io.cn/packages/get): 依赖管理、状态管理、国际化、NoSQL
