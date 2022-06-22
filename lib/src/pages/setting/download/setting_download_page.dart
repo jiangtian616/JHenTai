@@ -35,11 +35,12 @@ class SettingDownloadPage extends StatelessWidget {
               subtitle: Text(DownloadSetting.downloadPath.value),
               onTap: _handleChangeDownloadPath,
             ),
-            ListTile(
-              title: Text('resetDownloadPath'.tr),
-              subtitle: Text('longPress2Reset'.tr),
-              onLongPress: _handleResetDownloadPath,
-            ),
+            if (GetPlatform.isAndroid)
+              ListTile(
+                title: Text('resetDownloadPath'.tr),
+                subtitle: Text('longPress2Reset'.tr),
+                onLongPress: _handleResetDownloadPath,
+              ),
             ListTile(
               title: Text('downloadTaskConcurrency'.tr),
               subtitle: Text('needRestart'.tr),
