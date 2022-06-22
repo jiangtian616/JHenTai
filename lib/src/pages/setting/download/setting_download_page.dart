@@ -194,6 +194,10 @@ class SettingDownloadPage extends StatelessWidget {
   }
 
   Future<void> _handleChangeDownloadPath({String? newDownloadPath}) async {
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+
     /// request external storage permission
     bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted;
     if (!hasStoragePermission) {
