@@ -339,4 +339,9 @@ class SearchConfig {
       searchFavoriteNote: searchFavoriteNote ?? this.searchFavoriteNote,
     );
   }
+
+  @override
+  String toString() {
+    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, searchGalleryName: $searchGalleryName, searchGalleryTags: $searchGalleryTags, searchGalleryDescription: $searchGalleryDescription, searchExpungedGalleries: $searchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, searchDownVotedTags: $searchDownVotedTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex, searchFavoriteName: $searchFavoriteName, searchFavoriteTags: $searchFavoriteTags, searchFavoriteNote: $searchFavoriteNote}';
+  }
 }

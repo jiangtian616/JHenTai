@@ -11,17 +11,17 @@ typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
 typedef AppLaunchCallback = void Function(BuildContext context);
 
-class AppListener extends StatefulWidget {
+class AppStateListener extends StatefulWidget {
   static final List<DidChangePlatformBrightnessCallback> _didChangePlatformBrightnessCallbacks = [];
   static final List<DidChangeAppLifecycleStateCallback> _didChangeAppLifecycleStateCallbacks = [];
   static final List<AppLaunchCallback> _appLaunchCallbacks = [];
 
   final Widget child;
 
-  const AppListener({Key? key, required this.child}) : super(key: key);
+  const AppStateListener({Key? key, required this.child}) : super(key: key);
 
   @override
-  State<AppListener> createState() => _AppListenerState();
+  State<AppStateListener> createState() => _AppStateListenerState();
 
   static void registerDidChangePlatformBrightnessCallback(DidChangePlatformBrightnessCallback callback) {
     _didChangePlatformBrightnessCallbacks.add(callback);
@@ -36,7 +36,7 @@ class AppListener extends StatefulWidget {
   }
 }
 
-class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
+class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
   AppLifecycleState _state = AppLifecycleState.resumed;
 
   @override
@@ -44,11 +44,11 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
 
-    AppListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
-    AppListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
-    AppListener.registerAppLaunchCallback(_addSecureFlagForAndroid);
+    AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
+    AppStateListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
+    AppStateListener.registerAppLaunchCallback(_addSecureFlagForAndroid);
 
-    AppListener._appLaunchCallbacks.forEach((callback) => callback.call(context));
+    AppStateListener._appLaunchCallbacks.forEach((callback) => callback.call(context));
   }
 
   @override
@@ -59,7 +59,7 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
 
   @override
   void didChangePlatformBrightness() {
-    for (DidChangePlatformBrightnessCallback callback in AppListener._didChangePlatformBrightnessCallbacks) {
+    for (DidChangePlatformBrightnessCallback callback in AppStateListener._didChangePlatformBrightnessCallbacks) {
       callback.call();
     }
     super.didChangePlatformBrightness();
@@ -67,7 +67,7 @@ class _AppListenerState extends State<AppListener> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    for (DidChangeAppLifecycleStateCallback callback in AppListener._didChangeAppLifecycleStateCallbacks) {
+    for (DidChangeAppLifecycleStateCallback callback in AppStateListener._didChangeAppLifecycleStateCallbacks) {
       callback.call(state);
     }
     super.didChangeAppLifecycleState(state);

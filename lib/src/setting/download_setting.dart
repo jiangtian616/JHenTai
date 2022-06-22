@@ -25,32 +25,37 @@ class DownloadSetting {
   }
 
   static saveDownloadPath(String downloadPath) {
-    Log.verbose('saveDownloadPath:$downloadPath}');
+    Log.verbose('saveDownloadPath:$downloadPath');
     DownloadSetting.downloadPath.value = downloadPath;
     _save();
   }
 
   static saveDownloadTaskConcurrency(int downloadTaskConcurrency) {
+    Log.verbose('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
     _save();
   }
 
   static saveMaximum(int maximum) {
+    Log.verbose('saveMaximum:$maximum');
     DownloadSetting.maximum.value = maximum;
     _save();
   }
 
   static savePeriod(Duration period) {
+    Log.verbose('savePeriod:$period');
     DownloadSetting.period.value = period;
     _save();
   }
 
   static saveTimeout(int value) {
+    Log.verbose('saveTimeout:$value');
     timeout.value = value;
     _save();
   }
 
   static saveEnableStoreMetadataToRestore(bool value) {
+    Log.verbose('saveEnableStoreMetadataToRestore:$value');
     enableStoreMetadataForRestore.value = value;
     _save();
   }

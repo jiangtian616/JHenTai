@@ -73,7 +73,7 @@ class SearchPageLogic extends GetxController {
       return;
     }
 
-    Log.info('search data', false);
+    Log.info('search data before', false);
 
     if (state.showSuggestionAndHistory) {
       toggleBodyType();

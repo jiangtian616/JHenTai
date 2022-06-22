@@ -25,6 +25,8 @@ class SecuritySetting {
   }
 
   static saveEnableBlur(bool enableBlur) {
+    Log.verbose('saveEnableBlur:$enableBlur');
+
     SecuritySetting.enableBlur.value = enableBlur;
     _save();
 
@@ -43,6 +45,7 @@ class SecuritySetting {
   }
 
   static saveEnableFingerPrintLock(bool enableFingerPrintLock) {
+    Log.verbose('saveEnableFingerPrintLock:$enableFingerPrintLock');
     SecuritySetting.enableFingerPrintLock.value = enableFingerPrintLock;
     _save();
   }

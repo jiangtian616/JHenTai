@@ -46,6 +46,7 @@ class StyleSetting {
   }
 
   static saveLanguage(Locale locale) async {
+    Log.verbose('saveLanguage:$locale');
     StyleSetting.locale.value = locale;
     _save();
     Get.updateLocale(locale);
@@ -53,27 +54,32 @@ class StyleSetting {
   }
 
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
+    Log.verbose('saveEnableTagZHTranslation:$enableTagZHTranslation');
     StyleSetting.enableTagZHTranslation.value = enableTagZHTranslation;
     _save();
   }
 
   static saveThemeMode(ThemeMode themeMode) {
+    Log.verbose('saveThemeMode:${themeMode.name}');
     StyleSetting.themeMode.value = themeMode;
     _save();
     Get.changeThemeMode(themeMode);
   }
 
   static saveListMode(ListMode listMode) {
+    Log.verbose('saveListMode:${listMode.name}');
     StyleSetting.listMode.value = listMode;
     _save();
   }
 
   static saveCoverMode(CoverMode coverMode) {
+    Log.verbose('saveCoverMode:${coverMode.name}');
     StyleSetting.coverMode.value = coverMode;
     _save();
   }
 
   static saveEnableTabletLayout(bool enableTabletLayout) {
+    Log.verbose('saveEnableTabletLayout:$enableTabletLayout');
     StyleSetting.enableTabletLayout.value = enableTabletLayout;
     _save();
   }

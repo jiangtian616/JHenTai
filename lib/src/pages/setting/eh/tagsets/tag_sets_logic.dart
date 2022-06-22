@@ -58,6 +58,8 @@ class TagSetsLogic extends GetxController {
   }
 
   Future<void> updateTagSet(TagSet tag, String updateId) async {
+    Log.verbose('Update tag:$tag');
+
     state.updateTagState = LoadingState.loading;
     update(['$updateId-${tag.tagId}']);
 
@@ -90,6 +92,8 @@ class TagSetsLogic extends GetxController {
   }
 
   Future<void> deleteTagSet(int tagSetIndex) async {
+    Log.verbose('Delete tag:$tagSetIndex');
+
     state.deleteTagState = LoadingState.loading;
     update(['$deleteStateId-$tagSetIndex']);
 

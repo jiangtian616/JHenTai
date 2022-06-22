@@ -253,6 +253,8 @@ class SettingDownloadPage extends StatelessWidget {
   }
 
   Future<void> _restore() async {
+    Log.verbose('Restore download task.');
+
     int restoredGalleryCount = await Get.find<GalleryDownloadService>().restore();
     int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restore();
     snack(

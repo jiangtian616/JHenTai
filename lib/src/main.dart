@@ -69,7 +69,7 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
-      builder: (context, child) => AppListener(child: child!),
+      builder: (context, child) => AppStateListener(child: child!),
 
       /// enable swipe back feature
       popGesture: true,

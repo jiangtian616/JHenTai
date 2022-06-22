@@ -18,7 +18,6 @@ import 'package:retry/retry.dart';
 
 import '../exception/retry_exception.dart';
 import '../model/gallery_archive.dart';
-import '../setting/path_setting.dart';
 import '../utils/log.dart';
 import '../utils/table.dart';
 

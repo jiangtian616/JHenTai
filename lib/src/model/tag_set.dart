@@ -35,4 +35,9 @@ class TagSet {
       weight: weight ?? this.weight,
     );
   }
+
+  @override
+  String toString() {
+    return 'TagSet{tagId: $tagId, tagData: $tagData, watched: $watched, hidden: $hidden, color: $color, weight: $weight}';
+  }
 }

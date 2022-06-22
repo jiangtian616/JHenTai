@@ -30,6 +30,7 @@ class TabBarSetting {
   ].obs;
 
   static void addTab(TabBarConfig tabBarConfig) {
+    Log.verbose('addTab:$tabBarConfig');
     configs.add(tabBarConfig);
     _save();
   }
@@ -38,16 +39,19 @@ class TabBarSetting {
     if (configs.length == 1) {
       return;
     }
+    Log.verbose('removeTab:$index');
     configs.removeAt(index);
     _save();
   }
 
   static void updateTab(int index, TabBarConfig tabBarConfig) {
+    Log.verbose('updateTab:$index');
     configs[index] = tabBarConfig;
     _save();
   }
 
   static void reOrderTab(int oldIndex, int newIndex) {
+    Log.verbose('reOrderTab:$oldIndex-$newIndex');
     if (newIndex != configs.length - 1) {
       configs.insert(newIndex, configs.removeAt(oldIndex));
     } else {

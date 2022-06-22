@@ -20,21 +20,25 @@ class AdvancedSetting {
   }
 
   static savePageCacheMaxAge(Duration pageCacheMaxAge) {
+    Log.verbose('savePageCacheMaxAge:$pageCacheMaxAge');
     AdvancedSetting.pageCacheMaxAge.value = pageCacheMaxAge;
     _save();
   }
 
   static saveEnableDomainFronting(bool enableDomainFronting) {
+    Log.verbose('saveEnableDomainFronting:$enableDomainFronting');
     AdvancedSetting.enableDomainFronting.value = enableDomainFronting;
     _save();
   }
 
   static saveEnableLogging(bool enableLogging) {
+    Log.verbose('saveEnableLogging:$enableLogging');
     AdvancedSetting.enableLogging.value = enableLogging;
     _save();
   }
 
   static saveEnableCheckUpdate(bool enableCheckUpdate) {
+    Log.verbose('saveEnableCheckUpdate:$enableCheckUpdate');
     AdvancedSetting.enableCheckUpdate.value = enableCheckUpdate;
     _save();
   }

@@ -66,11 +66,13 @@ class EHSetting {
   }
 
   static saveSite(String site) {
+    Log.verbose('saveSite:$site');
     EHSetting.site.value = site;
     _save();
   }
 
   static saveTotalLimit(int totalLimit) {
+    Log.verbose('saveTotalLimit:$totalLimit');
     EHSetting.totalLimit.value = totalLimit;
     _save();
   }

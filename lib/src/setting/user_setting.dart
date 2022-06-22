@@ -23,6 +23,7 @@ class UserSetting {
     required int ipbMemberId,
     required String ipbPassHash,
   }) async {
+    Log.verbose('saveUserInfo:$userName');
     UserSetting.userName.value = userName;
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;

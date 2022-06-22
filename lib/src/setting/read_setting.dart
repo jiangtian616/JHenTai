@@ -47,56 +47,67 @@ class ReadSetting {
   }
 
   static saveEnableImmersiveMode(bool value) {
+    Log.verbose('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
     _save();
   }
 
   static saveShowThumbnails(bool value) {
+    Log.verbose('saveShowThumbnails:$value');
     showThumbnails.value = value;
     _save();
   }
 
   static saveShowStatusInfo(bool value) {
+    Log.verbose('saveShowStatusInfo:$value');
     showStatusInfo.value = value;
     _save();
   }
 
   static saveAutoModeInterval(double value) {
+    Log.verbose('saveAutoModeInterval:$value');
     autoModeInterval.value = value;
     _save();
   }
 
   static saveAutoModeStyle(AutoModeStyle value) {
+    Log.verbose('saveAutoModeStyle:${value.name}');
     autoModeStyle.value = value;
     _save();
   }
 
   static saveReadDirection(ReadDirection value) {
+    Log.verbose('saveReadDirection:${value.name}');
     readDirection.value = value;
     _save();
   }
 
   static saveEnablePageTurnAnime(bool value) {
+    Log.verbose('saveEnablePageTurnAnime:$value');
     enablePageTurnAnime.value = value;
     _save();
   }
 
   static saveTurnPageMode(TurnPageMode value) {
+    Log.verbose('saveTurnPageMode:${value.name}');
     turnPageMode.value = value;
     _save();
   }
 
   static savePreloadDistance(int value) {
+    Log.verbose('savePreloadDistance:$value');
     preloadDistance.value = value;
     _save();
   }
 
   static savePreloadPageCount(int value) {
+    Log.verbose('savePreloadPageCount:$value');
     preloadPageCount.value = value;
     _save();
   }
 
   static saveEnableAutoScaleUp(bool value) {
+    Log.verbose('saveEnableAutoScaleUp:$value');
     enableAutoScaleUp.value = value;
     _save();
   }

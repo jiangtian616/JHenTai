@@ -52,7 +52,7 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
   @override
   void onReady() {
     handleUrlInClipBoard();
-    AppListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+    AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
     super.onReady();
   }
 

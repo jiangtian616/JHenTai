@@ -32,4 +32,9 @@ class TabBarConfig {
       'isEditable': this.isEditable,
     };
   }
+
+  @override
+  String toString() {
+    return 'TabBarConfig{name: $name, searchConfig: $searchConfig, isDeleteAble: $isDeleteAble, isEditable: $isEditable}';
+  }
 }

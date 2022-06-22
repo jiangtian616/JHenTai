@@ -250,6 +250,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> shareGallery() async {
+    Log.verbose('Share gallery:${state.gallery!.galleryUrl}');
     Share.share(
       state.gallery!.galleryUrl,
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
@@ -283,6 +284,8 @@ class DetailsPageLogic extends GetxController {
     if (favIndex == null) {
       return;
     }
+
+    Log.verbose('Favorite gallery:${state.gallery!.gid}');
 
     state.favoriteState = LoadingState.loading;
     update([addFavoriteStateId]);
@@ -342,6 +345,8 @@ class DetailsPageLogic extends GetxController {
     if (rating == null) {
       return;
     }
+
+    Log.verbose('Rate gallery:${state.gallery!.gid}');
 
     state.ratingState = LoadingState.loading;
     update([ratingStateId]);
@@ -416,6 +421,8 @@ class DetailsPageLogic extends GetxController {
       snack('operationFailed'.tr, 'needLoginToOperate'.tr);
       return null;
     }
+
+    Log.verbose('Vote for comment:${state.gallery!.gid}-$commentId}');
 
     EHRequest.voteComment(
       state.gallery!.gid,

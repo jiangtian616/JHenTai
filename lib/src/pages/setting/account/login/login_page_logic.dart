@@ -71,6 +71,8 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userInfoOrErrorMsg['errorMsg'] == null) {
+      Log.verbose('Login success by password.');
+
       state.loginState = LoadingState.success;
       UserSetting.saveUserInfo(
         userName: state.userName!,
@@ -82,6 +84,8 @@ class LoginPageLogic extends GetxController {
       await Future.delayed(const Duration(milliseconds: 700));
       back(currentRoute: Routes.login);
     } else {
+      Log.verbose('Login failed by password.');
+
       state.loginState = LoadingState.error;
       snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
     }
@@ -128,6 +132,8 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userName != null) {
+      Log.verbose('Login success by cookie.');
+
       state.loginState = LoadingState.success;
       update();
 
@@ -137,6 +143,8 @@ class LoginPageLogic extends GetxController {
       await Future.delayed(const Duration(milliseconds: 1000));
       back(currentRoute: Routes.login);
     } else {
+      Log.verbose('Login failed by cookie.');
+
       state.loginState = LoadingState.error;
       update();
       await cookieManager.removeAllCookies();
@@ -161,6 +169,8 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
+    Log.verbose('Login success by web.');
+
     List<Cookie> cookies = cookieString.split('; ').map((pair) {
       List<String> nameAndValue = pair.split('=');
       return Cookie(nameAndValue[0], nameAndValue[1]);
@@ -170,6 +180,7 @@ class LoginPageLogic extends GetxController {
     String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
     await cookieManager.storeEhCookiesForAllUri(cookies);
+
     /// temporary name
     UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
@@ -179,6 +190,6 @@ class LoginPageLogic extends GetxController {
     );
 
     String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-    UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+    UserSetting.userName.value = userName!;
   }
 }
