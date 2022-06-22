@@ -218,34 +218,50 @@ class SettingDownloadPage extends StatelessWidget {
       return;
     }
 
-    await galleryDownloadService.pauseAllDownloadGallery();
-    await archiveDownloadService.pauseAllDownloadArchive();
+    Future future = Future.wait([
+      galleryDownloadService.pauseAllDownloadGallery(),
+      archiveDownloadService.pauseAllDownloadArchive(),
+    ]);
 
-    DownloadSetting.saveDownloadPath(newDownloadPath);
-    GalleryDownloadService.ensureDownloadDirExists();
-
-    /// copy
     io.Directory oldDir = io.Directory(oldDownloadPath);
     List<io.FileSystemEntity> gallerys = oldDir.listSync();
-    for (io.FileSystemEntity oldGallery in gallerys) {
-      oldGallery = oldGallery as io.Directory;
-      io.Directory newGallery = io.Directory(join(newDownloadPath, basename(oldGallery.path)));
-      newGallery.createSync();
 
-      List<io.FileSystemEntity> files = oldGallery.listSync();
-      for (io.FileSystemEntity file in files) {
-        file = file as io.File;
-        file.copySync(join(newGallery.path, basename(file.path)));
+    future = future.then((_) async {
+      /// copy
+      List<Future> futures = [];
+      for (io.FileSystemEntity oldGallery in gallerys) {
+        io.Directory newGallery = io.Directory(join(newDownloadPath!, basename(oldGallery.path)));
+
+        futures.add(newGallery.create(recursive: true).then((_) async {
+          List<io.FileSystemEntity> files = (oldGallery as io.Directory).listSync();
+          for (io.FileSystemEntity file in files) {
+            file = file as io.File;
+            await file.copy(join(newGallery.path, basename(file.path)));
+          }
+        }));
       }
-    }
 
-    /// To be compatible with the previous version, update the database.
-    await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
+      await Future.wait(futures);
+    });
 
-    oldDir.deleteSync(recursive: true);
+    DownloadSetting.saveDownloadPath(newDownloadPath);
 
-    await galleryDownloadService.resumeAllDownloadGallery();
-    await archiveDownloadService.resumeAllDownloadArchive();
+    future = future.then((_) async {
+      /// To be compatible with the previous version, update the database.
+      await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
+    });
+
+    future = future.then((_) async {
+      /// Empty old directory
+      await oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
+    });
+
+    future = future.then((_) async {
+      await Future.wait([
+        galleryDownloadService.resumeAllDownloadGallery(),
+        archiveDownloadService.resumeAllDownloadArchive(),
+      ]);
+    });
   }
 
   Future<void> _handleResetDownloadPath() async {
