@@ -81,9 +81,15 @@ insertImage:
 insert into image
 values (:url, :serialNo, :gid, :height, :width, :path, :imageHash, :downloadStatusIndex);
 
-updateImage:
+updateImageStatus:
 update image
 set downloadStatusIndex = :downloadStatusIndex
+where gid = :gid
+  AND url = :url;
+
+updateImagePath:
+update image
+set path = :path
 where gid = :gid
   AND url = :url;
 

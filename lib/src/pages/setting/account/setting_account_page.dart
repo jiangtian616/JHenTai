@@ -59,7 +59,7 @@ class SettingAccountPage extends StatelessWidget {
   Future<void> _copyCookie() async {
     List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
     await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
-    toast( 'hasCopiedToClipboard'.tr);
+    toast('hasCopiedToClipboard'.tr);
   }
 }
 

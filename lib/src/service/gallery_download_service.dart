@@ -41,7 +41,6 @@ class GalleryDownloadService extends GetxController {
   );
   static const int retryTimes = 3;
   static const String _metadata = '.metadata';
-  static final downloadPath = path.join(PathSetting.getVisibleDir().path, 'download');
   static const int _maxTitleLength = 100;
 
   List<GalleryDownloadedData> gallerys = <GalleryDownloadedData>[];
@@ -54,7 +53,7 @@ class GalleryDownloadService extends GetxController {
   Map<int, GalleryDownloadSpeedComputer> gid2SpeedComputer = {};
 
   static Future<void> init() async {
-    io.Directory(downloadPath).createSync(recursive: true);
+    ensureDownloadDirExists();
     Get.put(GalleryDownloadService(), permanent: true);
   }
 
@@ -126,6 +125,8 @@ class GalleryDownloadService extends GetxController {
     }
 
     Log.info('begin to download gallery: ${gallery.gid}');
+
+    ensureDownloadDirExists();
 
     /// Firstly record downloaded gallery
     if (isFirstDownload) {
@@ -267,10 +268,28 @@ class GalleryDownloadService extends GetxController {
     Log.info('delete download gallery: ${gallery.gid}');
   }
 
+  Future<void> updateImagePathAfterDownloadPathChanged() async {
+    await appDb.transaction(() async {
+      for (GalleryDownloadedData gallery in gallerys) {
+        for (int serialNo = 0; serialNo < gid2Images[gallery.gid]!.length; serialNo++) {
+          if (gid2Images[gallery.gid]![serialNo] == null) {
+            continue;
+          }
+          String newPath = _computeImageDownloadRelativePath(gallery, serialNo);
+
+          await appDb.updateImagePath(newPath, gallery.gid, gid2Images[gallery.gid]![serialNo]!.url);
+          gid2Images[gallery.gid]![serialNo]!.path = newPath;
+
+          update(['$imageId::${gallery.gid}', '$imageUrlId::${gallery.gid}::$serialNo']);
+        }
+      }
+    });
+  }
+
   /// use meta in each gallery folder to restore download status, then sync to database.
   /// this is used after re-install app, or share download folder to another user.
   Future<int> restore() async {
-    io.Directory downloadDir = io.Directory(downloadPath);
+    io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
     }
@@ -292,6 +311,15 @@ class GalleryDownloadService extends GetxController {
       /// skip if exists
       if (gid2Images.containsKey(gallery.gid)) {
         continue;
+      }
+
+      /// To be compatible with the previous version, check current download path.
+      for (int serialNo = 0; serialNo < images.length; serialNo++) {
+        if (images[serialNo] == null) {
+          continue;
+        }
+        String newPath = _computeImageDownloadRelativePath(gallery, serialNo, image: images[serialNo]!);
+        images[serialNo]!.path = newPath;
       }
 
       int success = await _restoreDownloadInfoDatabase(gallery, images);
@@ -359,6 +387,9 @@ class GalleryDownloadService extends GetxController {
 
   AsyncTask<List<GalleryThumbnail>> _parseGalleryImageHrefTask(GalleryDownloadedData gallery, int thumbnailsPageNo) {
     return () {
+      if (_taskHasBeenPausedOrRemoved(gallery)) {
+        throw CancelException();
+      }
       Log.download('begin to parse image hrefs');
       return EHRequest.requestDetailPage(
         galleryUrl: gallery.galleryUrl,
@@ -412,6 +443,9 @@ class GalleryDownloadService extends GetxController {
   AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo,
       [bool useCache = true]) {
     return () {
+      if (_taskHasBeenPausedOrRemoved(gallery)) {
+        throw CancelException();
+      }
       Log.download('begin to parse image url: $serialNo');
       return EHRequest.requestImagePage(
         gid2ImageHrefs[gallery.gid]![serialNo]!.href,
@@ -485,6 +519,9 @@ class GalleryDownloadService extends GetxController {
 
   AsyncTask<void> _downloadGalleryImageTask(GalleryDownloadedData gallery, int serialNo, String url) {
     return () {
+      if (_taskHasBeenPausedOrRemoved(gallery)) {
+        throw CancelException();
+      }
       Log.download('begin to download image: $serialNo');
       return EHRequest.download(
         url: url,
@@ -512,13 +549,13 @@ class GalleryDownloadService extends GetxController {
       title = title.substring(0, _maxTitleLength);
     }
     return path.join(
-      downloadPath,
+      DownloadSetting.downloadPath.value,
       '${gallery.gid} - $title',
     );
   }
 
-  String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo) {
-    GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
+  String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo, {GalleryImage? image}) {
+    image ??= gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
     if (title.length > _maxTitleLength) {
@@ -527,7 +564,7 @@ class GalleryDownloadService extends GetxController {
 
     return path.relative(
       path.join(
-        downloadPath,
+        DownloadSetting.downloadPath.value,
         '${gallery.gid} - $title',
         '$serialNo.$ext',
       ),
@@ -544,7 +581,7 @@ class GalleryDownloadService extends GetxController {
     }
 
     return path.join(
-      downloadPath,
+      DownloadSetting.downloadPath.value,
       '${gallery.gid} - $title',
       '$serialNo.$ext',
     );
@@ -696,7 +733,7 @@ class GalleryDownloadService extends GetxController {
 
   /// a image has been downloaded successfully, update its status
   Future<int> _updateImageDownloadStatusInDatabase(int gid, String url, DownloadStatus downloadStatus) {
-    return appDb.updateImage(downloadStatus.index, gid, url);
+    return appDb.updateImageStatus(downloadStatus.index, gid, url);
   }
 
   Future<void> _updateProgressAfterImageDownloaded(int gid, int serialNo) async {
@@ -706,7 +743,7 @@ class GalleryDownloadService extends GetxController {
 
     if (downloadProgress.curCount == downloadProgress.totalCount) {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
-      _updateGalleryDownloadStatus(
+      await _updateGalleryDownloadStatus(
           gallerys.firstWhere((e) => e.gid == gid).copyWith(downloadStatusIndex: DownloadStatus.downloaded.index));
       _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));
       gid2SpeedComputer[gid]!.dispose();
@@ -771,6 +808,10 @@ class GalleryDownloadService extends GetxController {
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
     return gid2DownloadProgress[gallery.gid] == null ||
         gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
+  }
+
+  static void ensureDownloadDirExists() {
+    io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
   }
 }
 

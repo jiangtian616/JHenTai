@@ -105,6 +105,7 @@ mush thanks to these projects🙇‍
 
 1. When the reading page takes the up-to-bottom scrolling direction, there is a very small chance that current page number can't
    be synchronized correctly; third-party libraries are involved.
+2. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
 
 ## Main Dart Dependencies
 

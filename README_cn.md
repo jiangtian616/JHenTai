@@ -58,6 +58,7 @@ E-hentai 的一个移动端app。
 <img width="770" src="screenshot/0.png"/>
 
 ### 设置 & 下载 & 阅读
+
 <img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/read.jpg"/>
 
 ## 主要功能
@@ -95,6 +96,7 @@ E-hentai 的一个移动端app。
 ## 已知bug
 
 1. 阅读页面采取上下滚动方向时，有极小几率产生bug，导致无法正确读取当前页码；涉及第三方库。
+2. 三星用户与剪切板相关的操作可能无法正常进行；为Flutter自身bug。
 
 ## 主要dart依赖
 

@@ -7,7 +7,6 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
 
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as path;
 
 import '../setting/path_setting.dart';

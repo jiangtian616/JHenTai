@@ -169,14 +169,15 @@ class LoginPageLogic extends GetxController {
     int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
     String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
-    /// temporarily
-    UserSetting.userName.value = ipbMemberId.toString();
+    await cookieManager.storeEhCookiesForAllUri(cookies);
+    /// temporary name
+    UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+
     until(
       currentRoute: Routes.webview,
       predicate: (route) => route.settings.name == Routes.settingAccount,
     );
 
-    await cookieManager.storeEhCookiesForAllUri(cookies);
     String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
     UserSetting.saveUserInfo(userName: userName!, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
   }

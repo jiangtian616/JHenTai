@@ -46,6 +46,7 @@ class en_US {
       'invalidCookie': 'Invalid Cookie',
       'loginFail': 'Login Failed',
       'userName': 'UserName',
+      'EHUser': 'EH User',
       'password': 'Password',
       'needCaptcha': 'Need captcha, please login via cookie or web again.',
       'userNameOrPasswordMismatch': 'Username or password mismatch',
@@ -300,6 +301,9 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
+      'resetDownloadPath': 'Reset download path',
+      'longPress2Reset': 'Long Press to Reset',
+      'needPermissionToChangeDownloadPath': 'Need permission to change download path',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need Restart',
       'speedLimit': 'Speed Limit',

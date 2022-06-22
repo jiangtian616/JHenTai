@@ -27,7 +27,6 @@ const String archiveStatusId = 'archiveStatusId';
 const String speedComputerId = 'SpeedComputerId';
 
 class ArchiveDownloadService extends GetxController {
-  static final downloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static const int retryTimes = 3;
   static const int waitTimes = 6;
   static const String _metadata = '.archive.metadata';
@@ -39,7 +38,7 @@ class ArchiveDownloadService extends GetxController {
   Table<int, bool, SpeedComputer> speedComputers = Table();
 
   static Future<void> init() async {
-    io.Directory(downloadPath).createSync(recursive: true);
+    ensureDownloadDirExists();
     Get.put(ArchiveDownloadService(), permanent: true);
   }
 
@@ -69,6 +68,8 @@ class ArchiveDownloadService extends GetxController {
       return;
     }
     Log.info('Begin to handle archive');
+
+    ensureDownloadDirExists();
 
     if (isFirstDownload) {
       int success = await _saveNewArchiveDownloadInfoInDatabase(archive);
@@ -108,14 +109,26 @@ class ArchiveDownloadService extends GetxController {
     Log.info('delete download archive: ${archive.gid}');
   }
 
+  Future<void> pauseAllDownloadArchive() async {
+    await Future.wait(archives.map((a) => pauseDownloadArchive(a.gid, a.isOriginal)).toList());
+  }
+
   Future<void> pauseDownloadArchive(int gid, bool isOriginal) async {
     ArchiveDownloadedData archive =
         archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
+    if (archive.archiveStatusIndex >= ArchiveStatus.downloaded.index) {
+      return;
+    }
+
     await _updateArchive(archive.copyWith(archiveStatusIndex: ArchiveStatus.paused.index));
 
     cancelTokens.get(gid, isOriginal)!.cancel();
     speedComputers.get(gid, isOriginal)!.pause();
     update(['$archiveStatusId::$gid::$isOriginal']);
+  }
+
+  Future<void> resumeAllDownloadArchive() async {
+    await Future.wait(archives.map((a) => resumeDownloadArchive(a.gid, a.isOriginal)).toList());
   }
 
   Future<void> resumeDownloadArchive(int gid, bool isOriginal) async {
@@ -124,6 +137,10 @@ class ArchiveDownloadService extends GetxController {
 
     ArchiveDownloadedData archive =
         archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
+    if (archive.archiveStatusIndex == ArchiveStatus.paused.index) {
+      return;
+    }
+
     archive = archive.copyWith(
       archiveStatusIndex: archive.downloadPageUrl == null
           ? ArchiveStatus.waitingForDownloadPageUrl.index
@@ -161,7 +178,7 @@ class ArchiveDownloadService extends GetxController {
   /// use meta in each gallery folder to restore download status, then sync to database.
   /// this is used after re-install app, or share download folder to another user.
   Future<int> restore() async {
-    io.Directory downloadDir = io.Directory(downloadPath);
+    io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
     }
@@ -379,7 +396,7 @@ class ArchiveDownloadService extends GetxController {
     }
 
     return join(
-      downloadPath,
+      DownloadSetting.downloadPath.value,
       'Archive - ${archive.gid} - $title.zip',
     );
   }
@@ -391,7 +408,7 @@ class ArchiveDownloadService extends GetxController {
     }
 
     return join(
-      downloadPath,
+      DownloadSetting.downloadPath.value,
       'Archive - ${archive.gid} - $title',
     );
   }
@@ -502,5 +519,9 @@ class ArchiveDownloadService extends GetxController {
     }
 
     file.writeAsStringSync(jsonEncode(archive.toJson()));
+  }
+
+  static void ensureDownloadDirExists() {
+    io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
   }
 }

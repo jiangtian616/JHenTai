@@ -2465,11 +2465,24 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
-  Future<int> updateImage(int downloadStatusIndex, int gid, String url) {
+  Future<int> updateImageStatus(int downloadStatusIndex, int gid, String url) {
     return customUpdate(
       'update image\r\nset downloadStatusIndex = :downloadStatusIndex\r\nwhere gid = :gid\r\n  AND url = :url',
       variables: [
         Variable<int>(downloadStatusIndex),
+        Variable<int>(gid),
+        Variable<String>(url)
+      ],
+      updates: {image},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> updateImagePath(String path, int gid, String url) {
+    return customUpdate(
+      'update image\r\nset path = :path\r\nwhere gid = :gid\r\n  AND url = :url',
+      variables: [
+        Variable<String>(path),
         Variable<int>(gid),
         Variable<String>(url)
       ],

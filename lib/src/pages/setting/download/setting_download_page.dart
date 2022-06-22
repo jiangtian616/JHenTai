@@ -1,12 +1,22 @@
+import 'dart:io' as io;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import '../../../utils/log.dart';
 
 class SettingDownloadPage extends StatelessWidget {
-  const SettingDownloadPage({Key? key}) : super(key: key);
+  final GalleryDownloadService galleryDownloadService = Get.find();
+  final ArchiveDownloadService archiveDownloadService = Get.find();
+
+  SettingDownloadPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +32,13 @@ class SettingDownloadPage extends StatelessWidget {
           children: [
             ListTile(
               title: Text('downloadPath'.tr),
-              subtitle: Text(GalleryDownloadService.downloadPath),
+              subtitle: Text(DownloadSetting.downloadPath.value),
+              onTap: _handleChangeDownloadPath,
+            ),
+            ListTile(
+              title: Text('resetDownloadPath'.tr),
+              subtitle: Text('longPress2Reset'.tr),
+              onLongPress: _handleResetDownloadPath,
             ),
             ListTile(
               title: Text('downloadTaskConcurrency'.tr),
@@ -175,6 +191,60 @@ class SettingDownloadPage extends StatelessWidget {
         ).paddingSymmetric(vertical: 16);
       }),
     );
+  }
+
+  Future<void> _handleChangeDownloadPath({String? newDownloadPath}) async {
+    /// request external storage permission
+    bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted;
+    if (!hasStoragePermission) {
+      toast('needPermissionToChangeDownloadPath'.tr);
+      return;
+    }
+
+    /// choose new download path
+    String oldDownloadPath = DownloadSetting.downloadPath.value;
+    try {
+      newDownloadPath ??= await FilePicker.platform.getDirectoryPath();
+    } on Exception catch (e) {
+      Log.error('Pick file failed', e);
+    }
+
+    if (newDownloadPath == null || newDownloadPath == oldDownloadPath) {
+      return;
+    }
+
+    await galleryDownloadService.pauseAllDownloadGallery();
+    await archiveDownloadService.pauseAllDownloadArchive();
+
+    DownloadSetting.saveDownloadPath(newDownloadPath);
+    GalleryDownloadService.ensureDownloadDirExists();
+
+    /// copy
+    io.Directory oldDir = io.Directory(oldDownloadPath);
+    List<io.FileSystemEntity> gallerys = oldDir.listSync();
+    for (io.FileSystemEntity oldGallery in gallerys) {
+      oldGallery = oldGallery as io.Directory;
+      io.Directory newGallery = io.Directory(join(newDownloadPath, basename(oldGallery.path)));
+      newGallery.createSync();
+
+      List<io.FileSystemEntity> files = oldGallery.listSync();
+      for (io.FileSystemEntity file in files) {
+        file = file as io.File;
+        file.copySync(join(newGallery.path, basename(file.path)));
+      }
+    }
+
+    /// To be compatible with the previous version, update the database.
+    await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
+
+    oldDir.deleteSync(recursive: true);
+
+    await galleryDownloadService.resumeAllDownloadGallery();
+    await archiveDownloadService.resumeAllDownloadArchive();
+  }
+
+  Future<void> _handleResetDownloadPath() async {
+    await _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
   }
 
   Future<void> _restore() async {

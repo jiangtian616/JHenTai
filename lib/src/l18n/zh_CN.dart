@@ -46,6 +46,7 @@ class zh_CN {
       'invalidCookie': '无效的cookie',
       'loginFail': '登陆失败',
       'userName': '用户名',
+      'EHUser': 'E站用户',
       'password': '密码',
       'needCaptcha': '需要勾选验证码。请另外选择cookie登陆或网页登陆。',
       'userNameOrPasswordMismatch': '用户名或密码错误',
@@ -254,6 +255,7 @@ class zh_CN {
       'updateTabBar': '更新配置',
       'filterConfig': '筛选配置',
       'tabBarName': '标签栏名称',
+      'searchType': '搜索方式',
       'popular': '热门',
       'ranklist': '排行',
       'watched': '关注',
@@ -299,6 +301,9 @@ class zh_CN {
 
       /// download setting page
       'downloadPath': '下载路径',
+      'resetDownloadPath': '重置下载路径',
+      'longPress2Reset': '长按以重置',
+      'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',
       'downloadTaskConcurrency': '同时下载图片数量',
       'needRestart': '需要重启',
       'downloadTimeout': '单次下载超时时间',

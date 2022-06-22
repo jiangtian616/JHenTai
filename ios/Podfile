@@ -37,5 +37,26 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # Start of the permission_handler configuration
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        # 'PERMISSION_EVENTS=1',
+        # 'PERMISSION_REMINDERS=1',
+        # 'PERMISSION_CONTACTS=1',
+        # 'PERMISSION_CAMERA=1',
+        # 'PERMISSION_MICROPHONE=1',
+        # 'PERMISSION_SPEECH_RECOGNIZER=1',
+        # 'PERMISSION_PHOTOS=1',
+        # 'PERMISSION_LOCATION=1',
+        # 'PERMISSION_NOTIFICATIONS=1',
+        # 'PERMISSION_MEDIA_LIBRARY=1',
+        # 'PERMISSION_SENSORS=1',
+        # 'PERMISSION_BLUETOOTH=1',
+        # 'PERMISSION_APP_TRACKING_TRANSPARENCY=1',
+        # 'PERMISSION_CRITICAL_ALERTS=1'
+      ]
+    end
+    # End of the permission_handler configuration
   end
 end
