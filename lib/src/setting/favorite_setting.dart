@@ -53,6 +53,7 @@ class FavoriteSetting {
       return;
     }
 
+    Log.info('refresh FavoriteSetting', false);
     try {
       await retry(
         () async {

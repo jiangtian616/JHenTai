@@ -322,6 +322,17 @@ class GalleryDownloadService extends GetxController {
         images[serialNo]!.path = newPath;
       }
 
+      /// For some reason, downloadStatusIndex is not updated correctly.
+      if (gallery.downloadStatusIndex != DownloadStatus.downloaded.index) {
+        int downloadedImageCount = images.fold(
+          0,
+          (previousValue, element) => previousValue + (element?.downloadStatus == DownloadStatus.downloaded ? 1 : 0),
+        );
+        if (downloadedImageCount == gallery.pageCount) {
+          gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.downloaded.index);
+        }
+      }
+
       int success = await _restoreDownloadInfoDatabase(gallery, images);
       if (success < 0) {
         Log.error('restore download failed. Gallery: ${gallery.title}');
@@ -711,6 +722,9 @@ class GalleryDownloadService extends GetxController {
     await _updateGalleryDownloadStatusInDatabase(gallery.gid, DownloadStatus.values[gallery.downloadStatusIndex]);
     gallerys[gallerys.indexWhere((e) => e.gid == gallery.gid)] = gallery;
     gid2DownloadProgress[gallery.gid]!.downloadStatus = DownloadStatus.values[gallery.downloadStatusIndex];
+    if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
+      _saveGalleryDownloadInfoInDisk(gallery);
+    }
     update(['$galleryDownloadProgressId::${gallery.gid}']);
   }
 
@@ -745,7 +759,6 @@ class GalleryDownloadService extends GetxController {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
       await _updateGalleryDownloadStatus(
           gallerys.firstWhere((e) => e.gid == gid).copyWith(downloadStatusIndex: DownloadStatus.downloaded.index));
-      _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));
       gid2SpeedComputer[gid]!.dispose();
     }
 

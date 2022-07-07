@@ -39,6 +39,7 @@ class SiteSetting {
       return;
     }
 
+    Log.info('refresh SiteSetting', false);
     try {
       await retry(
         () async {

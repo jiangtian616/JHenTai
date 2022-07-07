@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/tab_view/download/archive_download_body.dart';
 import 'package:jhentai/src/pages/home/tab_view/download/gallery_download_body.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../service/gallery_download_service.dart';
 
@@ -25,13 +26,17 @@ class _DownloadViewState extends State<DownloadView> {
         centerTitle: true,
         title: _showArchiveBody ? Text('archive'.tr) : Text('download'.tr),
         elevation: 1,
+        leading: IconButton(
+          onPressed: _showHelpInfo,
+          icon: const Icon(Icons.help, size: 22),
+        ),
         actions: [
-          if (downloadService.gallerys.isNotEmpty && !_showArchiveBody)
+          if (!_showArchiveBody)
             IconButton(
               onPressed: downloadService.resumeAllDownloadGallery,
               icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
             ),
-          if (downloadService.gallerys.isNotEmpty && !_showArchiveBody)
+          if (!_showArchiveBody)
             IconButton(
               onPressed: downloadService.pauseAllDownloadGallery,
               icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
@@ -59,5 +64,9 @@ class _DownloadViewState extends State<DownloadView> {
               ),
             ),
     );
+  }
+
+  void _showHelpInfo() {
+    toast('downloadHelpInfo'.tr, isCenter: false, isShort: false);
   }
 }

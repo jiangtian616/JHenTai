@@ -248,6 +248,7 @@ class zh_CN {
       'downloadFailed': '下载失败',
       'unpacking': '解压中',
       'completed': '已完成',
+      'downloadHelpInfo': '如果发现无法下载，在日志中发现了数据库表不存在等问题，卸载当前app重装即可。',
 
       /// search dialog
       'searchConfig': '搜索配置',

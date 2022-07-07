@@ -15,7 +15,8 @@ class WebviewPage extends StatefulWidget {
 class _WebviewPageState extends State<WebviewPage> {
   late String initialUrl;
   late List<WebViewCookie> initialCookies;
-  PageStartedCallback? onPageStarted;
+  Function? pageStartedCallback;
+  late PageStartedCallback onPageStarted;
 
   late WebViewController controller;
 
@@ -32,10 +33,9 @@ class _WebviewPageState extends State<WebviewPage> {
           ),
         )
         .toList();
+    pageStartedCallback = Get.arguments['onPageStarted'];
     onPageStarted = (url) {
-      if (Get.arguments['onPageStarted'] != null) {
-        Get.arguments['onPageStarted'].call(url, controller);
-      }
+      pageStartedCallback?.call(url, controller);
     };
   }
 

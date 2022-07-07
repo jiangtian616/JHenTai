@@ -14,9 +14,9 @@ dependencies:
   dio: ^4.0.6
   cookie_jar: 3.0.1
   dio_cookie_manager: ^2.0.0
-  dio_cache_interceptor: ^3.2.6
+  dio_cache_interceptor: 3.2.6
   dio_cache_interceptor_db_store: ^4.1.1
-  get: ^4.3.8
+  get: 4.6.1
   get_storage: ^2.0.3
   extended_nested_scroll_view: ^5.0.0
   flukit: ^2.0.0
@@ -53,8 +53,9 @@ dependencies:
   flutter_windowmanager: ^0.2.0
   animate_do: ^2.1.0
   share_plus: ^4.0.4
-  syncfusion_flutter_charts: ^20.1.47+1
-  sentry_flutter: ^6.5.1
+  syncfusion_flutter_charts: 20.1.50
+  syncfusion_flutter_core: 20.1.50
+  sentry_flutter: ^6.6.3
   archive: ^3.3.0
   image_size_getter: ^2.1.0
   fluttertoast: ^8.0.9
@@ -72,5 +73,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/

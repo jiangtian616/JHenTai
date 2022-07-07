@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -160,6 +162,12 @@ class Log {
       return true;
     }
     if (throwable is StateError && throwable.message.contains('User cancel request')) {
+      return true;
+    }
+    if (throwable is DioError && throwable.message.contains('Http status error')) {
+      return true;
+    }
+    if (throwable is HttpException && throwable.message.contains('Connection closed while receiving data')) {
       return true;
     }
     return false;

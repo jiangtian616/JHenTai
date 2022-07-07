@@ -41,6 +41,7 @@ class EHSetting {
       return;
     }
 
+    Log.info('refresh EHSetting', false);
     refreshState.value = LoadingState.loading;
     Map<String, int> map = {};
     try {
