@@ -100,10 +100,17 @@ class EHRequest {
         ));
       },
     ));
+
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+      /// certificate for domain fronting
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
         return EHConsts.host2Ip.containsValue(host);
       };
+
+      /// https://stackoverflow.com/questions/72913239/flutter-network-proxy-is-ineffective-on-windows
+      if (GetPlatform.isDesktop) {
+        client.findProxy = (_) => 'PROXY ${AdvancedSetting.proxyAddress.value}; DIRECT';
+      }
     };
 
     /// cookies

@@ -6,6 +6,7 @@ import '../service/storage_service.dart';
 class AdvancedSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   static RxBool enableDomainFronting = false.obs;
+  static RxString proxyAddress = 'localhost:1080'.obs;
   static RxBool enableLogging = true.obs;
   static RxBool enableCheckUpdate = true.obs;
 
@@ -31,6 +32,12 @@ class AdvancedSetting {
     _save();
   }
 
+  static saveProxyAddress(String proxyAddress) {
+    Log.verbose('saveProxyAddress:$proxyAddress');
+    AdvancedSetting.proxyAddress.value = proxyAddress;
+    _save();
+  }
+
   static saveEnableLogging(bool enableLogging) {
     Log.verbose('saveEnableLogging:$enableLogging');
     AdvancedSetting.enableLogging.value = enableLogging;
@@ -51,6 +58,7 @@ class AdvancedSetting {
     return {
       'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
       'enableDomainFronting': enableDomainFronting.value,
+      'proxyAddress': proxyAddress.value,
       'enableLogging': enableLogging.value,
       'enableCheckUpdate': enableCheckUpdate.value,
     };
@@ -59,6 +67,7 @@ class AdvancedSetting {
   static _initFromMap(Map<String, dynamic> map) {
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge']);
     enableDomainFronting.value = map['enableDomainFronting'];
+    proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;
     enableLogging.value = map['enableLogging'];
     enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
   }

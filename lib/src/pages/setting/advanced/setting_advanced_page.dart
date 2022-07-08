@@ -21,6 +21,14 @@ class SettingAdvancedPage extends StatefulWidget {
 }
 
 class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
+  late final TextEditingController textEditingController;
+
+  @override
+  void initState() {
+    textEditingController = TextEditingController(text: AdvancedSetting.proxyAddress.value);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,6 +49,34 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 onChanged: (value) => AdvancedSetting.saveEnableDomainFronting(value),
               ),
             ),
+            if (GetPlatform.isDesktop)
+              ListTile(
+                title: Text('proxyAddress'.tr),
+                subtitle: Text('proxyAddressHint'.tr),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 150,
+                      child: TextField(
+                        controller: textEditingController,
+                        decoration: const InputDecoration(
+                          isDense: true,
+                          labelStyle: TextStyle(fontSize: 12),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        AdvancedSetting.saveProxyAddress(textEditingController.value.text);
+                        toast('saveSuccess'.tr);
+                      },
+                      icon: Icon(Icons.check, color: Get.theme.primaryColor),
+                    ),
+                  ],
+                ),
+              ),
             ListTile(
               title: Text('pageCacheMaxAge'.tr),
               subtitle: Text('pageCacheMaxAgeHint'.tr),
@@ -144,9 +180,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         return '0KB';
       }
 
-      int totalBytes = cacheImagesDirectory
-          .listSync()
-          .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+      int totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
 
       return (totalBytes / 1024 / 1024).toStringAsFixed(2) + 'MB';
     } on Exception catch (e) {

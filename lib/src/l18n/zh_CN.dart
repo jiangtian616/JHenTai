@@ -197,6 +197,9 @@ class zh_CN {
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',
       'bypassSNIBlocking': '绕过SNI封锁',
+      'proxyAddress': '代理服务器地址',
+      'proxyAddressHint': '如果你使用了代理服务器，务必正确配置',
+      'saveSuccess': '保存成功',
       'enableLogging': '开启日志',
       'pageCacheMaxAge': '页面缓存时间',
       'pageCacheMaxAgeHint': '你可以通过刷新页面来更新缓存',
