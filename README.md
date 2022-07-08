@@ -19,7 +19,9 @@ Still in starting stage, welcome to submit issues.
 
 Install for Android: download .apk according to your device architecture and install.
 
-Install for ios: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign。
+Install for ios: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
+
+Install for Windows: download .zip, then unpack it.
 
 ## Help With Translation
 

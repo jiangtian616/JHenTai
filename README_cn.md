@@ -21,6 +21,8 @@ E-hentai 的一个移动端app。
 
 苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
+Windows安装： 下载zip后解压即可。
+
 ## 开发动机
 
 学习flutter的第一个练手项目，用来熟悉flutter的开发流程。
