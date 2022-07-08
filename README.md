@@ -9,7 +9,7 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 ## Description
 
-An E-Hentai app for mobile.
+An E-Hentai app for Android & iOS & Windows.
 
 Still in starting stage, welcome to submit issues.
 
@@ -19,7 +19,7 @@ Still in starting stage, welcome to submit issues.
 
 Install for Android: download .apk according to your device architecture and install.
 
-Install for ios: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
+Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 
 Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at advanced setting page.
 

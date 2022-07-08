@@ -9,7 +9,7 @@
 
 ## 定位
 
-E-hentai 的一个移动端app。
+E-hentai 的一个多端app，现支持安卓、苹果和Windows系统。
 
 仍在起步阶段，欢迎提交issue。
 
