@@ -1,26 +1,15 @@
-import 'dart:convert';
 import 'dart:math';
 
-import 'package:dio/dio.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/extensions/widget_extensions.dart';
-import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
-import '../../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
 
 class RatingDialog extends StatefulWidget {
   const RatingDialog({Key? key}) : super(key: key);

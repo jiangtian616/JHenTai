@@ -16,20 +16,20 @@ dependencies:
   dio_cookie_manager: ^2.0.0
   dio_cache_interceptor: 3.2.6
   dio_cache_interceptor_db_store: ^4.1.1
-  get: 4.6.1
+  get: ^4.6.5
   get_storage: ^2.0.3
   extended_nested_scroll_view: ^5.0.0
-  flukit: ^2.0.0
+  flukit: ^3.0.1
   html: ^0.15.0
   logger: ^1.1.0
   flutter_rating_bar: ^4.0.0
   waterfall_flow: ^3.0.2
-  extended_image: ^6.0.1
+  extended_image: ^6.2.1
   font_awesome_flutter: ^9.2.0
   intl: ^0.17.0
   collection: 1.16.0
   clipboard: ^0.1.3
-  scrollable_positioned_list: ^0.2.3
+  scrollable_positioned_list: ^0.3.2
   flutter_list_view: 1.1.12
   executor: ^2.2.2
   retry: ^3.1.0
@@ -39,6 +39,10 @@ dependencies:
   path_provider: ^2.0.9
   flutter_slidable: ^1.2.0
   flutter_widget_from_html: ^0.8.5
+  # todo: remove
+  cached_network_image: ^3.2.1
+  visibility_detector: ^0.3.3
+  #
   url_launcher: ^6.0.20
   like_button: ^2.0.4
   webview_flutter: ^3.0.1
@@ -53,8 +57,7 @@ dependencies:
   flutter_windowmanager: ^0.2.0
   animate_do: ^2.1.0
   share_plus: ^4.0.4
-  syncfusion_flutter_charts: 20.1.50
-  syncfusion_flutter_core: 20.1.50
+  syncfusion_flutter_charts: ^20.2.36
   sentry_flutter: ^6.6.3
   archive: ^3.3.0
   image_size_getter: ^2.1.0
