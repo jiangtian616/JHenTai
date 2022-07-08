@@ -21,7 +21,7 @@ Install for Android: download .apk according to your device architecture and ins
 
 Install for ios: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 
-Install for Windows: download .zip, then unpack it.
+Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at advanced setting page.
 
 ## Help With Translation
 

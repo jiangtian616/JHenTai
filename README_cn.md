@@ -21,7 +21,7 @@ E-hentai 的一个移动端app。
 
 苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
-Windows安装： 下载zip后解压即可。
+Windows安装： 下载zip后解压即可。如果你使用了代理服务器，在高级设置里配置代理地址。
 
 ## 开发动机
 
