@@ -54,5 +54,7 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
   <string>Pick up image to search</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>
