@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/blank_page.dart';
@@ -5,6 +7,7 @@ import 'package:jhentai/src/pages/home/home_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/windows_app.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../utils/route_util.dart';
@@ -27,41 +30,54 @@ class StartPage extends StatelessWidget {
     initToast(context);
 
     /// use LayoutBuilder to listen to resize of window
-    return WillPopScope(
-      onWillPop: () => _handlePopApp(),
-      child: LayoutBuilder(
-        builder: (context, constraints) => Obx(
-          () {
-            if (StyleSetting.enableTabletLayout.isFalse) {
-              StyleSetting.currentEnableTabletLayout.value = false;
-              return HomePage();
-            }
+    return WindowsApp(
+      child: WillPopScope(
+        onWillPop: () => _handlePopApp(),
+        child: ScrollConfiguration(
+          behavior: const MaterialScrollBehavior().copyWith(
+            dragDevices: {
+              PointerDeviceKind.mouse,
+              PointerDeviceKind.touch,
+              PointerDeviceKind.stylus,
+              PointerDeviceKind.trackpad,
+              PointerDeviceKind.unknown,
+            },
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) => Obx(
+              () {
+                if (StyleSetting.enableTabletLayout.isFalse) {
+                  StyleSetting.currentEnableTabletLayout.value = false;
+                  return HomePage();
+                }
 
-            /// enabled tablet layout but currently device width < 600(change device orientation or split screen),
-            /// not show tablet layout.
-            if (fullScreenWidth < 600) {
-              StyleSetting.currentEnableTabletLayout.value = false;
-              untilBlankPage();
-              return HomePage();
-            }
+                /// enabled tablet layout but currently device width < 600(change device orientation or split screen),
+                /// not show tablet layout.
+                if (fullScreenWidth < 600) {
+                  StyleSetting.currentEnableTabletLayout.value = false;
+                  untilBlankPage();
+                  return HomePage();
+                }
 
-            StyleSetting.currentEnableTabletLayout.value = true;
+                StyleSetting.currentEnableTabletLayout.value = true;
 
-            /// tablet layout
-            return Row(
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(child: _leftScreen()),
-                      Container(width: 0.3, color: Colors.black),
-                    ],
-                  ),
-                ),
-                Expanded(child: _rightScreen()),
-              ],
-            );
-          },
+                /// tablet layout
+                return Row(
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(child: _leftScreen()),
+                          Container(width: 0.3, color: Colors.black),
+                        ],
+                      ),
+                    ),
+                    Expanded(child: _rightScreen()),
+                  ],
+                );
+              },
+            ),
+          ),
         ),
       ),
     );

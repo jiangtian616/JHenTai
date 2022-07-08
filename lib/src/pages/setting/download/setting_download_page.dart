@@ -35,7 +35,7 @@ class SettingDownloadPage extends StatelessWidget {
               subtitle: Text(DownloadSetting.downloadPath.value),
               onTap: _handleChangeDownloadPath,
             ),
-            if (GetPlatform.isAndroid)
+            if (!GetPlatform.isIOS)
               ListTile(
                 title: Text('resetDownloadPath'.tr),
                 subtitle: Text('longPress2Reset'.tr),
@@ -195,7 +195,7 @@ class SettingDownloadPage extends StatelessWidget {
   }
 
   Future<void> _handleChangeDownloadPath({String? newDownloadPath}) async {
-    if (!GetPlatform.isAndroid) {
+    if (GetPlatform.isIOS) {
       return;
     }
 

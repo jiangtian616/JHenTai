@@ -31,7 +31,7 @@ Widget EHGalleryCollection({
             /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
             /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
             /// the callback is added only once.
-            SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+            SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
               handleLoadMore();
             });
           }
@@ -68,7 +68,7 @@ Widget EHGalleryCollection({
               /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
               /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
               /// the callback is added only once.
-              SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+              SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
                 handleLoadMore();
               });
             }

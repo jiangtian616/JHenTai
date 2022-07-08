@@ -30,7 +30,7 @@ class StyleSetting {
 
   /// if enableTabletLayout is true, currentEnableTabletLayout can also be false because of screen width limit.
   static RxBool enableTabletLayout =
-      WidgetsBinding.instance!.window.physicalSize.width / WidgetsBinding.instance!.window.devicePixelRatio < 600
+      WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
           ? false.obs
           : true.obs;
   static RxBool currentEnableTabletLayout = false.obs;
@@ -89,7 +89,7 @@ class StyleSetting {
         ? ThemeConfig.dark
         : themeMode.value == ThemeMode.light
             ? ThemeConfig.light
-            : WidgetsBinding.instance!.window.platformBrightness == Brightness.dark
+            : WidgetsBinding.instance.window.platformBrightness == Brightness.dark
                 ? ThemeConfig.dark
                 : ThemeConfig.light;
   }

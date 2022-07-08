@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -12,6 +15,7 @@ import '../../../service/gallery_download_service.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/screen_size_util.dart';
 import '../../../widget/eh_image.dart';
+import '../../../widget/eh_keyboard_listener.dart';
 import '../../../widget/loading_state_indicator.dart';
 import '../../start_page.dart';
 import '../read_page_logic.dart';
@@ -25,14 +29,36 @@ class ReadViewHelper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        child,
-        _buildInfo(context),
-        _buildGestureRegion(),
-        _buildTopMenu(context),
-        _buildBottomMenu(context),
-      ],
+    return ScrollConfiguration(
+      behavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+      ),
+      child: EHKeyboardListener(
+        focusNode: state.focusNode,
+        handleEsc: back,
+        handleSpace: logic.toggleMenu,
+        handlePageDown: logic.toNext,
+        handlePageUp: logic.toPrev,
+        handleArrowDown: logic.toNext,
+        handleArrowUp: logic.toPrev,
+        handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
+        handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
+        child: Stack(
+          children: [
+            child,
+            _buildInfo(context),
+            _buildGestureRegion(),
+            _buildTopMenu(context),
+            _buildBottomMenu(context),
+          ],
+        ),
+      ),
     );
   }
 
@@ -85,20 +111,21 @@ class ReadViewHelper extends StatelessWidget {
                             );
                           },
                         ).marginOnly(right: 8),
-                        GetBuilder<ReadPageLogic>(
-                          id: batteryId,
-                          builder: (logic) {
-                            return Text(
-                              '${state.batteryLevel}%',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
-                                decoration: TextDecoration.none,
-                              ),
-                            );
-                          },
-                        ),
+                        if (!GetPlatform.isDesktop)
+                          GetBuilder<ReadPageLogic>(
+                            id: batteryId,
+                            builder: (logic) {
+                              return Text(
+                                '${state.batteryLevel}%',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.none,
+                                ),
+                              );
+                            },
+                          ),
                       ],
                     ).paddingOnly(right: 32, top: 3, bottom: 1, left: 6),
                   ),
@@ -165,6 +192,20 @@ class ReadViewHelper extends StatelessWidget {
               actionsIconTheme: const IconThemeData(color: Colors.white),
               backgroundColor: Colors.black.withOpacity(0.8),
               actions: [
+                if (GetPlatform.isDesktop)
+                  IconButton(
+                    onPressed: () => toast(
+                      'PageDown、→、↓  :  ${'toNext'.tr}'
+                      '\n'
+                      'PageUp、 ←、↑  :  ${'toPrev'.tr}'
+                      '\n'
+                      'Esc  :  ${'back'.tr}'
+                      '\n'
+                      'Space  :  ${'toggleMenu'.tr}',
+                      isShort: false,
+                    ),
+                    icon: const Icon(Icons.help),
+                  ),
                 GetBuilder<ReadPageLogic>(
                   id: autoModeId,
                   builder: (logic) {
@@ -176,7 +217,7 @@ class ReadViewHelper extends StatelessWidget {
                   },
                 ),
                 IconButton(
-                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen),
+                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
                   icon: const Icon(Icons.settings),
                 ),
               ],
@@ -238,8 +279,7 @@ class ReadViewHelper extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.jump2Page(index),
-                  child:
-                      state.mode == 'online' ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                  child: state.mode == 'online' ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
                 ),
               ),
               GetBuilder<ReadPageLogic>(

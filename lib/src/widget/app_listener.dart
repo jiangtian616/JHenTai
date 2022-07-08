@@ -42,7 +42,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
@@ -53,7 +53,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   void dispose() {
-    WidgetsBinding.instance!.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -86,7 +86,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
       return;
     }
     Get.changeThemeMode(
-      WidgetsBinding.instance?.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
+      WidgetsBinding.instance.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
     );
   }
 

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
@@ -69,8 +69,7 @@ class EHRequest {
             handler.next(e);
             return;
           }
-          if (!EHConsts.host2Ip.containsKey(e.requestOptions.uri.host) &&
-              !EHConsts.host2Ip.containsValue(e.requestOptions.uri.host)) {
+          if (!EHConsts.host2Ip.containsKey(e.requestOptions.uri.host) && !EHConsts.host2Ip.containsValue(e.requestOptions.uri.host)) {
             handler.next(e);
             return;
           }
@@ -137,7 +136,9 @@ class EHRequest {
   static Future<void> requestLogout() async {
     cookieManager.removeAllCookies();
     UserSetting.clear();
-    CookieManager().clearCookies();
+    if (!GetPlatform.isDesktop) {
+      CookieManager().clearCookies();
+    }
   }
 
   static Future<T> requestHomePage<T>({EHHtmlParser<T>? parser}) async {
@@ -184,9 +185,7 @@ class EHRequest {
       EHSetting.site.value == 'EH' ? galleryUrl : galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex),
       queryParameters: {'p': thumbnailsPageNo},
       cancelToken: cancelToken,
-      options: useCacheIfAvailable
-          ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.refreshCacheOption.toOptions(),
+      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
@@ -196,8 +195,7 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
-  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating,
-      {EHHtmlParser<T>? parser}) async {
+  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating, {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -247,7 +245,7 @@ class EHRequest {
       data: {
         'favcat': favcat,
         'favnote': '',
-        'apply': 'Apply Changes',
+        'apply': 'Add to Favorites',
         'update': 1,
       },
     );
@@ -285,9 +283,7 @@ class EHRequest {
     Response<String> response = await _dio.get(
       href,
       cancelToken: cancelToken,
-      options: useCacheIfAvailable
-          ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.refreshCacheOption.toOptions(),
+      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
     return parser(response);
   }
@@ -444,8 +440,7 @@ class EHRequest {
     return parser(response);
   }
 
-  static Future<T> voteTag<T>(
-      int gid, String token, int apiuid, String apikey, String namespace, String tagName, bool isVotingUp,
+  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String namespace, String tagName, bool isVotingUp,
       {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
@@ -463,8 +458,7 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
-  static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp,
-      {EHHtmlParser<T>? parser}) async {
+  static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp, {EHHtmlParser<T>? parser}) async {
     Response<String> response = await _dio.post(
       EHConsts.EApi,
       data: {
@@ -571,9 +565,7 @@ class EHRequest {
   }) async {
     Response? response = await _dio.get(
       url,
-      options: useCacheIfAvailable
-          ? EHCacheInterceptor.cacheOption.toOptions()
-          : EHCacheInterceptor.refreshCacheOption.toOptions(),
+      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
       cancelToken: cancelToken,
     );
     parser ??= noOpParser;

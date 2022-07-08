@@ -33,6 +33,7 @@ class ReadPageState {
   bool autoMode = false;
   Battery battery = Battery();
   int batteryLevel = 100;
+  final FocusNode focusNode = FocusNode();
 
   final mine.ItemScrollController itemScrollController = mine.ItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
@@ -52,7 +53,9 @@ class ReadPageState {
 
     /// property used for build page
     readIndexRecord = Get.find<StorageService>().read('readIndexRecord::$gid') ?? 0;
-    battery.batteryLevel.then((value) => batteryLevel = value);
+    if (!GetPlatform.isDesktop) {
+      battery.batteryLevel.then((value) => batteryLevel = value);
+    }
     pageController = PageController(initialPage: initialIndex);
 
     /// property used for parsing and loading

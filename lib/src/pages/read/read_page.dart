@@ -1,10 +1,12 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/simple/list_notifier.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
@@ -15,6 +17,7 @@ import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -22,12 +25,17 @@ import 'package:photo_view/photo_view_gallery.dart';
 import '../../service/gallery_download_service.dart';
 import '../../utils/route_util.dart';
 
-class ReadPage extends StatelessWidget {
+class ReadPage extends StatefulWidget {
+  const ReadPage({Key? key}) : super(key: key);
+
+  @override
+  State<ReadPage> createState() => _ReadPageState();
+}
+
+class _ReadPageState extends State<ReadPage> {
   final ReadPageLogic logic = Get.put(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
   final GalleryDownloadService downloadService = Get.find();
-
-  ReadPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -56,8 +64,7 @@ class ReadPage extends StatelessWidget {
           itemCount: state.pageCount,
           itemScrollController: state.itemScrollController,
           itemPositionsListener: state.itemPositionsListener,
-          itemBuilder: (context, index) =>
-              state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
+          itemBuilder: (context, index) => state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
           separatorBuilder: (BuildContext context, int index) => const Divider(height: 6),
         ),
       ),
@@ -65,27 +72,28 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _buildPageView() {
-    return EHPhotoViewGallery.builder(
-      scrollPhysics: const ClampingScrollPhysics(),
-      pageController: state.pageController,
-      cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
-      itemCount: state.pageCount,
-      reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
-      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        scaleStateController: state.photoViewScaleStateController,
-        onScaleEnd: logic.onScaleEnd,
-        child: Obx(() {
-          Widget item =
-              state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index);
+    return Obx(() {
+      return EHPhotoViewGallery.builder(
+        scrollPhysics: const ClampingScrollPhysics(),
+        pageController: state.pageController,
+        cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
+        itemCount: state.pageCount,
+        reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+        builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+          scaleStateController: state.photoViewScaleStateController,
+          onScaleEnd: logic.onScaleEnd,
+          child: Obx(() {
+            Widget item = state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index);
 
-          if (ReadSetting.enableAutoScaleUp.isTrue) {
-            item = Center(child: SingleChildScrollView(child: item));
-          }
+            if (ReadSetting.enableAutoScaleUp.isTrue) {
+              item = Center(child: SingleChildScrollView(child: item));
+            }
 
-          return item;
-        }),
-      ),
-    );
+            return item;
+          }),
+        ),
+      );
+    });
   }
 
   /// online mode: parsing and loading automatically while scrolling

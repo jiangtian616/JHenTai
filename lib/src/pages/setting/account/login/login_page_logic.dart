@@ -9,7 +9,6 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -106,7 +105,7 @@ class LoginPageLogic extends GetxController {
 
     int ipbMemberId = int.parse(match.group(1)!);
     String ipbPassHash = match.group(2)!;
-    cookieManager.storeEhCookiesForAllUri([
+    await cookieManager.storeEhCookiesForAllUri([
       Cookie('ipb_member_id', ipbMemberId.toString()),
       Cookie('ipb_pass_hash', ipbPassHash),
     ]);

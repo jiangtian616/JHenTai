@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_logic.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -110,8 +111,7 @@ class LoginPage extends StatelessWidget {
                                   hintText: 'Cookie',
                                   border: InputBorder.none,
                                   hintStyle: TextStyle(color: Colors.grey.shade700),
-                                  prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: Colors.grey.shade600)
-                                      .paddingOnly(),
+                                  prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: Colors.grey.shade600).paddingOnly(),
                                 ),
                                 onChanged: (cookie) => state.cookie = cookie,
                                 onFieldSubmitted: (v) => logic.handleLogin(),
@@ -130,7 +130,7 @@ class LoginPage extends StatelessWidget {
                         IconTextButton(
                           text: const Text('Web', style: TextStyle(fontSize: 10)),
                           iconData: Icons.public,
-                          onPressed: logic.handleWebLogin,
+                          onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
                           iconColor: Get.theme.primaryColor,
                         ).marginOnly(right: 12),
                         LoadingStateIndicator(

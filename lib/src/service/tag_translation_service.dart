@@ -163,7 +163,7 @@ class TagTranslationService extends GetxService {
 
     List dataList = dataMap['data'] as List;
 
-    Log.info('tag translation data downloaded, legnth: ${dataList.length}', false);
+    Log.info('tag translation data downloaded, length: ${dataList.length}', false);
     return dataList;
   }
 

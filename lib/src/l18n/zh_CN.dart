@@ -52,6 +52,7 @@ class zh_CN {
       'userNameOrPasswordMismatch': '用户名或密码错误',
       'copyCookies': '复制Cookies',
       'tap2Copy': '点击复制',
+      'webLoginIsDisabled': '桌面端无法使用Web登录',
 
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
@@ -139,6 +140,10 @@ class zh_CN {
       'loading': "加载中",
       'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
+      'toNext': '下一页',
+      'toPrev': '上一页',
+      'back': '返回',
+      'toggleMenu': '展示/隐藏菜单',
 
       /// setting page
       'account': '账户',

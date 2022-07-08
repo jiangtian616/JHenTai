@@ -22,6 +22,7 @@ void snack(
     maxWidth: dense ? maxWidth : null,
     backgroundColor: Colors.black.withOpacity(0.7),
     colorText: Colors.white70,
+    margin: GetPlatform.isWindows ? const EdgeInsets.all(20) : null,
     onTap: onTap,
   );
 }

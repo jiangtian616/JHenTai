@@ -44,7 +44,6 @@ class ReadPageLogic extends GetxController {
   final GalleryDownloadService downloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  late Worker readDirectionListener;
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   Timer? autoModeTimer;
 
@@ -54,21 +53,20 @@ class ReadPageLogic extends GetxController {
   void onInit() {
     /// record reading progress and sync thumbnails list index
     state.itemPositionsListener.itemPositions.addListener(_readProgressListenerForTopBottomDirection);
-    state.pageController?.addListener(_readProgressListenerForLeftRightDirection);
-
-    /// when direction changes, keep read position
-    readDirectionListener = ever(ReadSetting.readDirection, (value) {
-      state.initialIndex = state.readIndexRecord;
-
-      state.pageController!.dispose();
-      state.pageController = PageController(initialPage: state.readIndexRecord);
-      state.pageController?.addListener(_readProgressListenerForLeftRightDirection);
-    });
+    state.pageController!.addListener(_readProgressListenerForLeftRightDirection);
 
     /// refresh current time and battery level info
     refreshCurrentTimeAndBatteryLevelTimer = Timer.periodic(
       const Duration(seconds: 1),
-      (_) => update([currentTimeId, batteryId]),
+      (_) {
+        if (!GetPlatform.isDesktop) {
+          state.battery.batteryLevel.then((value) {
+            state.batteryLevel = value;
+            update([batteryId]);
+          });
+        }
+        update([currentTimeId]);
+      },
     );
 
     super.onInit();
@@ -80,13 +78,14 @@ class ReadPageLogic extends GetxController {
 
     storageService.write('readIndexRecord::${state.gid}', state.readIndexRecord);
     restoreSystemBar();
-    readDirectionListener.dispose();
 
     /// update read progress in detail page
     DetailsPageLogic.current?.update([bodyId]);
 
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     autoModeTimer?.cancel();
+
+    state.focusNode.dispose();
   }
 
   void toggleAutoMode() {
@@ -98,8 +97,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void _enterAutoMode() {
-    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll &&
-        ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll && ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       _enterAutoModeByScroll();
     } else {
       _enterAutoModeByTurnPage();
@@ -164,7 +162,7 @@ class ReadPageLogic extends GetxController {
     }
 
     state.parseImageHrefsState = LoadingState.loading;
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       _parseImageHref(index);
     });
   }
@@ -211,7 +209,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
     state.parseImageUrlStates[index] = LoadingState.loading;
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       _parseImageUrl(index, reParse);
     });
   }
@@ -258,13 +256,13 @@ class ReadPageLogic extends GetxController {
       case TurnPageMode.image:
         return _toPrevImage();
       case TurnPageMode.screen:
-        return _toPrevScreen();
+        return toPrevScreen();
       case TurnPageMode.adaptive:
         List<ItemPosition> positions = getCurrentVisibleItemsForTopBottomDirection();
         if (positions.length > 1) {
           return _toPrevImage();
         }
-        return _toPrevScreen();
+        return toPrevScreen();
     }
   }
 
@@ -278,13 +276,13 @@ class ReadPageLogic extends GetxController {
       case TurnPageMode.image:
         return _toNextImage();
       case TurnPageMode.screen:
-        return _toNextScreen();
+        return toNextScreen();
       case TurnPageMode.adaptive:
         List<ItemPosition> positions = getCurrentVisibleItemsForTopBottomDirection();
         if (positions.length > 1) {
           return _toNextImage();
         }
-        return _toNextScreen();
+        return toNextScreen();
     }
   }
 
@@ -312,9 +310,7 @@ class ReadPageLogic extends GetxController {
 
     if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
       ItemPosition lastPosition = getCurrentVisibleItemsForTopBottomDirection().last;
-      targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1)
-          ? lastPosition.index
-          : lastPosition.index + 1;
+      targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1) ? lastPosition.index : lastPosition.index + 1;
     } else {
       targetIndex = (state.pageController!.page! + 1).toInt();
     }
@@ -322,7 +318,7 @@ class ReadPageLogic extends GetxController {
     _toPage(min(targetIndex, state.pageCount));
   }
 
-  void _toNextScreen() {
+  void toNextScreen() {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
       _jump2NextScreen();
     } else {
@@ -330,7 +326,7 @@ class ReadPageLogic extends GetxController {
     }
   }
 
-  void _toPrevScreen() {
+  void toPrevScreen() {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
       _jump2PrevScreen();
     } else {
@@ -414,9 +410,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void toggleMenu() {
-    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll &&
-        ReadSetting.readDirection.value == ReadDirection.top2bottom &&
-        state.autoMode) {
+    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll && ReadSetting.readDirection.value == ReadDirection.top2bottom && state.autoMode) {
       _closeAutoMode();
       return;
     }
@@ -534,8 +528,6 @@ class ReadPageLogic extends GetxController {
   }
 
   double _getVisibleHeight() {
-    return screenHeight -
-        Get.mediaQuery.padding.bottom -
-        (ReadSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
+    return screenHeight - Get.mediaQuery.padding.bottom - (ReadSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
   }
 }

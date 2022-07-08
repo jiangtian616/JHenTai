@@ -41,6 +41,7 @@ class GallerysView extends StatelessWidget {
         onlyOneScrollInBody: true,
         floatHeaderSlivers: true,
         headerSliverBuilder: _headerBuilder,
+        scrollBehavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         body: _buildBody(),
       ),
     );
@@ -74,8 +75,7 @@ class GallerysView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onTap: () =>
-                                Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
+                            onTap: () => Get.dialog(const EHTabBarConfigDialog(type: EHTabBarConfigDialogType.addTabBar)),
                             child: const Icon(Icons.add, size: 28, color: Colors.white),
                           ),
                         ],
@@ -88,6 +88,7 @@ class GallerysView extends StatelessWidget {
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
                         onReorder: gallerysViewLogic.handleReOrderTab,
+                        buildDefaultDragHandles: false,
                         itemBuilder: (BuildContext context, int index) {
                           return Column(
                             key: Key(TabBarSetting.configs[index].name),
@@ -284,8 +285,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   @override
   void initState() {
-    if (gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
-        gallerysViewState.loadingState[widget.tabIndex] == LoadingState.idle) {
+    if (gallerysViewState.gallerys[widget.tabIndex].isEmpty && gallerysViewState.loadingState[widget.tabIndex] == LoadingState.idle) {
       gallerysViewLogic.loadMore(widget.tabIndex);
     }
     super.initState();
@@ -293,11 +293,11 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   @override
   Widget build(BuildContext context) {
-    return gallerysViewState.gallerys[widget.tabIndex].isEmpty &&
-            gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
+    return gallerysViewState.gallerys[widget.tabIndex].isEmpty && gallerysViewState.loadingState[widget.tabIndex] != LoadingState.idle
         ? _buildCenterStatusIndicator()
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            scrollBehavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
             slivers: <Widget>[
               _buildPullDownIndicator(),
               _buildGalleryCollection(widget.tabIndex),

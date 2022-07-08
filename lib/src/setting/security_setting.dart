@@ -13,6 +13,9 @@ class SecuritySetting {
   static bool supportFingerPrintLock = false;
 
   static Future<void> init() async {
+    if (GetPlatform.isWindows) {
+      return;
+    }
     supportFingerPrintLock = (await LocalAuthentication().getAvailableBiometrics()).contains(BiometricType.fingerprint);
 
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('securitySetting');

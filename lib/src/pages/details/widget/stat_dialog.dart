@@ -61,8 +61,7 @@ class _StatDialogState extends State<StatDialog> {
           noDataWidget: Text('invisible2UserWithoutDonation'.tr),
           noDataTapCallback: _getGalleryStats,
         ),
-        if (loadingState == LoadingState.success && graphType == 'allTime')
-          FadeIn(key: const Key('1'), child: _allTimeGraph()).marginOnly(top: 24),
+        if (loadingState == LoadingState.success && graphType == 'allTime') FadeIn(key: const Key('1'), child: _allTimeGraph()).marginOnly(top: 24),
         if (loadingState == LoadingState.success && graphType == 'year')
           FadeIn(key: const Key('2'), child: _lineGraph(galleryStats.yearlyStats)).marginOnly(top: 24),
         if (loadingState == LoadingState.success && graphType == 'month')
@@ -85,6 +84,9 @@ class _StatDialogState extends State<StatDialog> {
         parser: EHSpiderParser.statPage2GalleryStats,
       );
     } on DioError catch (e) {
+      if (!mounted) {
+        return;
+      }
       if (e.response?.statusCode == 404) {
         Log.info('invisible2UserWithoutDonation'.tr, false);
         setState(() {
@@ -100,6 +102,9 @@ class _StatDialogState extends State<StatDialog> {
       return;
     }
 
+    if (!mounted) {
+      return;
+    }
     setState(() {
       loadingState = LoadingState.success;
     });

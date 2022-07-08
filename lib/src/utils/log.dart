@@ -38,7 +38,7 @@ class Log {
         PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
 
-    _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}.log'));
+    _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}.log'));
     await _verboseLogFile.create(recursive: true);
     _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
@@ -47,7 +47,7 @@ class Log {
     );
 
     _waringLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_error.log'));
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_error.log'));
     await _waringLogFile.create(recursive: true);
     _warningFileLogger = Logger(
       level: Level.warning,
@@ -57,7 +57,7 @@ class Log {
     );
 
     _downloadLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH:mm:mm').format(DateTime.now())}_download.log'));
+        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_download.log'));
     await _downloadLogFile.create(recursive: true);
     _downloadFileLogger = Logger(
       printer: prodPrinterWithoutBox,

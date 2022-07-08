@@ -16,7 +16,7 @@ class LockPage extends StatefulWidget {
 class _LockPageState extends State<LockPage> {
   @override
   void initState() {
-    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       auth();
     });
     super.initState();

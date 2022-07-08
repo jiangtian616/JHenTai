@@ -52,6 +52,7 @@ class en_US {
       'userNameOrPasswordMismatch': 'Username or password mismatch',
       'copyCookies': 'Copy Cookies',
       'tap2Copy': 'Tap to Copy',
+      'webLoginIsDisabled': 'Web login is disabled on desktop',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',
@@ -139,6 +140,10 @@ class en_US {
       'loading': "Loading",
       'paused': 'Paused',
       'exceedImageLimits': "Exceed Image Limits",
+      'toNext': 'To next',
+      'toPrev': 'To prev',
+      'back': 'Back',
+      'toggleMenu': 'Toggle menu',
 
       /// setting page
       'account': 'Account',

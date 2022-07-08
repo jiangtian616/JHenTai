@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +44,7 @@ void main() async {
   runZonedGuarded(() async {
     await init();
     runApp(const MyApp());
+    _doForWindows();
   }, (Object error, StackTrace stack) {
     if (error is UploadException) {
       return;
@@ -126,4 +128,11 @@ Future<void> onReady() async {
   EHSetting.refresh();
 
   ReadSetting.init();
+}
+
+void _doForWindows() {
+  doWhenWindowReady(() {
+    appWindow.title = 'JHenTai';
+    appWindow.show();
+  });
 }

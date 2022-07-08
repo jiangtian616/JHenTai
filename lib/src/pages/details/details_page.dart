@@ -20,6 +20,7 @@ import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
@@ -38,7 +39,7 @@ import 'details_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget {
-  String tag = UniqueKey().toString();
+  final String tag = UniqueKey().toString();
 
   late final DetailsPageLogic detailsPageLogic;
   late final DetailsPageState detailsPageState;
@@ -54,7 +55,9 @@ class DetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<DetailsPageLogic>(
+    return EHKeyboardListener(
+      handleEsc: () => back(currentRoute: Routes.details),
+      child: GetBuilder<DetailsPageLogic>(
         id: bodyId,
         tag: tag,
         builder: (logic) {
@@ -97,13 +100,10 @@ class DetailsPage extends StatelessWidget {
                     if (detailsPageState.galleryDetails?.newVersionGalleryUrl != null)
                       _buildNewVersionHint(detailsPageState.galleryDetails!.newVersionGalleryUrl!),
                     _buildActions(gallery, detailsPageState.galleryDetails, context),
-                    if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false)
-                      _buildTags(detailsPageState.galleryDetails!.fullTags),
+                    if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false) _buildTags(detailsPageState.galleryDetails!.fullTags),
                     _buildLoadingDetailsIndicator(),
-                    if (detailsPageState.galleryDetails != null)
-                      _buildCommentsIndicator(detailsPageState.galleryDetails!),
-                    if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false)
-                      _buildComments(detailsPageState.galleryDetails!),
+                    if (detailsPageState.galleryDetails != null) _buildCommentsIndicator(detailsPageState.galleryDetails!),
+                    if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false) _buildComments(detailsPageState.galleryDetails!),
                     if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
                     if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
                   ],
@@ -111,20 +111,23 @@ class DetailsPage extends StatelessWidget {
               );
             }(),
           );
-        });
+        },
+      ),
+    );
   }
 
   Widget _buildLoadingPageIndicator() {
     return GetBuilder<DetailsPageLogic>(
-        id: loadingStateId,
-        tag: tag,
-        builder: (logic) {
-          return LoadingStateIndicator(
-            indicatorRadius: 18,
-            loadingState: detailsPageState.loadingPageState,
-            errorTapCallback: detailsPageLogic.getFullPage,
-          );
-        });
+      id: loadingStateId,
+      tag: tag,
+      builder: (logic) {
+        return LoadingStateIndicator(
+          indicatorRadius: 18,
+          loadingState: detailsPageState.loadingPageState,
+          errorTapCallback: detailsPageLogic.getFullPage,
+        );
+      },
+    );
   }
 
   Widget _buildHeader(Gallery gallery, GalleryDetail? galleryDetails, BuildContext context) {
@@ -339,8 +342,7 @@ class DetailsPage extends StatelessWidget {
               IconTextButton(
                 iconData: Icons.download,
                 iconSize: 30,
-                onPressed:
-                    detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
+                onPressed: detailsPageState.gallery?.pageCount == null ? null : () => detailsPageLogic.handleTapDownload(),
                 text: GetBuilder<GalleryDownloadService>(
                   id: '$galleryDownloadProgressId::${gallery.gid}',
                   builder: (_) {
@@ -368,9 +370,7 @@ class DetailsPage extends StatelessWidget {
                       width: max(77, (screenWidth - 15 * 2) / 7),
                       loadingState: detailsPageState.favoriteState,
                       idleWidget: IconTextButton(
-                        iconData: gallery.isFavorite && detailsPageState.galleryDetails != null
-                            ? Icons.favorite
-                            : Icons.favorite_border,
+                        iconData: gallery.isFavorite && detailsPageState.galleryDetails != null ? Icons.favorite : Icons.favorite_border,
                         iconSize: 26,
                         iconColor: gallery.isFavorite && detailsPageState.galleryDetails != null
                             ? ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]
@@ -401,10 +401,8 @@ class DetailsPage extends StatelessWidget {
                     width: max(77, (screenWidth - 15 * 2) / 7),
                     loadingState: detailsPageState.ratingState,
                     idleWidget: IconTextButton(
-                      iconData:
-                          gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
-                      iconColor:
-                          gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
+                      iconData: gallery.hasRated && detailsPageState.galleryDetails != null ? Icons.star : Icons.star_border,
+                      iconColor: gallery.hasRated && detailsPageState.galleryDetails != null ? Colors.red.shade700 : null,
                       iconSize: 28,
                       text: Text(
                         gallery.hasRated ? gallery.rating.toString() : 'rating'.tr,
@@ -482,9 +480,7 @@ class DetailsPage extends StatelessWidget {
                           tagData: TagData(
                             namespace: 'rows',
                             key: entry.key,
-                            tagName: StyleSetting.enableTagZHTranslation.isTrue
-                                ? LocaleConsts.tagNamespace[entry.key]
-                                : null,
+                            tagName: StyleSetting.enableTagZHTranslation.isTrue ? LocaleConsts.tagNamespace[entry.key] : null,
                           ),
                         ),
                         addNameSpaceColor: true,
@@ -563,8 +559,7 @@ class DetailsPage extends StatelessWidget {
                     child: EHComment(
                       comment: comment,
                       maxLines: 4,
-                      showVotingButtons:
-                          galleryDetails.comments.every((comment) => comment.userName != UserSetting.userName.value),
+                      showVotingButtons: galleryDetails.comments.every((comment) => comment.userName != UserSetting.userName.value),
                     ),
                   ).marginOnly(right: 10),
                 )
@@ -602,14 +597,13 @@ class DetailsPage extends StatelessWidget {
             return SliverGrid(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  if (index == galleryDetails.thumbnails.length - 1 &&
-                      detailsPageState.loadingThumbnailsState == LoadingState.idle) {
+                  if (index == galleryDetails.thumbnails.length - 1 && detailsPageState.loadingThumbnailsState == LoadingState.idle) {
                     /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
                     /// that hints circular build.
                     /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
                     /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
                     /// the callback is added once.
-                    SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+                    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
                       detailsPageLogic.loadMoreThumbnails();
                     });
                   }
