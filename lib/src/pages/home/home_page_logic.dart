@@ -85,10 +85,6 @@ class HomePageLogic extends GetxController {
     if (AdvancedSetting.enableCheckUpdate.isFalse) {
       return;
     }
-    /// todo: https://github.com/fluttercommunity/plus_plugins/issues/929
-    if (GetPlatform.isWindows) {
-      return;
-    }
 
     String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
     String latestVersion;

@@ -43,7 +43,7 @@ class en_US {
       'youHaveLoggedInAs': 'Hello:   ',
       'cookieIsBlack': 'Cookie is Black',
       'cookieFormatError': 'Cookie Format Error',
-      'invalidCookie': 'Invalid Cookie',
+      'invalidCookie': 'Login failed or invalid cookie',
       'loginFail': 'Login Failed',
       'userName': 'UserName',
       'EHUser': 'EH User',

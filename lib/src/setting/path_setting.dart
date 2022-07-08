@@ -8,10 +8,10 @@ class PathSetting {
   /// visible on ios&windows
   static Directory? appDocDir;
 
-  /// visible on ios&android&windows
+  /// visible on windows
   static late Directory appSupportDir;
 
-  /// visible only on android
+  /// visible on android
   static Directory? externalStorageDir;
 
   static Future<void> init() async {

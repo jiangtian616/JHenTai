@@ -9,8 +9,10 @@ class StorageService extends GetxService {
 
   final GetStorage _storage = GetStorage(storageFileName, PathSetting.appSupportDir.path);
 
-  static void init() {
-    Get.put(StorageService());
+  static Future<void>  init() async {
+    StorageService storageService = StorageService();
+    Get.put(storageService);
+    await storageService._storage.initStorage;
     Log.verbose('init StorageService success', false);
   }
 

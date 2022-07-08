@@ -43,7 +43,7 @@ class zh_CN {
       'youHaveLoggedInAs': '您已登录:   ',
       'cookieIsBlack': 'cookie为空',
       'cookieFormatError': 'cookie格式错误',
-      'invalidCookie': '无效的cookie',
+      'invalidCookie': '登陆失败或Cookie无效',
       'loginFail': '登陆失败',
       'userName': '用户名',
       'EHUser': 'E站用户',
