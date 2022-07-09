@@ -33,51 +33,39 @@ class StartPage extends StatelessWidget {
     return WindowsApp(
       child: WillPopScope(
         onWillPop: () => _handlePopApp(),
-        child: ScrollConfiguration(
-          behavior: const MaterialScrollBehavior().copyWith(
-            dragDevices: {
-              PointerDeviceKind.mouse,
-              PointerDeviceKind.touch,
-              PointerDeviceKind.stylus,
-              PointerDeviceKind.trackpad,
-              PointerDeviceKind.unknown,
-            },
-            scrollbars: false,
-          ),
-          child: LayoutBuilder(
-            builder: (context, constraints) => Obx(
-              () {
-                if (StyleSetting.enableTabletLayout.isFalse) {
-                  StyleSetting.currentEnableTabletLayout.value = false;
-                  return HomePage();
-                }
+        child: LayoutBuilder(
+          builder: (context, constraints) => Obx(
+            () {
+              if (StyleSetting.enableTabletLayout.isFalse) {
+                StyleSetting.currentEnableTabletLayout.value = false;
+                return HomePage();
+              }
 
-                /// enabled tablet layout but currently device width < 600(change device orientation or split screen),
-                /// not show tablet layout.
-                if (fullScreenWidth < 600) {
-                  StyleSetting.currentEnableTabletLayout.value = false;
-                  untilBlankPage();
-                  return HomePage();
-                }
+              /// enabled tablet layout but currently device width < 600(change device orientation or split screen),
+              /// not show tablet layout.
+              if (fullScreenWidth < 600) {
+                StyleSetting.currentEnableTabletLayout.value = false;
+                untilBlankPage();
+                return HomePage();
+              }
 
-                StyleSetting.currentEnableTabletLayout.value = true;
+              StyleSetting.currentEnableTabletLayout.value = true;
 
-                /// tablet layout
-                return Row(
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(child: _leftScreen()),
-                          Container(width: 0.3, color: Colors.black),
-                        ],
-                      ),
+              /// tablet layout
+              return Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: _leftScreen()),
+                        Container(width: 0.3, color: Colors.black),
+                      ],
                     ),
-                    Expanded(child: _rightScreen()),
-                  ],
-                );
-              },
-            ),
+                  ),
+                  Expanded(child: _rightScreen()),
+                ],
+              );
+            },
           ),
         ),
       ),

@@ -29,35 +29,24 @@ class ReadViewHelper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: {
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.touch,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-          PointerDeviceKind.unknown,
-        },
-      ),
-      child: EHKeyboardListener(
-        focusNode: state.focusNode,
-        handleEsc: back,
-        handleSpace: logic.toggleMenu,
-        handlePageDown: logic.toNext,
-        handlePageUp: logic.toPrev,
-        handleArrowDown: logic.toNext,
-        handleArrowUp: logic.toPrev,
-        handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
-        handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
-        child: Stack(
-          children: [
-            child,
-            _buildInfo(context),
-            _buildGestureRegion(),
-            _buildTopMenu(context),
-            _buildBottomMenu(context),
-          ],
-        ),
+    return EHKeyboardListener(
+      focusNode: state.focusNode,
+      handleEsc: back,
+      handleSpace: logic.toggleMenu,
+      handlePageDown: logic.toNext,
+      handlePageUp: logic.toPrev,
+      handleArrowDown: logic.toNext,
+      handleArrowUp: logic.toPrev,
+      handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
+      handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
+      child: Stack(
+        children: [
+          child,
+          _buildInfo(context),
+          _buildGestureRegion(),
+          _buildTopMenu(context),
+          _buildBottomMenu(context),
+        ],
       ),
     );
   }

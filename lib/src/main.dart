@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
@@ -72,7 +72,16 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
-      builder: (context, child) => AppStateListener(child: child!),
+      builder: (context, child) => ScrollConfiguration(
+        behavior: const MaterialScrollBehavior().copyWith(dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        }),
+        child: AppStateListener(child: child!),
+      ),
 
       /// enable swipe back feature
       popGesture: true,
