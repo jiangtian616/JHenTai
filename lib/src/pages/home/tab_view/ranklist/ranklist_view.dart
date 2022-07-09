@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_logic.dart';
 import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_state.dart';
 import 'package:jhentai/src/widget/eh_gallery_collection.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../config/global_config.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -19,10 +20,18 @@ class _RanklistViewState extends State<RanklistView> {
   final RanklistViewLogic logic = Get.put<RanklistViewLogic>(RanklistViewLogic());
   final RanklistViewState state = Get.find<RanklistViewLogic>().state;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     logic.getRanklist();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,17 +84,20 @@ class _RanklistViewState extends State<RanklistView> {
   }
 
   Widget _buildBody() {
-    return state.ranklistGallery[state.ranklistType]!.isEmpty &&
-            state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
+    return state.ranklistGallery[state.ranklistType]!.isEmpty && state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
         ? _buildCenterStatusIndicator()
-        : CustomScrollView(
-            key: PageStorageKey(state.ranklistType.name),
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            slivers: <Widget>[
-              _buildRefreshIndicator(),
-              _buildGalleryCollection(),
-              _buildLoadMoreIndicator(),
-            ],
+        : EHWheelSpeedController(
+            scrollControllerGetter: () => _scrollController,
+            child: CustomScrollView(
+              key: PageStorageKey(state.ranklistType.name),
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              slivers: <Widget>[
+                _buildRefreshIndicator(),
+                _buildGalleryCollection(),
+                _buildLoadMoreIndicator(),
+              ],
+            ),
           );
   }
 

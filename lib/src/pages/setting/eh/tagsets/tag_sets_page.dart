@@ -179,8 +179,8 @@ class TagSetsPage extends StatelessWidget {
 }
 
 class NumberRangeTextInputFormatter extends TextInputFormatter {
-  int? minValue;
-  int? maxValue;
+  double? minValue;
+  double? maxValue;
 
   NumberRangeTextInputFormatter({this.minValue, this.maxValue});
 
@@ -190,7 +190,7 @@ class NumberRangeTextInputFormatter extends TextInputFormatter {
       return newValue;
     }
 
-    int newNum = int.tryParse(newValue.text) ?? -100;
+    double newNum = double.tryParse(newValue.text) ?? -100;
 
     if (minValue != null && newNum < minValue!) {
       return oldValue;

@@ -95,6 +95,7 @@ class DetailsPageLogic extends GetxController {
   @override
   void onClose() {
     _stack.remove(this);
+    state.scrollController.dispose();
     super.onClose();
   }
 

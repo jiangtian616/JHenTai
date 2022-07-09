@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/search/search_page_state.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/global_config.dart';
 import '../../widget/eh_gallery_collection.dart';
@@ -15,6 +16,8 @@ import '../../widget/eh_tab_bar_config_dialog.dart';
 import '../../widget/eh_tag.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
+
+final GlobalKey<ExtendedNestedScrollViewState> searchListKey = GlobalKey<ExtendedNestedScrollViewState>();
 
 class SearchPagePage extends StatelessWidget {
   final String tag = UniqueKey().toString();
@@ -31,11 +34,15 @@ class SearchPagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: ExtendedNestedScrollView(
-        onlyOneScrollInBody: true,
-        floatHeaderSlivers: true,
-        headerSliverBuilder: _headerBuilder,
-        body: _buildBody(context),
+      body: EHWheelSpeedController(
+        scrollControllerGetter: () => searchListKey.currentState?.innerController,
+        child: ExtendedNestedScrollView(
+          key: searchListKey,
+          onlyOneScrollInBody: true,
+          floatHeaderSlivers: true,
+          headerSliverBuilder: _headerBuilder,
+          body: _buildBody(context),
+        ),
       ),
     );
   }
@@ -48,7 +55,7 @@ class SearchPagePage extends StatelessWidget {
           pinned: true,
           floating: true,
           delegate: EHSliverHeaderDelegate(
-            minHeight: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight,
+            minHeight: context.mediaQueryPadding.top + (GetPlatform.isDesktop ? GlobalConfig.appBarHeight : 0) + GlobalConfig.searchBarHeight,
             maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.searchBarHeight,
 
             /// make sure the color changes with theme's change
@@ -163,8 +170,7 @@ class SearchPagePage extends StatelessWidget {
     return GetBuilder<SearchPageLogic>(
       id: bodyId,
       tag: tag,
-      builder: (logic) =>
-          state.showSuggestionAndHistory ? _buildSuggestionAndHistoryBody(context) : _buildGalleryBody(context),
+      builder: (logic) => state.showSuggestionAndHistory ? _buildSuggestionAndHistoryBody(context) : _buildGalleryBody(context),
     );
   }
 
@@ -175,9 +181,7 @@ class SearchPagePage extends StatelessWidget {
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: [
         Builder(
-          builder: (context) => SliverOverlapInjector(
-            handle: ExtendedNestedScrollView.sliverOverlapAbsorberHandleFor(context),
-          ),
+          builder: (context) => SliverOverlapInjector(handle: ExtendedNestedScrollView.sliverOverlapAbsorberHandleFor(context)),
         ),
         if (history.isNotEmpty)
           SliverPadding(
@@ -235,8 +239,7 @@ class SearchPagePage extends StatelessWidget {
                           subtitle: tagData.tagName == null
                               ? null
                               : RichText(
-                                  text:
-                                      _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true),
+                                  text: _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true),
                                 ),
                           leading: const Icon(Icons.search),
                           dense: true,
@@ -268,9 +271,7 @@ class SearchPagePage extends StatelessWidget {
         children.add(
           TextSpan(
             text: rawText.substring(indexHandling, index),
-            style: TextStyle(
-                fontSize: isSubTitle ? 12 : 15,
-                color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
+            style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
           ),
         );
       }
@@ -286,9 +287,7 @@ class SearchPagePage extends StatelessWidget {
       children.add(
         TextSpan(
           text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(
-              fontSize: isSubTitle ? 12 : 15,
-              color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
+          style: TextStyle(fontSize: isSubTitle ? 12 : 15, color: isSubTitle ? Colors.grey.shade400 : Theme.of(context).textTheme.subtitle1?.color),
         ),
       );
     }
@@ -327,7 +326,8 @@ class SearchPagePage extends StatelessWidget {
   Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
-      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.searchBarHeight),
+      padding:
+          EdgeInsets.only(top: Get.mediaQuery.padding.top + (GetPlatform.isDesktop ? GlobalConfig.appBarHeight : 0) + GlobalConfig.searchBarHeight),
       sliver: CupertinoSliverRefreshControl(
         refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
         onRefresh: logic.handlePullDown,
@@ -360,8 +360,7 @@ class SearchPagePage extends StatelessWidget {
       handleLoadMore: () => logic.searchMore(isRefresh: false),
 
       /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
-      keepPosition:
-          state.tabBarConfig.searchConfig.pageAtMost == null && state.tabBarConfig.searchConfig.pageAtLeast == null,
+      keepPosition: state.tabBarConfig.searchConfig.pageAtMost == null && state.tabBarConfig.searchConfig.pageAtLeast == null,
     );
   }
 }

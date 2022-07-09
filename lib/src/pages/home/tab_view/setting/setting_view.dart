@@ -53,6 +53,12 @@ class SettingView extends StatelessWidget {
               title: Text('download'.tr),
               onTap: () => toNamed(Routes.settingPrefix + 'download'),
             ),
+            if (GetPlatform.isDesktop)
+              ListTile(
+                leading: const Icon(Icons.mouse),
+                title: Text('mouseWheel'.tr),
+                onTap: () => toNamed(Routes.settingPrefix + 'mouse_wheel'),
+              ),
             ListTile(
               leading: const Icon(Icons.settings_suggest),
               title: Text('advanced'.tr),

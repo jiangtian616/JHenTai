@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -17,6 +18,8 @@ class DetailsPageState {
   late LoadingState loadingThumbnailsState;
   late LoadingState favoriteState;
   late LoadingState ratingState;
+
+  final ScrollController scrollController = ScrollController();
 
   DetailsPageState() {
     nextPageIndexToLoadThumbnails = 1;

@@ -6,18 +6,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/simple/list_notifier.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_photo_view_gallery.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller_for_read_page.dart';
 import 'package:jhentai/src/pages/read/widget/read_view_helper.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
-import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -36,6 +35,14 @@ class _ReadPageState extends State<ReadPage> {
   final ReadPageLogic logic = Get.put(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
   final GalleryDownloadService downloadService = Get.find();
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +64,18 @@ class _ReadPageState extends State<ReadPage> {
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
-        child: EHScrollablePositionedList.separated(
-          physics: const ClampingScrollPhysics(),
-          minCacheExtent: state.mode == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
-          initialScrollIndex: state.initialIndex,
-          itemCount: state.pageCount,
-          itemScrollController: state.itemScrollController,
-          itemPositionsListener: state.itemPositionsListener,
-          itemBuilder: (context, index) => state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
-          separatorBuilder: (BuildContext context, int index) => const Divider(height: 6),
+        child: EHWheelSpeedControllerForReadPage(
+          scrollController: state.itemScrollController,
+          child: EHScrollablePositionedList.separated(
+            physics: const ClampingScrollPhysics(),
+            minCacheExtent: state.mode == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
+            initialScrollIndex: state.initialIndex,
+            itemCount: state.pageCount,
+            itemScrollController: state.itemScrollController,
+            itemPositionsListener: state.itemPositionsListener,
+            itemBuilder: (context, index) => state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
+            separatorBuilder: (BuildContext context, int index) => const Divider(height: 6),
+          ),
         ),
       ),
     );

@@ -150,6 +150,7 @@ class en_US {
       'EH': 'EH',
       'style': 'Style',
       'network': 'network',
+      'mouseWheel': 'Mouse Wheel',
       'advanced': 'Advanced',
       'security': 'Security',
       'about': 'About',
@@ -161,6 +162,7 @@ class en_US {
       'readSetting': 'Read Setting',
       'downloadSetting': 'Download Setting',
       'networkSetting': 'Network Setting',
+      'mouseWheelSetting': 'Mouse Wheel Setting',
 
       /// eh setting page
       'site': 'Site',
@@ -195,6 +197,10 @@ class en_US {
       'cover': 'Cover',
       'adaptive': 'Adaptive',
       'enableTabletLayout': 'Enable Tablet Layout',
+
+      /// mouse wheel setting page
+      'wheelScrollSpeed': 'Wheel scroll speed',
+      'ineffectiveInGalleryPage': 'Ineffective in gallery page now.',
 
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',

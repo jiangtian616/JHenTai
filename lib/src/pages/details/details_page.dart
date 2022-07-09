@@ -23,6 +23,7 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -91,23 +92,27 @@ class DetailsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
-                    _buildHeader(gallery, detailsPageState.galleryDetails, context),
-                    _buildDetails(gallery, detailsPageState.galleryDetails),
-                    if (detailsPageState.galleryDetails?.newVersionGalleryUrl != null)
-                      _buildNewVersionHint(detailsPageState.galleryDetails!.newVersionGalleryUrl!),
-                    _buildActions(gallery, detailsPageState.galleryDetails, context),
-                    if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false) _buildTags(detailsPageState.galleryDetails!.fullTags),
-                    _buildLoadingDetailsIndicator(),
-                    if (detailsPageState.galleryDetails != null) _buildCommentsIndicator(detailsPageState.galleryDetails!),
-                    if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false) _buildComments(detailsPageState.galleryDetails!),
-                    if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
-                    if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-                  ],
-                ).paddingOnly(top: 10, left: 15, right: 15),
+                child: EHWheelSpeedController(
+                  scrollControllerGetter: () => detailsPageState.scrollController,
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    controller: detailsPageState.scrollController,
+                    slivers: [
+                      CupertinoSliverRefreshControl(onRefresh: detailsPageLogic.handleRefresh),
+                      _buildHeader(gallery, detailsPageState.galleryDetails, context),
+                      _buildDetails(gallery, detailsPageState.galleryDetails),
+                      if (detailsPageState.galleryDetails?.newVersionGalleryUrl != null)
+                        _buildNewVersionHint(detailsPageState.galleryDetails!.newVersionGalleryUrl!),
+                      _buildActions(gallery, detailsPageState.galleryDetails, context),
+                      if (detailsPageState.galleryDetails?.fullTags.isNotEmpty ?? false) _buildTags(detailsPageState.galleryDetails!.fullTags),
+                      _buildLoadingDetailsIndicator(),
+                      if (detailsPageState.galleryDetails != null) _buildCommentsIndicator(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails?.comments.isNotEmpty ?? false) _buildComments(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails != null) _buildThumbnails(detailsPageState.galleryDetails!),
+                      if (detailsPageState.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+                    ],
+                  ).paddingOnly(top: 10, left: 15, right: 15),
+                ),
               );
             }(),
           );

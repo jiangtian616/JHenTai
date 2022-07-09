@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
+import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/widget/app_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -73,13 +74,16 @@ class MyApp extends StatelessWidget {
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => ScrollConfiguration(
-        behavior: const MaterialScrollBehavior().copyWith(dragDevices: {
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.touch,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-          PointerDeviceKind.unknown,
-        }),
+        behavior: const MaterialScrollBehavior().copyWith(
+          dragDevices: {
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.unknown,
+          },
+          scrollbars: false,
+        ),
         child: AppStateListener(child: child!),
       ),
 
@@ -126,6 +130,8 @@ Future<void> init() async {
 
   DownloadSetting.init();
   await EHRequest.init();
+
+  MouseSetting.init();
 
   await ArchiveDownloadService.init();
   await GalleryDownloadService.init();

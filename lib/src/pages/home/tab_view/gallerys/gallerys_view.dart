@@ -163,8 +163,7 @@ class GallerysView extends StatelessWidget {
           pinned: true,
           floating: true,
 
-          /// build AppBar and TabBar.
-          /// i used a handy class to avoid write a separate [SliverPersistentHeaderDelegate] class
+          /// build AppBar and TabBar, use a handy class to avoid write a separate [SliverPersistentHeaderDelegate] class.
           delegate: EHSliverHeaderDelegate(
             minHeight: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight,
             maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.tabBarHeight,

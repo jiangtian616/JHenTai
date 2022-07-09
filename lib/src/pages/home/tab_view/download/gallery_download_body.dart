@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../model/download_progress.dart';
 import '../../../../model/gallery_image.dart';
@@ -30,6 +31,8 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
 
   late int gallerysCount;
 
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     gallerysCount = downloadService.gallerys.length;
@@ -37,15 +40,25 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       initState: _listen2AddItem,
       builder: (_) {
-        return AnimatedList(
-          key: _listKey,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          initialItemCount: gallerysCount,
-          itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+        return EHWheelSpeedController(
+          scrollControllerGetter: () => _scrollController,
+          child: AnimatedList(
+            key: _listKey,
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            initialItemCount: gallerysCount,
+            itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+          ),
         );
       },
     );
@@ -240,9 +253,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
                                   ? Icons.pause
                                   : Icons.done,
                           size: 26,
-                          color: downloadStatus == DownloadStatus.downloading
-                              ? Get.theme.primaryColorLight
-                              : Get.theme.primaryColor,
+                          color: downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
                         ),
                 );
               },
@@ -289,9 +300,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
                 height: 3,
                 child: LinearProgressIndicator(
                   value: downloadProgress.curCount / downloadProgress.totalCount,
-                  color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                      ? Get.theme.primaryColorLight
-                      : Get.theme.primaryColor,
+                  color: downloadProgress.downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
                 ),
               ).marginOnly(top: 4),
           ],

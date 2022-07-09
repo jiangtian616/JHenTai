@@ -150,6 +150,7 @@ class zh_CN {
       'EH': 'EH',
       'style': '样式',
       'network': '网络',
+      'mouseWheel': '鼠标滚轮',
       'advanced': '高级',
       'about': '关于',
       'security': '安全',
@@ -161,6 +162,7 @@ class zh_CN {
       'readSetting': '阅读设置',
       'downloadSetting': '下载设置',
       'networkSetting': '网络设置',
+      'mouseWheelSetting': '鼠标滚轮设置',
 
       /// eh setting page
       'site': '站点',
@@ -195,6 +197,10 @@ class zh_CN {
       'cover': '覆盖',
       'adaptive': '自适应',
       'enableTabletLayout': '开启平板双栏布局',
+
+      /// mouse wheel setting page
+      'wheelScrollSpeed': '鼠标滚轮速度',
+      'ineffectiveInGalleryPage': '在画廊页面暂时无效',
 
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',

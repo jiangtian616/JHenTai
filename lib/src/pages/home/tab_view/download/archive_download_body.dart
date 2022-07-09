@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
@@ -31,6 +32,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   final StorageService storageService = Get.find();
 
   late int archivesCount;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -39,15 +41,25 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
       initState: _listen2AddItem,
       builder: (_) {
-        return AnimatedList(
-          key: _listKey,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          initialItemCount: archivesCount,
-          itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+        return EHWheelSpeedController(
+          scrollControllerGetter: () => _scrollController,
+          child: AnimatedList(
+            key: _listKey,
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            initialItemCount: archivesCount,
+            itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+          ),
         );
       },
     );
@@ -233,8 +245,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
                     id: '$speedComputerId::${archive.gid}::${archive.isOriginal}',
                     builder: (logic) {
                       return Text(
-                        '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size
-                            .toDouble())}',
+                        '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
                         style: TextStyle(
                           fontSize: 12,
                           color: Colors.grey.shade600,
@@ -260,8 +271,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
                   builder: (logic) {
                     return LinearProgressIndicator(
                       value: speedComputer.downloadedBytes / archive.size,
-                      color:
-                          archiveStatus == ArchiveStatus.paused ? Get.theme.primaryColor : Get.theme.primaryColorLight,
+                      color: archiveStatus == ArchiveStatus.paused ? Get.theme.primaryColor : Get.theme.primaryColorLight,
                     );
                   },
                 ),
@@ -275,7 +285,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   void _listen2AddItem(GetBuilderState<ArchiveDownloadService> state) {
     archiveDownloadService.addListenerId(
       downloadArchivesId,
-          () {
+      () {
         if (archiveDownloadService.archives.length > archivesCount) {
           _listKey.currentState?.insertItem(0);
         }
@@ -289,36 +299,34 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
 
     _listKey.currentState?.removeItem(
       index,
-          (context, Animation<double> animation) =>
-          FadeTransition(
-            opacity: animation,
-            child: SizeTransition(
-              sizeFactor: animation,
-              child: _removeItemBuilder(),
-            ),
-          ),
+      (context, Animation<double> animation) => FadeTransition(
+        opacity: animation,
+        child: SizeTransition(
+          sizeFactor: animation,
+          child: _removeItemBuilder(),
+        ),
+      ),
     );
   }
 
   void _showDeleteBottomSheet(ArchiveDownloadedData archive, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) =>
-          CupertinoActionSheet(
-            actions: <CupertinoActionSheetAction>[
-              CupertinoActionSheetAction(
-                child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-                onPressed: () {
-                  _handleRemoveItem(context, index);
-                  back();
-                },
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              child: Text('cancel'.tr),
-              onPressed: () => back(),
-            ),
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              _handleRemoveItem(context, index);
+              back();
+            },
           ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: () => back(),
+        ),
+      ),
     );
   }
 
