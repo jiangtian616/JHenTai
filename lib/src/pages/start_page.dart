@@ -42,6 +42,7 @@ class StartPage extends StatelessWidget {
               PointerDeviceKind.trackpad,
               PointerDeviceKind.unknown,
             },
+            scrollbars: false,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) => Obx(

@@ -149,6 +149,7 @@ class zh_CN {
       'account': '账户',
       'EH': 'EH',
       'style': '样式',
+      'network': '网络',
       'advanced': '高级',
       'about': '关于',
       'security': '安全',
@@ -159,6 +160,7 @@ class zh_CN {
       'securitySetting': '安全设置',
       'readSetting': '阅读设置',
       'downloadSetting': '下载设置',
+      'networkSetting': '网络设置',
 
       /// eh setting page
       'site': '站点',
@@ -197,9 +199,13 @@ class zh_CN {
       /// advanced setting page
       'enableDomainFronting': '开启域名前置',
       'bypassSNIBlocking': '绕过SNI封锁',
+      'hostMapping': 'Host映射',
+      'hostMappingHint': '用于域名前置',
       'proxyAddress': '代理服务器地址',
       'proxyAddressHint': '如果你使用了代理服务器，务必正确配置',
       'saveSuccess': '保存成功',
+      'connectTimeout': '建立连接超时时间',
+      'receiveTimeout': '接收数据超时时间',
       'enableLogging': '开启日志',
       'pageCacheMaxAge': '页面缓存时间',
       'pageCacheMaxAgeHint': '你可以通过刷新页面来更新缓存',
@@ -215,6 +221,9 @@ class zh_CN {
       'checkUpdateAfterLaunchingApp': '启动应用时检查更新',
       'clearPageCache': '清除页面缓存',
       'clearSuccess': '清除成功',
+
+      /// host mapping page
+      'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
 
       /// security setting page
       'enableFingerPrintLock': '开启指纹锁',

@@ -6,9 +6,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'dart:io' as io;
 
-import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:path/path.dart' as path;
 
+import '../setting/network_setting.dart';
 import '../setting/path_setting.dart';
 import '../utils/route_util.dart';
 
@@ -195,7 +195,7 @@ class _EHImageState extends State<EHImage> {
 
   /// replace image host: exhentai.org -> ehgt.org
   String _replaceEXUrlIfEnableDomainFronting(String url) {
-    if (AdvancedSetting.enableDomainFronting.isFalse) {
+    if (NetworkSetting.enableDomainFronting.isFalse) {
       return url;
     }
     Uri rawUri = Uri.parse(url);

@@ -67,14 +67,4 @@ class EHConsts {
   static String get EXLookup => 'https://exhentai.org/upld/image_lookup.php';
 
   static String get EMyTags => 'https://e-hentai.org/mytags';
-
-  static const Map<String, String> host2Ip = {
-    'e-hentai.org': '172.67.0.127',
-    'exhentai.org': '178.175.129.254',
-    'upld.e-hentai.org': '94.100.18.249',
-    'api.e-hentai.org': '178.162.147.246',
-    'forums.e-hentai.org': '94.100.18.243',
-    // 'ehgt.org': '37.48.89.44',
-    // 'raw.githubusercontent.com': '178.175.129.254',
-  };
 }

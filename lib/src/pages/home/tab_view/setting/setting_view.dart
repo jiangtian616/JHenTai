@@ -44,6 +44,11 @@ class SettingView extends StatelessWidget {
               onTap: () => toNamed(Routes.settingPrefix + 'read'),
             ),
             ListTile(
+              leading: const Icon(Icons.wifi),
+              title: Text('network'.tr),
+              onTap: () => toNamed(Routes.settingPrefix + 'network'),
+            ),
+            ListTile(
               leading: const Icon(Icons.download),
               title: Text('download'.tr),
               onTap: () => toNamed(Routes.settingPrefix + 'download'),

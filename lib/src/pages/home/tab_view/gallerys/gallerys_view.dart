@@ -41,7 +41,7 @@ class GallerysView extends StatelessWidget {
         onlyOneScrollInBody: true,
         floatHeaderSlivers: true,
         headerSliverBuilder: _headerBuilder,
-        scrollBehavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        scrollBehavior: ScrollConfiguration.of(context),
         body: _buildBody(),
       ),
     );
@@ -297,7 +297,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
         ? _buildCenterStatusIndicator()
         : CustomScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            scrollBehavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+            scrollBehavior: ScrollConfiguration.of(context),
             slivers: <Widget>[
               _buildPullDownIndicator(),
               _buildGalleryCollection(widget.tabIndex),

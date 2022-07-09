@@ -10,7 +10,6 @@ import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
-import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -18,6 +17,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
+import '../setting/network_setting.dart';
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
 
@@ -29,8 +29,8 @@ class EHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: 6000,
-      receiveTimeout: 6000,
+      connectTimeout: NetworkSetting.connectTimeout.value,
+      receiveTimeout: NetworkSetting.receiveTimeout.value,
     ));
 
     /// error handler
@@ -69,7 +69,7 @@ class EHRequest {
             handler.next(e);
             return;
           }
-          if (!EHConsts.host2Ip.containsKey(e.requestOptions.uri.host) && !EHConsts.host2Ip.containsValue(e.requestOptions.uri.host)) {
+          if (!NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) && !NetworkSetting.allIPs.contains(e.requestOptions.uri.host)) {
             handler.next(e);
             return;
           }
@@ -82,20 +82,20 @@ class EHRequest {
     /// domain fronting
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-        if (AdvancedSetting.enableDomainFronting.isFalse) {
+        if (NetworkSetting.enableDomainFronting.isFalse) {
           handler.next(options);
           return;
         }
 
         String rawPath = options.path;
         String host = options.uri.host;
-        if (!EHConsts.host2Ip.containsKey(host)) {
+        if (!NetworkSetting.host2IPs.containsKey(host)) {
           handler.next(options);
           return;
         }
 
         handler.next(options.copyWith(
-          path: rawPath.replaceFirst(host, EHConsts.host2Ip[host]!),
+          path: rawPath.replaceFirst(host, NetworkSetting.currentHost2IP[host]!),
           headers: {...options.headers, 'host': host},
         ));
       },
@@ -104,12 +104,12 @@ class EHRequest {
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
       /// certificate for domain fronting
       client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return EHConsts.host2Ip.containsValue(host);
+        return NetworkSetting.allIPs.contains(host);
       };
 
       /// https://stackoverflow.com/questions/72913239/flutter-network-proxy-is-ineffective-on-windows
       if (GetPlatform.isDesktop) {
-        client.findProxy = (_) => 'PROXY ${AdvancedSetting.proxyAddress.value}; DIRECT';
+        client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
       }
     };
 

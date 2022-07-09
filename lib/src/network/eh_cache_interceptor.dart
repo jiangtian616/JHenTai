@@ -7,11 +7,10 @@ import 'package:dio_cache_interceptor/src/util/response_extension.dart';
 import 'package:dio_cache_interceptor_db_store/dio_cache_interceptor_db_store.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
-import '../setting/advanced_setting.dart';
+import '../setting/network_setting.dart';
 import '../setting/path_setting.dart';
 
 /// copied from [DioCacheInterceptor]
@@ -32,12 +31,12 @@ class EHCacheInterceptor extends Interceptor {
   );
 
   static CacheOptions get cacheOption => noCacheOption.copyWith(
-        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+        maxStale: Nullable(NetworkSetting.pageCacheMaxAge.value),
         policy: CachePolicy.forceCache,
       );
 
   static CacheOptions get refreshCacheOption => noCacheOption.copyWith(
-        maxStale: Nullable(AdvancedSetting.pageCacheMaxAge.value),
+        maxStale: Nullable(NetworkSetting.pageCacheMaxAge.value),
         policy: CachePolicy.refreshForceCache,
       );
 
@@ -174,7 +173,7 @@ class EHCacheInterceptor extends Interceptor {
     CacheStore cacheStore = _getCacheStore(cacheOptions);
     await cacheStore.delete(cacheOptions.keyBuilder(request));
 
-    for (MapEntry entry in EHConsts.host2Ip.entries) {
+    for (MapEntry entry in NetworkSetting.currentHost2IP.entries) {
       url = url.replaceFirst(entry.key, entry.value);
     }
     request = RequestOptions(path: url);

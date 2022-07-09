@@ -21,13 +21,6 @@ class SettingAdvancedPage extends StatefulWidget {
 }
 
 class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
-  late final TextEditingController textEditingController;
-
-  @override
-  void initState() {
-    textEditingController = TextEditingController(text: AdvancedSetting.proxyAddress.value);
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,76 +34,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         return ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           children: [
-            ListTile(
-              title: Text('enableDomainFronting'.tr),
-              subtitle: Text('bypassSNIBlocking'.tr),
-              trailing: Switch(
-                value: AdvancedSetting.enableDomainFronting.value,
-                onChanged: (value) => AdvancedSetting.saveEnableDomainFronting(value),
-              ),
-            ),
-            if (GetPlatform.isDesktop)
-              ListTile(
-                title: Text('proxyAddress'.tr),
-                subtitle: Text('proxyAddressHint'.tr),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 150,
-                      child: TextField(
-                        controller: textEditingController,
-                        decoration: const InputDecoration(
-                          isDense: true,
-                          labelStyle: TextStyle(fontSize: 12),
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        AdvancedSetting.saveProxyAddress(textEditingController.value.text);
-                        toast('saveSuccess'.tr);
-                      },
-                      icon: Icon(Icons.check, color: Get.theme.primaryColor),
-                    ),
-                  ],
-                ),
-              ),
-            ListTile(
-              title: Text('pageCacheMaxAge'.tr),
-              subtitle: Text('pageCacheMaxAgeHint'.tr),
-              trailing: DropdownButton<Duration>(
-                value: AdvancedSetting.pageCacheMaxAge.value,
-                elevation: 4,
-                alignment: AlignmentDirectional.centerEnd,
-                onChanged: (Duration? newValue) {
-                  AdvancedSetting.savePageCacheMaxAge(newValue!);
-                },
-                items: [
-                  DropdownMenuItem(
-                    child: Text('oneMinute'.tr),
-                    value: const Duration(minutes: 1),
-                  ),
-                  DropdownMenuItem(
-                    child: Text('tenMinute'.tr),
-                    value: const Duration(minutes: 10),
-                  ),
-                  DropdownMenuItem(
-                    child: Text('oneHour'.tr),
-                    value: const Duration(hours: 1),
-                  ),
-                  DropdownMenuItem(
-                    child: Text('oneDay'.tr),
-                    value: const Duration(days: 1),
-                  ),
-                  DropdownMenuItem(
-                    child: Text('threeDay'.tr),
-                    value: const Duration(days: 3),
-                  ),
-                ],
-              ),
-            ),
             ListTile(
               title: Text('enableLogging'.tr),
               trailing: Switch(

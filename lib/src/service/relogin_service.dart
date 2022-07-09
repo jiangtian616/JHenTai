@@ -8,7 +8,7 @@ import '../utils/log.dart';
 class ReLoginService extends GetxService {
   final StorageService storageService = Get.find();
 
-  final bool needReLogin = false;
+  final bool needReLogin = true;
 
   static void init() {
     Get.put(ReLoginService());

@@ -149,6 +149,7 @@ class en_US {
       'account': 'Account',
       'EH': 'EH',
       'style': 'Style',
+      'network': 'network',
       'advanced': 'Advanced',
       'security': 'Security',
       'about': 'About',
@@ -159,6 +160,7 @@ class en_US {
       'ehSetting': 'EH Site Setting',
       'readSetting': 'Read Setting',
       'downloadSetting': 'Download Setting',
+      'networkSetting': 'Network Setting',
 
       /// eh setting page
       'site': 'Site',
@@ -197,9 +199,13 @@ class en_US {
       /// advanced setting page
       'enableDomainFronting': 'Enable Domain Fronting',
       'bypassSNIBlocking': 'Bypass SNI Blocking',
+      'hostMapping': 'Host Mapping',
+      'hostMappingHint': 'Used for domain fronting',
       'proxyAddress': 'Proxy Address',
       'proxyAddressHint': 'If you use proxy server, make sure to set it up correctly',
-      'saveSuccess':'Save success',
+      'saveSuccess': 'Save success',
+      'connectTimeout': 'Connect timeout',
+      'receiveTimeout': 'Receive data timeout',
       'pageCacheMaxAge': 'Page Cache Max Age',
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'oneMinute': '1 Minute',
@@ -215,6 +221,9 @@ class en_US {
       'checkUpdateAfterLaunchingApp': 'Check update after launching app',
       'clearPageCache': 'Clear Page Cache',
       'clearSuccess': 'Clear Success',
+
+      /// host mapping page
+      'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
 
       /// security setting page
       'enableFingerPrintLock': 'Enable FingerPrint Lock',

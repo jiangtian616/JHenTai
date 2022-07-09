@@ -6,9 +6,9 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:path/path.dart';
 
+import '../setting/network_setting.dart';
 import '../setting/path_setting.dart';
 import '../utils/cookie_util.dart';
 import '../utils/log.dart';
@@ -32,7 +32,7 @@ class EHCookieManager extends CookieManager {
       }
     } on Exception catch (e) {
       Log.warning('cookieJar init failed, use default setting', false);
-      Set<String> defaultHostSet = EHConsts.host2Ip.entries.fold<Set<String>>(
+      Set<String> defaultHostSet = NetworkSetting.currentHost2IP.entries.fold<Set<String>>(
         <String>{},
         (previousValue, entry) => previousValue..addAll([entry.key, entry.value]),
       );
@@ -43,12 +43,10 @@ class EHCookieManager extends CookieManager {
 
     /// eagerly load cookie into memory
     await Future.wait(
-      EHConsts.host2Ip.entries.map(
-        (entry) => Future.wait([
-          _cookieJar.loadForRequest(Uri.parse('https://${entry.key}')),
-          _cookieJar.loadForRequest(Uri.parse('https://${entry.value}')),
-        ]),
-      ),
+      NetworkSetting.host2IPs.keys.map((host) => _cookieJar.loadForRequest(Uri.parse('https://$host'))),
+    );
+    await Future.wait(
+      NetworkSetting.allIPs.map((ip) => _cookieJar.loadForRequest(Uri.parse('https://$ip'))),
     );
 
     Get.put<EHCookieManager>(EHCookieManager(_cookieJar));
@@ -59,7 +57,7 @@ class EHCookieManager extends CookieManager {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     cookieJar.loadForRequest(options.uri).then((cookies) {
-      if (EHConsts.host2Ip.containsKey(options.uri.host) || EHConsts.host2Ip.containsValue(options.uri.host)) {
+      if (NetworkSetting.currentHost2IP.containsKey(options.uri.host) || NetworkSetting.currentHost2IP.containsValue(options.uri.host)) {
         cookies.add(Cookie('nw', '1'));
       }
       var cookie = CookieManager.getCookies(cookies);
@@ -88,11 +86,14 @@ class EHCookieManager extends CookieManager {
   }
 
   Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
+    /// host
     await Future.wait(
-      EHConsts.host2Ip.keys.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),
+      NetworkSetting.host2IPs.keys.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),
     );
+
+    /// ip
     await Future.wait(
-      EHConsts.host2Ip.values.map((ip) => cookieJar.saveFromResponse(Uri.parse('https://$ip'), cookies)),
+      NetworkSetting.allIPs.map((ip) => cookieJar.saveFromResponse(Uri.parse('https://$ip'), cookies)),
     );
   }
 
@@ -112,13 +113,9 @@ class EHCookieManager extends CookieManager {
       return;
     }
 
-    if (EHConsts.host2Ip.containsKey(response.requestOptions.uri.host) ||
-        EHConsts.host2Ip.containsValue(response.requestOptions.uri.host)) {
+    if (NetworkSetting.host2IPs.containsKey(response.requestOptions.uri.host) || NetworkSetting.allIPs.contains(response.requestOptions.uri.host)) {
       await storeEhCookiesForAllUri(
-        cookies
-            .map((str) => Cookie.fromSetCookieValue(str))
-            .map((cookie) => Cookie(cookie.name, cookie.value))
-            .toList(),
+        cookies.map((str) => Cookie.fromSetCookieValue(str)).map((cookie) => Cookie(cookie.name, cookie.value)).toList(),
       );
     } else {
       await cookieJar.saveFromResponse(

@@ -206,7 +206,7 @@ class _EhPageViewState extends State<EhPageView> {
         controller: widget.controller,
         physics: physics,
         restorationId: widget.restorationId,
-        scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context),
         viewportBuilder: (BuildContext context, ViewportOffset position) {
           return Viewport(
             cacheExtent: widget.cacheExtent,
