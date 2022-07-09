@@ -45,7 +45,7 @@ void main() async {
   runZonedGuarded(() async {
     await init();
     runApp(const MyApp());
-    _doForWindows();
+    _doForDesktop();
   }, (Object error, StackTrace stack) {
     if (error is UploadException) {
       return;
@@ -130,7 +130,10 @@ Future<void> onReady() async {
   ReadSetting.init();
 }
 
-void _doForWindows() {
+void _doForDesktop() {
+  if (!GetPlatform.isDesktop) {
+    return;
+  }
   doWhenWindowReady(() {
     appWindow.title = 'JHenTai';
     appWindow.show();
