@@ -29,7 +29,13 @@ class _LogPageState extends State<LogPage> {
         centerTitle: true,
         elevation: 1,
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        actions: [IconButton(onPressed: () => _shareLog(log as io.File), icon: const Icon(Icons.share))],
+        actions: [
+          if (!GetPlatform.isDesktop)
+            IconButton(
+              onPressed: () => _shareLog(log as io.File),
+              icon: const Icon(Icons.share),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         scrollDirection: Axis.horizontal,

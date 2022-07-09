@@ -1,12 +1,9 @@
 import 'dart:convert';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_navigation/get_navigation.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
@@ -251,6 +248,13 @@ class DetailsPageLogic extends GetxController {
 
   Future<void> shareGallery() async {
     Log.verbose('Share gallery:${state.gallery!.galleryUrl}');
+
+    if (GetPlatform.isDesktop) {
+      await FlutterClipboard.copy(state.gallery!.galleryUrl);
+      toast('hasCopiedToClipboard'.tr);
+      return;
+    }
+
     Share.share(
       state.gallery!.galleryUrl,
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
@@ -402,8 +406,7 @@ class DetailsPageLogic extends GetxController {
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
       downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
       toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
-    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded &&
-        state.galleryDetails?.newVersionGalleryUrl != null) {
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl != null) {
       downloadService.updateGallery(gallery.toGalleryDownloadedData(), state.galleryDetails!.newVersionGalleryUrl!);
       toast('${'update'.tr}： ${gallery.gid}', isCenter: false);
     }
@@ -433,8 +436,7 @@ class DetailsPageLogic extends GetxController {
       isVotingUp,
     ).then((result) {
       int score = jsonDecode(result)['comment_score'];
-      state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score =
-          score >= 0 ? '+' + score.toString() : score.toString();
+      state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score = score >= 0 ? '+' + score.toString() : score.toString();
       update([bodyId]);
     }).catchError((error) {
       Log.error('voteCommentFailed'.tr, (error as DioError).message);
