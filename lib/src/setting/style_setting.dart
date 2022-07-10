@@ -21,6 +21,12 @@ enum CoverMode {
   contain,
 }
 
+enum LayoutMode {
+  mobile,
+  tablet,
+  desktop,
+}
+
 class StyleSetting {
   static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
@@ -28,12 +34,14 @@ class StyleSetting {
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
 
-  /// if enableTabletLayout is true, currentEnableTabletLayout can also be false because of screen width limit.
-  static RxBool enableTabletLayout =
-      WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
-          ? false.obs
-          : true.obs;
-  static RxBool currentEnableTabletLayout = false.obs;
+  static Rx<LayoutMode> layoutMode = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
+      ? LayoutMode.mobile.obs
+      : GetPlatform.isDesktop
+          ? LayoutMode.desktop.obs
+          : LayoutMode.tablet.obs;
+
+  /// If the current window width is too small, App will degrade to mobile mode. Use [inTabletOrDesktopLayoutMode] to indicate actual layout.
+  static RxBool inTabletOrDesktopLayoutMode = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
@@ -78,9 +86,9 @@ class StyleSetting {
     _save();
   }
 
-  static saveEnableTabletLayout(bool enableTabletLayout) {
-    Log.verbose('saveEnableTabletLayout:$enableTabletLayout');
-    StyleSetting.enableTabletLayout.value = enableTabletLayout;
+  static saveLayoutMode(LayoutMode layoutMode) {
+    Log.verbose('saveLayoutMode:${layoutMode.name}');
+    StyleSetting.layoutMode.value = layoutMode;
     _save();
   }
 
@@ -105,7 +113,7 @@ class StyleSetting {
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
       'coverMode': coverMode.value.index,
-      'enableTabletLayout': enableTabletLayout.value,
+      'layoutMode': layoutMode.value.index,
     };
   }
 
@@ -115,7 +123,6 @@ class StyleSetting {
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
-    enableTabletLayout.value = map['enableTabletLayout'];
-    currentEnableTabletLayout.value = map['enableTabletLayout'];
+    layoutMode.value = LayoutMode.values[map['layoutMode'] ?? layoutMode.value.index];
   }
 }

@@ -197,6 +197,13 @@ class en_US {
       'cover': 'Cover',
       'adaptive': 'Adaptive',
       'enableTabletLayout': 'Enable Tablet Layout',
+      'layoutMode': 'Layout Mode',
+      'mobileMode': 'Mobile Mode',
+      'tabletMode': 'Tablet Mode',
+      'desktopMode': 'Desktop Mode',
+      'mobileModeHint': 'Single column',
+      'tabletModeHint': 'Double column',
+      'desktopModeHint': 'Double column with left bar, support shortcut keys',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

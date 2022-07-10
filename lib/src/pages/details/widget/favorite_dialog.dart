@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 
 import '../../../setting/favorite_setting.dart';
 import '../../../utils/route_util.dart';
-import '../../home/tab_view/gallerys/gallerys_view_logic.dart';
+import '../../gallerys/nested/nested_gallerys_page_logic.dart';
 import '../details_page_logic.dart';
 import '../details_page_state.dart';
 
 class FavoriteDialog extends StatelessWidget {
-  final GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
+  final NestedGallerysPageLogic gallerysViewLogic = Get.find<NestedGallerysPageLogic>();
   final DetailsPageLogic detailsPageLogic = DetailsPageLogic.current!;
   final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
 

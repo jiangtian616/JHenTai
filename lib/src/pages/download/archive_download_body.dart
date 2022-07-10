@@ -7,16 +7,17 @@ import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../../../model/gallery_image.dart';
-import '../../../../routes/routes.dart';
-import '../../../../service/storage_service.dart';
-import '../../../../setting/style_setting.dart';
-import '../../../../utils/byte_util.dart';
-import '../../../../utils/date_util.dart';
-import '../../../../utils/route_util.dart';
-import '../../../../utils/speed_computer.dart';
-import '../../../../widget/eh_image.dart';
-import '../../../../widget/eh_gallery_category_tag.dart';
+import '../../model/gallery_image.dart';
+import '../../routes/routes.dart';
+import '../../service/storage_service.dart';
+import '../../setting/style_setting.dart';
+import '../../utils/byte_util.dart';
+import '../../utils/date_util.dart';
+import '../../utils/route_util.dart';
+import '../../utils/speed_computer.dart';
+import '../../widget/eh_gallery_category_tag.dart';
+import '../../widget/eh_image.dart';
+
 
 class ArchiveDownloadBody extends StatefulWidget {
   const ArchiveDownloadBody({Key? key}) : super(key: key);

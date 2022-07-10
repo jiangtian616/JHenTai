@@ -7,23 +7,23 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/widget/jump_page_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../../model/tab_bar_config.dart';
-import '../../../../setting/tab_bar_setting.dart';
-import '../../../../utils/eh_spider_parser.dart';
-import '../../../../utils/route_util.dart';
-import '../../../../utils/snack_util.dart';
-import '../../../../widget/app_listener.dart';
-import 'gallerys_view_state.dart';
-import '../../../../model/gallery.dart';
+import '../../../model/gallery.dart';
+import '../../../model/tab_bar_config.dart';
+import '../../../setting/tab_bar_setting.dart';
+import '../../../utils/eh_spider_parser.dart';
+import '../../../utils/route_util.dart';
+import '../../../utils/snack_util.dart';
+import '../../../widget/app_state_listener.dart';
+import 'nested_gallerys_page_state.dart';
 
 String appBarId = 'appBarId';
 String tabBarId = 'tabBarId';
@@ -31,15 +31,12 @@ String bodyId = 'bodyId';
 String refreshStateId = 'refreshStateId';
 String loadingStateId = 'loadingStateId';
 
-class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin {
-  final GallerysViewState state = GallerysViewState();
+class NestedGallerysPageLogic extends GetxController with GetTickerProviderStateMixin {
+  final NestedGallerysPageState state = NestedGallerysPageState();
   final TagTranslationService tagTranslationService = Get.find();
-  final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
 
   late TabController tabController = TabController(length: TabBarSetting.configs.length, vsync: this);
-
-  String? _lastDetectedUrl;
 
   @override
   void onInit() {
@@ -47,13 +44,6 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
       update([appBarId]);
     });
     super.onInit();
-  }
-
-  @override
-  void onReady() {
-    handleUrlInClipBoard();
-    AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
-    super.onReady();
   }
 
   /// pull-down
@@ -346,46 +336,9 @@ class GallerysViewLogic extends GetxController with GetTickerProviderStateMixin 
     update([tabBarId, bodyId]);
   }
 
-  /// a gallery url exists in clipboard, show dialog to check whether enter detail page
-  void resumeAndHandleUrlInClipBoard(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      handleUrlInClipBoard();
-    }
-  }
-
-  /// a gallery url exists in clipboard, show dialog to check whether enter detail page
-  void handleUrlInClipBoard() async {
-    String text = await FlutterClipboard.paste();
-    if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
-      return;
-    }
-
-    /// show snack only once
-    if (text == _lastDetectedUrl) {
-      return;
-    }
-
-    _lastDetectedUrl = text;
-
-    snack(
-      'galleryUrlDetected'.tr,
-      '${'galleryUrlDetectedHint'.tr}: $text',
-      onTap: (snackbar) {
-        toNamed(
-          Routes.details,
-          arguments: text,
-          offAllBefore: false,
-          preventDuplicates: false,
-        );
-      },
-      longDuration: true,
-    );
-  }
-
   /// in case that new gallery is uploaded.
   void _cleanDuplicateGallery(List<Gallery> newGallerys, List<Gallery> gallerys) {
-    newGallerys
-        .removeWhere((newGallery) => gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
+    newGallerys.removeWhere((newGallery) => gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
   }
 
   Future<List<dynamic>> _getGallerysAndPageInfoByPage(int tabIndex, int pageNo) async {

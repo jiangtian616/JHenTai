@@ -7,13 +7,13 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 
-import '../../../../model/base_gallery.dart';
-import '../../../../routes/routes.dart';
-import '../../../../service/tag_translation_service.dart';
-import '../../../../utils/log.dart';
-import '../../../../utils/route_util.dart';
-import '../../../../utils/snack_util.dart';
-import '../../../../widget/loading_state_indicator.dart';
+import '../../model/base_gallery.dart';
+import '../../routes/routes.dart';
+import '../../service/tag_translation_service.dart';
+import '../../utils/log.dart';
+import '../../utils/route_util.dart';
+import '../../utils/snack_util.dart';
+import '../../widget/loading_state_indicator.dart';
 import 'ranklist_view_state.dart';
 
 String appBarTitleId = 'appBarTitleId';

@@ -163,10 +163,26 @@ class SettingStylePage extends StatelessWidget {
             ),
             if (fullScreenWidth >= 600)
               ListTile(
-                title: Text('enableTabletLayout'.tr),
-                trailing: Switch(
-                  value: StyleSetting.enableTabletLayout.value,
-                  onChanged: StyleSetting.saveEnableTabletLayout,
+                title: Text('layoutMode'.tr),
+                subtitle: Text(
+                  StyleSetting.layoutMode.value == LayoutMode.mobile
+                      ? 'mobileModeHint'.tr
+                      : StyleSetting.layoutMode.value == LayoutMode.tablet
+                          ? 'tabletModeHint'.tr
+                          : 'desktopModeHint'.tr,
+                ),
+                trailing: DropdownButton<LayoutMode>(
+                  value: StyleSetting.layoutMode.value,
+                  elevation: 4,
+                  alignment: AlignmentDirectional.centerEnd,
+                  onChanged: (LayoutMode? newValue) {
+                    StyleSetting.saveLayoutMode(newValue!);
+                  },
+                  items: [
+                    DropdownMenuItem(child: Text('mobileMode'.tr), value: LayoutMode.mobile),
+                    DropdownMenuItem(child: Text('tabletMode'.tr), value: LayoutMode.tablet),
+                    DropdownMenuItem(child: Text('desktopMode'.tr), value: LayoutMode.desktop),
+                  ],
                 ),
               ),
           ],

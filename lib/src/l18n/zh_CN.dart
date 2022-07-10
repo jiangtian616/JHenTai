@@ -197,6 +197,13 @@ class zh_CN {
       'cover': '覆盖',
       'adaptive': '自适应',
       'enableTabletLayout': '开启平板双栏布局',
+      'layoutMode': '布局模式',
+      'mobileMode': '手机模式',
+      'tabletMode': '平板模式',
+      'desktopMode': '桌面模式',
+      'mobileModeHint': '单列',
+      'tabletModeHint': '双列',
+      'desktopModeHint': '双列带左侧边栏，在快捷键上做了优化',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',

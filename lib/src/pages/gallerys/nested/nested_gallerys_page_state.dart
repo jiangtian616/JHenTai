@@ -2,28 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../../model/gallery.dart';
+import '../../../model/gallery.dart';
 
-class GallerysViewState {
+class NestedGallerysPageState {
   late List<String> tabBarNames;
-
-  late List<LoadingState> refreshState;
-
-  late List<LoadingState> loadingState;
-
-  late List<int?> prevPageIndexToLoad;
-
-  late List<int?> nextPageIndexToLoad;
-
-  late List<int> pageCount;
+  late List<Key> tabBarViewKeys;
 
   late List<List<Gallery>> gallerys;
 
-  late List<Key> tabBarViewKeys;
+  late List<int> pageCount;
+  late List<int?> prevPageIndexToLoad;
+  late List<int?> nextPageIndexToLoad;
 
   late List<Key> galleryCollectionKeys;
 
-  GallerysViewState() {
+  late List<LoadingState> refreshState;
+  late List<LoadingState> loadingState;
+
+  NestedGallerysPageState() {
     tabBarNames = TabBarSetting.configs.map((config) => config.name).toList();
 
     refreshState = List.generate(tabBarNames.length, (index) => LoadingState.idle);

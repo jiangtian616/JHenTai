@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:battery_plus/battery_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';

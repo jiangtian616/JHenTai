@@ -1,22 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_logic.dart';
-import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view_state.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_view_logic.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_view_state.dart';
 import 'package:jhentai/src/widget/eh_gallery_collection.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../../../config/global_config.dart';
-import '../../../../widget/loading_state_indicator.dart';
+import '../../config/global_config.dart';
+import '../../widget/loading_state_indicator.dart';
 
-class RanklistView extends StatefulWidget {
-  const RanklistView({Key? key}) : super(key: key);
+
+class RanklistPage extends StatefulWidget {
+  const RanklistPage({Key? key}) : super(key: key);
 
   @override
-  _RanklistViewState createState() => _RanklistViewState();
+  _RanklistPageState createState() => _RanklistPageState();
 }
 
-class _RanklistViewState extends State<RanklistView> {
+class _RanklistPageState extends State<RanklistPage> {
   final RanklistViewLogic logic = Get.put<RanklistViewLogic>(RanklistViewLogic());
   final RanklistViewState state = Get.find<RanklistViewLogic>().state;
 

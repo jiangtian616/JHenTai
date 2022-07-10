@@ -10,7 +10,7 @@ import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
-import 'package:jhentai/src/widget/app_listener.dart';
+import 'package:jhentai/src/widget/app_state_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.start,
+      initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => ScrollConfiguration(
         behavior: const MaterialScrollBehavior().copyWith(

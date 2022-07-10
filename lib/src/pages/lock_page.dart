@@ -56,7 +56,7 @@ class _LockPageState extends State<LockPage> {
     );
 
     if (success) {
-      offNamed(Routes.start);
+      offNamed(Routes.home);
     }
   }
 }

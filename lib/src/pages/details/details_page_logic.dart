@@ -10,6 +10,7 @@ import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
+import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
 import 'package:jhentai/src/pages/search/search_page_logic.dart';
@@ -22,7 +23,6 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../model/gallery.dart';
@@ -33,7 +33,7 @@ import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/toast_util.dart';
-import '../home/tab_view/gallerys/gallerys_view_logic.dart' as g;
+import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
 import 'details_page_state.dart';
 
 String bodyId = 'bodyId';
@@ -320,7 +320,7 @@ class DetailsPageLogic extends GetxController {
     update([addFavoriteStateId]);
 
     /// update homePage and searchPage status
-    Get.find<g.GallerysViewLogic>().update([bodyId]);
+    Get.find<g.NestedGallerysPageLogic>().update([bodyId]);
     SearchPageLogic.current?.update([bodyId]);
   }
 
@@ -385,7 +385,7 @@ class DetailsPageLogic extends GetxController {
     _removeCache();
 
     update([bodyId]);
-    Get.find<g.GallerysViewLogic>().update([g.bodyId]);
+    Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
     update([ratingStateId]);
   }
 

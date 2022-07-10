@@ -19,13 +19,13 @@ import 'search_page_logic.dart';
 
 final GlobalKey<ExtendedNestedScrollViewState> searchListKey = GlobalKey<ExtendedNestedScrollViewState>();
 
-class SearchPagePage extends StatelessWidget {
+class SearchPage extends StatelessWidget {
   final String tag = UniqueKey().toString();
 
   late final SearchPageLogic logic;
   late final SearchPageState state;
 
-  SearchPagePage({Key? key}) : super(key: key) {
+  SearchPage({Key? key}) : super(key: key) {
     logic = Get.put(SearchPageLogic(tag), tag: tag);
     state = logic.state;
   }

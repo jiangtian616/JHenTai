@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -11,12 +9,14 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:retry/retry.dart';
 
-import '../../config/global_config.dart';
-import '../../widget/update_dialog.dart';
-import 'home_page_state.dart';
+import '../../../config/global_config.dart';
+import '../../../widget/update_dialog.dart';
+import '../../gallerys/nested/nested_gallerys_page.dart';
+import '../../gallerys/nested/nested_gallerys_page_logic.dart';
+import 'mobile_layout_page_state.dart';
 
-class HomePageLogic extends GetxController {
-  final HomePageState state = HomePageState();
+class MobileLayoutPageLogic extends GetxController {
+  final MobileLayoutPageState state = MobileLayoutPageState();
 
   final StorageService storageService = Get.find();
 
@@ -42,7 +42,7 @@ class HomePageLogic extends GetxController {
 
     ScrollController? scrollController = galleryListKey.currentState?.innerController;
 
-    /// no gallerys data
+    /// no popular_page.dart data
     if (scrollController?.hasClients == false) {
       return;
     }
@@ -63,7 +63,7 @@ class HomePageLogic extends GetxController {
 
     if (DateTime.now().difference(state.lastTapTime!).inMilliseconds <= 200) {
       /// reset [prevPageIndexToLoad] to refresh rather than load prev page
-      GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
+      NestedGallerysPageLogic gallerysViewLogic = Get.find<NestedGallerysPageLogic>();
       gallerysViewLogic.state.prevPageIndexToLoad[gallerysViewLogic.tabController.index] = null;
 
       Future.delayed(

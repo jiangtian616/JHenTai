@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../service/storage_service.dart';

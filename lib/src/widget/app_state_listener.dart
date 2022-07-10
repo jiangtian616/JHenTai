@@ -1,11 +1,11 @@
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
+import '../utils/toast_util.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
@@ -27,17 +27,31 @@ class AppStateListener extends StatefulWidget {
     _didChangePlatformBrightnessCallbacks.add(callback);
   }
 
+  static void unRegisterDidChangePlatformBrightnessCallback(DidChangePlatformBrightnessCallback callback) {
+    _didChangePlatformBrightnessCallbacks.remove(callback);
+  }
+
   static void registerDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
     _didChangeAppLifecycleStateCallbacks.add(callback);
+  }
+
+  static void unRegisterDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
+    _didChangeAppLifecycleStateCallbacks.remove(callback);
   }
 
   static void registerAppLaunchCallback(AppLaunchCallback callback) {
     _appLaunchCallbacks.add(callback);
   }
+
+  static void unRegisterAppLaunchCallback(AppLaunchCallback callback) {
+    _appLaunchCallbacks.remove(callback);
+  }
 }
 
 class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
   AppLifecycleState _state = AppLifecycleState.resumed;
+
+  DateTime? _lastPopTime;
 
   @override
   void initState() {
@@ -75,10 +89,28 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    if (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) {
-      return widget.child;
+    return WillPopScope(
+      onWillPop: () => _handlePopApp(),
+
+      /// Use LayoutBuilder to listen to resize of window.
+      child: (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) ? widget.child : Blur(blur: 100, child: widget.child),
+    );
+  }
+
+  /// double tap back button to exit app
+  Future<bool> _handlePopApp() {
+    if (_lastPopTime == null) {
+      _lastPopTime = DateTime.now();
+      return Future.value(false);
     }
-    return Blur(blur: 100, child: widget.child);
+
+    if (DateTime.now().difference(_lastPopTime!).inMilliseconds <= 400) {
+      return Future.value(true);
+    }
+
+    _lastPopTime = DateTime.now();
+    toast('TapAgainToExit'.tr, isCenter: false);
+    return Future.value(false);
   }
 
   void _changeTheme() {
@@ -94,6 +126,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     if (SecuritySetting.enableBlur.isFalse) {
       return;
     }
+
     /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
     /// so i choose to set FLAG_SECURE to do the same effect.
     if (GetPlatform.isAndroid) {

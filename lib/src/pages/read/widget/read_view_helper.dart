@@ -17,7 +17,7 @@ import '../../../utils/screen_size_util.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/eh_keyboard_listener.dart';
 import '../../../widget/loading_state_indicator.dart';
-import '../../start_page.dart';
+import '../../home_page.dart';
 import '../read_page_logic.dart';
 
 class ReadViewHelper extends StatelessWidget {

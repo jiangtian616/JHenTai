@@ -6,15 +6,16 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../../../model/download_progress.dart';
-import '../../../../model/gallery_image.dart';
-import '../../../../routes/routes.dart';
-import '../../../../service/storage_service.dart';
-import '../../../../setting/style_setting.dart';
-import '../../../../utils/date_util.dart';
-import '../../../../utils/route_util.dart';
-import '../../../../widget/eh_image.dart';
-import '../../../../widget/eh_gallery_category_tag.dart';
+import '../../model/download_progress.dart';
+import '../../model/gallery_image.dart';
+import '../../routes/routes.dart';
+import '../../service/storage_service.dart';
+import '../../setting/style_setting.dart';
+import '../../utils/date_util.dart';
+import '../../utils/route_util.dart';
+import '../../widget/eh_gallery_category_tag.dart';
+import '../../widget/eh_image.dart';
+
 
 class GalleryDownloadBody extends StatefulWidget {
   const GalleryDownloadBody({Key? key}) : super(key: key);

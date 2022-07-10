@@ -8,24 +8,24 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
-import '../../../../config/global_config.dart';
-import '../../../../setting/tab_bar_setting.dart';
-import '../../../../utils/route_util.dart';
-import '../../../../widget/eh_gallery_collection.dart';
-import '../../../../widget/eh_tab_bar_config_dialog.dart';
-import '../../../../widget/eh_sliver_header_delegate.dart';
-import '../../../../widget/loading_state_indicator.dart';
-import 'gallerys_view_logic.dart';
-import 'gallerys_view_state.dart';
+import '../../../config/global_config.dart';
+import '../../../setting/tab_bar_setting.dart';
+import '../../../utils/route_util.dart';
+import '../../../widget/eh_gallery_collection.dart';
+import '../../../widget/eh_sliver_header_delegate.dart';
+import '../../../widget/eh_tab_bar_config_dialog.dart';
+import '../../../widget/loading_state_indicator.dart';
+import 'nested_gallerys_page_logic.dart';
+import 'nested_gallerys_page_state.dart';
 
 final GlobalKey<ExtendedNestedScrollViewState> galleryListKey = GlobalKey<ExtendedNestedScrollViewState>();
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-class GallerysView extends StatelessWidget {
-  final GallerysViewLogic gallerysViewLogic = Get.put(GallerysViewLogic(), permanent: true);
-  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
+class NestedGallerysPage extends StatelessWidget {
+  final NestedGallerysPageLogic nestedGallerysPageLogic = Get.put(NestedGallerysPageLogic(), permanent: true);
+  final NestedGallerysPageState nestedGallerysPageState = Get.find<NestedGallerysPageLogic>().state;
 
-  GallerysView({Key? key}) : super(key: key);
+  NestedGallerysPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +87,7 @@ class GallerysView extends StatelessWidget {
                       return ReorderableListView.builder(
                         physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
-                        onReorder: gallerysViewLogic.handleReOrderTab,
+                        onReorder: nestedGallerysPageLogic.handleReOrderTab,
                         buildDefaultDragHandles: false,
                         itemBuilder: (BuildContext context, int index) {
                           return Column(
@@ -104,7 +104,7 @@ class GallerysView extends StatelessWidget {
                                       icon: Icons.delete,
                                       foregroundColor: Colors.white,
                                       backgroundColor: Colors.red,
-                                      onPressed: (context) => gallerysViewLogic.handleRemoveTab(index),
+                                      onPressed: (context) => nestedGallerysPageLogic.handleRemoveTab(index),
                                     )
                                   ],
                                 ),
@@ -127,11 +127,11 @@ class GallerysView extends StatelessWidget {
                                         )
                                       : null,
                                   onTap: () {
-                                    if (gallerysViewLogic.tabController.index == index) {
+                                    if (nestedGallerysPageLogic.tabController.index == index) {
                                       return;
                                     }
-                                    gallerysViewLogic.tabController.animateTo(index);
-                                    back(currentRoute: Routes.home);
+                                    nestedGallerysPageLogic.tabController.animateTo(index);
+                                    back(currentRoute: Routes.mobileLayout);
                                   },
                                 ),
                               ),
@@ -174,18 +174,18 @@ class GallerysView extends StatelessWidget {
               children: [
                 // use Expanded so the AppBar can shrink or expand when scrolling between [minExtent] and [maxExtent]
                 Expanded(
-                  child: GetBuilder<GallerysViewLogic>(
+                  child: GetBuilder<NestedGallerysPageLogic>(
                       id: appBarId,
                       builder: (logic) {
                         return AppBar(
                           centerTitle: true,
                           title: Text('gallery'.tr),
                           actions: [
-                            if (gallerysViewLogic.state.pageCount[gallerysViewLogic.tabController.index] > 1)
+                            if (nestedGallerysPageLogic.state.pageCount[nestedGallerysPageLogic.tabController.index] > 1)
                               FadeIn(
                                 child: IconButton(
                                   icon: const Icon(FontAwesomeIcons.paperPlane, size: 18),
-                                  onPressed: gallerysViewLogic.handleOpenJumpDialog,
+                                  onPressed: nestedGallerysPageLogic.handleOpenJumpDialog,
                                 ),
                               ),
                             IconButton(
@@ -212,7 +212,7 @@ class GallerysView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: GetBuilder<GallerysViewLogic>(
+                        child: GetBuilder<NestedGallerysPageLogic>(
                             id: tabBarId,
                             builder: (logic) {
                               return TabBar(
@@ -249,7 +249,7 @@ class GallerysView extends StatelessWidget {
   }
 
   Widget _buildBody() {
-    return GetBuilder<GallerysViewLogic>(
+    return GetBuilder<NestedGallerysPageLogic>(
       id: bodyId,
       builder: (logic) {
         return TabBarView(
@@ -259,7 +259,7 @@ class GallerysView extends StatelessWidget {
 
             /// keep offset for each tab
             (tabIndex) => KeepAliveWrapper(
-              child: GalleryTabBarView(key: gallerysViewState.tabBarViewKeys[tabIndex], tabIndex: tabIndex),
+              child: GalleryTabBarView(key: nestedGallerysPageState.tabBarViewKeys[tabIndex], tabIndex: tabIndex),
             ),
           ),
         );
@@ -279,8 +279,8 @@ class GalleryTabBarView extends StatefulWidget {
 }
 
 class _GalleryTabBarViewState extends State<GalleryTabBarView> {
-  final GallerysViewLogic gallerysViewLogic = Get.find<GallerysViewLogic>();
-  final GallerysViewState gallerysViewState = Get.find<GallerysViewLogic>().state;
+  final NestedGallerysPageLogic gallerysViewLogic = Get.find<NestedGallerysPageLogic>();
+  final NestedGallerysPageState gallerysViewState = Get.find<NestedGallerysPageLogic>().state;
 
   @override
   void initState() {
@@ -307,7 +307,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
 
   Widget _buildCenterStatusIndicator() {
     return Center(
-      child: GetBuilder<GallerysViewLogic>(
+      child: GetBuilder<NestedGallerysPageLogic>(
           id: loadingStateId,
           builder: (logic) {
             return LoadingStateIndicator(
@@ -334,7 +334,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
-        child: GetBuilder<GallerysViewLogic>(
+        child: GetBuilder<NestedGallerysPageLogic>(
             id: loadingStateId,
             builder: (logic) {
               return LoadingStateIndicator(

@@ -1,20 +1,21 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/home/tab_view/download/archive_download_body.dart';
-import 'package:jhentai/src/pages/home/tab_view/download/gallery_download_body.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
-import '../../../../service/gallery_download_service.dart';
+import 'archive_download_body.dart';
+import 'gallery_download_body.dart';
 
-class DownloadView extends StatefulWidget {
-  const DownloadView({Key? key}) : super(key: key);
+
+class DownloadPage extends StatefulWidget {
+  const DownloadPage({Key? key}) : super(key: key);
 
   @override
-  State<DownloadView> createState() => _DownloadViewState();
+  State<DownloadPage> createState() => _DownloadPageState();
 }
 
-class _DownloadViewState extends State<DownloadView> {
+class _DownloadPageState extends State<DownloadPage> {
   final GalleryDownloadService downloadService = Get.find();
 
   bool _showArchiveBody = false;

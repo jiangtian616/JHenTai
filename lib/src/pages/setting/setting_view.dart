@@ -1,14 +1,12 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
-import '../../../../setting/user_setting.dart';
-import '../../../../utils/route_util.dart';
+import '../../setting/user_setting.dart';
+import '../../utils/route_util.dart';
 
-class SettingView extends StatelessWidget {
-  const SettingView({Key? key}) : super(key: key);
+class SettingPage extends StatelessWidget {
+  const SettingPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

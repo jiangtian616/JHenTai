@@ -6,10 +6,10 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view_logic.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
+import '../pages/gallerys/nested/nested_gallerys_page_logic.dart';
 import 'eh_gallery_category_tag.dart';
 
 enum EHTabBarConfigDialogType {
@@ -35,7 +35,7 @@ class EHTabBarConfigDialog extends StatefulWidget {
 }
 
 class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
-  final GallerysViewLogic gallerysViewLogic = Get.find();
+  final NestedGallerysPageLogic gallerysViewLogic = Get.find();
   late TabBarConfig tabBarConfig;
 
   final ScrollController _scrollController = ScrollController();

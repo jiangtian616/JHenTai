@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/home/tab_view/download/download_view.dart';
-import 'package:jhentai/src/pages/home/tab_view/gallerys/gallerys_view.dart';
-import 'package:jhentai/src/pages/home/tab_view/ranklist/ranklist_view.dart';
-import 'package:jhentai/src/pages/home/tab_view/setting/setting_view.dart';
+import 'package:jhentai/src/pages/setting/setting_view.dart';
 
-class HomePageState {
+import '../../download/download_view.dart';
+import '../../gallerys/nested/nested_gallerys_page.dart';
+import '../../ranklist/ranklist_view.dart';
+
+class MobileLayoutPageState {
   int currentIndex = 0;
   CupertinoTabController tabController = CupertinoTabController();
 
@@ -17,7 +18,7 @@ class HomePageState {
         BottomNavigationBarItem(icon: const Icon(Icons.settings), label: 'setting'.tr),
       ];
 
-  List<Widget> navigationBarViews = [GallerysView(), RanklistView(), DownloadView(), SettingView()];
+  List<Widget> navigationBarViews = [NestedGallerysPage(), const RanklistPage(), const DownloadPage(), const SettingPage()];
 
   /// record tap time to implement 'double tap to refresh'
   DateTime? lastTapTime;
