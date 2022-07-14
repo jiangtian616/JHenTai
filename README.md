@@ -65,12 +65,17 @@ mush thanks to these projects🙇‍
 
 <img width="770" src="screenshot/0.png"/>
 
+### Desktop Layout
+
+<img width="770" src="screenshot/desktop.png"/>
+
 ### Setting & Download & Read
 
 <img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/read.jpg" style="margin-right:10px" />
 
 ## Main Features
 
+- [x] Mobile, tablet, desktop layout
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a
@@ -96,6 +101,8 @@ mush thanks to these projects🙇‍
 > [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
 
 1. Copy `/lib/src/l18n/en_US.dart ` and rename to `{your_languageCode}_{your_countryCode}.dart`
+
+You can only do this and submit your PR, I'll do the remaining things. Or you can go on with: 
 2. Rename classname in new file(optional)
 3. Modify k-v pairs in method `keys` ,translate values to your language
 4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys`

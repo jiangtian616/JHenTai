@@ -123,6 +123,7 @@ abstract class BasePageLogic extends GetxController {
     state.nextPageIndexToLoad = 0;
     state.pageCount = -1;
 
+    state.scrollController.jumpTo(0);
     update([pageId]);
 
     loadMore(checkLoadingState: false);

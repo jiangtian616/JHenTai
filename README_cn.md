@@ -59,12 +59,17 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 
 <img width="770" src="screenshot/0.png"/>
 
+### 桌面模式
+
+<img width="770" src="screenshot/desktop.png"/>
+
 ### 设置 & 下载 & 阅读
 
 <img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/read.jpg"/>
 
 ## 主要功能
 
+- [x] 支持手机、平板、桌面三种布局
 - [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页
 - [x] 在线阅读与下载，支持恢复下载记录，支持在上传者更新画廊后同步更新本地已下载的画廊
@@ -89,6 +94,8 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 > [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
 
 1. 复制 `/lib/src/l18n/en_US.dart` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
+
+你可以只做这一步然后提交PR，我会补充其他的步骤，或者你自己可以继续：
 2. 更改新文件的主类名字(可选)
 3. 修改keys方法返回的所有键值对，将value翻译为你的语言
 4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
