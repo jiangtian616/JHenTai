@@ -103,6 +103,8 @@ class Log {
 
     extraInfos = _extractExtraInfos(throwable, stackTrace, extraInfos);
 
+    await Future.delayed(const Duration(seconds: 3));
+
     Sentry.captureException(
       throwable,
       stackTrace: stackTrace,
