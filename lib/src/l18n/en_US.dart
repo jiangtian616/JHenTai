@@ -339,9 +339,11 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
+      'changeDownloadPathHint': 'Attention! Change download path will copy downloaded gallerys automatically and empty old directory. Long press to change.',
       'resetDownloadPath': 'Reset download path',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',
+      'invalidPath': 'Invalid Path',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need Restart',
       'speedLimit': 'Speed Limit',

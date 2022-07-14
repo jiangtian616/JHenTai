@@ -339,9 +339,11 @@ class zh_CN {
 
       /// download setting page
       'downloadPath': '下载路径',
+      'changeDownloadPathHint': '注意！改变下载路径会自动复制已下载的画廊到新路径，并清空原文件夹。长按来改变。',
       'resetDownloadPath': '重置下载路径',
       'longPress2Reset': '长按以重置',
       'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',
+      'invalidPath': '无效的路径',
       'downloadTaskConcurrency': '同时下载图片数量',
       'needRestart': '需要重启',
       'downloadTimeout': '单次下载超时时间',

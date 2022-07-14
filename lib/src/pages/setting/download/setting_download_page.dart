@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,8 @@ class SettingDownloadPage extends StatelessWidget {
             ListTile(
               title: Text('downloadPath'.tr),
               subtitle: Text(DownloadSetting.downloadPath.value),
-              onTap: _handleChangeDownloadPath,
+              onTap: () => toast('changeDownloadPathHint'.tr, isShort: false),
+              onLongPress: _handleChangeDownloadPath,
             ),
             if (!GetPlatform.isIOS)
               ListTile(
@@ -200,10 +202,10 @@ class SettingDownloadPage extends StatelessWidget {
       return;
     }
 
-    /// request external storage permission
-    bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted;
+    /// request storage permission
+    bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
     if (!hasStoragePermission) {
-      toast('needPermissionToChangeDownloadPath'.tr);
+      toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
       return;
     }
 
@@ -219,6 +221,14 @@ class SettingDownloadPage extends StatelessWidget {
       return;
     }
 
+    try {
+      _checkPermissionForNewPath(newDownloadPath);
+    } on FileSystemException catch (e) {
+      toast('invalidPath'.tr);
+      Log.error('${'invalidPath'.tr}:$newDownloadPath', e);
+      return;
+    }
+
     Future future = Future.wait([
       galleryDownloadService.pauseAllDownloadGallery(),
       archiveDownloadService.pauseAllDownloadArchive(),
@@ -227,11 +237,16 @@ class SettingDownloadPage extends StatelessWidget {
     io.Directory oldDir = io.Directory(oldDownloadPath);
     List<io.FileSystemEntity> gallerys = oldDir.listSync();
 
+    /// copy
     future = future.then((_) async {
-      /// copy
       List<Future> futures = [];
       for (io.FileSystemEntity oldGallery in gallerys) {
-        io.Directory newGallery = io.Directory(join(newDownloadPath!, basename(oldGallery.path)));
+        io.FileSystemEntity newGallery = io.Directory(join(newDownloadPath!, basename(oldGallery.path)));
+
+        /// other directory
+        if (newGallery is! io.Directory || !basename(oldGallery.path).startsWith(RegExp(r'\d'))) {
+          continue;
+        }
 
         futures.add(newGallery.create(recursive: true).then((_) async {
           List<io.FileSystemEntity> files = (oldGallery as io.Directory).listSync();
@@ -247,13 +262,13 @@ class SettingDownloadPage extends StatelessWidget {
 
     DownloadSetting.saveDownloadPath(newDownloadPath);
 
+    /// To be compatible with the previous version, update the database.
     future = future.then((_) async {
-      /// To be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
     });
 
+    /// Empty old directory
     future = future.then((_) async {
-      /// Empty old directory
       await oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
     });
 
@@ -278,5 +293,11 @@ class SettingDownloadPage extends StatelessWidget {
       'restoreDownloadTasksSuccess'.tr,
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount, ${'restoredArchiveCount'.tr}: $restoredArchiveCount',
     );
+  }
+
+  void _checkPermissionForNewPath(String newDownloadPath) {
+    io.File file = io.File(join(newDownloadPath, 'test'));
+    file.createSync(recursive: true);
+    file.deleteSync();
   }
 }
