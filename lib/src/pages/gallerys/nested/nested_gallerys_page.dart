@@ -85,55 +85,46 @@ class NestedGallerysPage extends StatelessWidget {
                   Expanded(
                     child: Obx(() {
                       return ReorderableListView.builder(
-                        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                         itemCount: TabBarSetting.configs.length,
                         onReorder: nestedGallerysPageLogic.handleReOrderTab,
-                        buildDefaultDragHandles: false,
                         itemBuilder: (BuildContext context, int index) {
                           return Column(
                             key: Key(TabBarSetting.configs[index].name),
                             children: [
-                              Slidable(
-                                key: Key(TabBarSetting.configs[index].name),
-                                enabled: TabBarSetting.configs[index].isDeleteAble,
-                                endActionPane: ActionPane(
-                                  motion: const DrawerMotion(),
-                                  extentRatio: 0.21,
-                                  children: [
-                                    SlidableAction(
-                                      icon: Icons.delete,
-                                      foregroundColor: Colors.white,
-                                      backgroundColor: Colors.red,
-                                      onPressed: (context) => nestedGallerysPageLogic.handleRemoveTab(index),
-                                    )
-                                  ],
+                              ListTile(
+                                dense: true,
+                                title: Text(
+                                  TabBarSetting.configs[index].name,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                                 ),
-                                child: ListTile(
-                                  dense: true,
-                                  title: Text(
-                                    TabBarSetting.configs[index].name,
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                                  ),
-                                  trailing: TabBarSetting.configs[index].isEditable
-                                      ? InkWell(
-                                          child: const Icon(FontAwesomeIcons.bars, size: 16).marginOnly(right: 4).paddingOnly(left: 30),
-                                          onTap: () => Get.dialog(
-                                            EHTabBarConfigDialog(
-                                              tabBarConfig: TabBarSetting.configs[index],
-                                              type: EHTabBarConfigDialogType.update,
-                                              configIndex: index,
-                                            ),
+                                trailing: TabBarSetting.configs[index].isEditable
+                                    ? Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.delete, size: 20, color: Colors.red.shade400),
+                                            onPressed: () => nestedGallerysPageLogic.handleRemoveTab(index),
                                           ),
-                                        )
-                                      : null,
-                                  onTap: () {
-                                    if (nestedGallerysPageLogic.tabController.index == index) {
-                                      return;
-                                    }
-                                    nestedGallerysPageLogic.tabController.animateTo(index);
-                                    back(currentRoute: Routes.mobileLayout);
-                                  },
-                                ),
+                                          InkWell(
+                                            child: const Icon(Icons.settings, size: 20),
+                                            onTap: () => Get.dialog(
+                                              EHTabBarConfigDialog(
+                                                tabBarConfig: TabBarSetting.configs[index],
+                                                type: EHTabBarConfigDialogType.update,
+                                                configIndex: index,
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ).marginOnly(right: 26)
+                                    : null,
+                                onTap: () {
+                                  if (nestedGallerysPageLogic.tabController.index == index) {
+                                    return;
+                                  }
+                                  nestedGallerysPageLogic.tabController.animateTo(index);
+                                  back(currentRoute: Routes.mobileLayout);
+                                },
                               ),
                               const Divider(thickness: 0.7, height: 2, indent: 16),
                             ],

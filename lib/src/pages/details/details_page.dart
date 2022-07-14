@@ -93,7 +93,7 @@ class DetailsPage extends StatelessWidget {
                   ),
                 ),
                 child: EHWheelSpeedController(
-                  scrollControllerGetter: () => detailsPageState.scrollController,
+                  scrollController:  detailsPageState.scrollController,
                   child: CustomScrollView(
                     physics: const BouncingScrollPhysics(),
                     controller: detailsPageState.scrollController,
@@ -175,7 +175,7 @@ class DetailsPage extends StatelessWidget {
                           fontSize: 14,
                           color: Colors.grey,
                         ),
-                        onTap: () => detailsPageLogic.handleTapUploader(gallery.uploader!),
+                        onTap: () => detailsPageLogic.searchUploader(gallery.uploader!),
                       ).marginOnly(top: 10),
                   ],
                 ).paddingOnly(left: 6),

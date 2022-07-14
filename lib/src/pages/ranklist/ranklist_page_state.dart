@@ -20,6 +20,8 @@ class RanklistViewState {
 
   Key listKey = UniqueKey();
 
+  final ScrollController scrollController = ScrollController();
+
   RanklistViewState() {
     ranklistType = RanklistType.day;
     ranklistGallery = <RanklistType, List<Gallery>>{

@@ -23,6 +23,7 @@ class JumpPageDialog extends StatelessWidget {
           border: const OutlineInputBorder(),
           labelText: '${'range'.tr}: 1 - $totalPageNo, ${'current'.tr}: $currentNo',
         ),
+        onSubmitted: (_) => back(result: controller.text.isEmpty ? null : int.parse(controller.text) - 1),
       ),
       actions: [
         TextButton(

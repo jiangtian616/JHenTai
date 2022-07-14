@@ -14,7 +14,8 @@ import '../../utils/log.dart';
 import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
 import '../../widget/loading_state_indicator.dart';
-import 'ranklist_view_state.dart';
+import '../layout/desktop/desktop_layout_page_logic.dart';
+import 'ranklist_page_state.dart';
 
 String appBarTitleId = 'appBarTitleId';
 String bodyId = 'bodyId';
@@ -24,6 +25,18 @@ class RanklistViewLogic extends GetxController {
   final RanklistViewState state = RanklistViewState();
   final TagTranslationService tagTranslationService = Get.find();
 
+  @override
+  onInit() {
+    super.onInit();
+    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[3] = state.scrollController;
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    state.scrollController.dispose();
+  }
+
   Future<void> getRanklist([bool refresh = false]) async {
     RanklistType curType = state.ranklistType;
 
@@ -31,7 +44,7 @@ class RanklistViewLogic extends GetxController {
       return;
     }
 
-    Log.info('get ranklist data', false);
+    Log.info('Get ranklist data', false);
     LoadingState prevState = state.getRanklistLoadingState[curType]!;
     state.getRanklistLoadingState[curType] = LoadingState.loading;
     if (prevState == LoadingState.error) {

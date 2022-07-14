@@ -15,7 +15,7 @@ import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import '../../widget/eh_image.dart';
-
+import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class GalleryDownloadBody extends StatefulWidget {
   const GalleryDownloadBody({Key? key}) : super(key: key);
@@ -37,7 +37,14 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   @override
   void initState() {
     gallerysCount = downloadService.gallerys.length;
+    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
     super.initState();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
   }
 
   @override
@@ -52,7 +59,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
       initState: _listen2AddItem,
       builder: (_) {
         return EHWheelSpeedController(
-          scrollControllerGetter: () => _scrollController,
+          scrollController: _scrollController,
           child: AnimatedList(
             key: _listKey,
             controller: _scrollController,

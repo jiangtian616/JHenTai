@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +11,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -188,7 +191,7 @@ class _StatDialogState extends State<StatDialog> {
       key: Key(datasource.hashCode.toString()),
       child: SizedBox(
         height: 300,
-        width: 300,
+        width: max(300, fullScreenWidth / 2),
         child: SfCartesianChart(
           trackballBehavior: TrackballBehavior(
             enable: true,

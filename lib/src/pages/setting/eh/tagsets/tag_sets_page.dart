@@ -36,6 +36,7 @@ class TagSetsPage extends StatelessWidget {
               return PopupMenuButton<int>(
                 initialValue: state.currentTagSetIndex,
                 padding: EdgeInsets.zero,
+                tooltip: "",
                 onSelected: (value) {
                   if (state.currentTagSetIndex == value) {
                     return;

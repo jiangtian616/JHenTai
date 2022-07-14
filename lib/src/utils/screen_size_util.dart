@@ -4,7 +4,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 
 double get fullScreenWidth => Get.width;
 
-double get screenWidth => StyleSetting.inTabletOrDesktopLayoutMode.isFalse
+double get screenWidth => StyleSetting.actualLayoutMode.value == LayoutMode.mobile
     ? Get.width
     : StyleSetting.layoutMode.value == LayoutMode.tablet
         ? Get.width / 2

@@ -6,18 +6,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
-import 'package:jhentai/src/pages/search/search_page_state.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:jhentai/src/pages/search/nested/search_page_state.dart';
 
-import '../../config/global_config.dart';
-import '../../widget/eh_gallery_collection.dart';
-import '../../widget/eh_sliver_header_delegate.dart';
-import '../../widget/eh_tab_bar_config_dialog.dart';
-import '../../widget/eh_tag.dart';
-import '../../widget/loading_state_indicator.dart';
+import '../../../config/global_config.dart';
+import '../../../widget/eh_gallery_collection.dart';
+import '../../../widget/eh_sliver_header_delegate.dart';
+import '../../../widget/eh_tab_bar_config_dialog.dart';
+import '../../../widget/eh_tag.dart';
+import '../../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
-
-final GlobalKey<ExtendedNestedScrollViewState> searchListKey = GlobalKey<ExtendedNestedScrollViewState>();
 
 class SearchPage extends StatelessWidget {
   final String tag = UniqueKey().toString();
@@ -34,15 +31,11 @@ class SearchPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: EHWheelSpeedController(
-        scrollControllerGetter: () => searchListKey.currentState?.innerController,
-        child: ExtendedNestedScrollView(
-          key: searchListKey,
-          onlyOneScrollInBody: true,
-          floatHeaderSlivers: true,
-          headerSliverBuilder: _headerBuilder,
-          body: _buildBody(context),
-        ),
+      body: ExtendedNestedScrollView(
+        onlyOneScrollInBody: true,
+        floatHeaderSlivers: true,
+        headerSliverBuilder: _headerBuilder,
+        body: _buildBody(context),
       ),
     );
   }
@@ -55,7 +48,7 @@ class SearchPage extends StatelessWidget {
           pinned: true,
           floating: true,
           delegate: EHSliverHeaderDelegate(
-            minHeight: context.mediaQueryPadding.top + (GetPlatform.isDesktop ? GlobalConfig.appBarHeight : 0) + GlobalConfig.searchBarHeight,
+            minHeight: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight,
             maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.searchBarHeight,
 
             /// make sure the color changes with theme's change
@@ -326,8 +319,7 @@ class SearchPage extends StatelessWidget {
   Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
-      padding:
-          EdgeInsets.only(top: Get.mediaQuery.padding.top + (GetPlatform.isDesktop ? GlobalConfig.appBarHeight : 0) + GlobalConfig.searchBarHeight),
+      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.searchBarHeight),
       sliver: CupertinoSliverRefreshControl(
         refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
         onRefresh: logic.handlePullDown,

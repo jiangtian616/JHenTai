@@ -19,8 +19,8 @@ const int left = 1;
 const int right = 2;
 const int fullScreen = 3;
 
-late Routing leftRouting;
-late Routing rightRouting;
+Routing leftRouting = Routing();
+Routing rightRouting = Routing();
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -48,23 +48,23 @@ class _HomePageState extends State<HomePage> {
         builder: (context, constraints) => Obx(
           () {
             if (StyleSetting.layoutMode.value == LayoutMode.mobile) {
-              StyleSetting.inTabletOrDesktopLayoutMode.value = false;
+              StyleSetting.actualLayoutMode.value = LayoutMode.mobile;
               return MobileLayoutPage();
             }
 
             /// Device width is under 600, degrade to mobile layout.
             if (fullScreenWidth < 600) {
-              StyleSetting.inTabletOrDesktopLayoutMode.value = false;
+              StyleSetting.actualLayoutMode.value = LayoutMode.mobile;
               untilBlankPage();
               return MobileLayoutPage();
             }
 
-            StyleSetting.inTabletOrDesktopLayoutMode.value = true;
-
             if (StyleSetting.layoutMode.value == LayoutMode.tablet) {
+              StyleSetting.actualLayoutMode.value = LayoutMode.tablet;
               return const TabletLayoutPage();
             }
 
+            StyleSetting.actualLayoutMode.value = LayoutMode.desktop;
             return DesktopLayoutPage();
           },
         ),

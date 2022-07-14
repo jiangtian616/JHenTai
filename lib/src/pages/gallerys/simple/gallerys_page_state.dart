@@ -1,3 +1,3 @@
-import '../base/page_state_base.dart';
+import '../../base/base_page_state.dart';
 
-class GallerysPageState extends StateBase {}
+class GallerysPageState extends BasePageState {}

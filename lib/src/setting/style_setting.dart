@@ -14,6 +14,7 @@ enum ListMode {
   listWithTags,
   waterfallFlowWithImageOnly,
   waterfallFlowWithImageAndInfo,
+  flat,
 }
 
 enum CoverMode {
@@ -40,8 +41,8 @@ class StyleSetting {
           ? LayoutMode.desktop.obs
           : LayoutMode.tablet.obs;
 
-  /// If the current window width is too small, App will degrade to mobile mode. Use [inTabletOrDesktopLayoutMode] to indicate actual layout.
-  static RxBool inTabletOrDesktopLayoutMode = false.obs;
+  /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayoutMode] to indicate actual layout.
+  static Rx<LayoutMode> actualLayoutMode = layoutMode.value.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
@@ -124,5 +125,6 @@ class StyleSetting {
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
     layoutMode.value = LayoutMode.values[map['layoutMode'] ?? layoutMode.value.index];
+    actualLayoutMode.value = layoutMode.value;
   }
 }

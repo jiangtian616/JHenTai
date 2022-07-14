@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
@@ -11,25 +14,37 @@ import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
 class DesktopLayoutPage extends StatelessWidget {
-  final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic());
+  final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic(), permanent: true);
   final DesktopLayoutPageState state = Get.find<DesktopLayoutPageLogic>().state;
 
   DesktopLayoutPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _leftTabBar(context),
-        Expanded(child: _leftColumn()),
-        Expanded(
-          child: DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-            child: _rightColumn(),
+    return ScrollConfiguration(
+      behavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: true,
+      ),
+      child: Row(
+        children: [
+          _leftTabBar(context),
+          Expanded(child: _leftColumn()),
+          Expanded(
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
+              child: _rightColumn(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -39,7 +54,7 @@ class DesktopLayoutPage extends StatelessWidget {
         width: GlobalConfig.desktopLeftTabBarWidth,
         decoration: BoxDecoration(
           color: Theme.of(context).appBarTheme.backgroundColor,
-          border: const Border(right: BorderSide(color: Colors.black, width: 0.3)),
+          border: Border(right: BorderSide(color: Theme.of(context).appBarTheme.foregroundColor!, width: 0.3)),
         ),
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
@@ -58,12 +73,14 @@ class DesktopLayoutPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(
-                    icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                    onPressed: () {
-                      state.selectedTabIndex = index;
-                      logic.update([logic.tabBarId, logic.pageId]);
-                    },
+                  Container(
+                    decoration: state.selectedTabIndex == index
+                        ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
+                        : null,
+                    child: InkWell(
+                      child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                      onTap: () => logic.handleTapTabBarButton(index),
+                    ).paddingAll(8),
                   ),
                   if (state.hoverTabIndex == index)
                     FadeIn(
@@ -80,16 +97,28 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 
   Widget _leftColumn() {
+    // return GetBuilder<DesktopLayoutPageLogic>(
+    //   id: logic.pageId,
+    //   builder: (_) => Stack(
+    //     children: state.icons
+    //         .mapIndexed((index, icon) => Offstage(
+    //               child: icon.page,
+    //               offstage: state.selectedTabIndex != index,
+    //             ))
+    //         .toList(),
+    //   ),
+    // );
+
     return GetBuilder<DesktopLayoutPageLogic>(
       id: logic.pageId,
-      builder: (_) => state.icons[state.selectedTabIndex].page,
+      builder: (_) => state.icons[state.selectedTabIndex].page.call(),
     );
   }
 
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(right),
-      observers: [GetObserver((routing) => rightRouting = routing!, Get.routing), SentryNavigatorObserver()],
+      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -100,6 +129,7 @@ class DesktopLayoutPage extends StatelessWidget {
         ),
       ],
       onGenerateRoute: (settings) {
+        Get.routing.args = settings.arguments;
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
         return GetPageRoute(
           settings: settings,

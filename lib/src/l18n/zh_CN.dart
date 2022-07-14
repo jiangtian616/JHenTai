@@ -189,8 +189,9 @@ class zh_CN {
       'light': '明亮',
       'followSystem': '跟随系统',
       'listStyle': '画廊列表样式',
-      'listWithoutTags': '列表 - 无标签',
-      'listWithTags': '列表',
+      'flat': '平坦',
+      'listWithoutTags': '卡片 - 无标签',
+      'listWithTags': '卡片',
       'waterfallFlowWithImageOnly': '瀑布流(仅图片)',
       'waterfallFlowWithImageAndInfo': '瀑布流',
       'coverStyle': '封面图片样式',
@@ -203,7 +204,7 @@ class zh_CN {
       'desktopMode': '桌面模式',
       'mobileModeHint': '单列',
       'tabletModeHint': '双列',
-      'desktopModeHint': '双列带左侧边栏，在快捷键上做了优化',
+      'desktopModeHint': '双列带左侧边栏',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',
@@ -217,6 +218,7 @@ class zh_CN {
       'proxyAddress': '代理服务器地址',
       'proxyAddressHint': '如果你使用了代理服务器，务必正确配置',
       'saveSuccess': '保存成功',
+      'updateSuccess': '更新成功',
       'connectTimeout': '建立连接超时时间',
       'receiveTimeout': '接收数据超时时间',
       'enableLogging': '开启日志',
@@ -284,8 +286,13 @@ class zh_CN {
       'searchConfig': '搜索配置',
       'addTabBar': '添加标签栏',
       'updateTabBar': '更新配置',
-      'filterConfig': '筛选配置',
+      'addQuickSearch': '添加到快速搜索',
+      'updateQuickSearch': '修改快速搜索',
+      'filter': '筛选',
       'tabBarName': '标签栏名称',
+      'quickSearchName': '名称',
+      'pleaseInputValidName': '请输入有效的名称',
+      'sameNameExists': '存在相同的名称',
       'searchType': '搜索方式',
       'popular': '热门',
       'ranklist': '排行',
@@ -348,9 +355,11 @@ class zh_CN {
       'restoreDownloadTasksHint': '通过下载元数据来恢复下载记录',
       'restoreDownloadTasksSuccess': '恢复下载任务成功',
       'restoredCount': '恢复任务数',
-      'removeOldGalleryAfterUpdate': '更新画廊后删除旧画廊',
       'restoredGalleryCount': '恢复画廊数目',
       'restoredArchiveCount': '恢复归档数目',
+
+      /// quick search page
+      'quickSearch': '快速搜索',
 
       /// tag namespace
       'language': '语言',

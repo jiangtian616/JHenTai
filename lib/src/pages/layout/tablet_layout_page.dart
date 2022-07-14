@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
@@ -12,17 +14,29 @@ class TabletLayoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(child: _leftColumn()),
-        Expanded(
-          child: DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-            child: _rightColumn(),
+    return ScrollConfiguration(
+      behavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: false,
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _leftColumn()),
+          Expanded(
+            child: DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
+              child: _rightColumn(),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -31,7 +45,7 @@ class TabletLayoutPage extends StatelessWidget {
       key: Get.nestedKey(left),
 
       /// make sure controller is destroyed automatically and route args is passed properly
-      observers: [GetObserver((routing) => leftRouting = routing!, Get.routing), SentryNavigatorObserver()],
+      observers: [GetObserver(null, leftRouting), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.mobileLayout),
@@ -42,8 +56,8 @@ class TabletLayoutPage extends StatelessWidget {
         ),
       ],
       onGenerateRoute: (settings) {
+        Get.routing.args = settings.arguments;
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
-
         return GetPageRoute(
           settings: settings,
 
@@ -61,7 +75,7 @@ class TabletLayoutPage extends StatelessWidget {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(right),
-      observers: [GetObserver((routing) => rightRouting = routing!, Get.routing), SentryNavigatorObserver()],
+      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -72,6 +86,7 @@ class TabletLayoutPage extends StatelessWidget {
         ),
       ],
       onGenerateRoute: (settings) {
+        Get.routing.args = settings.arguments;
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
         return GetPageRoute(
           settings: settings,

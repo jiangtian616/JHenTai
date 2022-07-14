@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/ranklist/ranklist_view_logic.dart';
-import 'package:jhentai/src/pages/ranklist/ranklist_view_state.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/widget/eh_gallery_collection.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/global_config.dart';
 import '../../widget/loading_state_indicator.dart';
-
 
 class RanklistPage extends StatefulWidget {
   const RanklistPage({Key? key}) : super(key: key);
@@ -18,22 +17,17 @@ class RanklistPage extends StatefulWidget {
 }
 
 class _RanklistPageState extends State<RanklistPage> {
-  final RanklistViewLogic logic = Get.put<RanklistViewLogic>(RanklistViewLogic());
+  final RanklistViewLogic logic = Get.put<RanklistViewLogic>(RanklistViewLogic(), permanent: true);
   final RanklistViewState state = Get.find<RanklistViewLogic>().state;
-
-  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    logic.getRanklist();
+    if (state.ranklistGallery.values.every((list) => list.isEmpty)) {
+      logic.getRanklist();
+    }
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +35,7 @@ class _RanklistPageState extends State<RanklistPage> {
       appBar: AppBar(
         title: GetBuilder<RanklistViewLogic>(
           id: 'appBarTitleId',
-          builder: (logic) {
-            return Text('${state.ranklistType.name.tr} ${'ranklist'.tr}');
-          },
+          builder: (_) => Text('${state.ranklistType.name.tr} ${'ranklist'.tr}'),
         ),
         centerTitle: true,
         elevation: 1,
@@ -55,6 +47,7 @@ class _RanklistPageState extends State<RanklistPage> {
                   initialValue: state.ranklistType,
                   padding: EdgeInsets.zero,
                   onSelected: logic.handleChangeRanklist,
+                  tooltip: "",
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
                     PopupMenuItem<RanklistType>(
                       value: RanklistType.allTime,
@@ -88,10 +81,10 @@ class _RanklistPageState extends State<RanklistPage> {
     return state.ranklistGallery[state.ranklistType]!.isEmpty && state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
         ? _buildCenterStatusIndicator()
         : EHWheelSpeedController(
-            scrollControllerGetter: () => _scrollController,
+            scrollController:  state.scrollController,
             child: CustomScrollView(
               key: PageStorageKey(state.ranklistType.name),
-              controller: _scrollController,
+              controller: state.scrollController,
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: <Widget>[
                 _buildRefreshIndicator(),

@@ -81,6 +81,10 @@ class SettingStylePage extends StatelessWidget {
                 },
                 items: [
                   DropdownMenuItem(
+                    child: Text('flat'.tr),
+                    value: ListMode.flat,
+                  ),
+                  DropdownMenuItem(
                     child: Text('listWithoutTags'.tr),
                     value: ListMode.listWithoutTags,
                   ),

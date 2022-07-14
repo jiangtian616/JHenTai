@@ -1,42 +1,61 @@
-import 'dart:ui';
+import 'dart:math';
 
-import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/gallerys/base/page_state_base.dart';
+import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
+import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
-import '../../../consts/eh_consts.dart';
-import '../../../model/gallery.dart';
-import '../../../model/search_config.dart';
-import '../../../network/eh_request.dart';
-import '../../../routes/routes.dart';
-import '../../../service/history_service.dart';
-import '../../../service/storage_service.dart';
-import '../../../service/tag_translation_service.dart';
-import '../../../setting/user_setting.dart';
-import '../../../utils/eh_spider_parser.dart';
-import '../../../utils/log.dart';
-import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
-import '../../../widget/app_state_listener.dart';
-import '../../../widget/loading_state_indicator.dart';
-import '../simple/gallerys_page_state.dart';
+import '../../model/gallery.dart';
+import '../../routes/routes.dart';
+import '../../service/tag_translation_service.dart';
+import '../../utils/log.dart';
+import '../../utils/route_util.dart';
+import '../../utils/snack_util.dart';
+import '../../widget/jump_page_dialog.dart';
+import '../../widget/loading_state_indicator.dart';
+import 'base_page_state.dart';
 
-abstract class LogicBase extends GetxController {
-  StateBase get state;
+abstract class BasePageLogic extends GetxController {
+  BasePageState get state;
+
+  String get pageId;
 
   String get appBarId;
+
   String get bodyId;
+
   String get refreshStateId;
+
   String get loadingStateId;
 
+  bool get useSearchConfig => false;
+
+  bool get autoLoadFirstPage => true;
+
+  int get tabIndex;
+
   final TagTranslationService _tagTranslationService = Get.find();
+  final StorageService _storageService = Get.find();
 
   @override
   void onInit() {
     super.onInit();
-    loadMore();
+
+    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
+
+    if (useSearchConfig) {
+      Map<String, dynamic>? map = _storageService.read('searchConfig: $runtimeType');
+      if (map != null) {
+        state.searchConfig = SearchConfig.fromJson(map);
+      }
+    }
+
+    if (autoLoadFirstPage) {
+      loadMore();
+    }
   }
 
   @override
@@ -88,7 +107,25 @@ abstract class LogicBase extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
-    update([bodyId]);
+    update([pageId]);
+  }
+
+  Future<void> clearAndRefresh() async {
+    if (state.loadingState == LoadingState.loading) {
+      return;
+    }
+    if (state.loadingState == LoadingState.idle) {
+      state.loadingState = LoadingState.loading;
+    }
+
+    state.gallerys.clear();
+    state.prevPageIndexToLoad = null;
+    state.nextPageIndexToLoad = 0;
+    state.pageCount = -1;
+
+    update([pageId]);
+
+    loadMore(checkLoadingState: false);
   }
 
   /// pull-down to load page before(after jumping to a certain page)
@@ -114,19 +151,19 @@ abstract class LogicBase extends GetxController {
       return;
     }
 
-    _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
+    cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
     state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
 
     state.loadingState = LoadingState.idle;
-    update([bodyId]);
+    update([pageId]);
   }
 
   /// has scrolled to bottom, so need to load more data.
-  Future<void> loadMore() async {
-    if (state.loadingState == LoadingState.loading) {
+  Future<void> loadMore({bool checkLoadingState = true}) async {
+    if (checkLoadingState && state.loadingState == LoadingState.loading) {
       return;
     }
 
@@ -147,7 +184,7 @@ abstract class LogicBase extends GetxController {
       return;
     }
 
-    _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
+    cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
     state.gallerys.addAll(gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
@@ -159,7 +196,81 @@ abstract class LogicBase extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
-    update([appBarId, bodyId, loadingStateId]);
+    update([pageId]);
+  }
+
+  Future<void> jumpPage(int pageIndex) async {
+    if (state.loadingState == LoadingState.loading) {
+      return;
+    }
+
+    state.gallerys.clear();
+    state.loadingState = LoadingState.loading;
+    update([pageId]);
+    state.scrollController.jumpTo(0);
+
+    pageIndex = max(pageIndex, 0);
+    pageIndex = min(pageIndex, state.pageCount - 1);
+    state.prevPageIndexToLoad = null;
+    state.nextPageIndexToLoad = null;
+
+    List<dynamic> gallerysAndPageInfo;
+    try {
+      gallerysAndPageInfo = await getGallerysAndPageInfoByPage(pageIndex);
+    } on DioError catch (e) {
+      Log.error('refreshGalleryFailed'.tr, e.message);
+      snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      state.loadingState = LoadingState.error;
+      update([loadingStateId]);
+      return;
+    }
+
+    state.gallerys.addAll(gallerysAndPageInfo[0]);
+    state.pageCount = gallerysAndPageInfo[1];
+    state.prevPageIndexToLoad = gallerysAndPageInfo[2];
+    state.nextPageIndexToLoad = gallerysAndPageInfo[3];
+
+    if (state.pageCount == 0) {
+      state.loadingState = LoadingState.noData;
+    } else if (state.nextPageIndexToLoad == null) {
+      state.loadingState = LoadingState.noMore;
+    } else {
+      state.loadingState = LoadingState.idle;
+    }
+    update([pageId]);
+  }
+
+  Future<void> handleTapJumpButton() async {
+    int? pageIndex = await Get.dialog(
+      JumpPageDialog(
+        totalPageNo: state.pageCount,
+        currentNo: state.nextPageIndexToLoad ?? state.pageCount,
+      ),
+    );
+
+    if (pageIndex != null) {
+      jumpPage(pageIndex);
+    }
+  }
+
+  Future<void> handleTapFilterButton([EHSearchConfigDialogType searchConfigDialogType = EHSearchConfigDialogType.filter]) async {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHSearchConfigDialog(searchConfig: state.searchConfig, type: searchConfigDialogType),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    SearchConfig searchConfig = result['searchConfig'];
+    state.searchConfig = searchConfig;
+
+    /// No need to save at search page
+    if (useSearchConfig) {
+      _storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
+    }
+
+    clearAndRefresh();
   }
 
   /// click the card and enter details page
@@ -174,7 +285,7 @@ abstract class LogicBase extends GetxController {
   }
 
   /// in case that new gallery is uploaded.
-  void _cleanDuplicateGallery(List<Gallery> newGallerys, List<Gallery> gallerys) {
+  void cleanDuplicateGallery(List<Gallery> newGallerys, List<Gallery> gallerys) {
     newGallerys.removeWhere((newGallery) => gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
   }
 }

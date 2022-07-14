@@ -1,10 +1,14 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
+import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/lock_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_page.dart';
 import 'package:jhentai/src/pages/read/read_page.dart';
-import 'package:jhentai/src/pages/search/search_page.dart';
+import 'package:jhentai/src/pages/search/nested/search_page.dart';
+import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
+import 'package:jhentai/src/pages/search/simple/simple_search_page.dart';
 import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
@@ -18,10 +22,12 @@ import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
 import 'package:jhentai/src/pages/setting/style/setting_style_page.dart';
 import 'package:jhentai/src/pages/home_page.dart';
+import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
 
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
+import '../pages/favorite/favorite_page.dart';
 import '../pages/layout/mobile/mobile_layout_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
@@ -34,15 +40,27 @@ class Routes {
   static const String lock = "/lock";
   static const String blank = "/blank";
 
+  static const String read = "/read";
+
+  /// left
   static const String mobileLayout = "/mobile_layout";
   static const String gallerys = "/gallerys";
-  static const String details = "/details";
   static const String popular = "/popular";
-  static const String singleImagePage = "/single_image_page";
-  static const String read = "/read";
-  static const String comment = "/comment";
+  static const String ranklist = "/ranklist";
+  static const String favorite = "/favorite";
+  static const String watched = "/watched";
+  static const String history = "/history";
+  static const String download = "/download";
+  static const String setting = "/setting";
   static const String search = "/search";
+  static const String simpleSearch = "/simple_search";
+
+  /// right
+  static const String details = "/details";
+  static const String singleImagePage = "/single_image_page";
+  static const String comment = "/comment";
   static const String webview = "/webview";
+  static const String quickSearch = "/qucik_search";
 
   static const String settingPrefix = "/setting_";
   static const String settingAccount = "/setting_account";
@@ -108,8 +126,38 @@ class Routes {
       side: Side.left,
     ),
     EHPage(
+      name: ranklist,
+      page: () => RanklistPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: favorite,
+      page: () => FavoritePage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: watched,
+      page: () => WatchedPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: history,
+      page: () => HistoryPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
       name: search,
       page: () => SearchPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: simpleSearch,
+      page: () => SimpleSearchPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -122,6 +170,12 @@ class Routes {
     EHPage(
       name: webview,
       page: () => WebviewPage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: quickSearch,
+      page: () => QuickSearchPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

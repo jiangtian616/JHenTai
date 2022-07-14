@@ -5,8 +5,9 @@ import 'package:jhentai/src/routes/EHPage.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
-/// adaptive to tablet layout(nested navigation)
+import '../pages/layout/desktop/desktop_layout_page_logic.dart';
 
+/// adaptive to tablet layout(nested navigation)
 Future<T?>? toNamed<T>(
   String routeName, {
   dynamic arguments,
@@ -16,7 +17,7 @@ Future<T?>? toNamed<T>(
   int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
-  if (StyleSetting.inTabletOrDesktopLayoutMode.isFalse || page.side == Side.fullScreen || id == fullScreen) {
+  if (StyleSetting.actualLayoutMode.value == LayoutMode.mobile || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -26,6 +27,18 @@ Future<T?>? toNamed<T>(
   }
 
   if (page.side == Side.left) {
+    if (StyleSetting.layoutMode.value == LayoutMode.desktop) {
+      DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
+
+      leftRouting.args = arguments;
+      Get.parameters = parameters ?? Get.parameters;
+
+      int tabIndex = logic.state.icons.indexWhere((icon) => icon.routeName == routeName);
+      logic.state.selectedTabIndex = tabIndex;
+      logic.update([logic.tabBarId, logic.pageId]);
+      return Future.value(null);
+    }
+
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -61,7 +74,7 @@ void back<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.inTabletOrDesktopLayoutMode.isFalse
+    id: StyleSetting.actualLayoutMode.value == LayoutMode.mobile
         ? null
         : side == Side.left
             ? left
@@ -82,7 +95,7 @@ Future<T?>? offNamed<T>(
   return Get.offNamed(
     routeName,
     arguments: arguments,
-    id: StyleSetting.inTabletOrDesktopLayoutMode.isFalse
+    id: StyleSetting.actualLayoutMode.value == LayoutMode.mobile
         ? null
         : side == Side.left
             ? left
@@ -98,7 +111,7 @@ void until({String? currentRoute, required RoutePredicate predicate}) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
   return Get.until(
     predicate,
-    id: StyleSetting.inTabletOrDesktopLayoutMode.isFalse
+    id: StyleSetting.actualLayoutMode.value == LayoutMode.mobile
         ? null
         : side == Side.left
             ? left
@@ -121,11 +134,18 @@ void untilBlankPage() {
 
 bool isAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
-  if (side == Side.fullScreen || StyleSetting.inTabletOrDesktopLayoutMode.isFalse) {
+
+  if (StyleSetting.actualLayoutMode.value == LayoutMode.mobile || side == Side.fullScreen) {
     return Get.currentRoute == routeName;
   }
+
   if (side == Side.left) {
+    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+      DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
+      return logic.state.icons[logic.state.selectedTabIndex].routeName == routeName;
+    }
     return leftRouting.current == routeName;
   }
+
   return rightRouting.current == routeName;
 }

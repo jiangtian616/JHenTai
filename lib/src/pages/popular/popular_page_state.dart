@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
+import '../base/base_page_state.dart';
 
-import '../gallerys/base/page_state_base.dart';
-
-class PopularPageState extends StateBase {}
+class PopularPageState extends BasePageState {}

@@ -5,19 +5,19 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/search/nested/search_page_state.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/jump_page_dialog.dart';
 
-import '../../model/gallery.dart';
-import '../../routes/routes.dart';
-import '../../service/tag_translation_service.dart';
-import '../../utils/log.dart';
-import '../../utils/route_util.dart';
-import '../../utils/snack_util.dart';
-import '../../widget/loading_state_indicator.dart';
-import 'search_page_state.dart';
+import '../../../model/gallery.dart';
+import '../../../routes/routes.dart';
+import '../../../service/tag_translation_service.dart';
+import '../../../utils/log.dart';
+import '../../../utils/route_util.dart';
+import '../../../utils/snack_util.dart';
+import '../../../widget/loading_state_indicator.dart';
 
 String appBarId = 'appBarId';
 String searchFieldId = 'searchFieldId';

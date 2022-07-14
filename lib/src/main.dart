@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
+import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -73,19 +74,7 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
-      builder: (context, child) => ScrollConfiguration(
-        behavior: const MaterialScrollBehavior().copyWith(
-          dragDevices: {
-            PointerDeviceKind.mouse,
-            PointerDeviceKind.touch,
-            PointerDeviceKind.stylus,
-            PointerDeviceKind.trackpad,
-            PointerDeviceKind.unknown,
-          },
-          scrollbars: false,
-        ),
-        child: AppStateListener(child: child!),
-      ),
+      builder: (context, child) => AppStateListener(child: child!),
 
       /// enable swipe back feature
       popGesture: true,
@@ -132,6 +121,8 @@ Future<void> init() async {
   await EHRequest.init();
 
   MouseSetting.init();
+
+  QuickSearchService.init();
 
   await ArchiveDownloadService.init();
   await GalleryDownloadService.init();

@@ -1,29 +1,12 @@
-import 'dart:ui';
-
-import 'package:clipboard/clipboard.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
-
-import '../../../consts/eh_consts.dart';
-import '../../../model/gallery.dart';
-import '../../../model/search_config.dart';
 import '../../../network/eh_request.dart';
-import '../../../routes/routes.dart';
-import '../../../service/history_service.dart';
-import '../../../service/storage_service.dart';
-import '../../../service/tag_translation_service.dart';
-import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
-import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
-import '../../../widget/app_state_listener.dart';
-import '../../../widget/loading_state_indicator.dart';
-import '../base/page_logic_base.dart';
+import '../../base/base_page_logic.dart';
 import 'gallerys_page_state.dart';
 
-class GallerysPageLogic extends LogicBase {
+class GallerysPageLogic extends BasePageLogic {
+  @override
+  final String pageId = 'pageId';
   @override
   final String appBarId = 'appBarId';
   @override
@@ -34,6 +17,12 @@ class GallerysPageLogic extends LogicBase {
   final String loadingStateId = 'loadingStateId';
 
   @override
+  int get tabIndex => 0;
+
+  @override
+  bool get useSearchConfig => true;
+
+  @override
   final GallerysPageState state = GallerysPageState();
 
   @override
@@ -42,11 +31,15 @@ class GallerysPageLogic extends LogicBase {
 
     List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
       pageNo: pageNo,
-      url: EHConsts.EIndex,
+      searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
 
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     return gallerysAndPageInfo;
+  }
+
+  void updateBody() {
+    update([bodyId]);
   }
 }

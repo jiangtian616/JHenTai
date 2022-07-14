@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/setting/setting_view.dart';
+import 'package:jhentai/src/pages/setting/setting_page.dart';
 
 import '../../download/download_view.dart';
 import '../../gallerys/nested/nested_gallerys_page.dart';
-import '../../ranklist/ranklist_view.dart';
+import '../../ranklist/ranklist_page.dart';
 
 class MobileLayoutPageState {
   int currentIndex = 0;

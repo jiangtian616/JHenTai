@@ -1,15 +1,12 @@
 import 'dart:math';
 
-import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/history_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -22,7 +19,6 @@ import '../../../setting/tab_bar_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
-import '../../../widget/app_state_listener.dart';
 import 'nested_gallerys_page_state.dart';
 
 String appBarId = 'appBarId';

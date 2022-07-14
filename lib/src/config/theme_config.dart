@@ -59,6 +59,7 @@ class ThemeConfig {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.white,
+    hoverColor: Colors.transparent,
   );
 
   static ThemeData dark = ThemeData(
@@ -113,5 +114,6 @@ class ThemeConfig {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.grey.shade900,
+    hoverColor: Colors.transparent,
   );
 }

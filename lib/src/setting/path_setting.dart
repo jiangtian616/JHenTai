@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PathSetting {
@@ -27,7 +28,7 @@ class PathSetting {
     if (Platform.isAndroid && externalStorageDir != null) {
       return externalStorageDir!;
     }
-    if (Platform.isWindows) {
+    if (GetPlatform.isDesktop) {
       return appSupportDir;
     }
     return appDocDir!;

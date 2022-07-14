@@ -13,10 +13,13 @@ import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
-import 'package:jhentai/src/pages/search/search_page_logic.dart';
+import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
+import 'package:jhentai/src/pages/search/nested/search_page_logic.dart';
+import 'package:jhentai/src/pages/search/simple/simple_search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -262,19 +265,6 @@ class DetailsPageLogic extends GetxController {
     );
   }
 
-  Future<void> handleTapUploader(String author) async {
-    if (isAtTop(Routes.search)) {
-      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = 'uploader:"$author"';
-      searchPageLogic.searchMore();
-    } else {
-      toNamed(
-        Routes.search,
-        arguments: 'uploader:"$author"',
-      );
-    }
-  }
-
   Future<void> handleTapFavorite() async {
     if (state.favoriteState == LoadingState.loading) {
       return;
@@ -320,24 +310,67 @@ class DetailsPageLogic extends GetxController {
     update([addFavoriteStateId]);
 
     /// update homePage and searchPage status
-    Get.find<g.NestedGallerysPageLogic>().update([bodyId]);
+    if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
+      Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
+    }
+    if (Get.isRegistered<GallerysPageLogic>()) {
+      Get.find<GallerysPageLogic>().updateBody();
+    }
     SearchPageLogic.current?.update([bodyId]);
+    if (Get.isRegistered<SimpleSearchPageLogic>()) {
+      Get.find<SimpleSearchPageLogic>().updateBody();
+    }
+  }
+
+  Future<void> searchUploader(String author) async {
+    String keyword = 'uploader:"$author"';
+
+    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+      if (isAtTop(Routes.simpleSearch)) {
+        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
+        simpleSearchPageLogic.state.searchConfig.keyword = keyword;
+        simpleSearchPageLogic.clearAndRefresh();
+        return;
+      }
+      toNamed(Routes.simpleSearch, parameters: {'keyword': keyword});
+      return;
+    }
+
+    if (isAtTop(Routes.search)) {
+      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = keyword;
+      searchPageLogic.searchMore();
+      return;
+    }
+    toNamed(
+      Routes.search,
+      arguments: 'uploader:"$author"',
+    );
   }
 
   Future<void> searchSimilar() async {
     /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
-    String title = state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim();
+    String title = '"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"';
+
+    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+      if (isAtTop(Routes.simpleSearch)) {
+        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
+        simpleSearchPageLogic.state.searchConfig.keyword = title;
+        simpleSearchPageLogic.clearAndRefresh();
+        return;
+      }
+      toNamed(Routes.simpleSearch, parameters: {'keyword': title});
+      return;
+    }
 
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = '"$title"';
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = title;
       searchPageLogic.searchMore();
-    } else {
-      toNamed(
-        Routes.search,
-        arguments: '"$title"',
-      );
+      return;
     }
+
+    toNamed(Routes.search, arguments: title);
   }
 
   Future<void> handleTapRating() async {
@@ -385,8 +418,12 @@ class DetailsPageLogic extends GetxController {
     _removeCache();
 
     update([bodyId]);
-    Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
-    update([ratingStateId]);
+    if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
+      Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
+    }
+    if (Get.isRegistered<GallerysPageLogic>()) {
+      Get.find<GallerysPageLogic>().updateBody();
+    }
   }
 
   void handleTapDownload() {

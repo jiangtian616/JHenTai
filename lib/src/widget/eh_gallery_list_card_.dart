@@ -34,46 +34,64 @@ class EHGalleryListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => handleTapCard(gallery),
       child: FadeIn(
-        child: Container(
+        duration: const Duration(milliseconds: 100),
+        child: SizedBox(
           height: withTags ? 200 : 125,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                blurRadius: 5,
-                spreadRadius: 1,
-                offset: const Offset(3, 3),
-              )
-            ],
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Row(
-              children: [
-                _buildCover(gallery.cover),
-                _buildInfo(gallery),
-              ],
-            ),
-          ),
+          child: Obx(() {
+            if (StyleSetting.listMode.value == ListMode.flat) return buildFlatCard(context);
+            return buildRoundedCard(context);
+          }),
         ),
       ),
     );
   }
 
+  Widget buildRoundedCard(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            blurRadius: 5,
+            spreadRadius: 1,
+            offset: const Offset(3, 3),
+          )
+        ],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Row(
+          children: [
+            _buildCover(gallery.cover),
+            _buildInfo(gallery),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildFlatCard(BuildContext context) {
+    return Row(
+      children: [
+        _buildCover(gallery.cover),
+        _buildInfo(gallery),
+      ],
+    );
+  }
+
   Widget _buildCover(GalleryImage image) {
-    return Obx(() {
-      return EHImage.network(
-        containerHeight: withTags ? 200 : 125,
-        containerWidth: withTags ? 140 : 85,
-        adaptive: true,
-        galleryImage: image,
-        fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-      );
-    });
+    return Obx(() => EHImage.network(
+          containerHeight: withTags ? 200 : 125,
+          containerWidth: withTags ? 140 : 85,
+          adaptive: true,
+          galleryImage: image,
+          fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+        ));
   }
 
   Widget _buildInfo(Gallery gallery) {
@@ -115,13 +133,14 @@ class EHGalleryListCard extends StatelessWidget {
   Widget _buildTagWaterFlow(Map<String, List<GalleryTag>> tags) {
     List<GalleryTag> mergedList = [];
     tags.forEach((namespace, galleryTags) {
-        mergedList.addAll(galleryTags);
+      mergedList.addAll(galleryTags);
     });
 
     return SizedBox(
       height: 70,
       child: WaterfallFlow.builder(
         scrollDirection: Axis.horizontal,
+
         /// disable keepScrollOffset because we used [PageStorageKey] in ranklist view, which leads to
         /// a conflict with this WaterfallFlow
         controller: ScrollController(keepScrollOffset: false),

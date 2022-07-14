@@ -25,7 +25,7 @@ import 'package:jhentai/src/utils/color_util.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
-import '../pages/ranklist/ranklist_view_state.dart';
+import '../pages/ranklist/ranklist_page_state.dart';
 import 'log.dart';
 
 T noOpParser<T>(v) => v as T;

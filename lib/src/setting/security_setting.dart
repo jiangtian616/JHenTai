@@ -13,7 +13,7 @@ class SecuritySetting {
   static bool supportFingerPrintLock = false;
 
   static Future<void> init() async {
-    if (GetPlatform.isWindows) {
+    if (GetPlatform.isDesktop) {
       return;
     }
     supportFingerPrintLock = (await LocalAuthentication().getAvailableBiometrics()).contains(BiometricType.fingerprint);

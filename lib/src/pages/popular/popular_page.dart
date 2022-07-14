@@ -4,22 +4,21 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/popular/popular_page_logic.dart';
 import 'package:jhentai/src/pages/popular/popular_page_state.dart';
 
-import '../gallerys/base/page_base.dart';
-import '../gallerys/base/page_logic_base.dart';
-import '../gallerys/base/page_state_base.dart';
-import '../gallerys/simple/gallerys_page_logic.dart';
-import '../gallerys/simple/gallerys_page_state.dart';
+import '../base/base_page.dart';
 
-class PopularPage extends PageBase {
+class PopularPage extends BasePage {
   const PopularPage({Key? key}) : super(key: key);
 
   @override
-  State<PageBase> createState() => PopularPageFlutterState();
+  State<BasePage> createState() => PopularPageFlutterState();
 }
 
-class PopularPageFlutterState extends PageBaseState {
+class PopularPageFlutterState extends BasePageFlutterState {
   @override
-  final PopularPageLogic logic = Get.put(PopularPageLogic());
+  final PopularPageLogic logic = Get.put(PopularPageLogic(), permanent: true);
   @override
   final PopularPageState state = Get.find<PopularPageLogic>().state;
+
+  @override
+  bool get showJumpButton => false;
 }

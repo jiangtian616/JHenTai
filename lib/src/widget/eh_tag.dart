@@ -7,6 +7,8 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
+import 'package:jhentai/src/pages/search/simple/simple_search_page_logic.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -14,7 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
-import '../pages/search/search_page_logic.dart';
+import '../pages/search/nested/search_page_logic.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
 import '../utils/route_util.dart';
@@ -52,8 +54,7 @@ class _EHTagState extends State<EHTag> {
       child: Container(
         color: widget.tag.backgroundColor ??
             (widget.addNameSpaceColor
-                ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ??
-                    ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
+                ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
                 : Get.theme.brightness == Brightness.light
                     ? Colors.grey.shade200
                     : Colors.grey.shade800),
@@ -92,17 +93,27 @@ class _EHTagState extends State<EHTag> {
   }
 
   void _searchTag() {
+    String keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
+
+    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+      if (isAtTop(Routes.simpleSearch)) {
+        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
+        simpleSearchPageLogic.state.searchConfig.keyword = keyword;
+        simpleSearchPageLogic.clearAndRefresh();
+        return;
+      }
+      toNamed(Routes.simpleSearch, parameters: {'keyword': keyword});
+      return;
+    }
+
     if (isAtTop(Routes.search)) {
       SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword =
-          '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
+      searchPageLogic.state.tabBarConfig.searchConfig.keyword = keyword;
       searchPageLogic.searchMore();
-    } else {
-      toNamed(
-        Routes.search,
-        arguments: '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"',
-      );
+      return;
     }
+
+    toNamed(Routes.search, arguments: keyword);
   }
 
   void _showDialog() {
@@ -140,7 +151,7 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _vote(true),
                 child: Icon(Icons.thumb_up, color: Colors.green.shade700),
               ),
-              successWidgetBuilder:()=> const DoneWidget(),
+              successWidgetBuilder: () => const DoneWidget(),
               errorTapCallback: () => _vote(true),
             ),
             LoadingStateIndicator(
@@ -149,7 +160,7 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _vote(false),
                 child: Icon(Icons.thumb_down, color: Colors.red.shade700),
               ),
-              successWidgetBuilder:()=> const DoneWidget(),
+              successWidgetBuilder: () => const DoneWidget(),
               errorTapCallback: () => _vote(false),
             ),
             LoadingStateIndicator(
@@ -158,7 +169,7 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _addNewTagSet(true),
                 child: Icon(Icons.favorite, color: Get.theme.primaryColorLight),
               ),
-              successWidgetBuilder:()=> const DoneWidget(),
+              successWidgetBuilder: () => const DoneWidget(),
               errorTapCallback: () => _addNewTagSet(true),
             ),
             LoadingStateIndicator(
@@ -167,7 +178,7 @@ class _TagDialogState extends State<_TagDialog> {
                 onTap: () => _addNewTagSet(false),
                 child: Icon(Icons.visibility_off, color: Colors.grey.shade700),
               ),
-              successWidgetBuilder:()=> const DoneWidget(),
+              successWidgetBuilder: () => const DoneWidget(),
               errorTapCallback: () => _addNewTagSet(false),
             ),
             if (widget.tagData.tagName != null)

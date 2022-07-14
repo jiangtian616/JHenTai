@@ -1,29 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/search_config.dart';
-import 'package:jhentai/src/pages/gallerys/base/page_logic_base.dart';
-import 'package:jhentai/src/pages/gallerys/base/page_state_base.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_state.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-
-import '../../../config/global_config.dart';
-import '../../../widget/eh_gallery_collection.dart';
-import '../../../widget/loading_state_indicator.dart';
-import '../base/page_base.dart';
+import '../../base/base_page.dart';
 import 'gallerys_page_state.dart';
 
-class GallerysPage extends PageBase {
+class GallerysPage extends BasePage {
   const GallerysPage({Key? key}) : super(key: key);
 
   @override
-  State<PageBase> createState() => GallerysPageFlutterState();
+  State<BasePage> createState() => GallerysPageFlutterState();
 }
 
-class GallerysPageFlutterState extends PageBaseState {
+class GallerysPageFlutterState extends BasePageFlutterState {
   @override
-  final GallerysPageLogic logic = Get.put(GallerysPageLogic());
+  final GallerysPageLogic logic = Get.put(GallerysPageLogic(), permanent: true);
   @override
   final GallerysPageState state = Get.find<GallerysPageLogic>().state;
+
+  @override
+  bool get showFilterButton => true;
 }

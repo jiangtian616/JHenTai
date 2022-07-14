@@ -189,8 +189,9 @@ class en_US {
       'light': 'Light',
       'followSystem': 'Follow System',
       'listStyle': 'Gallery List Style',
-      'listWithoutTags': 'List(Without Tags)',
-      'listWithTags': 'List',
+      'flat': 'Flat',
+      'listWithoutTags': 'Card(Without Tags)',
+      'listWithTags': 'Card',
       'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',
       'waterfallFlowWithImageAndInfo': 'Waterfall Flow',
       'coverStyle': 'Cover Style',
@@ -203,7 +204,7 @@ class en_US {
       'desktopMode': 'Desktop Mode',
       'mobileModeHint': 'Single column',
       'tabletModeHint': 'Double column',
-      'desktopModeHint': 'Double column with left bar, support shortcut keys',
+      'desktopModeHint': 'Double column with left bar',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',
@@ -217,6 +218,7 @@ class en_US {
       'proxyAddress': 'Proxy Address',
       'proxyAddressHint': 'If you use proxy server, make sure to set it up correctly',
       'saveSuccess': 'Save success',
+      'updateSuccess': 'Update success',
       'connectTimeout': 'Connect timeout',
       'receiveTimeout': 'Receive data timeout',
       'pageCacheMaxAge': 'Page Cache Max Age',
@@ -284,8 +286,13 @@ class en_US {
       'searchConfig': 'Search Config',
       'addTabBar': 'Add Tab Bar',
       'updateTabBar': 'Update Tab Bar',
-      'filterConfig': 'Filter Config',
+      'addQuickSearch': 'Add Quick Search',
+      'updateQuickSearch': 'Update Quick Search',
+      'filter': 'Filter',
       'tabBarName': 'TabBar Name',
+      'quickSearchName': 'Name',
+      'pleaseInputValidName': 'Please input valid name',
+      'sameNameExists': 'Same name exists',
       'searchType': 'Search Type',
       'popular': 'Popular',
       'ranklist': 'Ranklist',
@@ -350,6 +357,9 @@ class en_US {
       'restoredCount': 'Restored task count',
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
+
+      /// quick search page
+      'quickSearch': 'Quick Search',
 
       /// tag namespace
       'language': 'Language',
