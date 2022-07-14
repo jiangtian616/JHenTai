@@ -3,7 +3,9 @@ import 'dart:io' as io;
 import 'package:drift/drift.dart';
 
 import 'package:drift/native.dart';
+import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as p;
 
 part 'database.g.dart';
@@ -18,12 +20,16 @@ class AppDb extends _$AppDb {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onCreate: (Migrator m) async {
-        await m.createAll();
-      },
       onUpgrade: (Migrator m, int from, int to) async {
-        if (from < 2) {
-          await m.alterTable(TableMigration(image));
+        Log.info('Database version: $from -> $to');
+        try {
+          if (from < 2) {
+            await m.alterTable(TableMigration(image));
+          }
+        } on Exception catch (e) {
+          Log.error(e);
+          Log.upload(e, extraInfos: {'from': from, 'to': to});
+          throw UploadException(e);
         }
       },
     );
