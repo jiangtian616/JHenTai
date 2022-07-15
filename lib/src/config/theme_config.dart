@@ -16,40 +16,19 @@ class ThemeConfig {
         statusBarBrightness: Brightness.light,
         statusBarIconBrightness: Brightness.dark,
       ),
-      titleTextStyle: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-      iconTheme: IconThemeData(
-        color: Colors.grey.shade800,
-      ),
-      actionsIconTheme: IconThemeData(
-        color: Colors.grey.shade900,
-      ),
+      titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+      iconTheme: IconThemeData(color: Colors.grey.shade800),
+      actionsIconTheme: IconThemeData(color: Colors.grey.shade900),
       elevation: 0,
     ),
     tabBarTheme: TabBarTheme(
       labelColor: Colors.pink.shade300,
-      labelStyle: const TextStyle(
-        color: Colors.black,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
+      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
       unselectedLabelColor: Colors.grey.shade600,
       indicatorSize: TabBarIndicatorSize.label,
-      indicator: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.pink.shade300,
-            width: 3,
-          ),
-        ),
-      ),
+      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-    cupertinoOverrideTheme: const CupertinoThemeData(
-      scaffoldBackgroundColor: Colors.white,
-    ),
+    cupertinoOverrideTheme: const CupertinoThemeData(scaffoldBackgroundColor: Colors.white),
     dialogTheme: const DialogTheme(
       titleTextStyle: TextStyle(
         fontSize: 16,
@@ -75,36 +54,17 @@ class ThemeConfig {
         statusBarBrightness: Brightness.dark,
         statusBarIconBrightness: Brightness.light,
       ),
-      titleTextStyle: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-      actionsIconTheme: const IconThemeData(
-        color: Colors.white,
-      ),
+      titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+      actionsIconTheme: const IconThemeData(color: Colors.white),
     ),
     tabBarTheme: TabBarTheme(
       labelColor: Colors.pink.shade300,
-      labelStyle: const TextStyle(
-        color: Colors.black,
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-      ),
+      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
       unselectedLabelColor: Colors.grey.shade600,
       indicatorSize: TabBarIndicatorSize.label,
-      indicator: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.pink.shade300,
-            width: 3,
-          ),
-        ),
-      ),
+      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-    cupertinoOverrideTheme: CupertinoThemeData(
-      scaffoldBackgroundColor: Colors.grey.shade900,
-    ),
+    cupertinoOverrideTheme: CupertinoThemeData(scaffoldBackgroundColor: Colors.grey.shade900),
     dialogTheme: const DialogTheme(
       titleTextStyle: TextStyle(
         fontSize: 16,

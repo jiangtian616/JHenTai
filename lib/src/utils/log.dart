@@ -32,10 +32,8 @@ class Log {
     }
 
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
-    LogPrinter prodPrinterWithBox =
-        PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
-    LogPrinter prodPrinterWithoutBox =
-        PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
+    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
     _logger = Logger(printer: devPrinter);
 
     _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}.log'));
@@ -46,8 +44,7 @@ class Log {
       output: FileOutput(file: _verboseLogFile),
     );
 
-    _waringLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_error.log'));
+    _waringLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_error.log'));
     await _waringLogFile.create(recursive: true);
     _warningFileLogger = Logger(
       level: Level.warning,
@@ -56,8 +53,7 @@ class Log {
       output: FileOutput(file: _waringLogFile),
     );
 
-    _downloadLogFile =
-        io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_download.log'));
+    _downloadLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-mm').format(DateTime.now())}_download.log'));
     await _downloadLogFile.create(recursive: true);
     _downloadFileLogger = Logger(
       printer: prodPrinterWithoutBox,
@@ -103,28 +99,29 @@ class Log {
 
     extraInfos = _extractExtraInfos(throwable, stackTrace, extraInfos);
 
-    await Future.delayed(const Duration(seconds: 3));
+    /// Wait for full log
+    Future.delayed(const Duration(seconds: 3)).then(
+      (_) => Sentry.captureException(
+        throwable,
+        stackTrace: stackTrace,
+        withScope: (scope) {
+          extraInfos?.forEach((key, value) {
+            String cleanedValue = _cleanPrivacy(value.toString());
+            if (cleanedValue.length < 1000) {
+              scope.setExtra(key, cleanedValue);
+            } else {
+              scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
+            }
+          });
 
-    Sentry.captureException(
-      throwable,
-      stackTrace: stackTrace,
-      withScope: (scope) {
-        extraInfos?.forEach((key, value) {
-          String cleanedValue = _cleanPrivacy(value.toString());
-          if (cleanedValue.length < 1000) {
-            scope.setExtra(key, cleanedValue);
-          } else {
-            scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
+          if (_shouldUploadLog(stackTrace)) {
+            Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
+            if (verboseAttachment.isNotEmpty) {
+              scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+            }
           }
-        });
-
-        if (_shouldUploadLog(stackTrace)) {
-          Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
-          if (verboseAttachment.isNotEmpty) {
-            scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
-          }
-        }
-      },
+        },
+      ),
     );
   }
 
@@ -136,9 +133,7 @@ class Log {
 
     int totalBytes = -1;
     try {
-      totalBytes = logDirectory
-          .listSync()
-          .fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+      totalBytes = logDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
     } on Exception catch (e) {
       Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
     }
@@ -188,8 +183,7 @@ class Log {
     return true;
   }
 
-  static Map<String, dynamic> _extractExtraInfos(
-      dynamic throwable, dynamic stackTrace, Map<String, dynamic>? extraInfos) {
+  static Map<String, dynamic> _extractExtraInfos(dynamic throwable, dynamic stackTrace, Map<String, dynamic>? extraInfos) {
     extraInfos ??= {};
 
     if (throwable is JsonUnsupportedObjectError) {
