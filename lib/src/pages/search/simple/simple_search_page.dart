@@ -64,12 +64,6 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
     return GetBuilder<SimpleSearchPageLogic>(
       id: logic.pageId,
       builder: (_) => Scaffold(
-        floatingActionButton: state.gallerys.isEmpty || state.bodyType == SearchPageBodyType.suggestionAndHistory
-            ? null
-            : FloatingActionButton(
-                child: const Icon(FontAwesomeIcons.paperPlane, size: 20),
-                onPressed: logic.handleTapJumpButton,
-              ),
         body: Column(
           children: [
             GetBuilder<SimpleSearchPageLogic>(
@@ -81,13 +75,24 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
                   children: [
                     Expanded(child: _buildSearchField().marginSymmetric(horizontal: 16)),
                     ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
+                    if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
+                      ExcludeFocus(
+                        child: FadeIn(
+                          child: IconButton(
+                            icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+                            onPressed: logic.handleTapJumpButton,
+                          ),
+                        ),
+                      ),
                     ExcludeFocus(
                       child: IconButton(
                         icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
                         onPressed: logic.toggleBodyType,
                       ),
                     ),
-                    ExcludeFocus(child: IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
+                    ExcludeFocus(
+                        child: IconButton(
+                            icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
                     ExcludeFocus(
                       child: IconButton(
                         icon: const Icon(Icons.add_circle_outline, size: 24),
