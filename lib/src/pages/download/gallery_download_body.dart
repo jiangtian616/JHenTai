@@ -38,14 +38,18 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   @override
   void initState() {
     gallerysCount = downloadService.gallerys.length;
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    }
     super.initState();
   }
 
   @override
   void activate() {
     super.activate();
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    }
   }
 
   @override

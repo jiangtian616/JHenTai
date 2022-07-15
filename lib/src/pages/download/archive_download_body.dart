@@ -38,14 +38,18 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   @override
   void initState() {
     archivesCount = archiveDownloadService.archives.length;
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    }
     super.initState();
   }
 
   @override
   void activate() {
     super.activate();
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
+    }
   }
 
   @override

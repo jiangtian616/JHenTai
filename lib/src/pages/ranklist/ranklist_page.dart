@@ -8,6 +8,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/global_config.dart';
 import '../../widget/loading_state_indicator.dart';
+import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class RanklistPage extends StatefulWidget {
   const RanklistPage({Key? key}) : super(key: key);
@@ -25,6 +26,11 @@ class _RanklistPageState extends State<RanklistPage> {
     if (state.ranklistGallery.values.every((list) => list.isEmpty)) {
       logic.getRanklist();
     }
+
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[3] = state.scrollController;
+    }
+
     super.initState();
   }
 

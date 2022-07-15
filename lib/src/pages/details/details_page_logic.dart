@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -37,6 +38,7 @@ import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/toast_util.dart';
 import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
+import '../layout/desktop/desktop_layout_page_logic.dart';
 import 'details_page_state.dart';
 
 String bodyId = 'bodyId';
@@ -494,6 +496,44 @@ class DetailsPageLogic extends GetxController {
 
   Future<void> handleTapStatistic() async {
     Get.dialog(const StatDialog());
+  }
+
+  KeyEventResult onKeyEvent(FocusNode node, KeyEvent event) {
+    if (!Get.isRegistered<DesktopLayoutPageLogic>()) {
+      return KeyEventResult.ignored;
+    }
+    if (event is! KeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();
+      return KeyEventResult.handled;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp && state.scrollController.hasClients) {
+      state.scrollController.animateTo(
+        state.scrollController.offset - 300,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+      );
+      return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.arrowDown && state.scrollController.hasClients) {
+      state.scrollController.animateTo(
+        state.scrollController.offset + 300,
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.easeInOut,
+      );
+      return KeyEventResult.handled;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      goToReadPage();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   void goToReadPage([int? index]) {

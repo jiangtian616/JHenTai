@@ -82,41 +82,9 @@ class DetailsPage extends StatelessWidget {
             }
 
             return FocusScope(
-              node: Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode
-                ..onKeyEvent = (_, KeyEvent event) {
-                  if (event is! KeyDownEvent) {
-                    return KeyEventResult.ignored;
-                  }
-
-                  if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-                    Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();
-                    return KeyEventResult.handled;
-                  }
-
-                  if (event.logicalKey == LogicalKeyboardKey.arrowUp && detailsPageState.scrollController.hasClients) {
-                    detailsPageState.scrollController.animateTo(
-                      detailsPageState.scrollController.offset - 300,
-                      duration: const Duration(milliseconds: 100),
-                      curve: Curves.easeInOut,
-                    );
-                    return KeyEventResult.handled;
-                  }
-                  if (event.logicalKey == LogicalKeyboardKey.arrowDown && detailsPageState.scrollController.hasClients) {
-                    detailsPageState.scrollController.animateTo(
-                      detailsPageState.scrollController.offset + 300,
-                      duration: const Duration(milliseconds: 100),
-                      curve: Curves.easeInOut,
-                    );
-                    return KeyEventResult.handled;
-                  }
-
-                  if (event.logicalKey == LogicalKeyboardKey.enter) {
-                    logic.goToReadPage();
-                    return KeyEventResult.handled;
-                  }
-
-                  return KeyEventResult.ignored;
-                },
+              node: Get.isRegistered<DesktopLayoutPageLogic>()
+                  ? (Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode..onKeyEvent = detailsPageLogic.onKeyEvent)
+                  : null,
               child: Container(
                 decoration: BoxDecoration(
                   border: Border(

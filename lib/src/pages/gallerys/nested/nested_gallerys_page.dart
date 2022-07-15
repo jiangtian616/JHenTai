@@ -3,7 +3,6 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -116,7 +115,7 @@ class NestedGallerysPage extends StatelessWidget {
                                             ),
                                           )
                                         ],
-                                      ).marginOnly(right: 26)
+                                      ).marginOnly(right: GetPlatform.isDesktop ? 26 : 0)
                                     : null,
                                 onTap: () {
                                   if (nestedGallerysPageLogic.tabController.index == index) {

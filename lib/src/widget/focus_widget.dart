@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 
 class FocusWidget extends StatefulWidget {
   final bool enableFocus;
@@ -30,7 +31,7 @@ class _FocusWidgetState extends State<FocusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enableFocus) {
+    if (!widget.enableFocus || StyleSetting.actualLayoutMode.value != LayoutMode.desktop) {
       return widget.child;
     }
 

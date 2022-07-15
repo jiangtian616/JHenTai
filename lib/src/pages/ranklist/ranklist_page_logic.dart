@@ -26,12 +26,6 @@ class RanklistViewLogic extends GetxController {
   final TagTranslationService tagTranslationService = Get.find();
 
   @override
-  onInit() {
-    super.onInit();
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[3] = state.scrollController;
-  }
-
-  @override
   void onClose() {
     super.onClose();
     state.scrollController.dispose();
