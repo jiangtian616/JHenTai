@@ -2,10 +2,10 @@ import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/global_config.dart';
@@ -56,38 +56,55 @@ class DesktopLayoutPage extends StatelessWidget {
           color: Theme.of(context).appBarTheme.backgroundColor,
           border: Border(right: BorderSide(color: Theme.of(context).appBarTheme.foregroundColor!, width: 0.3)),
         ),
-        child: GetBuilder<DesktopLayoutPageLogic>(
-          id: logic.tabBarId,
-          builder: (_) => ListView.builder(
-            itemCount: state.icons.length,
-            itemExtent: 64,
-            itemBuilder: (_, int index) => MouseRegion(
-              onEnter: (_) {
-                state.hoverTabIndex = index;
-                logic.update([logic.tabBarId]);
-              },
-              onExit: (_) {
-                state.hoverTabIndex = null;
-                logic.update([logic.tabBarId]);
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    decoration: state.selectedTabIndex == index
-                        ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
-                        : null,
-                    child: InkWell(
-                      child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                      onTap: () => logic.handleTapTabBarButton(index),
-                    ).paddingAll(8),
-                  ),
-                  if (state.hoverTabIndex == index)
-                    FadeIn(
-                      child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
-                      duration: const Duration(milliseconds: 200),
-                    )
-                ],
+        child: FocusScope(
+          autofocus: true,
+          node: state.leftTabBarFocusScopeNode,
+          child: GetBuilder<DesktopLayoutPageLogic>(
+            id: logic.tabBarId,
+            builder: (_) => ListView.builder(
+              itemCount: state.icons.length,
+              itemExtent: 64,
+              itemBuilder: (_, int index) => MouseRegion(
+                onEnter: (_) {
+                  state.hoverTabIndex = index;
+                  logic.update([logic.tabBarId]);
+                },
+                onExit: (_) {
+                  state.hoverTabIndex = null;
+                  logic.update([logic.tabBarId]);
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FocusWidget(
+                      enableFocus: state.icons[index].routeName != Routes.setting,
+                      decoration: const BoxDecoration(color: Colors.grey),
+                      handleTapEnter: () => logic.handleTapTabBarButton(index),
+                      handleTapArrowRight: () {
+                        if (state.selectedTabIndex != index) {
+                          logic.handleTapTabBarButton(index);
+                        } else {
+                          state.leftColumnFocusScopeNode.requestFocus();
+                        }
+                      },
+                      child: Container(
+                        decoration: state.selectedTabIndex == index
+                            ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
+                            : null,
+                        child: InkWell(
+                          canRequestFocus: false,
+                          child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                          onTap: () => logic.handleTapTabBarButton(index),
+                        ).paddingAll(8),
+                      ),
+                    ),
+                    if (state.hoverTabIndex == index)
+                      FadeIn(
+                        child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
+                        duration: const Duration(milliseconds: 200),
+                      )
+                  ],
+                ),
               ),
             ),
           ),
@@ -97,28 +114,20 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 
   Widget _leftColumn() {
-    // return GetBuilder<DesktopLayoutPageLogic>(
-    //   id: logic.pageId,
-    //   builder: (_) => Stack(
-    //     children: state.icons
-    //         .mapIndexed((index, icon) => Offstage(
-    //               child: icon.page,
-    //               offstage: state.selectedTabIndex != index,
-    //             ))
-    //         .toList(),
-    //   ),
-    // );
-
-    return GetBuilder<DesktopLayoutPageLogic>(
-      id: logic.pageId,
-      builder: (_) => state.icons[state.selectedTabIndex].page.call(),
+    return FocusScope(
+      node: state.leftColumnFocusScopeNode,
+      child: GetBuilder<DesktopLayoutPageLogic>(
+        id: logic.pageId,
+        builder: (_) => state.icons[state.selectedTabIndex].page.call(),
+      ),
     );
   }
 
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(right),
-      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
+      requestFocus: false,
+      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver(), FocusObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -145,5 +154,13 @@ class DesktopLayoutPage extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class FocusObserver extends NavigatorObserver {
+  @override
+  void didPop(Route route, Route? previousRoute) {
+    Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();
+    super.didPush(route, previousRoute);
   }
 }

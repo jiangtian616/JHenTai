@@ -21,7 +21,8 @@ Install for Android: download .apk according to your device architecture and ins
 
 Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 
-Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at network setting page.
+Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at network setting
+page.
 
 ## Help With Translation
 
@@ -31,8 +32,10 @@ Please submit a PR if you want to help with translation.
 
 ## Develop Motivation
 
-My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android phone and
-Ipad, E-hentai apps I used before have several bugs, and I don't understand source code because I have no development experience
+My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android
+phone and
+Ipad, E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
+experience
 with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
 ## References
@@ -78,7 +81,8 @@ mush thanks to these projects🙇‍
 - [x] Mobile, tablet, desktop layout
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
-- [x] online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a
+- [x] online reading and download, support restore download task, support synchronize updates after the uploader has
+  uploaded a
   new version
 - [x] archive download and automatic unpacking and reading
 - [x] favorite, rating, torrent, archive, statistics, share
@@ -87,6 +91,7 @@ mush thanks to these projects🙇‍
 - [x] vote for Tag, watch and hidden tags
 - [x] comment, vote for comment
 - [x] Fingerprint unlock
+- [x] Support shortcut keys like 'Tab' and 'Arrow keys' in desktop layout
 
 ## Feature Todo
 
@@ -102,7 +107,8 @@ mush thanks to these projects🙇‍
 
 1. Copy `/lib/src/l18n/en_US.dart ` and rename to `{your_languageCode}_{your_countryCode}.dart`
 
-You can only do this and submit your PR, I'll do the remaining things. Or you can go on with: 
+You can only do this and submit your PR, I'll do the remaining things. Or you can go on with:
+
 2. Rename classname in new file(optional)
 3. Modify k-v pairs in method `keys` ,translate values to your language
 4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys`
@@ -112,7 +118,8 @@ You can only do this and submit your PR, I'll do the remaining things. Or you ca
 
 ## Bug
 
-1. When the reading page takes the up-to-bottom scrolling direction, there is a very small chance that current page number can't
+1. When the reading page takes the up-to-bottom scrolling direction, there is a very small chance that current page
+   number can't
    be synchronized correctly; third-party libraries are involved.
 2. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
 

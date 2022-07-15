@@ -28,7 +28,6 @@ class _RanklistPageState extends State<RanklistPage> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,33 +40,34 @@ class _RanklistPageState extends State<RanklistPage> {
         elevation: 1,
         actions: [
           GetBuilder<RanklistViewLogic>(
-              id: 'appBarTitleId',
-              builder: (logic) {
-                return PopupMenuButton(
-                  initialValue: state.ranklistType,
-                  padding: EdgeInsets.zero,
-                  onSelected: logic.handleChangeRanklist,
-                  tooltip: "",
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
-                    PopupMenuItem<RanklistType>(
-                      value: RanklistType.allTime,
-                      child: Center(child: Text('allTime'.tr)),
-                    ),
-                    PopupMenuItem<RanklistType>(
-                      value: RanklistType.year,
-                      child: Center(child: Text('year'.tr)),
-                    ),
-                    PopupMenuItem<RanklistType>(
-                      value: RanklistType.month,
-                      child: Center(child: Text('month'.tr)),
-                    ),
-                    PopupMenuItem<RanklistType>(
-                      value: RanklistType.day,
-                      child: Center(child: Text('day'.tr)),
-                    ),
-                  ],
-                );
-              }),
+            id: 'appBarTitleId',
+            builder: (_) => ExcludeFocus(
+              child: PopupMenuButton(
+                initialValue: state.ranklistType,
+                padding: EdgeInsets.zero,
+                onSelected: logic.handleChangeRanklist,
+                tooltip: "",
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
+                  PopupMenuItem<RanklistType>(
+                    value: RanklistType.allTime,
+                    child: Center(child: Text('allTime'.tr)),
+                  ),
+                  PopupMenuItem<RanklistType>(
+                    value: RanklistType.year,
+                    child: Center(child: Text('year'.tr)),
+                  ),
+                  PopupMenuItem<RanklistType>(
+                    value: RanklistType.month,
+                    child: Center(child: Text('month'.tr)),
+                  ),
+                  PopupMenuItem<RanklistType>(
+                    value: RanklistType.day,
+                    child: Center(child: Text('day'.tr)),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
       body: GetBuilder<RanklistViewLogic>(
@@ -81,7 +81,7 @@ class _RanklistPageState extends State<RanklistPage> {
     return state.ranklistGallery[state.ranklistType]!.isEmpty && state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
         ? _buildCenterStatusIndicator()
         : EHWheelSpeedController(
-            scrollController:  state.scrollController,
+            scrollController: state.scrollController,
             child: CustomScrollView(
               key: PageStorageKey(state.ranklistType.name),
               controller: state.scrollController,

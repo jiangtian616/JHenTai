@@ -39,15 +39,19 @@ abstract class BasePageFlutterState extends State<BasePage> {
                 elevation: 1,
                 actions: [
                   if (showJumpButton && state.gallerys.isNotEmpty)
-                    IconButton(
-                      icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
-                      onPressed: logic.handleTapJumpButton,
+                    ExcludeFocus(
+                      child: IconButton(
+                        icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+                        onPressed: logic.handleTapJumpButton,
+                      ),
                     ),
                   if (showFilterButton)
-                    IconButton(
-                      icon: const Icon(Icons.filter_alt_outlined, size: 28),
-                      padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
-                      onPressed: logic.handleTapFilterButton,
+                    ExcludeFocus(
+                      child: IconButton(
+                        icon: const Icon(Icons.filter_alt_outlined, size: 28),
+                        padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
+                        onPressed: logic.handleTapFilterButton,
+                      ),
                     ),
                 ],
               ),

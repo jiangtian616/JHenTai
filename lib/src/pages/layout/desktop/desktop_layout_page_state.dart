@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jhentai/src/pages/download/download_view.dart';
+import 'package:jhentai/src/pages/download/download_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
@@ -14,6 +14,7 @@ import '../../ranklist/ranklist_page.dart';
 class DesktopLayoutPageState {
   late final List<LeftBarIcon> icons;
   late final List<ScrollController?> scrollControllers;
+  late final List<bool> isFocused;
 
   int selectedTabIndex = 0;
   int? hoverTabIndex;
@@ -93,6 +94,7 @@ class DesktopLayoutPageState {
     ];
 
     scrollControllers = List.filled(icons.length, null);
+    isFocused = List.filled(icons.length, false);
   }
 }
 

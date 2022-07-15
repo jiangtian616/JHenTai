@@ -6,7 +6,12 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
+import 'package:jhentai/src/pages/home_page.dart';
+import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
+import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/color_consts.dart';
@@ -38,12 +43,32 @@ class EHGalleryListCard extends StatelessWidget {
       onTap: () => handleTapCard(gallery),
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
-        child: SizedBox(
-          height: withTags ? 200 : 125,
-          child: Obx(() {
-            if (StyleSetting.listMode.value == ListMode.flat) return buildFlatCard(context);
-            return buildRoundedCard(context);
-          }),
+        child: FocusWidget(
+          decoration: StyleSetting.listMode.value == ListMode.flat
+              ? BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!)))
+              : const BoxDecoration(color: Colors.grey),
+          handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+          handleTapEnter: () => handleTapCard(gallery),
+          handleTapArrowRight: () {
+            if (!isAtTop(Routes.details)) {
+              handleTapCard(gallery);
+              return;
+            }
+
+            if ((rightRouting.args as Gallery).galleryUrl != gallery.galleryUrl) {
+              handleTapCard(gallery);
+              return;
+            }
+
+            Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode.requestFocus();
+          },
+          child: SizedBox(
+            height: withTags ? 200 : 125,
+            child: Obx(() {
+              if (StyleSetting.listMode.value == ListMode.flat) return buildFlatCard(context);
+              return buildRoundedCard(context);
+            }),
+          ),
         ),
       ),
     );

@@ -3,6 +3,7 @@ import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/focus_widget.dart';
 
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
@@ -27,21 +28,28 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return KeepAliveWrapper(
       keepAlive: keepAlive,
-      child: GestureDetector(
-        onTap: () => handleTapCard(gallery),
-        child: FadeIn(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: ColoredBox(
-              color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
-              child: Obx(() {
-                return Column(
-                  children: [
-                    _buildCover(gallery.cover),
-                    if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(gallery),
-                  ],
-                );
-              }),
+      child: FocusWidget(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!),
+        ),
+        handleTapEnter: () => handleTapCard(gallery),
+        child: GestureDetector(
+          onTap: () => handleTapCard(gallery),
+          child: FadeIn(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: ColoredBox(
+                color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
+                child: Obx(() {
+                  return Column(
+                    children: [
+                      _buildCover(gallery.cover),
+                      if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(gallery),
+                    ],
+                  );
+                }),
+              ),
             ),
           ),
         ),

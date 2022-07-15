@@ -41,25 +41,52 @@ class EHKeyboardListener extends StatelessWidget {
         }
 
         if (event.logicalKey == LogicalKeyboardKey.pageUp) {
+          if (handlePageUp == null) {
+            return KeyEventResult.ignored;
+          }
           handlePageUp?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.pageDown) {
+          if (handlePageDown == null) {
+            return KeyEventResult.ignored;
+          }
           handlePageDown?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+          if (handleArrowUp == null) {
+            return KeyEventResult.ignored;
+          }
           handleArrowUp?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+          if (handleArrowDown == null) {
+            return KeyEventResult.ignored;
+          }
           handleArrowDown?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          if (handleArrowLeft == null) {
+            return KeyEventResult.ignored;
+          }
           handleArrowLeft?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          if (handleArrowRight == null) {
+            return KeyEventResult.ignored;
+          }
           handleArrowRight?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+          if (handleEsc == null) {
+            return KeyEventResult.ignored;
+          }
           handleEsc?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.space) {
+          if (handleSpace == null) {
+            return KeyEventResult.ignored;
+          }
           handleSpace?.call();
         } else if (event.logicalKey == LogicalKeyboardKey.controlLeft) {
+          if (handleLCtrl == null) {
+            return KeyEventResult.ignored;
+          }
           handleLCtrl?.call();
         }
-        return KeyEventResult.skipRemainingHandlers;
+        return KeyEventResult.handled;
       },
       child: child,
     );

@@ -204,7 +204,7 @@ class en_US {
       'desktopMode': 'Desktop Mode',
       'mobileModeHint': 'Single column',
       'tabletModeHint': 'Double column',
-      'desktopModeHint': 'Double column with left bar',
+      'desktopModeHint': 'Double column with left bar, optimized for shortcut keys',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',
@@ -339,7 +339,8 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint': 'Attention! Change download path will copy downloaded gallerys automatically and empty old directory. Long press to change.',
+      'changeDownloadPathHint':
+          'Attention! Change download path will copy downloaded gallerys automatically and empty old directory. Long press to change.',
       'resetDownloadPath': 'Reset download path',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',

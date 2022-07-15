@@ -1,14 +1,15 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
 import 'package:jhentai/src/pages/search/simple/simple_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/simple/simple_search_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
-import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../config/global_config.dart';
 import '../../../database/database.dart';
@@ -30,12 +31,31 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
   @override
   final SimpleSearchPageState state = Get.find<SimpleSearchPageLogic>().state;
 
+  final FocusNode searchFieldFocusNode = FocusNode();
+
   @override
   void initState() {
     if (Get.parameters['keyword'] != null) {
       state.searchConfig.keyword = Get.parameters['keyword'];
       logic.clearAndRefresh();
     }
+
+    searchFieldFocusNode.onKeyEvent = (_, KeyEvent event) {
+      if (event is! KeyDownEvent) {
+        return KeyEventResult.ignored;
+      }
+
+      if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus();
+        return KeyEventResult.handled;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.nextFocus();
+        return KeyEventResult.handled;
+      }
+
+      return KeyEventResult.ignored;
+    };
     super.initState();
   }
 
@@ -60,23 +80,29 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
                 child: Row(
                   children: [
                     Expanded(child: _buildSearchField().marginSymmetric(horizontal: 16)),
-                    IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch),
-                    IconButton(
-                      icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
-                      onPressed: logic.toggleBodyType,
-                    ),
-                    IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter)),
-                    IconButton(
-                      icon: const Icon(Icons.add_circle_outline, size: 24),
-                      onPressed: logic.addQuickSearch,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        FontAwesomeIcons.bars,
-                        color: Get.theme.appBarTheme.actionsIconTheme?.color,
-                        size: 20,
+                    ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
+                    ExcludeFocus(
+                      child: IconButton(
+                        icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
+                        onPressed: logic.toggleBodyType,
                       ),
-                      onPressed: () => toNamed(Routes.quickSearch),
+                    ),
+                    ExcludeFocus(child: IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
+                    ExcludeFocus(
+                      child: IconButton(
+                        icon: const Icon(Icons.add_circle_outline, size: 24),
+                        onPressed: logic.addQuickSearch,
+                      ),
+                    ),
+                    ExcludeFocus(
+                      child: IconButton(
+                        icon: Icon(
+                          FontAwesomeIcons.bars,
+                          color: Get.theme.appBarTheme.actionsIconTheme?.color,
+                          size: 20,
+                        ),
+                        onPressed: () => toNamed(Routes.quickSearch),
+                      ),
                     ),
                   ],
                 ),
@@ -94,6 +120,7 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
 
   Widget _buildSearchField() {
     return CupertinoSearchTextField(
+      focusNode: searchFieldFocusNode,
       prefixInsets: const EdgeInsets.only(left: 18),
       borderRadius: BorderRadius.circular(24),
       backgroundColor: Get.theme.backgroundColor,
@@ -147,6 +174,7 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
                 children: history
                     .map(
                       (keyword) => InkWell(
+                        canRequestFocus: false,
                         onTap: () {
                           state.searchConfig.keyword = keyword;
                           logic.clearAndRefresh();
@@ -168,9 +196,11 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(
-            onPressed: logic.clearHistory,
-            icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+          ExcludeFocus(
+            child: IconButton(
+              onPressed: logic.clearHistory,
+              icon: const Icon(Icons.delete, size: 20, color: Colors.red),
+            ),
           )
         ],
       ),

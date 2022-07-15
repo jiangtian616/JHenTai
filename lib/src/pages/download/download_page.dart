@@ -7,7 +7,6 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'archive_download_body.dart';
 import 'gallery_download_body.dart';
 
-
 class DownloadPage extends StatefulWidget {
   const DownloadPage({Key? key}) : super(key: key);
 
@@ -27,27 +26,30 @@ class _DownloadPageState extends State<DownloadPage> {
         centerTitle: true,
         title: _showArchiveBody ? Text('archive'.tr) : Text('download'.tr),
         elevation: 1,
-        leading: IconButton(
-          onPressed: _showHelpInfo,
-          icon: const Icon(Icons.help, size: 22),
-        ),
+        leading: ExcludeFocus(child: IconButton(onPressed: _showHelpInfo, icon: const Icon(Icons.help, size: 22))),
         actions: [
           if (!_showArchiveBody)
-            IconButton(
-              onPressed: downloadService.resumeAllDownloadGallery,
-              icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+            ExcludeFocus(
+              child: IconButton(
+                onPressed: downloadService.resumeAllDownloadGallery,
+                icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+              ),
             ),
           if (!_showArchiveBody)
-            IconButton(
-              onPressed: downloadService.pauseAllDownloadGallery,
-              icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+            ExcludeFocus(
+              child: IconButton(
+                onPressed: downloadService.pauseAllDownloadGallery,
+                icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+              ),
             ),
-          IconButton(
-            key: const Key('1'),
-            onPressed: () => setState(() {
-              _showArchiveBody = !_showArchiveBody;
-            }),
-            icon: _showArchiveBody ? const Icon(Icons.switch_left) : const Icon(Icons.switch_right),
+          ExcludeFocus(
+            child: IconButton(
+              key: const Key('1'),
+              onPressed: () => setState(() {
+                _showArchiveBody = !_showArchiveBody;
+              }),
+              icon: _showArchiveBody ? const Icon(Icons.switch_left) : const Icon(Icons.switch_right),
+            ),
           )
         ],
       ),

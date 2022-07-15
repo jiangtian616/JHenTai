@@ -204,7 +204,7 @@ class zh_CN {
       'desktopMode': '桌面模式',
       'mobileModeHint': '单列',
       'tabletModeHint': '双列',
-      'desktopModeHint': '双列带左侧边栏',
+      'desktopModeHint': '双列带左侧边栏，对快捷键做了专门优化',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',

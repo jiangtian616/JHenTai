@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:jhentai/src/widget/focus_widget.dart';
 
 import '../../model/download_progress.dart';
 import '../../model/gallery_image.dart';
@@ -57,63 +58,67 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   Widget build(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       initState: _listen2AddItem,
-      builder: (_) {
-        return EHWheelSpeedController(
-          scrollController: _scrollController,
-          child: AnimatedList(
-            key: _listKey,
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            initialItemCount: gallerysCount,
-            itemBuilder: (context, index, animation) => _itemBuilder(context, index),
-          ),
-        );
-      },
+      builder: (_) => EHWheelSpeedController(
+        scrollController: _scrollController,
+        child: AnimatedList(
+          key: _listKey,
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          initialItemCount: gallerysCount,
+          itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+        ),
+      ),
     );
   }
 
   Widget _itemBuilder(BuildContext context, int index) {
     GalleryDownloadedData gallery = downloadService.gallerys[index];
-    return Slidable(
-      key: Key(gallery.gid.toString()),
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.15,
-        children: [
-          SlidableAction(
-            icon: Icons.delete,
-            foregroundColor: Colors.red,
-            backgroundColor: Get.theme.scaffoldBackgroundColor,
-            onPressed: (BuildContext context) => _handleRemoveItem(context, index),
-          )
-        ],
-      ),
-      child: GestureDetector(
-        onLongPress: () => _showDeleteBottomSheet(gallery, index, context),
-        child: Container(
-          height: 130,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+    return FocusWidget(
+      decoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapEnter: () => _goToReadPage(gallery),
+      handleTapArrowRight: () => _goToReadPage(gallery),
+      child: Slidable(
+        key: Key(gallery.gid.toString()),
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: 0.15,
+          children: [
+            SlidableAction(
+              icon: Icons.delete,
+              foregroundColor: Colors.red,
+              backgroundColor: Get.theme.scaffoldBackgroundColor,
+              onPressed: (BuildContext context) => _handleRemoveItem(context, index),
+            )
+          ],
+        ),
+        child: GestureDetector(
+          onLongPress: () => _showDeleteBottomSheet(gallery, index, context),
+          child: Container(
+            height: 130,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
 
-            /// covered when in dark mode
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 2,
-                spreadRadius: 1,
-                offset: const Offset(0.3, 1),
-              )
-            ],
-            borderRadius: BorderRadius.circular(15),
-          ),
-          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Row(
-              children: [
-                _buildCover(gallery, context),
-                _buildInfo(gallery),
+              /// covered when in dark mode
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 2,
+                  spreadRadius: 1,
+                  offset: const Offset(0.3, 1),
+                )
               ],
+              borderRadius: BorderRadius.circular(15),
+            ),
+            margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Row(
+                children: [
+                  _buildCover(gallery, context),
+                  _buildInfo(gallery),
+                ],
+              ),
             ),
           ),
         ),
