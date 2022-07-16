@@ -1,7 +1,10 @@
-import '../../consts/eh_consts.dart';
+import 'package:get/get.dart';
+
 import '../../network/eh_request.dart';
+import '../../setting/user_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
+import '../../utils/toast_util.dart';
 import '../base/base_page_logic.dart';
 import 'favorite_page_state.dart';
 
@@ -16,12 +19,22 @@ class FavoritePageLogic extends BasePageLogic {
   final String refreshStateId = 'refreshStateId';
   @override
   final String loadingStateId = 'loadingStateId';
+
   @override
   int get tabIndex => 4;
+
   @override
   bool get useSearchConfig => true;
   @override
   final FavoritePageState state = FavoritePageState();
+
+  @override
+  void onReady() {
+    if (!UserSetting.hasLoggedIn()) {
+      toast('needLoginToOperate'.tr);
+    }
+    super.onReady();
+  }
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {

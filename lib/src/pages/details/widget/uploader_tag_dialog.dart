@@ -57,7 +57,6 @@ class _UploaderTagDialogState extends State<UploaderTagDialog> {
   }
 
   Future<void> _addNewTagSet(bool watch) async {
-    toast('needLoginToOperate'.tr);
     if (!UserSetting.hasLoggedIn()) {
       toast('needLoginToOperate'.tr);
       return;

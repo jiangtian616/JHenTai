@@ -91,7 +91,7 @@ class DesktopLayoutPage extends StatelessWidget {
                         onTap: () => logic.handleTapTabBarButton(index),
                         behavior: HitTestBehavior.opaque,
                         child: Container(
-                          height: 36,
+                          height: 32,
                           width: 48,
                           decoration: state.selectedTabIndex == index ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!))) : null,
                           child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
