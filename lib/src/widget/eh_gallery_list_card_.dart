@@ -55,7 +55,7 @@ class EHGalleryListCard extends StatelessWidget {
               return;
             }
 
-            if ((rightRouting.args as Gallery).galleryUrl != gallery.galleryUrl) {
+            if (rightRouting.args is Gallery && rightRouting.args.galleryUrl != gallery.galleryUrl) {
               handleTapCard(gallery);
               return;
             }

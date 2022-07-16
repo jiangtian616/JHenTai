@@ -10,6 +10,7 @@ import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../setting/user_setting.dart';
@@ -27,11 +28,18 @@ class CommentPage extends StatefulWidget {
 
 class _CommentPageState extends State<CommentPage> {
   late List<GalleryComment> comments;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     comments = Get.arguments;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,21 +55,25 @@ class _CommentPageState extends State<CommentPage> {
         onPressed: _showAddCommentDialog,
         child: const Icon(Icons.add, size: 28),
       ),
-      body: ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        children: [
-          ...comments
-              .map(
-                (comment) => EHComment(
-                  comment: comment,
-                  canTapUrl: true,
-                  showVotingButtons: comments.every((comment) => comment.userName != UserSetting.userName.value),
-                ).marginOnly(bottom: 8),
-              )
-              .toList(),
-          const SizedBox(height: 80)
-        ],
-      ).marginOnly(top: 6, left: 8, right: 8),
+      body: EHWheelSpeedController(
+        scrollController: _scrollController,
+        child: ListView(
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          controller: _scrollController,
+          children: [
+            ...comments
+                .map(
+                  (comment) => EHComment(
+                    comment: comment,
+                    canTapUrl: true,
+                    showVotingButtons: comments.every((comment) => comment.userName != UserSetting.userName.value),
+                  ).marginOnly(bottom: 8),
+                )
+                .toList(),
+            const SizedBox(height: 80)
+          ],
+        ).marginOnly(top: 6, left: 8, right: 8),
+      ),
     );
   }
 
