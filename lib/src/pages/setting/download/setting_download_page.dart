@@ -207,10 +207,12 @@ class SettingDownloadPage extends StatelessWidget {
     }
 
     /// request storage permission
-    bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
-    if (!hasStoragePermission) {
-      toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
-      return;
+    if (!GetPlatform.isMacOS) {
+      bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
+      if (!hasStoragePermission) {
+        toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
+        return;
+      }
     }
 
     /// choose new download path
