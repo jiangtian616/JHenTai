@@ -54,6 +54,18 @@ mush thanks to these projects🙇‍
 
 ## Screenshots
 
+### Mobile Layout
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+
+### Tablet Layout
+
+<img width="770" src="screenshot/0.png"/>
+
+### Desktop Layout
+
+<img width="770" src="screenshot/desktop.png"/>
+
 ### Gallery & Search
 
 <img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
@@ -63,14 +75,6 @@ mush thanks to these projects🙇‍
 
 <img width="250" src="screenshot/detail_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_en.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
-
-### Tablet Layout
-
-<img width="770" src="screenshot/0.png"/>
-
-### Desktop Layout
-
-<img width="770" src="screenshot/desktop.png"/>
 
 ### Setting & Download & Read
 

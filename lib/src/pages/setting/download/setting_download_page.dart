@@ -35,7 +35,11 @@ class SettingDownloadPage extends StatelessWidget {
             ListTile(
               title: Text('downloadPath'.tr),
               subtitle: Text(DownloadSetting.downloadPath.value),
-              onTap: () => toast('changeDownloadPathHint'.tr, isShort: false),
+              onTap: () {
+                if (!GetPlatform.isIOS) {
+                  toast('changeDownloadPathHint'.tr, isShort: false);
+                }
+              },
               onLongPress: _handleChangeDownloadPath,
             ),
             if (!GetPlatform.isIOS)

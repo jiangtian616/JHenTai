@@ -45,6 +45,18 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 
 ## 截图
 
+### 手机模式
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+
+### 平板模式
+
+<img width="770" src="screenshot/0.png"/>
+
+### 桌面模式
+
+<img width="770" src="screenshot/desktop.png"/>
+
 ### 画廊页 & 搜索页
 
 <img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
@@ -54,14 +66,6 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 
 <img width="250" src="screenshot/detail_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_zh.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_zh.jpg"/>
-
-### 平板双栏模式
-
-<img width="770" src="screenshot/0.png"/>
-
-### 桌面模式
-
-<img width="770" src="screenshot/desktop.png"/>
 
 ### 设置 & 下载 & 阅读
 
