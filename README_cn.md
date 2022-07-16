@@ -1,4 +1,4 @@
-![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows-brightgreen)
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS-brightgreen)
 ![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
@@ -22,6 +22,8 @@ E-hentai 的一个多端app，现支持安卓、苹果和Windows系统。
 苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
 Windows安装： 下载zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
+
+Mac安装： 下载dmg解压即可
 
 ## 开发动机
 
@@ -101,6 +103,7 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 1. 复制 `/lib/src/l18n/en_US.dart` 一份并重命名为`{your_languageCode}_{your_countryCode}.dart`
 
 你可以只做这一步然后提交PR，我会补充其他的步骤，或者你自己可以继续：
+
 2. 更改新文件的主类名字(可选)
 3. 修改keys方法返回的所有键值对，将value翻译为你的语言
 4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`

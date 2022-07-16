@@ -1,4 +1,4 @@
-![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows-brightgreen)
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS-brightgreen)
 ![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
@@ -9,7 +9,7 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 ## Description
 
-An E-Hentai app for Android & iOS & Windows.
+An E-Hentai app for Android & iOS & Windows & MacOS.
 
 Still in starting stage, welcome to submit issues.
 
@@ -23,6 +23,8 @@ Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or Sid
 
 Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at network setting
 page.
+
+Install for MacOS: download .dmg.
 
 ## Help With Translation
 
