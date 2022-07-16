@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 class PathSetting {
   static late Directory tempDir;
 
-  /// visible on ios&windows
+  /// visible on ios&windows&macos
   static Directory? appDocDir;
 
   /// visible on windows
@@ -28,7 +28,7 @@ class PathSetting {
     if (Platform.isAndroid && externalStorageDir != null) {
       return externalStorageDir!;
     }
-    if (GetPlatform.isDesktop) {
+    if (GetPlatform.isWindows) {
       return appSupportDir;
     }
     return appDocDir!;
