@@ -87,14 +87,14 @@ class DesktopLayoutPage extends StatelessWidget {
                           state.leftColumnFocusScopeNode.requestFocus();
                         }
                       },
-                      child: Container(
-                        decoration: state.selectedTabIndex == index
-                            ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
-                            : null,
-                        child: InkWell(
-                          canRequestFocus: false,
+                      child: GestureDetector(
+                        onTap: () => logic.handleTapTabBarButton(index),
+                        behavior: HitTestBehavior.opaque,
+                        child: Container(
+                          height: 36,
+                          width: 48,
+                          decoration: state.selectedTabIndex == index ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!))) : null,
                           child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                          onTap: () => logic.handleTapTabBarButton(index),
                         ).paddingAll(8),
                       ),
                     ),

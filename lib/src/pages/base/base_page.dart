@@ -61,26 +61,28 @@ abstract class BasePageFlutterState extends State<BasePage> {
   }
 
   Widget buildList(BuildContext context) {
-    return GetBuilder<BasePageLogic>(
-      id: logic.bodyId,
-      global: false,
-      init: logic,
-      builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-          ? buildCenterStatusIndicator()
-          : EHWheelSpeedController(
-              scrollController: state.scrollController,
-              child: CustomScrollView(
-                key: PageStorageKey(runtimeType),
-                controller: state.scrollController,
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                scrollBehavior: ScrollConfiguration.of(context),
-                slivers: <Widget>[
-                  buildPullDownIndicator(),
-                  buildGalleryCollection(),
-                  buildLoadMoreIndicator(),
-                ],
+    return SafeArea(
+      child: GetBuilder<BasePageLogic>(
+        id: logic.bodyId,
+        global: false,
+        init: logic,
+        builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+            ? buildCenterStatusIndicator()
+            : EHWheelSpeedController(
+                scrollController: state.scrollController,
+                child: CustomScrollView(
+                  key: PageStorageKey(runtimeType),
+                  controller: state.scrollController,
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  scrollBehavior: ScrollConfiguration.of(context),
+                  slivers: <Widget>[
+                    buildPullDownIndicator(),
+                    buildGalleryCollection(),
+                    buildLoadMoreIndicator(),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 
@@ -90,13 +92,11 @@ abstract class BasePageFlutterState extends State<BasePage> {
           id: logic.loadingStateId,
           global: false,
           init: logic,
-          builder: (logic) {
-            return LoadingStateIndicator(
-              loadingState: state.loadingState,
-              errorTapCallback: () => logic.loadMore(),
-              noDataTapCallback: () => logic.loadMore(),
-            );
-          }),
+          builder: (_) => LoadingStateIndicator(
+                loadingState: state.loadingState,
+                errorTapCallback: () => logic.loadMore(),
+                noDataTapCallback: () => logic.loadMore(),
+              )),
     );
   }
 
