@@ -25,7 +25,6 @@ class SettingMouseWheelPage extends StatelessWidget {
           children: [
             ListTile(
               title: Text('wheelScrollSpeed'.tr),
-              subtitle: Text('ineffectiveInGalleryPage'.tr),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
