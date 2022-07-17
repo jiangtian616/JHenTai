@@ -106,11 +106,15 @@ class Log {
         throwable,
         stackTrace: stackTrace,
         withScope: (scope) {
-          extraInfos?.forEach((key, value) {
-            if (UserSetting.hasLoggedIn()) {
-              scope.setUser((scope.user ?? SentryUser()).copyWith(id: UserSetting.userName.value, username: UserSetting.userName.value));
+          if (UserSetting.hasLoggedIn()) {
+            if (scope.user != null) {
+              scope.setUser(scope.user!.copyWith(id: UserSetting.userName.value, username: UserSetting.userName.value));
+            } else {
+              scope.setUser(SentryUser(id: UserSetting.userName.value, username: UserSetting.userName.value));
             }
+          }
 
+          extraInfos?.forEach((key, value) {
             String cleanedValue = _cleanPrivacy(value.toString());
             if (cleanedValue.length < 1000) {
               scope.setExtra(key, cleanedValue);
