@@ -157,9 +157,17 @@ class Log {
   }
 
   static void clear() {
+    _verboseFileLogger?.close();
+    _warningFileLogger?.close();
+    _downloadFileLogger?.close();
+
+    _verboseFileLogger = null;
+    _warningFileLogger = null;
+    _downloadFileLogger = null;
+
     io.Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
     if (logDirectory.existsSync()) {
-      logDirectory.delete(recursive: true);
+      logDirectory.deleteSync(recursive: true);
     }
   }
 
