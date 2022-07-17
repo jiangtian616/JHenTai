@@ -1,10 +1,9 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/sentry_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
@@ -86,12 +85,8 @@ class MyApp extends StatelessWidget {
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? dsn;
-  try {
-    dsn = await rootBundle.loadString('assets/sentry_dsn');
-  } catch (_) {}
-  if (dsn != null && !kDebugMode) {
-    await SentryFlutter.init((options) => options.dsn = dsn);
+  if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
+    await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
   }
 
   await PathSetting.init();
