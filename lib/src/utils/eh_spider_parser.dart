@@ -278,7 +278,7 @@ class EHSpiderParser {
     String style = img.attributes['style']!;
     String url = img.attributes['src']!;
 
-    if (url.contains('https://ehgt.org/g/509.gif')) {
+    if (url.contains('509.gif')) {
       throw DioError(
         requestOptions: response.requestOptions,
         error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
