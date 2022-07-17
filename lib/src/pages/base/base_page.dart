@@ -71,7 +71,7 @@ abstract class BasePageFlutterState extends State<BasePage> {
             : EHWheelSpeedController(
                 scrollController: state.scrollController,
                 child: CustomScrollView(
-                  key: PageStorageKey(runtimeType),
+                  key: state.pageStorageKey,
                   controller: state.scrollController,
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   scrollBehavior: ScrollConfiguration.of(context),

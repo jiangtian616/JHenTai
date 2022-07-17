@@ -3,23 +3,18 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/search/nested/search_page_state.dart';
 import 'package:jhentai/src/pages/search/simple/simple_search_page_state.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:jhentai/src/widget/jump_page_dialog.dart';
 
-import '../../../model/gallery.dart';
 import '../../../model/search_config.dart';
-import '../../../routes/routes.dart';
 import '../../../service/tag_translation_service.dart';
 import '../../../utils/log.dart';
-import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
@@ -65,7 +60,12 @@ class SimpleSearchPageLogic extends BasePageLogic {
       toggleBodyType();
     }
     state.redirectUrl = null;
+
     _writeHistory();
+
+    /// Reset scroll offset
+    state.pageStorageKey = PageStorageKey('$runtimeType::${Random().nextInt(9999999)}');
+
     return super.clearAndRefresh();
   }
 

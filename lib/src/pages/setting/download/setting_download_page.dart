@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
@@ -9,16 +10,24 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../utils/log.dart';
 
-class SettingDownloadPage extends StatelessWidget {
+class SettingDownloadPage extends StatefulWidget {
+  const SettingDownloadPage({Key? key}) : super(key: key);
+
+  @override
+  State<SettingDownloadPage> createState() => _SettingDownloadPageState();
+}
+
+class _SettingDownloadPageState extends State<SettingDownloadPage> {
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
 
-  SettingDownloadPage({Key? key}) : super(key: key);
+  LoadingState changeDownloadPathState = LoadingState.idle;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +44,7 @@ class SettingDownloadPage extends StatelessWidget {
             ListTile(
               title: Text('downloadPath'.tr),
               subtitle: Text(DownloadSetting.downloadPath.value),
+              trailing: changeDownloadPathState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
               onTap: () {
                 if (!GetPlatform.isIOS) {
                   toast('changeDownloadPathHint'.tr, isShort: false);
@@ -202,6 +212,10 @@ class SettingDownloadPage extends StatelessWidget {
   }
 
   Future<void> _handleChangeDownloadPath({String? newDownloadPath}) async {
+    if (changeDownloadPathState == LoadingState.loading) {
+      return;
+    }
+
     if (GetPlatform.isIOS) {
       return;
     }
@@ -227,6 +241,7 @@ class SettingDownloadPage extends StatelessWidget {
       return;
     }
 
+    /// Check permission
     try {
       _checkPermissionForNewPath(newDownloadPath);
     } on FileSystemException catch (e) {
@@ -235,55 +250,48 @@ class SettingDownloadPage extends StatelessWidget {
       return;
     }
 
-    Future future = Future.wait([
-      galleryDownloadService.pauseAllDownloadGallery(),
-      archiveDownloadService.pauseAllDownloadArchive(),
-    ]);
+    setState(() => changeDownloadPathState = LoadingState.loading);
 
-    io.Directory oldDir = io.Directory(oldDownloadPath);
-    List<io.FileSystemEntity> gallerys = oldDir.listSync();
+    try {
+      await Future.wait([
+        galleryDownloadService.pauseAllDownloadGallery(),
+        archiveDownloadService.pauseAllDownloadArchive(),
+      ]);
 
-    /// copy
-    future = future.then((_) async {
+      io.Directory oldDir = io.Directory(oldDownloadPath);
+      List<io.FileSystemEntity> gallerys = oldDir.listSync();
+
+      /// copy
       List<Future> futures = [];
       for (io.FileSystemEntity oldGallery in gallerys) {
-        io.FileSystemEntity newGallery = io.Directory(join(newDownloadPath!, basename(oldGallery.path)));
-
         /// other directory
-        if (newGallery is! io.Directory || !basename(oldGallery.path).startsWith(RegExp(r'\d'))) {
+        if (oldGallery is! io.Directory || !basename(oldGallery.path).startsWith(RegExp(r'\d'))) {
           continue;
         }
 
-        futures.add(newGallery.create(recursive: true).then((_) async {
-          List<io.FileSystemEntity> files = (oldGallery as io.Directory).listSync();
-          for (io.FileSystemEntity file in files) {
-            file = file as io.File;
-            await file.copy(join(newGallery.path, basename(file.path)));
-          }
-        }));
+        io.Directory newGallery = io.Directory(join(newDownloadPath, basename(oldGallery.path)));
+
+        futures.add(newGallery.create(recursive: true).then((_) => oldGallery.list().forEach(
+              (file) => (file as io.File).copy(join(newGallery.path, basename(file.path))),
+            )));
       }
-
       await Future.wait(futures);
-    });
 
-    DownloadSetting.saveDownloadPath(newDownloadPath);
+      DownloadSetting.saveDownloadPath(newDownloadPath);
 
-    /// To be compatible with the previous version, update the database.
-    future = future.then((_) async {
+      /// To be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
-    });
 
-    /// Empty old directory
-    future = future.then((_) async {
-      await oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
-    });
+      /// Empty old directory
+      oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
 
-    future = future.then((_) async {
       await Future.wait([
         galleryDownloadService.resumeAllDownloadGallery(),
         archiveDownloadService.resumeAllDownloadArchive(),
       ]);
-    });
+    } finally {
+      setState(() => changeDownloadPathState = LoadingState.idle);
+    }
   }
 
   Future<void> _handleResetDownloadPath() async {
