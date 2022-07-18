@@ -241,6 +241,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
+    if (absolute(newDownloadPath).startsWith(oldDownloadPath)) {
+      toast('invalidPath'.tr);
+      return;
+    }
+
     /// Check permission
     try {
       _checkPermissionForNewPath(newDownloadPath);

@@ -128,6 +128,7 @@ You can only do this and submit your PR, I'll do the remaining things. Or you ca
    number can't
    be synchronized correctly; third-party libraries are involved.
 2. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
+3. On Windows, change default download path to some other paths may cause some downloaded galleries not to be loaded correctly.
 
 ## Main Dart Dependencies
 
