@@ -304,9 +304,7 @@ class GalleryDownloadService extends GetxController {
 
       Map metadata = jsonDecode(metadataFile.readAsStringSync());
       GalleryDownloadedData gallery = GalleryDownloadedData.fromJson(metadata['gallery']);
-      List<GalleryImage?> images = (jsonDecode(metadata['images']) as List)
-          .map((_map) => _map == null ? null : GalleryImage.fromJson(_map))
-          .toList();
+      List<GalleryImage?> images = (jsonDecode(metadata['images']) as List).map((_map) => _map == null ? null : GalleryImage.fromJson(_map)).toList();
 
       /// skip if exists
       if (gid2Images.containsKey(gallery.gid)) {
@@ -351,8 +349,7 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
-    AsyncTask<List<GalleryThumbnail>> task =
-        _parseGalleryImageHrefTask(gallery, serialNo ~/ gid2ThumbnailsCountPerPage[gallery.gid]!);
+    AsyncTask<List<GalleryThumbnail>> task = _parseGalleryImageHrefTask(gallery, serialNo ~/ gid2ThumbnailsCountPerPage[gallery.gid]!);
     gid2Tasks[gallery.gid]!.add(task);
 
     List<GalleryThumbnail> newThumbnails;
@@ -451,8 +448,7 @@ class GalleryDownloadService extends GetxController {
     Log.download('parse image url: $serialNo success');
   }
 
-  AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo,
-      [bool useCache = true]) {
+  AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo, [bool useCache = true]) {
     return () {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
@@ -490,10 +486,7 @@ class GalleryDownloadService extends GetxController {
         () => executor.scheduleTask(serialNo, task),
         maxAttempts: retryTimes,
         retryIf: (e) =>
-            e is DioError &&
-            e.type != DioErrorType.cancel &&
-            e.error is! EHException &&
-            (e.response == null || e.response!.statusCode != 403),
+            e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
         onRetry: (e) {
           Log.download(
             'DownloadImage: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${gid2Images[gallery.gid]![serialNo]!.url}',
@@ -538,8 +531,7 @@ class GalleryDownloadService extends GetxController {
         url: url,
         path: _computeImageDownloadAbsolutePath(gallery, serialNo),
         cancelToken: gid2CancelToken[gallery.gid],
-        onReceiveProgress: (int count, int total) =>
-            gid2SpeedComputer[gallery.gid]!.updateProgress(count, total, serialNo),
+        onReceiveProgress: (int count, int total) => gid2SpeedComputer[gallery.gid]!.updateProgress(count, total, serialNo),
       );
     };
   }
@@ -556,6 +548,7 @@ class GalleryDownloadService extends GetxController {
 
   String _computeGalleryDownloadPath(GalleryDownloadedData gallery) {
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    title = title.trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength);
     }
@@ -569,6 +562,7 @@ class GalleryDownloadService extends GetxController {
     image ??= gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    title = title.trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength);
     }
@@ -598,8 +592,7 @@ class GalleryDownloadService extends GetxController {
     );
   }
 
-  Future<void> _tryCopyImageInfo(
-      GalleryDownloadedData newGallery, String oldVersionGalleryUrl, int newImageSerialNo) async {
+  Future<void> _tryCopyImageInfo(GalleryDownloadedData newGallery, String oldVersionGalleryUrl, int newImageSerialNo) async {
     GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
     if (oldGallery == null) {
       return;
@@ -733,8 +726,7 @@ class GalleryDownloadService extends GetxController {
     return appDb.updateGallery(downloadStatus.index, gid);
   }
 
-  Future<void> _updateImageDownloadStatus(
-      GalleryImage image, int gid, int serialNo, DownloadStatus downloadStatus) async {
+  Future<void> _updateImageDownloadStatus(GalleryImage image, int gid, int serialNo, DownloadStatus downloadStatus) async {
     await _updateImageDownloadStatusInDatabase(gid, image.url, downloadStatus);
 
     image.downloadStatus = downloadStatus;
@@ -757,8 +749,7 @@ class GalleryDownloadService extends GetxController {
 
     if (downloadProgress.curCount == downloadProgress.totalCount) {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
-      await _updateGalleryDownloadStatus(
-          gallerys.firstWhere((e) => e.gid == gid).copyWith(downloadStatusIndex: DownloadStatus.downloaded.index));
+      await _updateGalleryDownloadStatus(gallerys.firstWhere((e) => e.gid == gid).copyWith(downloadStatusIndex: DownloadStatus.downloaded.index));
       gid2SpeedComputer[gid]!.dispose();
     }
 
@@ -800,8 +791,7 @@ class GalleryDownloadService extends GetxController {
     gid2ThumbnailsCountPerPage[gallery.gid] = SiteSetting.thumbnailsCountPerPage.value;
     gid2Tasks[gallery.gid] = [];
     gid2CancelToken[gallery.gid] = CancelToken();
-    List<bool> hasDownloaded =
-        images.map((image) => image?.downloadStatus == DownloadStatus.downloaded ? true : false).toList();
+    List<bool> hasDownloaded = images.map((image) => image?.downloadStatus == DownloadStatus.downloaded ? true : false).toList();
     gid2DownloadProgress[gallery.gid] = GalleryDownloadProgress(
       downloadStatus: gallery.downloadStatusIndex == DownloadStatus.downloading.index
           ? DownloadStatus.paused
@@ -819,8 +809,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
-    return gid2DownloadProgress[gallery.gid] == null ||
-        gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
+    return gid2DownloadProgress[gallery.gid] == null || gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
   }
 
   static void ensureDownloadDirExists() {
