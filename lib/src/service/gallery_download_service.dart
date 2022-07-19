@@ -547,10 +547,9 @@ class GalleryDownloadService extends GetxController {
   }
 
   String _computeGalleryDownloadPath(GalleryDownloadedData gallery) {
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
-    title = title.trim();
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
     if (title.length > _maxTitleLength) {
-      title = title.substring(0, _maxTitleLength);
+      title = title.substring(0, _maxTitleLength).trim();
     }
     return path.join(
       DownloadSetting.downloadPath.value,
@@ -561,10 +560,9 @@ class GalleryDownloadService extends GetxController {
   String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo, {GalleryImage? image}) {
     image ??= gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
-    title = title.trim();
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
     if (title.length > _maxTitleLength) {
-      title = title.substring(0, _maxTitleLength);
+      title = title.substring(0, _maxTitleLength).trim();
     }
 
     return path.relative(
@@ -580,9 +578,9 @@ class GalleryDownloadService extends GetxController {
   String _computeImageDownloadAbsolutePath(GalleryDownloadedData gallery, int serialNo) {
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
     String ext = image.url.split('.').last;
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ');
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
     if (title.length > _maxTitleLength) {
-      title = title.substring(0, _maxTitleLength);
+      title = title.substring(0, _maxTitleLength).trim();
     }
 
     return path.join(
