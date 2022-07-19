@@ -339,7 +339,7 @@ class zh_CN {
 
       /// download setting page
       'downloadPath': '下载路径',
-      'changeDownloadPathHint': '注意！改变下载路径会自动复制已下载的画廊到新路径，并清空原文件夹。长按来改变，如果改变后出现画廊图片加载失败的情况，请尝试重置路径',
+      'changeDownloadPathHint': '长按来改变下载路径。会自动复制已下载的画廊到新路径，并清空原文件夹。如果改变后出现画廊图片加载失败的情况，请尝试重置路径',
       'resetDownloadPath': '重置下载路径',
       'longPress2Reset': '长按以重置',
       'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',

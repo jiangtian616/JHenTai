@@ -221,13 +221,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     }
 
     /// request storage permission
-    if (!GetPlatform.isMacOS) {
-      bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
-      if (!hasStoragePermission) {
-        toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
-        return;
-      }
-    }
+    // if (!GetPlatform.isMacOS) {
+    //   bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
+    //   if (!hasStoragePermission) {
+    //     toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
+    //     Log.warning('No permission to change downloadPath.',false);
+    //     return;
+    //   }
+    // }
 
     /// choose new download path
     String oldDownloadPath = DownloadSetting.downloadPath.value;
