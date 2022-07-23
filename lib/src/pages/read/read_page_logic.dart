@@ -522,9 +522,14 @@ class ReadPageLogic extends GetxController {
   /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of
   /// them are not in viewport
   List<ItemPosition> _filterAndSortItems(Iterable<ItemPosition> positions) {
-    positions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
-    (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
-    return positions;
+    List<ItemPosition> actualPositions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
+    actualPositions.sort((a, b) => a.index - b.index);
+
+    if (actualPositions.isEmpty) {
+      Log.upload(StateError('NoItemPosition!'), stackTrace: StackTrace.current, extraInfos: {'positions': positions});
+    }
+
+    return actualPositions;
   }
 
   double _getVisibleHeight() {

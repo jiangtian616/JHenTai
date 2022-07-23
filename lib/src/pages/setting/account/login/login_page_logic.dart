@@ -103,8 +103,18 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    int ipbMemberId = int.parse(match.group(1)!);
-    String ipbPassHash = match.group(2)!;
+    int ipbMemberId;
+    String ipbPassHash;
+    try {
+      ipbMemberId = int.parse(match.group(1)!);
+      ipbPassHash = match.group(2)!;
+    } on Exception catch (e) {
+      Log.error('loginFail'.tr, e);
+      Log.upload(e);
+      snack('loginFail'.tr, 'cookieFormatError'.tr);
+      return;
+    }
+
     await cookieManager.storeEhCookiesForAllUri([
       Cookie('ipb_member_id', ipbMemberId.toString()),
       Cookie('ipb_pass_hash', ipbPassHash),

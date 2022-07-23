@@ -807,7 +807,9 @@ class GalleryDownloadService extends GetxController {
   }
 
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
-    return gid2DownloadProgress[gallery.gid] == null || gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused;
+    return gid2DownloadProgress[gallery.gid] == null ||
+        gid2DownloadProgress[gallery.gid]!.downloadStatus == DownloadStatus.paused ||
+        gid2ImageHrefs[gallery.gid] == null;
   }
 
   static void ensureDownloadDirExists() {
