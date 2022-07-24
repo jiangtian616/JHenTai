@@ -128,10 +128,15 @@ class ReadPageLogic extends GetxController {
 
     autoModeTimer = Timer.periodic(
       Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
-      (timer) {
+      (_) {
         /// stop when at bottom
         if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
-          ItemPosition lastPosition = getCurrentVisibleItemsForTopBottomDirection().last;
+          ItemPosition? lastPosition = getCurrentVisibleItemsForTopBottomDirection().lastOrNull;
+
+          if (lastPosition == null) {
+            _closeAutoMode();
+            return;
+          }
 
           /// sometimes itemTrailingEdge is not equal to 1.0
           if (lastPosition.index == state.pageCount - 1 && lastPosition.itemTrailingEdge <= 1.2) {
@@ -452,7 +457,12 @@ class ReadPageLogic extends GetxController {
   }
 
   void _readProgressListenerForTopBottomDirection() {
-    int firstImageIndex = getCurrentVisibleItemsForTopBottomDirection().first.index;
+    int? firstImageIndex = getCurrentVisibleItemsForTopBottomDirection().firstOrNull?.index;
+
+    if (firstImageIndex == null) {
+      return;
+    }
+
     recordReadProgress(firstImageIndex);
 
     if (ReadSetting.showThumbnails.isFalse) {
@@ -522,14 +532,9 @@ class ReadPageLogic extends GetxController {
   /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of
   /// them are not in viewport
   List<ItemPosition> _filterAndSortItems(Iterable<ItemPosition> positions) {
-    List<ItemPosition> actualPositions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
-    actualPositions.sort((a, b) => a.index - b.index);
-
-    if (actualPositions.isEmpty) {
-      Log.upload(StateError('NoItemPosition!'), stackTrace: StackTrace.current, extraInfos: {'positions': positions});
-    }
-
-    return actualPositions;
+    positions = positions.where((item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1)).toList();
+    (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
+    return positions;
   }
 
   double _getVisibleHeight() {
