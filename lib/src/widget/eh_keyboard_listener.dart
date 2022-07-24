@@ -14,6 +14,7 @@ class EHKeyboardListener extends StatelessWidget {
   final VoidCallback? handleEsc;
   final VoidCallback? handleSpace;
   final VoidCallback? handleLCtrl;
+  final VoidCallback? handleEnd;
 
   const EHKeyboardListener({
     Key? key,
@@ -28,6 +29,7 @@ class EHKeyboardListener extends StatelessWidget {
     this.handleEsc,
     this.handleSpace,
     this.handleLCtrl,
+    this.handleEnd,
   }) : super(key: key);
 
   @override
@@ -66,6 +68,9 @@ class EHKeyboardListener extends StatelessWidget {
           return KeyEventResult.handled;
         } else if (event.logicalKey == LogicalKeyboardKey.controlLeft && handleLCtrl != null) {
           handleLCtrl?.call();
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.end && handleEnd != null) {
+          handleEnd?.call();
           return KeyEventResult.handled;
         }
 

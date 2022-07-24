@@ -51,6 +51,7 @@ class ReadViewHelper extends StatelessWidget {
         handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
         handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
         handleLCtrl: logic.toNext,
+        handleEnd: back,
         child: Stack(
           children: [
             child,
@@ -197,11 +198,11 @@ class ReadViewHelper extends StatelessWidget {
                 if (GetPlatform.isDesktop)
                   IconButton(
                     onPressed: () => toast(
-                      'PageDown、→、↓  :  ${'toNext'.tr}'
+                      'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
                       '\n'
                       'PageUp、 ←、↑  :  ${'toPrev'.tr}'
                       '\n'
-                      'Esc  :  ${'back'.tr}'
+                      'Esc、End  :  ${'back'.tr}'
                       '\n'
                       'Space  :  ${'toggleMenu'.tr}',
                       isShort: false,
