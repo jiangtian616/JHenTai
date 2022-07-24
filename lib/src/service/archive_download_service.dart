@@ -283,7 +283,7 @@ class ArchiveDownloadService extends GetxController {
     return downloadPageUrl;
   }
 
-  Future<String> _getDownloadUrl(ArchiveDownloadedData archive, String downloadPageUrl, [bool useCacheIfAvailable = true]) async {
+  Future<String> _getDownloadUrl(ArchiveDownloadedData archive, String downloadPageUrl) async {
     if (_taskHasBeenPausedOrRemoved(archive)) {
       return '';
     }
@@ -300,7 +300,7 @@ class ArchiveDownloadService extends GetxController {
           url: downloadPageUrl,
           cancelToken: cancelTokens.get(archive.gid, archive.isOriginal),
           parser: EHSpiderParser.downloadArchivePage2DownloadUrl,
-          useCacheIfAvailable: useCacheIfAvailable,
+          useCacheIfAvailable: false,
         ),
         retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
         onRetry: (e) => Log.download('parse download url failed, retry. Reason: ${(e as DioError).message}'),
@@ -366,7 +366,7 @@ class ArchiveDownloadService extends GetxController {
     archive = archive.copyWith(downloadUrl: null);
     _updateArchive(archive);
 
-    String downloadUrl = await _getDownloadUrl(archive, archive.downloadPageUrl!, false);
+    String downloadUrl = await _getDownloadUrl(archive, archive.downloadPageUrl!);
     await _doDownloadArchive(archive, downloadUrl);
   }
 
