@@ -222,6 +222,10 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
   try {
     return func.call();
   } on Exception catch (e) {
+    if (e is DioError) {
+      rethrow;
+    }
+
     Log.error('operationFailed'.tr, e);
     Log.upload(e, extraInfos: {'params': params});
     if (defaultValue == null) {

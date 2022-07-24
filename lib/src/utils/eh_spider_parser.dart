@@ -39,13 +39,10 @@ class EHSpiderParser {
     bool success = cookieHeaders != null && cookieHeaders.length > 2;
     if (success) {
       map['ipbMemberId'] = int.parse(
-        RegExp(r'ipb_member_id=(\d+);')
-            .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!
-            .group(1)!,
+        RegExp(r'ipb_member_id=(\d+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!.group(1)!,
       );
-      map['ipbPassHash'] = RegExp(r'ipb_pass_hash=(\w+);')
-          .firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!
-          .group(1)!;
+      map['ipbPassHash'] =
+          RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
     } else {
       map['errorMsg'] = _parseLoginErrorMsg(response.data!);
     }
@@ -94,15 +91,12 @@ class EHSpiderParser {
         height: double.parse(coverMatch.group(2)!),
         width: double.parse(coverMatch.group(1)!),
       ),
-      pageCount: int.parse(
-          (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
+      pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       rating: _parseGalleryRating(document.querySelector('#grt2')!),
       hasRated: document.querySelector('#rating_image.ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
-      favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null
-          ? null
-          : document.querySelector('#favoritelink')?.text,
+      favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text,
       galleryUrl: galleryUrl,
       tags: tags,
       language: tags['language']?[0].tagData.key,
@@ -123,17 +117,11 @@ class EHSpiderParser {
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
-      pageCount: int.parse(
-          (document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
+      pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       favoriteCount: _parseGalleryDetailsFavoriteCount(document),
-      torrentCount: RegExp(r'\d+')
-              .firstMatch(document.querySelector('#gd5')?.children[2].querySelector('a')?.text ?? '')
-              ?.group(0) ??
-          '0',
-      torrentPageUrl:
-          document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
-      archivePageUrl:
-          document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      torrentCount: RegExp(r'\d+').firstMatch(document.querySelector('#gd5')?.children[2].querySelector('a')?.text ?? '')?.group(0) ?? '0',
+      torrentPageUrl: document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
+      archivePageUrl: document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       newVersionGalleryUrl: document.querySelectorAll('#gnd > a').lastOrNull?.attributes['href'],
       fullTags: detailPage2Tags(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
@@ -285,14 +273,11 @@ class EHSpiderParser {
       );
     }
 
-    return callWithParamsUploadIfErrorOccurs(
-      () => GalleryImage(
-        url: url,
-        height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
-        width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
-        imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
-      ),
-      params: response,
+    return GalleryImage(
+      url: url,
+      height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
+      width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
+      imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
     );
   }
 
@@ -324,8 +309,7 @@ class EHSpiderParser {
           downloads: int.parse(trs[0].querySelector('td:nth-child(11)')!.text.substring(11)),
           uploader: trs[1].querySelector('td:nth-child(1)')!.text.substring(10),
           torrentUrl: trs[2].querySelector('td > a')!.attributes['href']!,
-          magnetUrl:
-              'magnet:?xt=urn:btih:${trs[2].querySelector('td > a')!.attributes['href']!.split('.')[1].split('/').last}',
+          magnetUrl: 'magnet:?xt=urn:btih:${trs[2].querySelector('td > a')!.attributes['href']!.split('.')[1].split('/').last}',
         );
       },
     ).toList();
@@ -360,11 +344,8 @@ class EHSpiderParser {
 
     Element thumbnailSetting = items[18];
     map['isLargeThumbnail'] =
-        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large'
-            ? true
-            : false;
-    map['thumbnailRows'] =
-        int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large' ? true : false;
+    map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
     return map;
   }
 
@@ -410,9 +391,7 @@ class EHSpiderParser {
       },
     ).toList();
 
-    String apikey = RegExp(r'apikey = \"(.*)\"')
-        .firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!
-        .group(1)!;
+    String apikey = RegExp(r'apikey = \"(.*)\"').firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!.group(1)!;
 
     return {
       'tagSetNames': tagSetNames,
@@ -431,24 +410,15 @@ class EHSpiderParser {
     Element dailyStatTbody = document.querySelector('.stuffbox > table > tbody')!;
 
     return GalleryStats(
-      totalVisits: int.parse(
-          document.querySelector('.stuffbox > div > div > p:nth-child(3) > strong')!.text.replaceAll(',', '')),
-      allTimeRanking: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      allTimeScore: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      yearRanking: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      yearScore: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      monthRanking: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      monthScore: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      dayRanking: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      dayScore: int.tryParse(
-          rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      totalVisits: int.parse(document.querySelector('.stuffbox > div > div > p:nth-child(3) > strong')!.text.replaceAll(',', '')),
+      allTimeRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      allTimeScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      yearRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      yearScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      monthRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      monthScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      dayRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      dayScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
       yearlyStats: _parseStats(yearlyStatTbody),
       monthlyStats: _parseStats(monthlyStatTbody),
       dailyStats: _parseStats(dailyStatTbody),
@@ -555,8 +525,7 @@ class EHSpiderParser {
   static int? galleryPage2NextPageIndex(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 1];
-    return int.tryParse(
-        RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '');
+    return int.tryParse(RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '');
   }
 
   static int? galleryPage2PrevPageIndex(Document document) {
@@ -573,27 +542,17 @@ class EHSpiderParser {
     Document document = parse(html);
     return GalleryArchive(
       gpCount: int.tryParse(
-        RegExp(r'([\d,]+) GP')
-                .firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')
-                ?.group(1)
-                ?.replaceAll(',', '') ??
-            '',
+        RegExp(r'([\d,]+) GP').firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')?.group(1)?.replaceAll(',', '') ?? '',
       ),
       creditCount: int.tryParse(
-        RegExp(r'([\d,]+) Credits')
-                .firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')
-                ?.group(1)
-                ?.replaceAll(',', '') ??
-            '',
+        RegExp(r'([\d,]+) Credits').firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')?.group(1)?.replaceAll(',', '') ?? '',
       ),
       originalCost: document.querySelector('#db > div > div > div > strong')!.text.replaceAll(',', ''),
       originalSize: document.querySelector('#db > div > div > p > strong')!.text,
       downloadOriginalHint: document.querySelector('#db > div > div > form > div > input')!.attributes['value']!,
-      resampleCost:
-          document.querySelector('#db > div > div:nth-child(3) > div > strong')?.text.replaceAll(',', '') ?? '',
+      resampleCost: document.querySelector('#db > div > div:nth-child(3) > div > strong')?.text.replaceAll(',', '') ?? '',
       resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')?.text,
-      downloadResampleHint:
-          document.querySelector('#db > div > div:nth-child(3) > form > div > input')!.attributes['value']!,
+      downloadResampleHint: document.querySelector('#db > div > div:nth-child(3) > form > div > input')!.attributes['value']!,
     );
   }
 
@@ -626,8 +585,7 @@ class EHSpiderParser {
       cover: cover!,
       pageCount: _parseCompactGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
-      hasRated:
-          tr.querySelector('.gl2c > div:nth-child(2) > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
+      hasRated: tr.querySelector('.gl2c > div:nth-child(2) > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
       isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseCompactGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
@@ -725,8 +683,7 @@ class EHSpiderParser {
 
   static LinkedHashMap<String, List<GalleryTag>> _parseExtendedGalleryTags(Element tr) {
     LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
-    List<Element> tagDivs =
-        tr.querySelectorAll('.gl2e > div > a > div > div:nth-child(1) > table > tbody > tr > td > div').toList();
+    List<Element> tagDivs = tr.querySelectorAll('.gl2e > div > a > div > div:nth-child(1) > table > tbody > tr > td > div').toList();
     for (Element tagDiv in tagDivs) {
       /// eg: language:english
       String pair = tagDiv.attributes['title'] ?? '';
