@@ -5,15 +5,15 @@ import 'package:flutter/services.dart';
 class EHKeyboardListener extends StatelessWidget {
   final Widget child;
   final FocusNode? focusNode;
-  final Function? handlePageUp;
-  final Function? handlePageDown;
-  final Function? handleArrowUp;
-  final Function? handleArrowDown;
-  final Function? handleArrowLeft;
-  final Function? handleArrowRight;
-  final Function? handleEsc;
-  final Function? handleSpace;
-  final Function? handleLCtrl;
+  final VoidCallback? handlePageUp;
+  final VoidCallback? handlePageDown;
+  final VoidCallback? handleArrowUp;
+  final VoidCallback? handleArrowDown;
+  final VoidCallback? handleArrowLeft;
+  final VoidCallback? handleArrowRight;
+  final VoidCallback? handleEsc;
+  final VoidCallback? handleSpace;
+  final VoidCallback? handleLCtrl;
 
   const EHKeyboardListener({
     Key? key,
@@ -40,53 +40,36 @@ class EHKeyboardListener extends StatelessWidget {
           return KeyEventResult.ignored;
         }
 
-        if (event.logicalKey == LogicalKeyboardKey.pageUp) {
-          if (handlePageUp == null) {
-            return KeyEventResult.ignored;
-          }
+        if (event.logicalKey == LogicalKeyboardKey.pageUp && handlePageUp != null) {
           handlePageUp?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.pageDown) {
-          if (handlePageDown == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.pageDown && handlePageDown != null) {
           handlePageDown?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          if (handleArrowUp == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowUp && handleArrowUp != null) {
           handleArrowUp?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          if (handleArrowDown == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowDown && handleArrowDown != null) {
           handleArrowDown?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          if (handleArrowLeft == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft && handleArrowLeft != null) {
           handleArrowLeft?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          if (handleArrowRight == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight && handleArrowRight != null) {
           handleArrowRight?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-          if (handleEsc == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.escape && handleEsc != null) {
           handleEsc?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.space) {
-          if (handleSpace == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.space && handleSpace != null) {
           handleSpace?.call();
-        } else if (event.logicalKey == LogicalKeyboardKey.controlLeft) {
-          if (handleLCtrl == null) {
-            return KeyEventResult.ignored;
-          }
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.controlLeft && handleLCtrl != null) {
           handleLCtrl?.call();
+          return KeyEventResult.handled;
         }
-        return KeyEventResult.handled;
+
+        return KeyEventResult.ignored;
       },
       child: child,
     );

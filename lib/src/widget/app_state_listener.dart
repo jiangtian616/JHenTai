@@ -89,12 +89,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _handlePopApp(),
-
-      /// Use LayoutBuilder to listen to resize of window.
-      child: (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) ? widget.child : Blur(blur: 100, child: widget.child),
-    );
+    return (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) ? widget.child : Blur(blur: 100, child: widget.child);
   }
 
   /// double tap back button to exit app
