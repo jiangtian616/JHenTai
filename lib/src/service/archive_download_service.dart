@@ -376,6 +376,7 @@ class ArchiveDownloadService extends GetxController {
     InputFileStream inputStream = InputFileStream(_computeArchiveDownloadPath(archive));
     Archive unpackedDir = ZipDecoder().decodeBuffer(inputStream);
     extractArchiveToDisk(unpackedDir, _computeArchiveUnpackingPath(archive));
+    inputStream.close();
     _clearDownloadedArchiveInDisk(archive);
 
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.completed.index);
