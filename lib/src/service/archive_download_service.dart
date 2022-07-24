@@ -48,8 +48,7 @@ class ArchiveDownloadService extends GetxController {
 
     for (ArchiveDownloadedData archive in archives) {
       _initArchiveDownloadInfoInMemory(archive, insertAtFirst: false);
-      if (archive.archiveStatusIndex != ArchiveStatus.paused.index &&
-          archive.archiveStatusIndex != ArchiveStatus.completed.index) {
+      if (archive.archiveStatusIndex != ArchiveStatus.paused.index && archive.archiveStatusIndex != ArchiveStatus.completed.index) {
         downloadArchive(archive, isFirstDownload: false);
       }
     }
@@ -78,8 +77,7 @@ class ArchiveDownloadService extends GetxController {
       _initArchiveDownloadInfoInMemory(archive);
     }
 
-    String downloadPageUrl =
-        archive.downloadPageUrl ?? await _requestUnlock(archive) ?? await _getDownloadPageUrl(archive);
+    String downloadPageUrl = archive.downloadPageUrl ?? await _requestUnlock(archive) ?? await _getDownloadPageUrl(archive);
 
     String downloadUrl = archive.downloadUrl ?? await _getDownloadUrl(archive, downloadPageUrl);
 
@@ -113,8 +111,7 @@ class ArchiveDownloadService extends GetxController {
   }
 
   Future<void> pauseDownloadArchive(int gid, bool isOriginal) async {
-    ArchiveDownloadedData archive =
-        archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
+    ArchiveDownloadedData archive = archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
     if (archive.archiveStatusIndex >= ArchiveStatus.downloaded.index) {
       return;
     }
@@ -134,8 +131,7 @@ class ArchiveDownloadService extends GetxController {
     cancelTokens.put(gid, isOriginal, CancelToken());
     speedComputers.get(gid, isOriginal)!.start();
 
-    ArchiveDownloadedData archive =
-        archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
+    ArchiveDownloadedData archive = archives.firstWhere((element) => element.gid == gid && element.isOriginal == isOriginal);
     if (archive.archiveStatusIndex == ArchiveStatus.paused.index) {
       return;
     }
@@ -223,6 +219,8 @@ class ArchiveDownloadService extends GetxController {
       return null;
     }
 
+    Log.info('Begin to unlock archive: ${archive.gid}');
+
     String? downloadPageUrl;
     try {
       downloadPageUrl = await retry(
@@ -249,12 +247,8 @@ class ArchiveDownloadService extends GetxController {
     if (downloadPageUrl == null) {
       _updateArchive(archive.copyWith(archiveStatusIndex: ArchiveStatus.waitingForDownloadPageUrl.index));
     } else {
-      _updateArchive(
-        archive.copyWith(
-          archiveStatusIndex: ArchiveStatus.waitingForDownloadUrl.index,
-          downloadPageUrl: downloadPageUrl,
-        ),
-      );
+      Log.info('Unlock archive success: ${archive.gid}');
+      _updateArchive(archive.copyWith(archiveStatusIndex: ArchiveStatus.waitingForDownloadUrl.index, downloadPageUrl: downloadPageUrl));
     }
     return downloadPageUrl;
   }
@@ -264,6 +258,8 @@ class ArchiveDownloadService extends GetxController {
     if (_taskHasBeenPausedOrRemoved(archive)) {
       return '';
     }
+
+    Log.info('Begin to fetch archive page: ${archive.gid}');
 
     String downloadPageUrl;
     try {
@@ -282,18 +278,20 @@ class ArchiveDownloadService extends GetxController {
       return await _getDownloadPageUrl(archive);
     }
 
+    Log.info('Fetch archive page success: ${archive.gid}');
     _updateArchive(archive.copyWith(downloadPageUrl: downloadPageUrl));
     return downloadPageUrl;
   }
 
-  Future<String> _getDownloadUrl(ArchiveDownloadedData archive, String downloadPageUrl,
-      [bool useCacheIfAvailable = true]) async {
+  Future<String> _getDownloadUrl(ArchiveDownloadedData archive, String downloadPageUrl, [bool useCacheIfAvailable = true]) async {
     if (_taskHasBeenPausedOrRemoved(archive)) {
       return '';
     }
 
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.waitingForDownloadUrl.index);
     _updateArchive(archive);
+
+    Log.info('Begin to parse archive url: ${archive.gid}');
 
     String downloadPath;
     try {
@@ -315,6 +313,7 @@ class ArchiveDownloadService extends GetxController {
       return await _getDownloadUrl(archive, downloadPageUrl);
     }
 
+    Log.info('Parse archive url success: ${archive.gid}');
     String downloadUrl = 'https://' + Uri.parse(downloadPageUrl).host + downloadPath;
     _updateArchive(archive.copyWith(downloadUrl: downloadUrl));
     return downloadUrl;
@@ -325,7 +324,7 @@ class ArchiveDownloadService extends GetxController {
       return;
     }
 
-    Log.download('Begin to download archive');
+    Log.download('Begin to download archive: ${archive.gid}');
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.downloading.index);
     _updateArchive(archive);
 
@@ -337,12 +336,10 @@ class ArchiveDownloadService extends GetxController {
           path: _computeArchiveDownloadPath(archive),
           receiveTimeout: 0,
           cancelToken: cancelTokens.get(archive.gid, archive.isOriginal),
-          onReceiveProgress: (count, total) =>
-              speedComputers.get(archive.gid, archive.isOriginal)!.downloadedBytes = count,
+          onReceiveProgress: (count, total) => speedComputers.get(archive.gid, archive.isOriginal)!.downloadedBytes = count,
         ),
         maxAttempts: retryTimes,
-        retryIf: (e) =>
-            e is DioError && e.type != DioErrorType.cancel && (e.response == null || e.response!.statusCode != 410),
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && (e.response == null || e.response!.statusCode != 410),
         onRetry: (e) {
           Log.download('Download archive failed, retry. Reason: ${(e as DioError).message}, url:$downloadUrl');
           speedComputers.get(archive.gid, archive.isOriginal)!.downloadedBytes = 0;
@@ -360,6 +357,7 @@ class ArchiveDownloadService extends GetxController {
       return;
     }
 
+    Log.download('Download archive success: ${archive.gid}');
     speedComputers.get(archive.gid, archive.isOriginal)!.dispose();
     _updateArchive(archive.copyWith(archiveStatusIndex: ArchiveStatus.downloaded.index));
   }
@@ -471,8 +469,7 @@ class ArchiveDownloadService extends GetxController {
   }
 
   void _updateArchiveInMemory(ArchiveDownloadedData archive) {
-    int index =
-        archives.indexWhere((element) => element.gid == archive.gid && element.isOriginal == archive.isOriginal);
+    int index = archives.indexWhere((element) => element.gid == archive.gid && element.isOriginal == archive.isOriginal);
     archives[index] = archive;
     update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
   }
