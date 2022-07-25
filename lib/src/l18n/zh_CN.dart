@@ -140,6 +140,7 @@ class zh_CN {
       'loading': "加载中",
       'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
+      'unsupportedImagePageStyle': "JHenTai当前不支持Multi-Page Viewer(MPV)多页查看，请在e-hentai.org更换为默认风格",
       'toNext': '下一页',
       'toPrev': '上一页',
       'back': '返回',

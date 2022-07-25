@@ -17,4 +17,5 @@ enum EHExceptionType {
   blankBody,
   banned,
   exceedLimit,
+  unsupportedImagePageStyle,
 }

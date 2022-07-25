@@ -259,12 +259,18 @@ class EHSpiderParser {
   static GalleryImage imagePage2GalleryImage(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
-    Element img = document.querySelector('#img')!;
+    Element? img = document.querySelector('#img');
+    if (img == null && document.querySelector('#pane_images') != null) {
+      throw DioError(
+        requestOptions: response.requestOptions,
+        error: EHException(type: EHExceptionType.unsupportedImagePageStyle, msg: 'unsupportedImagePageStyle'.tr),
+      );
+    }
     Element a = document.querySelector('#i6 > a')!;
 
     /// height: 1600px; width: 1124px;
-    String style = img.attributes['style']!;
-    String url = img.attributes['src']!;
+    String style = img!.attributes['style']!;
+    String url = img!.attributes['src']!;
 
     if (url.contains('509.gif')) {
       throw DioError(
