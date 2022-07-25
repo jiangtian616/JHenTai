@@ -195,9 +195,9 @@ class _EHImageState extends State<EHImage> {
 
   /// replace image host: exhentai.org -> ehgt.org
   String _replaceEXUrlIfEnableDomainFronting(String url) {
-    if (NetworkSetting.enableDomainFronting.isFalse) {
-      return url;
-    }
+    // if (NetworkSetting.enableDomainFronting.isFalse) {
+    //   return url;
+    // }
     Uri rawUri = Uri.parse(url);
     String host = rawUri.host;
     if (host != 'exhentai.org') {
