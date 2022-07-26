@@ -24,7 +24,8 @@ Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or Sid
 Install for Windows: download .zip, then unpack it. If you use a proxy server, set proxy address at network setting
 page.
 
-Install for MacOS: download .dmg.
+Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting
+page.
 
 ## Help With Translation
 
@@ -35,8 +36,7 @@ Please submit a PR if you want to help with translation.
 ## Develop Motivation
 
 My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android
-phone and
-Ipad, E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
+phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
 experience
 with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
@@ -44,7 +44,7 @@ with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
 Layout and style references:
 
-- [FEhviewer](https://github.com/honjow/FEhViewer) :Mainly
+- [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
 - [EHPanda](https://github.com/tatsuz0u/EhPanda)
 - [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
@@ -128,7 +128,7 @@ You can only do this and submit your PR, I'll do the remaining things. Or you ca
    number can't
    be synchronized correctly; third-party libraries are involved.
 2. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
-3. On Windows, change default download path to some other paths may cause some downloaded galleries not to be loaded correctly.
+3. Change download path to SD card is not supported now.
 
 ## Main Dart Dependencies
 
