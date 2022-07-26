@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'dart:io' as io;
 
 import 'package:path/path.dart' as path;
@@ -96,7 +97,7 @@ class _EHImageState extends State<EHImage> {
       behavior: HitTestBehavior.opaque,
       onLongPress: _showReloadBottomSheet,
       child: ExtendedImage.network(
-        _replaceEXUrlIfEnableDomainFronting(widget.galleryImage.url),
+        _replaceEXUrl(widget.galleryImage.url),
         key: key,
         height: widget.adaptive ? null : widget.galleryImage.height,
         width: widget.adaptive ? null : widget.galleryImage.width,
@@ -107,6 +108,7 @@ class _EHImageState extends State<EHImage> {
         clearMemoryCacheWhenDispose: true,
         handleLoadingProgress: widget.loadingWidgetBuilder != null,
         printError: false,
+        // headers: _cookieHeaders(widget.galleryImage.url),
         loadStateChanged: (ExtendedImageState state) {
           switch (state.extendedImageLoadState) {
             case LoadState.loading:
@@ -194,20 +196,38 @@ class _EHImageState extends State<EHImage> {
   }
 
   /// replace image host: exhentai.org -> ehgt.org
-  String _replaceEXUrlIfEnableDomainFronting(String url) {
-    // if (NetworkSetting.enableDomainFronting.isFalse) {
-    //   return url;
-    // }
+  String _replaceEXUrl(String url) {
     Uri rawUri = Uri.parse(url);
     String host = rawUri.host;
     if (host != 'exhentai.org') {
       return url;
     }
 
-    /// thumbnails:
-    String newHost = 'ehgt.org';
-    Uri newUri = rawUri.replace(host: newHost);
+    Uri newUri = rawUri.replace(host: 'ehgt.org');
     return newUri.toString();
+  }
+
+  /// replace image host: exhentai.org -> ${exHentaiIP}
+  String _replaceEXUrlIfEnableDomainFronting(String url) {
+    if (NetworkSetting.enableDomainFronting.isFalse) {
+      return url;
+    }
+
+    Uri rawUri = Uri.parse(url);
+    String host = rawUri.host;
+    if (host != 'exhentai.org') {
+      return url;
+    }
+
+    Uri newUri = rawUri.replace(host: NetworkSetting.exHentaiIP.value);
+    return newUri.toString();
+  }
+
+  Map<String, String>? _cookieHeaders(String url) {
+    Uri rawUri = Uri.parse(url);
+    String host = rawUri.host;
+
+    return {'Cookie': EHCookieManager.userCookies, 'host': host};
   }
 
   /// copied from ExtendedImage

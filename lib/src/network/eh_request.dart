@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:extended_image/extended_image.dart' show ExtendedNetworkImageProvider;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
@@ -79,7 +80,7 @@ class EHRequest {
       ),
     );
 
-    /// domain fronting
+    /// domain fronting for dio
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
         if (NetworkSetting.enableDomainFronting.isFalse) {
@@ -112,6 +113,13 @@ class EHRequest {
         client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
       }
     };
+
+    /// domain fronting for ExtendedNetworkImage
+    HttpClient client = ExtendedNetworkImageProvider.httpClient as HttpClient;
+    client.badCertificateCallback = (_, __, ___) => true;
+    if (GetPlatform.isDesktop) {
+      client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
+    }
 
     /// cookies
     cookieManager = Get.find<EHCookieManager>();

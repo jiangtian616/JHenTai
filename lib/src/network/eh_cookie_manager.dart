@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:path/path.dart';
 
 import '../setting/network_setting.dart';
@@ -15,6 +16,8 @@ import '../utils/log.dart';
 
 class EHCookieManager extends CookieManager {
   EHCookieManager(CookieJar cookieJar) : super(cookieJar);
+
+  static String userCookies = "";
 
   static Future<void> init() async {
     PersistCookieJar _cookieJar = PersistCookieJar(
@@ -95,6 +98,8 @@ class EHCookieManager extends CookieManager {
     await Future.wait(
       NetworkSetting.allIPs.map((ip) => cookieJar.saveFromResponse(Uri.parse('https://$ip'), cookies)),
     );
+
+    cookieJar.loadForRequest(Uri.parse(EHConsts.EXIndex)).then((v) => userCookies = CookieUtil.parse2String(v));
   }
 
   Future<List<Cookie>> getCookie(Uri uri) async {

@@ -34,10 +34,6 @@ class UserSetting {
     return ipbMemberId.value != null;
   }
 
-  static String getCookies() {
-    return 'ipb_member_id=${ipbMemberId.value};ipb_pass_hash=${ipbPassHash.value}';
-  }
-
   static void clear() {
     Get.find<StorageService>().remove('userSetting');
     userName.value = null;

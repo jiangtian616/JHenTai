@@ -12,7 +12,6 @@ import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../utils/log.dart';
 
@@ -252,7 +251,9 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       _checkPermissionForNewPath(newDownloadPath);
     } on FileSystemException catch (e) {
       toast('invalidPath'.tr);
+
       Log.error('${'invalidPath'.tr}:$newDownloadPath', e);
+      Log.upload(e, extraInfos: {'path': newDownloadPath});
       return;
     }
 
