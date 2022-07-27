@@ -56,17 +56,17 @@ mush thanks to these projects🙇‍
 
 ## Screenshots
 
-### Mobile Layout
-
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
-
-### Tablet Layout
-
-<img width="770" src="screenshot/0.png"/>
-
 ### Desktop Layout
 
 <img width="770" src="screenshot/desktop.png"/>
+
+### Tablet Layout (Maintenance stopped)
+
+<img width="770" src="screenshot/0.png"/>
+
+### Mobile Layout (Maintenance stopped)
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
 
 ### Gallery & Search
 

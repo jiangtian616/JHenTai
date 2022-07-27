@@ -47,17 +47,17 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 ## 截图
 
-### 手机模式
-
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
-
-### 平板模式
-
-<img width="770" src="screenshot/0.png"/>
-
 ### 桌面模式
 
 <img width="770" src="screenshot/desktop.png"/>
+
+### 平板模式 (已停止维护)
+
+<img width="770" src="screenshot/0.png"/>
+
+### 手机模式 (已停止维护)
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
 
 ### 画廊页 & 搜索页
 
