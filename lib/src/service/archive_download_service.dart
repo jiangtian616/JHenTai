@@ -157,7 +157,15 @@ class ArchiveDownloadService extends GetxController {
 
     List<GalleryImage?> images = List.generate(files.length, (index) => null);
     files.forEachIndexed((index, file) {
-      final size = ImageSizeGetter.getSize(FileInput(file as io.File));
+      Size size;
+      try {
+        size = ImageSizeGetter.getSize(FileInput(file as io.File));
+      } on Exception catch (e) {
+        Log.error("Parse archive images failed!", e);
+        Log.upload(e, extraInfos: {'file': file.path});
+        return;
+      }
+
       images[index] = GalleryImage(
         url: 'archive',
         path: file.path,
