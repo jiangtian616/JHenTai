@@ -6,7 +6,7 @@ part of 'database.dart';
 // MoorGenerator
 // **************************************************************************
 
-// ignore_for_file: unnecessary_brace_in_string_interps, unnecessary_this
+// ignore_for_file: type=lint
 class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
@@ -2485,6 +2485,19 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<String>(path),
         Variable<int>(gid),
         Variable<String>(url)
+      ],
+      updates: {image},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> updateImageUrl(String newUrl, int gid, int serialNo) {
+    return customUpdate(
+      'update image\r\nset url = :newUrl\r\nwhere gid = :gid\r\n  AND serialNo = :serialNo',
+      variables: [
+        Variable<String>(newUrl),
+        Variable<int>(gid),
+        Variable<int>(serialNo)
       ],
       updates: {image},
       updateKind: UpdateKind.update,

@@ -408,13 +408,13 @@ class GalleryDownloadService extends GetxController {
     };
   }
 
-  Future<void> _parseGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, {bool useCache = true}) async {
+  Future<void> _parseGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, {bool isNewImage = true}) async {
     if (_taskHasBeenPausedOrRemoved(gallery)) {
       return;
     }
 
     GalleryImage image;
-    AsyncTask<GalleryImage> task = _parseGalleryImageUrlTask(gallery, serialNo, useCache);
+    AsyncTask<GalleryImage> task = _parseGalleryImageUrlTask(gallery, serialNo, isNewImage);
     gid2Tasks[gallery.gid]!.add(task);
     try {
       image = await retry(
@@ -423,7 +423,7 @@ class GalleryDownloadService extends GetxController {
         onRetry: (e) => Log.download('ParseImageUrl failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: retryTimes,
       );
-    } on CancelException catch (e) {
+    } on CancelException catch (_) {
       return;
     } on DioError catch (e) {
       if (e.type == DioErrorType.cancel) {
@@ -435,7 +435,7 @@ class GalleryDownloadService extends GetxController {
         await pauseAllDownloadGallery();
         return;
       }
-      await _parseGalleryImageUrl(gallery, serialNo, useCache: useCache);
+      await _parseGalleryImageUrl(gallery, serialNo, isNewImage: isNewImage);
       return;
     } finally {
       gid2Tasks[gallery.gid]?.remove(task);
@@ -444,7 +444,12 @@ class GalleryDownloadService extends GetxController {
     gid2Images[gallery.gid]![serialNo] = image;
     image.path = _computeImageDownloadRelativePath(gallery, serialNo);
     image.downloadStatus = DownloadStatus.downloading;
-    await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
+    if (isNewImage) {
+      await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
+    } else {
+      _updateImageUrl(image, gallery.gid, serialNo);
+    }
+
     Log.download('parse image url: $serialNo success');
   }
 
@@ -542,7 +547,7 @@ class GalleryDownloadService extends GetxController {
     if (gid2ImageHrefs[gallery.gid]?[serialNo] == null) {
       await _parseGalleryImageHref(gallery, serialNo);
     }
-    await _parseGalleryImageUrl(gallery, serialNo, useCache: false);
+    await _parseGalleryImageUrl(gallery, serialNo, isNewImage: false);
     _downloadGalleryImage(gallery, serialNo);
   }
 
@@ -729,6 +734,14 @@ class GalleryDownloadService extends GetxController {
 
     image.downloadStatus = downloadStatus;
     update(['$imageId::$gid', '$imageUrlId::$gid::$serialNo']);
+
+    if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
+      _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));
+    }
+  }
+
+  Future<void> _updateImageUrl(GalleryImage image, int gid, int serialNo) async {
+     appDb.updateImageUrl(image.url, gid, serialNo);
 
     if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
       _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));

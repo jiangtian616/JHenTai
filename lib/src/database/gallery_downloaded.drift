@@ -93,6 +93,12 @@ set path = :path
 where gid = :gid
   AND url = :url;
 
+updateImageUrl:
+update image
+set url = :newUrl
+where gid = :gid
+  AND serialNo = :serialNo;
+
 deleteImage:
 delete
 from image
