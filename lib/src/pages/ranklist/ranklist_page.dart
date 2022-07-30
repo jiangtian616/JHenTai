@@ -7,6 +7,7 @@ import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import '../../widget/eh_gallery_collection.dart';
 import '../../widget/eh_wheel_speed_controller.dart';
 import '../../widget/loading_state_indicator.dart';
+import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class RanklistPage extends BasePage {
   const RanklistPage({Key? key}) : super(key: key);
@@ -20,6 +21,15 @@ class _RanklistPageState extends BasePageFlutterState {
   final RanklistPageLogic logic = Get.put<RanklistPageLogic>(RanklistPageLogic(), permanent: true);
   @override
   final RanklistPageState state = Get.find<RanklistPageLogic>().state;
+
+  @override
+  void initState() {
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[logic.tabIndex] = state.scrollController;
+    }
+
+    super.initState();
+  }
 
   @override
   AppBar? buildAppBar() {

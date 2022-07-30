@@ -44,7 +44,9 @@ abstract class BasePageLogic extends GetxController {
   void onInit() {
     super.onInit();
 
-    Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
+    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
+    }
 
     if (useSearchConfig) {
       Map<String, dynamic>? map = _storageService.read('searchConfig: $runtimeType');
