@@ -1,149 +1,106 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
-import 'package:jhentai/src/widget/eh_gallery_collection.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../config/global_config.dart';
+import '../../widget/eh_gallery_collection.dart';
+import '../../widget/eh_wheel_speed_controller.dart';
 import '../../widget/loading_state_indicator.dart';
-import '../layout/desktop/desktop_layout_page_logic.dart';
 
-class RanklistPage extends StatefulWidget {
+class RanklistPage extends BasePage {
   const RanklistPage({Key? key}) : super(key: key);
 
   @override
-  _RanklistPageState createState() => _RanklistPageState();
+  State<BasePage> createState() => _RanklistPageState();
 }
 
-class _RanklistPageState extends State<RanklistPage> {
-  final RanklistViewLogic logic = Get.put<RanklistViewLogic>(RanklistViewLogic(), permanent: true);
-  final RanklistViewState state = Get.find<RanklistViewLogic>().state;
+class _RanklistPageState extends BasePageFlutterState {
+  @override
+  final RanklistPageLogic logic = Get.put<RanklistPageLogic>(RanklistPageLogic(), permanent: true);
+  @override
+  final RanklistPageState state = Get.find<RanklistPageLogic>().state;
 
   @override
-  void initState() {
-    if (state.ranklistGallery.values.every((list) => list.isEmpty)) {
-      logic.getRanklist();
-    }
-
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
-      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[3] = state.scrollController;
-    }
-
-    super.initState();
+  AppBar? buildAppBar() {
+    return AppBar(
+      title: GetBuilder<RanklistPageLogic>(
+        id: 'appBarTitleId',
+        builder: (_) => Text('${state.ranklistType.name.tr} ${'ranklist'.tr}'),
+      ),
+      centerTitle: true,
+      elevation: 1,
+      actions: [
+        ...super.buildAppBarButtons(),
+        GetBuilder<RanklistPageLogic>(
+          id: 'appBarTitleId',
+          builder: (_) => ExcludeFocus(
+            child: PopupMenuButton(
+              initialValue: state.ranklistType,
+              padding: EdgeInsets.zero,
+              onSelected: logic.handleChangeRanklist,
+              tooltip: "",
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
+                PopupMenuItem<RanklistType>(
+                  value: RanklistType.allTime,
+                  child: Center(child: Text('allTime'.tr)),
+                ),
+                PopupMenuItem<RanklistType>(
+                  value: RanklistType.year,
+                  child: Center(child: Text('year'.tr)),
+                ),
+                PopupMenuItem<RanklistType>(
+                  value: RanklistType.month,
+                  child: Center(child: Text('month'.tr)),
+                ),
+                PopupMenuItem<RanklistType>(
+                  value: RanklistType.day,
+                  child: Center(child: Text('day'.tr)),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: GetBuilder<RanklistViewLogic>(
-          id: 'appBarTitleId',
-          builder: (_) => Text('${state.ranklistType.name.tr} ${'ranklist'.tr}'),
-        ),
-        centerTitle: true,
-        elevation: 1,
-        actions: [
-          GetBuilder<RanklistViewLogic>(
-            id: 'appBarTitleId',
-            builder: (_) => ExcludeFocus(
-              child: PopupMenuButton(
-                initialValue: state.ranklistType,
-                padding: EdgeInsets.zero,
-                onSelected: logic.handleChangeRanklist,
-                tooltip: "",
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
-                  PopupMenuItem<RanklistType>(
-                    value: RanklistType.allTime,
-                    child: Center(child: Text('allTime'.tr)),
-                  ),
-                  PopupMenuItem<RanklistType>(
-                    value: RanklistType.year,
-                    child: Center(child: Text('year'.tr)),
-                  ),
-                  PopupMenuItem<RanklistType>(
-                    value: RanklistType.month,
-                    child: Center(child: Text('month'.tr)),
-                  ),
-                  PopupMenuItem<RanklistType>(
-                    value: RanklistType.day,
-                    child: Center(child: Text('day'.tr)),
-                  ),
+  Widget buildListBody(BuildContext context) {
+    return GetBuilder<RanklistPageLogic>(
+      id: logic.bodyId,
+      global: false,
+      init: logic,
+      builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+          ? buildCenterStatusIndicator()
+          : EHWheelSpeedController(
+              scrollController: state.scrollController,
+              child: CustomScrollView(
+                key: state.pageStorageKey,
+                controller: state.scrollController,
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                scrollBehavior: ScrollConfiguration.of(context),
+                slivers: <Widget>[
+                  buildPullDownIndicator(),
+                  buildGalleryCollection(),
+                  buildLoadMoreIndicator(),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-      body: GetBuilder<RanklistViewLogic>(
-        id: bodyId,
-        builder: (logic) => _buildBody(),
-      ),
     );
   }
 
-  Widget _buildBody() {
-    return state.ranklistGallery[state.ranklistType]!.isEmpty && state.getRanklistLoadingState[state.ranklistType] != LoadingState.idle
-        ? _buildCenterStatusIndicator()
-        : EHWheelSpeedController(
-            scrollController: state.scrollController,
-            child: CustomScrollView(
-              key: PageStorageKey(state.ranklistType.name),
-              controller: state.scrollController,
-              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-              slivers: <Widget>[
-                _buildRefreshIndicator(),
-                _buildGalleryCollection(),
-                _buildLoadMoreIndicator(),
-              ],
-            ),
-          );
-  }
-
-  Widget _buildCenterStatusIndicator() {
-    return Center(
-      child: GetBuilder<RanklistViewLogic>(
-          id: loadingStateId,
-          builder: (logic) {
-            return LoadingStateIndicator(
-              errorTapCallback: () => logic.handleRefresh(),
-              noDataTapCallback: () => logic.handleRefresh(),
-              loadingState: state.getRanklistLoadingState[state.ranklistType]!,
-            );
-          }),
-    );
-  }
-
-  Widget _buildRefreshIndicator() {
-    return CupertinoSliverRefreshControl(
-      refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
-      onRefresh: () => logic.handleRefresh(),
-    );
-  }
-
-  Widget _buildLoadMoreIndicator() {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      sliver: SliverToBoxAdapter(
-        child: GetBuilder<RanklistViewLogic>(
-            id: loadingStateId,
-            builder: (logic) {
-              return LoadingStateIndicator(
-                loadingState: state.getRanklistLoadingState[state.ranklistType]!,
-              );
-            }),
-      ),
-    );
-  }
-
-  Widget _buildGalleryCollection() {
+  @override
+  Widget buildGalleryCollection() {
     return EHGalleryCollection(
-      key: state.listKey,
-      gallerys: state.ranklistGallery[state.ranklistType]!,
-      loadingState: state.getRanklistLoadingState[state.ranklistType]!,
+      key: state.galleryCollectionKey,
+      gallerys: state.gallerys,
+      loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,
-      keepPosition: false,
+      handleLoadMore: () => logic.loadMore(),
+
+      /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
+      keepPosition: state.prevPageIndexToLoad != null,
     );
   }
 }

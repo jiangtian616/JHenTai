@@ -37,11 +37,11 @@ class FavoritePageLogic extends BasePageLogic {
   }
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
-    Log.info('Get favorite data, pageNo:$pageNo', false);
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.info('Get favorite data, pageIndex:$pageIndex', false);
 
     List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-      pageNo: pageNo,
+      pageNo: pageIndex,
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );

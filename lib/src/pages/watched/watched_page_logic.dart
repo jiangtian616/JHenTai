@@ -36,12 +36,12 @@ class WatchedPageLogic extends BasePageLogic {
   }
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
-    Log.info('get watched data, pageNo:$pageNo', false);
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.info('get watched data, pageIndex:$pageIndex', false);
 
     List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
       url: EHConsts.EWatched,
-      pageNo: pageNo,
+      pageNo: pageIndex,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
 

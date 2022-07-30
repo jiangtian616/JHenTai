@@ -26,7 +26,7 @@ class HistoryPageLogic extends BasePageLogic {
   final HistoryService historyService = Get.find();
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get history data', false);
 
     List<dynamic> gallerysAndPageInfo = [historyService.history, historyService.history.isEmpty ? 0 : 1, null, null];

@@ -49,6 +49,7 @@ class EHSpiderParser {
     return map;
   }
 
+  /// [gallerys, pageCount, prevPageIndex, nextPageIndex]
   static List<dynamic> galleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
@@ -531,7 +532,7 @@ class EHSpiderParser {
   static int? galleryPage2NextPageIndex(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 1];
-    return int.tryParse(RegExp(r'page=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(1) ?? '');
+    return int.tryParse(RegExp(r'p(age)?=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(2) ?? '');
   }
 
   static int? galleryPage2PrevPageIndex(Document document) {
@@ -540,7 +541,7 @@ class EHSpiderParser {
       return null;
     }
 
-    return int.tryParse(RegExp(r'page=(\d+)').firstMatch(a.attributes['href'] ?? '')?.group(1) ?? '0');
+    return int.tryParse(RegExp(r'p(age)?=(\d+)').firstMatch(a.attributes['href'] ?? '')?.group(2) ?? '0');
   }
 
   static GalleryArchive archivePage2Archive(Response response) {

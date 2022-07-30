@@ -64,34 +64,34 @@ abstract class BasePageFlutterState extends State<BasePage> {
   }
 
   Widget buildBody(BuildContext context) {
-    return _buildListBody(context);
+    return buildListBody(context);
   }
 
-  Widget _buildListBody(BuildContext context){
+  Widget buildListBody(BuildContext context) {
     return GetBuilder<BasePageLogic>(
       id: logic.bodyId,
       global: false,
       init: logic,
       builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-          ? _buildCenterStatusIndicator()
+          ? buildCenterStatusIndicator()
           : EHWheelSpeedController(
-        scrollController: state.scrollController,
-        child: CustomScrollView(
-          key: state.pageStorageKey,
-          controller: state.scrollController,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          scrollBehavior: ScrollConfiguration.of(context),
-          slivers: <Widget>[
-            _buildPullDownIndicator(),
-            _buildGalleryCollection(),
-            _buildLoadMoreIndicator(),
-          ],
-        ),
-      ),
+              scrollController: state.scrollController,
+              child: CustomScrollView(
+                key: state.pageStorageKey,
+                controller: state.scrollController,
+                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                scrollBehavior: ScrollConfiguration.of(context),
+                slivers: <Widget>[
+                  buildPullDownIndicator(),
+                  buildGalleryCollection(),
+                  buildLoadMoreIndicator(),
+                ],
+              ),
+            ),
     );
   }
 
-  Widget _buildCenterStatusIndicator() {
+  Widget buildCenterStatusIndicator() {
     return Center(
       child: GetBuilder<BasePageLogic>(
           id: logic.loadingStateId,
@@ -105,14 +105,14 @@ abstract class BasePageFlutterState extends State<BasePage> {
     );
   }
 
-  Widget _buildPullDownIndicator() {
+  Widget buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
       refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
       onRefresh: () => logic.handlePullDown(),
     );
   }
 
-  Widget _buildLoadMoreIndicator() {
+  Widget buildLoadMoreIndicator() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
@@ -131,7 +131,7 @@ abstract class BasePageFlutterState extends State<BasePage> {
     );
   }
 
-  Widget _buildGalleryCollection() {
+  Widget buildGalleryCollection() {
     return EHGalleryCollection(
       key: state.galleryCollectionKey,
       gallerys: state.gallerys,

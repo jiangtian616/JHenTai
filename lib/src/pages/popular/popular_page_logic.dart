@@ -24,11 +24,11 @@ class PopularPageLogic extends BasePageLogic {
   final PopularPageState state = PopularPageState();
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
-    Log.info('Get popular data, pageNo:$pageNo', false);
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.info('Get popular data, pageIndex:$pageIndex', false);
 
     List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-      pageNo: pageNo,
+      pageNo: pageIndex,
       url: EHConsts.EPopular,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );

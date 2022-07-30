@@ -26,11 +26,11 @@ class GallerysPageLogic extends BasePageLogic {
   final GallerysPageState state = GallerysPageState();
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
-    Log.info('get gallery data, pageNo:$pageNo', false);
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.info('get gallery data, pageIndex:$pageIndex', false);
 
     List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-      pageNo: pageNo,
+      pageNo: pageIndex,
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );

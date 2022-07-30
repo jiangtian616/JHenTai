@@ -33,11 +33,11 @@ abstract class BasePageLogic extends GetxController {
 
   bool get useSearchConfig => false;
 
-  bool get autoLoadFirstPage => true;
+  bool get autoLoadForFirstTime => true;
 
   int get tabIndex;
 
-  final TagTranslationService _tagTranslationService = Get.find();
+  final TagTranslationService tagTranslationService = Get.find();
   final StorageService _storageService = Get.find();
 
   @override
@@ -53,7 +53,7 @@ abstract class BasePageLogic extends GetxController {
       }
     }
 
-    if (autoLoadFirstPage) {
+    if (autoLoadForFirstTime) {
       loadMore();
     }
   }
@@ -159,7 +159,6 @@ abstract class BasePageLogic extends GetxController {
     state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
-    state.nextPageIndexToLoad = gallerysAndPageInfo[3];
 
     state.loadingState = LoadingState.idle;
     update([pageId]);
@@ -282,10 +281,10 @@ abstract class BasePageLogic extends GetxController {
     toNamed(Routes.details, arguments: gallery);
   }
 
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo);
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex);
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
-    await _tagTranslationService.translateGalleryTagsIfNeeded(gallerys);
+    await tagTranslationService.translateGalleryTagsIfNeeded(gallerys);
   }
 
   /// in case that new gallery is uploaded.

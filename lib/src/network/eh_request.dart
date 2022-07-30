@@ -11,6 +11,7 @@ import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -205,8 +206,31 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
-  static Future<T> requestRankPage<T>(EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(EHConsts.ERanklist);
+  static Future<T> requestRanklistPage<T>({
+    required RanklistType ranklistType,
+    required int pageNo,
+    required EHHtmlParser<T> parser,
+  }) async {
+    int tl;
+
+    switch (ranklistType) {
+      case RanklistType.day:
+        tl = 15;
+        break;
+      case RanklistType.month:
+        tl = 13;
+        break;
+      case RanklistType.year:
+        tl = 12;
+        break;
+      case RanklistType.allTime:
+        tl = 11;
+        break;
+      default:
+        tl = 15;
+    }
+
+    Response<String> response = await _dio.get('${EHConsts.ERanklist}?tl=$tl&p=$pageNo');
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 

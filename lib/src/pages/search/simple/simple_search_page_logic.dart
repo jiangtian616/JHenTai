@@ -39,11 +39,10 @@ class SimpleSearchPageLogic extends BasePageLogic {
   bool get useSearchConfig => false;
 
   @override
-  bool get autoLoadFirstPage => false;
+  bool get autoLoadForFirstTime => false;
 
   @override
   final SimpleSearchPageState state = SimpleSearchPageState();
-  final TagTranslationService tagTranslationService = Get.find();
   final QuickSearchService quickSearchService = Get.find();
   final StorageService storageService = Get.find();
 
@@ -69,20 +68,20 @@ class SimpleSearchPageLogic extends BasePageLogic {
   }
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageNo) async {
-    Log.verbose('Get gallerys info at page: $pageNo');
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.verbose('Get gallerys info at page: $pageIndex');
 
     List<dynamic> gallerysAndPageInfo;
     if (state.redirectUrl == null) {
       gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-        pageNo: pageNo,
+        pageNo: pageIndex,
         searchConfig: state.searchConfig,
         parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
       );
     } else {
       gallerysAndPageInfo = await EHRequest.requestGalleryPage(
         url: state.redirectUrl,
-        pageNo: pageNo,
+        pageNo: pageIndex,
         parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
       );
     }
