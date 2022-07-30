@@ -142,12 +142,22 @@ class NestedGallerysPageLogic extends GetxController with GetTickerProviderState
       state.loadingState[tabIndex] = LoadingState.error;
       update([loadingStateId]);
       return;
+    } on Exception catch (e) {
+      Log.error('Load more galleries error', e);
+      Log.upload(e, extraInfos: {'tabIndex': tabIndex, 'nextPageIndex': state.nextPageIndexToLoad[tabIndex]});
+      return;
     }
 
-    _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys[tabIndex]);
-    state.gallerys[tabIndex].addAll(gallerysAndPageInfo[0]);
-    state.pageCount[tabIndex] = gallerysAndPageInfo[1];
-    state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
+    try {
+      _cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys[tabIndex]);
+      state.gallerys[tabIndex].addAll(gallerysAndPageInfo[0]);
+      state.pageCount[tabIndex] = gallerysAndPageInfo[1];
+      state.nextPageIndexToLoad[tabIndex] = gallerysAndPageInfo[3];
+    } on Exception catch (e) {
+      Log.error('Load more galleries error', e);
+      Log.upload(e, extraInfos: {'gallerysAndPageInfo': gallerysAndPageInfo});
+      return;
+    }
 
     if (state.pageCount[tabIndex] == 0) {
       state.loadingState[tabIndex] = LoadingState.noData;

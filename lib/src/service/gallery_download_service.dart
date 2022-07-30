@@ -494,7 +494,7 @@ class GalleryDownloadService extends GetxController {
             e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
         onRetry: (e) {
           Log.download(
-            'DownloadImage: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${gid2Images[gallery.gid]![serialNo]!.url}',
+            'Download gallery:${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${gid2Images[gallery.gid]![serialNo]!.url}',
           );
           gid2SpeedComputer[gallery.gid]!.resetProgress(serialNo);
         },
@@ -512,7 +512,7 @@ class GalleryDownloadService extends GetxController {
         return;
       }
       Log.download(
-        'downloadImage: $serialNo failed $retryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo]!.url}',
+        'Download gallery:${gallery.title} image: $serialNo failed $retryTimes times, try re-parse. url:${gid2Images[gallery.gid]![serialNo]!.url}',
       );
       _reParseImageUrlAndDownload(gallery, serialNo);
       return;
@@ -520,7 +520,7 @@ class GalleryDownloadService extends GetxController {
       gid2Tasks[gallery.gid]?.remove(task);
     }
 
-    Log.download('download image: $serialNo success');
+    Log.download('download gallery:${gallery.title} image: $serialNo success');
 
     await _updateImageDownloadStatus(image, gallery.gid, serialNo, DownloadStatus.downloaded);
     _updateProgressAfterImageDownloaded(gallery.gid, serialNo);
