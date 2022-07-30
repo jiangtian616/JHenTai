@@ -33,60 +33,65 @@ abstract class BasePageFlutterState extends State<BasePage> {
       global: false,
       init: logic,
       builder: (_) => Scaffold(
-        appBar: !showFilterButton && !showJumpButton
-            ? null
-            : AppBar(
-                elevation: 1,
-                actions: [
-                  if (showJumpButton && state.gallerys.isNotEmpty)
-                    ExcludeFocus(
-                      child: IconButton(
-                        icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
-                        onPressed: logic.handleTapJumpButton,
-                      ),
-                    ),
-                  if (showFilterButton)
-                    ExcludeFocus(
-                      child: IconButton(
-                        icon: const Icon(Icons.filter_alt_outlined, size: 28),
-                        padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
-                        onPressed: logic.handleTapFilterButton,
-                      ),
-                    ),
-                ],
-              ),
-        body: buildList(context),
+        appBar: showFilterButton || showJumpButton ? buildAppBar() : null,
+        body: SafeArea(child: buildBody(context)),
       ),
     );
   }
 
-  Widget buildList(BuildContext context) {
-    return SafeArea(
-      child: GetBuilder<BasePageLogic>(
-        id: logic.bodyId,
-        global: false,
-        init: logic,
-        builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-            ? buildCenterStatusIndicator()
-            : EHWheelSpeedController(
-                scrollController: state.scrollController,
-                child: CustomScrollView(
-                  key: state.pageStorageKey,
-                  controller: state.scrollController,
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  scrollBehavior: ScrollConfiguration.of(context),
-                  slivers: <Widget>[
-                    buildPullDownIndicator(),
-                    buildGalleryCollection(),
-                    buildLoadMoreIndicator(),
-                  ],
-                ),
-              ),
+  AppBar? buildAppBar() {
+    return AppBar(elevation: 1, actions: buildAppBarButtons());
+  }
+
+  List<Widget> buildAppBarButtons() {
+    return [
+      if (showJumpButton && state.gallerys.isNotEmpty)
+        ExcludeFocus(
+          child: IconButton(
+            icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+            onPressed: logic.handleTapJumpButton,
+          ),
+        ),
+      if (showFilterButton)
+        ExcludeFocus(
+          child: IconButton(
+            icon: const Icon(Icons.filter_alt_outlined, size: 28),
+            padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
+            onPressed: logic.handleTapFilterButton,
+          ),
+        ),
+    ];
+  }
+
+  Widget buildBody(BuildContext context) {
+    return _buildListBody(context);
+  }
+
+  Widget _buildListBody(BuildContext context){
+    return GetBuilder<BasePageLogic>(
+      id: logic.bodyId,
+      global: false,
+      init: logic,
+      builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+          ? _buildCenterStatusIndicator()
+          : EHWheelSpeedController(
+        scrollController: state.scrollController,
+        child: CustomScrollView(
+          key: state.pageStorageKey,
+          controller: state.scrollController,
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          scrollBehavior: ScrollConfiguration.of(context),
+          slivers: <Widget>[
+            _buildPullDownIndicator(),
+            _buildGalleryCollection(),
+            _buildLoadMoreIndicator(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget buildCenterStatusIndicator() {
+  Widget _buildCenterStatusIndicator() {
     return Center(
       child: GetBuilder<BasePageLogic>(
           id: logic.loadingStateId,
@@ -100,14 +105,14 @@ abstract class BasePageFlutterState extends State<BasePage> {
     );
   }
 
-  Widget buildPullDownIndicator() {
+  Widget _buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
       refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
       onRefresh: () => logic.handlePullDown(),
     );
   }
 
-  Widget buildLoadMoreIndicator() {
+  Widget _buildLoadMoreIndicator() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
@@ -126,7 +131,7 @@ abstract class BasePageFlutterState extends State<BasePage> {
     );
   }
 
-  Widget buildGalleryCollection() {
+  Widget _buildGalleryCollection() {
     return EHGalleryCollection(
       key: state.galleryCollectionKey,
       gallerys: state.gallerys,

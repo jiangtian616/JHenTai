@@ -31,7 +31,6 @@ class SimpleSearchPageLogic extends BasePageLogic {
   final String refreshStateId = 'refreshStateId';
   @override
   final String loadingStateId = 'loadingStateId';
-  final String searchFieldId = 'searchFieldId';
 
   @override
   int get tabIndex => 1;

@@ -60,62 +60,63 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GetBuilder<SimpleSearchPageLogic>(
-      id: logic.pageId,
-      builder: (_) => Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              GetBuilder<SimpleSearchPageLogic>(
-                id: logic.searchFieldId,
-                builder: (_) => Container(
-                  height: GlobalConfig.searchBarHeight,
-                  margin: const EdgeInsets.only(top: 8, bottom: 8, left: 2, right: 2),
-                  child: Row(
-                    children: [
-                      Expanded(child: _buildSearchField().marginSymmetric(horizontal: 16)),
-                      ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
-                      if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
-                        ExcludeFocus(
-                          child: FadeIn(
-                            child: IconButton(
-                              icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
-                              onPressed: logic.handleTapJumpButton,
-                            ),
-                          ),
-                        ),
-                      ExcludeFocus(
-                        child: IconButton(
-                          icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
-                          onPressed: logic.toggleBodyType,
-                        ),
-                      ),
-                      ExcludeFocus(child: IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
-                      ExcludeFocus(
-                        child: IconButton(
-                          icon: const Icon(Icons.add_circle_outline, size: 24),
-                          onPressed: logic.addQuickSearch,
-                        ),
-                      ),
-                      ExcludeFocus(
-                        child: IconButton(
-                          icon: Icon(
-                            FontAwesomeIcons.bars,
-                            color: Get.theme.appBarTheme.actionsIconTheme?.color,
-                            size: 20,
-                          ),
-                          onPressed: () => toNamed(Routes.quickSearch),
-                        ),
-                      ),
-                    ],
-                  ),
+  AppBar? buildAppBar() => null;
+
+  @override
+  Widget buildBody(BuildContext context) {
+    return Column(
+      children: [
+        _buildHeader(),
+        if (state.bodyType == SearchPageBodyType.suggestionAndHistory)
+          Expanded(child: _buildSuggestionAndHistoryBody(context))
+        else if (state.hasSearched)
+          Expanded(child: super.buildBody(context)),
+      ],
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      height: GlobalConfig.searchBarHeight,
+      margin: const EdgeInsets.only(top: 8, bottom: 8, left: 2, right: 2),
+      child: Row(
+        children: [
+          Expanded(child: _buildSearchField().marginSymmetric(horizontal: 16)),
+          ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
+          if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
+            ExcludeFocus(
+              child: FadeIn(
+                child: IconButton(
+                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+                  onPressed: logic.handleTapJumpButton,
                 ),
               ),
-              if (state.bodyType == SearchPageBodyType.suggestionAndHistory) Expanded(child: _buildSuggestionAndHistoryBody(context)) else if (state.hasSearched) Expanded(child: buildList(context)),
-            ],
+            ),
+          ExcludeFocus(
+            child: IconButton(
+              icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
+              onPressed: logic.toggleBodyType,
+            ),
           ),
-        ),
+          ExcludeFocus(
+              child: IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
+          ExcludeFocus(
+            child: IconButton(
+              icon: const Icon(Icons.add_circle_outline, size: 24),
+              onPressed: logic.addQuickSearch,
+            ),
+          ),
+          ExcludeFocus(
+            child: IconButton(
+              icon: Icon(
+                FontAwesomeIcons.bars,
+                color: Get.theme.appBarTheme.actionsIconTheme?.color,
+                size: 20,
+              ),
+              onPressed: () => toNamed(Routes.quickSearch),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -219,7 +220,9 @@ class _SimpleSearchPageFlutterState extends BasePageFlutterState {
                     duration: const Duration(milliseconds: 500),
                     child: ListTile(
                       title: RichText(text: _highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', false)),
-                      subtitle: tagData.tagName == null ? null : RichText(text: _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true)),
+                      subtitle: tagData.tagName == null
+                          ? null
+                          : RichText(text: _highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', true)),
                       leading: const Icon(Icons.search),
                       dense: true,
                       minLeadingWidth: 20,
