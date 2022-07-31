@@ -10,7 +10,6 @@ import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
-import 'package:jhentai/src/model/base_gallery.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
@@ -25,7 +24,6 @@ import 'package:jhentai/src/utils/color_util.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
-import '../pages/ranklist/ranklist_page_state.dart';
 import 'log.dart';
 
 T noOpParser<T>(v) => v as T;
@@ -187,20 +185,6 @@ class EHSpiderParser {
     Document document = parse(html);
     List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
     return _parseGalleryDetailsComments(commentElements);
-  }
-
-  static Map<RanklistType, List<BaseGallery>> rankPage2Ranklists(Response response) {
-    String html = response.data! as String;
-    Document document = parse(html);
-
-    List<Element> rankLists = document.querySelectorAll('.dc > .tdo');
-
-    return {
-      RanklistType.allTime: _parseRanklist(rankLists[0]),
-      RanklistType.year: _parseRanklist(rankLists[1]),
-      RanklistType.month: _parseRanklist(rankLists[2]),
-      RanklistType.day: _parseRanklist(rankLists[3]),
-    };
   }
 
   static String? forumPage2UserInfo(Response response) {
@@ -835,18 +819,6 @@ class EHSpiderParser {
     /// eg: '66 pages'
     String pageCountDesc = divs[1].text;
     return int.parse(pageCountDesc.split(' ')[0]);
-  }
-
-  static List<BaseGallery> _parseRanklist(Element ranklistDiv) {
-    List<Element> trs = ranklistDiv.querySelectorAll('table > tbody > tr');
-    return trs
-        .map(
-          (tr) => BaseGallery(
-            galleryUrl: tr.querySelector('.tun > a')!.attributes['href']!,
-            title: tr.querySelector('.tun > a')!.text,
-          ),
-        )
-        .toList();
   }
 
   static double _parseGalleryRating(Element tr) {
