@@ -385,7 +385,6 @@ class GalleryDownloadService extends GetxController {
       gid2ImageHrefs[gallery.gid]![from + i] = newThumbnails[i];
     }
     update(['$imageId::${gallery.gid}', '$imageHrefsId::${gallery.gid}']);
-    Log.download('parse image hrefs success');
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting
     if (gid2ImageHrefs[gallery.gid]![serialNo] == null) {
@@ -398,7 +397,6 @@ class GalleryDownloadService extends GetxController {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
       }
-      Log.download('begin to parse image hrefs');
       return EHRequest.requestDetailPage(
         galleryUrl: gallery.galleryUrl,
         thumbnailsPageNo: thumbnailsPageNo,
@@ -449,8 +447,6 @@ class GalleryDownloadService extends GetxController {
     } else {
       _updateImageUrl(image, gallery.gid, serialNo);
     }
-
-    Log.download('parse image url: $serialNo success');
   }
 
   AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo, [bool useCache = true]) {
@@ -458,7 +454,6 @@ class GalleryDownloadService extends GetxController {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
       }
-      Log.download('begin to parse image url: $serialNo');
       return EHRequest.requestImagePage(
         gid2ImageHrefs[gallery.gid]![serialNo]!.href,
         cancelToken: gid2CancelToken[gallery.gid],
@@ -531,7 +526,6 @@ class GalleryDownloadService extends GetxController {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
       }
-      Log.download('begin to download image: $serialNo');
       return EHRequest.download(
         url: url,
         path: _computeImageDownloadAbsolutePath(gallery, serialNo),
