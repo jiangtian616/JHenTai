@@ -7,7 +7,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../utils/screen_size_util.dart';
+import '../../../model/jh_layout.dart';
 
 class SettingStylePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
@@ -165,30 +165,23 @@ class SettingStylePage extends StatelessWidget {
                 ),
               ),
             ),
-            if (fullScreenWidth >= 600)
-              ListTile(
-                title: Text('layoutMode'.tr),
-                subtitle: Text(
-                  StyleSetting.layoutMode.value == LayoutMode.mobile
-                      ? 'mobileModeHint'.tr
-                      : StyleSetting.layoutMode.value == LayoutMode.tablet
-                          ? 'tabletModeHint'.tr
-                          : 'desktopModeHint'.tr,
-                ),
-                trailing: DropdownButton<LayoutMode>(
-                  value: StyleSetting.layoutMode.value,
-                  elevation: 4,
-                  alignment: AlignmentDirectional.centerEnd,
-                  onChanged: (LayoutMode? newValue) {
-                    StyleSetting.saveLayoutMode(newValue!);
-                  },
-                  items: [
-                    DropdownMenuItem(child: Text('mobileMode'.tr), value: LayoutMode.mobile),
-                    DropdownMenuItem(child: Text('tabletMode'.tr), value: LayoutMode.tablet),
-                    DropdownMenuItem(child: Text('desktopMode'.tr), value: LayoutMode.desktop),
-                  ],
-                ),
-              ),
+            Builder(
+              builder: (_) {
+                JHLayout layout = JHLayout.allLayouts.firstWhere((e) => e.mode == StyleSetting.actualLayout.value);
+
+                return ListTile(
+                  title: Text('layoutMode'.tr),
+                  subtitle: Text(layout.desc),
+                  trailing: DropdownButton<LayoutMode>(
+                    value: StyleSetting.layout.value,
+                    elevation: 4,
+                    alignment: AlignmentDirectional.centerEnd,
+                    onChanged: (LayoutMode? newValue) => StyleSetting.saveLayoutMode(newValue!),
+                    items: JHLayout.allLayouts.map((e) => DropdownMenuItem(child: Text(e.name), value: e.mode)).toList(),
+                  ),
+                );
+              },
+            ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

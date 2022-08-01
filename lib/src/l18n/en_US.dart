@@ -181,6 +181,19 @@ class en_US {
       'deleteTagSetSuccess': 'Delete Tag Set Success',
       'deleteTagSetFailed': 'Delete Tag Set Failed',
 
+      /// Layout
+      'layoutMode': 'Layout Mode',
+      'mobileLayoutV2Name': 'Mobile',
+      'mobileLayoutV2Desc': 'Single column',
+      'mobileLayoutName': 'Mobile(old)',
+      'mobileLayoutDesc': 'Maintenance stopped',
+      'tabletLayoutV2Name': 'Tablet',
+      'tabletLayoutV2Desc': 'Double column',
+      'tabletLayoutName': 'Tablet(old)',
+      'tabletLayoutDesc': 'Maintenance stopped',
+      'desktopLayoutName': 'Desktop',
+      'desktopLayoutDesc': 'Double column with left tab bar, supports keyboard',
+
       /// style setting page
       'enableTagZHTranslation': 'Translate tag name into chinese',
       'version': 'Version',
@@ -198,14 +211,6 @@ class en_US {
       'coverStyle': 'Cover Style',
       'cover': 'Cover',
       'adaptive': 'Adaptive',
-      'enableTabletLayout': 'Enable Tablet Layout',
-      'layoutMode': 'Layout Mode',
-      'mobileMode': 'Mobile Mode',
-      'tabletMode': 'Tablet Mode',
-      'desktopMode': 'Desktop Mode',
-      'mobileModeHint': 'Single column',
-      'tabletModeHint': 'Double column',
-      'desktopModeHint': 'Double column with left bar, optimized for shortcut keys',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

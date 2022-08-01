@@ -16,7 +16,7 @@ import 'package:scrollable_positioned_list/src/post_mount_callback.dart';
 /// Number of screens to scroll when scrolling a long distance.
 const int _screenScrollCount = 2;
 
-/// just copied from [package:scrollable_positioned_list/scrollable_positioned_list.dart] and add method [_scrollOffset]
+/// just copied from [package:scrollable_positioned_list/scrollable_positioned_list.dart] and add method [scrollOffset]
 class EHScrollablePositionedList extends StatefulWidget {
   const EHScrollablePositionedList.builder({
     required this.itemCount,

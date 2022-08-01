@@ -181,7 +181,20 @@ class zh_CN {
       'deleteTagSetSuccess': '删除标签数据成功',
       'deleteTagSetFailed': '删除标签数据失败',
 
+      /// Layout
+      'mobileLayoutV2Name': '手机模式',
+      'mobileLayoutV2Desc': '单列',
+      'mobileLayoutName': '手机模式(旧)',
+      'mobileLayoutDesc': '已停止维护',
+      'tabletLayoutV2Name': '平板模式',
+      'tabletLayoutV2Desc': '双列',
+      'tabletLayoutName': '平板模式(旧)',
+      'tabletLayoutDesc': '已停止维护',
+      'desktopLayoutName': '桌面模式',
+      'desktopLayoutDesc': '双列带侧栏，支持键盘操作',
+
       /// style setting page
+      'layoutMode': '布局模式',
       'enableTagZHTranslation': '开启标签中文翻译',
       'version': '版本',
       'downloadTagTranslationHint': '下载数据中... 已下载: ',
@@ -198,14 +211,6 @@ class zh_CN {
       'coverStyle': '封面图片样式',
       'cover': '覆盖',
       'adaptive': '自适应',
-      'enableTabletLayout': '开启平板双栏布局',
-      'layoutMode': '布局模式',
-      'mobileMode': '手机模式',
-      'tabletMode': '平板模式',
-      'desktopMode': '桌面模式',
-      'mobileModeHint': '单列',
-      'tabletModeHint': '双列',
-      'desktopModeHint': '双列带左侧边栏，对快捷键做了专门优化',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',

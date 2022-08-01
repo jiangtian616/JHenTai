@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../routes/routes.dart';
-import '../blank_page.dart';
-import 'mobile/mobile_layout_page.dart';
+import '../../../routes/routes.dart';
+import '../../blank_page.dart';
+import '../mobile/mobile_layout_page.dart';
 
 class TabletLayoutPage extends StatelessWidget {
   const TabletLayoutPage({Key? key}) : super(key: key);

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
+import '../../model/jh_layout.dart';
 import '../../setting/user_setting.dart';
 import '../../utils/route_util.dart';
 
@@ -53,7 +54,7 @@ class SettingPage extends StatelessWidget {
                 title: Text('download'.tr),
                 onTap: () => toNamed(Routes.settingPrefix + 'download'),
               ),
-              if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop && GetPlatform.isDesktop)
+              if (StyleSetting.actualLayout.value == LayoutMode.desktop && GetPlatform.isDesktop)
                 ListTile(
                   leading: const Icon(Icons.mouse),
                   title: Text('mouseWheel'.tr),

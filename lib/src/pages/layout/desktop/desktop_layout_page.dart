@@ -127,7 +127,7 @@ class DesktopLayoutPage extends StatelessWidget {
     return Navigator(
       key: Get.nestedKey(right),
       requestFocus: false,
-      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver(), FocusObserver()],
+      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver(), _FocusObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -157,7 +157,7 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 }
 
-class FocusObserver extends NavigatorObserver {
+class _FocusObserver extends NavigatorObserver {
   @override
   void didPop(Route route, Route? previousRoute) {
     Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();

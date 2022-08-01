@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
+import '../model/jh_layout.dart';
+
 class BlankPage extends StatelessWidget {
   const BlankPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: StyleSetting.layoutMode.value == LayoutMode.desktop ? Theme.of(context).appBarTheme.backgroundColor! : Theme.of(context).backgroundColor,
+      color: StyleSetting.layout.value == LayoutMode.desktop ? Theme.of(context).appBarTheme.backgroundColor! : Theme.of(context).backgroundColor,
       child: Center(
         child: Text(
           'J',

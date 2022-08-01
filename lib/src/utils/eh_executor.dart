@@ -1,3 +1,5 @@
+// Copyright (c) 2016, Agilord. All rights reserved. Use of this source code
+// is governed by a BSD-style license that can be found in the LICENSE file.
 import 'dart:async';
 import 'dart:collection';
 
@@ -174,8 +176,7 @@ class _EHExecutor implements EHExecutor {
           complete();
           return null;
         }
-        streamSubscription = stream.listen(streamController.add,
-            onError: streamController.addError, onDone: complete, cancelOnError: true);
+        streamSubscription = stream.listen(streamController.add, onError: streamController.addError, onDone: complete, cancelOnError: true);
       } catch (e, st) {
         completeWithError(e, st);
       }

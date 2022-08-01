@@ -2,12 +2,15 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
-import 'package:jhentai/src/pages/layout/tablet_layout_page.dart';
+import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
+import 'package:jhentai/src/pages/layout/tablet/tablet_layout_page.dart';
+import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/windows_app.dart';
 
 import '../consts/eh_consts.dart';
+import '../model/jh_layout.dart';
 import '../routes/routes.dart';
 import '../utils/route_util.dart';
 import '../utils/screen_size_util.dart';
@@ -45,26 +48,36 @@ class _HomePageState extends State<HomePage> {
     return WindowsApp(
       /// Use LayoutBuilder to listen to resize of window.
       child: LayoutBuilder(
-        builder: (context, constraints) => Obx(
+        builder: (_, __) => Obx(
           () {
-            if (StyleSetting.layoutMode.value == LayoutMode.mobile) {
-              StyleSetting.actualLayoutMode.value = LayoutMode.mobile;
+            if (StyleSetting.layout.value == LayoutMode.mobileV2) {
+              StyleSetting.actualLayout.value = LayoutMode.mobileV2;
+              return MobileLayoutPageV2();
+            }
+
+            if (StyleSetting.layout.value == LayoutMode.mobile) {
+              StyleSetting.actualLayout.value = LayoutMode.mobile;
               return MobileLayoutPage();
             }
 
             /// Device width is under 600, degrade to mobile layout.
             if (fullScreenWidth < 600) {
-              StyleSetting.actualLayoutMode.value = LayoutMode.mobile;
+              StyleSetting.actualLayout.value = StyleSetting.layout.value == LayoutMode.tablet ? LayoutMode.mobile : LayoutMode.mobileV2;
               untilBlankPage();
-              return MobileLayoutPage();
+              return StyleSetting.layout.value == LayoutMode.tablet ? MobileLayoutPage() : MobileLayoutPageV2();
             }
 
-            if (StyleSetting.layoutMode.value == LayoutMode.tablet) {
-              StyleSetting.actualLayoutMode.value = LayoutMode.tablet;
+            if (StyleSetting.layout.value == LayoutMode.tablet) {
+              StyleSetting.actualLayout.value = LayoutMode.tablet;
               return const TabletLayoutPage();
             }
 
-            StyleSetting.actualLayoutMode.value = LayoutMode.desktop;
+            if (StyleSetting.layout.value == LayoutMode.tabletV2) {
+              StyleSetting.actualLayout.value = LayoutMode.tabletV2;
+              return const TabletLayoutPageV2();
+            }
+
+            StyleSetting.actualLayout.value = LayoutMode.desktop;
             return DesktopLayoutPage();
           },
         ),

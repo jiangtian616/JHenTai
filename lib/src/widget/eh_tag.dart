@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
+import '../model/jh_layout.dart';
 import '../pages/search/nested/search_page_logic.dart';
 import '../routes/routes.dart';
 import '../setting/user_setting.dart';
@@ -95,7 +96,7 @@ class _EHTagState extends State<EHTag> {
   void _searchTag() {
     String keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
 
-    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
       if (isAtTop(Routes.simpleSearch)) {
         SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
         simpleSearchPageLogic.state.searchConfig.keyword = keyword;

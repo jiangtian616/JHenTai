@@ -31,6 +31,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
+import '../../model/jh_layout.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
@@ -327,7 +328,7 @@ class DetailsPageLogic extends GetxController {
   Future<void> searchUploader(String author) async {
     String keyword = 'uploader:"$author"';
 
-    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
       if (isAtTop(Routes.simpleSearch)) {
         SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
         simpleSearchPageLogic.state.searchConfig.keyword = keyword;
@@ -354,7 +355,7 @@ class DetailsPageLogic extends GetxController {
     /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
     String title = '"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"';
 
-    if (StyleSetting.actualLayoutMode.value == LayoutMode.desktop) {
+    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
       if (isAtTop(Routes.simpleSearch)) {
         SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
         simpleSearchPageLogic.state.searchConfig.keyword = title;

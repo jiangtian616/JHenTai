@@ -7,6 +7,7 @@ import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 
+import '../model/jh_layout.dart';
 import '../service/storage_service.dart';
 
 enum ListMode {
@@ -17,16 +18,7 @@ enum ListMode {
   flat,
 }
 
-enum CoverMode {
-  cover,
-  contain,
-}
-
-enum LayoutMode {
-  mobile,
-  tablet,
-  desktop,
-}
+enum CoverMode { cover, contain }
 
 class StyleSetting {
   static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
@@ -35,14 +27,18 @@ class StyleSetting {
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
 
-  static Rx<LayoutMode> layoutMode = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
-      ? LayoutMode.mobile.obs
+  static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
+      ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
-          : LayoutMode.tablet.obs;
+          : LayoutMode.tabletV2.obs;
 
-  /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayoutMode] to indicate actual layout.
-  static Rx<LayoutMode> actualLayoutMode = layoutMode.value.obs;
+  /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
+  static Rx<LayoutMode> actualLayout = layout.value.obs;
+
+  static bool get isInMobileLayout => layout.value == LayoutMode.mobileV2 || layout.value == LayoutMode.mobile;
+
+  static bool get isInTabletLayout => layout.value == LayoutMode.tabletV2 || layout.value == LayoutMode.tablet;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
@@ -89,7 +85,7 @@ class StyleSetting {
 
   static saveLayoutMode(LayoutMode layoutMode) {
     Log.verbose('saveLayoutMode:${layoutMode.name}');
-    StyleSetting.layoutMode.value = layoutMode;
+    StyleSetting.layout.value = layoutMode;
     _save();
   }
 
@@ -114,7 +110,7 @@ class StyleSetting {
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
       'coverMode': coverMode.value.index,
-      'layoutMode': layoutMode.value.index,
+      'layout': layout.value.index,
     };
   }
 
@@ -124,7 +120,7 @@ class StyleSetting {
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
-    layoutMode.value = LayoutMode.values[map['layoutMode'] ?? layoutMode.value.index];
-    actualLayoutMode.value = layoutMode.value;
+    layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
+    actualLayout.value = layout.value;
   }
 }
