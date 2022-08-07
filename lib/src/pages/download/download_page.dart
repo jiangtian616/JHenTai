@@ -1,14 +1,18 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
+import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'archive_download_body.dart';
 import 'gallery_download_body.dart';
 
 class DownloadPage extends StatefulWidget {
-  const DownloadPage({Key? key}) : super(key: key);
+  final bool showMenuButton;
+
+  const DownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
 
   @override
   State<DownloadPage> createState() => _DownloadPageState();
@@ -26,7 +30,20 @@ class _DownloadPageState extends State<DownloadPage> {
         centerTitle: true,
         title: _showArchiveBody ? Text('archive'.tr) : Text('download'.tr),
         elevation: 1,
-        leading: ExcludeFocus(child: IconButton(onPressed: _showHelpInfo, icon: const Icon(Icons.help, size: 22))),
+        leadingWidth: 120,
+        leading: ExcludeFocus(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (widget.showMenuButton)
+                IconButton(
+                  icon: const Icon(FontAwesomeIcons.bars, size: 20),
+                  onPressed: () => TapMenuButtonNotification().dispatch(context),
+                ),
+              IconButton(onPressed: _showHelpInfo, icon: const Icon(Icons.help, size: 22)),
+            ],
+          ),
+        ),
         actions: [
           if (!_showArchiveBody)
             ExcludeFocus(

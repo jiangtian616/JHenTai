@@ -78,7 +78,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   Widget _itemBuilder(BuildContext context, int index) {
     GalleryDownloadedData gallery = downloadService.gallerys[index];
     return FocusWidget(
-      decoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => _goToReadPage(gallery),
       handleTapArrowRight: () => _goToReadPage(gallery),
@@ -158,7 +158,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toNamed(Routes.details, arguments: gallery.galleryUrl),
+      onTap: () => toRoute(Routes.details, arguments: gallery.galleryUrl),
       child: GetBuilder<GalleryDownloadService>(
         id: '$imageUrlId::${gallery.gid}::0',
         builder: (_) {
@@ -362,13 +362,13 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
               _handleRemoveItem(context, index);
-              back();
+              backRoute();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
       ),
     );
@@ -377,7 +377,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   void _goToReadPage(GalleryDownloadedData gallery) {
     int readIndexRecord = storageService.read('readIndexRecord::${gallery.gid}') ?? 0;
 
-    toNamed(
+    toRoute(
       Routes.read,
       parameters: {
         'mode': 'local',

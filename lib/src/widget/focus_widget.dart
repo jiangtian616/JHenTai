@@ -7,7 +7,7 @@ import '../model/jh_layout.dart';
 class FocusWidget extends StatefulWidget {
   final bool enableFocus;
   final Widget child;
-  final BoxDecoration? decoration;
+  final BoxDecoration? focusedDecoration;
   final BoxDecoration? foregroundDecoration;
   final VoidCallback? handleTapEnter;
   final VoidCallback? handleTapArrowLeft;
@@ -16,7 +16,7 @@ class FocusWidget extends StatefulWidget {
   const FocusWidget({
     Key? key,
     this.enableFocus = true,
-    this.decoration,
+    this.focusedDecoration,
     this.foregroundDecoration,
     required this.child,
     this.handleTapEnter,
@@ -33,7 +33,7 @@ class _FocusWidgetState extends State<FocusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enableFocus || StyleSetting.actualLayout.value != LayoutMode.desktop) {
+    if (!widget.enableFocus || StyleSetting.actualLayout != LayoutMode.desktop) {
       return widget.child;
     }
 
@@ -62,7 +62,7 @@ class _FocusWidgetState extends State<FocusWidget> {
       },
       child: Container(
         foregroundDecoration: widget.foregroundDecoration,
-        decoration: isFocused ? widget.decoration : null,
+        decoration: isFocused ? widget.focusedDecoration : null,
         child: widget.child,
       ),
     );

@@ -29,7 +29,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     return KeepAliveWrapper(
       keepAlive: keepAlive,
       child: FocusWidget(
-        decoration: BoxDecoration(
+        focusedDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!),
         ),

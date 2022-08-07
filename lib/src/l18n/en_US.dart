@@ -37,6 +37,7 @@ class en_US {
 
       /// login page
       'login': 'Login',
+      'notLoggedIn': 'Login',
       'logout': 'Logout',
       'passwordLogin': 'Password Login',
       'cookieLogin': 'Cookie Login',
@@ -292,8 +293,8 @@ class en_US {
       'searchConfig': 'Search Config',
       'addTabBar': 'Add Tab Bar',
       'updateTabBar': 'Update Tab Bar',
-      'addQuickSearch': 'Add Quick Search',
-      'updateQuickSearch': 'Update Quick Search',
+      'addQuickSearch': 'Add',
+      'updateQuickSearch': 'Update',
       'filter': 'Filter',
       'tabBarName': 'TabBar Name',
       'quickSearchName': 'Name',
@@ -302,6 +303,7 @@ class en_US {
       'searchType': 'Search Type',
       'popular': 'Popular',
       'ranklist': 'Ranklist',
+      'ranklistBoard': 'Ranklist',
       'watched': 'Watched',
       'history': 'History',
       'keyword': 'Keyword',
@@ -328,11 +330,14 @@ class en_US {
       'month': 'Mon',
       'day': 'Day',
 
-      /// ranklist view
+      /// popular page
+      'getPopularListFailed': 'Get Popular List Failed',
+
+      /// ranklist page
       'getRanklistFailed': 'Get Ranklist Failed',
       'getSomeOfGallerysFailed': 'Get Some of Gallerys Failed',
 
-      /// history view
+      /// history page
       'getHistoryGallerysFailed': 'Get Some of History Gallerys Failed',
 
       /// search page
@@ -369,6 +374,10 @@ class en_US {
 
       /// quick search page
       'quickSearch': 'Quick Search',
+
+      /// dashboard page
+      'seeAll': 'All',
+      'newest': 'Newest',
 
       /// tag namespace
       'language': 'Language',

@@ -12,6 +12,8 @@ class GallerysPageLogic extends BasePageLogic {
   @override
   final String bodyId = 'bodyId';
   @override
+  final String scroll2TopButtonId = 'scroll2TopButtonId';
+  @override
   final String refreshStateId = 'refreshStateId';
   @override
   final String loadingStateId = 'loadingStateId';
@@ -21,6 +23,9 @@ class GallerysPageLogic extends BasePageLogic {
 
   @override
   bool get useSearchConfig => true;
+
+  @override
+  bool get showFilterButton => true;
 
   @override
   final GallerysPageState state = GallerysPageState();

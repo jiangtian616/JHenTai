@@ -7,18 +7,21 @@ import '../base/base_page.dart';
 import 'watched_page_logic.dart';
 
 class WatchedPage extends BasePage {
-  const WatchedPage({Key? key}) : super(key: key);
+  const WatchedPage({
+    Key? key,
+    bool showMenuButton = false,
+    bool showTitle = false,
+    String? name,
+  }) : super(
+    key: key,
+    showMenuButton: showMenuButton,
+    showTitle: showTitle,
+    name: name,
+  );
 
   @override
-  State<BasePage> createState() => WatchedPageFlutterState();
-}
-
-class WatchedPageFlutterState extends BasePageFlutterState {
-  @override
-  final WatchedPageLogic logic = Get.put(WatchedPageLogic(), permanent: true);
-  @override
-  final WatchedPageState state = Get.find<WatchedPageLogic>().state;
+  WatchedPageLogic get logic => Get.find<WatchedPageLogic>();
 
   @override
-  bool get showFilterButton => true;
+  WatchedPageState get state => Get.find<WatchedPageLogic>().state;
 }

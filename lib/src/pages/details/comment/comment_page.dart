@@ -181,7 +181,7 @@ class _SendCommentDialogState extends State<_SendCommentDialog> {
     if (errMsg == null) {
       setState(() {
         sendCommentState = LoadingState.loading;
-        back(result: true);
+        backRoute(result: true);
       });
       return;
     }

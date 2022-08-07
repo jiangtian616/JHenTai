@@ -36,11 +36,11 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
       actions: [
         CupertinoDialogAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
         CupertinoDialogAction(
           child: Text('OK'.tr),
-          onPressed: () => back(result: interval),
+          onPressed: () => backRoute(result: interval),
         ),
       ],
     );

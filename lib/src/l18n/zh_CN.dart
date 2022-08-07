@@ -37,6 +37,7 @@ class zh_CN {
 
       /// login page
       'login': '登录',
+      'notLoggedIn': '未登录',
       'logout': '注销',
       'passwordLogin': '密码登录',
       'cookieLogin': 'cookie登录',
@@ -292,8 +293,8 @@ class zh_CN {
       'searchConfig': '搜索配置',
       'addTabBar': '添加标签栏',
       'updateTabBar': '更新配置',
-      'addQuickSearch': '添加到快速搜索',
-      'updateQuickSearch': '修改快速搜索',
+      'addQuickSearch': '添加',
+      'updateQuickSearch': '修改',
       'filter': '筛选',
       'tabBarName': '标签栏名称',
       'quickSearchName': '名称',
@@ -302,6 +303,7 @@ class zh_CN {
       'searchType': '搜索方式',
       'popular': '热门',
       'ranklist': '排行',
+      'ranklistBoard': '排行榜',
       'watched': '关注',
       'history': '历史',
       'keyword': '关键词',
@@ -328,11 +330,14 @@ class zh_CN {
       'month': '月',
       'day': '日',
 
-      /// ranklist view
+      /// popular page
+      'getPopularListFailed': '获取热门画廊列表失败',
+
+      /// ranklist page
       'getRanklistFailed': '获取排行榜数据失败',
       'getSomeOfGallerysFailed': '获取部分画廊数据失败',
 
-      /// history view
+      /// history page
       'getHistoryGallerysFailed': '获取历史数据失败',
 
       /// search page
@@ -368,6 +373,10 @@ class zh_CN {
 
       /// quick search page
       'quickSearch': '快速搜索',
+
+      /// dashboard page
+      'seeAll': '查看全部',
+      'newest': '最新',
 
       /// tag namespace
       'language': '语言',

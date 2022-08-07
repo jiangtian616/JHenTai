@@ -8,8 +8,8 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import '../model/jh_layout.dart';
 import '../pages/layout/desktop/desktop_layout_page_logic.dart';
 
-/// adaptive to tablet layout(nested navigation)
-Future<T?>? toNamed<T>(
+/// adaptive to different layout
+Future<T?>? toRoute<T>(
   String routeName, {
   dynamic arguments,
   bool preventDuplicates = true,
@@ -18,7 +18,7 @@ Future<T?>? toNamed<T>(
   int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
-  if (StyleSetting.actualLayout.value == LayoutMode.mobile || page.side == Side.fullScreen || id == fullScreen) {
+  if (StyleSetting.isInMobileLayout || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -31,19 +31,18 @@ Future<T?>? toNamed<T>(
     if (StyleSetting.layout.value == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
-      leftRouting.args = arguments;
-      Get.parameters = parameters ?? Get.parameters;
-
       int tabIndex = logic.state.icons.indexWhere((icon) => icon.routeName == routeName);
-      logic.state.selectedTabIndex = tabIndex;
-      logic.update([logic.tabBarId, logic.pageId]);
+      if (logic.state.selectedTabIndex != tabIndex) {
+        logic.state.selectedTabIndex = tabIndex;
+        logic.update([logic.tabBarId, logic.pageId]);
+      }
       return Future.value(null);
     }
 
     return Get.toNamed(
       routeName,
       arguments: arguments,
-      id: left,
+      id: StyleSetting.isInV2Layout ? leftV2 : left,
       preventDuplicates: preventDuplicates,
       parameters: parameters,
     );
@@ -52,19 +51,20 @@ Future<T?>? toNamed<T>(
   if (offAllBefore ?? page.offAllBefore) {
     Get.until(
       (route) => route.settings.name == Routes.blank,
-      id: right,
+      id: StyleSetting.isInV2Layout ? rightV2 : right,
     );
   }
+
   return Get.toNamed(
     routeName,
     arguments: arguments,
-    id: right,
+    id: StyleSetting.isInV2Layout ? rightV2 : right,
     parameters: parameters,
     preventDuplicates: preventDuplicates,
   );
 }
 
-void back<T>({
+void backRoute<T>({
   String? currentRoute,
   T? result,
   bool closeOverlays = false,
@@ -75,17 +75,21 @@ void back<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.actualLayout.value == LayoutMode.mobile
+    id: StyleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? left
+            ? StyleSetting.isInV2Layout
+                ? leftV2
+                : left
             : side == Side.right
-                ? right
+                ? StyleSetting.isInV2Layout
+                    ? rightV2
+                    : right
                 : null,
   );
 }
 
-Future<T?>? offNamed<T>(
+Future<T?>? offRoute<T>(
   String routeName, {
   dynamic arguments,
   bool preventDuplicates = true,
@@ -96,52 +100,54 @@ Future<T?>? offNamed<T>(
   return Get.offNamed(
     routeName,
     arguments: arguments,
-    id: StyleSetting.actualLayout.value == LayoutMode.mobile
+    id: StyleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? left
+            ? StyleSetting.isInV2Layout
+                ? leftV2
+                : left
             : side == Side.right
-                ? right
+                ? StyleSetting.isInV2Layout ? rightV2 : right
                 : null,
     preventDuplicates: preventDuplicates,
     parameters: parameters,
   );
 }
 
-void until({String? currentRoute, required RoutePredicate predicate}) {
+void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
   return Get.until(
     predicate,
-    id: StyleSetting.actualLayout.value == LayoutMode.mobile
+    id: StyleSetting.isInMobileLayout
         ? null
         : side == Side.left
             ? left
             : side == Side.right
-                ? right
+                ? StyleSetting.isInV2Layout ? rightV2 : right
                 : null,
   );
 }
 
 /// pop all pages in right screen if exists
-void untilBlankPage() {
+void untilRoute2BlankPage() {
   if (!Get.keys.containsKey(right) || Get.keys[right]?.currentContext == null) {
     return;
   }
   Get.until(
     (route) => route.settings.name == Routes.blank,
-    id: right,
+    id: StyleSetting.isInV2Layout ? rightV2 : right,
   );
 }
 
-bool isAtTop(String routeName) {
+bool isRouteAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
 
-  if (StyleSetting.actualLayout.value == LayoutMode.mobile || side == Side.fullScreen) {
+  if (StyleSetting.isInMobileLayout || side == Side.fullScreen) {
     return Get.currentRoute == routeName;
   }
 
   if (side == Side.left) {
-    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
+    if (StyleSetting.actualLayout == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
       return logic.state.icons[logic.state.selectedTabIndex].routeName == routeName;
     }

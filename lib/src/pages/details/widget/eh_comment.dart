@@ -185,7 +185,7 @@ class _EHCommentState extends State<EHComment> {
       return false;
     }
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
-      toNamed(Routes.details, arguments: url, offAllBefore: false);
+      toRoute(Routes.details, arguments: url, offAllBefore: false);
       return true;
     }
     return await launch(url);

@@ -59,7 +59,7 @@ class DetailsPage extends StatelessWidget {
     return GetBuilder<DetailsPageLogic>(
       id: bodyId,
       tag: tag,
-      builder: (logic) {
+      builder: (_) {
         return Scaffold(
           appBar: AppBar(
             title: Text(detailsPageState.gallery?.title ?? ''),
@@ -114,6 +114,17 @@ class DetailsPage extends StatelessWidget {
               ),
             );
           }(),
+          floatingActionButton: detailsPageState.galleryDetails != null
+              ? ExcludeFocus(
+                  child: FloatingActionButton(
+                    child: const Icon(Icons.arrow_upward, size: 28),
+                    foregroundColor: Get.theme.primaryColor,
+                    backgroundColor: Theme.of(context).backgroundColor,
+                    elevation: 3,
+                    onPressed: DetailsPageLogic.current?.scroll2Top,
+                  ),
+                )
+              : null,
         );
       },
     );
@@ -154,7 +165,7 @@ class DetailsPage extends StatelessWidget {
                     );
                   }),
                 ),
-                onTap: () => toNamed(Routes.singleImagePage, arguments: gallery.cover),
+                onTap: () => toRoute(Routes.singleImagePage, arguments: gallery.cover),
               ),
               Expanded(
                 child: Column(
@@ -308,7 +319,7 @@ class DetailsPage extends StatelessWidget {
           height: 50,
           child: TextButton(
             child: Text('thisGalleryHasANewVersion'.tr),
-            onPressed: () => toNamed(
+            onPressed: () => toRoute(
               Routes.details,
               arguments: parentGalleryUrl,
               offAllBefore: false,
@@ -537,7 +548,7 @@ class DetailsPage extends StatelessWidget {
             children: [
               ExcludeFocus(
                 child: TextButton(
-                  onPressed: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                  onPressed: () => toRoute(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
                   child: Text(galleryDetails.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
                 ),
               )
@@ -560,7 +571,7 @@ class DetailsPage extends StatelessWidget {
             children: galleryDetails.comments
                 .map(
                   (comment) => GestureDetector(
-                    onTap: () => toNamed(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
+                    onTap: () => toRoute(Routes.comment, arguments: detailsPageState.galleryDetails!.comments),
                     child: EHComment(
                       comment: comment,
                       maxLines: 4,

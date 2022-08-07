@@ -68,7 +68,7 @@ class _RatingDialogState extends State<RatingDialog> {
               SizedBox(
                 height: 40,
                 child: TextButton(
-                  onPressed: () => back(result: rating),
+                  onPressed: () => backRoute(result: rating),
                   child: Text(
                     'submit'.tr,
                     style: const TextStyle(

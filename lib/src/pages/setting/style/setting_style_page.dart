@@ -165,22 +165,16 @@ class SettingStylePage extends StatelessWidget {
                 ),
               ),
             ),
-            Builder(
-              builder: (_) {
-                JHLayout layout = JHLayout.allLayouts.firstWhere((e) => e.mode == StyleSetting.actualLayout.value);
-
-                return ListTile(
-                  title: Text('layoutMode'.tr),
-                  subtitle: Text(layout.desc),
-                  trailing: DropdownButton<LayoutMode>(
-                    value: StyleSetting.layout.value,
-                    elevation: 4,
-                    alignment: AlignmentDirectional.centerEnd,
-                    onChanged: (LayoutMode? newValue) => StyleSetting.saveLayoutMode(newValue!),
-                    items: JHLayout.allLayouts.map((e) => DropdownMenuItem(child: Text(e.name), value: e.mode)).toList(),
-                  ),
-                );
-              },
+            ListTile(
+              title: Text('layoutMode'.tr),
+              subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == StyleSetting.layout.value).desc),
+              trailing: DropdownButton<LayoutMode>(
+                value: StyleSetting.actualLayout,
+                elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
+                onChanged: (LayoutMode? newValue) => StyleSetting.saveLayoutMode(newValue!),
+                items: JHLayout.allLayouts.where((layout) => layout.isSupported()).map((e) => DropdownMenuItem(child: Text(e.name), value: e.mode)).toList(),
+              ),
             ),
           ],
         ).paddingSymmetric(vertical: 16);

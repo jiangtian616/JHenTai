@@ -75,7 +75,7 @@ class SettingEHPage extends StatelessWidget {
               title: Text('myTags'.tr),
               subtitle: Text('myTagsHint'.tr),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
-              onTap: () => toNamed(Routes.tagSets),
+              onTap: () => toRoute(Routes.tagSets),
             ),
           ],
         );
@@ -90,7 +90,7 @@ class SettingEHPage extends StatelessWidget {
     }
 
     List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-    await toNamed(
+    await toRoute(
       Routes.webview,
       arguments: {
         'url': EHConsts.EUconfig,

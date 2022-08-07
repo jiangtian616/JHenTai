@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
@@ -78,7 +79,7 @@ class DesktopLayoutPage extends StatelessWidget {
                   children: [
                     FocusWidget(
                       enableFocus: state.icons[index].routeName != Routes.setting,
-                      decoration: const BoxDecoration(color: Colors.grey),
+                      focusedDecoration: const BoxDecoration(color: Colors.grey),
                       handleTapEnter: () => logic.handleTapTabBarButton(index),
                       handleTapArrowRight: () {
                         if (state.selectedTabIndex != index) {
@@ -93,7 +94,9 @@ class DesktopLayoutPage extends StatelessWidget {
                         child: Container(
                           height: 32,
                           width: 48,
-                          decoration: state.selectedTabIndex == index ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!))) : null,
+                          decoration: state.selectedTabIndex == index
+                              ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
+                              : null,
                           child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
                         ).paddingAll(8),
                       ),
@@ -118,7 +121,15 @@ class DesktopLayoutPage extends StatelessWidget {
       node: state.leftColumnFocusScopeNode,
       child: GetBuilder<DesktopLayoutPageLogic>(
         id: logic.pageId,
-        builder: (_) => state.icons[state.selectedTabIndex].page.call(),
+        builder: (_) => Stack(
+          children: state.icons
+              .where((icon) => icon.shouldRender)
+              .mapIndexed((index, icon) => Offstage(
+                    offstage: state.selectedTabOrder != index,
+                    child: icon.page.call(),
+                  ))
+              .toList(),
+        ),
       ),
     );
   }

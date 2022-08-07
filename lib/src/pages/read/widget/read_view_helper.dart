@@ -42,7 +42,7 @@ class ReadViewHelper extends StatelessWidget {
       ),
       child: EHKeyboardListener(
         focusNode: state.focusNode,
-        handleEsc: back,
+        handleEsc: backRoute,
         handleSpace: logic.toggleMenu,
         handlePageDown: logic.toNext,
         handlePageUp: logic.toPrev,
@@ -51,7 +51,7 @@ class ReadViewHelper extends StatelessWidget {
         handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
         handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
         handleLCtrl: logic.toNext,
-        handleEnd: back,
+        handleEnd: backRoute,
         child: Stack(
           children: [
             child,
@@ -220,7 +220,7 @@ class ReadViewHelper extends StatelessWidget {
                   },
                 ),
                 IconButton(
-                  onPressed: () => toNamed(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
+                  onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
                   icon: const Icon(Icons.settings),
                 ),
               ],

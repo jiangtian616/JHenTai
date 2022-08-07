@@ -107,7 +107,7 @@ class EHCookieManager extends CookieManager {
   }
 
   Future<void> removeAllCookies() async {
-    await cookieJar.deleteAll();
+    return cookieJar.deleteAll();
   }
 
   /// eh host -> save cookie for all eh hosts

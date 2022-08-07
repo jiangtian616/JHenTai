@@ -5,44 +5,27 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/search/simple/simple_search_page_state.dart';
-import 'package:jhentai/src/service/quick_search_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/pages/base/base_page_logic.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 
-import '../../../model/search_config.dart';
-import '../../../service/tag_translation_service.dart';
+import '../../../network/eh_request.dart';
+import '../../../service/quick_search_service.dart';
+import '../../../service/storage_service.dart';
+import '../../../setting/style_setting.dart';
+import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 import '../../../utils/snack_util.dart';
-import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
-import '../../base/base_page_logic.dart';
 
-class SimpleSearchPageLogic extends BasePageLogic {
+mixin BaseSearchPageLogic on BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
+  BaseSearchPageState get state;
+
+  String get searchFieldId;
 
   @override
-  int get tabIndex => 1;
+  bool showScroll2TopButton = false;
 
-  @override
-  bool get useSearchConfig => false;
-
-  @override
-  bool get autoLoadForFirstTime => false;
-
-  @override
-  final SimpleSearchPageState state = SimpleSearchPageState();
   final QuickSearchService quickSearchService = Get.find();
   final StorageService storageService = Get.find();
 
@@ -136,20 +119,6 @@ class SimpleSearchPageLogic extends BasePageLogic {
     loadMore(checkLoadingState: false);
   }
 
-  Future<void> addQuickSearch() async {
-    Map<String, dynamic>? result = await Get.dialog(
-      EHSearchConfigDialog(searchConfig: state.searchConfig, type: EHSearchConfigDialogType.add),
-    );
-
-    if (result == null) {
-      return;
-    }
-
-    String quickSearchName = result['quickSearchName'];
-    SearchConfig searchConfig = result['searchConfig'];
-    quickSearchService.addQuickSearch(quickSearchName, searchConfig);
-  }
-
   /// search only if there's no timer active (300ms)
   Future<void> waitAndSearchTags() async {
     timer?.cancel();
@@ -209,12 +178,9 @@ class SimpleSearchPageLogic extends BasePageLogic {
     });
   }
 
-  void updateBody() {
-    update([bodyId]);
-  }
-
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
+    showScroll2TopButton = state.bodyType == SearchPageBodyType.gallerys;
     update([pageId]);
   }
 }

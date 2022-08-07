@@ -23,6 +23,8 @@ class DesktopLayoutPageLogic extends GetxController {
   /// at gallery bar and tap gallery bar again -> scroll to top
   /// at gallery bar and tap gallery bar twice -> scroll to top and refresh
   void handleTapTabBarButton(int index) {
+    state.icons[index].shouldRender = true;
+
     int prevIndex = state.selectedTabIndex;
     state.selectedTabIndex = index;
 

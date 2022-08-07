@@ -2,20 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
-
-import '../../../routes/routes.dart';
-import '../../../utils/route_util.dart';
-import '../simple/simple_search_page_logic.dart';
+import 'package:jhentai/src/utils/search_util.dart';
 
 class QuickSearchPage extends StatelessWidget {
-  QuickSearchPage({Key? key}) : super(key: key);
+  final bool automaticallyImplyLeading;
+
+  QuickSearchPage({Key? key, this.automaticallyImplyLeading = true}) : super(key: key);
 
   final QuickSearchService quickSearchService = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('quickSearch'.tr)),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('quickSearch'.tr),
+        automaticallyImplyLeading: automaticallyImplyLeading,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, size: 24),
+            onPressed: () => handleAddQuickSearch(),
+          ),
+        ],
+      ),
       body: GetBuilder<QuickSearchService>(
         builder: (_) {
           Iterable<MapEntry<String, SearchConfig>> entries = quickSearchService.quickSearchConfigs.entries;
@@ -45,18 +54,8 @@ class QuickSearchPage extends StatelessWidget {
                         onPressed: () => quickSearchService.handleUpdateQuickSearch(entries.elementAt(index)),
                       ),
                     ],
-                  ).marginOnly(right: 24),
-                  onTap: () {
-                    SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
-                    simpleSearchPageLogic.state.searchConfig = entries.elementAt(index).value.copyWith();
-                    String keyword = simpleSearchPageLogic.state.searchConfig.keyword ?? '';
-
-                    if (isAtTop(Routes.simpleSearch)) {
-                      simpleSearchPageLogic.clearAndRefresh();
-                      return;
-                    }
-                    toNamed(Routes.simpleSearch, parameters: {'keyword': keyword});
-                  },
+                  ).marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
+                  onTap: () => newSearchWithConfig(entries.elementAt(index).value),
                 ),
                 const Divider(thickness: 0.7, height: 2),
               ],

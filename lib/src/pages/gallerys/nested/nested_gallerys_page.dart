@@ -122,7 +122,7 @@ class NestedGallerysPage extends StatelessWidget {
                                     return;
                                   }
                                   nestedGallerysPageLogic.tabController.animateTo(index);
-                                  back(currentRoute: Routes.mobileLayout);
+                                  backRoute(currentRoute: Routes.mobileLayout);
                                 },
                               ),
                               const Divider(thickness: 0.7, height: 2, indent: 16),
@@ -180,7 +180,7 @@ class NestedGallerysPage extends StatelessWidget {
                               ),
                             IconButton(
                               icon: const Icon(FontAwesomeIcons.search, size: 18),
-                              onPressed: () => toNamed(Routes.search),
+                              onPressed: () => toRoute(Routes.search),
                             ),
                           ],
                         );
@@ -289,7 +289,7 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
             scrollBehavior: ScrollConfiguration.of(context),
             slivers: <Widget>[
               _buildPullDownIndicator(),
-              _buildGalleryCollection(widget.tabIndex),
+              _buildGalleryCollection(context, widget.tabIndex),
               _buildLoadMoreIndicator(),
             ],
           );
@@ -336,9 +336,10 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
     );
   }
 
-  Widget _buildGalleryCollection(int tabIndex) {
+  Widget _buildGalleryCollection(BuildContext context, int tabIndex) {
     return EHGalleryCollection(
       key: gallerysViewState.galleryCollectionKeys[tabIndex],
+      context: context,
       gallerys: gallerysViewState.gallerys[tabIndex],
       loadingState: gallerysViewState.loadingState[tabIndex],
       handleTapCard: gallerysViewLogic.handleTapCard,

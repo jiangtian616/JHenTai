@@ -188,7 +188,7 @@ class _ReadPageState extends State<ReadPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 LoadingStateIndicator(
-                  userCupertinoIndicator: false,
+                  useCupertinoIndicator: false,
                   loadingState: state.parseImageHrefsState,
                   idleWidget: const CircularProgressIndicator(),
                   errorWidget: const Icon(Icons.warning, color: Colors.yellow),
@@ -220,7 +220,7 @@ class _ReadPageState extends State<ReadPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   LoadingStateIndicator(
-                    userCupertinoIndicator: false,
+                    useCupertinoIndicator: false,
                     loadingState: state.parseImageUrlStates[index],
                     idleWidget: const CircularProgressIndicator(),
                     errorWidget: const Icon(Icons.warning, color: Colors.yellow),
@@ -357,13 +357,13 @@ class _ReadPageState extends State<ReadPage> {
             child: Text('reload'.tr),
             onPressed: () async {
               callback();
-              back();
+              backRoute();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
       ),
     );

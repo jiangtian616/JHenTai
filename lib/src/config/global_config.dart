@@ -9,4 +9,5 @@ class GlobalConfig {
   static const double bottomMenuHeight = 220;
   static const double bottomMenuHeightWithoutThumbnails = 100;
 
+  static const double dashboardCardSize = 210;
 }

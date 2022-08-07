@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:jhentai/src/database/database.dart';
+import 'package:flutter/widgets.dart';
+import 'package:jhentai/src/pages/base/base_page_state.dart';
 
-import '../../base/base_page_state.dart';
+import '../../../database/database.dart';
 
 enum SearchPageBodyType { gallerys, suggestionAndHistory }
 
-class SimpleSearchPageState extends BasePageState {
+mixin BaseSearchPageState on BasePageState {
   /// used to init body
   bool hasSearched = false;
 

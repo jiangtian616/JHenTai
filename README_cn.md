@@ -47,17 +47,25 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 ## 截图
 
-### 桌面模式
+### 手机模式V2
 
-<img width="770" src="screenshot/desktop.png"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobileV2_zh.jpg"/>
 
-### 平板模式 (已停止维护)
+### 手机模式旧 (已停止维护)
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+
+### 平板模式V2
+
+<img width="770" src="screenshot/tabletV2_zh.png"/>
+
+### 平板模式旧 (已停止维护)
 
 <img width="770" src="screenshot/0.png"/>
 
-### 手机模式 (已停止维护)
+### 桌面模式
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+<img width="770" src="screenshot/desktop.png"/>
 
 ### 画廊页 & 搜索页
 
@@ -75,7 +83,7 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 ## 主要功能
 
-- [x] 支持手机、平板、桌面三种布局
+- [x] 支持手机、平板、桌面三端共五种布局
 - [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页
 - [x] 在线阅读与下载，支持恢复下载记录，支持在上传者更新画廊后同步更新本地已下载的画廊

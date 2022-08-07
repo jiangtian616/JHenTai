@@ -9,6 +9,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
@@ -187,7 +188,7 @@ class EHSpiderParser {
     return _parseGalleryDetailsComments(commentElements);
   }
 
-  static String? forumPage2UserInfo(Response response) {
+  static Map<String, String?>? forumPage2UserInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -196,7 +197,13 @@ class EHSpiderParser {
       return null;
     }
 
-    return document.querySelector('.home > b > a')!.text;
+    String userName = document.querySelector('.home > b > a')!.text;
+    String? avatarImgUrl = document.querySelector('#profilename')?.nextElementSibling?.nextElementSibling?.querySelector('img')?.attributes['src'];
+    if (avatarImgUrl != null) {
+      avatarImgUrl = EHConsts.EForums + avatarImgUrl;
+    }
+
+    return {'userName': userName, 'avatarImgUrl': avatarImgUrl};
   }
 
   static List<String> favoritePopup2FavoriteTagNames(Response response) {

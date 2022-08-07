@@ -13,10 +13,10 @@ class SingleImagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EHKeyboardListener(
-      handleEsc: () => back(currentRoute: Routes.singleImagePage),
+      handleEsc: () => backRoute(currentRoute: Routes.singleImagePage),
       child: Scaffold(
         appBar: AppBar(
-          leading: BackButton(onPressed: () => back(currentRoute: Routes.singleImagePage, closeOverlays: true)),
+          leading: BackButton(onPressed: () => backRoute(currentRoute: Routes.singleImagePage, closeOverlays: true)),
         ),
         body: Container(
           constraints: const BoxConstraints.expand(),

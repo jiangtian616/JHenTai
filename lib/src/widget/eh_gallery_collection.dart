@@ -13,6 +13,7 @@ import 'eh_gallery_waterflow_card.dart';
 /// act as a List or WaterfallFlow according to Style Setting
 Widget EHGalleryCollection({
   Key? key,
+  required BuildContext context,
   required List<Gallery> gallerys,
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
@@ -36,8 +37,8 @@ Widget EHGalleryCollection({
           return Container(
             decoration: StyleSetting.listMode.value == ListMode.flat
                 ? BoxDecoration(
-                    color: Get.theme.cardColor,
-                    border: const Border(bottom: BorderSide(width: 0.5, color: Colors.grey)),
+                    color: Theme.of(context).cardColor,
+                    border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
                   )
                 : null,
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),

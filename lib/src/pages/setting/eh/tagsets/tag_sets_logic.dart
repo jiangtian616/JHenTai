@@ -161,13 +161,13 @@ class TagSetsLogic extends GetxController {
             ),
             onPressed: () async {
               deleteTagSet(index);
-              back();
+              backRoute();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
       ),
     );

@@ -11,9 +11,11 @@ import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import '../../model/gallery.dart';
 import '../../routes/routes.dart';
 import '../../service/tag_translation_service.dart';
+import '../../setting/user_setting.dart';
 import '../../utils/log.dart';
 import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
+import '../../utils/toast_util.dart';
 import '../../widget/jump_page_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_state.dart';
@@ -27,6 +29,8 @@ abstract class BasePageLogic extends GetxController {
 
   String get bodyId;
 
+  String get scroll2TopButtonId;
+
   String get refreshStateId;
 
   String get loadingStateId;
@@ -35,14 +39,22 @@ abstract class BasePageLogic extends GetxController {
 
   bool get autoLoadForFirstTime => true;
 
+  bool get autoLoadNeedLogin => false;
+
+  bool get showFilterButton => false;
+
+  bool get showJumpButton => true;
+
+  bool get showScroll2TopButton => true;
+
   int get tabIndex;
 
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService _storageService = Get.find();
 
   @override
-  void onInit() {
-    super.onInit();
+  void onReady() {
+    super.onReady();
 
     if (Get.isRegistered<DesktopLayoutPageLogic>()) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
@@ -56,6 +68,12 @@ abstract class BasePageLogic extends GetxController {
     }
 
     if (autoLoadForFirstTime) {
+      if (autoLoadNeedLogin && !UserSetting.hasLoggedIn()) {
+        state.loadingState = LoadingState.noData;
+        update([bodyId]);
+        toast('needLoginToOperate'.tr);
+        return;
+      }
       loadMore();
     }
   }
@@ -76,7 +94,7 @@ abstract class BasePageLogic extends GetxController {
   }
 
   /// pull-down to refresh
-  Future<void> handleRefresh() async {
+  Future<void> handleRefresh({String? refreshId}) async {
     if (state.refreshState == LoadingState.loading) {
       return;
     }
@@ -109,7 +127,7 @@ abstract class BasePageLogic extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
-    update([pageId]);
+    update([refreshId ?? pageId]);
   }
 
   Future<void> clearAndRefresh() async {
@@ -174,7 +192,9 @@ abstract class BasePageLogic extends GetxController {
 
     LoadingState prevState = state.loadingState;
     state.loadingState = LoadingState.loading;
-    if (prevState == LoadingState.error || prevState == LoadingState.noData) {
+    if (state.gallerys.isEmpty) {
+      update([bodyId]);
+    } else if (prevState == LoadingState.error || prevState == LoadingState.noData) {
       update([loadingStateId]);
     }
 
@@ -245,6 +265,16 @@ abstract class BasePageLogic extends GetxController {
     update([pageId]);
   }
 
+  void scroll2Top() {
+    if (state.scrollController.hasClients) {
+      state.scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
+      );
+    }
+  }
+
   Future<void> handleTapJumpButton() async {
     int? pageIndex = await Get.dialog(
       JumpPageDialog(
@@ -280,7 +310,7 @@ abstract class BasePageLogic extends GetxController {
 
   /// click the card and enter details page
   void handleTapCard(Gallery gallery) async {
-    toNamed(Routes.details, arguments: gallery);
+    toRoute(Routes.details, arguments: gallery);
   }
 
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex);

@@ -7,18 +7,21 @@ import 'favorite_page_logic.dart';
 import 'favorite_page_state.dart';
 
 class FavoritePage extends BasePage {
-  const FavoritePage({Key? key}) : super(key: key);
+  const FavoritePage({
+    Key? key,
+    bool showMenuButton = false,
+    bool showTitle = false,
+    String? name,
+  }) : super(
+    key: key,
+    showMenuButton: showMenuButton,
+    showTitle: showTitle,
+    name: name,
+  );
 
   @override
-  State<BasePage> createState() => FavoritePageFlutterState();
-}
-
-class FavoritePageFlutterState extends BasePageFlutterState {
-  @override
-  final FavoritePageLogic logic = Get.put(FavoritePageLogic(), permanent: true);
-  @override
-  final FavoritePageState state = Get.find<FavoritePageLogic>().state;
+  FavoritePageLogic get logic => Get.find<FavoritePageLogic>();
 
   @override
-  bool get showFilterButton => true;
+  FavoritePageState get state => Get.find<FavoritePageLogic>().state;
 }

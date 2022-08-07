@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
-import 'package:jhentai/src/pages/search/nested/search_page_state.dart';
 
 import '../../../config/global_config.dart';
 import '../../../widget/eh_gallery_collection.dart';
@@ -15,6 +14,7 @@ import '../../../widget/eh_tab_bar_config_dialog.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
+import 'search_page_state.dart';
 
 class SearchPage extends StatelessWidget {
   final String tag = UniqueKey().toString();
@@ -295,7 +295,7 @@ class SearchPage extends StatelessWidget {
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             slivers: <Widget>[
               _buildPullDownIndicator(),
-              _buildGalleryCollection(),
+              _buildGalleryCollection(context),
               _buildLoadMoreIndicator(),
             ],
           );
@@ -344,8 +344,9 @@ class SearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryCollection() {
+  Widget _buildGalleryCollection(BuildContext context) {
     return EHGalleryCollection(
+      context: context,
       gallerys: state.gallerys,
       loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,

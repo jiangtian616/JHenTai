@@ -10,15 +10,8 @@ class GallerysPage extends BasePage {
   const GallerysPage({Key? key}) : super(key: key);
 
   @override
-  State<BasePage> createState() => GallerysPageFlutterState();
-}
-
-class GallerysPageFlutterState extends BasePageFlutterState {
-  @override
-  final GallerysPageLogic logic = Get.put(GallerysPageLogic(), permanent: true);
-  @override
-  final GallerysPageState state = Get.find<GallerysPageLogic>().state;
+  GallerysPageLogic get logic => Get.find<GallerysPageLogic>();
 
   @override
-  bool get showFilterButton => true;
+  GallerysPageState get state => Get.find<GallerysPageLogic>().state;
 }

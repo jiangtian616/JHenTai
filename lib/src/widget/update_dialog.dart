@@ -36,14 +36,14 @@ class UpdateDialog extends StatelessWidget {
           textStyle: TextStyle(color: Colors.red.shade400, fontSize: 16),
           onPressed: () {
             storageService.write(dismissVersion, latestVersion);
-            back();
+            backRoute();
           },
         ),
         CupertinoDialogAction(
           child: Text('check'.tr),
           textStyle: TextStyle(fontSize: 16),
           onPressed: () {
-            back();
+            backRoute();
             launch('https://github.com/jiangtian616/JHenTai/releases');
           },
         )

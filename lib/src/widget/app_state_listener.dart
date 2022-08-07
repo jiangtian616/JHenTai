@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
-import '../utils/toast_util.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
@@ -51,8 +50,6 @@ class AppStateListener extends StatefulWidget {
 class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
   AppLifecycleState _state = AppLifecycleState.resumed;
 
-  DateTime? _lastPopTime;
-
   @override
   void initState() {
     super.initState();
@@ -90,22 +87,6 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   @override
   Widget build(BuildContext context) {
     return (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) ? widget.child : Blur(blur: 100, child: widget.child);
-  }
-
-  /// double tap back button to exit app
-  Future<bool> _handlePopApp() {
-    if (_lastPopTime == null) {
-      _lastPopTime = DateTime.now();
-      return Future.value(false);
-    }
-
-    if (DateTime.now().difference(_lastPopTime!).inMilliseconds <= 400) {
-      return Future.value(true);
-    }
-
-    _lastPopTime = DateTime.now();
-    toast('TapAgainToExit'.tr, isCenter: false);
-    return Future.value(false);
   }
 
   void _changeTheme() {

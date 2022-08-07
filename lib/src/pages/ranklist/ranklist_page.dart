@@ -1,38 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
-import '../../widget/eh_gallery_collection.dart';
-import '../../widget/eh_wheel_speed_controller.dart';
-import '../../widget/loading_state_indicator.dart';
-import '../layout/desktop/desktop_layout_page_logic.dart';
+import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 
 class RanklistPage extends BasePage {
-  const RanklistPage({Key? key}) : super(key: key);
+  const RanklistPage({
+    Key? key,
+    bool showMenuButton = false,
+    bool showTitle = false,
+  }) : super(
+          key: key,
+          showMenuButton: showMenuButton,
+          showTitle: showTitle,
+        );
 
   @override
-  State<BasePage> createState() => _RanklistPageState();
-}
-
-class _RanklistPageState extends BasePageFlutterState {
-  @override
-  final RanklistPageLogic logic = Get.put<RanklistPageLogic>(RanklistPageLogic(), permanent: true);
-  @override
-  final RanklistPageState state = Get.find<RanklistPageLogic>().state;
+  RanklistPageLogic get logic => Get.find<RanklistPageLogic>();
 
   @override
-  void initState() {
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
-      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[logic.tabIndex] = state.scrollController;
-    }
-
-    super.initState();
-  }
+  RanklistPageState get state => Get.find<RanklistPageLogic>().state;
 
   @override
-  AppBar? buildAppBar() {
+  AppBar? buildAppBar(BuildContext context) {
     return AppBar(
       title: GetBuilder<RanklistPageLogic>(
         id: 'appBarTitleId',
@@ -40,6 +33,12 @@ class _RanklistPageState extends BasePageFlutterState {
       ),
       centerTitle: true,
       elevation: 1,
+      leading: showMenuButton
+          ? IconButton(
+              icon: const Icon(FontAwesomeIcons.bars, size: 20),
+              onPressed: () => TapMenuButtonNotification().dispatch(context),
+            )
+          : null,
       actions: [
         ...super.buildAppBarButtons(),
         GetBuilder<RanklistPageLogic>(
@@ -72,45 +71,6 @@ class _RanklistPageState extends BasePageFlutterState {
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget buildListBody(BuildContext context) {
-    return GetBuilder<RanklistPageLogic>(
-      id: logic.bodyId,
-      global: false,
-      init: logic,
-      builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-          ? buildCenterStatusIndicator()
-          : EHWheelSpeedController(
-              scrollController: state.scrollController,
-              child: CustomScrollView(
-                key: state.pageStorageKey,
-                controller: state.scrollController,
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                scrollBehavior: ScrollConfiguration.of(context),
-                slivers: <Widget>[
-                  buildPullDownIndicator(),
-                  buildGalleryCollection(),
-                  buildLoadMoreIndicator(),
-                ],
-              ),
-            ),
-    );
-  }
-
-  @override
-  Widget buildGalleryCollection() {
-    return EHGalleryCollection(
-      key: state.galleryCollectionKey,
-      gallerys: state.gallerys,
-      loadingState: state.loadingState,
-      handleTapCard: logic.handleTapCard,
-      handleLoadMore: () => logic.loadMore(),
-
-      /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
-      keepPosition: state.prevPageIndexToLoad != null,
     );
   }
 }

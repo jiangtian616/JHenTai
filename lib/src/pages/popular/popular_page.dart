@@ -7,18 +7,21 @@ import 'package:jhentai/src/pages/popular/popular_page_state.dart';
 import '../base/base_page.dart';
 
 class PopularPage extends BasePage {
-  const PopularPage({Key? key}) : super(key: key);
+  const PopularPage({
+    Key? key,
+    bool showMenuButton = false,
+    bool showTitle = false,
+    String? name,
+  }) : super(
+          key: key,
+          showMenuButton: showMenuButton,
+          showTitle: showTitle,
+          name: name,
+        );
 
   @override
-  State<BasePage> createState() => PopularPageFlutterState();
-}
-
-class PopularPageFlutterState extends BasePageFlutterState {
-  @override
-  final PopularPageLogic logic = Get.put(PopularPageLogic(), permanent: true);
-  @override
-  final PopularPageState state = Get.find<PopularPageLogic>().state;
+  PopularPageLogic get logic => Get.find<PopularPageLogic>();
 
   @override
-  bool get showJumpButton => false;
+  PopularPageState get state => Get.find<PopularPageLogic>().state;
 }

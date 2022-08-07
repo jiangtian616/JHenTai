@@ -42,7 +42,7 @@ class _LogListPageState extends State<LogListPage> {
             .map(
               (log) => ListTile(
                 title: Text(basename(log.path)),
-                onTap: () => toNamed(Routes.log, arguments: log),
+                onTap: () => toRoute(Routes.log, arguments: log),
               ),
             )
             .toList(),

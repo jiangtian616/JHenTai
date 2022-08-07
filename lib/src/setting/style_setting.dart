@@ -6,8 +6,10 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 
 import '../model/jh_layout.dart';
+import '../pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import '../service/storage_service.dart';
 
 enum ListMode {
@@ -34,11 +36,13 @@ class StyleSetting {
           : LayoutMode.tabletV2.obs;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
-  static Rx<LayoutMode> actualLayout = layout.value.obs;
+  static LayoutMode actualLayout = layout.value;
 
-  static bool get isInMobileLayout => layout.value == LayoutMode.mobileV2 || layout.value == LayoutMode.mobile;
+  static bool get isInMobileLayout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
 
-  static bool get isInTabletLayout => layout.value == LayoutMode.tabletV2 || layout.value == LayoutMode.tablet;
+  static bool get isInTabletLayout => actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
+
+  static bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
@@ -121,6 +125,6 @@ class StyleSetting {
     listMode.value = ListMode.values[map['listMode']];
     coverMode.value = CoverMode.values[map['coverMode']];
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
-    actualLayout.value = layout.value;
+    actualLayout = layout.value;
   }
 }

@@ -7,6 +7,7 @@ class UserSetting {
   static RxnString userName = RxnString();
   static RxnInt ipbMemberId = RxnInt();
   static RxnString ipbPassHash = RxnString();
+  static RxnString avatarImgUrl = RxnString();
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
@@ -22,11 +23,23 @@ class UserSetting {
     required String userName,
     required int ipbMemberId,
     required String ipbPassHash,
+    String? avatarImgUrl,
   }) async {
     Log.verbose('saveUserInfo:$userName');
     UserSetting.userName.value = userName;
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;
+    UserSetting.avatarImgUrl.value = avatarImgUrl;
+    _save();
+  }
+
+  static Future<void> saveUserNameAndAvatar({
+    required String userName,
+    String? avatarImgUrl,
+  }) async {
+    Log.verbose('saveUserNameAndAvatar:$userName $avatarImgUrl');
+    UserSetting.userName.value = userName;
+    UserSetting.avatarImgUrl.value = avatarImgUrl;
     _save();
   }
 
@@ -39,6 +52,7 @@ class UserSetting {
     userName.value = null;
     ipbMemberId.value = null;
     ipbPassHash.value = null;
+    avatarImgUrl.value = null;
   }
 
   static Future<void> _save() async {
@@ -50,6 +64,7 @@ class UserSetting {
       'userName': userName.value,
       'ipbMemberId': ipbMemberId.value,
       'ipbPassHash': ipbPassHash.value,
+      'avatarImgUrl': avatarImgUrl.value,
     };
   }
 
@@ -57,5 +72,6 @@ class UserSetting {
     userName = RxnString(map['userName']);
     ipbMemberId = RxnInt(map['ipbMemberId']);
     ipbPassHash = RxnString(map['ipbPassHash']);
+    avatarImgUrl = RxnString(map['avatarImgUrl']);
   }
 }

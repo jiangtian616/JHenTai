@@ -79,14 +79,18 @@ class LoginPageLogic extends GetxController {
         ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
       );
 
-      /// await DownWidget animation
+      EHRequest.requestForum(userInfoOrErrorMsg['ipbMemberId'], EHSpiderParser.forumPage2UserInfo)
+          .then((userInfo) => UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl']);
+
+      /// await DoneWidget animation
       await Future.delayed(const Duration(milliseconds: 700));
-      back(currentRoute: Routes.login);
+      backRoute(currentRoute: Routes.login);
     } else {
       Log.verbose('Login failed by password.');
 
       state.loginState = LoadingState.error;
       snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
+      EHRequest.requestLogout();
     }
     update();
   }
@@ -126,11 +130,11 @@ class LoginPageLogic extends GetxController {
     state.loginState = LoadingState.loading;
     update();
 
-    String? userName;
+    Map<String, String?>? userInfo;
     try {
       /// get cookie [sk] first
       await EHRequest.requestHomePage();
-      userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
     } on DioError catch (e) {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
@@ -140,17 +144,22 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    if (userName != null) {
+    if (userInfo != null) {
       Log.verbose('Login success by cookie.');
 
       state.loginState = LoadingState.success;
       update();
 
-      UserSetting.saveUserInfo(userName: userName, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+      UserSetting.saveUserInfo(
+        userName: userInfo['userName']!,
+        ipbMemberId: ipbMemberId,
+        ipbPassHash: ipbPassHash,
+        avatarImgUrl: userInfo['avatarImgUrl'],
+      );
 
       /// await DownWidget animation
       await Future.delayed(const Duration(milliseconds: 1000));
-      back(currentRoute: Routes.login);
+      backRoute(currentRoute: Routes.login);
     } else {
       Log.verbose('Login failed by cookie.');
 
@@ -162,7 +171,7 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> handleWebLogin() async {
-    toNamed(
+    toRoute(
       Routes.webview,
       arguments: {
         'url': EHConsts.ELogin,
@@ -193,12 +202,12 @@ class LoginPageLogic extends GetxController {
     /// temporary name
     UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
-    until(
+    untilRoute(
       currentRoute: Routes.webview,
-      predicate: (route) => route.settings.name == Routes.settingAccount,
+      predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.home,
     );
 
-    String? userName = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-    UserSetting.userName.value = userName!;
+    Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+    UserSetting.saveUserNameAndAvatar(userName: userInfo!['userName']!, avatarImgUrl: userInfo['avatarImgUrl']);
   }
 }

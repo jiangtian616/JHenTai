@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
+import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/lock_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page.dart';
 import 'package:jhentai/src/pages/read/read_page.dart';
-import 'package:jhentai/src/pages/search/nested/search_page.dart';
+import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
-import 'package:jhentai/src/pages/search/simple/simple_search_page.dart';
 import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
@@ -20,6 +20,7 @@ import 'package:jhentai/src/pages/setting/network/hostmapping/host_mapping_page.
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
 import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
+import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/pages/setting/style/setting_style_page.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
@@ -29,6 +30,9 @@ import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
 import '../pages/favorite/favorite_page.dart';
 import '../pages/layout/mobile/mobile_layout_page.dart';
+import '../pages/layout/mobile_v2/mobile_layout_page_v2.dart';
+import '../pages/search/desktop/desktop_search_page.dart';
+import '../pages/search/mobile/search_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
@@ -44,7 +48,9 @@ class Routes {
 
   /// left
   static const String mobileLayout = "/mobile_layout";
+  static const String mobileLayoutV2 = "/mobile_layout_v2";
   static const String gallerys = "/gallerys";
+  static const String dashboard = "/dashboard";
   static const String popular = "/popular";
   static const String ranklist = "/ranklist";
   static const String favorite = "/favorite";
@@ -53,7 +59,8 @@ class Routes {
   static const String download = "/download";
   static const String setting = "/setting";
   static const String search = "/search";
-  static const String simpleSearch = "/simple_search";
+  static const String desktopSearch = "/desktop_search";
+  static const String mobileV2Search = "/mobile_v2_search";
 
   /// right
   static const String details = "/details";
@@ -115,13 +122,25 @@ class Routes {
       side: Side.left,
     ),
     EHPage(
+      name: dashboard,
+      page: () => DashboardPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: mobileLayoutV2,
+      page: () => MobileLayoutPageV2(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
       name: details,
       page: () => DetailsPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: popular,
-      page: () => PopularPage(),
+      page: () => PopularPage(showTitle: true, name: 'popular'.tr),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -134,6 +153,12 @@ class Routes {
     EHPage(
       name: favorite,
       page: () => FavoritePage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: setting,
+      page: () => SettingPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -156,8 +181,14 @@ class Routes {
       side: Side.left,
     ),
     EHPage(
-      name: simpleSearch,
-      page: () => SimpleSearchPage(),
+      name: desktopSearch,
+      page: () => DesktopSearchPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: mobileV2Search,
+      page: () => SearchPageMobileV2(),
       transition: Transition.cupertino,
       side: Side.left,
     ),

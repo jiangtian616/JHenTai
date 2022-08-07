@@ -73,10 +73,12 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       title: Text(_buildTitleText(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       centerTitle: true,
       automaticallyImplyLeading: false,
+      backgroundColor: Get.theme.dialogBackgroundColor,
       toolbarHeight: 48,
+      elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.close),
-        onPressed: () => back(),
+        onPressed: () => backRoute(),
       ),
       actions: [
         IconButton(
@@ -517,7 +519,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   void checkAndBack() {
     if (widget.type == EHSearchConfigDialogType.filter) {
-      back(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
+      backRoute(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
       return;
     }
 
@@ -526,6 +528,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       return;
     }
 
-    back(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
+    backRoute(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
   }
 }

@@ -7,8 +7,6 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/pages/search/simple/simple_search_page_logic.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
@@ -16,14 +14,12 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
-import '../model/jh_layout.dart';
-import '../pages/search/nested/search_page_logic.dart';
-import '../routes/routes.dart';
 import '../setting/user_setting.dart';
 import '../utils/route_util.dart';
+import '../utils/search_util.dart';
 import '../utils/snack_util.dart';
 
-class EHTag extends StatefulWidget {
+class EHTag extends StatelessWidget {
   final GalleryTag tag;
   final bool addNameSpaceColor;
   final double borderRadius;
@@ -44,32 +40,27 @@ class EHTag extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EHTagState createState() => _EHTagState();
-}
-
-class _EHTagState extends State<EHTag> {
-  @override
   Widget build(BuildContext context) {
-    Widget tag = ClipRRect(
-      borderRadius: BorderRadius.circular(widget.borderRadius),
+    Widget tagWidget = ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
       child: Container(
-        color: widget.tag.backgroundColor ??
-            (widget.addNameSpaceColor
-                ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
+        color: tag.backgroundColor ??
+            (addNameSpaceColor
+                ? ColorConsts.zhTagNameSpaceColor[tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[tag.tagData.key]!
                 : Get.theme.brightness == Brightness.light
                     ? Colors.grey.shade200
                     : Colors.grey.shade800),
-        padding: widget.padding,
+        padding: padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              widget.tag.tagData.tagName ?? widget.tag.tagData.key,
+              tag.tagData.tagName ?? tag.tagData.key,
               style: TextStyle(
-                fontSize: widget.fontSize,
-                height: widget.textHeight,
-                color: widget.tag.color ??
-                    (widget.addNameSpaceColor
+                fontSize: fontSize,
+                height: textHeight,
+                color: tag.color ??
+                    (addNameSpaceColor
                         ? Colors.black
                         : Get.theme.brightness == Brightness.light
                             ? Colors.grey.shade800
@@ -81,44 +72,25 @@ class _EHTagState extends State<EHTag> {
       ),
     );
 
-    if (!widget.enableTapping) {
-      return tag;
+    if (!enableTapping) {
+      return tagWidget;
     }
 
     return InkWell(
-      child: tag,
-      borderRadius: BorderRadius.circular(widget.borderRadius),
+      child: tagWidget,
+      borderRadius: BorderRadius.circular(borderRadius),
       onTap: _searchTag,
       onLongPress: _showDialog,
     );
   }
 
   void _searchTag() {
-    String keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
-
-    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
-      if (isAtTop(Routes.simpleSearch)) {
-        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
-        simpleSearchPageLogic.state.searchConfig.keyword = keyword;
-        simpleSearchPageLogic.clearAndRefresh();
-        return;
-      }
-      toNamed(Routes.simpleSearch, parameters: {'keyword': keyword});
-      return;
-    }
-
-    if (isAtTop(Routes.search)) {
-      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = keyword;
-      searchPageLogic.searchMore();
-      return;
-    }
-
-    toNamed(Routes.search, arguments: keyword);
+    String keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
+    newSearch(keyword);
   }
 
   void _showDialog() {
-    Get.dialog(_TagDialog(tagData: widget.tag.tagData));
+    Get.dialog(_TagDialog(tagData: tag.tagData));
   }
 }
 
@@ -244,7 +216,7 @@ class _TagDialogState extends State<_TagDialog> {
   }
 
   void _showInfo() {
-    back();
+    backRoute();
 
     String content = widget.tagData.fullTagName! + widget.tagData.intro! + widget.tagData.links!;
     Get.dialog(

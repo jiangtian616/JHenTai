@@ -44,13 +44,16 @@ class EHGalleryListCard extends StatelessWidget {
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: FocusWidget(
-          decoration: StyleSetting.listMode.value == ListMode.flat
-              ? BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!)))
+          focusedDecoration: StyleSetting.listMode.value == ListMode.flat
+              ? BoxDecoration(
+                  color: Get.theme.cardColor,
+                  border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!)),
+                )
               : const BoxDecoration(color: Colors.grey),
           handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
           handleTapEnter: () => handleTapCard(gallery),
           handleTapArrowRight: () {
-            if (!isAtTop(Routes.details)) {
+            if (!isRouteAtTop(Routes.details)) {
               handleTapCard(gallery);
               return;
             }

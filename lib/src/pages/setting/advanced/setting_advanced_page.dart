@@ -45,7 +45,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             ListTile(
               title: Text('openLog'.tr),
               trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),
-              onTap: () => toNamed(Routes.logList),
+              onTap: () => toRoute(Routes.logList),
             ),
             ListTile(
               title: Text('clearLogs'.tr),

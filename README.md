@@ -56,17 +56,25 @@ mush thanks to these projects🙇‍
 
 ## Screenshots
 
-### Desktop Layout
+### Mobile Layout V2
 
-<img width="770" src="screenshot/desktop.png"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobileV2_en.jpg"/>
+
+### Mobile Layout (Maintenance stopped)
+
+<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+
+### Tablet Layout V2
+
+<img width="770" src="screenshot/tabletV2_en.png"/>
 
 ### Tablet Layout (Maintenance stopped)
 
 <img width="770" src="screenshot/0.png"/>
 
-### Mobile Layout (Maintenance stopped)
+### Desktop Layout
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
+<img width="770" src="screenshot/desktop.png"/>
 
 ### Gallery & Search
 
@@ -84,7 +92,7 @@ mush thanks to these projects🙇‍
 
 ## Main Features
 
-- [x] Mobile, tablet, desktop layout
+- [x] Mobile, tablet, desktop layout(5 kinds)
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task, support synchronize updates after the uploader has

@@ -23,14 +23,14 @@ class JumpPageDialog extends StatelessWidget {
           border: const OutlineInputBorder(),
           labelText: '${'range'.tr}: 1 - $totalPageNo, ${'current'.tr}: $currentNo',
         ),
-        onSubmitted: (_) => back(result: controller.text.isEmpty ? null : int.parse(controller.text) - 1),
+        onSubmitted: (_) => backRoute(result: controller.text.isEmpty ? null : int.parse(controller.text) - 1),
       ),
       actions: [
         TextButton(
           child: Text('OK'.tr),
           onPressed: () {
             if (controller.text.isNotEmpty) {
-              back(result: int.parse(controller.text) - 1);
+              backRoute(result: int.parse(controller.text) - 1);
             }
           },
         ),

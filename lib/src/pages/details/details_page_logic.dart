@@ -15,12 +15,10 @@ import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
-import 'package:jhentai/src/pages/search/nested/search_page_logic.dart';
-import 'package:jhentai/src/pages/search/simple/simple_search_page_logic.dart';
+import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -31,15 +29,16 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
-import '../../model/jh_layout.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/history_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
+import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
 import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
 import '../layout/desktop/desktop_layout_page_logic.dart';
+import '../search/mobile/search_page_logic.dart';
 import 'details_page_state.dart';
 
 String bodyId = 'bodyId';
@@ -320,60 +319,20 @@ class DetailsPageLogic extends GetxController {
       Get.find<GallerysPageLogic>().updateBody();
     }
     SearchPageLogic.current?.update([bodyId]);
-    if (Get.isRegistered<SimpleSearchPageLogic>()) {
-      Get.find<SimpleSearchPageLogic>().updateBody();
+    if (Get.isRegistered<DesktopSearchPageLogic>()) {
+      Get.find<DesktopSearchPageLogic>().updateBody();
     }
   }
 
   Future<void> searchUploader(String author) async {
     String keyword = 'uploader:"$author"';
-
-    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
-      if (isAtTop(Routes.simpleSearch)) {
-        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
-        simpleSearchPageLogic.state.searchConfig.keyword = keyword;
-        simpleSearchPageLogic.clearAndRefresh();
-        return;
-      }
-      toNamed(Routes.simpleSearch, parameters: {'keyword': keyword});
-      return;
-    }
-
-    if (isAtTop(Routes.search)) {
-      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = keyword;
-      searchPageLogic.searchMore();
-      return;
-    }
-    toNamed(
-      Routes.search,
-      arguments: 'uploader:"$author"',
-    );
+    newSearch(keyword);
   }
 
   Future<void> searchSimilar() async {
     /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
     String title = '"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"';
-
-    if (StyleSetting.actualLayout.value == LayoutMode.desktop) {
-      if (isAtTop(Routes.simpleSearch)) {
-        SimpleSearchPageLogic simpleSearchPageLogic = Get.find<SimpleSearchPageLogic>();
-        simpleSearchPageLogic.state.searchConfig.keyword = title;
-        simpleSearchPageLogic.clearAndRefresh();
-        return;
-      }
-      toNamed(Routes.simpleSearch, parameters: {'keyword': title});
-      return;
-    }
-
-    if (isAtTop(Routes.search)) {
-      SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-      searchPageLogic.state.tabBarConfig.searchConfig.keyword = title;
-      searchPageLogic.searchMore();
-      return;
-    }
-
-    toNamed(Routes.search, arguments: title);
+    newSearch(title);
   }
 
   Future<void> handleTapRating() async {
@@ -539,7 +498,7 @@ class DetailsPageLogic extends GetxController {
 
   void goToReadPage([int? index]) {
     if (downloadService.gid2DownloadProgress[state.gallery!.gid] != null) {
-      toNamed(
+      toRoute(
         Routes.read,
         parameters: {
           'mode': 'local',
@@ -550,7 +509,7 @@ class DetailsPageLogic extends GetxController {
         },
       );
     } else {
-      toNamed(
+      toRoute(
         Routes.read,
         parameters: {
           'mode': 'online',
@@ -559,6 +518,16 @@ class DetailsPageLogic extends GetxController {
           'pageCount': state.gallery!.pageCount.toString(),
           'galleryUrl': state.gallery!.galleryUrl,
         },
+      );
+    }
+  }
+
+  void scroll2Top() {
+    if (state.scrollController.hasClients) {
+      state.scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.ease,
       );
     }
   }

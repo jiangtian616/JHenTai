@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/global_config.dart';
@@ -10,21 +11,22 @@ import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
 import 'base_page_state.dart';
 
-abstract class BasePage extends StatefulWidget {
-  const BasePage({Key? key}) : super(key: key);
+abstract class BasePage extends StatelessWidget {
+  /// For mobile layout v2
+  final bool showMenuButton;
+  final bool showTitle;
+  final String? name;
 
-  @override
-  State<BasePage> createState();
-}
+  const BasePage({
+    Key? key,
+    this.showMenuButton = false,
+    this.showTitle = false,
+    this.name,
+  }) : super(key: key);
 
-abstract class BasePageFlutterState extends State<BasePage> {
   BasePageLogic get logic;
 
   BasePageState get state;
-
-  bool get showFilterButton => false;
-
-  bool get showJumpButton => true;
 
   @override
   Widget build(BuildContext context) {
@@ -33,26 +35,58 @@ abstract class BasePageFlutterState extends State<BasePage> {
       global: false,
       init: logic,
       builder: (_) => Scaffold(
-        appBar: showFilterButton || showJumpButton ? buildAppBar() : null,
+        appBar: logic.showFilterButton || logic.showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
         body: SafeArea(child: buildBody(context)),
+        floatingActionButton: buildFloatingActionButton(context),
       ),
     );
   }
 
-  AppBar? buildAppBar() {
-    return AppBar(elevation: 1, actions: buildAppBarButtons());
+  AppBar? buildAppBar(BuildContext context) {
+    return AppBar(
+      elevation: 1,
+      leading: showMenuButton
+          ? IconButton(
+              icon: const Icon(FontAwesomeIcons.bars, size: 20),
+              onPressed: () => TapMenuButtonNotification().dispatch(context),
+            )
+          : null,
+      title: showTitle ? Text(name!) : null,
+      centerTitle: true,
+      actions: buildAppBarButtons(),
+    );
+  }
+
+  Widget buildFloatingActionButton(BuildContext context) {
+    return GetBuilder<BasePageLogic>(
+        id: logic.scroll2TopButtonId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (!logic.showScroll2TopButton || logic.state.gallerys.isEmpty) {
+            return const SizedBox();
+          }
+          return FloatingActionButton(
+            child: const Icon(Icons.arrow_upward, size: 28),
+            foregroundColor: Get.theme.primaryColor,
+            backgroundColor: Theme.of(context).backgroundColor,
+            elevation: 3,
+            heroTag: null,
+            onPressed: logic.scroll2Top,
+          );
+        });
   }
 
   List<Widget> buildAppBarButtons() {
     return [
-      if (showJumpButton && state.gallerys.isNotEmpty)
+      if (logic.showJumpButton && state.gallerys.isNotEmpty)
         ExcludeFocus(
           child: IconButton(
             icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
             onPressed: logic.handleTapJumpButton,
           ),
         ),
-      if (showFilterButton)
+      if (logic.showFilterButton)
         ExcludeFocus(
           child: IconButton(
             icon: const Icon(Icons.filter_alt_outlined, size: 28),
@@ -83,7 +117,7 @@ abstract class BasePageFlutterState extends State<BasePage> {
                 scrollBehavior: ScrollConfiguration.of(context),
                 slivers: <Widget>[
                   buildPullDownIndicator(),
-                  buildGalleryCollection(),
+                  buildGalleryCollection(context),
                   buildLoadMoreIndicator(),
                 ],
               ),
@@ -131,9 +165,10 @@ abstract class BasePageFlutterState extends State<BasePage> {
     );
   }
 
-  Widget buildGalleryCollection() {
+  Widget buildGalleryCollection(BuildContext context) {
     return EHGalleryCollection(
       key: state.galleryCollectionKey,
+      context: context,
       gallerys: state.gallerys,
       loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,

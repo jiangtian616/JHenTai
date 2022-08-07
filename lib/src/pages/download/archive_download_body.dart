@@ -154,7 +154,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   Widget _buildCover(ArchiveDownloadedData archive, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toNamed(Routes.details, arguments: archive.galleryUrl),
+      onTap: () => toRoute(Routes.details, arguments: archive.galleryUrl),
       child: Obx(() {
         return EHImage.network(
           containerHeight: 130,
@@ -330,13 +330,13 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
               _handleRemoveItem(context, index);
-              back();
+              backRoute();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
       ),
     );
@@ -350,7 +350,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
     List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
     int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
 
-    toNamed(
+    toRoute(
       Routes.read,
       arguments: images,
       parameters: {

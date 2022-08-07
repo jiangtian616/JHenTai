@@ -35,7 +35,7 @@ class FavoriteDialog extends StatelessWidget {
                       FavoriteSetting.favoriteCounts[index].toString(),
                       style: Theme.of(context).textTheme.caption?.copyWith(fontSize: 12),
                     ),
-                    onTap: () => back(result: index),
+                    onTap: () => backRoute(result: index),
                   ),
                 )
                 .toList(),
@@ -47,7 +47,7 @@ class FavoriteDialog extends StatelessWidget {
       actions: <Widget>[
         TextButton(
           child: Text('cancel'.tr, style: const TextStyle(fontSize: 16)),
-          onPressed: () => back(),
+          onPressed: () => backRoute(),
         ),
       ],
     );

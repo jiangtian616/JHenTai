@@ -42,7 +42,7 @@ class SettingNetworkPage extends StatelessWidget {
                   title: Text('hostMapping'.tr),
                   subtitle: Text('hostMappingHint'.tr),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),
-                  onTap: () => toNamed(Routes.hostMapping),
+                  onTap: () => toRoute(Routes.hostMapping),
                 ),
               ),
             if (GetPlatform.isDesktop)

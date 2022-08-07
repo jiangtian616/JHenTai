@@ -1,12 +1,9 @@
-import 'package:get/get.dart';
 import 'package:jhentai/src/pages/watched/watched_page_state.dart';
 
 import '../../consts/eh_consts.dart';
 import '../../network/eh_request.dart';
-import '../../setting/user_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
-import '../../utils/toast_util.dart';
 import '../base/base_page_logic.dart';
 
 class WatchedPageLogic extends BasePageLogic {
@@ -17,6 +14,8 @@ class WatchedPageLogic extends BasePageLogic {
   @override
   final String bodyId = 'bodyId';
   @override
+  final String scroll2TopButtonId = 'scroll2TopButtonId';
+  @override
   final String refreshStateId = 'refreshStateId';
   @override
   final String loadingStateId = 'loadingStateId';
@@ -25,15 +24,13 @@ class WatchedPageLogic extends BasePageLogic {
   int get tabIndex => 5;
 
   @override
-  final WatchedPageState state = WatchedPageState();
+  bool get showFilterButton => true;
 
   @override
-  void onReady() {
-    if (!UserSetting.hasLoggedIn()) {
-      toast('needLoginToOperate'.tr);
-    }
-    super.onReady();
-  }
+  bool get autoLoadNeedLogin => true;
+
+  @override
+  final WatchedPageState state = WatchedPageState();
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
