@@ -19,12 +19,35 @@ Locale computeDefaultLocale(Locale windowLocale) {
     return windowLocale;
   }
 
-  /// same languageCode
+  List<String> localeParts = windowLocale.toString().split('_');
+
+  /// same language code & country code
   for (String key in LocaleConsts.localeCode2Description.keys) {
-    if (key.split('_')[0] == windowLocale.toString().split('_')[0]) {
+    List<String> keyParts = key.split('_');
+
+    if (localeParts.length >= 3 && keyParts[0] == localeParts[0] && keyParts[1] == localeParts[2]) {
       return localeCode2Locale(key);
     }
   }
 
+  /// same language code & country code
+  for (String key in LocaleConsts.localeCode2Description.keys) {
+    List<String> keyParts = key.split('_');
+
+    if (localeParts.length >= 2 && keyParts[0] == localeParts[0] && keyParts[1] == localeParts[1]) {
+      return localeCode2Locale(key);
+    }
+  }
+
+  /// same language code
+  for (String key in LocaleConsts.localeCode2Description.keys) {
+    List<String> keyParts = key.split('_');
+
+    if (localeParts.length >= 1 && keyParts[0] == localeParts[0]) {
+      return localeCode2Locale(key);
+    }
+  }
+
+  /// fallback
   return const Locale('en', 'US');
 }

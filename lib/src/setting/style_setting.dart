@@ -6,10 +6,8 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/route_util.dart';
 
 import '../model/jh_layout.dart';
-import '../pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import '../service/storage_service.dart';
 
 enum ListMode {

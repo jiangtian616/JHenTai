@@ -114,8 +114,8 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 你可以只做以上步骤然后提交PR，我会补充其他的步骤，或者你自己可以继续：
 4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
-5. 在 `/lib/src/consts/locale_consts.dart` 的`localeCode2Description`
-   属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`
+5. 在 `/lib/src/consts/locale_consts.dart` 的 `localeCode2Description`
+   属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`，用于描述你的语言
 
 ## 已知bug
 

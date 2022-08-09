@@ -4,6 +4,8 @@ class zh_TW {
   static Map<String, String> keys() {
     return {
       /// common
+      'yes': '是',
+      'no': '否',
       'cancel': "取消",
       'OK': "確定",
       'success': "成功",
@@ -247,7 +249,8 @@ class zh_TW {
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
 
-      /// security setting page      'enableFingerPrintLock': '開啟指紋鎖',
+      /// security setting page
+      'enableFingerPrintLock': '開啟指紋鎖',
       'enableBlurBackgroundApp': '在任務欄中模糊應用頁面',
 
       /// read setting page
@@ -353,6 +356,10 @@ class zh_TW {
       'resetDownloadPath': '重置下載路徑',
       'longPress2Reset': '長按以重置',
       'needPermissionToChangeDownloadPath': '需要權限來改變下載路徑',
+      'downloadOriginalImage': '下載原圖',
+      'never': '從不',
+      'manual': '手動',
+      'always': '總是',
       'invalidPath': '無效的路徑',
       'downloadTaskConcurrency': '同時下載圖片數量',
       'needRestart': '需要重啟',

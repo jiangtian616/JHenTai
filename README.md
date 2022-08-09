@@ -127,7 +127,7 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys`
    => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 5. Enter `/lib/src/consts/locale_consts.dart`, add a new k-v pair in
-   property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}`
+   property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}` to describe your language.
 
 ## Bug
 
