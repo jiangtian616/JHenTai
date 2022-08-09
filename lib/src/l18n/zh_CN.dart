@@ -4,6 +4,8 @@ class zh_CN {
   static Map<String, String> keys() {
     return {
       /// common
+      'yes': '是',
+      'no': '否',
       'cancel': "取消",
       'OK': "确定",
       'success': "成功",
@@ -353,6 +355,10 @@ class zh_CN {
       'changeDownloadPathHint': '长按来改变下载路径。会自动复制已下载的画廊到新路径，并清空原文件夹。如果改变后出现画廊图片加载失败的情况，请尝试重置路径',
       'resetDownloadPath': '重置下载路径',
       'longPress2Reset': '长按以重置',
+      'downloadOriginalImage': '下载原图',
+      'never': '从不',
+      'manual': '手动',
+      'always': '总是',
       'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',
       'invalidPath': '无效的路径',
       'downloadTaskConcurrency': '同时下载图片数量',

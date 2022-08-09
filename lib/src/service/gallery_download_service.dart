@@ -75,6 +75,7 @@ class GalleryDownloadService extends GetxController {
         publishTime: result.publishTime,
         downloadStatusIndex: result.galleryDownloadStatusIndex,
         insertTime: result.insertTime,
+        downloadOriginalImage: result.downloadOriginalImage,
       );
 
       if (gallerys.isEmpty || gallerys.last.gid != gallery.gid) {
@@ -236,14 +237,11 @@ class GalleryDownloadService extends GetxController {
     GalleryDownloadedData newGallery;
     try {
       Gallery gallery = await retry(
-        () => EHRequest.requestDetailPage(
-          galleryUrl: newVersionGalleryUrl,
-          parser: EHSpiderParser.detailPage2Gallery,
-        ),
+        () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2Gallery),
         retryIf: (e) => e is DioError && e.error is! EHException,
         maxAttempts: retryTimes,
       );
-      newGallery = gallery.toGalleryDownloadedData();
+      newGallery = gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
     } on DioError catch (e) {
       if (e.error is EHException) {
         Log.info('${'updateGalleryError'.tr}, reason: ${e.error.msg}');
@@ -412,7 +410,7 @@ class GalleryDownloadService extends GetxController {
     }
 
     GalleryImage image;
-    AsyncTask<GalleryImage> task = _parseGalleryImageUrlTask(gallery, serialNo, isNewImage);
+    AsyncTask<GalleryImage> task = _parseGalleryImageUrlTask(gallery, serialNo, gallery.downloadOriginalImage, useCache: isNewImage);
     gid2Tasks[gallery.gid]!.add(task);
     try {
       image = await retry(
@@ -449,7 +447,7 @@ class GalleryDownloadService extends GetxController {
     }
   }
 
-  AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo, [bool useCache = true]) {
+  AsyncTask<GalleryImage> _parseGalleryImageUrlTask(GalleryDownloadedData gallery, int serialNo, bool downloadOriginalImage, {bool useCache = true}) {
     return () {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
@@ -458,7 +456,7 @@ class GalleryDownloadService extends GetxController {
         gid2ImageHrefs[gallery.gid]![serialNo]!.href,
         cancelToken: gid2CancelToken[gallery.gid],
         useCacheIfAvailable: useCache,
-        parser: EHSpiderParser.imagePage2GalleryImage,
+        parser: downloadOriginalImage ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
       );
     };
   }
@@ -558,7 +556,9 @@ class GalleryDownloadService extends GetxController {
 
   String _computeImageDownloadRelativePath(GalleryDownloadedData gallery, int serialNo, {GalleryImage? image}) {
     image ??= gid2Images[gallery.gid]![serialNo]!;
-    String ext = image.url.split('.').last;
+
+    /// original image's url doesn't has an ext
+    String ext = image.url.contains('https://e-hentai.org/fullimg.php') ? 'jpg' : image.url.split('.').last;
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
@@ -576,7 +576,9 @@ class GalleryDownloadService extends GetxController {
 
   String _computeImageDownloadAbsolutePath(GalleryDownloadedData gallery, int serialNo) {
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
-    String ext = image.url.split('.').last;
+
+    /// original image's url doesn't has an ext
+    String? ext = image.url.contains('https://e-hentai.org/fullimg.php') ? 'jpg' : image.url.split('.').last;
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
@@ -678,6 +680,7 @@ class GalleryDownloadService extends GetxController {
       gallery.publishTime,
       gallery.downloadStatusIndex,
       DateTime.now().toString(),
+      gallery.downloadOriginalImage,
     );
   }
 
@@ -735,7 +738,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   Future<void> _updateImageUrl(GalleryImage image, int gid, int serialNo) async {
-     appDb.updateImageUrl(image.url, gid, serialNo);
+    appDb.updateImageUrl(image.url, gid, serialNo);
 
     if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
       _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));

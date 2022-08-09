@@ -15,16 +15,19 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (Migrator m, int from, int to) async {
-        Log.info('Database version: $from -> $to');
+        Log.warning('Database version: $from -> $to');
         try {
           if (from < 2) {
             await m.alterTable(TableMigration(image));
+          }
+          if (from < 3) {
+            await m.addColumn(galleryDownloaded, galleryDownloaded.downloadOriginalImage);
           }
         } on Exception catch (e) {
           Log.error(e);

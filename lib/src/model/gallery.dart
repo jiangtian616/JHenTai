@@ -35,7 +35,7 @@ class Gallery {
     favoriteTagName = null;
   }
 
-  GalleryDownloadedData toGalleryDownloadedData() {
+  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false}) {
     return GalleryDownloadedData(
       gid: gid,
       token: token,
@@ -46,6 +46,7 @@ class Gallery {
       uploader: uploader,
       publishTime: publishTime,
       downloadStatusIndex: DownloadStatus.downloading.index,
+      downloadOriginalImage: downloadOriginalImage,
     );
   }
 

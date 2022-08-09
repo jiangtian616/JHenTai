@@ -5,9 +5,12 @@ import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
 
+enum DownloadOriginalImageMode { never, manual, always }
+
 class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
+  static Rx<DownloadOriginalImageMode> downloadOriginalImage = DownloadOriginalImageMode.never.obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -27,6 +30,12 @@ class DownloadSetting {
   static saveDownloadPath(String downloadPath) {
     Log.verbose('saveDownloadPath:$downloadPath');
     DownloadSetting.downloadPath.value = downloadPath;
+    _save();
+  }
+
+  static saveDownloadOriginalImage(DownloadOriginalImageMode value) {
+    Log.verbose('saveDownloadOriginalImage:${value.name}');
+    DownloadSetting.downloadOriginalImage.value = value;
     _save();
   }
 
@@ -67,6 +76,7 @@ class DownloadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'downloadPath': downloadPath.value,
+      'downloadOriginalImage': downloadOriginalImage.value.index,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
@@ -77,6 +87,7 @@ class DownloadSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     downloadPath.value = map['downloadPath'] ?? downloadPath.value;
+    downloadOriginalImage.value = DownloadOriginalImageMode.values[map['downloadOriginalImage'] ?? downloadOriginalImage.value.index];
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);

@@ -18,12 +18,14 @@ import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
+import 'package:jhentai/src/widget/download_original_image_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -121,6 +123,8 @@ class DetailsPageLogic extends GetxController {
     state.gallery = galleryAndDetailAndApikey['gallery']!;
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails']!;
     state.apikey = galleryAndDetailAndApikey['apikey']!;
+    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
+    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
 
     state.loadingPageState = LoadingState.success;
     state.loadingDetailsState = LoadingState.success;
@@ -390,14 +394,30 @@ class DetailsPageLogic extends GetxController {
     }
   }
 
-  void handleTapDownload() {
+  Future<void> handleTapDownload() async {
     GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     Gallery gallery = state.gallery!;
     GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
 
     if (downloadProgress == null) {
-      downloadService.downloadGallery(gallery.toGalleryDownloadedData());
-      toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.always) {
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true));
+        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+        return;
+      }
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.never) {
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false));
+        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+        return;
+      }
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.manual) {
+        bool? downloadOriginalImage = await Get.dialog(const DownloadOriginalImageDialog());
+        if (downloadOriginalImage == null) {
+          return;
+        }
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage));
+        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+      }
       return;
     }
 

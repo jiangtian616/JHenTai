@@ -4,6 +4,8 @@ class en_US {
   static Map<String, String> keys() {
     return {
       /// common
+      'yes': 'Yes',
+      'no': 'No',
       'cancel': "Cancel",
       'OK': "OK",
       'success': "Success",
@@ -353,6 +355,10 @@ class en_US {
       'changeDownloadPathHint':
           'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset download path',
+      'downloadOriginalImage': 'Download original image',
+      'never': 'Never',
+      'manual': 'Manual',
+      'always': 'Always',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',
       'invalidPath': 'Invalid Path',

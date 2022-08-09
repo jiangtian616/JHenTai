@@ -58,6 +58,31 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                 onLongPress: _handleResetDownloadPath,
               ),
             ListTile(
+              title: Text('downloadOriginalImage'.tr),
+              trailing: DropdownButton<DownloadOriginalImageMode>(
+                value: DownloadSetting.downloadOriginalImage.value,
+                elevation: 4,
+                alignment: AlignmentDirectional.bottomEnd,
+                onChanged: (DownloadOriginalImageMode? newValue) {
+                  DownloadSetting.saveDownloadOriginalImage(newValue!);
+                },
+                items: [
+                  DropdownMenuItem(
+                    child: Text('never'.tr),
+                    value: DownloadOriginalImageMode.never,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('manual'.tr),
+                    value: DownloadOriginalImageMode.manual,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('always'.tr),
+                    value: DownloadOriginalImageMode.always,
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
               title: Text('downloadTaskConcurrency'.tr),
               subtitle: Text('needRestart'.tr),
               trailing: DropdownButton<int>(
