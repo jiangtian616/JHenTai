@@ -31,7 +31,7 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 我自己的使用设备包括安卓手机、iPad、Windows主机，之前用的E站其他App Bug较多，没接触过原生开发也改不动源码，就刚好选JHenTai来作为第一个项目。
 
-## 参考与借鉴
+## 借鉴与感谢
 
 布局样式参考:
 
@@ -43,7 +43,10 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
-十分感谢以上项目🙇‍
+App翻译：
+- [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+
+十分感谢以上项目与人员🙇‍
 
 ## 截图
 

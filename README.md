@@ -40,7 +40,7 @@ phone, Ipad and Windows computer. E-hentai apps I used before have several bugs,
 experience
 with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
-## References
+## References & Thanks
 
 Layout and style references:
 
@@ -52,7 +52,10 @@ Tag translation:
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
-mush thanks to these projects🙇‍
+App translation：
+- [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+
+mush thanks to these projects and people🙇‍
 
 ## Screenshots
 
