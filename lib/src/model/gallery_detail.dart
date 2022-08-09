@@ -6,11 +6,9 @@ import 'gallery_thumbnail.dart';
 
 class GalleryDetail {
   String rawTitle;
-  String? uploader;
   int ratingCount;
   double realRating;
   String size;
-  int pageCount;
   int favoriteCount;
   String torrentCount;
   String torrentPageUrl;
@@ -22,11 +20,9 @@ class GalleryDetail {
 
   GalleryDetail({
     required this.rawTitle,
-    this.uploader,
     required this.ratingCount,
     required this.realRating,
     required this.size,
-    required this.pageCount,
     required this.favoriteCount,
     required this.torrentCount,
     required this.torrentPageUrl,

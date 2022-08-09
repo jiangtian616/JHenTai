@@ -83,18 +83,6 @@ class DetailsPageLogic extends GetxController {
     if (arg is String) {
       getFullPage().then((_) => historyService.record(state.gallery));
     }
-
-    /// enter from ranklist view
-    if (arg is List) {
-      state.gallery = arg[0];
-      state.galleryDetails = arg[1];
-      state.apikey = arg[2];
-      state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
-      state.loadingDetailsState = LoadingState.success;
-      historyService.record(state.gallery);
-      update([bodyId]);
-      return;
-    }
   }
 
   @override
@@ -112,9 +100,9 @@ class DetailsPageLogic extends GetxController {
     state.loadingPageState = LoadingState.loading;
     update([loadingStateId]);
 
-    Map<String, dynamic> galleryAndDetailsAndApikey;
+    Map<String, dynamic> galleryAndDetailAndApikey;
     try {
-      galleryAndDetailsAndApikey = await EHRequest.requestDetailPage(
+      galleryAndDetailAndApikey = await EHRequest.requestDetailPage(
         galleryUrl: Get.arguments,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
       );
@@ -130,11 +118,10 @@ class DetailsPageLogic extends GetxController {
       update([bodyId]);
       return;
     }
-    state.gallery = galleryAndDetailsAndApikey['gallery']!;
-    state.galleryDetails = galleryAndDetailsAndApikey['galleryDetails']!;
-    state.apikey = galleryAndDetailsAndApikey['apikey']!;
-    state.gallery!.pageCount = state.galleryDetails!.pageCount;
-    state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
+    state.gallery = galleryAndDetailAndApikey['gallery']!;
+    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails']!;
+    state.apikey = galleryAndDetailAndApikey['apikey']!;
+
     state.loadingPageState = LoadingState.success;
     state.loadingDetailsState = LoadingState.success;
 
@@ -155,11 +142,11 @@ class DetailsPageLogic extends GetxController {
     }
 
     Log.info('get gallery details', false);
-    Map<String, dynamic> galleryDetailsAndApikey;
+    Map<String, dynamic> galleryAndDetailAndApikey;
     try {
-      galleryDetailsAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+      galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
         galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.detailPage2DetailAndApikey,
+        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
       );
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
@@ -168,11 +155,17 @@ class DetailsPageLogic extends GetxController {
       update([loadingStateId]);
       return;
     }
-    state.galleryDetails = galleryDetailsAndApikey['galleryDetails'];
-    state.apikey = galleryDetailsAndApikey['apikey'];
-    state.gallery!.pageCount = state.galleryDetails!.pageCount;
-    state.gallery!.uploader = state.galleryDetails!.uploader;
-    state.thumbnailsPageCount = (state.galleryDetails!.pageCount / SiteSetting.thumbnailsCountPerPage.value).ceil();
+    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
+    state.apikey = galleryAndDetailAndApikey['apikey'];
+    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
+    state.gallery!.uploader = (galleryAndDetailAndApikey['gallery'] as Gallery).uploader;
+    state.gallery!.isFavorite = (galleryAndDetailAndApikey['gallery'] as Gallery).isFavorite;
+    state.gallery!.favoriteTagIndex = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagIndex;
+    state.gallery!.favoriteTagName = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagName;
+    state.gallery!.hasRated = (galleryAndDetailAndApikey['gallery'] as Gallery).hasRated;
+    state.gallery!.rating = (galleryAndDetailAndApikey['gallery'] as Gallery).rating;
+    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
+
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     state.loadingDetailsState = LoadingState.success;
 
@@ -187,11 +180,11 @@ class DetailsPageLogic extends GetxController {
   Future<void> handleRefresh() async {
     Log.info('refresh gallery details', false);
 
-    Map<String, dynamic> detailAndApikey;
+    Map<String, dynamic> galleryAndDetailAndApikey;
     try {
-      detailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+      galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
         galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.detailPage2DetailAndApikey,
+        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: false,
       );
     } on DioError catch (e) {
@@ -201,8 +194,17 @@ class DetailsPageLogic extends GetxController {
     }
 
     state.refresh();
-    state.galleryDetails = detailAndApikey['galleryDetails'];
-    state.apikey = detailAndApikey['apikey'];
+    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
+    state.apikey = galleryAndDetailAndApikey['apikey'];
+    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
+    state.gallery!.uploader = (galleryAndDetailAndApikey['gallery'] as Gallery).uploader;
+    state.gallery!.isFavorite = (galleryAndDetailAndApikey['gallery'] as Gallery).isFavorite;
+    state.gallery!.favoriteTagIndex = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagIndex;
+    state.gallery!.favoriteTagName = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagName;
+    state.gallery!.hasRated = (galleryAndDetailAndApikey['gallery'] as Gallery).hasRated;
+    state.gallery!.rating = (galleryAndDetailAndApikey['gallery'] as Gallery).rating;
+    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
+
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
     update([bodyId]);
   }

@@ -113,11 +113,9 @@ class EHSpiderParser {
 
     return GalleryDetail(
       rawTitle: document.querySelector('#gn')!.text,
-      uploader: document.querySelector('#gdn > a')?.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
-      pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       favoriteCount: _parseGalleryDetailsFavoriteCount(document),
       torrentCount: RegExp(r'\d+').firstMatch(document.querySelector('#gd5')?.children[2].querySelector('a')?.text ?? '')?.group(0) ?? '0',
       torrentPageUrl: document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
@@ -129,7 +127,7 @@ class EHSpiderParser {
     );
   }
 
-  static Map<String, dynamic> detailPage2DetailAndApikey(Response response) {
+  static Map<String, dynamic> detailPage2DetailAndApiKey(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -139,8 +137,10 @@ class EHSpiderParser {
     };
   }
 
+  // In some page like favorite page or ranklist page, infos like uploader, pageCount, favorited info, rated info is
+  // missing. So we need to extract these infos in details page.
   static Map<String, dynamic> detailPage2GalleryAndDetailAndApikey(Response response) {
-    Map<String, dynamic> map = detailPage2DetailAndApikey(response);
+    Map<String, dynamic> map = detailPage2DetailAndApiKey(response);
     map['gallery'] = detailPage2Gallery(response);
     return map;
   }
