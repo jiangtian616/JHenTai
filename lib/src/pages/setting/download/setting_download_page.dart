@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -64,6 +65,10 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                 elevation: 4,
                 alignment: AlignmentDirectional.bottomEnd,
                 onChanged: (DownloadOriginalImageMode? newValue) {
+                  if (newValue != DownloadOriginalImageMode.never && !UserSetting.hasLoggedIn()) {
+                    toast('needLoginToOperate'.tr);
+                    return;
+                  }
                   DownloadSetting.saveDownloadOriginalImage(newValue!);
                 },
                 items: [

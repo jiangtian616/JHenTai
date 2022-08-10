@@ -99,7 +99,10 @@ class EHCookieManager extends CookieManager {
       NetworkSetting.allIPs.map((ip) => cookieJar.saveFromResponse(Uri.parse('https://$ip'), cookies)),
     );
 
-    cookieJar.loadForRequest(Uri.parse(EHConsts.EXIndex)).then((v) => userCookies = CookieUtil.parse2String(v));
+    cookieJar.loadForRequest(Uri.parse(EHConsts.EXIndex)).then((v) {
+      String newCookieStr = CookieUtil.parse2String(v);
+      userCookies = newCookieStr.isNotEmpty ? newCookieStr : userCookies;
+    });
   }
 
   Future<List<Cookie>> getCookie(Uri uri) async {

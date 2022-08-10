@@ -10,6 +10,7 @@ import 'package:jhentai/src/exception/cancel_exception.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
@@ -456,7 +457,9 @@ class GalleryDownloadService extends GetxController {
         gid2ImageHrefs[gallery.gid]![serialNo]!.href,
         cancelToken: gid2CancelToken[gallery.gid],
         useCacheIfAvailable: useCache,
-        parser: downloadOriginalImage ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
+        parser: downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
+            ? EHSpiderParser.imagePage2OriginalGalleryImage
+            : EHSpiderParser.imagePage2GalleryImage,
       );
     };
   }

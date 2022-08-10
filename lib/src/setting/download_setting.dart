@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
@@ -25,6 +26,13 @@ class DownloadSetting {
     } else {
       Log.verbose('init DownloadSetting success: default', false);
     }
+
+    /// listen to login and logout
+    ever(UserSetting.ipbMemberId, (v) {
+      if (!UserSetting.hasLoggedIn()) {
+        saveDownloadOriginalImage(DownloadOriginalImageMode.never);
+      }
+    });
   }
 
   static saveDownloadPath(String downloadPath) {
