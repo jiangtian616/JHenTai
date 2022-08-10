@@ -107,7 +107,9 @@ Future<T?>? offRoute<T>(
                 ? leftV2
                 : left
             : side == Side.right
-                ? StyleSetting.isInV2Layout ? rightV2 : right
+                ? StyleSetting.isInV2Layout
+                    ? rightV2
+                    : right
                 : null,
     preventDuplicates: preventDuplicates,
     parameters: parameters,
@@ -123,20 +125,22 @@ void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
         : side == Side.left
             ? left
             : side == Side.right
-                ? StyleSetting.isInV2Layout ? rightV2 : right
+                ? StyleSetting.isInV2Layout
+                    ? rightV2
+                    : right
                 : null,
   );
 }
 
 /// pop all pages in right screen if exists
 void untilRoute2BlankPage() {
-  if (!Get.keys.containsKey(right) || Get.keys[right]?.currentContext == null) {
-    return;
+  if (Get.keys.containsKey(right) && Get.keys[right]?.currentContext != null) {
+    Get.until((route) => route.settings.name == Routes.blank, id: right);
   }
-  Get.until(
-    (route) => route.settings.name == Routes.blank,
-    id: StyleSetting.isInV2Layout ? rightV2 : right,
-  );
+
+  if (Get.keys.containsKey(rightV2) && Get.keys[rightV2]?.currentContext != null) {
+    Get.until((route) => route.settings.name == Routes.blank, id: rightV2);
+  }
 }
 
 bool isRouteAtTop(String routeName) {
