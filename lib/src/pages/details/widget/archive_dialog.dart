@@ -71,7 +71,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                     ).marginOnly(left: 16),
                     Text(archive.gpCount.toString()).marginOnly(left: 2),
                   ],
-                ),
+                ).marginOnly(bottom: 18),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -108,7 +108,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                     ],
                   )
                 ],
-              ).marginOnly(top: 18),
+              ),
             ],
           ),
         )
