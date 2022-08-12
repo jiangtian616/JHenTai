@@ -173,7 +173,13 @@ class SettingStylePage extends StatelessWidget {
                 elevation: 4,
                 alignment: AlignmentDirectional.centerEnd,
                 onChanged: (LayoutMode? newValue) => StyleSetting.saveLayoutMode(newValue!),
-                items: JHLayout.allLayouts.where((layout) => layout.isSupported()).map((e) => DropdownMenuItem(child: Text(e.name), value: e.mode)).toList(),
+                items: JHLayout.allLayouts
+                    .map((e) => DropdownMenuItem(
+                          enabled: e.isSupported(),
+                          child: Text(e.name, style: e.isSupported() ? null : const TextStyle(color: Colors.grey)),
+                          value: e.mode,
+                        ))
+                    .toList(),
               ),
             ),
           ],
