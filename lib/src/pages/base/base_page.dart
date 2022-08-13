@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/global_config.dart';
@@ -128,14 +129,21 @@ abstract class BasePage extends StatelessWidget {
   Widget buildCenterStatusIndicator() {
     return Center(
       child: GetBuilder<BasePageLogic>(
-          id: logic.loadingStateId,
-          global: false,
-          init: logic,
-          builder: (_) => LoadingStateIndicator(
-                loadingState: state.loadingState,
-                errorTapCallback: () => logic.loadMore(),
-                noDataTapCallback: () => logic.loadMore(),
-              )),
+        id: logic.loadingStateId,
+        global: false,
+        init: logic,
+        builder: (_) => LoadingStateIndicator(
+          loadingState: state.loadingState,
+          errorTapCallback: () {
+            Log.info('CenterStatusIndicator errorTapCallback => loadMore');
+            logic.loadMore();
+          },
+          noDataTapCallback: () {
+            Log.info('CenterStatusIndicator noDataTapCallback => loadMore');
+            logic.loadMore();
+          },
+        ),
+      ),
     );
   }
 
@@ -154,12 +162,13 @@ abstract class BasePage extends StatelessWidget {
           id: logic.loadingStateId,
           global: false,
           init: logic,
-          builder: (logic) {
-            return LoadingStateIndicator(
-              errorTapCallback: () => logic.loadMore(),
-              loadingState: state.loadingState,
-            );
-          },
+          builder: (_) => LoadingStateIndicator(
+            errorTapCallback: () {
+              Log.info('LoadMoreIndicator errorTapCallback => loadMore');
+              logic.loadMore();
+            },
+            loadingState: state.loadingState,
+          ),
         ),
       ),
     );

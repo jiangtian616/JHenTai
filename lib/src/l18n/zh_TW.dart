@@ -360,7 +360,7 @@ class zh_TW {
       'never': '從不',
       'manual': '手動',
       'always': '總是',
-      'invalidPath': '無效的路徑',
+      'invalidPath': '無效的路徑。避免使用繫統路徑或sd卡。',
       'downloadTaskConcurrency': '同時下載圖片數量',
       'needRestart': '需要重啟',
       'downloadTimeout': '單次下載超時時間',

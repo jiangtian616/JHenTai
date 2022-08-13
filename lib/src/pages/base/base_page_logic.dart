@@ -237,7 +237,7 @@ abstract class BasePageLogic extends GetxController {
     pageIndex = max(pageIndex, 0);
     pageIndex = min(pageIndex, state.pageCount - 1);
     state.prevPageIndexToLoad = null;
-    state.nextPageIndexToLoad = null;
+    state.nextPageIndexToLoad = 0;
 
     List<dynamic> gallerysAndPageInfo;
     try {

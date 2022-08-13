@@ -361,7 +361,7 @@ class en_US {
       'always': 'Always',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',
-      'invalidPath': 'Invalid Path',
+      'invalidPath': 'Invalid Path. Avoid using system path or sd card path.',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need Restart',
       'speedLimit': 'Speed Limit',

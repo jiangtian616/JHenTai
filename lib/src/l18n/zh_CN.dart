@@ -360,7 +360,7 @@ class zh_CN {
       'manual': '手动',
       'always': '总是',
       'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',
-      'invalidPath': '无效的路径',
+      'invalidPath': '无效的路径。避免使用系统路径或sd卡。',
       'downloadTaskConcurrency': '同时下载图片数量',
       'needRestart': '需要重启',
       'downloadTimeout': '单次下载超时时间',
