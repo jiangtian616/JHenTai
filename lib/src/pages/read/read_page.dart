@@ -293,7 +293,7 @@ class _ReadPageState extends State<ReadPage> {
 
   /// failed for online mode
   Widget _failedWidgetBuilder(BuildContext context, int index, ExtendedImageState state) {
-    Log.warning(state.lastException, false);
+    Log.warning(state.lastException);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

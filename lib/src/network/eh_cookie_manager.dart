@@ -34,7 +34,7 @@ class EHCookieManager extends CookieManager {
         json.decode(str);
       }
     } on Exception catch (e) {
-      Log.warning('cookieJar init failed, use default setting', false);
+      Log.warning('cookieJar init failed, use default setting');
       Set<String> defaultHostSet = NetworkSetting.currentHost2IP.entries.fold<Set<String>>(
         <String>{},
         (previousValue, entry) => previousValue..addAll([entry.key, entry.value]),
@@ -54,7 +54,8 @@ class EHCookieManager extends CookieManager {
 
     Get.put<EHCookieManager>(EHCookieManager(_cookieJar));
 
-    Log.verbose('init EHCookieManager success', false);
+    List<Cookie> cookies = await _cookieJar.loadForRequest(Uri.parse(EHConsts.EHIndex));
+    Log.verbose('init EHCookieManager success, cookies length:${cookies.length}', false);
   }
 
   @override

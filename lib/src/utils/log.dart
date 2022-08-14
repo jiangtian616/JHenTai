@@ -76,7 +76,7 @@ class Log {
     _verboseFileLogger?.i(msg, null, withStack ? null : StackTrace.empty);
   }
 
-  static void warning(Object? msg, [bool withStack = true]) {
+  static void warning(Object? msg, [bool withStack = false]) {
     _logger?.w(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
     _warningFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
@@ -93,7 +93,12 @@ class Log {
     _downloadFileLogger?.v(msg, null, StackTrace.empty);
   }
 
-  static Future<void> upload(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
+  static Future<void> upload(
+    dynamic throwable, {
+    dynamic stackTrace,
+    Map<String, dynamic>? extraInfos,
+    bool withDownloadLogs = false,
+  }) async {
     if (_shouldDismissUpload(throwable)) {
       return;
     }
@@ -127,6 +132,13 @@ class Log {
             Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
             if (verboseAttachment.isNotEmpty) {
               scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+            }
+          }
+
+          if (withDownloadLogs) {
+            Uint8List downloadAttachment = _downloadLogFile.readAsBytesSync();
+            if (downloadAttachment.isNotEmpty) {
+              scope.addAttachment(SentryAttachment.fromUint8List(downloadAttachment, path.basename(_downloadLogFile.path)));
             }
           }
         },

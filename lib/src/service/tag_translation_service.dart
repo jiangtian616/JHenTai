@@ -146,7 +146,7 @@ class TagTranslationService extends GetxService {
               });
         },
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('download tag translation data failed, retry.', false),
+        onRetry: (error) => Log.warning('download tag translation data failed, retry.'),
       );
     } on DioError catch (e) {
       Log.error('download tag translation data failed after 3 times', e.message);

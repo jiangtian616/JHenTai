@@ -338,6 +338,34 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
+  void _showDeleteBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('reDownload'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              _handleReDownloadItem(context, index);
+              backRoute();
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              _handleRemoveItem(context, index);
+              backRoute();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: () => backRoute(),
+        ),
+      ),
+    );
+  }
+
   void _handleRemoveItem(BuildContext context, int index) {
     downloadService.deleteGallery(downloadService.gallerys[index]);
 
@@ -353,25 +381,10 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  void _showDeleteBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              _handleRemoveItem(context, index);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
-      ),
-    );
+  /// delete and then re-download
+  Future<void> _handleReDownloadItem(BuildContext context, int index) async {
+    await downloadService.reDownloadGallery(downloadService.gallerys[index]);
+    setState(() {});
   }
 
   void _goToReadPage(GalleryDownloadedData gallery) {

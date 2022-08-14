@@ -218,6 +218,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                     child: Text('30s'),
                     value: 30,
                   ),
+                  DropdownMenuItem(
+                    child: Text('60s'),
+                    value: 60,
+                  ),
+                  DropdownMenuItem(
+                    child: Text('180s'),
+                    value: 180,
+                  ),
                 ],
               ),
             ),

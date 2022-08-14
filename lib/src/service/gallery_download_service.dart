@@ -3,8 +3,12 @@ import 'dart:core';
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_utils/get_utils.dart';
+import 'package:get/state_manager.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/cancel_exception.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
@@ -16,7 +20,6 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:retry/retry.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -161,8 +164,10 @@ class GalleryDownloadService extends GetxController {
       }
 
       /// parse url and then download
-      _parseGalleryImageUrl(gallery, serialNo).then((_) {
-        _downloadGalleryImage(gallery, serialNo);
+      _parseGalleryImageUrl(gallery, serialNo).then((success) {
+        if (success) {
+          _downloadGalleryImage(gallery, serialNo);
+        }
       });
 
       /// check if download task has been paused or removed
@@ -260,7 +265,7 @@ class GalleryDownloadService extends GetxController {
   Future<void> deleteGallery(GalleryDownloadedData gallery) async {
     await pauseDownloadGallery(gallery);
     await _clearGalleryDownloadInfoInDatabase(gallery.gid);
-    await _clearDownloadedImageInDisk(gallery);
+    _clearDownloadedImageInDisk(gallery);
     _clearGalleryDownloadInfoInMemory(gallery);
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
@@ -283,6 +288,18 @@ class GalleryDownloadService extends GetxController {
         }
       }
     });
+  }
+
+  Future<void> reDownloadGallery(GalleryDownloadedData gallery) async {
+    Log.info('Re-download gallery: ${gallery.gid}');
+
+    await pauseDownloadGallery(gallery);
+    await _clearGalleryDownloadInfoInDatabase(gallery.gid);
+    _clearDownloadedImageInDisk(gallery);
+    _clearGalleryDownloadInfoInMemory(gallery, updateId: false);
+
+    downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: null));
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   /// use meta in each gallery folder to restore download status, then sync to database.
@@ -405,9 +422,9 @@ class GalleryDownloadService extends GetxController {
     };
   }
 
-  Future<void> _parseGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, {bool isNewImage = true}) async {
+  Future<bool> _parseGalleryImageUrl(GalleryDownloadedData gallery, int serialNo, {bool isNewImage = true}) async {
     if (_taskHasBeenPausedOrRemoved(gallery)) {
-      return;
+      return false;
     }
 
     GalleryImage image;
@@ -421,19 +438,18 @@ class GalleryDownloadService extends GetxController {
         maxAttempts: retryTimes,
       );
     } on CancelException catch (_) {
-      return;
+      return false;
     } on DioError catch (e) {
       if (e.type == DioErrorType.cancel) {
-        return;
+        return false;
       }
       if (e.error is EHException) {
         Log.download('Download Error, reason: ${e.error.msg}');
         snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
         await pauseAllDownloadGallery();
-        return;
+        return false;
       }
-      await _parseGalleryImageUrl(gallery, serialNo, isNewImage: isNewImage);
-      return;
+      return await _parseGalleryImageUrl(gallery, serialNo, isNewImage: isNewImage);
     } finally {
       gid2Tasks[gallery.gid]?.remove(task);
     }
@@ -442,9 +458,13 @@ class GalleryDownloadService extends GetxController {
     image.path = _computeImageDownloadRelativePath(gallery, serialNo);
     image.downloadStatus = DownloadStatus.downloading;
     if (isNewImage) {
-      await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
+      if (gallery.downloadOriginalImage) {
+        return await _saveNewImageInfoInDatabase(image.copyWith(url: null), serialNo, gallery.gid);
+      }
+      return await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
     } else {
       _updateImageUrl(image, gallery.gid, serialNo);
+      return true;
     }
   }
 
@@ -480,10 +500,11 @@ class GalleryDownloadService extends GetxController {
       }
     }
 
-    AsyncTask<void> task = _downloadGalleryImageTask(gallery, serialNo, image.url);
+    AsyncTask<Response> task = _downloadGalleryImageTask(gallery, serialNo, image.url);
     gid2Tasks[gallery.gid]!.add(task);
+    Response response;
     try {
-      await retry(
+      response = await retry(
         () => executor.scheduleTask(serialNo, task),
         maxAttempts: retryTimes,
         retryIf: (e) =>
@@ -516,13 +537,18 @@ class GalleryDownloadService extends GetxController {
       gid2Tasks[gallery.gid]?.remove(task);
     }
 
+    if (_isInvalidToken(gallery, response)) {
+      Log.warning('Invalid original image token, url: ${image.url}');
+      return _reParseImageUrlAndDownload(gallery, serialNo);
+    }
+
     Log.download('download gallery:${gallery.title} image: $serialNo success');
 
     await _updateImageDownloadStatus(image, gallery.gid, serialNo, DownloadStatus.downloaded);
     _updateProgressAfterImageDownloaded(gallery.gid, serialNo);
   }
 
-  AsyncTask<void> _downloadGalleryImageTask(GalleryDownloadedData gallery, int serialNo, String url) {
+  AsyncTask<Response> _downloadGalleryImageTask(GalleryDownloadedData gallery, int serialNo, String url) {
     return () {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         throw CancelException();
@@ -594,6 +620,14 @@ class GalleryDownloadService extends GetxController {
     );
   }
 
+  /// We need a token in url to get the original image download url, expired token will leads to a failed request,
+  bool _isInvalidToken(GalleryDownloadedData gallery, Response response) {
+    if (!gallery.downloadOriginalImage) {
+      return false;
+    }
+    return !(response.isRedirect ?? true) && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false);
+  }
+
   Future<void> _tryCopyImageInfo(GalleryDownloadedData newGallery, String oldVersionGalleryUrl, int newImageSerialNo) async {
     GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
     if (oldGallery == null) {
@@ -643,7 +677,7 @@ class GalleryDownloadService extends GetxController {
     update([downloadGallerysId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
-  void _clearGalleryDownloadInfoInMemory(GalleryDownloadedData gallery) {
+  void _clearGalleryDownloadInfoInMemory(GalleryDownloadedData gallery, {bool updateId = true}) {
     gallerys.remove(gallery);
     gid2ThumbnailsCountPerPage.remove(gallery.gid);
     gid2Tasks.remove(gallery.gid);
@@ -652,10 +686,12 @@ class GalleryDownloadService extends GetxController {
     gid2ImageHrefs.remove(gallery.gid);
     gid2SpeedComputer[gallery.gid]!.dispose();
     gid2SpeedComputer.remove(gallery.gid);
-    update([downloadGallerysId]);
+    if (updateId) {
+      update([downloadGallerysId]);
+    }
   }
 
-  Future<void> _clearDownloadedImageInDisk(GalleryDownloadedData gallery) async {
+  void _clearDownloadedImageInDisk(GalleryDownloadedData gallery) {
     io.Directory directory = io.Directory(_computeGalleryDownloadPath(gallery));
     if (!directory.existsSync()) {
       return;
@@ -701,17 +737,24 @@ class GalleryDownloadService extends GetxController {
   }
 
   /// parse a image's url successfully, need to record its info and with its status beginning at 'downloading'
-  Future<int> _saveNewImageInfoInDatabase(GalleryImage image, int serialNo, int gid) {
-    return appDb.insertImage(
-      image.url,
-      serialNo,
-      gid,
-      image.height,
-      image.width,
-      image.path!,
-      image.imageHash!,
-      image.downloadStatus.index,
-    );
+  Future<bool> _saveNewImageInfoInDatabase(GalleryImage image, int serialNo, int gid) async {
+    try {
+      await appDb.insertImage(
+        image.url,
+        serialNo,
+        gid,
+        image.height,
+        image.width,
+        image.path!,
+        image.imageHash!,
+        image.downloadStatus.index,
+      );
+      return true;
+    } on SqliteException catch (e) {
+      Log.error(e);
+      Log.upload(e, withDownloadLogs: true);
+      return false;
+    }
   }
 
   Future<void> _updateGalleryDownloadStatus(GalleryDownloadedData gallery) async {

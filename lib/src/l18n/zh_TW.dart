@@ -282,6 +282,7 @@ class zh_TW {
 
       /// download page
       'delete': '刪除',
+      'reDownload': '重新下載',
       'unlocking': '解鎖歸檔中',
       'waitingForDownloadPageUrl': '等待下載中',
       'waitingForDownloadUrl': '等待下載中',

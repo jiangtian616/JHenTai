@@ -282,6 +282,7 @@ class zh_CN {
 
       /// download page
       'delete': '删除',
+      'reDownload': '重新下载',
       'unlocking': '解锁归档中',
       'waitingForDownloadPageUrl': '等待下载中',
       'waitingForDownloadUrl': '等待下载中',

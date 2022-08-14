@@ -281,6 +281,7 @@ class en_US {
       'logList': 'Log List',
 
       /// download page
+      'reDownload': 'Re-download',
       'delete': 'Delete',
       'unlocking': 'unlocking',
       'waitingForDownloadPageUrl': 'Waiting For Download',
