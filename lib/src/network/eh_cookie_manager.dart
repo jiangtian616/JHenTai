@@ -7,6 +7,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:path/path.dart';
 
 import '../setting/network_setting.dart';
@@ -55,6 +56,10 @@ class EHCookieManager extends CookieManager {
     Get.put<EHCookieManager>(EHCookieManager(_cookieJar));
 
     List<Cookie> cookies = await _cookieJar.loadForRequest(Uri.parse(EHConsts.EHIndex));
+    if (cookies.isEmpty && UserSetting.hasLoggedIn()) {
+      Log.error('Logged in but cookie is missing, try log out.');
+      UserSetting.clear();
+    }
     Log.verbose('init EHCookieManager success, cookies length:${cookies.length}', false);
   }
 
