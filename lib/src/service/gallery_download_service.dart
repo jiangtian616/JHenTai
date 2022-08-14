@@ -319,6 +319,8 @@ class GalleryDownloadService extends GetxController {
       }
 
       Map metadata = jsonDecode(metadataFile.readAsStringSync());
+      /// new field
+      (metadata['gallery'] as Map).putIfAbsent('downloadOriginalImage', () => false);
       GalleryDownloadedData gallery = GalleryDownloadedData.fromJson(metadata['gallery']);
       List<GalleryImage?> images = (jsonDecode(metadata['images']) as List).map((_map) => _map == null ? null : GalleryImage.fromJson(_map)).toList();
 
