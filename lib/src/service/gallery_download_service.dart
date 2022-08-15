@@ -609,7 +609,7 @@ class GalleryDownloadService extends GetxController {
     GalleryImage image = gid2Images[gallery.gid]![serialNo]!;
 
     /// original image's url doesn't has an ext
-    String? ext = image.url.contains('https://e-hentai.org/fullimg.php') ? 'jpg' : image.url.split('.').last;
+    String? ext = image.url.contains('fullimg.php') ? 'jpg' : image.url.split('.').last;
     String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
