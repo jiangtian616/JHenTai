@@ -575,7 +575,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   String _computeGalleryDownloadPath(GalleryDownloadedData gallery) {
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
     }
@@ -589,8 +589,8 @@ class GalleryDownloadService extends GetxController {
     image ??= gid2Images[gallery.gid]![serialNo]!;
 
     /// original image's url doesn't has an ext
-    String ext = image.url.contains('https://e-hentai.org/fullimg.php') ? 'jpg' : image.url.split('.').last;
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
+    String ext = image.url.contains('fullimg.php') ? 'jpg' : image.url.split('.').last;
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
     }
@@ -610,7 +610,7 @@ class GalleryDownloadService extends GetxController {
 
     /// original image's url doesn't has an ext
     String? ext = image.url.contains('https://e-hentai.org/fullimg.php') ? 'jpg' : image.url.split('.').last;
-    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>]'), ' ').trim();
+    String title = gallery.title.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
     if (title.length > _maxTitleLength) {
       title = title.substring(0, _maxTitleLength).trim();
     }
