@@ -30,7 +30,7 @@ class ReadViewHelper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-       behavior: const MaterialScrollBehavior().copyWith(
+      behavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
           PointerDeviceKind.mouse,
           PointerDeviceKind.touch,
@@ -146,8 +146,8 @@ class ReadViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.toPrev,
-            onDoubleTap: logic.toPrev,
+            onTap: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
+            onDoubleTap: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
           ),
         ),
         Expanded(
@@ -171,8 +171,8 @@ class ReadViewHelper extends StatelessWidget {
           flex: 1,
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: logic.toNext,
-            onDoubleTap: logic.toNext,
+            onTap: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
+            onDoubleTap: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
           ),
         ),
       ],

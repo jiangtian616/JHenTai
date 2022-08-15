@@ -440,6 +440,7 @@ class ReadPageLogic extends GetxController {
 
   void recordReadProgress(int index) {
     state.readIndexRecord = index;
+    state.initialIndex = index;
     update([sliderId, pageNoId, thumbnailsId]);
   }
 
