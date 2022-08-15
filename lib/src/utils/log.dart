@@ -196,6 +196,9 @@ class Log {
     if (throwable is HttpException && throwable.message.contains('Connection closed while receiving data')) {
       return true;
     }
+    if (throwable is StateError && throwable.message.contains('Reading from a closed socket')) {
+      return true;
+    }
     return false;
   }
 

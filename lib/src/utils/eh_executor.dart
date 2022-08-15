@@ -5,6 +5,7 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:executor/executor.dart';
+import 'package:jhentai/src/utils/log.dart';
 
 import '../exception/cancel_exception.dart';
 
@@ -209,7 +210,15 @@ class _EHExecutor implements EHExecutor {
     _PriorityItem item = task2WaitingItem[task]!;
     _waiting.remove(item);
 
-    item.trigger.completeError(CancelException());
+    try {
+      item.trigger.completeError(CancelException());
+    } on StateError catch (e) {
+      if (e.message.contains('Future already completed')) {
+        Log.warning('_EHExecutor.cancelTask: Future already completed');
+      } else {
+        rethrow;
+      }
+    }
   }
 
   @override
