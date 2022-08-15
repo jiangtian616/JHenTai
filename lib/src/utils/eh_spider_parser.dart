@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
@@ -25,6 +27,7 @@ import 'package:jhentai/src/utils/color_util.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
+import '../network/eh_cache_interceptor.dart';
 import 'log.dart';
 
 T noOpParser<T>(v) => v as T;
@@ -265,6 +268,7 @@ class EHSpiderParser {
     String url = img.attributes['src']!;
 
     if (url.contains('509.gif')) {
+      Get.find<EHCacheInterceptor>().removeCacheByUrl(response.requestOptions.path);
       throw DioError(
         requestOptions: response.requestOptions,
         error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
@@ -296,6 +300,7 @@ class EHSpiderParser {
     String url = img.attributes['src']!;
 
     if (url.contains('509.gif')) {
+      Get.find<EHCacheInterceptor>().removeCacheByUrl(response.requestOptions.path);
       throw DioError(
         requestOptions: response.requestOptions,
         error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
