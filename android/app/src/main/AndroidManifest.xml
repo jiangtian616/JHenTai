@@ -4,7 +4,7 @@
             android:label="jhentai"
             android:name="${applicationName}"
             android:requestLegacyExternalStorage="true"
-            android:icon="@mipmap/jhentai">
+            android:icon="@mipmap/launcher_icon">
         <activity
                 android:name=".MainActivity"
                 android:exported="true"
