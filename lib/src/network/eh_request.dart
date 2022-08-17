@@ -12,11 +12,13 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
+import 'package:jhentai/src/service/check_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import '../setting/network_setting.dart';
@@ -564,6 +566,12 @@ class EHRequest {
       if (e.response?.statusCode != 302) {
         rethrow;
       }
+
+      CheckService.build(() => e.response != null, "Lookup response shouldn't be null!")
+          .withUploadParam(e)
+          .onFailed(() => toast('systemError'.tr))
+          .check();
+
       response = e.response;
     }
     return callWithParamsUploadIfErrorOccurs(() => parser(response!), params: response);

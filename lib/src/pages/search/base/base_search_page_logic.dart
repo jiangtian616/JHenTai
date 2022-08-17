@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/service/check_service.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
@@ -120,8 +121,13 @@ mixin BaseSearchPageLogic on BasePageLogic {
       state.loadingState = LoadingState.idle;
       update([loadingStateId]);
       return;
+    } on CheckException catch (_) {
+      state.loadingState = LoadingState.idle;
+      update([loadingStateId]);
+      rethrow;
     }
 
+    Log.info('Get redirect url success:${state.redirectUrl}');
     loadMore(checkLoadingState: false);
   }
 

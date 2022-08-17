@@ -18,6 +18,7 @@ class en_US {
       'needLoginToOperate': 'Need Log In To Operate',
       'hasCopiedToClipboard': "Has Copied To Clipboard",
       'networkError': "Network Error",
+      'systemError': "System Error",
 
       'home': "Home",
       'gallery': "Gallery",

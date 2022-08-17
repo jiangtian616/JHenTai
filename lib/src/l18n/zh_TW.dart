@@ -18,6 +18,7 @@ class zh_TW {
       'needLoginToOperate': '需要登入後才能操作',
       'hasCopiedToClipboard': "已複製到剪貼簿",
       'networkError': "網路錯誤",
+      'systemError': "系統錯誤",
 
       'home': "主畫面",
       'gallery': "畫廊",

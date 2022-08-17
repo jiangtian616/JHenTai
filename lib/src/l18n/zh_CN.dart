@@ -18,6 +18,7 @@ class zh_CN {
       'needLoginToOperate': '需要登陆后才能操作',
       'hasCopiedToClipboard': "已复制到粘贴板",
       'networkError': "网络错误",
+      'systemError': "系统错误",
 
       'home': "主页",
       'gallery': "画廊",
