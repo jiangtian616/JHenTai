@@ -65,10 +65,7 @@ dependencies:
   throttling: ^1.0.0
   permission_handler: 9.2.0
   bitsdojo_window: ^0.1.2
-  flutter_launcher_icons: 
-    git:
-      url: https://github.com/Davenchy/flutter_launcher_icons.git
-      ref: fixMinSdkParseFlutter2.8
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -76,11 +73,14 @@ dev_dependencies:
   test: ^1.19.5
   drift_dev: ^1.5.2
   build_runner: ^2.1.8
+  flutter_launcher_icons: ^0.10.0
+
+flutter:
+  uses-material-design: true
+
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icon.png" # Provide icon for ios 
+  image_path: "assets/icon.png"
   adaptive_icon_background: "#fce219"
   adaptive_icon_foreground: "assets/ic_launcher_foreground.png"
-flutter:
-  uses-material-design: true
