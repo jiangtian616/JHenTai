@@ -48,7 +48,7 @@ void main() async {
     runApp(const MyApp());
     _doForDesktop();
   }, (Object error, StackTrace stack) {
-    if (error is UploadException) {
+    if (error is NotUploadException) {
       return;
     }
     Log.error(error, null, stack);

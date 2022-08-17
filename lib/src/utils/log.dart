@@ -199,6 +199,9 @@ class Log {
     if (throwable is StateError && throwable.message.contains('Reading from a closed socket')) {
       return true;
     }
+    if (throwable is SocketException && throwable.message.contains('Reading from a closed socket')) {
+      return true;
+    }
     return false;
   }
 
@@ -244,14 +247,14 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     Log.error('operationFailed'.tr, e);
     Log.upload(e, extraInfos: {'params': params});
     if (defaultValue == null) {
-      throw UploadException(e);
+      throw NotUploadException(e);
     }
     return defaultValue;
   } on Error catch (e) {
     Log.error('operationFailed'.tr, e);
     Log.upload(e, extraInfos: {'params': params});
     if (defaultValue == null) {
-      throw UploadException(e);
+      throw NotUploadException(e);
     }
     return defaultValue;
   }

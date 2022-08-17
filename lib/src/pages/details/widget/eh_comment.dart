@@ -162,12 +162,20 @@ class _EHCommentState extends State<EHComment> {
       return null;
     }
 
+    Log.info('Voting comment:$commentId');
+
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     int score;
     try {
-      score = await EHRequest.voteComment(detailsPageState.gallery!.gid, detailsPageState.gallery!.token,
-          UserSetting.ipbMemberId.value!, detailsPageState.apikey, commentId, isVotingUp,
-          parser: EHSpiderParser.votingCommentResponse2Score);
+      score = await EHRequest.voteComment(
+        detailsPageState.gallery!.gid,
+        detailsPageState.gallery!.token,
+        UserSetting.ipbMemberId.value!,
+        detailsPageState.apikey,
+        commentId,
+        isVotingUp,
+        parser: EHSpiderParser.votingCommentResponse2Score,
+      );
     } on DioError catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
       snack('voteCommentFailed'.tr, e.message);
