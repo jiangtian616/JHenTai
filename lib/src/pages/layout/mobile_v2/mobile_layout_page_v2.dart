@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.d
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import '../../../widget/log_out_dialog.dart';
@@ -31,11 +32,14 @@ class MobileLayoutPageV2 extends StatelessWidget {
         },
         scrollbars: true,
       ),
-      child: Scaffold(
-        key: state.scaffoldKey,
-        drawer: _buildLeftDrawer(),
-        endDrawer: _buildRightDrawer(),
-        body: _buildBody(),
+      child: Obx(
+        () => Scaffold(
+          key: state.scaffoldKey,
+          drawer: _buildLeftDrawer(),
+          endDrawer: _buildRightDrawer(),
+          endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+          body: _buildBody(),
+        ),
       ),
     );
   }
@@ -112,8 +116,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
               child: CircleAvatar(
                 radius: 32,
                 backgroundColor: Colors.grey.shade300,
-                foregroundImage:
-                    UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!) : null,
+                foregroundImage: UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!) : null,
                 child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: Colors.grey.withOpacity(0.8), size: 32),
               ),
               onTap: _handleTapAvatar,

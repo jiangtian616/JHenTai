@@ -214,6 +214,7 @@ class zh_CN {
       'coverStyle': '封面图片样式',
       'cover': '覆盖',
       'adaptive': '自适应',
+      'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',

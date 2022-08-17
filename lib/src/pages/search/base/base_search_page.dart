@@ -24,6 +24,7 @@ mixin BaseSearchPage on BasePage {
       init: logic,
       id: logic.searchFieldId,
       builder: (_) => CupertinoSearchTextField(
+        focusNode: state.searchFieldFocusNode,
         prefixInsets: const EdgeInsets.only(left: 18),
         borderRadius: BorderRadius.circular(24),
         backgroundColor: Get.theme.backgroundColor,
@@ -42,7 +43,10 @@ mixin BaseSearchPage on BasePage {
           state.searchConfig.keyword = value;
           logic.waitAndSearchTags();
         },
-        onSubmitted: (_) => logic.clearAndRefresh(),
+        onSubmitted: (_) {
+          logic.clearAndRefresh();
+          state.searchFieldFocusNode.unfocus();
+        },
       ),
     );
   }

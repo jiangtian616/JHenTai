@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
@@ -182,6 +183,16 @@ class SettingStylePage extends StatelessWidget {
                     .toList(),
               ),
             ),
+            if (StyleSetting.isInV2Layout)
+              FadeIn(
+                child: ListTile(
+                  title: Text('enableQuickSearchDrawerGesture'.tr),
+                  trailing: Switch(
+                    value: StyleSetting.enableQuickSearchDrawerGesture.value,
+                    onChanged: (value) => StyleSetting.saveEnableQuickSearchDrawerGesture(value),
+                  ),
+                ),
+              ),
           ],
         ).paddingSymmetric(vertical: 16);
       }),

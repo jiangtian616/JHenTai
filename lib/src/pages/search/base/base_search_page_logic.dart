@@ -34,6 +34,12 @@ mixin BaseSearchPageLogic on BasePageLogic {
   static const Duration searchDelay = Duration(milliseconds: 300);
 
   @override
+  void dispose() {
+    state.searchFieldFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Future<void> clearAndRefresh() async {
     state.hasSearched = true;
 

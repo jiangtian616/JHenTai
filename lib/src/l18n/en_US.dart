@@ -214,6 +214,7 @@ class en_US {
       'coverStyle': 'Cover Style',
       'cover': 'Cover',
       'adaptive': 'Adaptive',
+      'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

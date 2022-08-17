@@ -17,4 +17,6 @@ mixin BaseSearchPageState on BasePageState {
   List<TagData> suggestions = <TagData>[];
 
   ScrollController suggestionBodyController = ScrollController();
+
+  FocusNode searchFieldFocusNode = FocusNode();
 }

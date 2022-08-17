@@ -8,10 +8,13 @@ import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.d
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
+import '../../../setting/style_setting.dart';
 import '../../../widget/eh_search_config_dialog.dart';
 import '../../base/base_page.dart';
 import '../base/base_search_page_state.dart';
 import '../quick_search/quick_search_page.dart';
+
+final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
 class SearchPageMobileV2 extends BasePage with BaseSearchPage {
   final String tag = UniqueKey().toString();
@@ -33,12 +36,19 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
       id: logic.pageId,
       global: false,
       init: logic,
-      builder: (_) => Scaffold(
-        appBar: buildAppBar(context),
-        endDrawer: _buildRightDrawer(),
-        body: SafeArea(child: buildBody(context)),
-        floatingActionButton: buildFloatingActionButton(context),
-      ),
+      builder: (_) =>
+          Obx(
+                () =>
+                Scaffold(
+                  key: scaffoldKey,
+                  appBar: buildAppBar(context),
+                  endDrawer: _buildRightDrawer(),
+                  endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+                  body: SafeArea(child: buildBody(context)),
+                  floatingActionButton: buildFloatingActionButton(context),
+                  resizeToAvoidBottomInset: false,
+                ),
+          ),
     );
   }
 
@@ -59,8 +69,9 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
       children: [
         if (state.bodyType == SearchPageBodyType.suggestionAndHistory)
           Expanded(child: buildSuggestionAndHistoryBody(context))
-        else if (state.hasSearched)
-          Expanded(child: super.buildBody(context)),
+        else
+          if (state.hasSearched)
+            Expanded(child: super.buildBody(context)),
       ],
     );
   }
@@ -82,7 +93,10 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
         FadeIn(
           child: InkResponse(
             child: const Icon(FontAwesomeIcons.paperPlane, size: 20),
-            onTap: logic.handleTapJumpButton,
+            onTap: () {
+              state.searchFieldFocusNode.unfocus();
+              logic.handleTapJumpButton();
+            },
           ).marginOnly(right: 16),
         ),
       InkResponse(
@@ -91,8 +105,18 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
       ).marginOnly(right: 12),
       InkResponse(
         child: const Icon(Icons.filter_alt),
-        onTap: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter),
+        onTap: () {
+          state.searchFieldFocusNode.unfocus();
+          logic.handleTapFilterButton(EHSearchConfigDialogType.filter);
+        },
       ).marginOnly(right: 12),
+      InkResponse(
+        child: const Icon(FontAwesomeIcons.bars, size: 20),
+        onTap: () {
+          state.searchFieldFocusNode.unfocus();
+          scaffoldKey.currentState?.openEndDrawer();
+        },
+      ).marginOnly(right: 12, top: 1),
     ];
   }
 }

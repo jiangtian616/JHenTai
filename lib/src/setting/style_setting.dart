@@ -26,12 +26,12 @@ class StyleSetting {
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
-
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
+  static RxBool enableQuickSearchDrawerGesture = true.obs;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;
@@ -91,6 +91,12 @@ class StyleSetting {
     _save();
   }
 
+  static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
+    Log.verbose('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
+    StyleSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
+    _save();
+  }
+
   static ThemeData getCurrentThemeData() {
     return themeMode.value == ThemeMode.dark
         ? ThemeConfig.dark
@@ -113,6 +119,7 @@ class StyleSetting {
       'listMode': listMode.value.index,
       'coverMode': coverMode.value.index,
       'layout': layout.value.index,
+      'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
     };
   }
 
@@ -124,5 +131,6 @@ class StyleSetting {
     coverMode.value = CoverMode.values[map['coverMode']];
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
     actualLayout = layout.value;
+    enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
   }
 }

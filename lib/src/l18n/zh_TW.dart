@@ -214,6 +214,7 @@ class zh_TW {
       'coverStyle': '封面圖片樣式',
       'cover': '覆蓋',
       'adaptive': '自適應',
+      'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '滑鼠滾輪速度',
