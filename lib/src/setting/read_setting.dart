@@ -34,6 +34,7 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
+  static RxBool enableContinuousHorizontalScroll = false.obs;
   static RxBool enableAutoScaleUp = false.obs;
 
   static void init() {
@@ -112,6 +113,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveEnableContinuousHorizontalScroll(bool value) {
+    Log.verbose('saveEnableContinuousHorizontalScroll:$value');
+    enableContinuousHorizontalScroll.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -128,6 +135,7 @@ class ReadSetting {
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
+      'enableContinuousHorizontalScroll': enableContinuousHorizontalScroll.value,
       'enableAutoScaleUp': enableAutoScaleUp.value,
     };
   }
@@ -143,6 +151,7 @@ class ReadSetting {
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
+    enableContinuousHorizontalScroll.value = map['enableContinuousHorizontalScroll'] ?? enableContinuousHorizontalScroll.value;
     enableAutoScaleUp.value = map['enableAutoScaleUp'];
   }
 }

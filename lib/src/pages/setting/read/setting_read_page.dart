@@ -232,6 +232,17 @@ class SettingReadPage extends StatelessWidget {
             if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
               FadeIn(
                 child: ListTile(
+                  title: Text('continuousScroll'.tr),
+                  subtitle: Text('continuousScrollHint'.tr),
+                  trailing: Switch(
+                    value: ReadSetting.enableContinuousHorizontalScroll.value,
+                    onChanged: (value) => ReadSetting.saveEnableContinuousHorizontalScroll(value),
+                  ),
+                ),
+              ),
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+              FadeIn(
+                child: ListTile(
                   title: Text('enableAutoScaleUp'.tr),
                   subtitle: Text('enableAutoScaleUpHints'.tr),
                   trailing: Switch(

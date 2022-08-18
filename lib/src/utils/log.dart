@@ -97,7 +97,7 @@ class Log {
     dynamic throwable, {
     dynamic stackTrace,
     Map<String, dynamic>? extraInfos,
-    bool withDownloadLogs = false,
+    bool attachDownloadLogs = false,
   }) async {
     if (_shouldDismissUpload(throwable)) {
       return;
@@ -135,7 +135,7 @@ class Log {
             }
           }
 
-          if (withDownloadLogs) {
+          if (attachDownloadLogs) {
             Uint8List downloadAttachment = _downloadLogFile.readAsBytesSync();
             if (downloadAttachment.isNotEmpty) {
               scope.addAttachment(SentryAttachment.fromUint8List(downloadAttachment, path.basename(_downloadLogFile.path)));

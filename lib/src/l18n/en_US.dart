@@ -274,8 +274,10 @@ class en_US {
       'image': 'Image',
       'screen': 'Screen',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
-      'ScreenHeight': 'Screen Height',
+      'ScreenHeight': 'Screen',
       'preloadPageCount': 'Preload Page Count',
+      'continuousScroll': 'Continuous Scroll',
+      'continuousScrollHint': 'Splice multiple images',
       'enableAutoScaleUp': 'Enable Auto Scale up long image',
       'enableAutoScaleUpHints': 'Make image width same as screen width',
 

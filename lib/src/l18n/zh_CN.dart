@@ -274,8 +274,10 @@ class zh_CN {
       'image': '图片',
       'screen': '屏幕',
       'preloadDistanceInOnlineMode': '在线模式预载距离',
-      'ScreenHeight': '屏幕高度',
+      'ScreenHeight': '屏幕',
       'preloadPageCount': '预载图片数量',
+      'continuousScroll': '连续滚动',
+      'continuousScrollHint': '拼接多个图片',
       'enableAutoScaleUp': '自动放大长图片',
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 

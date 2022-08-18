@@ -754,7 +754,7 @@ class GalleryDownloadService extends GetxController {
       return true;
     } on SqliteException catch (e) {
       Log.error(e);
-      Log.upload(e, withDownloadLogs: true);
+      Log.upload(e, attachDownloadLogs: true);
       return false;
     }
   }

@@ -274,8 +274,10 @@ class zh_TW {
       'image': '圖片',
       'screen': '螢幕',
       'preloadDistanceInOnlineMode': '在線模式預載距離',
-      'ScreenHeight': '屏幕高度',
+      'ScreenHeight': '屏幕',
       'preloadPageCount': '預載圖片數量',
+      'continuousScroll': '連續滾動',
+      'continuousScrollHint': '拼接多個圖片',
       'enableAutoScaleUp': '自動放大長圖片',
       'enableAutoScaleUpHints': '優先使圖片寬度占滿螢幕',
 
