@@ -10,7 +10,7 @@ class MobileLayoutPageV2Logic extends GetxController {
 
   void handleTapTabBarButton(int index) {
     if (state.icons[index].enterNewRoute) {
-      state.scaffoldKey.currentState?.closeDrawer();
+      MobileLayoutPageV2State.scaffoldKey.currentState?.closeDrawer();
       toRoute(state.icons[index].routeName);
       return;
     }
@@ -21,7 +21,7 @@ class MobileLayoutPageV2Logic extends GetxController {
     state.selectedTabIndex = index;
 
     if (prevIndex != index) {
-      state.scaffoldKey.currentState?.closeDrawer();
+      MobileLayoutPageV2State.scaffoldKey.currentState?.closeDrawer();
       update([pageId]);
     }
   }

@@ -21,7 +21,8 @@ class MobileLayoutPageV2State {
   /// selectedTabIndex in [shouldRender] icons
   int get selectedTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
 
-  GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+  static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
+
   final PageController pageController = PageController();
 
   MobileLayoutPageV2State() {

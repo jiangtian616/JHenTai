@@ -111,7 +111,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
         },
       ).marginOnly(right: 12),
       InkResponse(
-        child: const Icon(FontAwesomeIcons.bars, size: 20),
+        child: const Icon(Icons.more_vert),
         onTap: () {
           state.searchFieldFocusNode.unfocus();
           scaffoldKey.currentState?.openEndDrawer();

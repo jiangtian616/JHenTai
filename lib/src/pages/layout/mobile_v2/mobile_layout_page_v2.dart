@@ -34,7 +34,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
       ),
       child: Obx(
         () => Scaffold(
-          key: state.scaffoldKey,
+          key: MobileLayoutPageV2State.scaffoldKey,
           drawer: _buildLeftDrawer(),
           endDrawer: _buildRightDrawer(),
           endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
@@ -99,7 +99,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
           ),
         ),
         onNotification: (_) {
-          state.scaffoldKey.currentState?.openDrawer();
+          MobileLayoutPageV2State.scaffoldKey.currentState?.openDrawer();
           return true;
         },
       ),

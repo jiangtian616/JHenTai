@@ -10,6 +10,7 @@ import 'package:jhentai/src/widget/jh_dashboard_card.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../config/global_config.dart';
+import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'dashboard_page_logic.dart';
 
 class DashboardPage extends BasePage {
@@ -37,7 +38,12 @@ class DashboardPage extends BasePage {
         icon: const Icon(Icons.search, size: 28),
         padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
         onPressed: () => toRoute(Routes.mobileV2Search),
-      )
+      ),
+      IconButton(
+        icon: const Icon(Icons.more_vert, size: 28),
+        padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
+        onPressed: MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
+      ),
     ];
   }
 
