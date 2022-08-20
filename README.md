@@ -11,7 +11,7 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 An E-Hentai app for Android & iOS & Windows & MacOS.
 
-Still in starting stage, welcome to submit issues.
+Still in beginning stage, welcome to submit issues.
 
 ## Download & Install
 
@@ -37,8 +37,13 @@ Please submit a PR if you want to help with translation.
 
 My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android
 phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
-experience
-with Android or ios, so I choose JHenTai to become my first Flutter Project.
+experience with Android or ios, so I choose JHenTai to become my first Flutter Project.
+
+2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have figured out some basic techniques of Flutter development, 
+pushing me to completely refactor code include gallery page, reading page, download, etc. which are written at the beginning stage.
+I tried my best to extract the commonality between different page and style to reduce coupling, 
+in order to benefit the development of new features. I would be very grateful if any kind of you could give me some advice on coding style, 
+design patterns or participate in the development of JHenTai.
 
 ## References & Thanks
 
@@ -89,18 +94,21 @@ mush thanks to these projects and people🙇‍
 <img width="250" src="screenshot/detail_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_en.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
 
-### Setting & Download & Read
+### Setting & Download
 
-<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/read.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
+
+### Read
+<img width="250" src="screenshot/read.jpg" style="margin-right:10px" />
 
 ## Main Features
 
 - [x] Mobile, tablet, desktop layout(5 kinds)
+- [x] Vertical, horizontal, double column read page layout(4 kinds)
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 - [x] online reading and download, support restore download task, support synchronize updates after the uploader has
-  uploaded a
-  new version
+  uploaded a new version
 - [x] archive download and automatic unpacking and reading
 - [x] favorite, rating, torrent, archive, statistics, share
 - [x] password login, Cookie login, web login

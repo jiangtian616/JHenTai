@@ -86,7 +86,7 @@ class SettingReadPage extends StatelessWidget {
                 ),
               ),
             ),
-            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
               FadeIn(
                 key: const Key('autoModeStyle'),
                 child: ListTile(
@@ -111,7 +111,7 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
               FadeIn(
                 key: const Key('turnPageMode'),
                 child: ListTile(
@@ -140,7 +140,7 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (ReadSetting.readDirection.value == ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
               FadeIn(
                 key: const Key('preloadDistanceInOnlineMode'),
                 child: ListTile(
@@ -190,7 +190,7 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom && ReadSetting.enableContinuousHorizontalScroll.isFalse)
               FadeIn(
                 child: ListTile(
                   title: Text('preloadPageCount'.tr),
@@ -229,7 +229,9 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
+                ReadSetting.enableAutoScaleUp.isFalse &&
+                ReadSetting.enableDoubleColumn.isFalse)
               FadeIn(
                 child: ListTile(
                   title: Text('continuousScroll'.tr),
@@ -240,7 +242,21 @@ class SettingReadPage extends StatelessWidget {
                   ),
                 ),
               ),
-            if (ReadSetting.readDirection.value != ReadDirection.top2bottom)
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
+                ReadSetting.enableContinuousHorizontalScroll.isFalse &&
+                ReadSetting.enableAutoScaleUp.isFalse)
+              FadeIn(
+                child: ListTile(
+                  title: Text('doubleColumn'.tr),
+                  trailing: Switch(
+                    value: ReadSetting.enableDoubleColumn.value,
+                    onChanged: (value) => ReadSetting.saveEnableDoubleColumn(value),
+                  ),
+                ),
+              ),
+            if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
+                ReadSetting.enableContinuousHorizontalScroll.isFalse &&
+                ReadSetting.enableDoubleColumn.isFalse)
               FadeIn(
                 child: ListTile(
                   title: Text('enableAutoScaleUp'.tr),

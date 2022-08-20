@@ -19,6 +19,7 @@ class zh_CN {
       'hasCopiedToClipboard': "已复制到粘贴板",
       'networkError': "网络错误",
       'systemError': "系统错误",
+      'invalid': "无效",
 
       'home': "主页",
       'gallery': "画廊",
@@ -278,6 +279,7 @@ class zh_CN {
       'preloadPageCount': '预载图片数量',
       'continuousScroll': '连续滚动',
       'continuousScrollHint': '拼接多个图片',
+      'doubleColumn': '双列模式',
       'enableAutoScaleUp': '自动放大长图片',
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 

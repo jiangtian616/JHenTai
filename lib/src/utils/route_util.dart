@@ -18,6 +18,8 @@ Future<T?>? toRoute<T>(
   int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
+
+  /// only one [Route]
   if (StyleSetting.isInMobileLayout || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
@@ -28,6 +30,7 @@ Future<T?>? toRoute<T>(
   }
 
   if (page.side == Side.left) {
+    /// There's no [Route] in desktop layout
     if (StyleSetting.layout.value == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
@@ -39,6 +42,7 @@ Future<T?>? toRoute<T>(
       return Future.value(null);
     }
 
+    /// left [Route]
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -55,6 +59,7 @@ Future<T?>? toRoute<T>(
     );
   }
 
+  /// right [Route]
   return Get.toNamed(
     routeName,
     arguments: arguments,
@@ -64,6 +69,7 @@ Future<T?>? toRoute<T>(
   );
 }
 
+/// pop current route
 void backRoute<T>({
   String? currentRoute,
   T? result,
@@ -71,6 +77,7 @@ void backRoute<T>({
   bool canPop = true,
 }) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
+
   return Get.back(
     result: result,
     closeOverlays: closeOverlays,
@@ -89,6 +96,7 @@ void backRoute<T>({
   );
 }
 
+/// pop current route and push a new route
 Future<T?>? offRoute<T>(
   String routeName, {
   dynamic arguments,
@@ -116,8 +124,10 @@ Future<T?>? offRoute<T>(
   );
 }
 
+/// pop routes until [predicate] match
 void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == currentRoute)?.side ?? Side.fullScreen;
+
   return Get.until(
     predicate,
     id: StyleSetting.isInMobileLayout
@@ -143,6 +153,7 @@ void untilRoute2BlankPage() {
   }
 }
 
+/// check if route with [routeName] is at top
 bool isRouteAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
 

@@ -65,6 +65,10 @@ class SettingNetworkPage extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
+                        if (proxyAddressController.value.text.isEmpty) {
+                          toast('invalid'.tr);
+                          return;
+                        }
                         NetworkSetting.saveProxyAddress(proxyAddressController.value.text);
                         toast('saveSuccess'.tr);
                       },

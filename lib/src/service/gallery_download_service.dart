@@ -129,7 +129,7 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
-    Log.info('begin to download gallery: ${gallery.gid}');
+    Log.info('begin to download gallery: ${gallery.gid}, original: ${gallery.downloadOriginalImage}');
 
     ensureDownloadDirExists();
 

@@ -19,6 +19,7 @@ class zh_TW {
       'hasCopiedToClipboard': "已複製到剪貼簿",
       'networkError': "網路錯誤",
       'systemError': "系統錯誤",
+      'invalid': "無效",
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -278,6 +279,7 @@ class zh_TW {
       'preloadPageCount': '預載圖片數量',
       'continuousScroll': '連續滾動',
       'continuousScrollHint': '拼接多個圖片',
+      'doubleColumn': '雙列模式',
       'enableAutoScaleUp': '自動放大長圖片',
       'enableAutoScaleUpHints': '優先使圖片寬度占滿螢幕',
 

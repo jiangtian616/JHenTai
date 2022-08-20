@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
@@ -347,19 +348,19 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
       return;
     }
 
-    List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
     int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
 
     toRoute(
       Routes.read,
-      arguments: images,
-      parameters: {
-        'mode': 'local',
-        'gid': archive.gid.toString(),
-        'initialIndex': readIndexRecord.toString(),
-        'pageCount': archive.pageCount.toString(),
-        'galleryUrl': archive.galleryUrl,
-      },
+      arguments: ReadPageInfo(
+        mode: ReadMode.archive,
+        gid: archive.gid,
+        galleryUrl: archive.galleryUrl,
+        initialIndex: readIndexRecord,
+        currentIndex: readIndexRecord,
+        pageCount: archive.pageCount,
+        isOriginal: archive.isOriginal,
+      ),
     );
   }
 }

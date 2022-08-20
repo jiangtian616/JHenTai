@@ -26,7 +26,7 @@ class SingleImagePage extends StatelessWidget {
             adaptive: true,
             fit: BoxFit.contain,
             mode: ExtendedImageMode.gesture,
-            initGestureConfigHandler: (ExtendedImageState state) {
+            initGestureConfigHandler: (_) {
               return GestureConfig();
             },
           ),

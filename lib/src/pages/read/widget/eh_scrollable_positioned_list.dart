@@ -81,7 +81,7 @@ class EHScrollablePositionedList extends StatefulWidget {
   final IndexedWidgetBuilder? separatorBuilder;
 
   /// Controller for jumping or scrolling to an item.
-  final ItemScrollController? itemScrollController;
+  final EHItemScrollController? itemScrollController;
 
   /// Notifier that reports the items laid out in the list after each frame.
   final ItemPositionsNotifier? itemPositionsNotifier;
@@ -92,7 +92,7 @@ class EHScrollablePositionedList extends StatefulWidget {
   /// Determines where the leading edge of the item at [initialScrollIndex]
   /// should be placed.
   ///
-  /// See [ItemScrollController.jumpTo] for an explanation of alignment.
+  /// See [EHItemScrollController.jumpTo] for an explanation of alignment.
   final double initialAlignment;
 
   /// The axis along which the scroll view scrolls.
@@ -162,7 +162,7 @@ class EHScrollablePositionedList extends StatefulWidget {
 
 /// Controller to jump or scroll to a particular position in a
 /// [EHScrollablePositionedList].
-class ItemScrollController {
+class EHItemScrollController {
   /// Whether any ScrollablePositionedList objects are attached this object.
   ///
   /// If `false`, then [jumpTo] and [scrollTo] must not be called.
@@ -608,7 +608,7 @@ class _ListDisplayDetails {
 
   /// The desired alignment for [target].
   ///
-  /// See [ItemScrollController.jumpTo] for an explanation of alignment.
+  /// See [EHItemScrollController.jumpTo] for an explanation of alignment.
   double alignment = 0;
 
   final Key key;

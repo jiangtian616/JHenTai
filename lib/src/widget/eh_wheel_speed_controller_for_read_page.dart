@@ -7,7 +7,7 @@ import '../setting/mouse_setting.dart';
 
 class EHWheelSpeedControllerForReadPage extends StatelessWidget {
   final Widget child;
-  final ItemScrollController scrollController;
+  final EHItemScrollController scrollController;
 
   const EHWheelSpeedControllerForReadPage({
     Key? key,

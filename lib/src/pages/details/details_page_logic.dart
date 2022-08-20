@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/download_progress.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
@@ -519,27 +520,33 @@ class DetailsPageLogic extends GetxController {
   }
 
   void goToReadPage([int? index]) {
+    /// downloading
     if (downloadService.gid2DownloadProgress[state.gallery!.gid] != null) {
       toRoute(
         Routes.read,
-        parameters: {
-          'mode': 'local',
-          'gid': state.gallery!.gid.toString(),
-          'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
-          'pageCount': state.gallery!.pageCount.toString(),
-          'galleryUrl': state.gallery!.galleryUrl,
-        },
+        arguments: ReadPageInfo(
+          mode: ReadMode.local,
+          gid: state.gallery!.gid,
+          galleryUrl: state.gallery!.galleryUrl,
+          initialIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          currentIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          pageCount: state.gallery!.pageCount!,
+        ),
       );
-    } else {
+    }
+
+    /// online
+    else {
       toRoute(
         Routes.read,
-        parameters: {
-          'mode': 'online',
-          'gid': state.gallery!.gid.toString(),
-          'initialIndex': (index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0).toString(),
-          'pageCount': state.gallery!.pageCount.toString(),
-          'galleryUrl': state.gallery!.galleryUrl,
-        },
+        arguments: ReadPageInfo(
+          mode: ReadMode.online,
+          gid: state.gallery!.gid,
+          galleryUrl: state.gallery!.galleryUrl,
+          initialIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          currentIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          pageCount: state.gallery!.pageCount!,
+        ),
       );
     }
   }

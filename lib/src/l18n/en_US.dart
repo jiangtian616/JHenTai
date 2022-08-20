@@ -19,6 +19,7 @@ class en_US {
       'hasCopiedToClipboard': "Has Copied To Clipboard",
       'networkError': "Network Error",
       'systemError': "System Error",
+      'invalid': "Invalid",
 
       'home': "Home",
       'gallery': "Gallery",
@@ -278,6 +279,7 @@ class en_US {
       'preloadPageCount': 'Preload Page Count',
       'continuousScroll': 'Continuous Scroll',
       'continuousScrollHint': 'Splice multiple images',
+      'doubleColumn': 'Double Column',
       'enableAutoScaleUp': 'Enable Auto Scale up long image',
       'enableAutoScaleUpHints': 'Make image width same as screen width',
 

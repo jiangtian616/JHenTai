@@ -31,6 +31,9 @@ Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网�
 
 我自己的使用设备包括安卓手机、iPad、Windows主机，之前用的E站其他App Bug较多，没接触过原生开发也改不动源码，就刚好选JHenTai来作为第一个项目。
 
+2022.08.20 经过了五个月的开发，现在JHenTai已经初具雏形，也逐渐摸清了Flutter开发的一些手法，同时对初期编写的画廊页、阅读页、下载等代码也进行了完全的重构，
+尽力提取出各个页面、样式之间的共性，提升内聚降低耦合，方便新功能的开发。如果有同学能够再对代码风格、设计模式、代码目录等编码相关进行指点，或者参与到JHenTai的开发中，我都会十分感谢。
+
 ## 借鉴与感谢
 
 布局样式参考:
@@ -80,13 +83,18 @@ App翻译：
 <img width="250" src="screenshot/detail_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_zh.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_zh.jpg"/>
 
-### 设置 & 下载 & 阅读
+### 设置 & 下载 
 
-<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/read.jpg"/>
+<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" />
+
+### 阅读
+
+<img width="250" src="screenshot/read.jpg"/>
 
 ## 主要功能
 
-- [x] 支持手机、平板、桌面三端共五种布局
+- [x] 支持手机、平板、桌面三端共五种基础布局
+- [x] 支持上下、左右、双列等共四种阅读布局
 - [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页
 - [x] 在线阅读与下载，支持恢复下载记录，支持在上传者更新画廊后同步更新本地已下载的画廊

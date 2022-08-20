@@ -1,369 +1,418 @@
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:intl/intl.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
+import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
+import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
-import 'package:jhentai/src/pages/read/widget/eh_photo_view_gallery.dart';
-import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
-import 'package:jhentai/src/pages/read/widget/read_view_helper.dart';
-import 'package:jhentai/src/setting/read_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/screen_size_util.dart';
-import 'package:jhentai/src/widget/eh_image.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller_for_read_page.dart';
-import 'package:jhentai/src/widget/icon_text_button.dart';
-import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:photo_view/photo_view_gallery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../config/global_config.dart';
+import '../../model/gallery_image.dart';
+import '../../routes/routes.dart';
 import '../../service/gallery_download_service.dart';
+import '../../setting/read_setting.dart';
 import '../../utils/route_util.dart';
+import '../../utils/screen_size_util.dart';
+import '../../utils/toast_util.dart';
+import '../../widget/eh_image.dart';
+import '../../widget/eh_keyboard_listener.dart';
+import '../../widget/eh_thumbnail.dart';
+import '../../widget/loading_state_indicator.dart';
+import '../home_page.dart';
+import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
+import 'layout/vertical_list/vertical_list_layout.dart';
 
-class ReadPage extends StatefulWidget {
-  const ReadPage({Key? key}) : super(key: key);
-
-  @override
-  State<ReadPage> createState() => _ReadPageState();
-}
-
-class _ReadPageState extends State<ReadPage> {
-  final ReadPageLogic logic = Get.put(ReadPageLogic());
+class ReadPage extends StatelessWidget {
+  final ReadPageLogic logic = Get.put<ReadPageLogic>(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
-  final GalleryDownloadService downloadService = Get.find();
 
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  ReadPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: ReadViewHelper(
-        child: Obx(() {
-          logic.hideSystemBarIfNeeded(ReadSetting.enableImmersiveMode.isTrue);
-          return ReadSetting.readDirection.value == ReadDirection.top2bottom ? _buildListView() : _buildPageView();
-        }),
-      ),
-    );
-  }
-
-  Widget _buildListView() {
-    /// we need to scale the whole list rather than single image, so assign count = 1.
-    return PhotoViewGallery.builder(
-      itemCount: 1,
-      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        scaleStateController: state.photoViewScaleStateController,
-        onScaleEnd: logic.onScaleEnd,
-        child: EHWheelSpeedControllerForReadPage(
-          scrollController: state.itemScrollController,
-          child: EHScrollablePositionedList.separated(
-            physics: const ClampingScrollPhysics(),
-            minCacheExtent: state.mode == 'local' ? 8 * screenHeight : ReadSetting.preloadDistance * screenHeight * 1,
-            initialScrollIndex: state.initialIndex,
-            itemCount: state.pageCount,
-            itemScrollController: state.itemScrollController,
-            itemPositionsListener: state.itemPositionsListener,
-            itemBuilder: (context, index) => state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index),
-            separatorBuilder: (BuildContext context, int index) => const Divider(height: 6),
+      child: ScrollConfiguration(
+        behavior: const MaterialScrollBehavior().copyWith(
+          dragDevices: {
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.unknown,
+          },
+          scrollbars: GetPlatform.isDesktop ? true : false,
+        ),
+        child: EHKeyboardListener(
+          focusNode: state.focusNode,
+          handleEsc: backRoute,
+          handleSpace: logic.toggleMenu,
+          handlePageDown: logic.toNext,
+          handlePageUp: logic.toPrev,
+          handleArrowDown: logic.toNext,
+          handleArrowUp: logic.toPrev,
+          handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
+          handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
+          handleLCtrl: logic.toNext,
+          handleEnd: backRoute,
+          child: Stack(
+            children: [
+              buildLayout(),
+              buildRightBottomInfo(context),
+              buildGestureRegion(),
+              buildTopMenu(context),
+              buildBottomMenu(context),
+            ],
           ),
         ),
       ),
     );
   }
 
-  Widget _buildPageView() {
+  /// Main region to display images
+  Widget buildLayout() {
     return Obx(() {
-      return EHPhotoViewGallery.builder(
-        scrollPhysics: const ClampingScrollPhysics(),
-        pageController: state.pageController,
-        cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
-        itemCount: state.pageCount,
-        reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
-        builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-          scaleStateController: state.photoViewScaleStateController,
-          onScaleEnd: logic.onScaleEnd,
-          child: Obx(() {
-            Widget item = state.mode == 'online' ? _buildItemInOnlineMode(context, index) : _buildItemInLocalMode(context, index);
+      if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+        return VerticalListLayout();
+      }
 
-            if (ReadSetting.enableAutoScaleUp.isTrue) {
-              item = Center(child: SingleChildScrollView(child: item));
-            }
+      if (ReadSetting.enableContinuousHorizontalScroll.isTrue) {
+        return HorizontalListLayout();
+      }
+      if (ReadSetting.enableDoubleColumn.isTrue) {
+        return HorizontalDoubleColumnLayout();
+      }
 
-            return item;
-          }),
-        ),
-      );
+      return HorizontalPageLayout();
     });
   }
 
-  /// online mode: parsing and loading automatically while scrolling
-  Widget _buildItemInOnlineMode(BuildContext context, int index) {
+  /// right-bottom info
+  Widget buildRightBottomInfo(BuildContext context) {
+    return Obx(
+      () {
+        if (ReadSetting.showStatusInfo.isFalse) {
+          return const SizedBox();
+        }
+
+        return GetBuilder<ReadPageLogic>(
+          id: logic.rightBottomInfoId,
+          builder: (_) => state.isMenuOpen
+              ? const SizedBox()
+              : Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _buildPageNoInfo().marginOnly(right: 8),
+                        _buildCurrentTime().marginOnly(right: 8),
+                        if (!GetPlatform.isDesktop) _buildBatteryLevel(),
+                      ],
+                    ).paddingOnly(right: 32, top: 3, bottom: 1, left: 6),
+                  ),
+                ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPageNoInfo() {
     return GetBuilder<ReadPageLogic>(
-      id: '$itemId::$index',
-      builder: (logic) {
-        /// step 1: parse image href if needed. check if thumbnail's info exists, if not, [parse] one page of thumbnails to get
-        /// image hrefs.
+      id: logic.pageNoId,
+      builder: (_) => Text(
+        '${state.readPageInfo.currentIndex + 1}/${state.readPageInfo.pageCount}',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentTime() {
+    return GetBuilder<ReadPageLogic>(
+      id: logic.currentTimeId,
+      builder: (_) => Text(
+        DateFormat('HH:mm').format(DateTime.now()),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBatteryLevel() {
+    return GetBuilder<ReadPageLogic>(
+      id: logic.batteryId,
+      builder: (_) => Text(
+        '${state.batteryLevel}%',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          decoration: TextDecoration.none,
+        ),
+      ),
+    );
+  }
+
+  /// gesture for turn page and pop menu
+  Widget buildGestureRegion() {
+    return Row(
+      children: [
+        /// left region: toLeft
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: logic.toLeft,
+            onDoubleTap: logic.toLeft,
+          ),
+        ),
+
+        /// center region: toggle menu
+        Expanded(
+          flex: 4,
+          child: Column(
+            children: [
+              const Expanded(flex: 1, child: SizedBox()),
+              Expanded(
+                flex: 2,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: logic.toggleMenu,
+                  onDoubleTap: logic.toggleMenu,
+                ),
+              ),
+              const Expanded(flex: 1, child: SizedBox()),
+            ],
+          ),
+        ),
+
+        /// right region: toRight
+        Expanded(
+          flex: 1,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: logic.toRight,
+            onDoubleTap: logic.toRight,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// top menu
+  Widget buildTopMenu(BuildContext context) {
+    return GetBuilder<ReadPageLogic>(
+      id: logic.topMenuId,
+      builder: (_) => AnimatedPositioned(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.ease,
+        height: state.isMenuOpen ? GlobalConfig.appBarHeight + context.mediaQuery.padding.top : 0,
+        child: SizedBox(
+          height: GlobalConfig.appBarHeight + context.mediaQuery.padding.top,
+          width: fullScreenWidth,
+          child: AppBar(
+            iconTheme: const IconThemeData(color: Colors.white),
+            actionsIconTheme: const IconThemeData(color: Colors.white),
+            backgroundColor: Colors.black.withOpacity(0.8),
+            actions: [
+              if (GetPlatform.isDesktop)
+                IconButton(
+                  onPressed: () => toast(
+                    'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
+                    '\n'
+                    'PageUp、 ←、↑  :  ${'toPrev'.tr}'
+                    '\n'
+                    'Esc、End  :  ${'back'.tr}'
+                    '\n'
+                    'Space  :  ${'toggleMenu'.tr}',
+                    isShort: false,
+                  ),
+                  icon: const Icon(Icons.help),
+                ),
+              GetBuilder<ReadPageLogic>(
+                id: logic.autoModeId,
+                builder: (logic) {
+                  return IconButton(
+                    onPressed: logic.toggleAutoMode,
+                    icon: const Icon(Icons.schedule),
+                    color: state.autoMode ? Colors.blue : null,
+                  );
+                },
+              ),
+              IconButton(
+                onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
+                icon: const Icon(Icons.settings),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// bottom menu
+  Widget buildBottomMenu(BuildContext context) {
+    return GetBuilder<ReadPageLogic>(
+      id: logic.bottomMenuId,
+      builder: (_) => Obx(
+        () => AnimatedPositioned(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+          bottom: 0,
+          height: !state.isMenuOpen
+              ? 0
+              : ReadSetting.showThumbnails.isTrue
+                  ? GlobalConfig.bottomMenuHeight
+                  : GlobalConfig.bottomMenuHeightWithoutThumbnails,
+          child: ColoredBox(
+            color: Colors.black.withOpacity(0.8),
+            child: Column(
+              children: [
+                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails().marginOnly(top: 12),
+                _buildSlider().marginOnly(top: 8),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThumbnails() {
+    return SizedBox(
+      width: fullScreenWidth,
+      height: 120,
+      child: Obx(
+        () => ScrollablePositionedList.separated(
+          scrollDirection: Axis.horizontal,
+          reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+          physics: const ClampingScrollPhysics(),
+          minCacheExtent: 1 * fullScreenWidth,
+          initialScrollIndex: state.readPageInfo.initialIndex,
+          itemCount: state.readPageInfo.pageCount,
+          itemScrollController: state.thumbnailsScrollController,
+          itemPositionsListener: state.thumbnailPositionsListener,
+          itemBuilder: (_, index) => SizedBox(
+            width: 80,
+            height: 100,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => logic.jump2PageIndex(index),
+                    child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                  ),
+                ),
+                GetBuilder<ReadPageLogic>(
+                  id: logic.thumbnailsId,
+                  builder: (logic) {
+                    return Text(
+                      (index + 1).toString(),
+                      style: state.readPageTextStyle.copyWith(
+                        fontSize: 9,
+                        color: state.readPageInfo.currentIndex == index ? Get.theme.primaryColorLight : null,
+                      ),
+                    );
+                  },
+                ).marginOnly(top: 4),
+              ],
+            ),
+          ),
+          separatorBuilder: (_, __) => const Divider(indent: 4),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildThumbnailInOnlineMode(int index) {
+    return GetBuilder<ReadPageLogic>(
+      id: '${logic.onlineImageId}::$index',
+      builder: (_) {
         if (state.thumbnails[index] == null) {
           if (state.parseImageHrefsState == LoadingState.idle) {
             logic.beginToParseImageHref(index);
           }
-          return _buildParsingHrefsIndicator(context, index);
+          return const Center(child: CupertinoActivityIndicator());
         }
 
-        /// step 2: parse image url.
-        if (state.images[index] == null) {
-          if (state.parseImageUrlStates[index] == LoadingState.idle) {
-            logic.beginToParseImageUrl(index, false);
-          }
-          return _buildParsingUrlIndicator(context, index);
-        }
-
-        /// step 3: use url to load image
-        FittedSizes fittedSizes = _getImageFittedSize(state.images[index]!);
-        return EHImage.network(
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
-          galleryImage: state.images[index]!,
-          adaptive: true,
-          fit: BoxFit.contain,
-          loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-          failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-        );
+        return Center(child: EHThumbnail(galleryThumbnail: state.thumbnails[index]!));
       },
     );
   }
 
-  /// local mode: wait for download service to parse and download
-  Widget _buildItemInLocalMode(BuildContext context, int index) {
+  Widget _buildThumbnailInLocalMode(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$imageId::${state.gid}',
+      id: '$imageId::${state.readPageInfo.gid}',
       builder: (_) {
-        /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
-        /// we don't need to wait parsing thumbnail.
-        if (state.thumbnails[index] == null && state.images[index] == null) {
-          return _buildWaitParsingHrefsIndicator(context, index);
+        if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+          return const Center();
         }
 
-        /// step 2: wait for parsing image's url.
-        if (state.images[index] == null) {
-          return _buildWaitParsingUrlIndicator(context, index);
-        }
-
-        /// step 3: use url to load image
-        FittedSizes fittedSizes = _getImageFittedSize(state.images[index]!);
         return EHImage.file(
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
           galleryImage: state.images[index]!,
           adaptive: true,
           fit: BoxFit.contain,
-          downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
-          pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
         );
       },
     );
   }
 
-  /// wait for [logic] to parse image href in online mode
-  Widget _buildParsingHrefsIndicator(BuildContext context, int index) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginToParseImageHref(index)),
-      child: SizedBox(
-        height: screenHeight / 2,
-        child: GetBuilder<ReadPageLogic>(
-          id: parseImageHrefsStateId,
-          builder: (logic) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                LoadingStateIndicator(
-                  useCupertinoIndicator: false,
-                  loadingState: state.parseImageHrefsState,
-                  idleWidget: const CircularProgressIndicator(),
-                  errorWidget: const Icon(Icons.warning, color: Colors.yellow),
-                ),
-                Text(
-                  state.parseImageHrefsState == LoadingState.error ? state.parseImageHrefErrorMsg! : 'parsingPage'.tr,
-                  style: state.readPageTextStyle(),
-                ).marginOnly(top: 8),
-                Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  /// wait for [logic] to parse image url in online mode
-  Widget _buildParsingUrlIndicator(BuildContext context, int index) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onLongPress: () => _showReParseBottomSheet(context, () => logic.beginToParseImageUrl(index, true)),
-      child: SizedBox(
-        height: screenHeight / 2,
-        child: GetBuilder<ReadPageLogic>(
-            id: '$parseImageUrlStateId::$index',
-            builder: (logic) {
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  LoadingStateIndicator(
-                    useCupertinoIndicator: false,
-                    loadingState: state.parseImageUrlStates[index],
-                    idleWidget: const CircularProgressIndicator(),
-                    errorWidget: const Icon(Icons.warning, color: Colors.yellow),
-                  ),
-                  Text(
-                    state.parseImageUrlStates[index] == LoadingState.error ? state.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
-                    style: state.readPageTextStyle(),
-                  ).marginOnly(top: 8),
-                  Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-                ],
-              );
-            }),
-      ),
-    );
-  }
-
-  /// wait for [GalleryDownloadService] to parse image href in local mode
-  Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
-
-    return SizedBox(
-      height: screenHeight / 2,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
-          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
-          Text(
-            downloadStatus == DownloadStatus.downloading ? 'parsingPage'.tr : 'paused'.tr,
-            style: state.readPageTextStyle(),
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-        ],
-      ),
-    );
-  }
-
-  /// wait for [GalleryDownloadService] to parse image url in local mode
-  Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[state.gid]!.downloadStatus;
-
-    return SizedBox(
-      height: screenHeight / 2,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
-          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
-          Text(
-            downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr,
-            style: state.readPageTextStyle(),
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-        ],
-      ),
-    );
-  }
-
-  /// loading for online mode
-  Widget _loadingWidgetBuilder(BuildContext context, int index, double progress) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CircularProgressIndicator(value: progress),
-        Text('loading'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
-        Text(index.toString(), style: state.readPageTextStyle()).marginOnly(top: 4),
-      ],
-    );
-  }
-
-  /// failed for online mode
-  Widget _failedWidgetBuilder(BuildContext context, int index, ExtendedImageState state) {
-    Log.warning(state.lastException);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconTextButton(
-          iconData: Icons.error,
-          text: Text('networkError'.tr, style: this.state.readPageTextStyle()),
-          onPressed: state.reLoadImage,
-        ),
-        Text(index.toString(), style: this.state.readPageTextStyle()),
-      ],
-    );
-  }
-
-  /// downloaded for local mode
-  Widget _downloadingWidgetBuilder(int index) {
-    return GetBuilder<GalleryDownloadService>(
-      id: '$galleryDownloadSpeedComputerId::${state.gid}',
-      builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer = downloadService.gid2SpeedComputer[state.gid]!;
-        int downloadedBytes = speedComputer.imageDownloadedBytes[index];
-        int totalBytes = speedComputer.imageBytes[index];
-
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildSlider() {
+    return GetBuilder<ReadPageLogic>(
+      id: logic.sliderId,
+      builder: (_) => SizedBox(
+        width: fullScreenWidth,
+        child: Row(
           children: [
-            CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
-            Text('downloading'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
-            Text(index.toString(), style: state.readPageTextStyle()),
+            Text(
+              (state.readPageInfo.currentIndex + 1).toString(),
+              style: state.readPageTextStyle,
+            ).marginSymmetric(horizontal: 16),
+            Expanded(
+              child: Material(
+                color: Colors.transparent,
+                child: RotatedBox(
+                  quarterTurns: ReadSetting.readDirection.value == ReadDirection.right2left ? 2 : 0,
+                  child: Slider(
+                    min: 1,
+                    max: state.readPageInfo.pageCount.toDouble(),
+                    value: state.readPageInfo.currentIndex + 1.0,
+                    thumbColor: Colors.white,
+                    onChanged: logic.handleSlide,
+                    onChangeEnd: logic.handleSlideEnd,
+                  ),
+                ),
+              ),
+            ),
+            Text(
+              state.readPageInfo.pageCount.toString(),
+              style: state.readPageTextStyle,
+            ).marginSymmetric(horizontal: 16),
           ],
-        );
-      },
-    );
-  }
-
-  /// paused for local mode
-  Widget _pausedWidgetBuilder(int index) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.pause_circle_outline, color: Colors.white),
-        Text('paused'.tr, style: state.readPageTextStyle()).marginOnly(top: 8),
-        Text(index.toString(), style: state.readPageTextStyle()),
-      ],
-    );
-  }
-
-  FittedSizes _getImageFittedSize(GalleryImage image) {
-    return applyBoxFit(
-      BoxFit.contain,
-      Size(image.width, image.height),
-      Size(fullScreenWidth, double.infinity),
-    );
-  }
-
-  void _showReParseBottomSheet(BuildContext context, ErrorTapCallback callback) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('reload'.tr),
-            onPressed: () async {
-              callback();
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
         ),
       ),
     );

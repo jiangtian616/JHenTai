@@ -21,7 +21,6 @@ class SettingAdvancedPage extends StatefulWidget {
 }
 
 class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,20 +46,23 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),
               onTap: () => toRoute(Routes.logList),
             ),
-            ListTile(
-              title: Text('clearLogs'.tr),
-              subtitle: Text('longPress2Clear'.tr),
-              trailing: Text(
-                Log.getSize(),
-                style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
-              ).marginOnly(right: 8),
-              onLongPress: () {
-                Log.clear();
-                setState(() {
-                  toast('clearSuccess'.tr, isCenter: false);
-                });
-              },
-            ),
+
+            /// Can't delete file that app is using on Windows
+            if (!GetPlatform.isWindows)
+              ListTile(
+                title: Text('clearLogs'.tr),
+                subtitle: Text('longPress2Clear'.tr),
+                trailing: Text(
+                  Log.getSize(),
+                  style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500),
+                ).marginOnly(right: 8),
+                onLongPress: () {
+                  Log.clear();
+                  setState(() {
+                    toast('clearSuccess'.tr, isCenter: false);
+                  });
+                },
+              ),
             ListTile(
               title: Text('clearImagesCache'.tr),
               subtitle: Text('longPress2Clear'.tr),

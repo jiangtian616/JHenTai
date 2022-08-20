@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/router_report.dart';
 
-/// make sure GetXController will be recycled when using native Navigator api by letting
+/// Make sure GetXController will be recycled when using native Navigator api by letting
 /// GetX be aware of native Navigator api operation
 class GetXRouterObserver extends NavigatorObserver {
   @override

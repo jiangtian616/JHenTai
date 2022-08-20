@@ -36,6 +36,7 @@ class ReadSetting {
   static RxInt preloadPageCount = 1.obs;
   static RxBool enableContinuousHorizontalScroll = false.obs;
   static RxBool enableAutoScaleUp = false.obs;
+  static RxBool enableDoubleColumn = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -119,6 +120,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveEnableDoubleColumn(bool value) {
+    Log.verbose('saveEnableDoubleColumn:$value');
+    enableDoubleColumn.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -136,6 +143,7 @@ class ReadSetting {
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
       'enableContinuousHorizontalScroll': enableContinuousHorizontalScroll.value,
+      'enableDoubleColumn': enableDoubleColumn.value,
       'enableAutoScaleUp': enableAutoScaleUp.value,
     };
   }
@@ -152,6 +160,7 @@ class ReadSetting {
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
     enableContinuousHorizontalScroll.value = map['enableContinuousHorizontalScroll'] ?? enableContinuousHorizontalScroll.value;
+    enableDoubleColumn.value = map['enableDoubleColumn'] ?? enableDoubleColumn.value;
     enableAutoScaleUp.value = map['enableAutoScaleUp'];
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
@@ -392,13 +393,14 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
 
     toRoute(
       Routes.read,
-      parameters: {
-        'mode': 'local',
-        'gid': gallery.gid.toString(),
-        'initialIndex': readIndexRecord.toString(),
-        'pageCount': gallery.pageCount.toString(),
-        'galleryUrl': gallery.galleryUrl,
-      },
+      arguments: ReadPageInfo(
+        mode: ReadMode.local,
+        gid: gallery.gid,
+        galleryUrl: gallery.galleryUrl,
+        initialIndex: readIndexRecord,
+        currentIndex: readIndexRecord,
+        pageCount: gallery.pageCount,
+      ),
     );
   }
 }

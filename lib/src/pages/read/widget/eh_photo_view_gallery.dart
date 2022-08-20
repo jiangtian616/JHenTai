@@ -7,7 +7,7 @@ import 'package:photo_view/src/photo_view_scale_state.dart';
 
 import 'eh_page_view.dart';
 
-/// copied from [EHPhotoViewGallery] to replace [PageView]
+/// copied from [PhotoViewGallery] to replace [PageView]
 class EHPhotoViewGallery extends StatefulWidget {
   final double cacheExtent;
 

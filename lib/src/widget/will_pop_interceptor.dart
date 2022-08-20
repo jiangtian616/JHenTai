@@ -28,7 +28,7 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
       return Future.value(false);
     }
 
-    if (DateTime.now().difference(_lastPopTime!).inMilliseconds <= 400) {
+    if (DateTime.now().difference(_lastPopTime!).inMilliseconds <= 800) {
       return Future.value(true);
     }
 
