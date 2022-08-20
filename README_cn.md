@@ -1,4 +1,4 @@
-![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS-brightgreen)
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS%20%7C%20Linux-brightgreen)
 ![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
@@ -9,7 +9,7 @@
 
 ## 定位
 
-E-hentai 的一个多端app，现支持安卓、苹果、Windows和Mac系统。
+E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux系统。
 
 仍在起步阶段，欢迎提交issue。
 
@@ -25,7 +25,7 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 
 Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
 
-Linux安装（不维护更新）：下载zip后解压，运行jhentai文件即可（若有必要请添加可执行权限）。如果你使用了代理服务器，在网络设置里配置代理地址。
+Linux安装（不维护更新）：下载[JHenTai_3.1.0+63_linux.zip](https://github.com/jiangtian616/JHenTai/releases/download/v3.1.0%2B63/JHenTai_3.1.0+63_linux.zip)后解压，运行jhentai文件即可（若有必要请添加可执行权限）。如果你使用了代理服务器，在网络设置里配置代理地址。
 
 ## 开发动机
 
@@ -33,8 +33,8 @@ Linux安装（不维护更新）：下载zip后解压，运行jhentai文件即�
 
 我自己的使用设备包括安卓手机、iPad、Windows主机，之前用的E站其他App Bug较多，没接触过原生开发也改不动源码，就刚好选JHenTai来作为第一个项目。
 
-2022.08.20 经过了五个月的开发，现在JHenTai已经初具雏形，也逐渐摸清了Flutter开发的一些手法，同时对初期编写的画廊页、阅读页、下载等代码也进行了完全的重构，
-尽力提取出各个页面、样式之间的共性，提升内聚降低耦合，方便新功能的开发。如果有同学能够再对代码风格、设计模式、代码目录等编码相关进行指点，或者参与到JHenTai的开发中，我都会十分感谢。
+2022.08.20 经过了五个月的开发，现在JHenTai已经初具雏形，也逐渐对初期编写的不成熟的画廊页、阅读页、下载等代码进行了完全的重构，
+尽力增内聚降耦合，方便新功能的开发。如果有同学能够对代码风格、设计模式、代码目录等Flutter开发相关进行指点，或者参与到JHenTai的开发中，我都会十分感谢。
 
 ## 借鉴与感谢
 

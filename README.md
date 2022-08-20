@@ -1,4 +1,4 @@
-![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS-brightgreen)
+![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS%20%7C%20Linux-brightgreen)
 ![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
@@ -9,7 +9,7 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 ## Description
 
-An E-Hentai app for Android & iOS & Windows & MacOS.
+An E-Hentai app for Android & iOS & Windows & MacOS & Linux.
 
 Still in beginning stage, welcome to submit issues.
 
@@ -27,7 +27,7 @@ page.
 Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting
 page.
 
-Install for Linux(No maintenance update): download linux.zip, then unpack it and execute jhentai(add execution permission possibly). If you use a proxy server, 
+Install for Linux(No maintenance update): download [JHenTai_3.1.0+63_linux.zip](https://github.com/jiangtian616/JHenTai/releases/download/v3.1.0%2B63/JHenTai_3.1.0+63_linux.zip), then unpack it and execute jhentai(add execution permission possibly). If you use a proxy server, 
 proxy address at network setting page.
 
 ## Help With Translation
@@ -42,11 +42,10 @@ My first project With Flutter. I aim at getting familiar with Flutter during dev
 phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
 experience with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
-2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have figured out some basic techniques of Flutter development, 
-pushing me to completely refactor code include gallery page, reading page, download, etc. which are written at the beginning stage.
-I tried my best to extract the commonality between different page and style to reduce coupling, 
+2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have completely refactored some codes for gallery page, reading page, download, etc. 
+which are written at the beginning stage. I tried my best to extract the commonality between different page and style to reduce coupling, 
 in order to benefit the development of new features. I would be very grateful if any kind of you could give me some advice on coding style, 
-design patterns or participate in the development of JHenTai.
+design patterns and anything related to Flutter development or participate in the development of JHenTai.
 
 ## References & Thanks
 
