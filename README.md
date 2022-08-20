@@ -99,7 +99,8 @@ mush thanks to these projects and people🙇‍
 <img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
 
 ### Read
-<img width="250" src="screenshot/read.jpg" style="margin-right:10px" />
+
+<img width="250" src="screenshot/read.jpg" /> <img src="screenshot/read_double_column.png" /> <img  src="screenshot/read_continuous_scroll.png" />
 
 ## Main Features
 

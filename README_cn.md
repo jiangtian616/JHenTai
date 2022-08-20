@@ -89,7 +89,7 @@ App翻译：
 
 ### 阅读
 
-<img width="250" src="screenshot/read.jpg"/>
+<img width="250" src="screenshot/read.jpg" /> <img src="screenshot/read_double_column.png" /> <img  src="screenshot/read_continuous_scroll.png" />
 
 ## 主要功能
 
