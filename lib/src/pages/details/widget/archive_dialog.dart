@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -10,6 +11,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
+import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 
 class ArchiveDialog extends StatefulWidget {
@@ -79,7 +81,12 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                     children: [
                       Text(archive.originalCost, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: _canAffordDownload(true) ? () => _downloadArchive(true) : null,
+                        onPressed: _canAffordDownload(true)
+                            ? () {
+                                backRoute();
+                                _downloadArchive(true);
+                              }
+                            : null,
                         child: Row(
                           children: [
                             const Text('Original'),
@@ -92,10 +99,14 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                   ),
                   Column(
                     children: [
-                      if (archive.resampleCost != null)
-                        Text(archive.resampleCost!, style: Theme.of(context).textTheme.bodySmall),
+                      if (archive.resampleCost != null) Text(archive.resampleCost!, style: Theme.of(context).textTheme.bodySmall),
                       ElevatedButton(
-                        onPressed: _canAffordDownload(false) ? () => _downloadArchive(false) : null,
+                        onPressed: _canAffordDownload(false)
+                            ? () {
+                                backRoute();
+                                _downloadArchive(false);
+                              }
+                            : null,
                         child: Row(
                           children: [
                             const Text('Resample'),
@@ -103,8 +114,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                           ],
                         ),
                       ),
-                      if (archive.resampleCost != null)
-                        Text(archive.resampleSize!, style: Theme.of(context).textTheme.bodySmall),
+                      if (archive.resampleCost != null) Text(archive.resampleSize!, style: Theme.of(context).textTheme.bodySmall),
                     ],
                   )
                 ],
@@ -175,13 +185,17 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
   }
 
   void _downloadArchive(bool isOriginal) {
-    archiveDownloadService.downloadArchive(
-      state.gallery!.toArchiveDownloadedData(
-        state.galleryDetails!.archivePageUrl,
-        isOriginal,
-        _computeSizeInBytes(isOriginal),
-      ),
+    ArchiveDownloadedData archive = state.gallery!.toArchiveDownloadedData(
+      state.galleryDetails!.archivePageUrl,
+      isOriginal,
+      _computeSizeInBytes(isOriginal),
     );
+
+    if (archiveDownloadService.archiveStatuses.get(archive.gid, archive.isOriginal) != null) {
+      return;
+    }
+
+    archiveDownloadService.downloadArchive(archive);
     snack('beginToDownloadArchive'.tr, 'beginToDownloadArchiveHint'.tr);
   }
 
