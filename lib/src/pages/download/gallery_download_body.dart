@@ -161,7 +161,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: gallery.galleryUrl),
       child: GetBuilder<GalleryDownloadService>(
-        id: '$imageUrlId::${gallery.gid}::0',
+        id: '$downloadImageUrlId::${gallery.gid}::0',
         builder: (_) {
           GalleryImage? image = downloadService.gid2Images[gallery.gid]![0];
 

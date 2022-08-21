@@ -233,7 +233,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
 
   Widget _buildFooter(ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
-      id: '$archiveStatusId::${archive.gid}::${archive.isOriginal}',
+      id: '$archiveDownloadStatusId::${archive.gid}::${archive.isOriginal}',
       builder: (_) {
         ArchiveStatus archiveStatus = archiveDownloadService.archiveStatuses.get(archive.gid, archive.isOriginal)!;
         SpeedComputer speedComputer = archiveDownloadService.speedComputers.get(archive.gid, archive.isOriginal)!;
@@ -244,7 +244,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
               children: [
                 if (archiveStatus == ArchiveStatus.downloading)
                   GetBuilder<ArchiveDownloadService>(
-                    id: '$speedComputerId::${archive.gid}::${archive.isOriginal}',
+                    id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
                     builder: (logic) {
                       return Text(
                         speedComputer.speed,
@@ -255,7 +255,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
                 const Expanded(child: SizedBox()),
                 if (archiveStatus == ArchiveStatus.downloading)
                   GetBuilder<ArchiveDownloadService>(
-                    id: '$speedComputerId::${archive.gid}::${archive.isOriginal}',
+                    id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
                     builder: (logic) {
                       return Text(
                         '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
@@ -280,7 +280,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
               SizedBox(
                 height: 3,
                 child: GetBuilder<ArchiveDownloadService>(
-                  id: '$speedComputerId::${archive.gid}::${archive.isOriginal}',
+                  id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
                   builder: (logic) {
                     return LinearProgressIndicator(
                       value: speedComputer.downloadedBytes / archive.size,

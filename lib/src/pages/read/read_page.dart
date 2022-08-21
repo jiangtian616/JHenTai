@@ -366,7 +366,7 @@ class ReadPage extends StatelessWidget {
 
   Widget _buildThumbnailInLocalMode(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$imageId::${state.readPageInfo.gid}',
+      id: '$downloadImageId::${state.readPageInfo.gid}',
       builder: (_) {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
           return const Center();

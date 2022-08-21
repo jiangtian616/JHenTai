@@ -31,9 +31,8 @@ import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 
 const String downloadGallerysId = 'downloadGallerysId';
-const String imageId = 'imageId';
-const String imageHrefsId = 'imageHrefsId';
-const String imageUrlId = 'imageUrlId';
+const String downloadImageId = 'downloadImageId';
+const String downloadImageUrlId = 'downloadImageUrlId';
 const String galleryDownloadProgressId = 'galleryDownloadProgressId';
 const String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
 
@@ -201,7 +200,7 @@ class GalleryDownloadService extends GetxController {
     for (GalleryImage? image in gid2Images[gallery.gid]!) {
       if (image?.downloadStatus == DownloadStatus.downloading) {
         image?.downloadStatus = DownloadStatus.paused;
-        update(['$imageId::${gallery.gid}']);
+        update(['$downloadImageId::${gallery.gid}']);
       }
     }
 
@@ -228,7 +227,7 @@ class GalleryDownloadService extends GetxController {
     for (GalleryImage? image in gid2Images[gallery.gid]!) {
       if (image?.downloadStatus == DownloadStatus.paused) {
         image?.downloadStatus = DownloadStatus.downloading;
-        update(['$imageId::${gallery.gid}']);
+        update(['$downloadImageId::${gallery.gid}']);
       }
     }
 
@@ -284,7 +283,7 @@ class GalleryDownloadService extends GetxController {
           await appDb.updateImagePath(newPath, gallery.gid, gid2Images[gallery.gid]![serialNo]!.url);
           gid2Images[gallery.gid]![serialNo]!.path = newPath;
 
-          update(['$imageId::${gallery.gid}', '$imageUrlId::${gallery.gid}::$serialNo']);
+          update(['$downloadImageId::${gallery.gid}', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
         }
       }
     });
@@ -402,7 +401,6 @@ class GalleryDownloadService extends GetxController {
     for (int i = 0; i < newThumbnails.length; i++) {
       gid2ImageHrefs[gallery.gid]![from + i] = newThumbnails[i];
     }
-    update(['$imageId::${gallery.gid}', '$imageHrefsId::${gallery.gid}']);
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting
     if (gid2ImageHrefs[gallery.gid]![serialNo] == null) {
@@ -778,7 +776,7 @@ class GalleryDownloadService extends GetxController {
     await _updateImageDownloadStatusInDatabase(gid, image.url, downloadStatus);
 
     image.downloadStatus = downloadStatus;
-    update(['$imageId::$gid', '$imageUrlId::$gid::$serialNo']);
+    update(['$downloadImageId::$gid', '$downloadImageUrlId::$gid::$serialNo']);
 
     if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
       _saveGalleryDownloadInfoInDisk(gallerys.firstWhere((e) => e.gid == gid));

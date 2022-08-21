@@ -22,8 +22,8 @@ import '../utils/log.dart';
 import '../utils/table.dart';
 
 const String downloadArchivesId = 'downloadArchivesId';
-const String archiveStatusId = 'archiveStatusId';
-const String speedComputerId = 'SpeedComputerId';
+const String archiveDownloadStatusId = 'archiveDownloadStatusId';
+const String archiveDownloadSpeedComputerId = 'archiveDownloadSpeedComputerId';
 
 class ArchiveDownloadService extends GetxController {
   static const int retryTimes = 3;
@@ -120,7 +120,7 @@ class ArchiveDownloadService extends GetxController {
 
     cancelTokens.get(gid, isOriginal)!.cancel();
     speedComputers.get(gid, isOriginal)!.pause();
-    update(['$archiveStatusId::$gid::$isOriginal']);
+    update(['$archiveDownloadStatusId::$gid::$isOriginal']);
   }
 
   Future<void> resumeAllDownloadArchive() async {
@@ -145,7 +145,7 @@ class ArchiveDownloadService extends GetxController {
     );
     _updateArchive(archive);
 
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveDownloadStatusId::${archive.gid}::${archive.isOriginal}']);
     downloadArchive(archive, isFirstDownload: false);
   }
 
@@ -455,10 +455,10 @@ class ArchiveDownloadService extends GetxController {
     speedComputers.put(
       archive.gid,
       archive.isOriginal,
-      SpeedComputer(updateCallback: () => update(['$speedComputerId::${archive.gid}::${archive.isOriginal}'])),
+      SpeedComputer(updateCallback: () => update(['$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}'])),
     );
 
-    update([downloadArchivesId, '$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update([downloadArchivesId, '$archiveDownloadStatusId::${archive.gid}::${archive.isOriginal}']);
   }
 
   Future<void> _updateArchive(ArchiveDownloadedData archive) async {
@@ -480,7 +480,7 @@ class ArchiveDownloadService extends GetxController {
   void _updateArchiveInMemory(ArchiveDownloadedData archive) {
     int index = archives.indexWhere((element) => element.gid == archive.gid && element.isOriginal == archive.isOriginal);
     archives[index] = archive;
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveDownloadStatusId::${archive.gid}::${archive.isOriginal}']);
   }
 
   Future<int> _clearArchiveDownloadInfoInDatabase(int gid, bool isOriginal) async {

@@ -68,7 +68,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$imageId::${readPageState.readPageInfo.gid}',
+      id: '$downloadImageId::${readPageState.readPageInfo.gid}',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
