@@ -22,8 +22,8 @@ class CheckService {
 
   CheckService._(this._checkExpression, this._errorMsg);
 
-  factory CheckService.build(ValueGetter<bool> checkExpression, String errorMsg) {
-    return CheckService._(checkExpression, errorMsg);
+  factory CheckService.build(ValueGetter<bool> checkExpression, {String? errorMsg}) {
+    return CheckService._(checkExpression, errorMsg ?? "");
   }
 
   CheckService withUploadParam(dynamic uploadParam) {

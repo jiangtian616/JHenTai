@@ -498,7 +498,7 @@ class EHSpiderParser {
   static int votingCommentResponse2Score(Response response) {
     int? score = jsonDecode(response.toString())['comment_score'];
 
-    CheckService.build(() => score != null, "Voting comment result score shouldn't be null!").withUploadParam(response).check();
+    CheckService.build(() => score != null, errorMsg: "Voting comment result score shouldn't be null!").withUploadParam(response).check();
 
     return score!;
   }

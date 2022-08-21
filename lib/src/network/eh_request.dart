@@ -567,7 +567,7 @@ class EHRequest {
         rethrow;
       }
 
-      CheckService.build(() => e.response != null, "Lookup response shouldn't be null!")
+      CheckService.build(() => e.response != null, errorMsg: "Lookup response shouldn't be null!")
           .withUploadParam(e)
           .onFailed(() => toast('systemError'.tr))
           .check();
