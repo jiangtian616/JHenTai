@@ -30,27 +30,27 @@ CREATE TABLE image
 
 selectGallerysWithImages:
 SELECT g.gid,
-       token,
-       title,
-       category,
-       pageCount,
-       galleryUrl,
-       oldVersionGalleryUrl,
-       uploader,
-       publishTime,
+       g.token,
+       g.title,
+       g.category,
+       g.pageCount,
+       g.galleryUrl,
+       g.oldVersionGalleryUrl,
+       g.uploader,
+       g.publishTime,
        g.downloadStatusIndex as galleryDownloadStatusIndex,
-       insertTime,
-       downloadOriginalImage,
-       url,
+       g.insertTime,
+       g.downloadOriginalImage,
+       i.url,
        i.serialNo,
-       height,
-       width,
-       path,
-       imageHash,
+       i.height,
+       i.width,
+       i.path,
+       i.imageHash,
        i.downloadStatusIndex as imageDownloadStatusIndex
 FROM gallery_downloaded g
          left join image i on g.gid = i.gid
-ORDER BY insertTime DESC;
+ORDER BY insertTime DESC, serialNo;
 
 selectGallerys:
 SELECT *

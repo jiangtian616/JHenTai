@@ -2393,7 +2393,7 @@ abstract class _$AppDb extends GeneratedDatabase {
 
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       token,\r\n       title,\r\n       category,\r\n       pageCount,\r\n       galleryUrl,\r\n       oldVersionGalleryUrl,\r\n       uploader,\r\n       publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       insertTime,\r\n       downloadOriginalImage,\r\n       url,\r\n       i.serialNo,\r\n       height,\r\n       width,\r\n       path,\r\n       imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC',
+        'SELECT g.gid,\r\n       g.token,\r\n       g.title,\r\n       g.category,\r\n       g.pageCount,\r\n       g.galleryUrl,\r\n       g.oldVersionGalleryUrl,\r\n       g.uploader,\r\n       g.publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       g.insertTime,\r\n       g.downloadOriginalImage,\r\n       i.url,\r\n       i.serialNo,\r\n       i.height,\r\n       i.width,\r\n       i.path,\r\n       i.imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC, serialNo',
         variables: [],
         readsFrom: {
           galleryDownloaded,

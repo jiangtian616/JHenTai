@@ -288,6 +288,8 @@ class zh_TW {
 
       /// download page
       'delete': '刪除',
+      'deleteTask': '僅刪除任務',
+      'deleteTaskAndImages': '刪除任務和圖片',
       'reDownload': '重新下載',
       'unlocking': '解鎖歸檔中',
       'waitingForDownloadPageUrl': '等待下載中',
@@ -367,7 +369,7 @@ class zh_TW {
       'never': '從不',
       'manual': '手動',
       'always': '總是',
-      'invalidPath': '無效的路徑。避免使用繫統路徑或sd卡。',
+      'invalidPath': '無效的路徑。避免使用繫統路徑、根路徑、原路徑的子路徑或sd卡。',
       'downloadTaskConcurrency': '同時下載圖片數量',
       'needRestart': '需要重啟',
       'downloadTimeout': '單次下載超時時間',
@@ -375,6 +377,7 @@ class zh_TW {
       'speedLimitHint': '下載太快可能會被限制',
       'per': '每',
       'images': '圖片',
+      'downloadInOrder': '按任務加入順序下載',
       'restoreDownloadTasks': '恢復下載任務',
       'enableStoreMetadataForRestore': '允許儲存下載元數據用來恢復下載記錄',
       'enableStoreMetadataForRestoreHint': '關閉此項後無法再恢復下載記錄',

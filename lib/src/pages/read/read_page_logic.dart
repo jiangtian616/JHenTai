@@ -127,7 +127,7 @@ class ReadPageLogic extends GetxController {
       newThumbnails = await retry(
         () async => await EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl,
-          thumbnailsPageNo: index ~/ SiteSetting.thumbnailsCountPerPage.value,
+          thumbnailsPageIndex: index ~/ SiteSetting.thumbnailsCountPerPage.value,
           parser: EHSpiderParser.detailPage2Thumbnails,
         ),
         maxAttempts: 3,

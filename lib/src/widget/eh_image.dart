@@ -9,6 +9,7 @@ import 'dart:io' as io;
 
 import 'package:path/path.dart' as path;
 
+import '../service/gallery_download_service.dart';
 import '../setting/network_setting.dart';
 import '../setting/path_setting.dart';
 import '../utils/route_util.dart';

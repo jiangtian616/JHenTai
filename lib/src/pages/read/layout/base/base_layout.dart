@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../model/gallery_image.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
@@ -214,7 +213,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[readPageState.readPageInfo.gid]!.downloadStatus;
+    DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize();
 
     return SizedBox(
@@ -237,7 +236,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[readPageState.readPageInfo.gid]!.downloadStatus;
+    DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize();
     return SizedBox(
       height: placeHolderSize.height,
@@ -262,9 +261,9 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadSpeedComputerId::${readPageState.readPageInfo.gid}',
       builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer = downloadService.gid2SpeedComputer[readPageState.readPageInfo.gid]!;
+        GalleryDownloadSpeedComputer speedComputer =downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
-        int totalBytes = speedComputer.imageBytes[index];
+        int totalBytes = speedComputer.imageTotalBytes[index];
 
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,

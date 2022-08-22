@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
@@ -15,7 +14,6 @@ import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../config/global_config.dart';
-import '../../model/gallery_image.dart';
 import '../../routes/routes.dart';
 import '../../service/gallery_download_service.dart';
 import '../../setting/read_setting.dart';

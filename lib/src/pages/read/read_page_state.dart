@@ -39,9 +39,11 @@ class ReadPageState {
     if (readPageInfo.mode == ReadMode.online) {
       images = List.generate(readPageInfo.pageCount, (_) => null);
     }
+
     if (readPageInfo.mode == ReadMode.local) {
-      images = Get.find<GalleryDownloadService>().gid2Images[readPageInfo.gid]!;
+      images = Get.find<GalleryDownloadService>().galleryDownloadInfos[readPageInfo.gid]!.images;
     }
+
     if (readPageInfo.mode == ReadMode.archive) {
       ArchiveDownloadedData archive = Get.find<ArchiveDownloadService>()
           .archives

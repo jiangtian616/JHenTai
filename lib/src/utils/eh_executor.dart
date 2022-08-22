@@ -210,6 +210,10 @@ class _EHExecutor implements EHExecutor {
     _PriorityItem item = task2WaitingItem[task]!;
     _waiting.remove(item);
 
+    if (item.trigger.isCompleted) {
+      return;
+    }
+
     try {
       item.trigger.completeError(CancelException());
     } on StateError catch (e) {

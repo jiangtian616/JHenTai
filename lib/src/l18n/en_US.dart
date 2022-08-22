@@ -289,6 +289,8 @@ class en_US {
       /// download page
       'reDownload': 'Re-download',
       'delete': 'Delete',
+      'deleteTask': 'Delete Task Only',
+      'deleteTaskAndImages': 'Delete Task And Images',
       'unlocking': 'unlocking',
       'waitingForDownloadPageUrl': 'Waiting For Download',
       'waitingForDownloadUrl': 'Waiting For Download',
@@ -359,8 +361,7 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint':
-          'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
+      'changeDownloadPathHint': 'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset download path',
       'downloadOriginalImage': 'Download original image',
       'never': 'Never',
@@ -368,7 +369,7 @@ class en_US {
       'always': 'Always',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',
-      'invalidPath': 'Invalid Path. Avoid using system path or sd card path.',
+      'invalidPath': 'Invalid Path. Avoid using system path, root path or sd card path.',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need Restart',
       'speedLimit': 'Speed Limit',
@@ -376,6 +377,7 @@ class en_US {
       'per': 'per',
       'images': 'images',
       'downloadTimeout': 'Download Timeout',
+      'downloadInOrder': 'Download in order of task created time',
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
       'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
       'restoreDownloadTasks': 'Restore Download Tasks',

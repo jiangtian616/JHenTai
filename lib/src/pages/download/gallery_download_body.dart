@@ -2,21 +2,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-import 'package:jhentai/src/widget/focus_widget.dart';
 
-import '../../model/download_progress.dart';
+import '../../database/database.dart';
 import '../../model/gallery_image.dart';
+import '../../model/read_page_info.dart';
 import '../../routes/routes.dart';
+import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import '../../widget/eh_image.dart';
+import '../../widget/eh_wheel_speed_controller.dart';
+import '../../widget/focus_widget.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class GalleryDownloadBody extends StatefulWidget {
@@ -26,19 +25,17 @@ class GalleryDownloadBody extends StatefulWidget {
   State<GalleryDownloadBody> createState() => _GalleryDownloadBodyState();
 }
 
-class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
-  final GalleryDownloadService downloadService = Get.find();
-  final StorageService storageService = Get.find();
-
-  late int gallerysCount;
+class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerProviderStateMixin {
+  final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
+  final StorageService storageService = Get.find<StorageService>();
 
   final ScrollController _scrollController = ScrollController();
 
+  final Map<int, AnimationController> removedGid2AnimationController = {};
+  final Map<int, Animation<double>> removedGid2Animation = {};
+
   @override
   void initState() {
-    gallerysCount = downloadService.gallerys.length;
     if (Get.isRegistered<DesktopLayoutPageLogic>()) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
     }
@@ -46,31 +43,25 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
   }
 
   @override
-  void activate() {
-    super.activate();
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
-      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
-    }
-  }
-
-  @override
   void dispose() {
     _scrollController.dispose();
+    for (AnimationController controller in removedGid2AnimationController.values) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
-      initState: _listen2AddItem,
+      id: galleryCountChangedId,
       builder: (_) => EHWheelSpeedController(
         scrollController: _scrollController,
-        child: AnimatedList(
-          key: _listKey,
+        child: ListView.builder(
           controller: _scrollController,
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          initialItemCount: gallerysCount,
-          itemBuilder: (context, index, animation) => _itemBuilder(context, index),
+          itemCount: downloadService.gallerys.length,
+          itemBuilder: (context, index) => _itemBuilder(context, index),
         ),
       ),
     );
@@ -78,60 +69,54 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
 
   Widget _itemBuilder(BuildContext context, int index) {
     GalleryDownloadedData gallery = downloadService.gallerys[index];
-    return FocusWidget(
+
+    Widget child = FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => _goToReadPage(gallery),
       handleTapArrowRight: () => _goToReadPage(gallery),
       child: Slidable(
         key: Key(gallery.gid.toString()),
-        endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          extentRatio: 0.15,
-          children: [
-            SlidableAction(
-              icon: Icons.delete,
-              foregroundColor: Colors.red,
-              backgroundColor: Get.theme.scaffoldBackgroundColor,
-              onPressed: (BuildContext context) => _handleRemoveItem(context, index),
-            )
-          ],
-        ),
+        endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
           onLongPress: () => _showDeleteBottomSheet(gallery, index, context),
-          child: Container(
-            height: 130,
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-
-              /// covered when in dark mode
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 2,
-                  spreadRadius: 1,
-                  offset: const Offset(0.3, 1),
-                )
-              ],
-              borderRadius: BorderRadius.circular(15),
-            ),
-            margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Row(
-                children: [
-                  _buildCover(gallery, context),
-                  _buildInfo(gallery),
-                ],
-              ),
-            ),
-          ),
+          child: _buildCard(gallery),
         ),
       ),
     );
+
+    /// has not been deleted
+    if (!removedGid2AnimationController.containsKey(gallery.gid)) {
+      return child;
+    }
+
+    AnimationController controller = removedGid2AnimationController[gallery.gid]!;
+    Animation<double> animation = removedGid2Animation[gallery.gid]!;
+
+    /// has been deleted, start animation
+    if (!controller.isAnimating) {
+      controller.forward();
+    }
+
+    return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
   }
 
-  Widget _removeItemBuilder() {
+  ActionPane _buildEndActionPane(GalleryDownloadedData gallery) {
+    return ActionPane(
+      motion: const DrawerMotion(),
+      extentRatio: 0.15,
+      children: [
+        SlidableAction(
+          icon: Icons.delete,
+          foregroundColor: Colors.red,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (BuildContext context) => _handleRemoveItem(context, gallery, true),
+        )
+      ],
+    );
+  }
+
+  Widget _buildCard(GalleryDownloadedData gallery) {
     return Container(
       height: 130,
       decoration: BoxDecoration(
@@ -151,7 +136,12 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
       margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Row(),
+        child: Row(
+          children: [
+            _buildCover(gallery, context),
+            _buildInfo(gallery),
+          ],
+        ),
       ),
     );
   }
@@ -163,7 +153,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
       child: GetBuilder<GalleryDownloadService>(
         id: '$downloadImageUrlId::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = downloadService.gid2Images[gallery.gid]![0];
+          GalleryImage? image = downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
           /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
@@ -174,15 +164,13 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
             );
           }
 
-          return Obx(() {
-            return EHImage.file(
-              containerHeight: 130,
-              containerWidth: 110,
-              galleryImage: image!,
-              adaptive: true,
-              fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-            );
-          });
+          return Obx(() => EHImage.file(
+                containerHeight: 130,
+                containerWidth: 110,
+                galleryImage: image!,
+                adaptive: true,
+                fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+              ));
         },
       ),
     );
@@ -197,17 +185,17 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(gallery),
+            _buildInfoHeader(gallery),
             const Expanded(child: SizedBox()),
-            _buildCenter(gallery),
-            _buildFooter(gallery).marginOnly(top: 4),
+            _buildInfoCenter(gallery),
+            _buildInfoFooter(gallery).marginOnly(top: 4),
           ],
         ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
       ),
     );
   }
 
-  Widget _buildHeader(GalleryDownloadedData gallery) {
+  Widget _buildInfoHeader(GalleryDownloadedData gallery) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -242,7 +230,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  Widget _buildCenter(GalleryDownloadedData gallery) {
+  Widget _buildInfoCenter(GalleryDownloadedData gallery) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
@@ -253,7 +241,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
             GetBuilder<GalleryDownloadService>(
               id: '$galleryDownloadProgressId::${gallery.gid}',
               builder: (_) {
-                DownloadStatus downloadStatus = downloadService.gid2DownloadProgress[gallery.gid]!.downloadStatus;
+                DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
                 return GestureDetector(
                   onTap: downloadStatus == DownloadStatus.switching
                       ? null
@@ -282,12 +270,12 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  Widget _buildFooter(GalleryDownloadedData gallery) {
+  Widget _buildInfoFooter(GalleryDownloadedData gallery) {
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadProgressId::${gallery.gid}',
       builder: (_) {
-        GalleryDownloadProgress downloadProgress = downloadService.gid2DownloadProgress[gallery.gid]!;
-        GalleryDownloadSpeedComputer speedComputer = downloadService.gid2SpeedComputer[gallery.gid]!;
+        GalleryDownloadProgress downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
+        GalleryDownloadSpeedComputer speedComputer = downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
         return Column(
           children: [
             Row(
@@ -327,34 +315,29 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  void _listen2AddItem(GetBuilderState<GalleryDownloadService> state) {
-    downloadService.addListenerId(
-      downloadGallerysId,
-      () {
-        if (downloadService.gallerys.length > gallerysCount) {
-          _listKey.currentState?.insertItem(0);
-        }
-        gallerysCount = downloadService.gallerys.length;
-      },
-    );
-  }
-
   void _showDeleteBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('reDownload'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('reDownload'.tr),
             onPressed: () {
               _handleReDownloadItem(context, index);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('deleteTask'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              _handleRemoveItem(context, index);
+              _handleRemoveItem(context, gallery, false);
+              backRoute();
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              _handleRemoveItem(context, gallery, true);
               backRoute();
             },
           ),
@@ -367,25 +350,27 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> {
     );
   }
 
-  void _handleRemoveItem(BuildContext context, int index) {
-    downloadService.deleteGallery(downloadService.gallerys[index]);
+  void _handleRemoveItem(BuildContext context, GalleryDownloadedData gallery, bool deleteImages) {
+    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
+    controller.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+        removedGid2AnimationController.remove(gallery.gid);
+        removedGid2Animation.remove(gallery.gid);
 
-    _listKey.currentState?.removeItem(
-      index,
-      (context, Animation<double> animation) => FadeTransition(
-        opacity: animation,
-        child: SizeTransition(
-          sizeFactor: animation,
-          child: _removeItemBuilder(),
-        ),
-      ),
-    );
+        Get.engine.addPostFrameCallback((_) {
+          downloadService.deleteGallery(gallery, deleteImages: deleteImages);
+        });
+      }
+    });
+    removedGid2AnimationController[gallery.gid] = controller;
+    removedGid2Animation[gallery.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
+
+    downloadService.update([galleryCountChangedId]);
   }
 
-  /// delete and then re-download
   Future<void> _handleReDownloadItem(BuildContext context, int index) async {
     await downloadService.reDownloadGallery(downloadService.gallerys[index]);
-    setState(() {});
   }
 
   void _goToReadPage(GalleryDownloadedData gallery) {

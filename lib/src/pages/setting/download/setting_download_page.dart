@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
@@ -14,6 +13,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
+import '../../../service/gallery_download_service.dart';
 import '../../../utils/log.dart';
 
 class SettingDownloadPage extends StatefulWidget {
@@ -89,7 +89,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             ),
             ListTile(
               title: Text('downloadTaskConcurrency'.tr),
-              subtitle: Text('needRestart'.tr),
               trailing: DropdownButton<int>(
                 value: DownloadSetting.downloadTaskConcurrency.value,
                 elevation: 4,
@@ -121,7 +120,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               ),
             ),
             ListTile(
-              title: Text('${'speedLimit'.tr} (${'needRestart'.tr})'),
+              title: Text('speedLimit'.tr),
               subtitle: Text('speedLimitHint'.tr),
               trailing: SizedBox(
                 width: 150,
@@ -230,12 +229,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               ),
             ),
             ListTile(
-              title: Text('enableStoreMetadataForRestore'.tr),
+              title: Text('downloadInOrder'.tr),
               trailing: Switch(
-                value: DownloadSetting.enableStoreMetadataForRestore.value,
-                onChanged: (value) => DownloadSetting.saveEnableStoreMetadataToRestore(value),
+                value: DownloadSetting.downloadInOrder.value,
+                onChanged: (value) => DownloadSetting.saveDownloadInOrder(value),
               ),
-              subtitle: Text('enableStoreMetadataForRestoreHint'.tr),
             ),
             ListTile(
               title: Text('restoreDownloadTasks'.tr),
@@ -257,41 +255,26 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
-    /// request storage permission
-    // if (!GetPlatform.isMacOS) {
-    //   bool hasStoragePermission = await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
-    //   if (!hasStoragePermission) {
-    //     toast('needPermissionToChangeDownloadPath'.tr, isShort: false);
-    //     Log.warning('No permission to change downloadPath.',false);
-    //     return;
-    //   }
-    // }
+    String oldDownloadPath = DownloadSetting.downloadPath.value;
 
     /// choose new download path
-    String oldDownloadPath = DownloadSetting.downloadPath.value;
     try {
       newDownloadPath ??= await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick file failed', e);
+      Log.error('Pick download path failed', e);
     }
-
     if (newDownloadPath == null || newDownloadPath == oldDownloadPath) {
       return;
     }
 
     if (absolute(newDownloadPath).startsWith(oldDownloadPath)) {
-      toast('invalidPath'.tr);
+      toast('invalidPath'.tr, isShort: false);
       return;
     }
 
-    /// Check permission
-    try {
-      _checkPermissionForNewPath(newDownloadPath);
-    } on FileSystemException catch (e) {
-      toast('invalidPath'.tr);
-
-      Log.error('${'invalidPath'.tr}:$newDownloadPath', e);
-      Log.upload(e, extraInfos: {'path': newDownloadPath});
+    /// check permission
+    if (!_checkPermissionForNewPath(newDownloadPath)) {
+      toast('invalidPath'.tr, isShort: false);
       return;
     }
 
@@ -309,7 +292,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       /// copy
       List<Future> futures = [];
       for (io.FileSystemEntity oldGallery in gallerys) {
-        /// other directory
+        /// other file or directory
         if (oldGallery is! io.Directory || !basename(oldGallery.path).startsWith(RegExp(r'\d'))) {
           continue;
         }
@@ -324,16 +307,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
       DownloadSetting.saveDownloadPath(newDownloadPath);
 
-      /// To be compatible with the previous version, update the database.
+      /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
 
-      /// Empty old directory
+      /// empty old directory
       oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
-
-      await Future.wait([
-        galleryDownloadService.resumeAllDownloadGallery(),
-        archiveDownloadService.resumeAllDownloadArchive(),
-      ]);
     } finally {
       setState(() => changeDownloadPathState = LoadingState.idle);
     }
@@ -346,7 +324,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Future<void> _restore() async {
     Log.verbose('Restore download task.');
 
-    int restoredGalleryCount = await Get.find<GalleryDownloadService>().restore();
+    int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
     int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restore();
     snack(
       'restoreDownloadTasksSuccess'.tr,
@@ -354,9 +332,16 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     );
   }
 
-  void _checkPermissionForNewPath(String newDownloadPath) {
-    io.File file = io.File(join(newDownloadPath, 'test'));
-    file.createSync(recursive: true);
-    file.deleteSync();
+  bool _checkPermissionForNewPath(String newDownloadPath) {
+    try {
+      io.File file = io.File(join(newDownloadPath, 'test'));
+      file.createSync(recursive: true);
+      file.deleteSync();
+    } on FileSystemException catch (e) {
+      Log.error('${'invalidPath'.tr}:$newDownloadPath', e);
+      Log.upload(e, extraInfos: {'path': newDownloadPath});
+      return false;
+    }
+    return true;
   }
 }

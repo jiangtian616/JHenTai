@@ -13,7 +13,6 @@ import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
-import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
@@ -28,7 +27,6 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
-import '../../model/download_progress.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
@@ -361,7 +359,7 @@ class DetailsPage extends StatelessWidget {
                   text: GetBuilder<GalleryDownloadService>(
                     id: '$galleryDownloadProgressId::${gallery.gid}',
                     builder: (_) {
-                      GalleryDownloadProgress? downloadProgress = downloadService.gid2DownloadProgress[gallery.gid];
+                      GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
                       return Text(
                         downloadProgress == null
                             ? 'download'.tr

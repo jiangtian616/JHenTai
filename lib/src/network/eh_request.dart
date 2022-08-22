@@ -194,14 +194,14 @@ class EHRequest {
 
   static Future<T> requestDetailPage<T>({
     required String galleryUrl,
-    int thumbnailsPageNo = 0,
+    int thumbnailsPageIndex = 0,
     bool useCacheIfAvailable = true,
     CancelToken? cancelToken,
     required EHHtmlParser<T> parser,
   }) async {
     Response response = await _dio.get(
       EHSetting.site.value == 'EH' ? galleryUrl : galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex),
-      queryParameters: {'p': thumbnailsPageNo},
+      queryParameters: {'p': thumbnailsPageIndex},
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );

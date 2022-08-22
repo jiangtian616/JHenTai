@@ -288,6 +288,8 @@ class zh_CN {
 
       /// download page
       'delete': '删除',
+      'deleteTask': '仅删除任务',
+      'deleteTaskAndImages': '删除任务和图片',
       'reDownload': '重新下载',
       'unlocking': '解锁归档中',
       'waitingForDownloadPageUrl': '等待下载中',
@@ -367,7 +369,7 @@ class zh_CN {
       'manual': '手动',
       'always': '总是',
       'needPermissionToChangeDownloadPath': '需要权限来改变下载路径',
-      'invalidPath': '无效的路径。避免使用系统路径或sd卡。',
+      'invalidPath': '无效的路径。避免使用系统路径、根路径、原路径的子路径或sd卡。',
       'downloadTaskConcurrency': '同时下载图片数量',
       'needRestart': '需要重启',
       'downloadTimeout': '单次下载超时时间',
@@ -375,6 +377,7 @@ class zh_CN {
       'speedLimitHint': '下载太快可能会被限制',
       'per': '每',
       'images': '图片',
+      'downloadInOrder': '按任务加入顺序下载',
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',
       'enableStoreMetadataForRestoreHint': '关闭此项后无法再恢复下载记录',

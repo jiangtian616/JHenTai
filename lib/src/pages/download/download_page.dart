@@ -2,9 +2,9 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
+import '../../service/gallery_download_service.dart';
 import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'archive_download_body.dart';
 import 'gallery_download_body.dart';

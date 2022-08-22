@@ -5,6 +5,8 @@ import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 
+import '../service/gallery_download_service.dart';
+
 class Gallery {
   int gid;
   String token;
@@ -46,6 +48,7 @@ class Gallery {
       uploader: uploader,
       publishTime: publishTime,
       downloadStatusIndex: DownloadStatus.downloading.index,
+      insertTime: DateTime.now().toString(),
       downloadOriginalImage: downloadOriginalImage,
     );
   }

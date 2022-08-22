@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -16,7 +17,7 @@ class DownloadSetting {
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxInt timeout = 10.obs;
-  static RxBool enableStoreMetadataForRestore = true.obs;
+  static RxBool downloadInOrder = true.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
@@ -51,18 +52,24 @@ class DownloadSetting {
     Log.verbose('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
     _save();
+
+    Get.find<GalleryDownloadService>().rebootExecutor();
   }
 
   static saveMaximum(int maximum) {
     Log.verbose('saveMaximum:$maximum');
     DownloadSetting.maximum.value = maximum;
     _save();
+
+    Get.find<GalleryDownloadService>().rebootExecutor();
   }
 
   static savePeriod(Duration period) {
     Log.verbose('savePeriod:$period');
     DownloadSetting.period.value = period;
     _save();
+
+    Get.find<GalleryDownloadService>().rebootExecutor();
   }
 
   static saveTimeout(int value) {
@@ -71,9 +78,9 @@ class DownloadSetting {
     _save();
   }
 
-  static saveEnableStoreMetadataToRestore(bool value) {
-    Log.verbose('saveEnableStoreMetadataToRestore:$value');
-    enableStoreMetadataForRestore.value = value;
+  static saveDownloadInOrder(bool value) {
+    Log.verbose('saveDownloadInOrder:$value');
+    downloadInOrder.value = value;
     _save();
   }
 
@@ -89,7 +96,7 @@ class DownloadSetting {
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
       'timeout': timeout.value,
-      'enableStoreMetadataForRestore': enableStoreMetadataForRestore.value,
+      'downloadInOrder': downloadInOrder.value,
     };
   }
 
@@ -100,6 +107,6 @@ class DownloadSetting {
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
-    enableStoreMetadataForRestore.value = map['enableStoreMetadataForRestore'];
+    downloadInOrder.value = map['downloadInOrder'] ?? downloadInOrder.value;
   }
 }

@@ -1,11 +1,4 @@
-enum DownloadStatus {
-  none,
-  switching,
-  paused,
-  downloading,
-  downloaded,
-  downloadFailed,
-}
+import '../service/gallery_download_service.dart';
 
 class GalleryImage {
   String url;

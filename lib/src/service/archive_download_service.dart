@@ -20,6 +20,7 @@ import '../exception/retry_exception.dart';
 import '../model/gallery_archive.dart';
 import '../utils/log.dart';
 import '../utils/table.dart';
+import 'gallery_download_service.dart';
 
 const String downloadArchivesId = 'downloadArchivesId';
 const String archiveDownloadStatusId = 'archiveDownloadStatusId';
@@ -390,9 +391,7 @@ class ArchiveDownloadService extends GetxController {
     archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.completed.index);
     _updateArchive(archive);
 
-    if (DownloadSetting.enableStoreMetadataForRestore.isTrue) {
-      _saveGalleryDownloadInfoInDisk(archive);
-    }
+    _saveGalleryDownloadInfoInDisk(archive);
   }
 
   String _computeArchiveDownloadPath(ArchiveDownloadedData archive) {
