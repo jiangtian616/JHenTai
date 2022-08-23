@@ -20,6 +20,7 @@ class zh_TW {
       'networkError': "網路錯誤",
       'systemError': "系統錯誤",
       'invalid': "無效",
+      'internalError': "內部錯誤",
 
       'home': "主畫面",
       'gallery': "畫廊",

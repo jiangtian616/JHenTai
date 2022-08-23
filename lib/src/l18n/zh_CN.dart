@@ -20,6 +20,7 @@ class zh_CN {
       'networkError': "网络错误",
       'systemError': "系统错误",
       'invalid': "无效",
+      'internalError': "内部错误",
 
       'home': "主页",
       'gallery': "画廊",

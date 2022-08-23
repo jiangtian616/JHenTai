@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
+import 'package:jhentai/src/service/check_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
@@ -127,7 +128,13 @@ abstract class BasePageLogic extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
+
     update([refreshId ?? pageId]);
+
+    CheckService.build(
+      () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
+      errorMsg: 'handleRefresh state.nextPageIndexToLoad == null!',
+    ).check();
   }
 
   Future<void> clearAndRefresh() async {
@@ -198,6 +205,16 @@ abstract class BasePageLogic extends GetxController {
       update([loadingStateId]);
     }
 
+    CheckService.build(
+      () => state.nextPageIndexToLoad != null,
+      errorMsg: 'state.nextPageIndexToLoad == null!',
+    ).onFailed(() {
+      Log.error('getGallerysFailed'.tr);
+      snack('getGallerysFailed'.tr, 'internalError'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      state.loadingState = LoadingState.error;
+      update([loadingStateId]);
+    }).check();
+
     List<dynamic> gallerysAndPageInfo;
     try {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.nextPageIndexToLoad!);
@@ -222,6 +239,11 @@ abstract class BasePageLogic extends GetxController {
       state.loadingState = LoadingState.idle;
     }
     update([pageId]);
+
+    CheckService.build(
+      () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
+      errorMsg: 'loadMore state.nextPageIndexToLoad == null!',
+    ).check();
   }
 
   Future<void> jumpPage(int pageIndex) async {
@@ -263,6 +285,11 @@ abstract class BasePageLogic extends GetxController {
       state.loadingState = LoadingState.idle;
     }
     update([pageId]);
+
+    CheckService.build(
+          () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
+      errorMsg: 'jumpPage state.nextPageIndexToLoad == null!',
+    ).check();
   }
 
   void scroll2Top() {

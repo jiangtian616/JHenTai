@@ -20,6 +20,7 @@ class en_US {
       'networkError': "Network Error",
       'systemError': "System Error",
       'invalid': "Invalid",
+      'internalError': "Internal Error",
 
       'home': "Home",
       'gallery': "Gallery",
