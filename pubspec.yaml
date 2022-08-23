@@ -38,31 +38,30 @@ dependencies:
   drift: ^1.5.0
   sqlite3_flutter_libs: ^0.5.0
   path_provider: ^2.0.9
-  flutter_slidable: ^1.2.0
+  flutter_slidable: ^2.0.0
   flutter_widget_from_html: ^0.8.5
   cached_network_image: ^3.2.1 # todo: remove
-  visibility_detector: ^0.3.3
-  url_launcher: ^6.0.20
+  visibility_detector: ^0.3.3 # todo: remove
+  url_launcher: ^6.1.5
   like_button: ^2.0.4
-  webview_flutter: ^3.0.1
+  webview_flutter: ^3.0.4
   photo_view:
     git: https://gitee.com/jiangtian616/photo_view.git
   #    git: https://github.com/bluefireteam/photo_view.git
-  package_info_plus: ^1.4.0
-  file_picker: ^4.5.1
+  package_info_plus: 1.4.2
+  file_picker: 4.6.1
   local_auth: 1.1.11
   blur: ^3.1.0
   flutter_windowmanager: ^0.2.0
   animate_do: ^2.1.0
-  share_plus: ^4.0.4
+  share_plus: ^4.0.10
   syncfusion_flutter_charts: ^20.2.36
-  sentry_flutter: ^6.6.3
+  sentry_flutter: ^6.9.1
   archive: ^3.3.0
-  image_size_getter: ^2.1.0
+  image_size_getter: ^2.1.1
   fluttertoast: ^8.0.9
-  battery_plus: ^2.1.3
+  battery_plus: ^2.1.4
   throttling: ^1.0.0
-  permission_handler: 9.2.0
   bitsdojo_window: ^0.1.2
 
 dev_dependencies:
