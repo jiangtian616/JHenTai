@@ -11,6 +11,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../utils/snack_util.dart';
 
@@ -45,7 +46,7 @@ class _TorrentDialogState extends State<TorrentDialog> {
                     ListTile(
                       dense: true,
                       title: InkWell(
-                        onTap: () => launch(galleryTorrent.torrentUrl),
+                        onTap: () => launchUrlString(galleryTorrent.torrentUrl, mode: LaunchMode.externalApplication),
                         child: Text(
                           galleryTorrent.title,
                           maxLines: 2,

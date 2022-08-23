@@ -12,7 +12,7 @@ import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:like_button/like_button.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
@@ -196,7 +196,7 @@ class _EHCommentState extends State<EHComment> {
       toRoute(Routes.details, arguments: url, offAllBefore: false);
       return true;
     }
-    return await launch(url);
+    return await launchUrlString(url, mode: LaunchMode.externalApplication);
   }
 }
 
