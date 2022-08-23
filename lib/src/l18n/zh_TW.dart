@@ -120,6 +120,7 @@ class zh_TW {
       'score': '分數',
       'NotOnTheList': '未上榜',
       'getGalleryArchiveFailed': '獲取歸檔數據失敗',
+      'parseGalleryArchiveFailed': '解析錯誤，確保你e站的[Archiver Settings]設置的是[Manual Select, Manual Start (Default)]',
       'original': '原始',
       'resample': '壓縮',
       'beginToDownloadArchive': '開始下載歸檔',

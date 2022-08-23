@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -140,6 +141,12 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
     } on DioError catch (e) {
       Log.error('getGalleryArchiveFailed'.tr, e.message);
       snack('getGalleryArchiveFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      setState(() {
+        loadingState = LoadingState.error;
+      });
+      return;
+    } on NotUploadException catch (e) {
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.TOP, longDuration: true);
       setState(() {
         loadingState = LoadingState.error;
       });

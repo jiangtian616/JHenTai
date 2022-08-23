@@ -120,6 +120,7 @@ class en_US {
       'score': 'Score',
       'NotOnTheList': 'Not on the list',
       'getGalleryArchiveFailed': 'Get Gallery Archive Failed',
+      'parseGalleryArchiveFailed': 'Parse failed, make sure your [Archiver Settings] in e-hentai is [Manual Select, Manual Start (Default)]',
       'original': 'Original',
       'resample': 'Resample',
       'beginToDownloadArchive': 'Begin to Download Archive',

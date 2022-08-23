@@ -120,6 +120,7 @@ class zh_CN {
       'score': '分数',
       'NotOnTheList': '未上榜',
       'getGalleryArchiveFailed': '获取归档数据失败',
+      'parseGalleryArchiveFailed': '解析错误，确保你e站的[Archiver Settings]设置的是[Manual Select, Manual Start (Default)]',
       'original': '原始',
       'resample': '压缩',
       'beginToDownloadArchive': '开始下载归档',

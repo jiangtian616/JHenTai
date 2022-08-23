@@ -51,7 +51,7 @@ Widget EHGalleryCollection({
         },
         childCount: gallerys.length,
         keepPosition: keepPosition,
-        onItemKey: (index) => gallerys[index].galleryUrl,
+        onItemKey: keepPosition ? (index) => gallerys[index].galleryUrl : null,
         preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
       ),
     );
