@@ -24,7 +24,7 @@ class StyleSetting {
   static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
-  static Rx<ListMode> listMode = ListMode.listWithoutTags.obs;
+  static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static Rx<CoverMode> coverMode = CoverMode.cover.obs;
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
