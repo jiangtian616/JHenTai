@@ -18,12 +18,12 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void onInit() {
+    super.onInit();
+
     pageController = PageController(initialPage: readPageState.readPageInfo.initialIndex ~/ 2);
 
     /// record reading progress and sync thumbnails list index
     pageController.addListener(_readProgressListener);
-
-    super.onInit();
   }
 
   @override

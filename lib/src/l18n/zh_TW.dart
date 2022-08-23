@@ -273,6 +273,7 @@ class zh_TW {
       'right2left': '從右至左',
       'enablePageTurnAnime': '開啟翻頁動畫',
       'turnPageMode': '翻頁模式',
+      'enableDoubleTapToScaleUp': '雙擊放大圖片',
       'turnPageModeHint': '移動至下一螢幕還是下一圖片',
       'image': '圖片',
       'screen': '螢幕',

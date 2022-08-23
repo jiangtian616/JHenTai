@@ -177,7 +177,7 @@ class ReadPage extends StatelessWidget {
   Widget buildGestureRegion() {
     return Row(
       children: [
-        /// left region: toLeft
+        /// left region
         Expanded(
           flex: 1,
           child: GestureDetector(
@@ -187,21 +187,50 @@ class ReadPage extends StatelessWidget {
           ),
         ),
 
-        /// center region: toggle menu
+        /// center region
         Expanded(
           flex: 4,
           child: Column(
             children: [
-              const Expanded(flex: 1, child: SizedBox()),
+              /// top center
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onDoubleTapDown: (TapDownDetails details) =>
+                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+
+                  /// just to invoke [onDoubleTapDown]
+                  onDoubleTap: () {},
+                ),
+              ),
+
+              /// center
               Expanded(
                 flex: 2,
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onTap: logic.toggleMenu,
-                  onDoubleTap: logic.toggleMenu,
+                  onDoubleTapDown: (TapDownDetails details) =>
+                  ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+
+                  /// just to invoke [onDoubleTapDown]
+                  onDoubleTap: () {},
                 ),
               ),
-              const Expanded(flex: 1, child: SizedBox()),
+
+              /// bottom center
+              Expanded(
+                flex: 1,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onDoubleTapDown: (TapDownDetails details) =>
+                  ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+
+                  /// just to invoke [onDoubleTapDown]
+                  onDoubleTap: () {},
+                ),
+              ),
             ],
           ),
         ),

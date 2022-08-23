@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -207,6 +207,11 @@ class ReadPageLogic extends GetxController {
 
   void restoreSystemBar() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  /// double tap to scale up or reset
+  void toggleScale(Offset position) {
+    layoutLogic.toggleScale(position);
   }
 
   void toggleMenu() {

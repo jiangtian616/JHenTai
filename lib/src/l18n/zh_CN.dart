@@ -272,6 +272,7 @@ class zh_CN {
       'left2right': '从左至右',
       'right2left': '从右至左',
       'enablePageTurnAnime': '开启翻页动画',
+      'enableDoubleTapToScaleUp': '双击放大图片',
       'turnPageMode': '翻页模式',
       'turnPageModeHint': '移动至下一屏幕还是下一图片',
       'image': '图片',

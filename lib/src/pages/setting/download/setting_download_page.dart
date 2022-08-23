@@ -122,70 +122,68 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             ListTile(
               title: Text('speedLimit'.tr),
               subtitle: Text('speedLimitHint'.tr),
-              trailing: SizedBox(
-                width: 150,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DropdownButton<int>(
-                      value: DownloadSetting.maximum.value,
-                      elevation: 4,
-                      alignment: AlignmentDirectional.bottomEnd,
-                      onChanged: (int? newValue) {
-                        DownloadSetting.saveMaximum(newValue!);
-                      },
-                      items: const [
-                        DropdownMenuItem(
-                          child: Text('1'),
-                          value: 1,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('2'),
-                          value: 2,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('3'),
-                          value: 3,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('5'),
-                          value: 5,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('10'),
-                          value: 10,
-                        ),
-                        DropdownMenuItem(
-                          child: Text('99'),
-                          value: 99,
-                        ),
-                      ],
-                    ),
-                    Text('${'images'.tr} ${'per'.tr}').marginSymmetric(horizontal: 4),
-                    DropdownButton<Duration>(
-                      value: DownloadSetting.period.value,
-                      elevation: 4,
-                      alignment: AlignmentDirectional.bottomEnd,
-                      onChanged: (Duration? newValue) {
-                        DownloadSetting.savePeriod(newValue!);
-                      },
-                      items: const [
-                        DropdownMenuItem(
-                          child: Text('1s'),
-                          value: Duration(seconds: 1),
-                        ),
-                        DropdownMenuItem(
-                          child: Text('2s'),
-                          value: Duration(seconds: 2),
-                        ),
-                        DropdownMenuItem(
-                          child: Text('3s'),
-                          value: Duration(seconds: 3),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  DropdownButton<int>(
+                    value: DownloadSetting.maximum.value,
+                    elevation: 4,
+                    alignment: AlignmentDirectional.bottomEnd,
+                    onChanged: (int? newValue) {
+                      DownloadSetting.saveMaximum(newValue!);
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        child: Text('1'),
+                        value: 1,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('2'),
+                        value: 2,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('3'),
+                        value: 3,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('5'),
+                        value: 5,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('10'),
+                        value: 10,
+                      ),
+                      DropdownMenuItem(
+                        child: Text('99'),
+                        value: 99,
+                      ),
+                    ],
+                  ),
+                  Text('${'images'.tr} ${'per'.tr}').marginSymmetric(horizontal: 4),
+                  DropdownButton<Duration>(
+                    value: DownloadSetting.period.value,
+                    elevation: 4,
+                    alignment: AlignmentDirectional.bottomEnd,
+                    onChanged: (Duration? newValue) {
+                      DownloadSetting.savePeriod(newValue!);
+                    },
+                    items: const [
+                      DropdownMenuItem(
+                        child: Text('1s'),
+                        value: Duration(seconds: 1),
+                      ),
+                      DropdownMenuItem(
+                        child: Text('2s'),
+                        value: Duration(seconds: 2),
+                      ),
+                      DropdownMenuItem(
+                        child: Text('3s'),
+                        value: Duration(seconds: 3),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             ListTile(

@@ -50,6 +50,13 @@ class SettingReadPage extends StatelessWidget {
               ),
             ),
             ListTile(
+              title: Text('enableDoubleTapToScaleUp'.tr),
+              trailing: Switch(
+                value: ReadSetting.enableDoubleTapToScaleUp.value,
+                onChanged: (value) => ReadSetting.saveEnableDoubleTapToScaleUp(value),
+              ),
+            ),
+            ListTile(
               title: Text('readDirection'.tr),
               trailing: DropdownButton<ReadDirection>(
                 value: ReadSetting.readDirection.value,

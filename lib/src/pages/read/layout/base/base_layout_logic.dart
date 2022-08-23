@@ -10,17 +10,29 @@ import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 import 'base_layout_state.dart';
 
-abstract class BaseLayoutLogic extends GetxController {
+abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStateMixin {
   BaseLayoutState get state;
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
   final ReadPageState readPageState = Get.find<ReadPageLogic>().state;
 
+  late AnimationController scaleAnimationController;
+  late Animation<double> animation;
+
   Timer? autoModeTimer;
+
+  @override
+  void onInit() {
+    scaleAnimationController = AnimationController(duration: const Duration(milliseconds: 150), vsync: this);
+    animation = Tween(begin: 1.0, end: 2.0).animate(CurvedAnimation(curve: Curves.ease, parent: scaleAnimationController));
+    animation.addListener(() => state.photoViewController.scale = animation.value);
+    super.onInit();
+  }
 
   @override
   void onClose() {
     autoModeTimer?.cancel();
+    scaleAnimationController.dispose();
     super.onClose();
   }
 
@@ -52,6 +64,30 @@ abstract class BaseLayoutLogic extends GetxController {
   @mustCallSuper
   void jump2PageIndex(int pageIndex) {
     readPageLogic.update([readPageLogic.sliderId]);
+  }
+
+  void toggleScale(Offset position) {
+    if (scaleAnimationController.isAnimating) {
+      return;
+    }
+
+    if (state.photoViewController.scale == 1.0) {
+      state.photoViewController.position = position;
+
+      /// For some reason i don't know, sometimes [scaleAnimationController.isCompleted] but [state.photoViewController.scale] is still 1.0
+      if (scaleAnimationController.isCompleted) {
+        scaleAnimationController.reset();
+      }
+      scaleAnimationController.forward();
+      return;
+    }
+
+    if (state.photoViewController.scale == 2.0) {
+      scaleAnimationController.reverse();
+      return;
+    }
+
+    state.photoViewScaleStateController.reset();
   }
 
   void onScaleEnd(BuildContext context, ScaleEndDetails details, PhotoViewControllerValue controllerValue) {

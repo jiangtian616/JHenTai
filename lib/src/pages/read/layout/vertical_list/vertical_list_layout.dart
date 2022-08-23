@@ -25,6 +25,7 @@ class VerticalListLayout extends BaseLayout {
     return PhotoViewGallery.builder(
       itemCount: 1,
       builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
+        controller: state.photoViewController,
         scaleStateController: state.photoViewScaleStateController,
         onScaleEnd: logic.onScaleEnd,
         child: EHWheelSpeedControllerForReadPage(

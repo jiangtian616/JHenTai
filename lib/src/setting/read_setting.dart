@@ -28,6 +28,7 @@ class ReadSetting {
   static RxBool showThumbnails = true.obs;
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
+  static RxBool enableDoubleTapToScaleUp = false.obs;
   static RxDouble autoModeInterval = 2.0.obs;
   static Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
   static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
@@ -90,6 +91,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveEnableDoubleTapToScaleUp(bool value) {
+    Log.verbose('saveEnableDoubleTapToScaleUp:$value');
+    enableDoubleTapToScaleUp.value = value;
+    _save();
+  }
+
   static saveTurnPageMode(TurnPageMode value) {
     Log.verbose('saveTurnPageMode:${value.name}');
     turnPageMode.value = value;
@@ -136,6 +143,7 @@ class ReadSetting {
       'showThumbnails': showThumbnails.value,
       'showStatusInfo': showStatusInfo.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
+      'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
       'readDirection': readDirection.value.index,
@@ -153,6 +161,7 @@ class ReadSetting {
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
+    enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     readDirection.value = ReadDirection.values[map['readDirection']];

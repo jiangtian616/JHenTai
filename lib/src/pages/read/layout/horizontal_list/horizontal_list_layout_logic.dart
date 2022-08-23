@@ -18,9 +18,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void onInit() {
+    super.onInit();
+
     /// record reading progress and sync thumbnails list index
     state.itemPositionsListener.itemPositions.addListener(_readProgressListener);
-    super.onInit();
   }
 
   @override
