@@ -28,7 +28,6 @@ mixin BaseSearchPageLogic on BasePageLogic {
   bool showScroll2TopButton = false;
 
   final QuickSearchService quickSearchService = Get.find();
-  final StorageService storageService = Get.find();
 
   /// used for delayed search suggestion
   Timer? timer;

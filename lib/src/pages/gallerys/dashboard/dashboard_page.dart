@@ -194,9 +194,18 @@ class DashboardPage extends BasePage {
             Text('newest'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           ],
         ),
-        trailing: GestureDetector(
-          child: Icon(Icons.refresh, color: Get.theme.primaryColor),
-          onTap: logic.clearAndRefresh,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              child: Icon(Icons.settings, color: Get.theme.primaryColor, size: 22),
+              onTap: logic.handleTapFilterButton,
+            ).marginOnly(right: 16),
+            GestureDetector(
+              child: Icon(Icons.refresh, color: Get.theme.primaryColor, size: 25),
+              onTap: logic.clearAndRefresh,
+            ),
+          ],
         ),
       ),
     );

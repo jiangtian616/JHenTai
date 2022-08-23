@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/jh_layout.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
 import 'package:jhentai/src/service/check_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
 import '../../model/gallery.dart';
@@ -51,18 +53,18 @@ abstract class BasePageLogic extends GetxController {
   int get tabIndex;
 
   final TagTranslationService tagTranslationService = Get.find();
-  final StorageService _storageService = Get.find();
+  final StorageService storageService = Get.find();
 
   @override
   void onReady() {
     super.onReady();
 
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
+    if (Get.isRegistered<DesktopLayoutPageLogic>() && StyleSetting.actualLayout == LayoutMode.desktop) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
     }
 
     if (useSearchConfig) {
-      Map<String, dynamic>? map = _storageService.read('searchConfig: $runtimeType');
+      Map<String, dynamic>? map = storageService.read('searchConfig: $runtimeType');
       if (map != null) {
         state.searchConfig = SearchConfig.fromJson(map);
       }
@@ -287,7 +289,7 @@ abstract class BasePageLogic extends GetxController {
     update([pageId]);
 
     CheckService.build(
-          () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
+      () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'jumpPage state.nextPageIndexToLoad == null!',
     ).check();
   }
@@ -329,7 +331,7 @@ abstract class BasePageLogic extends GetxController {
 
     /// No need to save at search page
     if (useSearchConfig) {
-      _storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
+      storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
     }
 
     clearAndRefresh();

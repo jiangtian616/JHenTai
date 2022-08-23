@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
@@ -30,6 +31,12 @@ class DashboardPageLogic extends BasePageLogic {
   final String galleryListId = 'galleryListId';
 
   @override
+  bool get autoLoadForFirstTime => false;
+
+  @override
+  bool get useSearchConfig => true;
+
+  @override
   int get tabIndex => 0;
 
   @override
@@ -37,6 +44,7 @@ class DashboardPageLogic extends BasePageLogic {
 
   @override
   void onReady() {
+    super.onReady();
     loadMore();
     loadRanklist();
     loadPopular();
