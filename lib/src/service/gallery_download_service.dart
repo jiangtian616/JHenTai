@@ -86,11 +86,11 @@ class GalleryDownloadService extends GetxController {
 
     galleryDownloadInfos[gallery.gid]!.speedComputer.start();
 
-    Log.info('Begin to download gallery: ${gallery.gid}, original: ${gallery.downloadOriginalImage}');
+    Log.info('Begin to download gallery: ${gallery.title}, original: ${gallery.downloadOriginalImage}');
 
     _submitTask(
       gid: gallery.gid,
-      priority: _computeDownloadPriority(gallery.insertTime),
+      priority: _computeDownloadPriority(gallery.insertTime, resume),
       task: _downloadGalleryTask(gallery),
     );
   }
@@ -399,8 +399,9 @@ class GalleryDownloadService extends GetxController {
     );
   }
 
-  int _computeDownloadPriority(String? galleryInsertTime) {
-    DateTime time = galleryInsertTime != null ? DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(galleryInsertTime) : DateTime.now();
+  int _computeDownloadPriority(String? galleryInsertTime, bool resume) {
+    /// If this download is a resume, we use current time to compute priority, so that user can pause and then resume a task to lower its priority.
+    DateTime time = (galleryInsertTime == null || resume) ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(galleryInsertTime);
 
     /// other task's priority is less than 2000(maximum of images in a gallery), so we assign [_downloadGalleryPriorityBase] as 10000
     return DownloadSetting.downloadInOrder.isTrue
