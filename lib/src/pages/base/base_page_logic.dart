@@ -248,7 +248,7 @@ abstract class BasePageLogic extends GetxController {
     ).withUploadParam({
       'state': state,
       'gallerysAndPageInfo': gallerysAndPageInfo,
-    }).check();
+    }).check(throwExceptionWhenFailed: false);
   }
 
   Future<void> jumpPage(int pageIndex) async {
