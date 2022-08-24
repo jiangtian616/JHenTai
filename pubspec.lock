@@ -1054,6 +1054,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.0"
+  receive_sharing_intent:
+    dependency: "direct main"
+    description:
+      name: receive_sharing_intent
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.4.5"
   retry:
     dependency: "direct main"
     description:

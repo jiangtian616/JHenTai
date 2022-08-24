@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,9 +13,11 @@ import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/pages/watched/watched_page_logic.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 import 'package:jhentai/src/widget/windows_app.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 import '../consts/eh_consts.dart';
 import '../model/jh_layout.dart';
@@ -44,6 +48,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
   @override
@@ -51,8 +56,15 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     initToast(context);
     _initPageLogic();
+    _initSharingIntent();
     _handleUrlInClipBoard();
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+  }
+
+  @override
+  void dispose() {
+    _intentDataStreamSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -106,6 +118,58 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _initPageLogic() {
+    /// Mobile layout v2
+    Get.lazyPut(() => DashboardPageLogic(), fenix: true);
+
+    /// Desktop layout
+    Get.lazyPut(() => GallerysPageLogic(), fenix: true);
+    Get.lazyPut(() => DesktopSearchPageLogic(), fenix: true);
+
+    /// Mobile layout v2 & Desktop layout
+    Get.lazyPut(() => PopularPageLogic(), fenix: true);
+    Get.lazyPut(() => RanklistPageLogic(), fenix: true);
+    Get.lazyPut(() => FavoritePageLogic(), fenix: true);
+    Get.lazyPut(() => WatchedPageLogic(), fenix: true);
+    Get.lazyPut(() => HistoryPageLogic(), fenix: true);
+  }
+
+  /// Listen to share or open urls/text coming from outside the app while the app is in the memory or is closed
+  void _initSharingIntent() {
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+
+    ReceiveSharingIntent.getInitialText().then(
+      (String? url) {
+        if (url != null) {
+          toRoute(
+            Routes.details,
+            arguments: url,
+            offAllBefore: false,
+            preventDuplicates: false,
+          );
+        }
+      },
+    );
+
+    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
+      (String url) => toRoute(
+        Routes.details,
+        arguments: url,
+        offAllBefore: false,
+        preventDuplicates: false,
+      ),
+      onError: (e) {
+        Log.error('ReceiveSharingIntent Error!', e);
+        Log.upload(e);
+      },
+    );
+  }
+
+  /// user open a url in other app by JHenTai
+  void _handleUrlFromOtherApp() async {}
+
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
   void _handleUrlInClipBoard() async {
     String text = await FlutterClipboard.paste();
@@ -133,21 +197,5 @@ class _HomePageState extends State<HomePage> {
       },
       longDuration: true,
     );
-  }
-
-  void _initPageLogic() {
-    /// Mobile layout v2
-    Get.lazyPut(() => DashboardPageLogic(), fenix: true);
-
-    /// Desktop layout
-    Get.lazyPut(() => GallerysPageLogic(), fenix: true);
-    Get.lazyPut(() => DesktopSearchPageLogic(), fenix: true);
-
-    /// Mobile layout v2 & Desktop layout
-    Get.lazyPut(() => PopularPageLogic(), fenix: true);
-    Get.lazyPut(() => RanklistPageLogic(), fenix: true);
-    Get.lazyPut(() => FavoritePageLogic(), fenix: true);
-    Get.lazyPut(() => WatchedPageLogic(), fenix: true);
-    Get.lazyPut(() => HistoryPageLogic(), fenix: true);
   }
 }
