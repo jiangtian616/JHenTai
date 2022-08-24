@@ -11,7 +11,6 @@ import 'package:jhentai/src/service/check_service.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
-import '../../../service/storage_service.dart';
 import '../../../setting/style_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';

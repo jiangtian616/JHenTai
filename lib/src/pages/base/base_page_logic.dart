@@ -125,6 +125,7 @@ abstract class BasePageLogic extends GetxController {
     state.refreshState = LoadingState.idle;
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
+      state.nextPageIndexToLoad = 0;
     } else if (state.nextPageIndexToLoad == null) {
       state.loadingState = LoadingState.noMore;
     } else {
@@ -235,6 +236,7 @@ abstract class BasePageLogic extends GetxController {
 
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
+      state.nextPageIndexToLoad = 0;
     } else if (state.nextPageIndexToLoad == null) {
       state.loadingState = LoadingState.noMore;
     } else {
@@ -284,6 +286,7 @@ abstract class BasePageLogic extends GetxController {
 
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
+      state.nextPageIndexToLoad = 0;
     } else if (state.nextPageIndexToLoad == null) {
       state.loadingState = LoadingState.noMore;
     } else {

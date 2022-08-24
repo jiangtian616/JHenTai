@@ -23,4 +23,9 @@ class BasePageState {
   BasePageState() {
     pageStorageKey = PageStorageKey(runtimeType);
   }
+
+  @override
+  String toString() {
+    return 'BasePageState{gallerys: $gallerys, searchConfig: $searchConfig, pageCount: $pageCount, prevPageIndexToLoad: $prevPageIndexToLoad, nextPageIndexToLoad: $nextPageIndexToLoad, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, scrollController: $scrollController, pageStorageKey: $pageStorageKey}';
+  }
 }
