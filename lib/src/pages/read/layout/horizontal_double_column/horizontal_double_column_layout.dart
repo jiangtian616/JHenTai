@@ -19,7 +19,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
   final HorizontalDoubleColumnLayoutState state = Get.find<HorizontalDoubleColumnLayoutLogic>().state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return Obx(
       () => EHPhotoViewGallery.builder(
         itemCount: (readPageState.readPageInfo.pageCount + 1) ~/ 2,
@@ -30,6 +30,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           controller: state.photoViewController,
           scaleStateController: state.photoViewScaleStateController,
+          basePosition: state.scalePosition,
           onScaleEnd: logic.onScaleEnd,
           child: readPageState.readPageInfo.mode == ReadMode.online
               ? _buildDoubleColumnItemInOnlineMode(context, index)

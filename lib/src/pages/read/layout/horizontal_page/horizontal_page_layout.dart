@@ -19,7 +19,7 @@ class HorizontalPageLayout extends BaseLayout {
   final HorizontalPageLayoutState state = Get.find<HorizontalPageLayoutLogic>().state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     return Obx(
       () => EHPhotoViewGallery.builder(
         itemCount: readPageState.readPageInfo.pageCount,
@@ -30,6 +30,7 @@ class HorizontalPageLayout extends BaseLayout {
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           controller: state.photoViewController,
           scaleStateController: state.photoViewScaleStateController,
+          basePosition: state.scalePosition,
           onScaleEnd: logic.onScaleEnd,
           child: Obx(() {
             Widget item =

@@ -20,13 +20,14 @@ class VerticalListLayout extends BaseLayout {
   final VerticalListLayoutState state = Get.find<VerticalListLayoutLogic>().state;
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildBody(BuildContext context) {
     /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
     return PhotoViewGallery.builder(
       itemCount: 1,
       builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
         controller: state.photoViewController,
         scaleStateController: state.photoViewScaleStateController,
+        basePosition: state.scalePosition,
         onScaleEnd: logic.onScaleEnd,
         child: EHWheelSpeedControllerForReadPage(
           scrollController: state.itemScrollController,

@@ -28,6 +28,18 @@ abstract class BaseLayout extends StatelessWidget {
 
   BaseLayoutState get state;
 
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<BaseLayoutLogic>(
+      id: BaseLayoutLogic.pageId,
+      global: false,
+      init: logic,
+      builder: (_) => buildBody(context),
+    );
+  }
+
+  Widget buildBody(BuildContext context);
+
   /// online mode: parsing and loading automatically while scrolling
   Widget buildItemInOnlineMode(BuildContext context, int index) {
     return GetBuilder<ReadPageLogic>(
@@ -261,7 +273,7 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadSpeedComputerId::${readPageState.readPageInfo.gid}',
       builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer =downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
+        GalleryDownloadSpeedComputer speedComputer = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
         int totalBytes = speedComputer.imageTotalBytes[index];
 

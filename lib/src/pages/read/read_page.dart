@@ -183,7 +183,11 @@ class ReadPage extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: logic.toLeft,
-            onDoubleTap: logic.toLeft,
+            onDoubleTapDown: (TapDownDetails details) =>
+                ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toLeft(),
+
+            /// just to invoke [onDoubleTapDown]
+            onDoubleTap: () {},
           ),
         ),
 
@@ -212,7 +216,7 @@ class ReadPage extends StatelessWidget {
                   behavior: HitTestBehavior.translucent,
                   onTap: logic.toggleMenu,
                   onDoubleTapDown: (TapDownDetails details) =>
-                  ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
 
                   /// just to invoke [onDoubleTapDown]
                   onDoubleTap: () {},
@@ -225,7 +229,7 @@ class ReadPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onDoubleTapDown: (TapDownDetails details) =>
-                  ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
 
                   /// just to invoke [onDoubleTapDown]
                   onDoubleTap: () {},
@@ -241,7 +245,11 @@ class ReadPage extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: logic.toRight,
-            onDoubleTap: logic.toRight,
+            onDoubleTapDown: (TapDownDetails details) =>
+                ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toRight(),
+
+            /// just to invoke [onDoubleTapDown]
+            onDoubleTap: () {},
           ),
         ),
       ],

@@ -11,6 +11,8 @@ import '../../read_page_state.dart';
 import 'base_layout_state.dart';
 
 abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStateMixin {
+  static const String pageId = 'pageId';
+
   BaseLayoutState get state;
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
@@ -66,18 +68,21 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     readPageLogic.update([readPageLogic.sliderId]);
   }
 
-  void toggleScale(Offset position) {
+  void toggleScale(Offset tapPosition) {
     if (scaleAnimationController.isAnimating) {
       return;
     }
 
     if (state.photoViewController.scale == 1.0) {
-      state.photoViewController.position = position;
+      /// scale position
+      state.scalePosition = _computeAlignmentByTapOffset(tapPosition);
+      update([pageId]);
 
       /// For some reason i don't know, sometimes [scaleAnimationController.isCompleted] but [state.photoViewController.scale] is still 1.0
       if (scaleAnimationController.isCompleted) {
         scaleAnimationController.reset();
       }
+
       scaleAnimationController.forward();
       return;
     }
@@ -98,22 +103,26 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   void enterAutoMode();
 
-  /// Compute image container size
-
   @mustCallSuper
   void closeAutoMode() {
     autoModeTimer?.cancel();
   }
 
+  /// Compute image container size when we haven't parsed image's size
   Size getPlaceHolderSize() {
     return Size(double.infinity, screenHeight / 2);
   }
 
+  /// Compute image container size
   FittedSizes getImageFittedSize(GalleryImage image) {
     return applyBoxFit(
       BoxFit.contain,
       Size(image.width, image.height),
       Size(fullScreenWidth, double.infinity),
     );
+  }
+
+  Alignment _computeAlignmentByTapOffset(Offset offset) {
+    return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
   }
 }
