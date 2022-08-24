@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/utils/log.dart';
 
 class CheckException implements Exception {
   final String msg;
@@ -41,12 +42,19 @@ class CheckService {
     return this;
   }
 
-  void check() {
+  void check({bool throwExceptionWhenFailed = true}) {
     if (_checkExpression.call()) {
       _onSuccess?.call();
     } else {
       _onFailed?.call();
-      throw CheckException(_errorMsg, uploadParam: _uploadParam);
+
+      CheckException e = CheckException(_errorMsg, uploadParam: _uploadParam);
+      if (throwExceptionWhenFailed) {
+        throw e;
+      } else {
+        Log.error('Check failed!', e);
+        Log.upload(e);
+      }
     }
   }
 }

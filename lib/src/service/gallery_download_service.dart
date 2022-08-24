@@ -11,6 +11,7 @@ import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/service/check_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
@@ -544,9 +545,19 @@ class GalleryDownloadService extends GetxController {
       /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
       /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
       galleryDownloadInfo.thumbnailsCountPerPage = (thumbnails.length / 20).ceil() * 20;
-
       int from = serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage * galleryDownloadInfo.thumbnailsCountPerPage;
-      for (int i = 0; i < thumbnails.length; i++) {
+
+      CheckService.build(
+        () => from + thumbnails.length <= galleryDownloadInfo.imageHrefs.length,
+        errorMsg: "Out of index of imageHrefs!",
+      ).withUploadParam({
+        'pageCount': gallery.pageCount,
+        'imageHrefsLength': galleryDownloadInfo.imageHrefs.length,
+        'from': from,
+        'thumbnailsLength': thumbnails.length,
+      }).check(throwExceptionWhenFailed: false);
+
+      for (int i = 0; i < thumbnails.length && from + i < galleryDownloadInfo.imageHrefs.length; i++) {
         galleryDownloadInfo.imageHrefs[from + i] = thumbnails[i];
       }
 

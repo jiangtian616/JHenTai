@@ -245,7 +245,10 @@ abstract class BasePageLogic extends GetxController {
     CheckService.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'loadMore state.nextPageIndexToLoad == null!',
-    ).check();
+    ).withUploadParam({
+      'state': state,
+      'gallerysAndPageInfo': gallerysAndPageInfo,
+    }).check();
   }
 
   Future<void> jumpPage(int pageIndex) async {
