@@ -154,7 +154,7 @@ class ArchiveDownloadService extends GetxController {
     io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
     List<io.FileSystemEntity> files = directory.listSync();
     files.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
-    files = files.where((image) => RegExp('.jpg|.png|.gif|.png').firstMatch(extension(image.path)) != null).toList();
+    files = files.where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null).toList();
 
     List<GalleryImage?> images = List.generate(files.length, (index) => null);
     files.forEachIndexed((index, file) {
