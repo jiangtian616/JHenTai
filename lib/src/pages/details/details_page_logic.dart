@@ -82,6 +82,7 @@ class DetailsPageLogic extends GetxController {
 
     /// enter from downloadPage or url or clipboard
     if (arg is String) {
+      state.galleryUrl = arg;
       getFullPage().then((_) => historyService.record(state.gallery));
     }
   }
@@ -104,7 +105,7 @@ class DetailsPageLogic extends GetxController {
     Map<String, dynamic> galleryAndDetailAndApikey;
     try {
       galleryAndDetailAndApikey = await EHRequest.requestDetailPage(
-        galleryUrl: Get.arguments,
+        galleryUrl: state.galleryUrl!,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
       );
     } on DioError catch (e) {
