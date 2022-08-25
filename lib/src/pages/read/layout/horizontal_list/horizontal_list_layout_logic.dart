@@ -96,14 +96,22 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   /// scroll or jump until one image in viewport currently reach top
   void _toPrevImage() {
-    ItemPosition firstPosition = getCurrentVisibleItems().first;
+    ItemPosition? firstPosition = getCurrentVisibleItems().firstOrNull;
+    if (firstPosition == null) {
+      return;
+    }
+
     int targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
     toPageIndex(max(targetIndex, 0));
   }
 
   /// scroll or jump until last image in viewport currently reach top
   void _toNextImage() {
-    ItemPosition firstPosition = getCurrentVisibleItems().first;
+    ItemPosition? firstPosition = getCurrentVisibleItems().firstOrNull;
+    if (firstPosition == null) {
+      return;
+    }
+
     toPageIndex(min(firstPosition.index + 1, readPageState.readPageInfo.pageCount));
   }
 
