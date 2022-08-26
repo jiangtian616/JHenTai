@@ -1238,6 +1238,7 @@ class GalleryDownloadedData extends DataClass
   final int downloadStatusIndex;
   final String? insertTime;
   final bool downloadOriginalImage;
+  final int? priority;
   GalleryDownloadedData(
       {required this.gid,
       required this.token,
@@ -1250,7 +1251,8 @@ class GalleryDownloadedData extends DataClass
       required this.publishTime,
       required this.downloadStatusIndex,
       this.insertTime,
-      required this.downloadOriginalImage});
+      required this.downloadOriginalImage,
+      this.priority});
   factory GalleryDownloadedData.fromData(Map<String, dynamic> data,
       {String? prefix}) {
     final effectivePrefix = prefix ?? '';
@@ -1279,6 +1281,8 @@ class GalleryDownloadedData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}insertTime']),
       downloadOriginalImage: const BoolType().mapFromDatabaseResponse(
           data['${effectivePrefix}downloadOriginalImage'])!,
+      priority: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}priority']),
     );
   }
   @override
@@ -1302,6 +1306,9 @@ class GalleryDownloadedData extends DataClass
       map['insertTime'] = Variable<String?>(insertTime);
     }
     map['downloadOriginalImage'] = Variable<bool>(downloadOriginalImage);
+    if (!nullToAbsent || priority != null) {
+      map['priority'] = Variable<int?>(priority);
+    }
     return map;
   }
 
@@ -1325,6 +1332,9 @@ class GalleryDownloadedData extends DataClass
           ? const Value.absent()
           : Value(insertTime),
       downloadOriginalImage: Value(downloadOriginalImage),
+      priority: priority == null && nullToAbsent
+          ? const Value.absent()
+          : Value(priority),
     );
   }
 
@@ -1347,6 +1357,7 @@ class GalleryDownloadedData extends DataClass
       insertTime: serializer.fromJson<String?>(json['insertTime']),
       downloadOriginalImage:
           serializer.fromJson<bool>(json['downloadOriginalImage']),
+      priority: serializer.fromJson<int?>(json['priority']),
     );
   }
   @override
@@ -1365,6 +1376,7 @@ class GalleryDownloadedData extends DataClass
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
       'insertTime': serializer.toJson<String?>(insertTime),
       'downloadOriginalImage': serializer.toJson<bool>(downloadOriginalImage),
+      'priority': serializer.toJson<int?>(priority),
     };
   }
 
@@ -1380,7 +1392,8 @@ class GalleryDownloadedData extends DataClass
           String? publishTime,
           int? downloadStatusIndex,
           String? insertTime,
-          bool? downloadOriginalImage}) =>
+          bool? downloadOriginalImage,
+          int? priority}) =>
       GalleryDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -1395,6 +1408,7 @@ class GalleryDownloadedData extends DataClass
         insertTime: insertTime ?? this.insertTime,
         downloadOriginalImage:
             downloadOriginalImage ?? this.downloadOriginalImage,
+        priority: priority ?? this.priority,
       );
   @override
   String toString() {
@@ -1410,7 +1424,8 @@ class GalleryDownloadedData extends DataClass
           ..write('publishTime: $publishTime, ')
           ..write('downloadStatusIndex: $downloadStatusIndex, ')
           ..write('insertTime: $insertTime, ')
-          ..write('downloadOriginalImage: $downloadOriginalImage')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority')
           ..write(')'))
         .toString();
   }
@@ -1428,7 +1443,8 @@ class GalleryDownloadedData extends DataClass
       publishTime,
       downloadStatusIndex,
       insertTime,
-      downloadOriginalImage);
+      downloadOriginalImage,
+      priority);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1444,7 +1460,8 @@ class GalleryDownloadedData extends DataClass
           other.publishTime == this.publishTime &&
           other.downloadStatusIndex == this.downloadStatusIndex &&
           other.insertTime == this.insertTime &&
-          other.downloadOriginalImage == this.downloadOriginalImage);
+          other.downloadOriginalImage == this.downloadOriginalImage &&
+          other.priority == this.priority);
 }
 
 class GalleryDownloadedCompanion
@@ -1461,6 +1478,7 @@ class GalleryDownloadedCompanion
   final Value<int> downloadStatusIndex;
   final Value<String?> insertTime;
   final Value<bool> downloadOriginalImage;
+  final Value<int?> priority;
   const GalleryDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -1474,6 +1492,7 @@ class GalleryDownloadedCompanion
     this.downloadStatusIndex = const Value.absent(),
     this.insertTime = const Value.absent(),
     this.downloadOriginalImage = const Value.absent(),
+    this.priority = const Value.absent(),
   });
   GalleryDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -1488,6 +1507,7 @@ class GalleryDownloadedCompanion
     required int downloadStatusIndex,
     this.insertTime = const Value.absent(),
     this.downloadOriginalImage = const Value.absent(),
+    this.priority = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -1508,6 +1528,7 @@ class GalleryDownloadedCompanion
     Expression<int>? downloadStatusIndex,
     Expression<String?>? insertTime,
     Expression<bool>? downloadOriginalImage,
+    Expression<int?>? priority,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -1525,6 +1546,7 @@ class GalleryDownloadedCompanion
       if (insertTime != null) 'insertTime': insertTime,
       if (downloadOriginalImage != null)
         'downloadOriginalImage': downloadOriginalImage,
+      if (priority != null) 'priority': priority,
     });
   }
 
@@ -1540,7 +1562,8 @@ class GalleryDownloadedCompanion
       Value<String>? publishTime,
       Value<int>? downloadStatusIndex,
       Value<String?>? insertTime,
-      Value<bool>? downloadOriginalImage}) {
+      Value<bool>? downloadOriginalImage,
+      Value<int?>? priority}) {
     return GalleryDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -1555,6 +1578,7 @@ class GalleryDownloadedCompanion
       insertTime: insertTime ?? this.insertTime,
       downloadOriginalImage:
           downloadOriginalImage ?? this.downloadOriginalImage,
+      priority: priority ?? this.priority,
     );
   }
 
@@ -1599,6 +1623,9 @@ class GalleryDownloadedCompanion
       map['downloadOriginalImage'] =
           Variable<bool>(downloadOriginalImage.value);
     }
+    if (priority.present) {
+      map['priority'] = Variable<int?>(priority.value);
+    }
     return map;
   }
 
@@ -1616,7 +1643,8 @@ class GalleryDownloadedCompanion
           ..write('publishTime: $publishTime, ')
           ..write('downloadStatusIndex: $downloadStatusIndex, ')
           ..write('insertTime: $insertTime, ')
-          ..write('downloadOriginalImage: $downloadOriginalImage')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority')
           ..write(')'))
         .toString();
   }
@@ -1705,6 +1733,12 @@ class GalleryDownloaded extends Table
           requiredDuringInsert: false,
           $customConstraints: 'NOT NULL DEFAULT FALSE',
           defaultValue: const CustomExpression<bool>('FALSE'));
+  final VerificationMeta _priorityMeta = const VerificationMeta('priority');
+  late final GeneratedColumn<int?> priority = GeneratedColumn<int?>(
+      'priority', aliasedName, true,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      $customConstraints: '');
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -1718,7 +1752,8 @@ class GalleryDownloaded extends Table
         publishTime,
         downloadStatusIndex,
         insertTime,
-        downloadOriginalImage
+        downloadOriginalImage,
+        priority
       ];
   @override
   String get aliasedName => _alias ?? 'gallery_downloaded';
@@ -1803,6 +1838,10 @@ class GalleryDownloaded extends Table
           _downloadOriginalImageMeta,
           downloadOriginalImage.isAcceptableOrUnknown(
               data['downloadOriginalImage']!, _downloadOriginalImageMeta));
+    }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta,
+          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
     }
     return context;
   }
@@ -2393,7 +2432,7 @@ abstract class _$AppDb extends GeneratedDatabase {
 
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       g.token,\r\n       g.title,\r\n       g.category,\r\n       g.pageCount,\r\n       g.galleryUrl,\r\n       g.oldVersionGalleryUrl,\r\n       g.uploader,\r\n       g.publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       g.insertTime,\r\n       g.downloadOriginalImage,\r\n       i.url,\r\n       i.serialNo,\r\n       i.height,\r\n       i.width,\r\n       i.path,\r\n       i.imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC, serialNo',
+        'SELECT g.gid,\r\n       g.token,\r\n       g.title,\r\n       g.category,\r\n       g.pageCount,\r\n       g.galleryUrl,\r\n       g.oldVersionGalleryUrl,\r\n       g.uploader,\r\n       g.publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       g.insertTime,\r\n       g.downloadOriginalImage,\r\n       g.priority,\r\n       i.url,\r\n       i.serialNo,\r\n       i.height,\r\n       i.width,\r\n       i.path,\r\n       i.imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC, serialNo',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -2412,6 +2451,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         galleryDownloadStatusIndex: row.read<int>('galleryDownloadStatusIndex'),
         insertTime: row.read<String?>('insertTime'),
         downloadOriginalImage: row.read<bool>('downloadOriginalImage'),
+        priority: row.read<int?>('priority'),
         url: row.read<String?>('url'),
         serialNo: row.read<int?>('serialNo'),
         height: row.read<double?>('height'),
@@ -2444,9 +2484,10 @@ abstract class _$AppDb extends GeneratedDatabase {
       String publishTime,
       int downloadStatusIndex,
       String? insertTime,
-      bool downloadOriginalImage) {
+      bool downloadOriginalImage,
+      int? priority) {
     return customInsert(
-      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,\r\n        :downloadStatusIndex, :insertTime, :downloadOriginalImage)',
+      'insert into gallery_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,\r\n        :downloadStatusIndex, :insertTime, :downloadOriginalImage, :priority)',
       variables: [
         Variable<int>(gid),
         Variable<String>(token),
@@ -2459,7 +2500,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<String>(publishTime),
         Variable<int>(downloadStatusIndex),
         Variable<String?>(insertTime),
-        Variable<bool>(downloadOriginalImage)
+        Variable<bool>(downloadOriginalImage),
+        Variable<int?>(priority)
       ],
       updates: {galleryDownloaded},
     );
@@ -2478,6 +2520,15 @@ abstract class _$AppDb extends GeneratedDatabase {
     return customUpdate(
       'update gallery_downloaded\r\nset downloadStatusIndex = :downloadStatusIndex\r\nwhere gid = :gid',
       variables: [Variable<int>(downloadStatusIndex), Variable<int>(gid)],
+      updates: {galleryDownloaded},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> updateGalleryPriority(int? priority, int gid) {
+    return customUpdate(
+      'update gallery_downloaded\r\nset priority = :priority\r\nwhere gid = :gid',
+      variables: [Variable<int?>(priority), Variable<int>(gid)],
       updates: {galleryDownloaded},
       updateKind: UpdateKind.update,
     );
@@ -2589,6 +2640,7 @@ class SelectGallerysWithImagesResult {
   final int galleryDownloadStatusIndex;
   final String? insertTime;
   final bool downloadOriginalImage;
+  final int? priority;
   final String? url;
   final int? serialNo;
   final double? height;
@@ -2609,6 +2661,7 @@ class SelectGallerysWithImagesResult {
     required this.galleryDownloadStatusIndex,
     this.insertTime,
     required this.downloadOriginalImage,
+    this.priority,
     this.url,
     this.serialNo,
     this.height,

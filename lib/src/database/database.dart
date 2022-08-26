@@ -15,7 +15,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -28,6 +28,9 @@ class AppDb extends _$AppDb {
           }
           if (from < 3) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.downloadOriginalImage);
+          }
+          if (from < 4) {
+            await m.addColumn(galleryDownloaded, galleryDownloaded.priority);
           }
         } on Exception catch (e) {
           Log.error(e);

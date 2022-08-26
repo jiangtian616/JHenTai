@@ -302,6 +302,9 @@ class en_US {
       'unpacking': 'Unpacking',
       'completed': 'Completed',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
+      'priority': 'Priority',
+      'highest': 'Highest',
+      'nope': 'Nope',
 
       /// search dialog
       'searchConfig': 'Search Config',

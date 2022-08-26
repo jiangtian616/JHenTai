@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
 import '../../database/database.dart';
@@ -54,7 +55,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
   @override
   Widget build(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
-      id: galleryCountChangedId,
+      id: galleryCountOrOrderChangedId,
       builder: (_) => EHWheelSpeedController(
         scrollController: _scrollController,
         child: ListView.builder(
@@ -79,7 +80,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
         key: Key(gallery.gid.toString()),
         endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
-          onLongPress: () => _showDeleteBottomSheet(gallery, index, context),
+          onLongPress: () => _showBottomSheet(gallery, index, context),
           child: _buildCard(gallery),
         ),
       ),
@@ -104,8 +105,13 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
   ActionPane _buildEndActionPane(GalleryDownloadedData gallery) {
     return ActionPane(
       motion: const DrawerMotion(),
-      extentRatio: 0.15,
+      extentRatio: 0.3,
       children: [
+        SlidableAction(
+          icon: FontAwesomeIcons.sort,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (BuildContext context) => _showPrioritySheet(gallery, context),
+        ),
         SlidableAction(
           icon: Icons.delete,
           foregroundColor: Colors.red,
@@ -133,7 +139,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
         ],
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
@@ -238,6 +244,10 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             EHGalleryCategoryTag(category: gallery.category),
+            const Expanded(child: SizedBox()),
+            /// No need to update immediately
+            if (downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus != DownloadStatus.downloaded)
+              _buildPriority(gallery),
             GetBuilder<GalleryDownloadService>(
               id: '$galleryDownloadProgressId::${gallery.gid}',
               builder: (_) {
@@ -315,7 +325,29 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     );
   }
 
-  void _showDeleteBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
+  Widget _buildPriority(GalleryDownloadedData gallery) {
+    int? priority = downloadService.galleryDownloadInfos[gallery.gid]?.priority;
+    if (priority == null) {
+      return const SizedBox();
+    }
+
+    switch (priority) {
+      case 1:
+        return Text('①', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 2:
+        return Text('②', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 3:
+        return Text('③', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 4:
+        return Text('④', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 5:
+        return Text('⑤', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      default:
+        return const SizedBox();
+    }
+  }
+
+  void _showBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -350,6 +382,46 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     );
   }
 
+  void _showPrioritySheet(GalleryDownloadedData gallery, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: [
+          CupertinoActionSheetAction(
+            child: Text('${'priority'.tr} : 1 (${'highest'.tr})'),
+            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
+            onPressed: () {
+              _handleAssignPriority(gallery, 1);
+              backRoute();
+            },
+          ),
+          ...[2, 3, 4, 5]
+              .map((i) => CupertinoActionSheetAction(
+                    child: Text('${'priority'.tr} : $i'),
+                    isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
+                    onPressed: () {
+                      _handleAssignPriority(gallery, i);
+                      backRoute();
+                    },
+                  ))
+              .toList(),
+          CupertinoActionSheetAction(
+            child: Text('${'priority'.tr} : ${'nope'.tr}'),
+            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == null,
+            onPressed: () {
+              _handleAssignPriority(gallery, null);
+              backRoute();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: () => backRoute(),
+        ),
+      ),
+    );
+  }
+
   void _handleRemoveItem(BuildContext context, GalleryDownloadedData gallery, bool deleteImages) {
     AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
     controller.addStatusListener((AnimationStatus status) {
@@ -366,11 +438,15 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     removedGid2AnimationController[gallery.gid] = controller;
     removedGid2Animation[gallery.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
 
-    downloadService.update([galleryCountChangedId]);
+    downloadService.update([galleryCountOrOrderChangedId]);
   }
 
-  Future<void> _handleReDownloadItem(BuildContext context, int index) async {
-    await downloadService.reDownloadGallery(downloadService.gallerys[index]);
+  void _handleAssignPriority(GalleryDownloadedData gallery, int? priority) {
+    downloadService.assignPriority(gallery, priority);
+  }
+
+  void _handleReDownloadItem(BuildContext context, int index) {
+    downloadService.reDownloadGallery(downloadService.gallerys[index]);
   }
 
   void _goToReadPage(GalleryDownloadedData gallery) {

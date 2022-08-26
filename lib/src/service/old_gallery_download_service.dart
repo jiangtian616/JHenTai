@@ -721,6 +721,7 @@ class OldGalleryDownloadService extends GetxController {
       gallery.downloadStatusIndex,
       DateTime.now().toString(),
       gallery.downloadOriginalImage,
+      null,
     );
   }
 

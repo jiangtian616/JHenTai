@@ -11,7 +11,8 @@ CREATE TABLE gallery_downloaded
     publishTime           TEXT NOT NULL,
     downloadStatusIndex   INT  NOT NULL,
     insertTime            TEXT,
-    downloadOriginalImage BOOL NOT NULL DEFAULT FALSE
+    downloadOriginalImage BOOL NOT NULL DEFAULT FALSE,
+    priority              INT
 );
 
 CREATE TABLE image
@@ -41,6 +42,7 @@ SELECT g.gid,
        g.downloadStatusIndex as galleryDownloadStatusIndex,
        g.insertTime,
        g.downloadOriginalImage,
+       g.priority,
        i.url,
        i.serialNo,
        i.height,
@@ -60,7 +62,7 @@ ORDER BY insertTime DESC;
 insertGallery:
 insert into gallery_downloaded
 values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,
-        :downloadStatusIndex, :insertTime, :downloadOriginalImage);
+        :downloadStatusIndex, :insertTime, :downloadOriginalImage, :priority);
 
 deleteGallery:
 delete
@@ -72,6 +74,10 @@ update gallery_downloaded
 set downloadStatusIndex = :downloadStatusIndex
 where gid = :gid;
 
+updateGalleryPriority:
+update gallery_downloaded
+set priority = :priority
+where gid = :gid;
 
 
 selectImagesByGalleryId:

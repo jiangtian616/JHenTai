@@ -30,9 +30,7 @@ import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/snack_util.dart';
 
-const String initGalleryId = 'initGalleryId';
-const String removeGalleryId = 'removeGalleryId';
-const String galleryCountChangedId = 'galleryCountChangedId';
+const String galleryCountOrOrderChangedId = 'galleryCountOrOrderChangedId';
 const String downloadImageId = 'downloadImageId';
 const String downloadImageUrlId = 'downloadImageUrlId';
 const String galleryDownloadProgressId = 'galleryDownloadProgressId';
@@ -49,8 +47,8 @@ class GalleryDownloadService extends GetxController {
   static const String _metadata = '.metadata';
   static const int _maxTitleLength = 100;
 
-  static const int _defaultDownloadGalleryPriority = -1;
-  static const int _downloadGalleryPriorityBase = 10000;
+  static const int _defaultDownloadGalleryPriority = 1000;
+  static const int _priorityBase = 10000;
 
   static Future<void> init() async {
     Get.put(GalleryDownloadService(), permanent: true);
@@ -90,7 +88,7 @@ class GalleryDownloadService extends GetxController {
 
     _submitTask(
       gid: gallery.gid,
-      priority: _computeDownloadPriority(gallery.insertTime, resume),
+      priority: _computeGalleryPriority(gallery),
       task: _downloadGalleryTask(gallery),
     );
   }
@@ -134,8 +132,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   Future<void> resumeAllDownloadGallery() async {
-    /// order by insert time
-    await Future.wait(gallerys.reversed.map((g) => resumeDownloadGallery(g)).toList());
+    await Future.wait(gallerys.map((g) => resumeDownloadGallery(g)).toList());
   }
 
   Future<void> resumeDownloadGallery(GalleryDownloadedData gallery) async {
@@ -220,7 +217,27 @@ class GalleryDownloadService extends GetxController {
     update(['$galleryDownloadProgressId::${gallery.gid}']);
   }
 
-  /// Use meta in each gallery folder to restore download status, then sync to database.
+  Future<void> assignPriority(GalleryDownloadedData gallery, int? priority) async {
+    if (priority == galleryDownloadInfos[gallery.gid]?.priority) {
+      return;
+    }
+
+    if (!await _updateGalleryPriorityInDatabase(gallery.gid, priority)) {
+      return;
+    }
+
+    galleryDownloadInfos[gallery.gid]!.priority = priority;
+
+    _sortGallery();
+    update([galleryCountOrOrderChangedId]);
+
+    if (galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloading) {
+      await pauseDownloadGallery(gallery);
+      await resumeDownloadGallery(gallery);
+    }
+  }
+
+  /// Use metadata in each gallery folder to restore download status, then sync to database.
   /// This is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {
     io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
@@ -313,7 +330,7 @@ class GalleryDownloadService extends GetxController {
     );
 
     /// Resume gallery whose status is [downloading], order by insertTime
-    for (GalleryDownloadedData g in gallerys.reversed) {
+    for (GalleryDownloadedData g in gallerys) {
       if (g.downloadStatusIndex == DownloadStatus.downloading.index) {
         // gid2SpeedComputer[g.gid]!.start();
         downloadGallery(g, resume: true);
@@ -396,17 +413,38 @@ class GalleryDownloadService extends GetxController {
       downloadStatusIndex: record.galleryDownloadStatusIndex,
       insertTime: record.insertTime,
       downloadOriginalImage: record.downloadOriginalImage,
+      priority: record.priority,
     );
   }
 
-  int _computeDownloadPriority(String? galleryInsertTime, bool resume) {
-    /// If this download is a resume, we use current time to compute priority, so that user can pause and then resume a task to lower its priority.
-    DateTime time = (galleryInsertTime == null || resume) ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(galleryInsertTime);
+  /// Rules:
+  /// 1. If [downloadInOrder] is false
+  ///   1.1 Galleries download order:
+  ///     1.1.1 gallery with high priority
+  ///     1.1.2 gallery with low priority
+  ///     1.1.3 gallery without priority
+  ///   1.2 For each gallery, previous image should be downloaded earlier
+  /// 2. If [downloadInOrder] is true
+  ///   2.1 Galleries download order:
+  ///     2.1.1 gallery with high priority
+  ///     2.1.2 gallery with low priority
+  ///     2.1.3 gallery without priority but is downloaded earlier
+  ///   2.2 For each gallery, previous image should be downloaded earlier
+  ///
+  /// Because a gallery has most 2000 images, we assign 10000 numbers to each gallery
+  int _computeGalleryPriority(GalleryDownloadedData gallery) {
+    /// has assigned before
+    if (galleryDownloadInfos[gallery.gid]?.priority != null) {
+      return galleryDownloadInfos[gallery.gid]!.priority! * _priorityBase;
+    }
 
-    /// other task's priority is less than 2000(maximum of images in a gallery), so we assign [_downloadGalleryPriorityBase] as 10000
-    return DownloadSetting.downloadInOrder.isTrue
-        ? _downloadGalleryPriorityBase + int.parse(DateFormat('MddHHmmss').format(time))
-        : _defaultDownloadGalleryPriority;
+    DateTime time = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(gallery.insertTime!);
+    galleryDownloadInfos[gallery.gid]!.priority = int.parse(DateFormat('ddHHmmss').format(time));
+    return (DownloadSetting.downloadInOrder.isTrue ? galleryDownloadInfos[gallery.gid]!.priority! : _defaultDownloadGalleryPriority) * _priorityBase;
+  }
+
+  int _computeImagePriority(GalleryDownloadedData gallery, int serialNo) {
+    return _computeGalleryPriority(gallery) + serialNo;
   }
 
   String _computeGalleryTitle(String rawTitle) {
@@ -441,6 +479,19 @@ class GalleryDownloadService extends GetxController {
     );
   }
 
+  void _sortGallery() {
+    gallerys.sort((a, b) {
+      int aPriority = galleryDownloadInfos[a.gid]?.priority ?? _defaultDownloadGalleryPriority * _priorityBase + 1;
+      int bPriority = galleryDownloadInfos[b.gid]?.priority ?? _defaultDownloadGalleryPriority * _priorityBase + 1;
+
+      if (aPriority - bPriority != 0) {
+        return aPriority - bPriority;
+      }
+
+      return (b.insertTime ?? "").compareTo(a.insertTime ?? "");
+    });
+  }
+
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
     return galleryDownloadInfos[gallery.gid] == null || galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus == DownloadStatus.paused;
   }
@@ -456,7 +507,7 @@ class GalleryDownloadService extends GetxController {
       for (int serialNo = 0; serialNo < gallery.pageCount; serialNo++) {
         _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _processImageTask(gallery, serialNo),
         );
       }
@@ -480,7 +531,7 @@ class GalleryDownloadService extends GetxController {
       if (galleryDownloadInfo.images[serialNo]?.url != null) {
         return _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _downloadImageTask(gallery, serialNo),
         );
       }
@@ -489,7 +540,7 @@ class GalleryDownloadService extends GetxController {
       if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
         return _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _parseImageUrlTask(gallery, serialNo),
         );
       }
@@ -497,7 +548,7 @@ class GalleryDownloadService extends GetxController {
       /// has not parsed href => parse href
       _submitTask(
         gid: gallery.gid,
-        priority: serialNo,
+        priority: _computeImagePriority(gallery, serialNo),
         task: _parseImageHrefTask(gallery, serialNo),
       );
     };
@@ -538,7 +589,7 @@ class GalleryDownloadService extends GetxController {
 
         return _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _parseImageHrefTask(gallery, serialNo),
         );
       }
@@ -567,7 +618,7 @@ class GalleryDownloadService extends GetxController {
       if (galleryDownloadInfo.imageHrefs[serialNo] == null) {
         return _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _parseImageHrefTask(gallery, serialNo),
         );
       }
@@ -575,7 +626,7 @@ class GalleryDownloadService extends GetxController {
       /// Next step: parse image url
       _submitTask(
         gid: gallery.gid,
-        priority: serialNo,
+        priority: _computeImagePriority(gallery, serialNo),
         task: _parseImageUrlTask(gallery, serialNo),
       );
     };
@@ -618,7 +669,7 @@ class GalleryDownloadService extends GetxController {
 
         return _submitTask(
           gid: gallery.gid,
-          priority: serialNo,
+          priority: _computeImagePriority(gallery, serialNo),
           task: _parseImageUrlTask(gallery, serialNo, reParse: true),
         );
       }
@@ -632,7 +683,7 @@ class GalleryDownloadService extends GetxController {
       /// Next step: download image
       return _submitTask(
         gid: gallery.gid,
-        priority: serialNo,
+        priority: _computeImagePriority(gallery, serialNo),
         task: _downloadImageTask(gallery, serialNo),
       );
     };
@@ -720,7 +771,7 @@ class GalleryDownloadService extends GetxController {
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
       return _submitTask(
         gid: gallery.gid,
-        priority: serialNo,
+        priority: _computeImagePriority(gallery, serialNo),
         task: _parseImageUrlTask(gallery, serialNo, reParse: true),
       );
     }
@@ -728,7 +779,7 @@ class GalleryDownloadService extends GetxController {
     /// has not parsed href => parse href
     return _submitTask(
       gid: gallery.gid,
-      priority: serialNo,
+      priority: _computeImagePriority(gallery, serialNo),
       task: _parseImageHrefTask(gallery, serialNo),
     );
   }
@@ -826,7 +877,7 @@ class GalleryDownloadService extends GetxController {
 
   void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images}) {
     gallerys.add(gallery);
-    gallerys.sort((a, b) => (b.insertTime ?? "").compareTo(a.insertTime ?? ""));
+    _sortGallery();
 
     galleryDownloadInfos[gallery.gid] = GalleryDownloadInfo(
       thumbnailsCountPerPage: SiteSetting.thumbnailsCountPerPage.value,
@@ -845,9 +896,10 @@ class GalleryDownloadService extends GetxController {
         gallery.pageCount,
         () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
+      priority: gallery.priority,
     );
 
-    update([initGalleryId, galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
+    update([galleryCountOrOrderChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   void _clearGalleryInfoInMemory(GalleryDownloadedData gallery) {
@@ -855,7 +907,7 @@ class GalleryDownloadService extends GetxController {
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos.remove(gallery.gid);
     galleryDownloadInfo?.speedComputer.dispose();
 
-    update([removeGalleryId, galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
+    update([galleryCountOrOrderChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   // DB
@@ -874,6 +926,7 @@ class GalleryDownloadService extends GetxController {
           gallery.downloadStatusIndex,
           gallery.insertTime ?? DateTime.now().toString(),
           gallery.downloadOriginalImage,
+          null,
         ) >
         0;
   }
@@ -894,6 +947,10 @@ class GalleryDownloadService extends GetxController {
 
   Future<bool> _updateGalleryStatusInDatabase(int gid, DownloadStatus downloadStatus) async {
     return await appDb.updateGallery(downloadStatus.index, gid) > 0;
+  }
+
+  Future<bool> _updateGalleryPriorityInDatabase(int gid, int? priority) async {
+    return await appDb.updateGalleryPriority(priority, gid) > 0;
   }
 
   Future<bool> _updateImageStatusInDatabase(int gid, String url, DownloadStatus downloadStatus) async {
@@ -997,6 +1054,8 @@ class GalleryDownloadInfo {
 
   GalleryDownloadSpeedComputer speedComputer;
 
+  int? priority;
+
   GalleryDownloadInfo({
     required this.thumbnailsCountPerPage,
     required this.tasks,
@@ -1005,6 +1064,7 @@ class GalleryDownloadInfo {
     required this.imageHrefs,
     required this.images,
     required this.speedComputer,
+    this.priority,
   });
 }
 
