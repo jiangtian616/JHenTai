@@ -20,6 +20,7 @@ import 'nested_gallerys_page_state.dart';
 final GlobalKey<ExtendedNestedScrollViewState> galleryListKey = GlobalKey<ExtendedNestedScrollViewState>();
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
+@Deprecated('Deprecated')
 class NestedGallerysPage extends StatelessWidget {
   final NestedGallerysPageLogic nestedGallerysPageLogic = Get.put(NestedGallerysPageLogic(), permanent: true);
   final NestedGallerysPageState nestedGallerysPageState = Get.find<NestedGallerysPageLogic>().state;

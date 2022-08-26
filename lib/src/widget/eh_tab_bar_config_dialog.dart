@@ -23,6 +23,7 @@ enum EHTabBarConfigDialogType {
   filter,
 }
 
+@Deprecated('Deprecated')
 class EHTabBarConfigDialog extends StatefulWidget {
   final TabBarConfig? tabBarConfig;
   final EHTabBarConfigDialogType type;
@@ -82,7 +83,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
             ).marginOnly(bottom: 12),
             Expanded(
               child: EHWheelSpeedController(
-                scrollController:_scrollController,
+                scrollController: _scrollController,
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   child: Column(

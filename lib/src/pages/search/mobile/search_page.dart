@@ -16,6 +16,7 @@ import '../../../widget/loading_state_indicator.dart';
 import 'search_page_logic.dart';
 import 'search_page_state.dart';
 
+@Deprecated('Deprecated')
 class SearchPage extends StatelessWidget {
   final String tag = UniqueKey().toString();
 
