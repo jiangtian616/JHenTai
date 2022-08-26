@@ -17,15 +17,22 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 import 'package:jhentai/src/widget/windows_app.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:retry/retry.dart';
 
 import '../consts/eh_consts.dart';
 import '../model/jh_layout.dart';
+import '../network/eh_request.dart';
 import '../routes/routes.dart';
+import '../service/storage_service.dart';
+import '../setting/advanced_setting.dart';
+import '../utils/eh_spider_parser.dart';
 import '../utils/route_util.dart';
 import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
 import '../widget/app_state_listener.dart';
+import '../widget/update_dialog.dart';
 import 'favorite/favorite_page_logic.dart';
 import 'gallerys/simple/gallerys_page_logic.dart';
 import 'history/history_page_logic.dart';
@@ -48,6 +55,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final StorageService storageService = Get.find();
+
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
@@ -57,6 +66,7 @@ class _HomePageState extends State<HomePage> {
     initToast(context);
     _initPageLogic();
     _initSharingIntent();
+    _checkUpdate();
     _handleUrlInClipBoard();
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
   }
@@ -118,6 +128,48 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _checkUpdate() async {
+    if (AdvancedSetting.enableCheckUpdate.isFalse) {
+      return;
+    }
+
+    String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
+    String latestVersion;
+
+    try {
+      latestVersion = (await retry(
+        () => EHRequest.request(
+          url: url,
+          useCacheIfAvailable: false,
+          parser: EHSpiderParser.githubReleasePage2LatestVersion,
+        ),
+        maxAttempts: 3,
+      ))
+          .trim()
+          .split('+')[0];
+    } on Exception catch (_) {
+      Log.info('check update failed');
+      return;
+    }
+
+    String? dismissVersion = storageService.read(UpdateDialog.dismissVersion);
+    if (dismissVersion == latestVersion) {
+      return;
+    }
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String currentVersion = 'v${packageInfo.version}'.trim();
+    Log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
+
+    if (latestVersion == currentVersion) {
+      return;
+    }
+
+    Get.engine.addPostFrameCallback((_) {
+      Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
+    });
+  }
+
   void _initPageLogic() {
     /// Mobile layout v2
     Get.lazyPut(() => DashboardPageLogic(), fenix: true);
@@ -166,9 +218,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-
-  /// user open a url in other app by JHenTai
-  void _handleUrlFromOtherApp() async {}
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
   void _handleUrlInClipBoard() async {
