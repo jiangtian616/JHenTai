@@ -128,6 +128,8 @@ class GalleryDownloadService extends GetxController {
       }
     }
 
+    _saveGalleryInfoInDisk(gallery);
+
     Log.info('Pause download gallery: ${gallery.title}');
   }
 
@@ -163,6 +165,8 @@ class GalleryDownloadService extends GetxController {
     }
 
     Log.info('Resume download gallery: ${gallery.title}');
+
+    _saveGalleryInfoInDisk(gallery);
 
     downloadGallery(gallery, resume: true);
   }
