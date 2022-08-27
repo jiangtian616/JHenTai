@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../../../config/global_config.dart';
 import '../../../routes/routes.dart';
@@ -33,15 +34,30 @@ class DesktopLayoutPage extends StatelessWidget {
         },
         scrollbars: true,
       ),
-      child: Row(
+      child: Column(
         children: [
-          _leftTabBar(context),
-          Expanded(child: _leftColumn()),
+          if (GetPlatform.isDesktop)
+            SizedBox(
+              height: kWindowCaptionHeight,
+              child: WindowCaption(
+                title: const SizedBox(),
+                backgroundColor: Get.theme.appBarTheme.backgroundColor,
+                brightness: Get.theme.brightness,
+              ),
+            ),
           Expanded(
-            child: DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-              child: _rightColumn(),
+            child: Row(
+              children: [
+                _leftTabBar(context),
+                Expanded(child: _leftColumn()),
+                Expanded(
+                  child: DecoratedBox(
+                    position: DecorationPosition.foreground,
+                    decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
+                    child: _rightColumn(),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

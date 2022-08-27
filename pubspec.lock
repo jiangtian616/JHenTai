@@ -99,41 +99,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.2"
-  bitsdojo_window:
-    dependency: "direct main"
-    description:
-      name: bitsdojo_window
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
-  bitsdojo_window_linux:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_linux
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
-  bitsdojo_window_macos:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_macos
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
-  bitsdojo_window_platform_interface:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_platform_interface
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
-  bitsdojo_window_windows:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_windows
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.2"
   blur:
     dependency: "direct main"
     description:
@@ -1075,6 +1040,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.4"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.2"
   scrollable_positioned_list:
     dependency: "direct main"
     description:
@@ -1549,6 +1521,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.6.1"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.7"
   xdg_directories:
     dependency: transitive
     description:

@@ -62,9 +62,8 @@ dependencies:
   fluttertoast: ^8.0.9
   battery_plus: ^2.1.4
   throttling: ^1.0.0
-  bitsdojo_window: ^0.1.2
   receive_sharing_intent: ^1.4.5
-
+  window_manager: ^0.2.7
 dev_dependencies:
   flutter_test:
     sdk: flutter
