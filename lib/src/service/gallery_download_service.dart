@@ -47,8 +47,8 @@ class GalleryDownloadService extends GetxController {
   static const String _metadata = '.metadata';
   static const int _maxTitleLength = 100;
 
-  static const int _defaultDownloadGalleryPriority = 1000;
-  static const int _priorityBase = 10000;
+  static const int defaultDownloadGalleryPriority = 4;
+  static const int _priorityBase = 100000000;
 
   static Future<void> init() async {
     Get.put(GalleryDownloadService(), permanent: true);
@@ -88,7 +88,7 @@ class GalleryDownloadService extends GetxController {
 
     _submitTask(
       gid: gallery.gid,
-      priority: _computeGalleryPriority(gallery),
+      priority: _computeGalleryTaskPriority(gallery),
       task: _downloadGalleryTask(gallery),
     );
   }
@@ -418,33 +418,37 @@ class GalleryDownloadService extends GetxController {
   }
 
   /// Rules:
-  /// 1. If [downloadInOrder] is false
+  /// 1. If [downloadInOrderOfInsertTime] is false
   ///   1.1 Galleries download order:
   ///     1.1.1 gallery with high priority
   ///     1.1.2 gallery with low priority
-  ///     1.1.3 gallery without priority
+  ///     1.1.3 if priority is same, download in the order of insert time DESC
   ///   1.2 For each gallery, previous image should be downloaded earlier
-  /// 2. If [downloadInOrder] is true
+  /// 2. If [downloadInOrderOfInsertTime] is true
   ///   2.1 Galleries download order:
   ///     2.1.1 gallery with high priority
   ///     2.1.2 gallery with low priority
-  ///     2.1.3 gallery without priority but is downloaded earlier
+  ///     2.1.3 if priority is same, download in the order of insert time
   ///   2.2 For each gallery, previous image should be downloaded earlier
   ///
   /// Because a gallery has most 2000 images, we assign 10000 numbers to each gallery
-  int _computeGalleryPriority(GalleryDownloadedData gallery) {
-    /// has assigned before
-    if (galleryDownloadInfos[gallery.gid]?.priority != null) {
-      return galleryDownloadInfos[gallery.gid]!.priority! * _priorityBase;
+  int _computeGalleryTaskPriority(GalleryDownloadedData gallery) {
+    if (galleryDownloadInfos[gallery.gid]?.priority == null) {
+      galleryDownloadInfos[gallery.gid]!.priority = gallery.priority ?? defaultDownloadGalleryPriority;
     }
 
-    DateTime time = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(gallery.insertTime!);
-    galleryDownloadInfos[gallery.gid]!.priority = int.parse(DateFormat('ddHHmmss').format(time));
-    return (DownloadSetting.downloadInOrder.isTrue ? galleryDownloadInfos[gallery.gid]!.priority! : _defaultDownloadGalleryPriority) * _priorityBase;
+    /// priority is same, order by insert time
+    DateTime insertTime = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(gallery.insertTime!);
+    int timePriority = int.parse(DateFormat('dHHmmss').format(insertTime));
+    if (DownloadSetting.downloadInOrderOfInsertTime.isFalse) {
+      timePriority = _priorityBase - timePriority;
+    }
+
+    return galleryDownloadInfos[gallery.gid]!.priority! * _priorityBase + timePriority;
   }
 
-  int _computeImagePriority(GalleryDownloadedData gallery, int serialNo) {
-    return _computeGalleryPriority(gallery) + serialNo;
+  int _computeImageTaskPriority(GalleryDownloadedData gallery, int serialNo) {
+    return _computeGalleryTaskPriority(gallery) + serialNo;
   }
 
   String _computeGalleryTitle(String rawTitle) {
@@ -481,14 +485,16 @@ class GalleryDownloadService extends GetxController {
 
   void _sortGallery() {
     gallerys.sort((a, b) {
-      int aPriority = galleryDownloadInfos[a.gid]?.priority ?? _defaultDownloadGalleryPriority * _priorityBase + 1;
-      int bPriority = galleryDownloadInfos[b.gid]?.priority ?? _defaultDownloadGalleryPriority * _priorityBase + 1;
-
+      int aPriority = galleryDownloadInfos[a.gid]!.priority ?? a.priority ?? defaultDownloadGalleryPriority;
+      int bPriority = galleryDownloadInfos[b.gid]!.priority ?? b.priority ?? defaultDownloadGalleryPriority;
       if (aPriority - bPriority != 0) {
         return aPriority - bPriority;
       }
 
-      return (b.insertTime ?? "").compareTo(a.insertTime ?? "");
+      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(a.insertTime!);
+      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(b.insertTime!);
+
+      return bTime.difference(aTime).inMilliseconds;
     });
   }
 
@@ -505,53 +511,47 @@ class GalleryDownloadService extends GetxController {
       }
 
       for (int serialNo = 0; serialNo < gallery.pageCount; serialNo++) {
-        _submitTask(
-          gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
-          task: _processImageTask(gallery, serialNo),
-        );
+        _processImage(gallery, serialNo);
       }
     };
   }
 
-  AsyncTask<void> _processImageTask(GalleryDownloadedData gallery, int serialNo) {
-    return () async {
-      if (_taskHasBeenPausedOrRemoved(gallery)) {
-        return;
-      }
+  Future<void> _processImage(GalleryDownloadedData gallery, int serialNo) async {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return;
+    }
 
-      GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
+    GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
-      /// has downloaded this image => nothing to do
-      if (galleryDownloadInfo.images[serialNo]?.downloadStatus == DownloadStatus.downloaded) {
-        return;
-      }
+    /// has downloaded this image => nothing to do
+    if (galleryDownloadInfo.images[serialNo]?.downloadStatus == DownloadStatus.downloaded) {
+      return;
+    }
 
-      /// url has been parsed => download directly
-      if (galleryDownloadInfo.images[serialNo]?.url != null) {
-        return _submitTask(
-          gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
-          task: _downloadImageTask(gallery, serialNo),
-        );
-      }
-
-      /// has parsed href => parse url
-      if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
-        return _submitTask(
-          gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
-          task: _parseImageUrlTask(gallery, serialNo),
-        );
-      }
-
-      /// has not parsed href => parse href
-      _submitTask(
+    /// url has been parsed => download directly
+    if (galleryDownloadInfo.images[serialNo]?.url != null) {
+      return _submitTask(
         gid: gallery.gid,
-        priority: _computeImagePriority(gallery, serialNo),
-        task: _parseImageHrefTask(gallery, serialNo),
+        priority: _computeImageTaskPriority(gallery, serialNo),
+        task: _downloadImageTask(gallery, serialNo),
       );
-    };
+    }
+
+    /// has parsed href => parse url
+    if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
+      return _submitTask(
+        gid: gallery.gid,
+        priority: _computeImageTaskPriority(gallery, serialNo),
+        task: _parseImageUrlTask(gallery, serialNo),
+      );
+    }
+
+    /// has not parsed href => parse href
+    _submitTask(
+      gid: gallery.gid,
+      priority: _computeImageTaskPriority(gallery, serialNo),
+      task: _parseImageHrefTask(gallery, serialNo),
+    );
   }
 
   AsyncTask<void> _parseImageHrefTask(GalleryDownloadedData gallery, int serialNo) {
@@ -589,7 +589,7 @@ class GalleryDownloadService extends GetxController {
 
         return _submitTask(
           gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
+          priority: _computeImageTaskPriority(gallery, serialNo),
           task: _parseImageHrefTask(gallery, serialNo),
         );
       }
@@ -618,7 +618,7 @@ class GalleryDownloadService extends GetxController {
       if (galleryDownloadInfo.imageHrefs[serialNo] == null) {
         return _submitTask(
           gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
+          priority: _computeImageTaskPriority(gallery, serialNo),
           task: _parseImageHrefTask(gallery, serialNo),
         );
       }
@@ -626,7 +626,7 @@ class GalleryDownloadService extends GetxController {
       /// Next step: parse image url
       _submitTask(
         gid: gallery.gid,
-        priority: _computeImagePriority(gallery, serialNo),
+        priority: _computeImageTaskPriority(gallery, serialNo),
         task: _parseImageUrlTask(gallery, serialNo),
       );
     };
@@ -669,7 +669,7 @@ class GalleryDownloadService extends GetxController {
 
         return _submitTask(
           gid: gallery.gid,
-          priority: _computeImagePriority(gallery, serialNo),
+          priority: _computeImageTaskPriority(gallery, serialNo),
           task: _parseImageUrlTask(gallery, serialNo, reParse: true),
         );
       }
@@ -683,7 +683,7 @@ class GalleryDownloadService extends GetxController {
       /// Next step: download image
       return _submitTask(
         gid: gallery.gid,
-        priority: _computeImagePriority(gallery, serialNo),
+        priority: _computeImageTaskPriority(gallery, serialNo),
         task: _downloadImageTask(gallery, serialNo),
       );
     };
@@ -771,7 +771,7 @@ class GalleryDownloadService extends GetxController {
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
       return _submitTask(
         gid: gallery.gid,
-        priority: _computeImagePriority(gallery, serialNo),
+        priority: _computeImageTaskPriority(gallery, serialNo),
         task: _parseImageUrlTask(gallery, serialNo, reParse: true),
       );
     }
@@ -779,7 +779,7 @@ class GalleryDownloadService extends GetxController {
     /// has not parsed href => parse href
     return _submitTask(
       gid: gallery.gid,
-      priority: _computeImagePriority(gallery, serialNo),
+      priority: _computeImageTaskPriority(gallery, serialNo),
       task: _parseImageHrefTask(gallery, serialNo),
     );
   }
@@ -877,8 +877,6 @@ class GalleryDownloadService extends GetxController {
 
   void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images}) {
     gallerys.add(gallery);
-    _sortGallery();
-
     galleryDownloadInfos[gallery.gid] = GalleryDownloadInfo(
       thumbnailsCountPerPage: SiteSetting.thumbnailsCountPerPage.value,
       tasks: [],
@@ -896,9 +894,10 @@ class GalleryDownloadService extends GetxController {
         gallery.pageCount,
         () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
-      priority: gallery.priority,
+      priority: gallery.priority ?? defaultDownloadGalleryPriority,
     );
 
+    _sortGallery();
     update([galleryCountOrOrderChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
@@ -926,7 +925,7 @@ class GalleryDownloadService extends GetxController {
           gallery.downloadStatusIndex,
           gallery.insertTime ?? DateTime.now().toString(),
           gallery.downloadOriginalImage,
-          null,
+          defaultDownloadGalleryPriority,
         ) >
         0;
   }

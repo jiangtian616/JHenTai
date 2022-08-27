@@ -245,9 +245,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
-            /// No need to update immediately
-            if (downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus != DownloadStatus.downloaded)
-              _buildPriority(gallery),
+            _buildPriority(gallery),
             GetBuilder<GalleryDownloadService>(
               id: '$galleryDownloadProgressId::${gallery.gid}',
               builder: (_) {
@@ -338,8 +336,8 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
         return Text('②', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
       case 3:
         return Text('③', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
-      case 4:
-        return Text('④', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case GalleryDownloadService.defaultDownloadGalleryPriority:
+        return const SizedBox();
       case 5:
         return Text('⑤', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
       default:
@@ -395,7 +393,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
               backRoute();
             },
           ),
-          ...[2, 3, 4, 5]
+          ...[2, 3]
               .map((i) => CupertinoActionSheetAction(
                     child: Text('${'priority'.tr} : $i'),
                     isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
@@ -406,10 +404,18 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
                   ))
               .toList(),
           CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : ${'nope'.tr}'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == null,
+            child: Text('${'priority'.tr} : 4 (${'default'.tr})'),
+            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
             onPressed: () {
-              _handleAssignPriority(gallery, null);
+              _handleAssignPriority(gallery, 4);
+              backRoute();
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('${'priority'.tr} : 5'),
+            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
+            onPressed: () {
+              _handleAssignPriority(gallery, 5);
               backRoute();
             },
           ),

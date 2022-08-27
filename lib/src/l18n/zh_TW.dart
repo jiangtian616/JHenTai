@@ -304,7 +304,7 @@ class zh_TW {
       'downloadHelpInfo': '如果發現無法下載，在日誌中發現了數據庫表不存在等問題，卸載當前app重裝即可。',
       'priority': '優先級',
       'highest': '最高',
-      'nope': '無',
+      'default': '默認',
 
       /// search dialog
       'searchConfig': '搜尋設定',

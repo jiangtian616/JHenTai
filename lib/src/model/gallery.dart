@@ -50,6 +50,7 @@ class Gallery {
       downloadStatusIndex: DownloadStatus.downloading.index,
       insertTime: DateTime.now().toString(),
       downloadOriginalImage: downloadOriginalImage,
+      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
     );
   }
 

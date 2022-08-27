@@ -229,8 +229,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             ListTile(
               title: Text('downloadInOrder'.tr),
               trailing: Switch(
-                value: DownloadSetting.downloadInOrder.value,
-                onChanged: (value) => DownloadSetting.saveDownloadInOrder(value),
+                value: DownloadSetting.downloadInOrderOfInsertTime.value,
+                onChanged: (value) => DownloadSetting.saveDownloadInOrderOfInsertTime(value),
               ),
             ),
             ListTile(

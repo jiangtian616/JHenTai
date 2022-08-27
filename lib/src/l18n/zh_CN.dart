@@ -304,7 +304,7 @@ class zh_CN {
       'downloadHelpInfo': '如果发现无法下载，在日志中发现了数据库表不存在等问题，卸载当前app重装即可。',
       'priority': '优先级',
       'highest': '最高',
-      'nope': '无',
+      'default': '默认',
 
       /// search dialog
       'searchConfig': '搜索配置',
