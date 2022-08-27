@@ -76,11 +76,14 @@ class EHTag extends StatelessWidget {
       return tagWidget;
     }
 
-    return InkWell(
-      child: tagWidget,
-      borderRadius: BorderRadius.circular(borderRadius),
-      onTap: _searchTag,
-      onLongPress: _showDialog,
+    return GestureDetector(
+      onSecondaryTap: _showDialog,
+      child: InkWell(
+        child: tagWidget,
+        borderRadius: BorderRadius.circular(borderRadius),
+        onTap: _searchTag,
+        onLongPress: _showDialog,
+      ),
     );
   }
 

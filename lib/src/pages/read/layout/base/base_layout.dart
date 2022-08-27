@@ -113,6 +113,7 @@ abstract class BaseLayout extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onSecondaryTap: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageHref(index)),
       onLongPress: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageHref(index)),
       child: SizedBox(
         height: placeHolderSize.height,
@@ -146,6 +147,7 @@ abstract class BaseLayout extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onSecondaryTap: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageUrl(index, true)),
       onLongPress: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageUrl(index, true)),
       child: SizedBox(
         height: placeHolderSize.height,

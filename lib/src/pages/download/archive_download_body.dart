@@ -95,6 +95,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
         ],
       ),
       child: GestureDetector(
+        onSecondaryTap: () => _showDeleteBottomSheet(archive, index, context),
         onLongPress: () => _showDeleteBottomSheet(archive, index, context),
         child: Container(
           height: 130,

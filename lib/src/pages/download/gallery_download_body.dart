@@ -80,6 +80,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
         key: Key(gallery.gid.toString()),
         endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
+          onSecondaryTap: () => _showBottomSheet(gallery, index, context),
           onLongPress: () => _showBottomSheet(gallery, index, context),
           child: _buildCard(gallery),
         ),

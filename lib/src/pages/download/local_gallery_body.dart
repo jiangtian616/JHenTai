@@ -76,6 +76,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         key: Key(gallery.title),
         endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
+          onSecondaryTap: () => _showBottomSheet(gallery, index, context),
           onLongPress: () => _showBottomSheet(gallery, index, context),
           child: _buildCard(gallery),
         ),
