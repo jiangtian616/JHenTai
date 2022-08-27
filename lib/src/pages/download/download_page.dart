@@ -1,13 +1,18 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/download/local_gallery_body.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../service/gallery_download_service.dart';
 import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'archive_download_body.dart';
 import 'gallery_download_body.dart';
+
+enum DownloadPageBodyType { download, archive, local }
 
 class DownloadPage extends StatefulWidget {
   final bool showMenuButton;
@@ -21,16 +26,26 @@ class DownloadPage extends StatefulWidget {
 class _DownloadPageState extends State<DownloadPage> {
   final GalleryDownloadService downloadService = Get.find();
 
-  bool _showArchiveBody = false;
+  DownloadPageBodyType bodyType = DownloadPageBodyType.download;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: _showArchiveBody ? Text('archive'.tr) : Text('download'.tr),
+        title: CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
+          groupValue: bodyType,
+          children: {
+            DownloadPageBodyType.download: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            DownloadPageBodyType.archive: Text('archive'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            DownloadPageBodyType.local: Text('local'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+          },
+          onValueChanged: (value) => setState(() {
+            bodyType = value ?? bodyType;
+          }),
+        ),
         elevation: 1,
-        leadingWidth: 120,
+        leadingWidth: 70,
         leading: ExcludeFocus(
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -40,53 +55,65 @@ class _DownloadPageState extends State<DownloadPage> {
                   icon: const Icon(FontAwesomeIcons.bars, size: 20),
                   onPressed: () => TapMenuButtonNotification().dispatch(context),
                 ),
-              IconButton(onPressed: _showHelpInfo, icon: const Icon(Icons.help, size: 22)),
+              if (bodyType == DownloadPageBodyType.local)
+                IconButton(
+                  icon: const Icon(Icons.help, size: 22),
+                  onPressed: _showLocalGalleryHelpInfo,
+                  visualDensity: const VisualDensity(horizontal: -4),
+                ),
             ],
           ),
         ),
         actions: [
-          if (!_showArchiveBody)
+          if (bodyType == DownloadPageBodyType.download)
             ExcludeFocus(
               child: IconButton(
-                onPressed: downloadService.resumeAllDownloadGallery,
                 icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+                onPressed: downloadService.resumeAllDownloadGallery,
+                visualDensity: const VisualDensity(horizontal: -4),
               ),
             ),
-          if (!_showArchiveBody)
+          if (bodyType == DownloadPageBodyType.download)
             ExcludeFocus(
               child: IconButton(
-                onPressed: downloadService.pauseAllDownloadGallery,
                 icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+                onPressed: downloadService.pauseAllDownloadGallery,
               ),
             ),
-          ExcludeFocus(
-            child: IconButton(
-              key: const Key('1'),
-              onPressed: () => setState(() {
-                _showArchiveBody = !_showArchiveBody;
-              }),
-              icon: _showArchiveBody ? const Icon(Icons.switch_left) : const Icon(Icons.switch_right),
+          if (bodyType == DownloadPageBodyType.local)
+            ExcludeFocus(
+              child: IconButton(
+                icon: Icon(Icons.refresh, size: 26, color: Get.theme.primaryColor),
+                onPressed: handleRefreshLocalGallery,
+              ),
             ),
-          )
         ],
       ),
-      body: _showArchiveBody
+      body: bodyType == DownloadPageBodyType.archive
           ? FadeIn(
               key: const Key('1'),
-              child: const ArchiveDownloadBody(
-                key: PageStorageKey('ArchiveDownloadBody'),
-              ),
+              child: const ArchiveDownloadBody(key: PageStorageKey('ArchiveDownloadBody')),
             )
-          : FadeIn(
-              key: const Key('2'),
-              child: const GalleryDownloadBody(
-                key: PageStorageKey('GalleryDownloadBody'),
-              ),
-            ),
+          : bodyType == DownloadPageBodyType.download
+              ? FadeIn(
+                  key: const Key('2'),
+                  child: const GalleryDownloadBody(key: PageStorageKey('GalleryDownloadBody')),
+                )
+              : FadeIn(
+                  key: const Key('3'),
+                  child: const LocalGalleryBody(key: PageStorageKey('LocalGalleryBody')),
+                ),
     );
   }
 
-  void _showHelpInfo() {
-    toast('downloadHelpInfo'.tr, isCenter: false, isShort: false);
+  Future<void> handleRefreshLocalGallery() async {
+    int addCount = await Get.find<LocalGalleryService>().refreshLocalGallerys();
+    setState(() {});
+
+    toast('${'newGalleryCount'.tr}: $addCount');
+  }
+
+  void _showLocalGalleryHelpInfo() {
+    toast('localGalleryHelpInfo'.tr, isShort: false);
   }
 }

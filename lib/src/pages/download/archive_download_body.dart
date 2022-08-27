@@ -360,6 +360,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
         currentIndex: readIndexRecord,
         pageCount: archive.pageCount,
         isOriginal: archive.isOriginal,
+        images: archiveDownloadService.getUnpackedImages(archive),
       ),
     );
   }

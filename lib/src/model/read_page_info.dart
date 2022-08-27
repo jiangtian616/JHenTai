@@ -1,11 +1,13 @@
-enum ReadMode { local, online, archive }
+import 'gallery_image.dart';
+
+enum ReadMode { downloaded, online, archive, local }
 
 class ReadPageInfo {
   ReadMode mode;
 
-  int gid;
+  int? gid;
 
-  String galleryUrl;
+  String? galleryUrl;
 
   int initialIndex;
 
@@ -16,13 +18,17 @@ class ReadPageInfo {
   /// used for archive
   bool isOriginal;
 
+  /// used for archive&local
+  List<GalleryImage>? images;
+
   ReadPageInfo({
     required this.mode,
-    required this.gid,
-    required this.galleryUrl,
+    this.gid,
+    this.galleryUrl,
     required this.initialIndex,
     required this.currentIndex,
     required this.pageCount,
     this.isOriginal = false,
+    this.images,
   });
 }

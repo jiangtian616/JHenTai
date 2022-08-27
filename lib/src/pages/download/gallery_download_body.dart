@@ -303,10 +303,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
                 const Expanded(child: SizedBox()),
                 Text(
                   '${downloadProgress.curCount}/${downloadProgress.totalCount}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                 ),
               ],
             ),
@@ -485,7 +482,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     toRoute(
       Routes.read,
       arguments: ReadPageInfo(
-        mode: ReadMode.local,
+        mode: ReadMode.downloaded,
         gid: gallery.gid,
         galleryUrl: gallery.galleryUrl,
         initialIndex: readIndexRecord,

@@ -7,6 +7,7 @@ import 'package:jhentai/src/config/sentry_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
@@ -119,8 +120,9 @@ Future<void> init() async {
 
   QuickSearchService.init();
 
-  await ArchiveDownloadService.init();
-  await GalleryDownloadService.init();
+  ArchiveDownloadService.init();
+  GalleryDownloadService.init();
+  LocalGalleryService.init();
 }
 
 Future<void> onReady() async {

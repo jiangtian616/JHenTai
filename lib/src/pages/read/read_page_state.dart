@@ -2,6 +2,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../database/database.dart';
@@ -40,15 +41,12 @@ class ReadPageState {
       images = List.generate(readPageInfo.pageCount, (_) => null);
     }
 
-    if (readPageInfo.mode == ReadMode.local) {
+    if (readPageInfo.mode == ReadMode.downloaded) {
       images = Get.find<GalleryDownloadService>().galleryDownloadInfos[readPageInfo.gid]!.images;
     }
 
-    if (readPageInfo.mode == ReadMode.archive) {
-      ArchiveDownloadedData archive = Get.find<ArchiveDownloadService>()
-          .archives
-          .firstWhere((element) => element.gid == readPageInfo.gid && element.isOriginal == readPageInfo.isOriginal);
-      images = Get.find<ArchiveDownloadService>().getUnpackedImages(archive);
+    if (readPageInfo.mode == ReadMode.archive || readPageInfo.mode == ReadMode.local) {
+      images = readPageInfo.images!.cast<GalleryImage?>();
     }
 
     parseImageUrlStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);

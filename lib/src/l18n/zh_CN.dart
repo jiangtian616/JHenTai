@@ -290,6 +290,7 @@ class zh_CN {
       'logList': '日志列表',
 
       /// download page
+      'local': '本地',
       'delete': '删除',
       'deleteTask': '仅删除任务',
       'deleteTaskAndImages': '删除任务和图片',
@@ -302,9 +303,11 @@ class zh_CN {
       'unpacking': '解压中',
       'completed': '已完成',
       'downloadHelpInfo': '如果发现无法下载，在日志中发现了数据库表不存在等问题，卸载当前app重装即可。',
+      'localGalleryHelpInfo': '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。只需要将画廊文件夹移动至JHenTai下载目录然后刷新即可。',
       'priority': '优先级',
       'highest': '最高',
       'default': '默认',
+      'newGalleryCount': '新扫描到画廊数目',
 
       /// search dialog
       'searchConfig': '搜索配置',

@@ -44,13 +44,13 @@ class GalleryDownloadService extends GetxController {
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
   static const int _retryTimes = 3;
-  static const String _metadata = '.metadata';
+  static const String metadataFileName = '.metadata';
   static const int _maxTitleLength = 100;
 
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
 
-  static Future<void> init() async {
+  static void init() {
     Get.put(GalleryDownloadService(), permanent: true);
   }
 
@@ -251,7 +251,7 @@ class GalleryDownloadService extends GetxController {
 
     int restoredCount = 0;
     for (io.FileSystemEntity galleryDir in downloadDir.listSync()) {
-      io.File metadataFile = io.File(path.join(galleryDir.path, _metadata));
+      io.File metadataFile = io.File(path.join(galleryDir.path, metadataFileName));
 
       /// metadata file does not exist
       if (!metadataFile.existsSync()) {
@@ -1009,7 +1009,7 @@ class GalleryDownloadService extends GetxController {
       'images': jsonEncode(galleryDownloadInfos[gallery.gid]!.images),
     };
 
-    io.File file = io.File(path.join(_computeGalleryDownloadPath(gallery.title, gallery.gid), _metadata));
+    io.File file = io.File(path.join(_computeGalleryDownloadPath(gallery.title, gallery.gid), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }

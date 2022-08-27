@@ -26,7 +26,6 @@ import '../../setting/read_setting.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
-import '../../utils/screen_size_util.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../details/details_page_logic.dart';
 
@@ -126,7 +125,7 @@ class ReadPageLogic extends GetxController {
     try {
       newThumbnails = await retry(
         () async => await EHRequest.requestDetailPage(
-          galleryUrl: state.readPageInfo.galleryUrl,
+          galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: index ~/ SiteSetting.thumbnailsCountPerPage.value,
           parser: EHSpiderParser.detailPage2Thumbnails,
         ),

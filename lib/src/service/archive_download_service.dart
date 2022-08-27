@@ -29,7 +29,7 @@ const String archiveDownloadSpeedComputerId = 'archiveDownloadSpeedComputerId';
 class ArchiveDownloadService extends GetxController {
   static const int retryTimes = 3;
   static const int waitTimes = 6;
-  static const String _metadata = '.archive.metadata';
+  static const String metadataFileName = '.archive.metadata';
   static const int _maxTitleLength = 100;
 
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
@@ -37,7 +37,7 @@ class ArchiveDownloadService extends GetxController {
   Table<int, bool, CancelToken> cancelTokens = Table();
   Table<int, bool, SpeedComputer> speedComputers = Table();
 
-  static Future<void> init() async {
+  static void init() {
     ensureDownloadDirExists();
     Get.put(ArchiveDownloadService(), permanent: true);
   }
@@ -190,7 +190,7 @@ class ArchiveDownloadService extends GetxController {
     int restoredCount = 0;
     List<io.FileSystemEntity> galleryDirs = downloadDir.listSync();
     for (io.FileSystemEntity galleryDir in galleryDirs) {
-      io.File metadataFile = io.File(join(galleryDir.path, _metadata));
+      io.File metadataFile = io.File(join(galleryDir.path, metadataFileName));
       if (!metadataFile.existsSync()) {
         continue;
       }
@@ -517,7 +517,7 @@ class ArchiveDownloadService extends GetxController {
   }
 
   void _saveGalleryDownloadInfoInDisk(ArchiveDownloadedData archive) {
-    io.File file = io.File(join(_computeArchiveUnpackingPath(archive), _metadata));
+    io.File file = io.File(join(_computeArchiveUnpackingPath(archive), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }

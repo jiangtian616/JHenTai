@@ -290,6 +290,7 @@ class zh_TW {
       'logList': '日誌列表',
 
       /// download page
+      'local': '本地',
       'delete': '刪除',
       'deleteTask': '僅刪除任務',
       'deleteTaskAndImages': '刪除任務和圖片',
@@ -302,9 +303,11 @@ class zh_TW {
       'unpacking': '解壓中',
       'completed': '已完成',
       'downloadHelpInfo': '如果發現無法下載，在日誌中發現了數據庫表不存在等問題，卸載當前app重裝即可。',
+      'localGalleryHelpInfo': '加載那些不是由JHenTai下載的畫廊(当做本地阅览器)。只需要將畫廊文件夾移動至JHenTai下載目錄然後刷新即可',
       'priority': '優先級',
       'highest': '最高',
       'default': '默認',
+      'newGalleryCount': '新掃描到畫廊數目',
 
       /// search dialog
       'searchConfig': '搜尋設定',

@@ -524,7 +524,7 @@ class DetailsPageLogic extends GetxController {
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
-          mode: ReadMode.local,
+          mode: ReadMode.downloaded,
           gid: state.gallery!.gid,
           galleryUrl: state.gallery!.galleryUrl,
           initialIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,

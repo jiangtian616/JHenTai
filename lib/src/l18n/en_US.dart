@@ -290,6 +290,7 @@ class en_US {
       'logList': 'Log List',
 
       /// download page
+      'local': 'Local',
       'reDownload': 'Re-download',
       'delete': 'Delete',
       'deleteTask': 'Delete Task Only',
@@ -302,9 +303,11 @@ class en_US {
       'unpacking': 'Unpacking',
       'completed': 'Completed',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
+      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. All you need is to move gallery directory to JHenTai download path and refresh.',
       'priority': 'Priority',
       'highest': 'Highest',
       'default': 'Default',
+      'newGalleryCount': 'New gallery count',
 
       /// search dialog
       'searchConfig': 'Search Config',
@@ -367,7 +370,8 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint': 'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
+      'changeDownloadPathHint':
+          'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset Download Path',
       'downloadOriginalImage': 'Download Original Image',
       'never': 'Never',
