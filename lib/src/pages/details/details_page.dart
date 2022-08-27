@@ -605,55 +605,55 @@ class DetailsPage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36),
       sliver: GetBuilder<DetailsPageLogic>(
-          id: thumbnailsId,
-          tag: tag,
-          builder: (logic) {
-            return SliverGrid(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index == galleryDetails.thumbnails.length - 1 && detailsPageState.loadingThumbnailsState == LoadingState.idle) {
-                    /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
-                    /// that hints circular build.
-                    /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
-                    /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-                    /// the callback is added once.
-                    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-                      detailsPageLogic.loadMoreThumbnails();
-                    });
-                  }
+        id: thumbnailsId,
+        tag: tag,
+        builder: (_) => SliverGrid(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index == galleryDetails.thumbnails.length - 1 && detailsPageState.loadingThumbnailsState == LoadingState.idle) {
+                /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
+                /// that hints circular build.
+                /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
+                /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+                /// the callback is added once.
+                SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+                  detailsPageLogic.loadMoreThumbnails();
+                });
+              }
 
-                  return KeepAliveWrapper(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: GestureDetector(
-                              onTap: () => detailsPageLogic.goToReadPage(index),
-                              child: EHThumbnail(
-                                containerHeight: 200,
-                                galleryThumbnail: galleryDetails.thumbnails[index],
-                              ),
-                            ),
+              return KeepAliveWrapper(
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => detailsPageLogic.goToReadPage(index),
+                          child: EHThumbnail(
+                            containerHeight: 200,
+                            thumbnail: galleryDetails.thumbnails[index],
+                            image: downloadService.galleryDownloadInfos[detailsPageState.gallery!.gid]?.images[index],
                           ),
                         ),
-                        Text(
-                          (index + 1).toString(),
-                          style: const TextStyle(color: Colors.grey),
-                        ).paddingOnly(top: 3),
-                      ],
+                      ),
                     ),
-                  );
-                },
-                childCount: galleryDetails.thumbnails.length,
-              ),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                mainAxisExtent: 220,
-                maxCrossAxisExtent: 150,
-                mainAxisSpacing: 20,
-                crossAxisSpacing: 5,
-              ),
-            );
-          }),
+                    Text(
+                      (index + 1).toString(),
+                      style: const TextStyle(color: Colors.grey),
+                    ).paddingOnly(top: 3),
+                  ],
+                ),
+              );
+            },
+            childCount: galleryDetails.thumbnails.length,
+          ),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            mainAxisExtent: 220,
+            maxCrossAxisExtent: 150,
+            mainAxisSpacing: 20,
+            crossAxisSpacing: 5,
+          ),
+        ),
+      ),
     );
   }
 }

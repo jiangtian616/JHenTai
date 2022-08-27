@@ -394,7 +394,7 @@ class ReadPage extends StatelessWidget {
           return const Center(child: CupertinoActivityIndicator());
         }
 
-        return Center(child: EHThumbnail(galleryThumbnail: state.thumbnails[index]!));
+        return Center(child: EHThumbnail(thumbnail: state.thumbnails[index]!));
       },
     );
   }

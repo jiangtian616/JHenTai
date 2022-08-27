@@ -1,28 +1,46 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 
 import '../model/gallery_image.dart';
 import 'eh_image.dart';
 
 class EHThumbnail extends StatelessWidget {
-  final GalleryThumbnail galleryThumbnail;
+  final GalleryThumbnail thumbnail;
   final double? containerHeight;
   final double? containerWidth;
 
+  final GalleryImage? image;
+
   const EHThumbnail({
     Key? key,
-    required this.galleryThumbnail,
+    required this.thumbnail,
     this.containerHeight,
     this.containerWidth,
+    this.image,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return galleryThumbnail.isLarge ? _buildLargeThumbnail(galleryThumbnail) : _buildSmallThumbnail(galleryThumbnail);
+    return image?.downloadStatus == DownloadStatus.downloaded
+        ? _buildThumbnailByLocalImage()
+        : thumbnail.isLarge
+            ? _buildLargeThumbnail()
+            : _buildSmallThumbnail();
   }
 
-  Widget _buildSmallThumbnail(GalleryThumbnail thumbnail) {
+  Widget _buildThumbnailByLocalImage() {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: EHImage.file(
+        galleryImage: image!,
+        completedWidgetBuilder: (ExtendedImageState state) => ExtendedRawImage(image: state.extendedImageInfo?.image, fit: BoxFit.contain),
+      ),
+    );
+  }
+
+  Widget _buildSmallThumbnail() {
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: containerWidth ?? double.infinity,
@@ -64,7 +82,7 @@ class EHThumbnail extends StatelessWidget {
     );
   }
 
-  Widget _buildLargeThumbnail(GalleryThumbnail thumbnail) {
+  Widget _buildLargeThumbnail() {
     return EHImage.network(
       containerHeight: containerHeight,
       containerWidth: containerWidth,
