@@ -245,7 +245,8 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
-            _buildPriority(gallery),
+            _buildIsOriginal(gallery).marginOnly(right: 10),
+            _buildPriority(gallery).marginOnly(right: 6),
             GetBuilder<GalleryDownloadService>(
               id: '$galleryDownloadProgressId::${gallery.gid}',
               builder: (_) {
@@ -320,6 +321,29 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
           ],
         );
       },
+    );
+  }
+
+  Widget _buildIsOriginal(GalleryDownloadedData gallery) {
+    bool isOriginal = gallery.downloadOriginalImage;
+    if (!isOriginal) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Get.theme.primaryColorLight),
+      ),
+      child: Text(
+        'original'.tr,
+        style: TextStyle(
+          color: Get.theme.primaryColorLight,
+          fontWeight: FontWeight.bold,
+          fontSize: 9,
+        ),
+      ),
     );
   }
 

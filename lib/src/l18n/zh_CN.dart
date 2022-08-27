@@ -121,7 +121,7 @@ class zh_CN {
       'NotOnTheList': '未上榜',
       'getGalleryArchiveFailed': '获取归档数据失败',
       'parseGalleryArchiveFailed': '解析错误，确保你e站的[Archiver Settings]设置的是[Manual Select, Manual Start (Default)]',
-      'original': '原始',
+      'original': '原图',
       'resample': '压缩',
       'beginToDownloadArchive': '开始下载归档',
       'beginToDownloadArchiveHint': '可在 下载 -> 归档 确认进度',

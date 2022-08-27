@@ -121,7 +121,7 @@ class zh_TW {
       'NotOnTheList': '未上榜',
       'getGalleryArchiveFailed': '獲取歸檔數據失敗',
       'parseGalleryArchiveFailed': '解析錯誤，確保你e站的[Archiver Settings]設置的是[Manual Select, Manual Start (Default)]',
-      'original': '原始',
+      'original': '原圖',
       'resample': '壓縮',
       'beginToDownloadArchive': '開始下載歸檔',
       'beginToDownloadArchiveHint': '可在 下載 -> 歸檔 確認進度',

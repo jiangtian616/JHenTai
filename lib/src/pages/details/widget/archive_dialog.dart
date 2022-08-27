@@ -90,7 +90,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                             : null,
                         child: Row(
                           children: [
-                            const Text('Original'),
+                            Text('original'.tr),
                             const Icon(Icons.download_for_offline, size: 18).marginOnly(left: 2),
                           ],
                         ).marginSymmetric(horizontal: 8),
@@ -110,7 +110,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
                             : null,
                         child: Row(
                           children: [
-                            const Text('Resample'),
+                            Text('resample'.tr),
                             const Icon(Icons.download_for_offline, size: 18).marginOnly(left: 2),
                           ],
                         ),
