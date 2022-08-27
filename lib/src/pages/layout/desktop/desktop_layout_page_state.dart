@@ -15,13 +15,12 @@ import '../../search/desktop/desktop_search_page.dart';
 class DesktopLayoutPageState {
   late final List<TabBarIcon> icons;
   late final List<ScrollController?> scrollControllers;
-  late final List<bool> isFocused;
 
   int selectedTabIndex = 0;
 
   /// selectedTabIndex in [shouldRender] icons
   int get selectedTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
-  int? hoverTabIndex;
+  int? hoveredTabIndex;
 
   final FocusScopeNode leftTabBarFocusScopeNode = FocusScopeNode();
   final FocusScopeNode leftColumnFocusScopeNode = FocusScopeNode();
@@ -107,6 +106,5 @@ class DesktopLayoutPageState {
     ];
 
     scrollControllers = List.filled(icons.length, null);
-    isFocused = List.filled(icons.length, false);
   }
 }

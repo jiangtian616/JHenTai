@@ -83,11 +83,11 @@ class DesktopLayoutPage extends StatelessWidget {
               itemExtent: 64,
               itemBuilder: (_, int index) => MouseRegion(
                 onEnter: (_) {
-                  state.hoverTabIndex = index;
+                  state.hoveredTabIndex = index;
                   logic.update([logic.tabBarId]);
                 },
                 onExit: (_) {
-                  state.hoverTabIndex = null;
+                  state.hoveredTabIndex = null;
                   logic.update([logic.tabBarId]);
                 },
                 child: Column(
@@ -117,7 +117,7 @@ class DesktopLayoutPage extends StatelessWidget {
                         ).paddingAll(8),
                       ),
                     ),
-                    if (state.hoverTabIndex == index)
+                    if (state.hoveredTabIndex == index)
                       FadeIn(
                         child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
                         duration: const Duration(milliseconds: 200),
