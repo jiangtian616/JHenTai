@@ -67,7 +67,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           itemCount: widget.aggregateDirectories
               ? localGalleryService.allGallerys.length
-              : localGalleryService.path2Gallerys[currentPath]!.length + (localGalleryService.path2Directories[currentPath]?.length ?? 0) + 1,
+              : (localGalleryService.path2Gallerys[currentPath]?.length ?? 0) + (localGalleryService.path2Directories[currentPath]?.length ?? 0) + 1,
           itemBuilder: (context, index) {
             if (widget.aggregateDirectories) {
               return galleryItemBuilder(context, index);

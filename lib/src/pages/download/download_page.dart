@@ -39,7 +39,10 @@ class _DownloadPageState extends State<DownloadPage> {
         title: CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
           groupValue: bodyType,
           children: {
-            DownloadPageBodyType.download: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            DownloadPageBodyType.download: SizedBox(
+              width: 66,
+              child: Center(child: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+            ),
             DownloadPageBodyType.archive: Text('archive'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
             DownloadPageBodyType.local: Text('local'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
           },
@@ -68,35 +71,43 @@ class _DownloadPageState extends State<DownloadPage> {
           ),
         ),
         actions: [
-          if (bodyType == DownloadPageBodyType.download)
-            ExcludeFocus(
-              child: IconButton(
-                icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
-                onPressed: downloadService.resumeAllDownloadGallery,
-                visualDensity: const VisualDensity(horizontal: -4),
-              ),
+          SizedBox(
+            width: 88,
+            child: Row(
+              children: [
+                if (bodyType == DownloadPageBodyType.download)
+                  ExcludeFocus(
+                    child: IconButton(
+                      icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+                      onPressed: downloadService.resumeAllDownloadGallery,
+                      visualDensity: const VisualDensity(horizontal: -4),
+                    ),
+                  ),
+                if (bodyType == DownloadPageBodyType.download)
+                  ExcludeFocus(
+                    child: IconButton(
+                      icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+                      onPressed: downloadService.pauseAllDownloadGallery,
+                    ),
+                  ),
+                if (bodyType == DownloadPageBodyType.local)
+                  ExcludeFocus(
+                    child: IconButton(
+                      icon: Icon(Icons.merge, size: 24, color: aggregateDirectories ? Get.theme.primaryColor : Colors.grey),
+                      onPressed: toggleAggregateDirectory,
+                      visualDensity: const VisualDensity(horizontal: -4),
+                    ),
+                  ),
+                if (bodyType == DownloadPageBodyType.local)
+                  ExcludeFocus(
+                    child: IconButton(
+                      icon: Icon(Icons.refresh, size: 26, color: Get.theme.primaryColor),
+                      onPressed: handleRefreshLocalGallery,
+                    ),
+                  ),
+              ],
             ),
-          if (bodyType == DownloadPageBodyType.download)
-            ExcludeFocus(
-              child: IconButton(
-                icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
-                onPressed: downloadService.pauseAllDownloadGallery,
-              ),
-            ),
-          if (bodyType == DownloadPageBodyType.local)
-            ExcludeFocus(
-              child: IconButton(
-                icon: Icon(Icons.merge, size: 24, color: aggregateDirectories ? Get.theme.primaryColor : Colors.grey),
-                onPressed: toggleAggregateDirectory,
-              ),
-            ),
-          if (bodyType == DownloadPageBodyType.local)
-            ExcludeFocus(
-              child: IconButton(
-                icon: Icon(Icons.refresh, size: 26, color: Get.theme.primaryColor),
-                onPressed: handleRefreshLocalGallery,
-              ),
-            ),
+          )
         ],
       ),
       body: bodyType == DownloadPageBodyType.archive
