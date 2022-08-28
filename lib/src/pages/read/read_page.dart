@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -388,7 +387,7 @@ class ReadPage extends StatelessWidget {
       id: '${logic.onlineImageId}::$index',
       builder: (_) {
         if (state.thumbnails[index] == null) {
-          if (state.parseImageHrefsState == LoadingState.idle) {
+          if (state.parseImageHrefsStates[index] == LoadingState.idle) {
             logic.beginToParseImageHref(index);
           }
           return const Center(child: CupertinoActivityIndicator());

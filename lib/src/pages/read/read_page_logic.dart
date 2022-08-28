@@ -107,18 +107,18 @@ class ReadPageLogic extends GetxController {
   }
 
   void beginToParseImageHref(int index) {
-    if (state.parseImageHrefsState == LoadingState.loading) {
+    if (state.parseImageHrefsStates[index] == LoadingState.loading) {
       return;
     }
 
-    state.parseImageHrefsState = LoadingState.loading;
+    state.parseImageHrefsStates[index] = LoadingState.loading;
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       _parseImageHref(index);
     });
   }
 
   Future<void> _parseImageHref(int index) async {
-    Log.verbose('begin to load Thumbnails from $index', false);
+    Log.verbose('Begin to load Thumbnail $index', false);
     update([parseImageHrefsStateId]);
 
     List<GalleryThumbnail> newThumbnails;
@@ -139,7 +139,7 @@ class ReadPageLogic extends GetxController {
       } else {
         state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
       }
-      state.parseImageHrefsState = LoadingState.error;
+      state.parseImageHrefsStates[index] = LoadingState.error;
       update([parseImageHrefsStateId]);
       return;
     }
@@ -148,7 +148,7 @@ class ReadPageLogic extends GetxController {
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i] = newThumbnails[i];
     }
-    state.parseImageHrefsState = LoadingState.idle;
+    state.parseImageHrefsStates[index] = LoadingState.idle;
     for (int i = 0; i < newThumbnails.length; i++) {
       update(['$onlineImageId::${index + i}']);
     }

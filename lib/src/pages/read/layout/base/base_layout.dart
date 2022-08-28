@@ -47,7 +47,7 @@ abstract class BaseLayout extends StatelessWidget {
       builder: (_) {
         /// step 1: parse image href if needed. check if thumbnail's info exists, if not, [parse] one page of thumbnails to get image hrefs.
         if (readPageState.thumbnails[index] == null) {
-          if (readPageState.parseImageHrefsState == LoadingState.idle) {
+          if (readPageState.parseImageHrefsStates[index] == LoadingState.idle) {
             readPageLogic.beginToParseImageHref(index);
           }
           return _buildParsingHrefsIndicator(context, index);
@@ -125,12 +125,12 @@ abstract class BaseLayout extends StatelessWidget {
             children: [
               LoadingStateIndicator(
                 useCupertinoIndicator: false,
-                loadingState: readPageState.parseImageHrefsState,
+                loadingState: readPageState.parseImageHrefsStates[index],
                 idleWidget: const CircularProgressIndicator(),
                 errorWidget: const Icon(Icons.warning, color: Colors.yellow),
               ),
               Text(
-                readPageState.parseImageHrefsState == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
+                readPageState.parseImageHrefsStates[index] == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
                 style: readPageState.readPageTextStyle,
               ).marginOnly(top: 8),
               Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),

@@ -8,7 +8,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../database/database.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
-import '../../service/archive_download_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../widget/loading_state_indicator.dart';
 
@@ -20,7 +19,7 @@ class ReadPageState {
   late List<GalleryThumbnail?> thumbnails;
   late List<GalleryImage?> images;
 
-  LoadingState parseImageHrefsState = LoadingState.idle;
+  late List<LoadingState> parseImageHrefsStates;
   late List<LoadingState> parseImageUrlStates;
   String? parseImageHrefErrorMsg;
   late List<String?> parseImageUrlErrorMsg;
@@ -49,6 +48,7 @@ class ReadPageState {
       images = readPageInfo.images!.cast<GalleryImage?>();
     }
 
+    parseImageHrefsStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
     parseImageUrlStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
