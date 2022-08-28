@@ -22,6 +22,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
   BaseSearchPageState get state;
 
   String get searchFieldId;
+  String get suggestionBodyId;
 
   @override
   bool showScroll2TopButton = false;
@@ -155,7 +156,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
     }
 
     if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
-      update([pageId]);
+      update([suggestionBodyId]);
     }
   }
 

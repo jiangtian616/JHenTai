@@ -36,19 +36,17 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
       id: logic.pageId,
       global: false,
       init: logic,
-      builder: (_) =>
-          Obx(
-                () =>
-                Scaffold(
-                  key: scaffoldKey,
-                  appBar: buildAppBar(context),
-                  endDrawer: _buildRightDrawer(),
-                  endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
-                  body: SafeArea(child: buildBody(context)),
-                  floatingActionButton: buildFloatingActionButton(context),
-                  resizeToAvoidBottomInset: false,
-                ),
-          ),
+      builder: (_) => Obx(
+        () => Scaffold(
+          key: scaffoldKey,
+          appBar: buildAppBar(context),
+          endDrawer: _buildRightDrawer(),
+          endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+          body: SafeArea(child: buildBody(context)),
+          floatingActionButton: buildFloatingActionButton(context),
+          resizeToAvoidBottomInset: false,
+        ),
+      ),
     );
   }
 
@@ -68,10 +66,16 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
     return Column(
       children: [
         if (state.bodyType == SearchPageBodyType.suggestionAndHistory)
-          Expanded(child: buildSuggestionAndHistoryBody(context))
-        else
-          if (state.hasSearched)
-            Expanded(child: super.buildBody(context)),
+          Expanded(
+            child: GetBuilder<SearchPageMobileV2Logic>(
+              id: logic.suggestionBodyId,
+              global: false,
+              init: logic,
+              builder: (_) => buildSuggestionAndHistoryBody(context),
+            ),
+          )
+        else if (state.hasSearched)
+          Expanded(child: super.buildBody(context)),
       ],
     );
   }

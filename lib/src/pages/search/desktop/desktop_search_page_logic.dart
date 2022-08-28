@@ -11,6 +11,8 @@ class DesktopSearchPageLogic extends BasePageLogic with BaseSearchPageLogic {
   @override
   final String bodyId = 'bodyId';
   @override
+  final String suggestionBodyId = 'suggestionBodyId';
+  @override
   final String scroll2TopButtonId = 'scroll2TopButtonId';
   @override
   final String refreshStateId = 'refreshStateId';

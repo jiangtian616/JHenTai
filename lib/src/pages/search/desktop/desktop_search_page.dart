@@ -31,7 +31,12 @@ class DesktopSearchPage extends BasePage with BaseSearchPage {
       children: [
         buildHeader(context),
         if (state.bodyType == SearchPageBodyType.suggestionAndHistory)
-          Expanded(child: buildSuggestionAndHistoryBody(context))
+          Expanded(
+            child: GetBuilder<DesktopSearchPageLogic>(
+              id: logic.suggestionBodyId,
+              builder: (_) => buildSuggestionAndHistoryBody(context),
+            ),
+          )
         else if (state.hasSearched)
           Expanded(child: super.buildBody(context)),
       ],
