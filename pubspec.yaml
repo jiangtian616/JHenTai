@@ -48,8 +48,8 @@ dependencies:
   photo_view:
     git: https://gitee.com/jiangtian616/photo_view.git
   #    git: https://github.com/bluefireteam/photo_view.git
-  package_info_plus: ^1.4.3+1
-  file_picker: ^5.0.1
+  package_info_plus: 1.4.2
+  file_picker: 4.6.1
   local_auth: 1.1.11
   blur: ^3.1.0
   flutter_windowmanager: ^0.2.0
@@ -63,7 +63,7 @@ dependencies:
   battery_plus: ^2.1.4
   throttling: ^1.0.0
   receive_sharing_intent: ^1.4.5
-  window_manager: ^0.2.7
+  bitsdojo_window: ^0.1.2
 
 dev_dependencies:
   flutter_test:

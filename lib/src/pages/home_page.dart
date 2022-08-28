@@ -16,6 +16,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
+import 'package:jhentai/src/widget/windows_app.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:retry/retry.dart';
@@ -78,41 +79,43 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopInterceptor(
-      /// Use LayoutBuilder to listen to resize of window.
-      child: LayoutBuilder(
-        builder: (_, __) => Obx(
-          () {
-            if (StyleSetting.layout.value == LayoutMode.mobileV2) {
-              StyleSetting.actualLayout = LayoutMode.mobileV2;
-              return MobileLayoutPageV2();
-            }
+    return WindowsApp(
+      child: WillPopInterceptor(
+        /// Use LayoutBuilder to listen to resize of window.
+        child: LayoutBuilder(
+          builder: (_, __) => Obx(
+            () {
+              if (StyleSetting.layout.value == LayoutMode.mobileV2) {
+                StyleSetting.actualLayout = LayoutMode.mobileV2;
+                return MobileLayoutPageV2();
+              }
 
-            if (StyleSetting.layout.value == LayoutMode.mobile) {
-              StyleSetting.actualLayout = LayoutMode.mobile;
-              return MobileLayoutPage();
-            }
+              if (StyleSetting.layout.value == LayoutMode.mobile) {
+                StyleSetting.actualLayout = LayoutMode.mobile;
+                return MobileLayoutPage();
+              }
 
-            /// Device width is under 600, degrade to mobile layout.
-            if (fullScreenWidth < 600) {
-              StyleSetting.actualLayout = StyleSetting.layout.value == LayoutMode.tablet ? LayoutMode.mobile : LayoutMode.mobileV2;
-              untilRoute2BlankPage();
-              return StyleSetting.layout.value == LayoutMode.tablet ? MobileLayoutPage() : MobileLayoutPageV2();
-            }
+              /// Device width is under 600, degrade to mobile layout.
+              if (fullScreenWidth < 600) {
+                StyleSetting.actualLayout = StyleSetting.layout.value == LayoutMode.tablet ? LayoutMode.mobile : LayoutMode.mobileV2;
+                untilRoute2BlankPage();
+                return StyleSetting.layout.value == LayoutMode.tablet ? MobileLayoutPage() : MobileLayoutPageV2();
+              }
 
-            if (StyleSetting.layout.value == LayoutMode.tablet) {
-              StyleSetting.actualLayout = LayoutMode.tablet;
-              return const TabletLayoutPage();
-            }
+              if (StyleSetting.layout.value == LayoutMode.tablet) {
+                StyleSetting.actualLayout = LayoutMode.tablet;
+                return const TabletLayoutPage();
+              }
 
-            if (StyleSetting.layout.value == LayoutMode.tabletV2) {
-              StyleSetting.actualLayout = LayoutMode.tabletV2;
-              return const TabletLayoutPageV2();
-            }
+              if (StyleSetting.layout.value == LayoutMode.tabletV2) {
+                StyleSetting.actualLayout = LayoutMode.tabletV2;
+                return const TabletLayoutPageV2();
+              }
 
-            StyleSetting.actualLayout = LayoutMode.desktop;
-            return DesktopLayoutPage();
-          },
+              StyleSetting.actualLayout = LayoutMode.desktop;
+              return DesktopLayoutPage();
+            },
+          ),
         ),
       ),
     );

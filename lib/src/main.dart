@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,6 @@ import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/widget/app_state_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:window_manager/window_manager.dart';
 import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -47,7 +47,7 @@ void main() async {
   runZonedGuarded(() async {
     await init();
     runApp(const MyApp());
-    // _doForDesktop();
+    _doForDesktop();
   }, (Object error, StackTrace stack) {
     if (error is NotUploadException) {
       return;
@@ -85,21 +85,6 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (GetPlatform.isDesktop) {
-    await windowManager.ensureInitialized();
-
-    WindowOptions windowOptions = const WindowOptions(
-      center: true,
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
-  }
 
   if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
     await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
@@ -146,4 +131,14 @@ Future<void> onReady() async {
   EHSetting.refresh();
 
   ReadSetting.init();
+}
+
+void _doForDesktop() {
+  if (!GetPlatform.isDesktop) {
+    return;
+  }
+  doWhenWindowReady(() {
+    appWindow.title = 'JHenTai';
+    appWindow.show();
+  });
 }

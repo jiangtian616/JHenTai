@@ -4,11 +4,10 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus_windows
-  screen_retriever
+  bitsdojo_window_windows
   sentry_flutter
   sqlite3_flutter_libs
   url_launcher_windows
-  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
