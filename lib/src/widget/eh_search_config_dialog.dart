@@ -128,6 +128,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                   _buildSearchTagsSwitch(),
                   _buildSearchDescriptionSwitch(),
                   _buildSearchExpungedGalleriesSwitch(),
+                  _buildOnlySearchGallerysWithTorrentsSwitch(),
+                  _buildSearchLowerTagsSwitch(),
+                  _buildDownVotedTagsSwitch(),
                   _buildPageRangeSelector(),
                   _buildRatingSelector(),
                   _buildDisableFilterForLanguageSwitch(),
@@ -391,6 +394,39 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       trailing: Switch(
         value: searchConfig.searchExpungedGalleries,
         onChanged: (bool value) => setState(() => searchConfig.searchExpungedGalleries = value),
+      ),
+    );
+  }
+
+  Widget _buildOnlySearchGallerysWithTorrentsSwitch() {
+    return ListTile(
+      title: Text('onlyShowGalleriesWithTorrents'.tr, style: const TextStyle(fontSize: 15)),
+      dense: true,
+      trailing: Switch(
+        value: searchConfig.onlyShowGalleriesWithTorrents,
+        onChanged: (bool value) => setState(() => searchConfig.onlyShowGalleriesWithTorrents = value),
+      ),
+    );
+  }
+
+  Widget _buildSearchLowerTagsSwitch() {
+    return ListTile(
+      title: Text('searchLowPowerTags'.tr, style: const TextStyle(fontSize: 15)),
+      dense: true,
+      trailing: Switch(
+        value: searchConfig.searchLowPowerTags,
+        onChanged: (bool value) => setState(() => searchConfig.searchLowPowerTags = value),
+      ),
+    );
+  }
+
+  Widget _buildDownVotedTagsSwitch() {
+    return ListTile(
+      title: Text('searchDownVotedTags'.tr, style: const TextStyle(fontSize: 15)),
+      dense: true,
+      trailing: Switch(
+        value: searchConfig.searchDownVotedTags,
+        onChanged: (bool value) => setState(() => searchConfig.searchDownVotedTags = value),
       ),
     );
   }

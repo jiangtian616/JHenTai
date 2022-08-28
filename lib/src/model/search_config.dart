@@ -122,9 +122,6 @@ class SearchConfig {
       if (onlyShowGalleriesWithTorrents) {
         params['f_sto'] = 'on';
       }
-      if (onlyShowGalleriesWithTorrents) {
-        params['f_sto'] = 'on';
-      }
       if (searchLowPowerTags) {
         params['f_sdt1'] = 'on';
       }
