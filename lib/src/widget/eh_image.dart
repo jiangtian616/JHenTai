@@ -7,7 +7,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'dart:io' as io;
 
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 import '../service/gallery_download_service.dart';
 import '../setting/network_setting.dart';
@@ -138,7 +138,7 @@ class _EHImageState extends State<EHImage> {
     }
 
     return ExtendedImage.file(
-      io.File(path.join(PathSetting.getVisibleDir().path, widget.galleryImage.path!)),
+      io.File(_computeFilePath(widget.galleryImage.path!)),
       key: key,
       height: widget.adaptive ? null : widget.galleryImage.height,
       width: widget.adaptive ? null : widget.galleryImage.width,
@@ -155,6 +155,17 @@ class _EHImageState extends State<EHImage> {
         return null;
       },
     );
+  }
+
+  String _computeFilePath(String imageRelativePath) {
+    String path = p.join(PathSetting.getVisibleDir().path, imageRelativePath);
+
+    /// I don't know why some images can't be loaded on Windows... If you knows, please inform me
+    if (!GetPlatform.isWindows) {
+      return path;
+    }
+
+    return p.join(p.rootPrefix(path), p.relative(path, from: p.rootPrefix(path)));
   }
 
   double _computeLoadingProgress(ImageChunkEvent? loadingProgress, ImageInfo? extendedImageInfo) {

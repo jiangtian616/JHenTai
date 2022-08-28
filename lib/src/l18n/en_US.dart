@@ -371,7 +371,7 @@ class en_US {
       /// download setting page
       'downloadPath': 'Download Path',
       'changeDownloadPathHint':
-          'Long press to change. Change download path will copy downloaded gallerys automatically and empty old directory. If you find it fails to load image, try to reset path.',
+          'Long press to change. Change download path will copy downloaded gallerys automatically and keep old files. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset Download Path',
       'downloadOriginalImage': 'Download Original Image',
       'never': 'Never',

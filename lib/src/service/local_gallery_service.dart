@@ -73,42 +73,34 @@ class LocalGalleryService extends GetxController {
       return 0;
     }
 
-    int count = 0;
-    for (io.FileSystemEntity galleryDir in downloadDir.listSync()) {
-      if (galleryDir is! io.Directory) {
-        continue;
-      }
+    List<io.Directory> galleryDirs = downloadDir
+        .listSync(
+          recursive: true,
+        )
+        .whereType<io.Directory>()
+        .where((dir) => _checkLegalGalleryDir(dir))
+        .toList();
 
-      /// has metadata => downloaded by JHenTai, continue
-      if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
-        continue;
-      }
-      if (io.File(join(galleryDir.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
-        continue;
-      }
-
-      /// is not gallery directory
-      if (!_checkLegalGalleryDir(galleryDir)) {
-        continue;
-      }
-
+    for (io.Directory galleryDir in galleryDirs) {
       _initGalleryInfoInMemory(galleryDir);
-
-      count++;
     }
 
-    return count;
+    return galleryDirs.length;
   }
 
-  /// has at least one image
   bool _checkLegalGalleryDir(io.Directory galleryDir) {
-    List<io.FileSystemEntity> images = galleryDir.listSync();
-
-    if (images.isEmpty) {
+    /// has metadata => downloaded by JHenTai, continue
+    if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
+      return false;
+    }
+    if (io.File(join(galleryDir.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
       return false;
     }
 
-    for (io.FileSystemEntity image in images) {
+    List<io.FileSystemEntity> entities = galleryDir.listSync();
+
+    /// has at least one image
+    for (io.FileSystemEntity image in entities) {
       if (image is! io.File) {
         continue;
       }
@@ -123,12 +115,15 @@ class LocalGalleryService extends GetxController {
   }
 
   void _initGalleryInfoInMemory(io.Directory galleryDir) {
-    List<io.FileSystemEntity> files = galleryDir.listSync();
-    files.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
-    files = files.where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null).toList();
+    List<io.File> imageFiles = galleryDir
+        .listSync()
+        .whereType<io.File>()
+        .where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null)
+        .toList();
+    imageFiles.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
     List<GalleryImage> images = [];
-    for (io.FileSystemEntity file in files) {
+    for (io.FileSystemEntity file in imageFiles) {
       Size size;
       try {
         size = ImageSizeGetter.getSize(FileInput(file as io.File));

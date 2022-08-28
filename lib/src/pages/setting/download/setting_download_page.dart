@@ -284,22 +284,24 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         archiveDownloadService.pauseAllDownloadArchive(),
       ]);
 
-      io.Directory oldDir = io.Directory(oldDownloadPath);
-      List<io.FileSystemEntity> gallerys = oldDir.listSync();
+      io.Directory oldDownloadDir = io.Directory(oldDownloadPath);
+      List<io.FileSystemEntity> oldEntities = oldDownloadDir.listSync(recursive: true);
+      List<io.Directory> oldDirs = oldEntities.whereType<io.Directory>().toList();
+      List<io.File> oldFiles = oldEntities.whereType<io.File>().toList();
 
-      /// copy
       List<Future> futures = [];
-      for (io.FileSystemEntity oldGallery in gallerys) {
-        /// other file or directory
-        if (oldGallery is! io.Directory || !basename(oldGallery.path).startsWith(RegExp(r'\d'))) {
-          continue;
-        }
 
-        io.Directory newGallery = io.Directory(join(newDownloadPath, basename(oldGallery.path)));
+      /// copy directories first
+      for (io.Directory oldDir in oldDirs) {
+        io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
+        futures.add(newDir.create(recursive: true));
+      }
+      await Future.wait(futures);
+      futures.clear();
 
-        futures.add(newGallery.create(recursive: true).then((_) => oldGallery.list().forEach(
-              (file) => (file as io.File).copy(join(newGallery.path, basename(file.path))),
-            )));
+      /// then copy files
+      for (io.File oldFile in oldFiles) {
+        futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
       }
       await Future.wait(futures);
 
@@ -307,16 +309,17 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
       /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
-
-      /// empty old directory
-      oldDir.delete(recursive: true).then((_) => oldDir.create(recursive: true));
+    } on Exception catch (e) {
+      Log.error('_handleChangeDownloadPath failed!', e);
+      Log.upload(e);
+      toast('internalError'.tr);
     } finally {
       setState(() => changeDownloadPathState = LoadingState.idle);
     }
   }
 
-  Future<void> _handleResetDownloadPath() async {
-    await _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
+  void _handleResetDownloadPath() {
+    _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
   }
 
   Future<void> _restore() async {
