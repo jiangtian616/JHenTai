@@ -19,9 +19,9 @@ class SiteSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('siteSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init SiteSetting success', false);
+      Log.debug('init SiteSetting success', false);
     } else {
-      Log.verbose('init SiteSetting success: default', false);
+      Log.debug('init SiteSetting success: default', false);
     }
 
     /// listen to login and logout

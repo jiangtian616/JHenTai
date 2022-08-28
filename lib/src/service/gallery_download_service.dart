@@ -58,7 +58,7 @@ class GalleryDownloadService extends GetxController {
   onInit() async {
     await _instantiateFromDB();
 
-    Log.info('Init DownloadService success, download task count: ${gallerys.length}');
+    Log.debug('init DownloadService success, download task count: ${gallerys.length}');
 
     _startExecutor();
 
@@ -326,7 +326,7 @@ class GalleryDownloadService extends GetxController {
 
   /// start executor
   void _startExecutor() {
-    Log.info('Start download executor');
+    Log.debug('start download executor');
 
     executor = EHExecutor(
       concurrency: DownloadSetting.downloadTaskConcurrency.value,

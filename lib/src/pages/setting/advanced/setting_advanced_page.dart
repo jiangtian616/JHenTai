@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 
+import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -41,6 +42,16 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               ),
               subtitle: Text('needRestart'.tr),
             ),
+            if (AdvancedSetting.enableLogging.isTrue)
+              FadeIn(
+                child: ListTile(
+                  title: Text('enableVerboseLogging'.tr),
+                  trailing: Switch(
+                    value: AdvancedSetting.enableVerboseLogging.value,
+                    onChanged: (value) => AdvancedSetting.saveEnableVerboseLogging(value),
+                  ),
+                ),
+              ),
             ListTile(
               title: Text('openLog'.tr),
               trailing: const Icon(Icons.arrow_forward_ios, size: 20).marginOnly(right: 4),

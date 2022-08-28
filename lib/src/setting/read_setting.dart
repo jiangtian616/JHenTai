@@ -43,92 +43,92 @@ class ReadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init ReadSetting success', false);
+      Log.debug('init ReadSetting success', false);
     } else {
-      Log.verbose('init ReadSetting success: default', false);
+      Log.debug('init ReadSetting success: default', false);
     }
   }
 
   static saveEnableImmersiveMode(bool value) {
-    Log.verbose('saveEnableImmersiveMode:$value');
+    Log.debug('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
     _save();
   }
 
   static saveShowThumbnails(bool value) {
-    Log.verbose('saveShowThumbnails:$value');
+    Log.debug('saveShowThumbnails:$value');
     showThumbnails.value = value;
     _save();
   }
 
   static saveShowStatusInfo(bool value) {
-    Log.verbose('saveShowStatusInfo:$value');
+    Log.debug('saveShowStatusInfo:$value');
     showStatusInfo.value = value;
     _save();
   }
 
   static saveAutoModeInterval(double value) {
-    Log.verbose('saveAutoModeInterval:$value');
+    Log.debug('saveAutoModeInterval:$value');
     autoModeInterval.value = value;
     _save();
   }
 
   static saveAutoModeStyle(AutoModeStyle value) {
-    Log.verbose('saveAutoModeStyle:${value.name}');
+    Log.debug('saveAutoModeStyle:${value.name}');
     autoModeStyle.value = value;
     _save();
   }
 
   static saveReadDirection(ReadDirection value) {
-    Log.verbose('saveReadDirection:${value.name}');
+    Log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
     _save();
   }
 
   static saveEnablePageTurnAnime(bool value) {
-    Log.verbose('saveEnablePageTurnAnime:$value');
+    Log.debug('saveEnablePageTurnAnime:$value');
     enablePageTurnAnime.value = value;
     _save();
   }
 
   static saveEnableDoubleTapToScaleUp(bool value) {
-    Log.verbose('saveEnableDoubleTapToScaleUp:$value');
+    Log.debug('saveEnableDoubleTapToScaleUp:$value');
     enableDoubleTapToScaleUp.value = value;
     _save();
   }
 
   static saveTurnPageMode(TurnPageMode value) {
-    Log.verbose('saveTurnPageMode:${value.name}');
+    Log.debug('saveTurnPageMode:${value.name}');
     turnPageMode.value = value;
     _save();
   }
 
   static savePreloadDistance(int value) {
-    Log.verbose('savePreloadDistance:$value');
+    Log.debug('savePreloadDistance:$value');
     preloadDistance.value = value;
     _save();
   }
 
   static savePreloadPageCount(int value) {
-    Log.verbose('savePreloadPageCount:$value');
+    Log.debug('savePreloadPageCount:$value');
     preloadPageCount.value = value;
     _save();
   }
 
   static saveEnableAutoScaleUp(bool value) {
-    Log.verbose('saveEnableAutoScaleUp:$value');
+    Log.debug('saveEnableAutoScaleUp:$value');
     enableAutoScaleUp.value = value;
     _save();
   }
 
   static saveEnableContinuousHorizontalScroll(bool value) {
-    Log.verbose('saveEnableContinuousHorizontalScroll:$value');
+    Log.debug('saveEnableContinuousHorizontalScroll:$value');
     enableContinuousHorizontalScroll.value = value;
     _save();
   }
 
   static saveEnableDoubleColumn(bool value) {
-    Log.verbose('saveEnableDoubleColumn:$value');
+    Log.debug('saveEnableDoubleColumn:$value');
     enableDoubleColumn.value = value;
     _save();
   }

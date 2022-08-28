@@ -43,7 +43,7 @@ class LocalGalleryService extends GetxController {
   onInit() async {
     int count = await _loadGalleriesFromDisk();
 
-    Log.info('Init LocalGalleryService success. Galleries count: $count');
+    Log.debug('Init LocalGalleryService success. Galleries count: $count');
 
     super.onInit();
   }

@@ -20,9 +20,9 @@ class EHSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('EHSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init EHSetting success', false);
+      Log.debug('init EHSetting success', false);
     } else {
-      Log.verbose('init EHSetting success: default', false);
+      Log.debug('init EHSetting success: default', false);
     }
 
     /// listen to logout
@@ -67,13 +67,13 @@ class EHSetting {
   }
 
   static saveSite(String site) {
-    Log.verbose('saveSite:$site');
+    Log.debug('saveSite:$site');
     EHSetting.site.value = site;
     _save();
   }
 
   static saveTotalLimit(int totalLimit) {
-    Log.verbose('saveTotalLimit:$totalLimit');
+    Log.debug('saveTotalLimit:$totalLimit');
     EHSetting.totalLimit.value = totalLimit;
     _save();
   }

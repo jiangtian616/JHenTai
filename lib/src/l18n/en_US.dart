@@ -243,6 +243,7 @@ class en_US {
       'oneDay': '1 Day',
       'threeDay': '3 Day',
       'enableLogging': 'Enable Logging',
+      'enableVerboseLogging': 'Enable Verbose Logging',
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
       'clearImagesCache': 'Clear Images Cache',
@@ -303,7 +304,8 @@ class en_US {
       'unpacking': 'Unpacking',
       'completed': 'Completed',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
-      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. All you need is to move gallery directory to JHenTai download path and refresh.',
+      'localGalleryHelpInfo':
+          'Load gallerys which is not downloaded by JHenTai. All you need is to move gallery directory to JHenTai download path and refresh.',
       'priority': 'Priority',
       'highest': 'Highest',
       'default': 'Default',

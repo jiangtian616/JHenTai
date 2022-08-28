@@ -13,7 +13,7 @@ class StorageService extends GetxService {
     StorageService storageService = StorageService();
     Get.put(storageService);
     await storageService._storage.initStorage;
-    Log.verbose('init StorageService success', false);
+    Log.debug('init StorageService success', false);
   }
 
   Future<void> write(String key, dynamic value) {

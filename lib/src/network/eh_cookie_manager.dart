@@ -60,7 +60,7 @@ class EHCookieManager extends CookieManager {
       Log.error('Logged in but cookie is missing, try log out.');
       UserSetting.clear();
     }
-    Log.verbose('init EHCookieManager success, cookies length:${cookies.length}', false);
+    Log.debug('init EHCookieManager success, cookies length:${cookies.length}', false);
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/log.dart';
 
@@ -5,26 +6,33 @@ import '../service/storage_service.dart';
 
 class AdvancedSetting {
   static RxBool enableLogging = true.obs;
+  static RxBool enableVerboseLogging = kDebugMode.obs;
   static RxBool enableCheckUpdate = true.obs;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init AdvancedSetting success', false);
+      Log.debug('init AdvancedSetting success', false);
     } else {
-      Log.verbose('init AdvancedSetting success: default', false);
+      Log.debug('init AdvancedSetting success: default', false);
     }
   }
 
   static saveEnableLogging(bool enableLogging) {
-    Log.verbose('saveEnableLogging:$enableLogging');
+    Log.debug('saveEnableLogging:$enableLogging');
     AdvancedSetting.enableLogging.value = enableLogging;
     _save();
   }
 
+  static saveEnableVerboseLogging(bool enableVerboseLogging) {
+    Log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
+    AdvancedSetting.enableVerboseLogging.value = enableVerboseLogging;
+    _save();
+  }
+
   static saveEnableCheckUpdate(bool enableCheckUpdate) {
-    Log.verbose('saveEnableCheckUpdate:$enableCheckUpdate');
+    Log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
     AdvancedSetting.enableCheckUpdate.value = enableCheckUpdate;
     _save();
   }
@@ -36,12 +44,14 @@ class AdvancedSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enableLogging': enableLogging.value,
+      'enableVerboseLogging': enableVerboseLogging.value,
       'enableCheckUpdate': enableCheckUpdate.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableLogging.value = map['enableLogging'];
+    enableVerboseLogging.value = map['enableVerboseLogging'] ?? enableVerboseLogging.value;
     enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
   }
 }

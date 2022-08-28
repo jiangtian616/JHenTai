@@ -21,14 +21,14 @@ class SecuritySetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('securitySetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init SecuritySetting success', false);
+      Log.debug('init SecuritySetting success', false);
     } else {
-      Log.verbose('init SecuritySetting success: default', false);
+      Log.debug('init SecuritySetting success: default', false);
     }
   }
 
   static saveEnableBlur(bool enableBlur) {
-    Log.verbose('saveEnableBlur:$enableBlur');
+    Log.debug('saveEnableBlur:$enableBlur');
 
     SecuritySetting.enableBlur.value = enableBlur;
     _save();
@@ -48,7 +48,7 @@ class SecuritySetting {
   }
 
   static saveEnableFingerPrintLock(bool enableFingerPrintLock) {
-    Log.verbose('saveEnableFingerPrintLock:$enableFingerPrintLock');
+    Log.debug('saveEnableFingerPrintLock:$enableFingerPrintLock');
     SecuritySetting.enableFingerPrintLock.value = enableFingerPrintLock;
     _save();
   }

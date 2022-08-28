@@ -40,8 +40,8 @@ class Log {
     _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'));
     await _verboseLogFile.create(recursive: true);
     _verboseFileLogger = Logger(
-      printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
-      filter: ProductionFilter(),
+      printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
+      filter: EHLogFilter(),
       output: FileOutput(file: _verboseLogFile),
     );
 
@@ -63,14 +63,22 @@ class Log {
     );
 
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
-    verbose('init LogUtil success', false);
+    debug('init LogUtil success', false);
   }
 
+  /// For actions that print params
   static void verbose(Object? msg, [bool withStack = false]) {
     _logger?.v(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
+  /// For actions that is invisible to user
+  static void debug(Object? msg, [bool withStack = false]) {
+    _logger?.d(msg, null, withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.d(msg, null, withStack ? null : StackTrace.empty);
+  }
+
+  /// For actions that is visible to user
   static void info(Object? msg, [bool withStack = false]) {
     _logger?.i(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.i(msg, null, withStack ? null : StackTrace.empty);
@@ -233,6 +241,16 @@ class Log {
   static String _cleanPrivacy(String raw) {
     String pattern = r'(password|secret|passwd|api_key|apikey|auth) = ("|\w)+';
     return raw.replaceAll(RegExp(pattern), '');
+  }
+}
+
+class EHLogFilter extends LogFilter {
+  @override
+  bool shouldLog(LogEvent event) {
+    if (AdvancedSetting.enableVerboseLogging.isTrue) {
+      return event.level.index >= level!.index;
+    }
+    return event.level.index >= level!.index && event.level != Level.verbose;
   }
 }
 

@@ -323,7 +323,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Future<void> _restore() async {
-    Log.verbose('Restore download task.');
+    Log.info('Restore download task.');
 
     int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
     int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restore();

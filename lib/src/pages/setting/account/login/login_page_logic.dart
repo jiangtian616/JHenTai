@@ -70,7 +70,7 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userInfoOrErrorMsg['errorMsg'] == null) {
-      Log.verbose('Login success by password.');
+      Log.info('Login success by password.');
 
       state.loginState = LoadingState.success;
       UserSetting.saveUserInfo(
@@ -86,7 +86,7 @@ class LoginPageLogic extends GetxController {
       await Future.delayed(const Duration(milliseconds: 700));
       backRoute(currentRoute: Routes.login);
     } else {
-      Log.verbose('Login failed by password.');
+      Log.info('Login failed by password.');
 
       state.loginState = LoadingState.error;
       snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
@@ -145,7 +145,7 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userInfo != null) {
-      Log.verbose('Login success by cookie.');
+      Log.info('Login success by cookie.');
 
       state.loginState = LoadingState.success;
       update();
@@ -161,7 +161,7 @@ class LoginPageLogic extends GetxController {
       await Future.delayed(const Duration(milliseconds: 1000));
       backRoute(currentRoute: Routes.login);
     } else {
-      Log.verbose('Login failed by cookie.');
+      Log.info('Login failed by cookie.');
 
       state.loginState = LoadingState.error;
       update();
@@ -187,7 +187,7 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    Log.verbose('Login success by web.');
+    Log.info('Login success by web.');
 
     List<Cookie> cookies = cookieString.split('; ').map((pair) {
       List<String> nameAndValue = pair.split('=');

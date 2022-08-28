@@ -13,9 +13,9 @@ class UserSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init UserSetting success', false);
+      Log.debug('init UserSetting success', false);
     } else {
-      Log.verbose('init UserSetting success, not logged in', false);
+      Log.debug('init UserSetting success, not logged in', false);
     }
   }
 
@@ -25,7 +25,7 @@ class UserSetting {
     required String ipbPassHash,
     String? avatarImgUrl,
   }) async {
-    Log.verbose('saveUserInfo:$userName');
+    Log.debug('saveUserInfo:$userName');
     UserSetting.userName.value = userName;
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;
@@ -37,7 +37,7 @@ class UserSetting {
     required String userName,
     String? avatarImgUrl,
   }) async {
-    Log.verbose('saveUserNameAndAvatar:$userName $avatarImgUrl');
+    Log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl');
     UserSetting.userName.value = userName;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
     _save();

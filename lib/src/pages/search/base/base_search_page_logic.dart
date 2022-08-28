@@ -58,7 +58,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.verbose('Get gallerys info at page: $pageIndex');
+    Log.debug('Get gallerys info at page: $pageIndex');
 
     List<dynamic> gallerysAndPageInfo;
     if (state.redirectUrl == null) {

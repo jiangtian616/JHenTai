@@ -131,7 +131,7 @@ class EHRequest {
     /// cache
     _dio.interceptors.add(Get.find<EHCacheInterceptor>());
 
-    Log.verbose('init EHRequest success', false);
+    Log.debug('init EHRequest success', false);
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {

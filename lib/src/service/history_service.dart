@@ -11,7 +11,7 @@ class HistoryService extends GetxService {
 
   static void init() {
     Get.put(HistoryService());
-    Log.verbose('init HistoryService success', false);
+    Log.debug('init HistoryService success', false);
   }
 
   @override

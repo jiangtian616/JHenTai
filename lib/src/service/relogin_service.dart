@@ -12,7 +12,7 @@ class ReLoginService extends GetxService {
 
   static void init() {
     Get.put(ReLoginService());
-    Log.verbose('init ReLoginService success', false);
+    Log.debug('init ReLoginService success', false);
   }
 
   @override
@@ -28,14 +28,14 @@ class ReLoginService extends GetxService {
 
     String? lastVersion = storageService.read<String>('lastVersion');
 
-    Log.verbose('last version:$lastVersion, current version:$currentVersion', false);
+    Log.info('last version:$lastVersion, current version:$currentVersion', false);
     if (lastVersion == currentVersion) {
       return;
     }
 
     storageService.write('lastVersion', currentVersion);
 
-    Log.verbose('Logout due to app update', false);
+    Log.info('Logout due to app update', false);
     await EHRequest.requestLogout();
   }
 }

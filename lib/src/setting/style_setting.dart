@@ -46,14 +46,14 @@ class StyleSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init StyleSetting success', false);
+      Log.debug('init StyleSetting success', false);
     } else {
-      Log.verbose('init StyleSetting success: default', false);
+      Log.debug('init StyleSetting success: default', false);
     }
   }
 
   static saveLanguage(Locale locale) async {
-    Log.verbose('saveLanguage:$locale');
+    Log.debug('saveLanguage:$locale');
     StyleSetting.locale.value = locale;
     _save();
     Get.updateLocale(locale);
@@ -61,38 +61,38 @@ class StyleSetting {
   }
 
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
-    Log.verbose('saveEnableTagZHTranslation:$enableTagZHTranslation');
+    Log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
     StyleSetting.enableTagZHTranslation.value = enableTagZHTranslation;
     _save();
   }
 
   static saveThemeMode(ThemeMode themeMode) {
-    Log.verbose('saveThemeMode:${themeMode.name}');
+    Log.debug('saveThemeMode:${themeMode.name}');
     StyleSetting.themeMode.value = themeMode;
     _save();
     Get.changeThemeMode(themeMode);
   }
 
   static saveListMode(ListMode listMode) {
-    Log.verbose('saveListMode:${listMode.name}');
+    Log.debug('saveListMode:${listMode.name}');
     StyleSetting.listMode.value = listMode;
     _save();
   }
 
   static saveCoverMode(CoverMode coverMode) {
-    Log.verbose('saveCoverMode:${coverMode.name}');
+    Log.debug('saveCoverMode:${coverMode.name}');
     StyleSetting.coverMode.value = coverMode;
     _save();
   }
 
   static saveLayoutMode(LayoutMode layoutMode) {
-    Log.verbose('saveLayoutMode:${layoutMode.name}');
+    Log.debug('saveLayoutMode:${layoutMode.name}');
     StyleSetting.layout.value = layoutMode;
     _save();
   }
 
   static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
-    Log.verbose('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
+    Log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
     StyleSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
     _save();
   }

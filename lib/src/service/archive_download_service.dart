@@ -54,7 +54,7 @@ class ArchiveDownloadService extends GetxController {
       }
     }
 
-    Log.verbose('init ArchiveDownloadService success. Tasks count: ${archives.length}');
+    Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
     super.onInit();
   }
 

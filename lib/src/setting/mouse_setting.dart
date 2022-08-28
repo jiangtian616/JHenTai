@@ -10,14 +10,14 @@ class MouseSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('mouseSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init MouseSetting success', false);
+      Log.debug('init MouseSetting success', false);
     } else {
-      Log.verbose('init MouseSetting success: default', false);
+      Log.debug('init MouseSetting success: default', false);
     }
   }
 
   static saveWheelScrollSpeed(double wheelScrollSpeed) {
-    Log.verbose('saveWheelScrollSpeed:$wheelScrollSpeed');
+    Log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
     MouseSetting.wheelScrollSpeed.value = wheelScrollSpeed;
     _save();
   }

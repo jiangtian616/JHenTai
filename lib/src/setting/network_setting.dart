@@ -58,68 +58,68 @@ class NetworkSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('networkSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init NetworkSetting success', false);
+      Log.debug('init NetworkSetting success', false);
     } else {
-      Log.verbose('init NetworkSetting success: default', false);
+      Log.debug('init NetworkSetting success: default', false);
     }
   }
 
   static savePageCacheMaxAge(Duration pageCacheMaxAge) {
-    Log.verbose('savePageCacheMaxAge:$pageCacheMaxAge');
+    Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
     NetworkSetting.pageCacheMaxAge.value = pageCacheMaxAge;
     _save();
   }
 
   static saveEnableDomainFronting(bool enableDomainFronting) {
-    Log.verbose('saveEnableDomainFronting:$enableDomainFronting');
+    Log.debug('saveEnableDomainFronting:$enableDomainFronting');
     NetworkSetting.enableDomainFronting.value = enableDomainFronting;
     _save();
   }
 
   static saveProxyAddress(String proxyAddress) {
-    Log.verbose('saveProxyAddress:$proxyAddress');
+    Log.debug('saveProxyAddress:$proxyAddress');
     NetworkSetting.proxyAddress.value = proxyAddress;
     _save();
   }
 
   static saveConnectTimeout(int connectTimeout) {
-    Log.verbose('saveConnectTimeout:$connectTimeout');
+    Log.debug('saveConnectTimeout:$connectTimeout');
     NetworkSetting.connectTimeout.value = connectTimeout;
     _save();
   }
 
   static saveReceiveTimeout(int receiveTimeout) {
-    Log.verbose('saveReceiveTimeout:$receiveTimeout');
+    Log.debug('saveReceiveTimeout:$receiveTimeout');
     NetworkSetting.receiveTimeout.value = receiveTimeout;
     _save();
   }
 
   static saveEHentaiIP(String ip) {
-    Log.verbose('saveEHentaiIP:$ip');
+    Log.debug('saveEHentaiIP:$ip');
     NetworkSetting.eHentaiIP.value = ip;
     _save();
   }
 
   static saveEXHentaiIP(String ip) {
-    Log.verbose('saveEXHentaiIP:$ip');
+    Log.debug('saveEXHentaiIP:$ip');
     NetworkSetting.exHentaiIP.value = ip;
     _save();
   }
 
   static saveUpldIP(String ip) {
-    Log.verbose('saveUpldIP:$proxyAddress');
+    Log.debug('saveUpldIP:$proxyAddress');
     NetworkSetting.upldIP.value = ip;
     _save();
   }
 
   static saveApiIP(String ip) {
-    Log.verbose('saveApiIP:$ip');
+    Log.debug('saveApiIP:$ip');
     NetworkSetting.apiIP.value = ip;
     _save();
   }
 
   static saveForumsIP(String ip) {
-    Log.verbose('saveForumsIP:$ip');
+    Log.debug('saveForumsIP:$ip');
     NetworkSetting.forumsIP.value = ip;
     _save();
   }

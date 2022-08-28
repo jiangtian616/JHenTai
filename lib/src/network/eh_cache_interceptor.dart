@@ -47,7 +47,7 @@ class EHCacheInterceptor extends Interceptor {
 
   static Future<void> init() async {
     Get.put<EHCacheInterceptor>(EHCacheInterceptor(options: noCacheOption));
-    Log.verbose('init EHCacheInterceptor success');
+    Log.debug('init EHCacheInterceptor success');
   }
 
   @override

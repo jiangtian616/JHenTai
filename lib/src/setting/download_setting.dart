@@ -23,9 +23,9 @@ class DownloadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init DownloadSetting success', false);
+      Log.debug('init DownloadSetting success', false);
     } else {
-      Log.verbose('init DownloadSetting success: default', false);
+      Log.debug('init DownloadSetting success: default', false);
     }
 
     /// listen to login and logout
@@ -37,19 +37,19 @@ class DownloadSetting {
   }
 
   static saveDownloadPath(String downloadPath) {
-    Log.verbose('saveDownloadPath:$downloadPath');
+    Log.debug('saveDownloadPath:$downloadPath');
     DownloadSetting.downloadPath.value = downloadPath;
     _save();
   }
 
   static saveDownloadOriginalImage(DownloadOriginalImageMode value) {
-    Log.verbose('saveDownloadOriginalImage:${value.name}');
+    Log.debug('saveDownloadOriginalImage:${value.name}');
     DownloadSetting.downloadOriginalImage.value = value;
     _save();
   }
 
   static saveDownloadTaskConcurrency(int downloadTaskConcurrency) {
-    Log.verbose('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
+    Log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
     _save();
 
@@ -57,7 +57,7 @@ class DownloadSetting {
   }
 
   static saveMaximum(int maximum) {
-    Log.verbose('saveMaximum:$maximum');
+    Log.debug('saveMaximum:$maximum');
     DownloadSetting.maximum.value = maximum;
     _save();
 
@@ -65,7 +65,7 @@ class DownloadSetting {
   }
 
   static savePeriod(Duration period) {
-    Log.verbose('savePeriod:$period');
+    Log.debug('savePeriod:$period');
     DownloadSetting.period.value = period;
     _save();
 
@@ -73,13 +73,13 @@ class DownloadSetting {
   }
 
   static saveTimeout(int value) {
-    Log.verbose('saveTimeout:$value');
+    Log.debug('saveTimeout:$value');
     timeout.value = value;
     _save();
   }
 
   static saveDownloadInOrderOfInsertTime(bool value) {
-    Log.verbose('saveDownloadInOrderOfInsertTime:$value');
+    Log.debug('saveDownloadInOrderOfInsertTime:$value');
     downloadInOrderOfInsertTime.value = value;
     _save();
   }

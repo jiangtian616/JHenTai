@@ -31,9 +31,9 @@ class FavoriteSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('favoriteSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.verbose('init FavoriteSetting success', false);
+      Log.debug('init FavoriteSetting success', false);
     } else {
-      Log.verbose('init FavoriteSetting success: default', false);
+      Log.debug('init FavoriteSetting success: default', false);
     }
 
     /// listen to login and logout

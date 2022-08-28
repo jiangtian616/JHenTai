@@ -259,7 +259,7 @@ class DetailsPageLogic extends GetxController {
   }
 
   Future<void> shareGallery() async {
-    Log.verbose('Share gallery:${state.gallery!.galleryUrl}');
+    Log.info('Share gallery:${state.gallery!.galleryUrl}');
 
     if (GetPlatform.isDesktop) {
       await FlutterClipboard.copy(state.gallery!.galleryUrl);
@@ -288,7 +288,7 @@ class DetailsPageLogic extends GetxController {
       return;
     }
 
-    Log.verbose('Favorite gallery:${state.gallery!.gid}');
+    Log.info('Favorite gallery:${state.gallery!.gid}');
 
     state.favoriteState = LoadingState.loading;
     update([addFavoriteStateId]);
@@ -352,7 +352,7 @@ class DetailsPageLogic extends GetxController {
       return;
     }
 
-    Log.verbose('Rate gallery:${state.gallery!.gid}');
+    Log.info('Rate gallery:${state.gallery!.gid}');
 
     state.ratingState = LoadingState.loading;
     update([ratingStateId]);
@@ -447,7 +447,7 @@ class DetailsPageLogic extends GetxController {
       return null;
     }
 
-    Log.verbose('Vote for comment:${state.gallery!.gid}-$commentId}');
+    Log.info('Vote for comment:${state.gallery!.gid}-$commentId}');
 
     EHRequest.voteComment(
       state.gallery!.gid,

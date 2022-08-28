@@ -17,7 +17,7 @@ class QuickSearchService extends GetxController {
 
   static void init() {
     Get.put(QuickSearchService());
-    Log.verbose('init QuickSearchService success', false);
+    Log.debug('init QuickSearchService success', false);
   }
 
   @override

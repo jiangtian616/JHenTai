@@ -115,7 +115,7 @@ class OldGalleryDownloadService extends GetxController {
       }
     }
 
-    Log.verbose('init DownloadService success, download task count: ${gallerys.length}');
+    Log.debug('init DownloadService success, download task count: ${gallerys.length}');
     super.onInit();
   }
 
