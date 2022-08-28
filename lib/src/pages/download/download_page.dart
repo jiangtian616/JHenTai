@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/download/local_gallery_body.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../service/gallery_download_service.dart';
@@ -27,6 +28,8 @@ class _DownloadPageState extends State<DownloadPage> {
   final GalleryDownloadService downloadService = Get.find();
 
   DownloadPageBodyType bodyType = DownloadPageBodyType.download;
+
+  bool aggregateDirectories = false;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +86,13 @@ class _DownloadPageState extends State<DownloadPage> {
           if (bodyType == DownloadPageBodyType.local)
             ExcludeFocus(
               child: IconButton(
+                icon: Icon(Icons.merge, size: 24, color: aggregateDirectories ? Get.theme.primaryColor : Colors.grey),
+                onPressed: toggleAggregateDirectory,
+              ),
+            ),
+          if (bodyType == DownloadPageBodyType.local)
+            ExcludeFocus(
+              child: IconButton(
                 icon: Icon(Icons.refresh, size: 26, color: Get.theme.primaryColor),
                 onPressed: handleRefreshLocalGallery,
               ),
@@ -101,7 +111,10 @@ class _DownloadPageState extends State<DownloadPage> {
                 )
               : FadeIn(
                   key: const Key('3'),
-                  child: const LocalGalleryBody(key: PageStorageKey('LocalGalleryBody')),
+                  child: LocalGalleryBody(
+                    key: const PageStorageKey('LocalGalleryBody'),
+                    aggregateDirectories: aggregateDirectories,
+                  ),
                 ),
     );
   }
@@ -111,6 +124,11 @@ class _DownloadPageState extends State<DownloadPage> {
     setState(() {});
 
     toast('${'newGalleryCount'.tr}: $addCount');
+  }
+
+  void toggleAggregateDirectory() {
+    Log.info('toggleAggregateDirectory -> ${!aggregateDirectories}');
+    setState(() => aggregateDirectories = !aggregateDirectories);
   }
 
   void _showLocalGalleryHelpInfo() {

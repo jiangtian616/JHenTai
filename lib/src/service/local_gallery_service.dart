@@ -31,7 +31,9 @@ class LocalGallery {
 class LocalGalleryService extends GetxController {
   static const String refreshId = 'refreshId';
 
-  List<LocalGallery> gallerys = [];
+  List<LocalGallery> allGallerys = [];
+  Map<String, List<LocalGallery>> path2Gallerys = {};
+  Map<String, List<String>> path2Directories = {};
 
   static Future<void> init() async {
     Get.put(LocalGalleryService(), permanent: true);
@@ -51,14 +53,16 @@ class LocalGalleryService extends GetxController {
 
     io.Directory dir = io.Directory(gallery.path);
     dir.deleteSync(recursive: true);
-    gallerys.removeWhere((g) => g.title == gallery.title);
+    allGallerys.removeWhere((g) => g.title == gallery.title);
     update([refreshId]);
   }
 
   Future<int> refreshLocalGallerys() async {
-    int preCount = gallerys.length;
+    int preCount = allGallerys.length;
 
-    gallerys.clear();
+    allGallerys.clear();
+    path2Gallerys.clear();
+    path2Directories.clear();
     int newCount = await _loadGalleriesFromDisk();
 
     Log.info('Refresh local gallerys, preCount:$preCount, newCount: $newCount');
@@ -73,21 +77,28 @@ class LocalGalleryService extends GetxController {
       return 0;
     }
 
-    List<io.Directory> galleryDirs = downloadDir
-        .listSync(
-          recursive: true,
-        )
-        .whereType<io.Directory>()
-        .where((dir) => _checkLegalGalleryDir(dir))
-        .toList();
+    _parseDirectory(downloadDir);
 
-    for (io.Directory galleryDir in galleryDirs) {
-      _initGalleryInfoInMemory(galleryDir);
-    }
-
-    return galleryDirs.length;
+    return allGallerys.length;
   }
 
+  void _parseDirectory(io.Directory directory) {
+    String parentPath = directory.path;
+    List<io.Directory> gallerysInCurrentPath = directory.listSync().whereType<io.Directory>().where((dir) => _checkLegalGalleryDir(dir)).toList();
+    List<io.Directory> nestedDirectoriesInCurrentPath =
+        directory.listSync().whereType<io.Directory>().where((dir) => _checkLegalNestedDirectories(dir)).toList();
+
+    for (io.Directory galleryDir in gallerysInCurrentPath) {
+      _initGalleryInfoInMemory(galleryDir, parentPath);
+    }
+
+    for (io.Directory childDir in nestedDirectoriesInCurrentPath) {
+      (path2Directories[parentPath] ??= []).add(childDir.path);
+      _parseDirectory(childDir);
+    }
+  }
+
+  /// has images
   bool _checkLegalGalleryDir(io.Directory galleryDir) {
     /// has metadata => downloaded by JHenTai, continue
     if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
@@ -114,7 +125,31 @@ class LocalGalleryService extends GetxController {
     return false;
   }
 
-  void _initGalleryInfoInMemory(io.Directory galleryDir) {
+  /// has valid child directories
+  bool _checkLegalNestedDirectories(io.Directory galleryDir) {
+    /// has metadata => downloaded by JHenTai, continue
+    if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
+      return false;
+    }
+    if (io.File(join(galleryDir.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
+      return false;
+    }
+
+    List<io.Directory> childDirs = galleryDir.listSync().whereType<io.Directory>().toList();
+    if (childDirs.isEmpty) {
+      return false;
+    }
+
+    for (io.Directory childDir in childDirs) {
+      if (_checkLegalGalleryDir(childDir) || _checkLegalNestedDirectories(childDir)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  void _initGalleryInfoInMemory(io.Directory galleryDir, String parentPath) {
     List<io.File> imageFiles = galleryDir
         .listSync()
         .whereType<io.File>()
@@ -142,12 +177,15 @@ class LocalGalleryService extends GetxController {
       ));
     }
 
-    gallerys.add(LocalGallery(
+    LocalGallery gallery = LocalGallery(
       title: basename(galleryDir.path),
       path: galleryDir.path,
       pageCount: images.length,
       images: images,
       time: galleryDir.statSync().modified,
-    ));
+    );
+
+    allGallerys.add(gallery);
+    (path2Gallerys[parentPath] ??= []).add(gallery);
   }
 }

@@ -1,9 +1,13 @@
+import 'dart:io' as io;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:path/path.dart' as p;
 
 import '../../model/read_page_info.dart';
 import '../../routes/routes.dart';
@@ -16,7 +20,9 @@ import '../../widget/focus_widget.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class LocalGalleryBody extends StatefulWidget {
-  const LocalGalleryBody({Key? key}) : super(key: key);
+  final bool aggregateDirectories;
+
+  const LocalGalleryBody({Key? key, required this.aggregateDirectories}) : super(key: key);
 
   @override
   State<LocalGalleryBody> createState() => _LocalGalleryBodyState();
@@ -30,6 +36,8 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
 
   final Map<String, AnimationController> removedTitle2AnimationController = {};
   final Map<String, Animation<double>> removedTitle2Animation = {};
+
+  String currentPath = DownloadSetting.downloadPath.value;
 
   @override
   void initState() {
@@ -57,15 +65,91 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         child: ListView.builder(
           controller: _scrollController,
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          itemCount: localGalleryService.gallerys.length,
-          itemBuilder: (context, index) => _itemBuilder(context, index),
+          itemCount: widget.aggregateDirectories
+              ? localGalleryService.allGallerys.length
+              : localGalleryService.path2Gallerys[currentPath]!.length + (localGalleryService.path2Directories[currentPath]?.length ?? 0) + 1,
+          itemBuilder: (context, index) {
+            if (widget.aggregateDirectories) {
+              return galleryItemBuilder(context, index);
+            }
+
+            if (index == 0) {
+              return parentDirectoryItemBuilder(context);
+            }
+
+            if (index <= (localGalleryService.path2Directories[currentPath]?.length ?? 0)) {
+              return nestedDirectoryItemBuilder(context, index - 1);
+            }
+            return galleryItemBuilder(context, index - 1 - (localGalleryService.path2Directories[currentPath]?.length ?? 0));
+          },
         ),
       ),
     );
   }
 
-  Widget _itemBuilder(BuildContext context, int index) {
-    LocalGallery gallery = localGalleryService.gallerys[index];
+  Widget parentDirectoryItemBuilder(BuildContext context) {
+    return FocusWidget(
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapEnter: _backRoute,
+      handleTapArrowRight: _backRoute,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _backRoute,
+        child: _buildNestedDirectory('/..'),
+      ),
+    );
+  }
+
+  Widget nestedDirectoryItemBuilder(BuildContext context, int index) {
+    String childPath = localGalleryService.path2Directories[currentPath]![index];
+
+    return FocusWidget(
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapEnter: () => _pushRoute(childPath),
+      handleTapArrowRight: () => _pushRoute(childPath),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _pushRoute(childPath),
+        child: _buildNestedDirectory(p.relative(childPath, from: currentPath)),
+      ),
+    );
+  }
+
+  Widget _buildNestedDirectory(String displayPath) {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+
+        /// covered when in dark mode
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 2,
+            spreadRadius: 1,
+            offset: const Offset(0.3, 1),
+          )
+        ],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Row(
+          children: [
+            const SizedBox(width: 110, child: Center(child: Icon(Icons.folder))),
+            Expanded(child: Text(displayPath, maxLines: 1, overflow: TextOverflow.ellipsis))
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget galleryItemBuilder(BuildContext context, int index) {
+    LocalGallery gallery =
+        widget.aggregateDirectories ? localGalleryService.allGallerys[index] : localGalleryService.path2Gallerys[currentPath]![index];
 
     Widget child = FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
@@ -78,7 +162,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         child: GestureDetector(
           onSecondaryTap: () => _showBottomSheet(gallery, index, context),
           onLongPress: () => _showBottomSheet(gallery, index, context),
-          child: _buildCard(gallery),
+          child: _buildGallery(gallery),
         ),
       ),
     );
@@ -102,7 +186,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
   ActionPane _buildEndActionPane(LocalGallery gallery) {
     return ActionPane(
       motion: const DrawerMotion(),
-      extentRatio: 0.3,
+      extentRatio: 0.15,
       children: [
         SlidableAction(
           icon: Icons.delete,
@@ -114,7 +198,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
     );
   }
 
-  Widget _buildCard(LocalGallery gallery) {
+  Widget _buildGallery(LocalGallery gallery) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => _goToReadPage(gallery),
@@ -181,6 +265,19 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
     );
   }
 
+  /// to next directory
+  void _pushRoute(String dirName) {
+    setState(() => currentPath = p.join(currentPath, dirName));
+  }
+
+  /// back to previous directory
+  void _backRoute() {
+    if (currentPath == DownloadSetting.downloadPath.value) {
+      return;
+    }
+    setState(() => currentPath = io.Directory(currentPath).parent.path);
+  }
+
   void _showBottomSheet(LocalGallery gallery, int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
@@ -231,7 +328,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         initialIndex: readIndexRecord,
         currentIndex: readIndexRecord,
         pageCount: gallery.pageCount,
-        images: localGalleryService.gallerys.firstWhere((g) => g.title == gallery.title).images,
+        images: localGalleryService.allGallerys.firstWhere((g) => g.title == gallery.title).images,
       ),
     );
   }
