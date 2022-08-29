@@ -366,42 +366,6 @@ class GalleryDownloadService extends GetxController {
     });
   }
 
-  Future<void> _instantiateFromDB() async {
-    /// Get download info from database, order by insertTime DESC, serialNo
-    List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
-
-    /// Instantiate from db
-    for (SelectGallerysWithImagesResult record in records) {
-      GalleryDownloadedData gallery = _record2Gallery(record);
-
-      /// Instantiate [Gallery]
-      if (gallerys.firstWhereOrNull((g) => g.gid == gallery.gid) == null) {
-        _initGalleryInfoInMemory(gallery);
-      }
-
-      /// Current image has not been parsed, no need to instantiate GalleryImage
-      if (record.url == null) {
-        continue;
-      }
-
-      /// Instantiate [GalleryImage]
-      GalleryImage image = GalleryImage(
-        url: record.url!,
-        height: record.height!,
-        width: record.width!,
-        path: record.path!,
-        imageHash: record.imageHash!,
-        downloadStatus: DownloadStatus.values[record.imageDownloadStatusIndex!],
-      );
-
-      galleryDownloadInfos[gallery.gid]!.images[record.serialNo!] = image;
-      if (image.downloadStatus == DownloadStatus.downloaded) {
-        galleryDownloadInfos[gallery.gid]!.downloadProgress.curCount++;
-        galleryDownloadInfos[gallery.gid]!.downloadProgress.hasDownloaded[record.serialNo!] = true;
-      }
-    }
-  }
-
   /// SelectGallerysWithImagesResult -> GalleryDownloadedData
   GalleryDownloadedData _record2Gallery(SelectGallerysWithImagesResult record) {
     return GalleryDownloadedData(
@@ -841,6 +805,42 @@ class GalleryDownloadService extends GetxController {
   }
 
   // ALL
+
+  Future<void> _instantiateFromDB() async {
+    /// Get download info from database, order by insertTime DESC, serialNo
+    List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
+
+    /// Instantiate from db
+    for (SelectGallerysWithImagesResult record in records) {
+      GalleryDownloadedData gallery = _record2Gallery(record);
+
+      /// Instantiate [Gallery]
+      if (gallerys.firstWhereOrNull((g) => g.gid == gallery.gid) == null) {
+        _initGalleryInfoInMemory(gallery);
+      }
+
+      /// Current image has not been parsed, no need to instantiate GalleryImage
+      if (record.url == null) {
+        continue;
+      }
+
+      /// Instantiate [GalleryImage]
+      GalleryImage image = GalleryImage(
+        url: record.url!,
+        height: record.height!,
+        width: record.width!,
+        path: record.path!,
+        imageHash: record.imageHash!,
+        downloadStatus: DownloadStatus.values[record.imageDownloadStatusIndex!],
+      );
+
+      galleryDownloadInfos[gallery.gid]!.images[record.serialNo!] = image;
+      if (image.downloadStatus == DownloadStatus.downloaded) {
+        galleryDownloadInfos[gallery.gid]!.downloadProgress.curCount++;
+        galleryDownloadInfos[gallery.gid]!.downloadProgress.hasDownloaded[record.serialNo!] = true;
+      }
+    }
+  }
 
   Future<bool> _initGalleryInfo(GalleryDownloadedData gallery) async {
     if (!await _saveGalleryInfoInDB(gallery)) {

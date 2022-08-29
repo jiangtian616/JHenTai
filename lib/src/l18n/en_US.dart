@@ -128,6 +128,9 @@ class en_US {
       'updateGalleryError': 'Update Gallery Error',
       'thisGalleryHasANewVersion': 'This gallery has a new version',
       'hasUpdated': 'Has updated',
+      'failedToDealWith': 'Failed to deal with',
+      'hasDownloaded': 'Has downloaded',
+      '410Hints': 'You have clocked too many downloaded bytes on this archive, and need to re-unlock of this archive to resume',
 
       /// comment page
       'newComment': 'New Comment',
@@ -297,12 +300,15 @@ class en_US {
       'deleteTask': 'Delete Task Only',
       'deleteTaskAndImages': 'Delete Task And Images',
       'unlocking': 'unlocking',
-      'waitingForDownloadPageUrl': 'Waiting For Download',
-      'waitingForDownloadUrl': 'Waiting For Download',
+      'parsingDownloadPageUrl': 'Parsing download page url',
+      'parsingDownloadUrl': 'Parsing download url',
       'downloaded': 'Downloaded',
       'downloadFailed': 'DownloadFailed',
       'unpacking': 'Unpacking',
       'completed': 'Completed',
+      'needReUnlock': 'Need Re-Unlock',
+      'reUnlock': 'Re-Unlock',
+      'reUnlockHint': 'Attention! Re-unlock need to buy this archive again.',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
       'localGalleryHelpInfo':
           'Load gallerys which is not downloaded by JHenTai. All you need is to move gallery directory to JHenTai download path and refresh.',

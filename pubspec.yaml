@@ -11,7 +11,10 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  dio: ^4.0.6
+  dio:
+    git:
+      url: https://gitee.com/jiangtian616/dio
+      path: dio
   cookie_jar: 3.0.1
   dio_cookie_manager: ^2.0.0
   dio_cache_interceptor: 3.2.6
@@ -57,13 +60,19 @@ dependencies:
   share_plus: ^4.0.10
   syncfusion_flutter_charts: ^20.2.36
   sentry_flutter: ^6.9.1
-  archive: ^3.3.0
+  archive: ^3.3.1
   image_size_getter: ^2.1.1
   fluttertoast: ^8.0.9
   battery_plus: ^2.1.4
   throttling: ^1.0.0
   receive_sharing_intent: ^1.4.5
   bitsdojo_window: ^0.1.2
+
+dependency_overrides:
+  dio:
+    git:
+      url: https://gitee.com/jiangtian616/dio
+      path: dio
 
 dev_dependencies:
   flutter_test:

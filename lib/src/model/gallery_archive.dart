@@ -1,15 +1,3 @@
-enum ArchiveStatus {
-  none,
-  paused,
-  unlocking,
-  waitingForDownloadPageUrl,
-  waitingForDownloadUrl,
-  downloading,
-  downloaded,
-  unpacking,
-  completed,
-}
-
 class GalleryArchive {
   int? gpCount;
   int? creditCount;

@@ -128,6 +128,8 @@ class zh_TW {
       'updateGalleryError': '更新畫廊失敗',
       'thisGalleryHasANewVersion': '該畫廊有新版本',
       'hasUpdated': '已更新',
+      'hasDownloaded': '已下載',
+      '410Hints': '下載此歸檔次數過多，你需要重新購買、解鎖後才能繼續下載',
 
       /// comment page
       'newComment': '新評論',
@@ -135,6 +137,7 @@ class zh_TW {
       'sendCommentFailed': '發送評論失敗',
       'voteCommentFailed': '投票評論失敗',
       'unknownUser': '未知用戶',
+      'failedToDealWith': '處理失敗',
 
       /// EHImage
       'reloadImage': "重新載入圖片",
@@ -297,12 +300,15 @@ class zh_TW {
       'deleteTaskAndImages': '刪除任務和圖片',
       'reDownload': '重新下載',
       'unlocking': '解鎖歸檔中',
-      'waitingForDownloadPageUrl': '等待下載中',
-      'waitingForDownloadUrl': '等待下載中',
+      'parsingDownloadPageUrl': '解析下載頁面鏈接',
+      'parsingDownloadUrl': '解析下載鏈接',
       'downloaded': '下載完成',
       'downloadFailed': '下載失敗',
       'unpacking': '解壓中',
       'completed': '已完成',
+      'needReUnlock': '需要重新解鎖',
+      'reUnlock': '重新解鎖',
+      'reUnlockHint': '注意！重新解鎖需要重新購買此歸檔！',
       'downloadHelpInfo': '如果發現無法下載，在日誌中發現了數據庫表不存在等問題，卸載當前app重裝即可。',
       'localGalleryHelpInfo': '加載那些不是由JHenTai下載的畫廊(当做本地阅览器)。只需要將畫廊文件夾移動至JHenTai下載目錄然後刷新即可',
       'priority': '優先級',

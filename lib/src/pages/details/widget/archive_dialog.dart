@@ -6,10 +6,11 @@ import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
-import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../network/eh_request.dart';
+import '../../../service/archive_download_service.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
@@ -192,13 +193,11 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
   }
 
   void _downloadArchive(bool isOriginal) {
-    ArchiveDownloadedData archive = state.gallery!.toArchiveDownloadedData(
-      state.galleryDetails!.archivePageUrl,
-      isOriginal,
-      _computeSizeInBytes(isOriginal),
-    );
+    ArchiveDownloadedData archive =
+        state.gallery!.toArchiveDownloadedData(state.galleryDetails!.archivePageUrl, isOriginal, _computeSizeInBytes(isOriginal));
 
-    if (archiveDownloadService.archiveStatuses.get(archive.gid, archive.isOriginal) != null) {
+    if (archiveDownloadService.archiveDownloadInfos.containsKey(archive.gid)) {
+      toast('hasDownloaded'.tr);
       return;
     }
 

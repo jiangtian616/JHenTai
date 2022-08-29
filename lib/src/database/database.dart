@@ -15,7 +15,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -31,6 +31,14 @@ class AppDb extends _$AppDb {
           }
           if (from < 4) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.priority);
+          }
+          if (from < 5) {
+            List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
+            await appDb.transaction(() async {
+              for (ArchiveDownloadedData a in archives) {
+                await appDb.updateArchive(a.archiveStatusIndex + 1, a.downloadPageUrl, a.downloadUrl, a.gid, a.isOriginal);
+              }
+            });
           }
         } on Exception catch (e) {
           Log.error(e);

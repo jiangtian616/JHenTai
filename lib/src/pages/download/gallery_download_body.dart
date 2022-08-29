@@ -248,35 +248,74 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
             const Expanded(child: SizedBox()),
             _buildIsOriginal(gallery).marginOnly(right: 10),
             _buildPriority(gallery).marginOnly(right: 6),
-            GetBuilder<GalleryDownloadService>(
-              id: '$galleryDownloadProgressId::${gallery.gid}',
-              builder: (_) {
-                DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
-                return GestureDetector(
-                  onTap: downloadStatus == DownloadStatus.switching
-                      ? null
-                      : () {
-                          downloadStatus == DownloadStatus.paused
-                              ? downloadService.resumeDownloadGallery(gallery)
-                              : downloadService.pauseDownloadGallery(gallery);
-                        },
-                  child: downloadStatus == DownloadStatus.switching
-                      ? const SizedBox(height: 26, child: CupertinoActivityIndicator(radius: 10))
-                      : Icon(
-                          downloadStatus == DownloadStatus.paused
-                              ? Icons.play_arrow
-                              : downloadStatus == DownloadStatus.downloading
-                                  ? Icons.pause
-                                  : Icons.done,
-                          size: 26,
-                          color: downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
-                        ),
-                );
-              },
-            ),
+            _buildButton(gallery),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildIsOriginal(GalleryDownloadedData gallery) {
+    bool isOriginal = gallery.downloadOriginalImage;
+    if (!isOriginal) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Get.theme.primaryColorLight),
+      ),
+      child: Text(
+        'original'.tr,
+        style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold, fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildPriority(GalleryDownloadedData gallery) {
+    int? priority = downloadService.galleryDownloadInfos[gallery.gid]?.priority;
+    if (priority == null) {
+      return const SizedBox();
+    }
+
+    switch (priority) {
+      case 1:
+        return Text('①', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 2:
+        return Text('②', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case 3:
+        return Text('③', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      case GalleryDownloadService.defaultDownloadGalleryPriority:
+        return const SizedBox();
+      case 5:
+        return Text('⑤', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _buildButton(GalleryDownloadedData gallery) {
+    return GetBuilder<GalleryDownloadService>(
+      id: '$galleryDownloadProgressId::${gallery.gid}',
+      builder: (_) {
+        DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
+        return GestureDetector(
+          onTap: () {
+            downloadStatus == DownloadStatus.paused ? downloadService.resumeDownloadGallery(gallery) : downloadService.pauseDownloadGallery(gallery);
+          },
+          child: Icon(
+            downloadStatus == DownloadStatus.paused
+                ? Icons.play_arrow
+                : downloadStatus == DownloadStatus.downloading
+                    ? Icons.pause
+                    : Icons.done,
+            size: 26,
+            color: downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+          ),
+        );
+      },
     );
   }
 
@@ -320,51 +359,6 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
         );
       },
     );
-  }
-
-  Widget _buildIsOriginal(GalleryDownloadedData gallery) {
-    bool isOriginal = gallery.downloadOriginalImage;
-    if (!isOriginal) {
-      return const SizedBox();
-    }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Get.theme.primaryColorLight),
-      ),
-      child: Text(
-        'original'.tr,
-        style: TextStyle(
-          color: Get.theme.primaryColorLight,
-          fontWeight: FontWeight.bold,
-          fontSize: 9,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPriority(GalleryDownloadedData gallery) {
-    int? priority = downloadService.galleryDownloadInfos[gallery.gid]?.priority;
-    if (priority == null) {
-      return const SizedBox();
-    }
-
-    switch (priority) {
-      case 1:
-        return Text('①', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
-      case 2:
-        return Text('②', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
-      case 3:
-        return Text('③', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
-      case GalleryDownloadService.defaultDownloadGalleryPriority:
-        return const SizedBox();
-      case 5:
-        return Text('⑤', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
-      default:
-        return const SizedBox();
-    }
   }
 
   void _showBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {

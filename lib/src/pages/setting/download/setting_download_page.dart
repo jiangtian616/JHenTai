@@ -5,7 +5,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
@@ -13,6 +12,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
+import '../../../service/archive_download_service.dart';
 import '../../../service/gallery_download_service.dart';
 import '../../../utils/log.dart';
 
@@ -326,7 +326,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     Log.info('Restore download task.');
 
     int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
-    int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restore();
+    int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restoreTasks();
     snack(
       'restoreDownloadTasksSuccess'.tr,
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount, ${'restoredArchiveCount'.tr}: $restoredArchiveCount',

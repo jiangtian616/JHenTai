@@ -464,7 +464,11 @@ class EHRequest {
     required String path,
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
+    bool appendMode = false,
+    bool caseInsensitiveHeader = true,
     int? receiveTimeout,
+    String? range,
+    bool deleteOnError = true,
     EHHtmlParser<T>? parser,
   }) async {
     Response response = await _dio.download(
@@ -472,9 +476,13 @@ class EHRequest {
       path,
       onReceiveProgress: onReceiveProgress,
       cancelToken: cancelToken,
+      appendFile: appendMode,
+      deleteOnError: deleteOnError,
       options: Options(
+        caseInsensitiveHeader: caseInsensitiveHeader,
         receiveTimeout: receiveTimeout ?? DownloadSetting.timeout.value * 1000,
         extra: EHCacheInterceptor.cacheOption.toExtra(),
+        headers: range == null ? null : {'Range': range},
       ),
     );
     parser ??= noOpParser;
@@ -579,25 +587,27 @@ class EHRequest {
 
   static Future<T> requestUnlockArchive<T>({
     required String url,
-    required int gid,
-    required String token,
-    required String or,
     required bool isOriginal,
     CancelToken? cancelToken,
     EHHtmlParser<T>? parser,
   }) async {
     Response response = await _dio.post(
       url,
-      queryParameters: {
-        'gid': gid,
-        'token': token,
-        'or': or,
-      },
       data: FormData.fromMap({
         'dltype': isOriginal ? 'org' : 'res',
         'dlcheck': isOriginal ? 'Download Original Archive' : 'Download Resample Archive',
       }),
       cancelToken: cancelToken,
+    );
+
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
+  static Future<T> requestCancelUnlockArchive<T>({required String url, EHHtmlParser<T>? parser}) async {
+    Response response = await _dio.post(
+      url,
+      data: FormData.fromMap({'invalidate_sessions': 1}),
     );
 
     parser ??= noOpParser;

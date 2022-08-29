@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/download/local_gallery_body.dart';
+import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../service/gallery_download_service.dart';
+import '../../service/storage_service.dart';
 import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'archive_download_body.dart';
 import 'gallery_download_body.dart';
@@ -25,11 +27,20 @@ class DownloadPage extends StatefulWidget {
 }
 
 class _DownloadPageState extends State<DownloadPage> {
-  final GalleryDownloadService downloadService = Get.find();
+  final GalleryDownloadService galleryDownloadService = Get.find();
+  final ArchiveDownloadService archiveDownloadService = Get.find();
+
+  final StorageService storageService = Get.find<StorageService>();
 
   DownloadPageBodyType bodyType = DownloadPageBodyType.download;
 
   bool aggregateDirectories = false;
+
+  @override
+  void initState() {
+    aggregateDirectories = storageService.read('LocalGalleryBody_AggregateDirectories') ?? aggregateDirectories;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,19 +86,23 @@ class _DownloadPageState extends State<DownloadPage> {
             width: 88,
             child: Row(
               children: [
-                if (bodyType == DownloadPageBodyType.download)
+                if (bodyType == DownloadPageBodyType.download || bodyType == DownloadPageBodyType.archive)
                   ExcludeFocus(
                     child: IconButton(
                       icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
-                      onPressed: downloadService.resumeAllDownloadGallery,
+                      onPressed: bodyType == DownloadPageBodyType.download
+                          ? galleryDownloadService.resumeAllDownloadGallery
+                          : archiveDownloadService.resumeAllDownloadArchive,
                       visualDensity: const VisualDensity(horizontal: -4),
                     ),
                   ),
-                if (bodyType == DownloadPageBodyType.download)
+                if (bodyType == DownloadPageBodyType.download || bodyType == DownloadPageBodyType.archive)
                   ExcludeFocus(
                     child: IconButton(
                       icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
-                      onPressed: downloadService.pauseAllDownloadGallery,
+                      onPressed: bodyType == DownloadPageBodyType.download
+                          ? galleryDownloadService.pauseAllDownloadGallery
+                          : archiveDownloadService.pauseAllDownloadArchive,
                     ),
                   ),
                 if (bodyType == DownloadPageBodyType.local)
@@ -139,7 +154,13 @@ class _DownloadPageState extends State<DownloadPage> {
 
   void toggleAggregateDirectory() {
     Log.info('toggleAggregateDirectory -> ${!aggregateDirectories}');
-    setState(() => aggregateDirectories = !aggregateDirectories);
+
+    bool newValue = !aggregateDirectories;
+    setState(() => aggregateDirectories = newValue);
+
+    Get.engine.addPostFrameCallback((_) {
+      storageService.write('LocalGalleryBody_AggregateDirectories', newValue);
+    });
   }
 
   void _showLocalGalleryHelpInfo() {

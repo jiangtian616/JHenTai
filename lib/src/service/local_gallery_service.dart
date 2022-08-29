@@ -3,13 +3,13 @@ import 'dart:io' as io;
 import 'package:get/get.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
-import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:path/path.dart';
 
 import '../model/gallery_image.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';
+import 'archive_download_service.dart';
 
 class LocalGallery {
   String title;
@@ -158,10 +158,10 @@ class LocalGalleryService extends GetxController {
     imageFiles.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
     List<GalleryImage> images = [];
-    for (io.FileSystemEntity file in imageFiles) {
+    for (io.File file in imageFiles) {
       Size size;
       try {
-        size = ImageSizeGetter.getSize(FileInput(file as io.File));
+        size = ImageSizeGetter.getSize(FileInput(file));
       } on Exception catch (e) {
         Log.error("Parse local images failed!", e);
         Log.upload(e, extraInfos: {'file': file.path});

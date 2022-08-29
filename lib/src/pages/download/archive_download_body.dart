@@ -3,21 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:jhentai/src/widget/re_unlock_dialog.dart';
 
 import '../../model/gallery_image.dart';
 import '../../routes/routes.dart';
+import '../../service/archive_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/byte_util.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
-import '../../utils/speed_computer.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import '../../widget/eh_image.dart';
+import '../../widget/focus_widget.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 
 class ArchiveDownloadBody extends StatefulWidget {
@@ -27,30 +27,21 @@ class ArchiveDownloadBody extends StatefulWidget {
   State<ArchiveDownloadBody> createState() => _ArchiveDownloadBodyState();
 }
 
-class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-
+class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> with TickerProviderStateMixin {
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  late int archivesCount;
   final ScrollController _scrollController = ScrollController();
+
+  final Map<int, AnimationController> removedGidAndIsOrigin2AnimationController = {};
+  final Map<int, Animation<double>> removedGidAndIsOrigin2Animation = {};
 
   @override
   void initState() {
-    archivesCount = archiveDownloadService.archives.length;
     if (Get.isRegistered<DesktopLayoutPageLogic>()) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
     }
     super.initState();
-  }
-
-  @override
-  void activate() {
-    super.activate();
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
-      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
-    }
   }
 
   @override
@@ -62,73 +53,70 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
-      initState: _listen2AddItem,
-      builder: (_) {
-        return EHWheelSpeedController(
-          scrollController: _scrollController,
-          child: AnimatedList(
-            key: _listKey,
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            initialItemCount: archivesCount,
-            itemBuilder: (context, index, animation) => _itemBuilder(context, index),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _itemBuilder(BuildContext context, int index) {
-    ArchiveDownloadedData archive = archiveDownloadService.archives[index];
-    return Slidable(
-      key: Key(archive.gid.toString()),
-      endActionPane: ActionPane(
-        motion: const DrawerMotion(),
-        extentRatio: 0.15,
-        children: [
-          SlidableAction(
-            icon: Icons.delete,
-            foregroundColor: Colors.red,
-            backgroundColor: Get.theme.scaffoldBackgroundColor,
-            onPressed: (BuildContext context) => _handleRemoveItem(context, index),
-          )
-        ],
-      ),
-      child: GestureDetector(
-        onSecondaryTap: () => _showDeleteBottomSheet(archive, index, context),
-        onLongPress: () => _showDeleteBottomSheet(archive, index, context),
-        child: Container(
-          height: 130,
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-
-            /// covered when in dark mode
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 2,
-                spreadRadius: 1,
-                offset: const Offset(0.3, 1),
-              )
-            ],
-            borderRadius: BorderRadius.circular(15),
-          ),
-          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Row(
-              children: [
-                _buildCover(archive, context),
-                _buildInfo(archive),
-              ],
-            ),
-          ),
+      id: ArchiveDownloadService.archiveCountChangedId,
+      builder: (_) => EHWheelSpeedController(
+        scrollController: _scrollController,
+        child: ListView.builder(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          itemCount: archiveDownloadService.archives.length,
+          itemBuilder: (context, index) => _itemBuilder(context, index),
         ),
       ),
     );
   }
 
-  Widget _removeItemBuilder() {
+  Widget _itemBuilder(BuildContext context, int index) {
+    ArchiveDownloadedData archive = archiveDownloadService.archives[index];
+
+    Widget child = FocusWidget(
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapEnter: () => _goToReadPage(archive),
+      handleTapArrowRight: () => _goToReadPage(archive),
+      child: Slidable(
+        key: Key(archive.gid.toString()),
+        endActionPane: _buildEndActionPane(archive),
+        child: GestureDetector(
+          onSecondaryTap: () => _showDeleteBottomSheet(archive, context),
+          onLongPress: () => _showDeleteBottomSheet(archive, context),
+          child: _buildCard(archive),
+        ),
+      ),
+    );
+
+    /// has not been deleted
+    if (!removedGidAndIsOrigin2AnimationController.containsKey(archive.gid)) {
+      return child;
+    }
+
+    AnimationController controller = removedGidAndIsOrigin2AnimationController[archive.gid]!;
+    Animation<double> animation = removedGidAndIsOrigin2Animation[archive.gid]!;
+
+    /// has been deleted, start animation
+    if (!controller.isAnimating) {
+      controller.forward();
+    }
+
+    return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
+  }
+
+  ActionPane _buildEndActionPane(ArchiveDownloadedData archive) {
+    return ActionPane(
+      motion: const DrawerMotion(),
+      extentRatio: 0.15,
+      children: [
+        SlidableAction(
+          icon: Icons.delete,
+          foregroundColor: Colors.red,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (BuildContext context) => _handleRemoveItem(archive),
+        )
+      ],
+    );
+  }
+
+  Widget _buildCard(ArchiveDownloadedData archive) {
     return Container(
       height: 130,
       decoration: BoxDecoration(
@@ -145,53 +133,52 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
         ],
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 5),
+      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Row(),
+        child: Row(
+          children: [
+            _buildCover(archive),
+            Expanded(child: _buildInfo(archive)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCover(ArchiveDownloadedData archive, BuildContext context) {
+  Widget _buildCover(ArchiveDownloadedData archive) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: archive.galleryUrl),
-      child: Obx(() {
-        return EHImage.network(
+      child: Obx(
+        () => EHImage.network(
           containerHeight: 130,
           containerWidth: 110,
-          galleryImage: GalleryImage(
-            url: archive.coverUrl,
-            width: archive.coverWidth,
-            height: archive.coverHeight,
-          ),
+          galleryImage: GalleryImage(url: archive.coverUrl, width: archive.coverWidth, height: archive.coverHeight),
           adaptive: true,
           fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-        );
-      }),
+        ),
+      ),
     );
   }
 
   Widget _buildInfo(ArchiveDownloadedData archive) {
-    return Expanded(
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _goToReadPage(archive),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(archive),
-            _buildCenter(archive),
-            _buildFooter(archive),
-          ],
-        ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
-      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _goToReadPage(archive),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoHeader(archive),
+          _buildInfoCenter(archive),
+          _buildInfoFooter(archive),
+        ],
+      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
     );
   }
 
-  Widget _buildHeader(ArchiveDownloadedData archive) {
+  Widget _buildInfoHeader(ArchiveDownloadedData archive) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -208,17 +195,11 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
             if (archive.uploader != null)
               Text(
                 archive.uploader!,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ).marginOnly(top: 5),
             Text(
               DateUtil.transform2LocalTimeString(archive.publishTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
             ),
           ],
         )
@@ -226,68 +207,120 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
     );
   }
 
-  Widget _buildCenter(ArchiveDownloadedData archive) {
+  Widget _buildInfoCenter(ArchiveDownloadedData archive) {
     return Row(
-      children: [EHGalleryCategoryTag(category: archive.category)],
+      children: [
+        EHGalleryCategoryTag(category: archive.category),
+        const Expanded(child: SizedBox()),
+        _buildReUnlockButton(archive).marginOnly(right: 10),
+        _buildIsOriginal(archive).marginOnly(right: 6),
+        _buildButton(archive),
+      ],
     );
   }
 
-  Widget _buildFooter(ArchiveDownloadedData archive) {
+  Widget _buildReUnlockButton(ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
-      id: '$archiveDownloadStatusId::${archive.gid}::${archive.isOriginal}',
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
       builder: (_) {
-        ArchiveStatus archiveStatus = archiveDownloadService.archiveStatuses.get(archive.gid, archive.isOriginal)!;
-        SpeedComputer speedComputer = archiveDownloadService.speedComputers.get(archive.gid, archive.isOriginal)!;
+        ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+
+        if (archiveDownloadInfo.archiveStatus != ArchiveStatus.needReUnlock) {
+          return const SizedBox();
+        }
+
+        return GestureDetector(
+          onTap: () async {
+            bool? ok = await Get.dialog(const ReUnlockDialog());
+            if (ok ?? false) {
+              archiveDownloadService.cancelUnlockArchiveAndDownload(archive);
+            }
+          },
+          child: const Icon(Icons.lock_open, size: 18, color: Colors.red),
+        );
+      },
+    );
+  }
+
+  Widget _buildIsOriginal(ArchiveDownloadedData archive) {
+    bool isOriginal = archive.isOriginal;
+    if (!isOriginal) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: Get.theme.primaryColorLight),
+      ),
+      child: Text(
+        'original'.tr,
+        style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold, fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildButton(ArchiveDownloadedData archive) {
+    return GetBuilder<ArchiveDownloadService>(
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
+      builder: (_) {
+        ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+        return GestureDetector(
+          onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+              ? archiveDownloadService.resumeDownloadArchive(archive)
+              : archiveDownloadService.pauseDownloadArchive(archive),
+          child: Icon(
+            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                ? Icons.play_arrow
+                : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                    ? Icons.done
+                    : Icons.pause,
+            size: 26,
+            color: archiveDownloadInfo.archiveStatus == ArchiveStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoFooter(ArchiveDownloadedData archive) {
+    return GetBuilder<ArchiveDownloadService>(
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
+      builder: (_) {
+        ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (archiveStatus == ArchiveStatus.downloading)
+                if (archiveDownloadInfo.archiveStatus == ArchiveStatus.downloading)
                   GetBuilder<ArchiveDownloadService>(
-                    id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
-                    builder: (logic) {
-                      return Text(
-                        speedComputer.speed,
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                      );
-                    },
+                    id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                    builder: (_) => Text(archiveDownloadInfo.speedComputer.speed, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                   ),
                 const Expanded(child: SizedBox()),
-                if (archiveStatus == ArchiveStatus.downloading)
+                if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
                   GetBuilder<ArchiveDownloadService>(
-                    id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
-                    builder: (logic) {
-                      return Text(
-                        '${byte2String(speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
-                        ),
-                      );
-                    },
-                  ),
-                if (archiveStatus != ArchiveStatus.downloading)
-                  Text(
-                    archiveStatus.name.tr,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
+                    id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                    builder: (_) => Text(
+                      '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                     ),
                   ),
+                if (archiveDownloadInfo.archiveStatus != ArchiveStatus.downloading)
+                  Text(archiveDownloadInfo.archiveStatus.name.tr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)).marginOnly(left: 8),
               ],
             ),
-            if (archiveStatus.index < ArchiveStatus.downloaded.index)
+            if (archiveDownloadInfo.archiveStatus.index < ArchiveStatus.downloaded.index)
               SizedBox(
                 height: 3,
                 child: GetBuilder<ArchiveDownloadService>(
-                  id: '$archiveDownloadSpeedComputerId::${archive.gid}::${archive.isOriginal}',
-                  builder: (logic) {
-                    return LinearProgressIndicator(
-                      value: speedComputer.downloadedBytes / archive.size,
-                      color: archiveStatus == ArchiveStatus.paused ? Get.theme.primaryColor : Get.theme.primaryColorLight,
-                    );
-                  },
+                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                  builder: (_) => LinearProgressIndicator(
+                    value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
+                    color:
+                        archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ? Get.theme.primaryColor : Get.theme.primaryColorLight,
+                  ),
                 ),
               ).marginOnly(top: 4),
           ],
@@ -296,34 +329,26 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
     );
   }
 
-  void _listen2AddItem(GetBuilderState<ArchiveDownloadService> state) {
-    archiveDownloadService.addListenerId(
-      downloadArchivesId,
-      () {
-        if (archiveDownloadService.archives.length > archivesCount) {
-          _listKey.currentState?.insertItem(0);
-        }
-        archivesCount = archiveDownloadService.archives.length;
-      },
-    );
+  void _handleRemoveItem(ArchiveDownloadedData archive) {
+    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
+    controller.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.completed) {
+        controller.dispose();
+        removedGidAndIsOrigin2AnimationController.remove(archive.gid);
+        removedGidAndIsOrigin2Animation.remove(archive.gid);
+
+        Get.engine.addPostFrameCallback((_) {
+          archiveDownloadService.deleteArchive(archive);
+        });
+      }
+    });
+    removedGidAndIsOrigin2AnimationController[archive.gid] = controller;
+    removedGidAndIsOrigin2Animation[archive.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
+
+    archiveDownloadService.update([ArchiveDownloadService.archiveCountChangedId]);
   }
 
-  void _handleRemoveItem(BuildContext context, int index) {
-    archiveDownloadService.deleteArchive(archiveDownloadService.archives[index]);
-
-    _listKey.currentState?.removeItem(
-      index,
-      (context, Animation<double> animation) => FadeTransition(
-        opacity: animation,
-        child: SizeTransition(
-          sizeFactor: animation,
-          child: _removeItemBuilder(),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteBottomSheet(ArchiveDownloadedData archive, int index, BuildContext context) {
+  void _showDeleteBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -331,7 +356,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
           CupertinoActionSheetAction(
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              _handleRemoveItem(context, index);
+              _handleRemoveItem(archive);
               backRoute();
             },
           ),
@@ -345,7 +370,7 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> {
   }
 
   void _goToReadPage(ArchiveDownloadedData archive) {
-    if (archiveDownloadService.archiveStatuses.get(archive.gid, archive.isOriginal) != ArchiveStatus.completed) {
+    if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus != ArchiveStatus.completed) {
       return;
     }
 

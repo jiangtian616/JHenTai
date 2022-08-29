@@ -1,10 +1,10 @@
 import 'dart:collection';
 
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 
+import '../service/archive_download_service.dart';
 import '../service/gallery_download_service.dart';
 
 class Gallery {
@@ -71,6 +71,7 @@ class Gallery {
       archiveStatusIndex: ArchiveStatus.unlocking.index,
       archivePageUrl: archivePageUrl,
       isOriginal: isOriginal,
+      insertTime: DateTime.now().toString(),
     );
   }
 
