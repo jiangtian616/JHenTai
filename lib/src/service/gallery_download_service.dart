@@ -56,6 +56,8 @@ class GalleryDownloadService extends GetxController {
 
   @override
   onInit() async {
+    _ensureDownloadDirExists();
+
     await _instantiateFromDB();
 
     Log.debug('init DownloadService success, download task count: ${gallerys.length}');

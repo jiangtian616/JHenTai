@@ -12,6 +12,7 @@ import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../service/archive_download_service.dart';
 import '../../../service/gallery_download_service.dart';
@@ -255,6 +256,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
+    if (!GetPlatform.isMacOS) {
+      try {
+        await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
+      } on Exception catch (e) {
+        Log.error('Request storage permission failed!', e);
+      }
+    }
+
     String oldDownloadPath = DownloadSetting.downloadPath.value;
 
     /// choose new download path
@@ -263,6 +272,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     } on Exception catch (e) {
       Log.error('Pick download path failed', e);
     }
+
     if (newDownloadPath == null || newDownloadPath == oldDownloadPath) {
       return;
     }
