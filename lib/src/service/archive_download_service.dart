@@ -115,14 +115,15 @@ class ArchiveDownloadService extends GetxController {
   Future<void> pauseDownloadArchive(ArchiveDownloadedData archive, {bool needReUnlock = false}) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
 
-    Log.info('Pause archive: ${archive.title}, original: ${archive.isOriginal}');
-
     archiveDownloadInfo.cancelToken.cancel();
     archiveDownloadInfo.speedComputer.pause();
-
-    if (archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
+    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ||
+        archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
       return;
     }
+
+    Log.info('Pause archive: ${archive.title}, original: ${archive.isOriginal}');
+
     archiveDownloadInfo.archiveStatus = needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused;
     await _updateArchiveInDatabase(archive);
 
