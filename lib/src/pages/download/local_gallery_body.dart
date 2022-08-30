@@ -44,6 +44,11 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
     if (Get.isRegistered<DesktopLayoutPageLogic>()) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
     }
+
+    localGalleryService.addListenerId(LocalGalleryService.refreshId, () {
+      currentPath = DownloadSetting.downloadPath.value;
+    });
+
     super.initState();
   }
 

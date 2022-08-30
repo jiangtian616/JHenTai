@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
@@ -26,6 +27,7 @@ class SettingDownloadPage extends StatefulWidget {
 class _SettingDownloadPageState extends State<SettingDownloadPage> {
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
+  final LocalGalleryService localGalleryService = Get.find();
 
   LoadingState changeDownloadPathState = LoadingState.idle;
 
@@ -309,6 +311,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
       /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
+      await localGalleryService.refreshLocalGallerys();
     } on Exception catch (e) {
       Log.error('_handleChangeDownloadPath failed!', e);
       Log.upload(e);
