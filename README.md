@@ -121,12 +121,6 @@ mush thanks to these projects and people🙇‍
 - [x] Fingerprint unlock
 - [x] Support shortcut keys like 'Tab' and 'Arrow keys' in desktop layout
 
-## Feature Todo
-
-## Improvement & Todo
-
-- [ ] use isolate to download
-
 ## Translation
 
 > [languageCode](https://github.com/unicode-org/cldr/blob/master/common/validity/language.xml)
@@ -145,11 +139,8 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 
 ## Bug
 
-1. When the reading page takes the up-to-bottom scrolling direction, there is a very small chance that current page
-   number can't
-   be synchronized correctly; third-party libraries are involved.
-2. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
-3. Change download path to SD card is not supported now.
+1. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
+2. Change download path to SD card is not supported now.
 
 ## Main Dart Dependencies
 
