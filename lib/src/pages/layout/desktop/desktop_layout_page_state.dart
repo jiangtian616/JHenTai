@@ -84,7 +84,7 @@ class DesktopLayoutPageState {
         routeName: Routes.history,
         selectedIcon: const Icon(Icons.history, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.history_outlined),
-        page: () => const HistoryPage(),
+        page: () => HistoryPage(),
         shouldRender: false,
       ),
       TabBarIcon(

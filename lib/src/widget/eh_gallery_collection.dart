@@ -18,7 +18,6 @@ Widget EHGalleryCollection({
   required LoadingState loadingState,
   required TapCardCallback handleTapCard,
   VoidCallback? handleLoadMore,
-  bool keepPosition = false,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
@@ -50,8 +49,8 @@ Widget EHGalleryCollection({
           );
         },
         childCount: gallerys.length,
-        keepPosition: keepPosition,
-        onItemKey: keepPosition ? (index) => gallerys[index].galleryUrl : null,
+        keepPosition: true,
+        onItemKey: (index) => gallerys[index].galleryUrl,
         preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
       ),
     );

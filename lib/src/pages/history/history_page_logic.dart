@@ -23,7 +23,7 @@ class HistoryPageLogic extends BasePageLogic {
   int get tabIndex => 6;
 
   @override
-  bool get showJumpButton => false;
+  bool get showJumpButton => true;
 
   @override
   final HistoryPageState state = HistoryPageState();
@@ -32,12 +32,22 @@ class HistoryPageLogic extends BasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('Get history data', false);
+    Log.info('Get history by page index $pageIndex');
 
-    List<dynamic> gallerysAndPageInfo = [historyService.history, historyService.history.isEmpty ? 0 : 1, null, null];
+    List<dynamic> gallerysAndPageInfo = [
+      historyService.getByPageIndex(pageIndex),
+      historyService.pageCount,
+      pageIndex >= 1 ? pageIndex - 1 : null,
+      pageIndex < historyService.pageCount - 1 ? pageIndex + 1 : null,
+    ];
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
     return gallerysAndPageInfo;
+  }
+
+  Future<void> deleteAll() async {
+    await historyService.deleteAll();
+    clearAndRefresh();
   }
 
   void updateBody() {

@@ -7,6 +7,225 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
+class GalleryHistoryData extends DataClass
+    implements Insertable<GalleryHistoryData> {
+  final int gid;
+  final String jsonBody;
+  final String lastReadTime;
+  GalleryHistoryData(
+      {required this.gid, required this.jsonBody, required this.lastReadTime});
+  factory GalleryHistoryData.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return GalleryHistoryData(
+      gid: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}gid'])!,
+      jsonBody: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}jsonBody'])!,
+      lastReadTime: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}lastReadTime'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['jsonBody'] = Variable<String>(jsonBody);
+    map['lastReadTime'] = Variable<String>(lastReadTime);
+    return map;
+  }
+
+  GalleryHistoryCompanion toCompanion(bool nullToAbsent) {
+    return GalleryHistoryCompanion(
+      gid: Value(gid),
+      jsonBody: Value(jsonBody),
+      lastReadTime: Value(lastReadTime),
+    );
+  }
+
+  factory GalleryHistoryData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GalleryHistoryData(
+      gid: serializer.fromJson<int>(json['gid']),
+      jsonBody: serializer.fromJson<String>(json['jsonBody']),
+      lastReadTime: serializer.fromJson<String>(json['lastReadTime']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'jsonBody': serializer.toJson<String>(jsonBody),
+      'lastReadTime': serializer.toJson<String>(lastReadTime),
+    };
+  }
+
+  GalleryHistoryData copyWith(
+          {int? gid, String? jsonBody, String? lastReadTime}) =>
+      GalleryHistoryData(
+        gid: gid ?? this.gid,
+        jsonBody: jsonBody ?? this.jsonBody,
+        lastReadTime: lastReadTime ?? this.lastReadTime,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GalleryHistoryData(')
+          ..write('gid: $gid, ')
+          ..write('jsonBody: $jsonBody, ')
+          ..write('lastReadTime: $lastReadTime')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(gid, jsonBody, lastReadTime);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GalleryHistoryData &&
+          other.gid == this.gid &&
+          other.jsonBody == this.jsonBody &&
+          other.lastReadTime == this.lastReadTime);
+}
+
+class GalleryHistoryCompanion extends UpdateCompanion<GalleryHistoryData> {
+  final Value<int> gid;
+  final Value<String> jsonBody;
+  final Value<String> lastReadTime;
+  const GalleryHistoryCompanion({
+    this.gid = const Value.absent(),
+    this.jsonBody = const Value.absent(),
+    this.lastReadTime = const Value.absent(),
+  });
+  GalleryHistoryCompanion.insert({
+    this.gid = const Value.absent(),
+    required String jsonBody,
+    required String lastReadTime,
+  })  : jsonBody = Value(jsonBody),
+        lastReadTime = Value(lastReadTime);
+  static Insertable<GalleryHistoryData> custom({
+    Expression<int>? gid,
+    Expression<String>? jsonBody,
+    Expression<String>? lastReadTime,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (jsonBody != null) 'jsonBody': jsonBody,
+      if (lastReadTime != null) 'lastReadTime': lastReadTime,
+    });
+  }
+
+  GalleryHistoryCompanion copyWith(
+      {Value<int>? gid, Value<String>? jsonBody, Value<String>? lastReadTime}) {
+    return GalleryHistoryCompanion(
+      gid: gid ?? this.gid,
+      jsonBody: jsonBody ?? this.jsonBody,
+      lastReadTime: lastReadTime ?? this.lastReadTime,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (jsonBody.present) {
+      map['jsonBody'] = Variable<String>(jsonBody.value);
+    }
+    if (lastReadTime.present) {
+      map['lastReadTime'] = Variable<String>(lastReadTime.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GalleryHistoryCompanion(')
+          ..write('gid: $gid, ')
+          ..write('jsonBody: $jsonBody, ')
+          ..write('lastReadTime: $lastReadTime')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class GalleryHistory extends Table
+    with TableInfo<GalleryHistory, GalleryHistoryData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  GalleryHistory(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _gidMeta = const VerificationMeta('gid');
+  late final GeneratedColumn<int?> gid = GeneratedColumn<int?>(
+      'gid', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  final VerificationMeta _jsonBodyMeta = const VerificationMeta('jsonBody');
+  late final GeneratedColumn<String?> jsonBody = GeneratedColumn<String?>(
+      'jsonBody', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _lastReadTimeMeta =
+      const VerificationMeta('lastReadTime');
+  late final GeneratedColumn<String?> lastReadTime = GeneratedColumn<String?>(
+      'lastReadTime', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [gid, jsonBody, lastReadTime];
+  @override
+  String get aliasedName => _alias ?? 'gallery_history';
+  @override
+  String get actualTableName => 'gallery_history';
+  @override
+  VerificationContext validateIntegrity(Insertable<GalleryHistoryData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    }
+    if (data.containsKey('jsonBody')) {
+      context.handle(_jsonBodyMeta,
+          jsonBody.isAcceptableOrUnknown(data['jsonBody']!, _jsonBodyMeta));
+    } else if (isInserting) {
+      context.missing(_jsonBodyMeta);
+    }
+    if (data.containsKey('lastReadTime')) {
+      context.handle(
+          _lastReadTimeMeta,
+          lastReadTime.isAcceptableOrUnknown(
+              data['lastReadTime']!, _lastReadTimeMeta));
+    } else if (isInserting) {
+      context.missing(_lastReadTimeMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid};
+  @override
+  GalleryHistoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return GalleryHistoryData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  GalleryHistory createAlias(String alias) {
+    return GalleryHistory(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
@@ -2276,10 +2495,59 @@ class Image extends Table with TableInfo<Image, ImageData> {
 
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  late final GalleryHistory galleryHistory = GalleryHistory(this);
   late final Tag tag = Tag(this);
   late final ArchiveDownloaded archiveDownloaded = ArchiveDownloaded(this);
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
+  Selectable<GalleryHistoryData> selectHistorys() {
+    return customSelect(
+        'SELECT *\r\nFROM gallery_history\r\nORDER BY lastReadTime DESC',
+        variables: [],
+        readsFrom: {
+          galleryHistory,
+        }).map(galleryHistory.mapFromRow);
+  }
+
+  Future<int> insertHistory(int gid, String jsonBody, String lastReadTime) {
+    return customInsert(
+      'insert into gallery_history\r\nvalues (:gid, :jsonBody, :lastReadTime)',
+      variables: [
+        Variable<int>(gid),
+        Variable<String>(jsonBody),
+        Variable<String>(lastReadTime)
+      ],
+      updates: {galleryHistory},
+    );
+  }
+
+  Future<int> updateHistoryLastReadTime(String lastReadTime, int gid) {
+    return customUpdate(
+      'update gallery_history\r\nset lastReadTime = :lastReadTime\r\nwhere gid = :gid',
+      variables: [Variable<String>(lastReadTime), Variable<int>(gid)],
+      updates: {galleryHistory},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> deleteHistory(int gid) {
+    return customUpdate(
+      'delete\r\nfrom gallery_history\r\nwhere gid = :gid',
+      variables: [Variable<int>(gid)],
+      updates: {galleryHistory},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
+  Future<int> deleteAllHistorys() {
+    return customUpdate(
+      'delete\r\nfrom gallery_history',
+      variables: [],
+      updates: {galleryHistory},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
   Selectable<TagData> selectTagByNamespaceAndKey(String namespace, String key) {
     return customSelect(
         'select *\r\nfrom tag\r\nwhere namespace = :namespace\r\n  and _key = :key',
@@ -2624,7 +2892,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [tag, archiveDownloaded, galleryDownloaded, image];
+      [galleryHistory, tag, archiveDownloaded, galleryDownloaded, image];
 }
 
 class SelectGallerysWithImagesResult {

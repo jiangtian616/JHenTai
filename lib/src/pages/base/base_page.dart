@@ -182,9 +182,6 @@ abstract class BasePage extends StatelessWidget {
       loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,
       handleLoadMore: () => logic.loadMore(),
-
-      /// insert items at bottom of FlutterListView with keepPosition on will cause a bounce
-      keepPosition: state.prevPageIndexToLoad != null,
     );
   }
 }

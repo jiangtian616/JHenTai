@@ -162,7 +162,8 @@ abstract class BasePageLogic extends GetxController {
     loadMore(checkLoadingState: false);
   }
 
-  /// pull-down to load page before(after jumping to a certain page)
+  /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.loadingState]
+  /// to [prevState] in case of [prevState] is [noMore]
   Future<void> loadBefore() async {
     if (state.loadingState == LoadingState.loading) {
       return;
@@ -170,9 +171,6 @@ abstract class BasePageLogic extends GetxController {
 
     LoadingState prevState = state.loadingState;
     state.loadingState = LoadingState.loading;
-    if (prevState == LoadingState.error) {
-      update([loadingStateId]);
-    }
 
     List<dynamic> gallerysAndPageInfo;
     try {
@@ -180,7 +178,7 @@ abstract class BasePageLogic extends GetxController {
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      state.loadingState = LoadingState.error;
+      state.loadingState = prevState;
       update([loadingStateId]);
       return;
     }
@@ -190,7 +188,7 @@ abstract class BasePageLogic extends GetxController {
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
 
-    state.loadingState = LoadingState.idle;
+    state.loadingState = prevState;
     update([pageId]);
   }
 

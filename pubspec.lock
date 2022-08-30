@@ -504,7 +504,7 @@ packages:
       name: flutter_list_view
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.12"
+    version: "1.1.18"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

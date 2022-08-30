@@ -1,0 +1,30 @@
+CREATE TABLE gallery_history
+(
+    gid          INT  NOT NULL PRIMARY KEY,
+    jsonBody     TEXT NOT NULL,
+    lastReadTime TEXT NOT NULL
+);
+
+
+selectHistorys:
+SELECT *
+FROM gallery_history
+ORDER BY lastReadTime DESC;
+
+insertHistory:
+insert into gallery_history
+values (:gid, :jsonBody, :lastReadTime);
+
+updateHistoryLastReadTime:
+update gallery_history
+set lastReadTime = :lastReadTime
+where gid = :gid;
+
+deleteHistory:
+delete
+from gallery_history
+where gid = :gid;
+
+deleteAllHistorys:
+delete
+from gallery_history;
