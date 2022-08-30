@@ -277,7 +277,10 @@ class _ArchiveDownloadBodyState extends State<ArchiveDownloadBody> with TickerPr
                     ? Icons.done
                     : Icons.pause,
             size: 26,
-            color: archiveDownloadInfo.archiveStatus == ArchiveStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+            color: (archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.unlocking.index &&
+                    archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
+                ? Get.theme.primaryColorLight
+                : Get.theme.primaryColor,
           ),
         );
       },
