@@ -7,8 +7,8 @@ class NetworkSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   static RxBool enableDomainFronting = false.obs;
   static RxString proxyAddress = 'localhost:1080'.obs;
-  static RxInt connectTimeout = 9000.obs;
-  static RxInt receiveTimeout = 9000.obs;
+  static RxInt connectTimeout = 6000.obs;
+  static RxInt receiveTimeout = 6000.obs;
 
   static RxString eHentaiIP = '172.67.0.127'.obs;
   static RxString exHentaiIP = '178.175.129.254'.obs;
