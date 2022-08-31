@@ -45,7 +45,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
     }
 
-    localGalleryService.addListenerId(LocalGalleryService.refreshId, () {
+    localGalleryService.addListenerId(LocalGalleryService.refreshAllPathId, () {
       currentPath = DownloadSetting.downloadPath.value;
     });
 
@@ -64,7 +64,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LocalGalleryService>(
-      id: LocalGalleryService.refreshId,
+      id: LocalGalleryService.refreshCurrentPathId,
       builder: (_) => EHWheelSpeedController(
         scrollController: _scrollController,
         child: ListView.builder(
@@ -165,8 +165,8 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         key: Key(gallery.title),
         endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
-          onSecondaryTap: () => _showBottomSheet(gallery, index, context),
-          onLongPress: () => _showBottomSheet(gallery, index, context),
+          onSecondaryTap: () => _showBottomSheet(gallery, context),
+          onLongPress: () => _showBottomSheet(gallery, context),
           child: _buildGallery(gallery),
         ),
       ),
@@ -197,7 +197,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
           icon: Icons.delete,
           foregroundColor: Colors.red,
           backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (BuildContext context) => _handleRemoveItem(context, gallery),
+          onPressed: (BuildContext context) => _handleRemoveItem(gallery),
         )
       ],
     );
@@ -283,7 +283,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
     setState(() => currentPath = io.Directory(currentPath).parent.path);
   }
 
-  void _showBottomSheet(LocalGallery gallery, int index, BuildContext context) {
+  void _showBottomSheet(LocalGallery gallery, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -291,7 +291,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
           CupertinoActionSheetAction(
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              _handleRemoveItem(context, gallery);
+              _handleRemoveItem(gallery);
               backRoute();
             },
           ),
@@ -304,7 +304,7 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
     );
   }
 
-  void _handleRemoveItem(BuildContext context, LocalGallery gallery) {
+  void _handleRemoveItem(LocalGallery gallery) {
     AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
     controller.addStatusListener((AnimationStatus status) {
       if (status == AnimationStatus.completed) {
@@ -313,14 +313,14 @@ class _LocalGalleryBodyState extends State<LocalGalleryBody> with TickerProvider
         removedTitle2Animation.remove(gallery.title);
 
         Get.engine.addPostFrameCallback((_) {
-          localGalleryService.deleteGallery(gallery);
+          localGalleryService.deleteGallery(gallery, currentPath);
         });
       }
     });
     removedTitle2AnimationController[gallery.title] = controller;
     removedTitle2Animation[gallery.title] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
 
-    localGalleryService.update([LocalGalleryService.refreshId]);
+    localGalleryService.update([LocalGalleryService.refreshCurrentPathId]);
   }
 
   void _goToReadPage(LocalGallery gallery) {
