@@ -177,6 +177,7 @@ class zh_TW {
 
       /// eh setting page
       'site': '站點',
+      'redirect2Eh': '優先重定向至表站',
       'siteSetting': '站點設定',
       'redirect2EH': '畫廊鏈接重新導向至表站(如果可用)',
       'redirect2Hints': '會先嘗試解析表站',

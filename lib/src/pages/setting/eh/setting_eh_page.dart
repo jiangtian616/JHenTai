@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -44,6 +45,16 @@ class SettingEHPage extends StatelessWidget {
                 },
               ),
             ),
+            if (EHSetting.site.value == 'EX')
+              FadeIn(
+                child: ListTile(
+                  title: Text('redirect2Eh'.tr),
+                  trailing: Switch(
+                    value: EHSetting.redirect2Eh.value,
+                    onChanged: EHSetting.saveRedirect2Eh,
+                  ),
+                ),
+              ),
             ListTile(
               title: Text('siteSetting'.tr),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),

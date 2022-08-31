@@ -177,6 +177,7 @@ class en_US {
 
       /// eh setting page
       'site': 'Site',
+      'redirect2Eh': 'Redirect to EH if available',
       'siteSetting': 'Site Setting',
       'redirect2EH': 'Redirect to EH site if Available',
       'redirect2Hints': 'Will try to parse EH site first',

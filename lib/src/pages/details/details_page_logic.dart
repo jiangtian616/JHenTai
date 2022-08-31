@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
@@ -19,6 +20,7 @@ import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart'
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -102,24 +104,48 @@ class DetailsPageLogic extends GetxController {
     state.loadingPageState = LoadingState.loading;
     update([loadingStateId]);
 
-    Map<String, dynamic> galleryAndDetailAndApikey;
-    try {
-      galleryAndDetailAndApikey = await EHRequest.requestDetailPage(
-        galleryUrl: state.galleryUrl!,
-        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-      );
-    } on DioError catch (e) {
-      if (e.response?.statusCode == 404) {
-        Log.error('404', e.message);
-        snack('invisible2User'.tr, 'invisibleHints'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      } else {
-        Log.error('getGalleryDetailFailed'.tr, e.message);
-        snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+    Map<String, dynamic>? galleryAndDetailAndApikey;
+
+    if (state.galleryUrl!.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
+      try {
+        galleryAndDetailAndApikey = await EHRequest.requestDetailPage(
+          galleryUrl: state.galleryUrl!.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+        );
+        Log.verbose('Try redirect to EH success, url: ${state.galleryUrl!}');
+      } on DioError catch (e) {
+        if (e.response?.statusCode != 404) {
+          Log.error('getGalleryDetailFailed'.tr, e.message);
+          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+          state.loadingPageState = LoadingState.error;
+          update([bodyId]);
+          return;
+        } else {
+          Log.verbose('Try redirect to EH failed, url: ${state.galleryUrl!}');
+        }
       }
-      state.loadingPageState = LoadingState.error;
-      update([bodyId]);
-      return;
     }
+
+    if (galleryAndDetailAndApikey == null) {
+      try {
+        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+          galleryUrl: state.galleryUrl!,
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+        );
+      } on DioError catch (e) {
+        if (e.response?.statusCode == 404) {
+          Log.error('404', e.message);
+          snack('invisible2User'.tr, 'invisibleHints'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+        } else {
+          Log.error('getGalleryDetailFailed'.tr, e.message);
+          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+        }
+        state.loadingPageState = LoadingState.error;
+        update([bodyId]);
+        return;
+      }
+    }
+
     state.gallery = galleryAndDetailAndApikey['gallery']!;
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails']!;
     state.apikey = galleryAndDetailAndApikey['apikey']!;
@@ -146,19 +172,44 @@ class DetailsPageLogic extends GetxController {
     }
 
     Log.info('get gallery details', false);
-    Map<String, dynamic> galleryAndDetailAndApikey;
-    try {
-      galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-        galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-      );
-    } on DioError catch (e) {
-      Log.error('Get Gallery Detail Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      state.loadingDetailsState = LoadingState.error;
-      update([loadingStateId]);
-      return;
+    Map<String, dynamic>? galleryAndDetailAndApikey;
+
+    if (state.gallery!.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
+      try {
+        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+          galleryUrl: state.gallery!.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+        );
+        Log.verbose('Try redirect to EH success, url: ${state.gallery!.galleryUrl}');
+        state.gallery!.galleryUrl = state.gallery!.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+      } on DioError catch (e) {
+        if (e.response?.statusCode != 404) {
+          Log.error('Get Gallery Detail Failed', e.message);
+          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+          state.loadingDetailsState = LoadingState.error;
+          update([loadingStateId]);
+          return;
+        }
+
+        Log.verbose('Try redirect to EH failed, url: ${state.gallery!.galleryUrl}');
+      }
     }
+
+    if (galleryAndDetailAndApikey == null) {
+      try {
+        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+          galleryUrl: state.gallery!.galleryUrl,
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+        );
+      } on DioError catch (e) {
+        Log.error('Get Gallery Detail Failed', e.message);
+        snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+        state.loadingDetailsState = LoadingState.error;
+        update([loadingStateId]);
+        return;
+      }
+    }
+
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
     state.apikey = galleryAndDetailAndApikey['apikey'];
     state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
