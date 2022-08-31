@@ -37,7 +37,7 @@ class Gallery {
     favoriteTagName = null;
   }
 
-  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false}) {
+  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(
       gid: gid,
       token: token,
@@ -51,10 +51,11 @@ class Gallery {
       insertTime: DateTime.now().toString(),
       downloadOriginalImage: downloadOriginalImage,
       priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      groupName: group,
     );
   }
 
-  ArchiveDownloadedData toArchiveDownloadedData(String archivePageUrl, bool isOriginal, int size) {
+  ArchiveDownloadedData toArchiveDownloadedData(String archivePageUrl, bool isOriginal, int size, {String? group}) {
     return ArchiveDownloadedData(
       gid: gid,
       token: token,
@@ -72,6 +73,7 @@ class Gallery {
       archivePageUrl: archivePageUrl,
       isOriginal: isOriginal,
       insertTime: DateTime.now().toString(),
+      groupName: group,
     );
   }
 

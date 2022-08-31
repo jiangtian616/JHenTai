@@ -384,6 +384,7 @@ class GalleryDownloadService extends GetxController {
       insertTime: record.insertTime,
       downloadOriginalImage: record.downloadOriginalImage,
       priority: record.priority,
+      groupName: record.groupName,
     );
   }
 
@@ -901,6 +902,7 @@ class GalleryDownloadService extends GetxController {
         () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
       priority: gallery.priority ?? defaultDownloadGalleryPriority,
+      group: gallery.groupName,
     );
 
     _sortGallery();
@@ -931,7 +933,8 @@ class GalleryDownloadService extends GetxController {
           gallery.downloadStatusIndex,
           gallery.insertTime ?? DateTime.now().toString(),
           gallery.downloadOriginalImage,
-          defaultDownloadGalleryPriority,
+          _computeGalleryTaskPriority(gallery),
+          gallery.groupName,
         ) >
         0;
   }
@@ -956,6 +959,10 @@ class GalleryDownloadService extends GetxController {
 
   Future<bool> _updateGalleryPriorityInDatabase(int gid, int? priority) async {
     return await appDb.updateGalleryPriority(priority, gid) > 0;
+  }
+
+  Future<bool> _updateGalleryGroupInDatabase(int gid, String? group) async {
+    return await appDb.updateGalleryGroup(group, gid) > 0;
   }
 
   Future<bool> _updateImageStatusInDatabase(int gid, String url, DownloadStatus downloadStatus) async {
@@ -1006,9 +1013,17 @@ class GalleryDownloadService extends GetxController {
   // Disk
 
   void _saveGalleryInfoInDisk(GalleryDownloadedData gallery) {
+    GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
+
     Map<String, Object> metadata = {
-      'gallery': gallery.copyWith(downloadStatusIndex: galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus.index).toJson(),
-      'images': jsonEncode(galleryDownloadInfos[gallery.gid]!.images),
+      'gallery': gallery
+          .copyWith(
+            downloadStatusIndex: galleryDownloadInfo.downloadProgress.downloadStatus.index,
+            priority: galleryDownloadInfo.priority,
+            groupName: galleryDownloadInfo.group,
+          )
+          .toJson(),
+      'images': jsonEncode(galleryDownloadInfo.images),
     };
 
     io.File file = io.File(path.join(_computeGalleryDownloadPath(gallery.title, gallery.gid), metadataFileName));
@@ -1061,6 +1076,8 @@ class GalleryDownloadInfo {
 
   int? priority;
 
+  String? group;
+
   GalleryDownloadInfo({
     required this.thumbnailsCountPerPage,
     required this.tasks,
@@ -1070,6 +1087,7 @@ class GalleryDownloadInfo {
     required this.images,
     required this.speedComputer,
     this.priority,
+    this.group,
   });
 }
 

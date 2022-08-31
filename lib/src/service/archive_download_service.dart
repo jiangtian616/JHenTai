@@ -533,6 +533,7 @@ class ArchiveDownloadService extends GetxController {
           null,
           archive.isOriginal,
           archive.insertTime ?? DateTime.now().toString(),
+          archive.groupName,
         ) >
         0;
   }
@@ -544,6 +545,7 @@ class ArchiveDownloadService extends GetxController {
           archiveDownloadInfo.archiveStatus.index,
           archiveDownloadInfo.downloadPageUrl,
           archiveDownloadInfo.downloadUrl,
+          archiveDownloadInfo.group,
           archive.gid,
           archive.isOriginal,
         ) >
@@ -568,6 +570,7 @@ class ArchiveDownloadService extends GetxController {
         updateCallback: () => update(['$archiveSpeedComputerId::${archive.gid}::${archive.isOriginal}']),
       )..downloadedBytes = _computeDownloadedPackingFileBytes(archive) ?? 0,
       downloadedBytesBeforeDownload: _computeDownloadedPackingFileBytes(archive) ?? 0,
+      group: archive.groupName,
     );
 
     _sortArchives();
@@ -630,6 +633,8 @@ class ArchiveDownloadInfo {
 
   int downloadedBytesBeforeDownload;
 
+  String? group;
+
   ArchiveDownloadInfo({
     this.downloadPageUrl,
     this.downloadUrl,
@@ -637,6 +642,7 @@ class ArchiveDownloadInfo {
     required this.cancelToken,
     required this.speedComputer,
     required this.downloadedBytesBeforeDownload,
+    this.group,
   });
 }
 

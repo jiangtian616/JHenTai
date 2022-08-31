@@ -18,6 +18,7 @@ CREATE TABLE archive_downloaded
     downloadUrl        TEXT NULL,
     isOriginal         BOOL NOT NULL,
     insertTime         TEXT,
+    groupName          TEXT,
     PRIMARY KEY (gid, isOriginal)
 );
 
@@ -28,8 +29,9 @@ ORDER BY insertTime DESC;
 
 insertArchive:
 insert into archive_downloaded
-values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :coverHeight, :coverWidth, :uploader, :size,
-        :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal, :insertTime);
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :coverHeight, :coverWidth, :uploader,
+        :size, :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal,
+        :insertTime, :groupName);
 
 deleteArchive:
 delete
@@ -41,6 +43,7 @@ updateArchive:
 update archive_downloaded
 set archiveStatusIndex = :archiveStatusIndex,
     downloadPageUrl    = :downloadPageUrl,
-    downloadUrl        = :downloadUrl
+    downloadUrl        = :downloadUrl,
+    groupName          = :groupName
 where gid = :gid
   AND isOriginal = :isOriginal;
