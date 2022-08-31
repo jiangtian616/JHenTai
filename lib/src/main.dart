@@ -39,22 +39,11 @@ import 'network/eh_cache_interceptor.dart';
 import 'network/eh_cookie_manager.dart';
 
 void main() async {
-  FlutterError.onError = (FlutterErrorDetails details) {
-    Log.error(details.exception, null, details.stack);
-    Log.upload(details.exception, stackTrace: details.stack);
-  };
+  await init();
 
-  runZonedGuarded(() async {
-    await init();
-    runApp(const MyApp());
-    _doForDesktop();
-  }, (Object error, StackTrace stack) {
-    if (error is NotUploadException) {
-      return;
-    }
-    Log.error(error, null, stack);
-    Log.upload(error, stackTrace: stack);
-  });
+  runApp(const MyApp());
+
+  _doForDesktop();
 }
 
 class MyApp extends StatelessWidget {
@@ -84,6 +73,21 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> init() async {
+  FlutterError.onError = (FlutterErrorDetails details) {
+    Log.error(details.exception, null, details.stack);
+    Log.upload(details.exception, stackTrace: details.stack);
+  };
+
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (error is NotUploadException) {
+      return true;
+    }
+
+    Log.error('PlatformDispatcher Error', error, stack);
+    Log.upload(error, stackTrace: stack);
+    return false;
+  };
+
   WidgetsFlutterBinding.ensureInitialized();
 
   if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
@@ -137,6 +141,7 @@ void _doForDesktop() {
   if (!GetPlatform.isDesktop) {
     return;
   }
+
   doWhenWindowReady(() {
     appWindow.title = 'JHenTai';
     appWindow.show();
