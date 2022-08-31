@@ -481,7 +481,7 @@ class EHRequest {
       options: Options(
         caseInsensitiveHeader: caseInsensitiveHeader,
         receiveTimeout: receiveTimeout ?? DownloadSetting.timeout.value * 1000,
-        extra: EHCacheInterceptor.cacheOption.toExtra(),
+        extra: EHCacheInterceptor.noCacheOption.toExtra(),
         headers: range == null ? null : {'Range': range},
       ),
     );
