@@ -50,6 +50,8 @@ class GalleryDownloadService extends GetxController {
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
 
+  Set<String> get allGroups => galleryDownloadInfos.values.fold(<String>{}, (set, a) => set..add(a.group));
+
   static void init() {
     Get.put(GalleryDownloadService(), permanent: true);
   }
@@ -208,7 +210,7 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
-    newGallery = newGallery.copyWith(oldVersionGalleryUrl: oldGallery.galleryUrl);
+    newGallery = newGallery.copyWith(oldVersionGalleryUrl: oldGallery.galleryUrl, groupName: oldGallery.groupName);
 
     downloadGallery(newGallery);
   }
@@ -241,6 +243,12 @@ class GalleryDownloadService extends GetxController {
       await pauseDownloadGallery(gallery);
       await resumeDownloadGallery(gallery);
     }
+  }
+
+  Future<bool> updateGalleryGroup(GalleryDownloadedData gallery, String group) async {
+    galleryDownloadInfos[gallery.gid]?.group = group;
+    _sortGallery();
+    return _updateGalleryGroupInDatabase(gallery.gid, group);
   }
 
   /// Use metadata in each gallery folder to restore download status, then sync to database.
@@ -409,7 +417,7 @@ class GalleryDownloadService extends GetxController {
     }
 
     /// priority is same, order by insert time
-    DateTime insertTime = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(gallery.insertTime!);
+    DateTime insertTime = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(gallery.insertTime!);
     int timePriority = int.parse(DateFormat('dHHmmss').format(insertTime));
     if (DownloadSetting.downloadInOrderOfInsertTime.isFalse) {
       timePriority = _priorityBase - timePriority;
@@ -456,14 +464,31 @@ class GalleryDownloadService extends GetxController {
 
   void _sortGallery() {
     gallerys.sort((a, b) {
+      GalleryDownloadInfo aInfo = galleryDownloadInfos[a.gid]!;
+      GalleryDownloadInfo bInfo = galleryDownloadInfos[b.gid]!;
+
+      if (!(aInfo.group == 'default'.tr && bInfo.group == 'default'.tr)) {
+        if (aInfo.group == 'default'.tr) {
+          return 1;
+        }
+        if (bInfo.group == 'default'.tr) {
+          return -1;
+        }
+      }
+
+      int gResult = aInfo.group.compareTo(bInfo.group);
+      if (gResult != 0) {
+        return gResult;
+      }
+
       int aPriority = galleryDownloadInfos[a.gid]!.priority ?? a.priority ?? defaultDownloadGalleryPriority;
       int bPriority = galleryDownloadInfos[b.gid]!.priority ?? b.priority ?? defaultDownloadGalleryPriority;
       if (aPriority - bPriority != 0) {
         return aPriority - bPriority;
       }
 
-      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(a.insertTime!);
-      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(b.insertTime!);
+      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
+      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime!);
 
       return bTime.difference(aTime).inMilliseconds;
     });
@@ -902,7 +927,7 @@ class GalleryDownloadService extends GetxController {
         () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
       priority: gallery.priority ?? defaultDownloadGalleryPriority,
-      group: gallery.groupName,
+      group: gallery.groupName ?? 'default'.tr,
     );
 
     _sortGallery();
@@ -1076,7 +1101,7 @@ class GalleryDownloadInfo {
 
   int? priority;
 
-  String? group;
+  String group;
 
   GalleryDownloadInfo({
     required this.thumbnailsCountPerPage,
@@ -1087,7 +1112,7 @@ class GalleryDownloadInfo {
     required this.images,
     required this.speedComputer,
     this.priority,
-    this.group,
+    required this.group,
   });
 }
 

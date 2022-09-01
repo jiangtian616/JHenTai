@@ -237,6 +237,13 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               ),
             ),
             ListTile(
+              title: Text('alwaysUseDefaultGroup'.tr),
+              trailing: Switch(
+                value: DownloadSetting.alwaysUseDefaultGroup.value,
+                onChanged: (value) => DownloadSetting.saveAlwaysUseDefaultGroup(value),
+              ),
+            ),
+            ListTile(
               title: Text('restoreDownloadTasks'.tr),
               subtitle: Text('restoreDownloadTasksHint'.tr),
               onTap: _restore,

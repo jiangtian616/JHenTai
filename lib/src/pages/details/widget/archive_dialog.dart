@@ -11,10 +11,12 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../service/archive_download_service.dart';
+import '../../../setting/download_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
+import '../../../widget/eh_group_name_dialog.dart';
 
 class ArchiveDialog extends StatefulWidget {
   const ArchiveDialog({Key? key}) : super(key: key);
@@ -192,9 +194,22 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
     }
   }
 
-  void _downloadArchive(bool isOriginal) {
-    ArchiveDownloadedData archive =
-        state.gallery!.toArchiveDownloadedData(state.galleryDetails!.archivePageUrl, isOriginal, _computeSizeInBytes(isOriginal));
+  Future<void> _downloadArchive(bool isOriginal) async {
+    String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
+        ? 'default'.tr
+        : await Get.dialog(
+            EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: archiveDownloadService.allGroups.toList()),
+          );
+    if (group == null) {
+      return;
+    }
+
+    ArchiveDownloadedData archive = state.gallery!.toArchiveDownloadedData(
+      state.galleryDetails!.archivePageUrl,
+      isOriginal,
+      _computeSizeInBytes(isOriginal),
+      group: group,
+    );
 
     if (archiveDownloadService.archiveDownloadInfos.containsKey(archive.gid)) {
       toast('hasDownloaded'.tr);

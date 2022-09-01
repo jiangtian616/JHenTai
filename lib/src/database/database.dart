@@ -28,6 +28,10 @@ class AppDb extends _$AppDb {
     return MigrationStrategy(
       onUpgrade: (Migrator m, int from, int to) async {
         Log.warning('Database version: $from -> $to');
+        if (from > to) {
+          return;
+        }
+
         try {
           if (from < 2) {
             await m.alterTable(TableMigration(image));

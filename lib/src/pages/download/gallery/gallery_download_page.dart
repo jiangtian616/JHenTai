@@ -1,129 +1,232 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:grouped_list/grouped_list.dart';
 
-import '../../database/database.dart';
-import '../../model/gallery_image.dart';
-import '../../model/read_page_info.dart';
-import '../../routes/routes.dart';
-import '../../service/gallery_download_service.dart';
-import '../../service/storage_service.dart';
-import '../../setting/style_setting.dart';
-import '../../utils/date_util.dart';
-import '../../utils/route_util.dart';
-import '../../widget/eh_gallery_category_tag.dart';
-import '../../widget/eh_image.dart';
-import '../../widget/eh_wheel_speed_controller.dart';
-import '../../widget/focus_widget.dart';
-import '../layout/desktop/desktop_layout_page_logic.dart';
+import '../../../database/database.dart';
+import '../../../model/gallery_image.dart';
+import '../../../routes/routes.dart';
+import '../../../service/gallery_download_service.dart';
+import '../../../setting/style_setting.dart';
+import '../../../utils/date_util.dart';
+import '../../../utils/route_util.dart';
+import '../../../widget/eh_gallery_category_tag.dart';
+import '../../../widget/eh_image.dart';
+import '../../../widget/eh_wheel_speed_controller.dart';
+import '../../../widget/focus_widget.dart';
+import '../../layout/desktop/desktop_layout_page_logic.dart';
+import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
+import '../download_base_page.dart';
+import 'gallery_download_page_logic.dart';
+import 'gallery_download_page_state.dart';
 
-class GalleryDownloadBody extends StatefulWidget {
-  const GalleryDownloadBody({Key? key}) : super(key: key);
+class GalleryDownloadPage extends StatelessWidget {
+  final bool showMenuButton;
 
-  @override
-  State<GalleryDownloadBody> createState() => _GalleryDownloadBodyState();
-}
+  GalleryDownloadPage({Key? key, required this.showMenuButton}) : super(key: key);
 
-class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerProviderStateMixin {
-  final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
-  final StorageService storageService = Get.find<StorageService>();
-
-  final ScrollController _scrollController = ScrollController();
-
-  final Map<int, AnimationController> removedGid2AnimationController = {};
-  final Map<int, Animation<double>> removedGid2Animation = {};
-
-  @override
-  void initState() {
-    if (Get.isRegistered<DesktopLayoutPageLogic>()) {
-      Get.find<DesktopLayoutPageLogic>().state.scrollControllers[7] = _scrollController;
-    }
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    for (AnimationController controller in removedGid2AnimationController.values) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
+  final GalleryDownloadPageLogic logic = Get.put<GalleryDownloadPageLogic>(GalleryDownloadPageLogic(), permanent: true);
+  final GalleryDownloadPageState state = Get.find<GalleryDownloadPageLogic>().state;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<GalleryDownloadService>(
-      id: galleryCountOrOrderChangedId,
-      builder: (_) => EHWheelSpeedController(
-        scrollController: _scrollController,
-        child: ListView.builder(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          itemCount: downloadService.gallerys.length,
-          itemBuilder: (context, index) => _itemBuilder(context, index),
-        ),
+    return Scaffold(
+      appBar: buildAppBar(context),
+      body: FadeIn(child: buildBody()),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.arrow_upward, size: 28),
+        foregroundColor: Get.theme.primaryColor,
+        backgroundColor: Theme.of(context).backgroundColor,
+        elevation: 3,
+        heroTag: null,
+        onPressed: logic.scroll2Top,
       ),
     );
   }
 
-  Widget _itemBuilder(BuildContext context, int index) {
-    GalleryDownloadedData gallery = downloadService.gallerys[index];
-
-    Widget child = FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-      handleTapEnter: () => _goToReadPage(gallery),
-      handleTapArrowRight: () => _goToReadPage(gallery),
-      child: Slidable(
-        key: Key(gallery.gid.toString()),
-        endActionPane: _buildEndActionPane(gallery),
-        child: GestureDetector(
-          onSecondaryTap: () => _showBottomSheet(gallery, index, context),
-          onLongPress: () => _showBottomSheet(gallery, index, context),
-          child: _buildCard(gallery),
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      centerTitle: true,
+      title: CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
+        groupValue: DownloadPageBodyType.download,
+        children: {
+          DownloadPageBodyType.download: SizedBox(
+            width: 66,
+            child: Center(child: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
+          ),
+          DownloadPageBodyType.archive: Text('archive'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+          DownloadPageBodyType.local: Text('local'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+        },
+        onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),
+      ),
+      elevation: 1,
+      leadingWidth: 70,
+      leading: ExcludeFocus(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (showMenuButton)
+              IconButton(
+                icon: const Icon(FontAwesomeIcons.bars, size: 20),
+                onPressed: () => TapMenuButtonNotification().dispatch(context),
+              ),
+          ],
         ),
       ),
-    );
-
-    /// has not been deleted
-    if (!removedGid2AnimationController.containsKey(gallery.gid)) {
-      return child;
-    }
-
-    AnimationController controller = removedGid2AnimationController[gallery.gid]!;
-    Animation<double> animation = removedGid2Animation[gallery.gid]!;
-
-    /// has been deleted, start animation
-    if (!controller.isAnimating) {
-      controller.forward();
-    }
-
-    return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
-  }
-
-  ActionPane _buildEndActionPane(GalleryDownloadedData gallery) {
-    return ActionPane(
-      motion: const DrawerMotion(),
-      extentRatio: 0.3,
-      children: [
-        SlidableAction(
-          icon: FontAwesomeIcons.sort,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (BuildContext context) => _showPrioritySheet(gallery, context),
-        ),
-        SlidableAction(
-          icon: Icons.delete,
-          foregroundColor: Colors.red,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (BuildContext context) => _handleRemoveItem(context, gallery, true),
+      actions: [
+        SizedBox(
+          width: 88,
+          child: Row(
+            children: [
+              ExcludeFocus(
+                child: IconButton(
+                  icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
+                  onPressed: logic.downloadService.resumeAllDownloadGallery,
+                  visualDensity: const VisualDensity(horizontal: -4),
+                ),
+              ),
+              ExcludeFocus(
+                child: IconButton(
+                  icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
+                  onPressed: logic.downloadService.pauseAllDownloadGallery,
+                ),
+              ),
+            ],
+          ),
         )
       ],
     );
   }
 
-  Widget _buildCard(GalleryDownloadedData gallery) {
+  Widget buildBody() {
+    return GetBuilder<GalleryDownloadService>(
+      id: galleryCountOrOrderChangedId,
+      builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
+        id: GalleryDownloadPageLogic.bodyId,
+        builder: (_) => EHWheelSpeedController(
+          scrollController: state.scrollController,
+          child: GroupedListView<GalleryDownloadedData, String>(
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            controller: state.scrollController,
+            groupBy: (archive) => logic.downloadService.galleryDownloadInfos[archive.gid]!.group,
+            groupSeparatorBuilder: _groupSeparatorBuilder,
+            elements: logic.downloadService.gallerys,
+            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
+            sort: false,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _groupSeparatorBuilder(String groupName) {
+    return GestureDetector(
+      onTap: () => logic.toggleDisplayGroups(groupName),
+      child: Container(
+        height: 50,
+        decoration: BoxDecoration(
+          color: Get.theme.cardColor,
+
+          /// covered when in dark mode
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 2,
+              spreadRadius: 1,
+              offset: const Offset(0.3, 1),
+            )
+          ],
+          borderRadius: BorderRadius.circular(15),
+        ),
+        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
+        child: Row(
+          children: [
+            const SizedBox(width: 110, child: Center(child: Icon(Icons.folder_open))),
+            Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            const Expanded(child: SizedBox()),
+            GetBuilder<GalleryDownloadPageLogic>(
+              id: '${GalleryDownloadPageLogic.groupId}::$groupName',
+              builder: (_) => Icon(state.displayGroups.contains(groupName) ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right),
+            ).marginOnly(right: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _itemBuilder(GalleryDownloadedData gallery, BuildContext context) {
+    String? group = logic.downloadService.galleryDownloadInfos[gallery.gid]?.group;
+
+    return GetBuilder<GalleryDownloadPageLogic>(
+      id: '${GalleryDownloadPageLogic.groupId}::$group',
+      builder: (_) {
+        if (!state.displayGroups.contains(group)) {
+          return const SizedBox();
+        }
+
+        Widget child = FocusWidget(
+          focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+          handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+          handleTapEnter: () => logic.goToReadPage(gallery),
+          handleTapArrowRight: () => logic.goToReadPage(gallery),
+          child: Slidable(
+            key: Key(gallery.gid.toString()),
+            endActionPane: _buildEndActionPane(gallery),
+            child: GestureDetector(
+              onSecondaryTap: () => showBottomSheet(gallery, context),
+              onLongPress: () => showBottomSheet(gallery, context),
+              child: _buildCard(gallery, context),
+            ),
+          ),
+        );
+
+        /// has not been deleted
+        if (!logic.removedGid2AnimationController.containsKey(gallery.gid)) {
+          return child;
+        }
+
+        AnimationController controller = logic.removedGid2AnimationController[gallery.gid]!;
+        Animation<double> animation = logic.removedGid2Animation[gallery.gid]!;
+
+        /// has been deleted, start animation
+        if (!controller.isAnimating) {
+          controller.forward();
+        }
+
+        return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
+      },
+    );
+  }
+
+  ActionPane _buildEndActionPane(GalleryDownloadedData gallery) {
+    return ActionPane(
+      motion: const DrawerMotion(),
+      extentRatio: 0.4,
+      children: [
+        SlidableAction(
+          icon: Icons.bookmark,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (_) => logic.handleChangeGroup(gallery),
+        ),
+        SlidableAction(
+          icon: FontAwesomeIcons.sort,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (BuildContext context) => showPrioritySheet(gallery, context),
+        ),
+        SlidableAction(
+          icon: Icons.delete,
+          foregroundColor: Colors.red,
+          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          onPressed: (BuildContext context) => logic.handleRemoveItem(context, gallery, true),
+        )
+      ],
+    );
+  }
+
+  Widget _buildCard(GalleryDownloadedData gallery, BuildContext context) {
     return Container(
       height: 130,
       decoration: BoxDecoration(
@@ -160,7 +263,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
       child: GetBuilder<GalleryDownloadService>(
         id: '$downloadImageUrlId::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
           /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
@@ -177,6 +280,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
                 galleryImage: image!,
                 adaptive: true,
                 fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
+                clearMemoryCacheWhenDispose: false,
               ));
         },
       ),
@@ -187,7 +291,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => _goToReadPage(gallery),
+        onTap: () => logic.goToReadPage(gallery),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +379,7 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
   }
 
   Widget _buildPriority(GalleryDownloadedData gallery) {
-    int? priority = downloadService.galleryDownloadInfos[gallery.gid]?.priority;
+    int? priority = logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority;
     if (priority == null) {
       return const SizedBox();
     }
@@ -300,10 +404,12 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadProgressId::${gallery.gid}',
       builder: (_) {
-        DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
+        DownloadStatus downloadStatus = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
         return GestureDetector(
           onTap: () {
-            downloadStatus == DownloadStatus.paused ? downloadService.resumeDownloadGallery(gallery) : downloadService.pauseDownloadGallery(gallery);
+            downloadStatus == DownloadStatus.paused
+                ? logic.downloadService.resumeDownloadGallery(gallery)
+                : logic.downloadService.pauseDownloadGallery(gallery);
           },
           child: Icon(
             downloadStatus == DownloadStatus.paused
@@ -323,8 +429,8 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadProgressId::${gallery.gid}',
       builder: (_) {
-        GalleryDownloadProgress downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
-        GalleryDownloadSpeedComputer speedComputer = downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
+        GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
+        GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
         return Column(
           children: [
             Row(
@@ -361,77 +467,91 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
     );
   }
 
-  void _showBottomSheet(GalleryDownloadedData gallery, int index, BuildContext context) {
+  void showBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
+            child: Text('changeGroup'.tr),
+            onPressed: () {
+              backRoute();
+              logic.handleChangeGroup(gallery);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('changePriority'.tr),
+            onPressed: () {
+              backRoute();
+              showPrioritySheet(gallery, context);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: Text('reDownload'.tr),
             onPressed: () {
-              _handleReDownloadItem(context, index);
+              logic.handleReDownloadItem(context, gallery);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
             child: Text('deleteTask'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              _handleRemoveItem(context, gallery, false);
+              logic.handleRemoveItem(context, gallery, false);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
             child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              _handleRemoveItem(context, gallery, true);
+              logic.handleRemoveItem(context, gallery, true);
               backRoute();
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
+          onPressed: backRoute,
         ),
       ),
     );
   }
 
-  void _showPrioritySheet(GalleryDownloadedData gallery, BuildContext context) {
+  void showPrioritySheet(GalleryDownloadedData gallery, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
             child: Text('${'priority'.tr} : 1 (${'highest'.tr})'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
+            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
             onPressed: () {
-              _handleAssignPriority(gallery, 1);
+              logic.handleAssignPriority(gallery, 1);
               backRoute();
             },
           ),
           ...[2, 3]
               .map((i) => CupertinoActionSheetAction(
                     child: Text('${'priority'.tr} : $i'),
-                    isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
+                    isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
                     onPressed: () {
-                      _handleAssignPriority(gallery, i);
+                      logic.handleAssignPriority(gallery, i);
                       backRoute();
                     },
                   ))
               .toList(),
           CupertinoActionSheetAction(
             child: Text('${'priority'.tr} : 4 (${'default'.tr})'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
+            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
             onPressed: () {
-              _handleAssignPriority(gallery, 4);
+              logic.handleAssignPriority(gallery, 4);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
             child: Text('${'priority'.tr} : 5'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
+            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
             onPressed: () {
-              _handleAssignPriority(gallery, 5);
+              logic.handleAssignPriority(gallery, 5);
               backRoute();
             },
           ),
@@ -440,49 +560,6 @@ class _GalleryDownloadBodyState extends State<GalleryDownloadBody> with TickerPr
           child: Text('cancel'.tr),
           onPressed: () => backRoute(),
         ),
-      ),
-    );
-  }
-
-  void _handleRemoveItem(BuildContext context, GalleryDownloadedData gallery, bool deleteImages) {
-    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-        removedGid2AnimationController.remove(gallery.gid);
-        removedGid2Animation.remove(gallery.gid);
-
-        Get.engine.addPostFrameCallback((_) {
-          downloadService.deleteGallery(gallery, deleteImages: deleteImages);
-        });
-      }
-    });
-    removedGid2AnimationController[gallery.gid] = controller;
-    removedGid2Animation[gallery.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
-
-    downloadService.update([galleryCountOrOrderChangedId]);
-  }
-
-  void _handleAssignPriority(GalleryDownloadedData gallery, int? priority) {
-    downloadService.assignPriority(gallery, priority);
-  }
-
-  void _handleReDownloadItem(BuildContext context, int index) {
-    downloadService.reDownloadGallery(downloadService.gallerys[index]);
-  }
-
-  void _goToReadPage(GalleryDownloadedData gallery) {
-    int readIndexRecord = storageService.read('readIndexRecord::${gallery.gid}') ?? 0;
-
-    toRoute(
-      Routes.read,
-      arguments: ReadPageInfo(
-        mode: ReadMode.downloaded,
-        gid: gallery.gid,
-        galleryUrl: gallery.galleryUrl,
-        initialIndex: readIndexRecord,
-        currentIndex: readIndexRecord,
-        pageCount: gallery.pageCount,
       ),
     );
   }

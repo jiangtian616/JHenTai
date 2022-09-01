@@ -136,7 +136,7 @@ class Log {
             }
           });
 
-          if (_shouldUploadLog(stackTrace)) {
+          if (_shouldAttachLogFile(stackTrace)) {
             Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
             if (verboseAttachment.isNotEmpty) {
               scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
@@ -198,9 +198,9 @@ class Log {
     if (throwable is StateError && throwable.message.contains('User cancel request')) {
       return true;
     }
-    if (throwable is DioError && throwable.message.contains('Http status error')) {
-      return true;
-    }
+    // if (throwable is DioError && throwable.message.contains('Http status error')) {
+    //   return true;
+    // }
     if (throwable is HttpException && throwable.message.contains('Connection closed while receiving data')) {
       return true;
     }
@@ -210,10 +210,13 @@ class Log {
     if (throwable is SocketException && throwable.message.contains('Reading from a closed socket')) {
       return true;
     }
+    if (throwable is DioError && throwable.message.contains('HandshakeException')) {
+      return true;
+    }
     return false;
   }
 
-  static bool _shouldUploadLog(dynamic stackTrace) {
+  static bool _shouldAttachLogFile(dynamic stackTrace) {
     if (stackTrace == null) {
       return true;
     }

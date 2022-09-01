@@ -316,6 +316,10 @@ class zh_TW {
       'highest': '最高',
       'default': '默認',
       'newGalleryCount': '新掃描到畫廊數目',
+      'changePriority': '改變優先級',
+      'changeGroup': '改變分組',
+      'chooseGroup': '選擇分組',
+      'groupName': '分組名稱',
 
       /// search dialog
       'searchConfig': '搜尋設定',
@@ -395,6 +399,7 @@ class zh_TW {
       'per': '每',
       'images': '圖片',
       'downloadInOrder': '按任務加入順序下載',
+      'alwaysUseDefaultGroup': '總是使用默認分組',
       'restoreDownloadTasks': '恢復下載任務',
       'enableStoreMetadataForRestore': '允許儲存下載元數據用來恢復下載記錄',
       'enableStoreMetadataForRestoreHint': '關閉此項後無法再恢復下載記錄',

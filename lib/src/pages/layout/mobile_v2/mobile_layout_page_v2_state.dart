@@ -4,7 +4,7 @@ import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 
 import '../../../model/tab_bar_icon.dart';
 import '../../../routes/routes.dart';
-import '../../download/download_page.dart';
+import '../../download/download_base_page.dart';
 import '../../favorite/favorite_page.dart';
 import '../../gallerys/dashboard/dashboard_page.dart';
 import '../../history/history_page.dart';

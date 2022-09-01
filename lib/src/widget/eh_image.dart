@@ -29,6 +29,7 @@ class EHImage extends StatefulWidget {
   final BoxFit? fit;
   final ExtendedImageMode mode;
   final InitGestureConfigHandler? initGestureConfigHandler;
+  final bool clearMemoryCacheWhenDispose;
   LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   FailedWidgetBuilder? failedWidgetBuilder;
   DownloadingWidgetBuilder? downloadingWidgetBuilder;
@@ -45,6 +46,7 @@ class EHImage extends StatefulWidget {
     this.fit,
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
+    this.clearMemoryCacheWhenDispose = true,
     this.downloadingWidgetBuilder,
     this.pausedWidgetBuilder,
     this.completedWidgetBuilder,
@@ -60,6 +62,7 @@ class EHImage extends StatefulWidget {
     this.fit,
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
+    this.clearMemoryCacheWhenDispose = true,
     this.loadingWidgetBuilder,
     this.failedWidgetBuilder,
     this.completedWidgetBuilder,
@@ -106,7 +109,7 @@ class _EHImageState extends State<EHImage> {
         mode: widget.mode,
         initGestureConfigHandler: widget.initGestureConfigHandler,
         cancelToken: cancelToken,
-        clearMemoryCacheWhenDispose: true,
+        clearMemoryCacheWhenDispose: widget.clearMemoryCacheWhenDispose,
         handleLoadingProgress: widget.loadingWidgetBuilder != null,
         printError: false,
         // headers: _cookieHeaders(widget.galleryImage.url),
@@ -145,7 +148,7 @@ class _EHImageState extends State<EHImage> {
       fit: widget.fit,
       mode: widget.mode,
       enableLoadState: true,
-      clearMemoryCacheWhenDispose: true,
+      clearMemoryCacheWhenDispose: widget.clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
         if (state.extendedImageLoadState == LoadState.completed) {
           return FadeIn(

@@ -316,6 +316,10 @@ class zh_CN {
       'highest': '最高',
       'default': '默认',
       'newGalleryCount': '新扫描到画廊数目',
+      'changePriority': '改变优先级',
+      'changeGroup': '改变分组',
+      'chooseGroup': '选择分组',
+      'groupName': '分组名称',
 
       /// search dialog
       'searchConfig': '搜索配置',
@@ -395,6 +399,7 @@ class zh_CN {
       'per': '每',
       'images': '图片',
       'downloadInOrder': '按任务加入顺序下载',
+      'alwaysUseDefaultGroup': '总是使用默认分组',
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',
       'enableStoreMetadataForRestoreHint': '关闭此项后无法再恢复下载记录',

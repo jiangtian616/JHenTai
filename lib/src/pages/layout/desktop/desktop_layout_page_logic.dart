@@ -38,7 +38,7 @@ class DesktopLayoutPageLogic extends GetxController {
     ScrollController? scrollController = state.scrollControllers[index];
 
     /// no popular_page.dart data
-    if (scrollController?.hasClients == false) {
+    if ((scrollController?.hasClients ?? false) == false) {
       return;
     }
 

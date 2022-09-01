@@ -18,6 +18,7 @@ class DownloadSetting {
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxInt timeout = 10.obs;
   static RxBool downloadInOrderOfInsertTime = true.obs;
+  static RxBool alwaysUseDefaultGroup = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
@@ -84,6 +85,12 @@ class DownloadSetting {
     _save();
   }
 
+  static saveAlwaysUseDefaultGroup(bool value) {
+    Log.debug('saveAlwaysUseDefaultGroup:$value');
+    alwaysUseDefaultGroup.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('downloadSetting', _toMap());
   }
@@ -97,6 +104,7 @@ class DownloadSetting {
       'period': period.value.inMilliseconds,
       'timeout': timeout.value,
       'downloadInOrderOfInsertTime': downloadInOrderOfInsertTime.value,
+      'alwaysUseDefaultGroup': alwaysUseDefaultGroup.value,
     };
   }
 
@@ -108,5 +116,6 @@ class DownloadSetting {
     period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
     downloadInOrderOfInsertTime.value = map['downloadInOrderOfInsertTime'] ?? downloadInOrderOfInsertTime.value;
+    alwaysUseDefaultGroup.value = map['alwaysUseDefaultGroup'] ?? alwaysUseDefaultGroup.value;
   }
 }

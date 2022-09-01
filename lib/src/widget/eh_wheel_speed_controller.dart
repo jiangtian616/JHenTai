@@ -5,13 +5,14 @@ import 'package:get/get.dart';
 import '../setting/mouse_setting.dart';
 
 class EHWheelSpeedController extends StatelessWidget {
-  final Widget child;
   final ScrollController? scrollController;
+  final Widget child;
+
 
   const EHWheelSpeedController({
     Key? key,
-    required this.child,
     required this.scrollController,
+    required this.child,
   }) : super(key: key);
 
   @override

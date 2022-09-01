@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jhentai/src/pages/download/download_page.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';

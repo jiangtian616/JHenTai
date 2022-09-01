@@ -317,6 +317,10 @@ class en_US {
       'highest': 'Highest',
       'default': 'Default',
       'newGalleryCount': 'New gallery count',
+      'changePriority': 'Change Priority',
+      'changeGroup': 'Change Group',
+      'chooseGroup': 'Choose Group',
+      'groupName': 'Group Name',
 
       /// search dialog
       'searchConfig': 'Search Config',
@@ -397,6 +401,7 @@ class en_US {
       'images': 'images',
       'downloadTimeout': 'Download Timeout',
       'downloadInOrder': 'Download in order of task created time',
+      'alwaysUseDefaultGroup': 'Always Use Default Group',
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
       'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
       'restoreDownloadTasks': 'Restore Download Tasks',

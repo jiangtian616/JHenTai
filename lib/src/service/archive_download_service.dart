@@ -33,6 +33,8 @@ class ArchiveDownloadService extends GetxController {
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
+  Set<String> get allGroups => archiveDownloadInfos.values.fold(<String>{}, (set, a) => set..add(a.group));
+
   static void init() {
     Get.put(ArchiveDownloadService(), permanent: true);
   }
@@ -180,6 +182,12 @@ class ArchiveDownloadService extends GetxController {
     downloadArchive(archive, resume: true);
   }
 
+  Future<bool> updateArchiveGroup(ArchiveDownloadedData archive, String group) async {
+    archiveDownloadInfos[archive.gid]?.group = group;
+    _sortArchives();
+    return _updateArchiveInDatabase(archive);
+  }
+
   /// Use meta in each archive folder to restore download tasks, then sync to database.
   /// this is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {
@@ -287,8 +295,25 @@ class ArchiveDownloadService extends GetxController {
 
   void _sortArchives() {
     archives.sort((a, b) {
-      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(a.insertTime!);
-      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss.SSS').parse(b.insertTime!);
+      ArchiveDownloadInfo aInfo = archiveDownloadInfos[a.gid]!;
+      ArchiveDownloadInfo bInfo = archiveDownloadInfos[b.gid]!;
+
+      if (!(aInfo.group == 'default'.tr && bInfo.group == 'default'.tr)) {
+        if (aInfo.group == 'default'.tr) {
+          return 1;
+        }
+        if (bInfo.group == 'default'.tr) {
+          return -1;
+        }
+      }
+
+      int gResult = aInfo.group.compareTo(bInfo.group);
+      if (gResult != 0) {
+        return gResult;
+      }
+
+      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
+      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime!);
 
       return bTime.difference(aTime).inMilliseconds;
     });
@@ -570,7 +595,7 @@ class ArchiveDownloadService extends GetxController {
         updateCallback: () => update(['$archiveSpeedComputerId::${archive.gid}::${archive.isOriginal}']),
       )..downloadedBytes = _computeDownloadedPackingFileBytes(archive) ?? 0,
       downloadedBytesBeforeDownload: _computeDownloadedPackingFileBytes(archive) ?? 0,
-      group: archive.groupName,
+      group: archive.groupName ?? 'default'.tr,
     );
 
     _sortArchives();
@@ -633,7 +658,7 @@ class ArchiveDownloadInfo {
 
   int downloadedBytesBeforeDownload;
 
-  String? group;
+  String group;
 
   ArchiveDownloadInfo({
     this.downloadPageUrl,
@@ -642,7 +667,7 @@ class ArchiveDownloadInfo {
     required this.cancelToken,
     required this.speedComputer,
     required this.downloadedBytesBeforeDownload,
-    this.group,
+    required this.group,
   });
 }
 

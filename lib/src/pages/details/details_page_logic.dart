@@ -39,6 +39,7 @@ import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
+import '../../widget/eh_group_name_dialog.dart';
 import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
 import '../layout/desktop/desktop_layout_page_logic.dart';
 import '../search/mobile/search_page_logic.dart';
@@ -451,14 +452,21 @@ class DetailsPageLogic extends GetxController {
     GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
 
     if (downloadProgress == null) {
+      String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
+          ? 'default'.tr
+          : await Get.dialog(
+              EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: downloadService.allGroups.toList()),
+            );
+      if (group == null) {
+        return;
+      }
+
       if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.always) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true));
-        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true, group: group));
         return;
       }
       if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.never) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false));
-        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false, group: group));
         return;
       }
       if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.manual) {
@@ -466,9 +474,9 @@ class DetailsPageLogic extends GetxController {
         if (downloadOriginalImage == null) {
           return;
         }
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage));
-        toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage, group: group));
       }
+      toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
 
