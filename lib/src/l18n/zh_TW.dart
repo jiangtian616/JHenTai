@@ -130,6 +130,7 @@ class zh_TW {
       'hasUpdated': '已更新',
       'hasDownloaded': '已下載',
       '410Hints': '下載此歸檔次數過多，你需要重新購買、解鎖後才能繼續下載',
+      'getUnpackedImagesFailedMsg': 'JHenTai無法讀取此歸檔的圖片，請檢查本地文件是否正常',
 
       /// comment page
       'newComment': '新評論',

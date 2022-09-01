@@ -131,6 +131,7 @@ class en_US {
       'failedToDealWith': 'Failed to deal with',
       'hasDownloaded': 'Has downloaded',
       '410Hints': 'You have clocked too many downloaded bytes on this archive, and need to re-unlock of this archive to resume',
+      'getUnpackedImagesFailedMsg': 'JHenTai can\'t load images of this archive, please check your local file.',
 
       /// comment page
       'newComment': 'New Comment',

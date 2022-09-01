@@ -9,10 +9,12 @@ import 'package:image_size_getter/image_size_getter.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
@@ -233,8 +235,20 @@ class ArchiveDownloadService extends GetxController {
 
   List<GalleryImage> getUnpackedImages(ArchiveDownloadedData archive) {
     io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
-    List<io.File> imageFiles =
-        directory.listSync().whereType<io.File>().where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null).toList();
+
+    List<io.File> imageFiles;
+    try {
+      imageFiles = directory
+          .listSync()
+          .whereType<io.File>()
+          .where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null)
+          .toList();
+    } on Exception catch (e) {
+      toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
+      Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});
+      throw NotUploadException(e);
+    }
+
     imageFiles.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
     List<GalleryImage> images = [];
@@ -244,7 +258,7 @@ class ArchiveDownloadService extends GetxController {
         size = ImageSizeGetter.getSize(FileInput(file));
       } on Exception catch (e) {
         Log.error("Parse archive images failed!", e);
-        Log.upload(e, extraInfos: {'file': file.path});
+        Log.upload(e, extraInfos: {'path': file.path, 'info': file.statSync()});
         continue;
       }
 
