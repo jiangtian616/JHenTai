@@ -933,7 +933,7 @@ class GalleryDownloadService extends GetxController {
           gallery.downloadStatusIndex,
           gallery.insertTime ?? DateTime.now().toString(),
           gallery.downloadOriginalImage,
-          _computeGalleryTaskPriority(gallery),
+          gallery.priority ?? defaultDownloadGalleryPriority,
           gallery.groupName,
         ) >
         0;
