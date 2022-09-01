@@ -18,6 +18,9 @@ Still in beginning stage, welcome to submit issues.
 [Download](https://github.com/jiangtian616/JHenTai/releases)
 
 Install for Android: download .apk according to your device architecture and install.
+- arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
+- armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
+- x86_64：rare
 
 Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 

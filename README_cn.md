@@ -18,6 +18,9 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 [下载](https://github.com/jiangtian616/JHenTai/releases)
 
 安卓安装:  下载对应自己设置架构的apk文件，直接安装即可。
+- arm64-v8a：适用于较新的第8代ARM处理器安卓手机(常见选择)
+- armeabiv-v7a：适用于较老的第7代ARM处理器安卓手机
+- x86_64：少见
 
 苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
