@@ -56,7 +56,7 @@ class _EHGroupNameDialogState extends State<EHGroupNameDialog> {
             borderRadius: BorderRadius.circular(10),
             child: Container(
               height: 22,
-              color: Colors.grey.shade200,
+              color: Get.isDarkMode ? Colors.grey.shade600 : Colors.grey.shade200,
               child: Center(
                 child: Text(widget.candidates[index], style: const TextStyle(fontSize: 11, height: 1)),
               ).marginSymmetric(horizontal: 8),
