@@ -114,7 +114,7 @@ class ArchiveDownloadPage extends StatelessWidget {
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             controller: state.scrollController,
             groupBy: (archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: _groupSeparatorBuilder,
+            groupSeparatorBuilder: _groupBuilder,
             elements: logic.archiveDownloadService.archives,
             itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
             sort: false,
@@ -124,9 +124,11 @@ class ArchiveDownloadPage extends StatelessWidget {
     );
   }
 
-  Widget _groupSeparatorBuilder(String groupName) {
+  Widget _groupBuilder(String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
+      onLongPress: () => logic.handleRenameGroup(groupName),
+      onSecondaryTap: () => logic.handleRenameGroup(groupName),
       child: Container(
         height: 50,
         decoration: BoxDecoration(
@@ -178,8 +180,8 @@ class ArchiveDownloadPage extends StatelessWidget {
             key: Key(archive.gid.toString()),
             endActionPane: _buildEndActionPane(archive),
             child: GestureDetector(
-              onSecondaryTap: () => showDeleteBottomSheet(archive, context),
-              onLongPress: () => showDeleteBottomSheet(archive, context),
+              onSecondaryTap: () => showArchiveBottomSheet(archive, context),
+              onLongPress: () => showArchiveBottomSheet(archive, context),
               child: _buildCard(archive, context),
             ),
           ),
@@ -211,7 +213,7 @@ class ArchiveDownloadPage extends StatelessWidget {
         SlidableAction(
           icon: Icons.bookmark,
           backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (_) => logic.handleChangeGroup(archive),
+          onPressed: (_) => logic.handleChangeArchiveGroup(archive),
         ),
         SlidableAction(
           icon: Icons.delete,
@@ -440,7 +442,7 @@ class ArchiveDownloadPage extends StatelessWidget {
     );
   }
 
-  void showDeleteBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+  void showArchiveBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -449,7 +451,7 @@ class ArchiveDownloadPage extends StatelessWidget {
             child: Text('changeGroup'.tr),
             onPressed: () {
               backRoute();
-              logic.handleChangeGroup(archive);
+              logic.handleChangeArchiveGroup(archive);
             },
           ),
           CupertinoActionSheetAction(

@@ -112,7 +112,7 @@ class GalleryDownloadPage extends StatelessWidget {
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
             controller: state.scrollController,
             groupBy: (archive) => logic.downloadService.galleryDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: _groupSeparatorBuilder,
+            groupSeparatorBuilder: _groupBuilder,
             elements: logic.downloadService.gallerys,
             itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
             sort: false,
@@ -122,9 +122,11 @@ class GalleryDownloadPage extends StatelessWidget {
     );
   }
 
-  Widget _groupSeparatorBuilder(String groupName) {
+  Widget _groupBuilder(String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
+      onLongPress: () => logic.handleRenameGroup(groupName),
+      onSecondaryTap: () => logic.handleRenameGroup(groupName),
       child: Container(
         height: 50,
         decoration: BoxDecoration(

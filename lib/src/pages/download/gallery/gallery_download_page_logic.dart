@@ -71,6 +71,28 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
     update([bodyId]);
   }
 
+  Future<void> handleRenameGroup(String oldGroupName) async {
+    String? newGroup = await Get.dialog(EHGroupNameDialog(
+      type: EHGroupNameDialogType.update,
+      candidates: downloadService.allGroups.toList(),
+      currentGroup: oldGroupName,
+    ));
+    if (newGroup == null) {
+      return;
+    }
+
+    if (newGroup == oldGroupName) {
+      return;
+    }
+
+    await downloadService.renameGroupName(oldGroupName, newGroup);
+
+    state.displayGroups.remove(oldGroupName);
+    state.displayGroups.add(newGroup);
+
+    update([bodyId]);
+  }
+
   void handleRemoveItem(BuildContext context, GalleryDownloadedData gallery, bool deleteImages) {
     AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
     controller.addStatusListener((AnimationStatus status) {

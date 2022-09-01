@@ -52,7 +52,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
     update(['$groupId::$groupName']);
   }
 
-  Future<void> handleChangeGroup(ArchiveDownloadedData archive) async {
+  Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
 
     String? newGroup = await Get.dialog(EHGroupNameDialog(
@@ -69,6 +69,24 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
     }
 
     await archiveDownloadService.updateArchiveGroup(archive, newGroup);
+    update([bodyId]);
+  }
+
+  Future<void> handleRenameGroup(String oldGroupName) async {
+    String? newGroup = await Get.dialog(EHGroupNameDialog(
+      type: EHGroupNameDialogType.update,
+      candidates: archiveDownloadService.allGroups.toList(),
+      currentGroup: oldGroupName,
+    ));
+    if (newGroup == null) {
+      return;
+    }
+
+    if (newGroup == oldGroupName) {
+      return;
+    }
+
+    await archiveDownloadService.renameGroupName(oldGroupName, newGroup);
     update([bodyId]);
   }
 

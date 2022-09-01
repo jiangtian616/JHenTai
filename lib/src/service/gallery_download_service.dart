@@ -251,6 +251,17 @@ class GalleryDownloadService extends GetxController {
     return _updateGalleryGroupInDatabase(gallery.gid, group);
   }
 
+  Future<void> renameGroupName(String oldGroup, String newGroup) async {
+    List<GalleryDownloadedData> galleryDownloadedDatas = gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == oldGroup).toList();
+
+    await appDb.transaction(() async {
+      for (GalleryDownloadedData g in galleryDownloadedDatas) {
+        galleryDownloadInfos[g.gid]!.group = newGroup;
+        await _updateGalleryGroupInDatabase(g.gid, newGroup);
+      }
+    });
+  }
+
   /// Use metadata in each gallery folder to restore download status, then sync to database.
   /// This is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {

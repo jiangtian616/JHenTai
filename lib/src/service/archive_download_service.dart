@@ -190,6 +190,17 @@ class ArchiveDownloadService extends GetxController {
     return _updateArchiveInDatabase(archive);
   }
 
+  Future<void> renameGroupName(String oldGroup, String newGroup) async {
+    List<ArchiveDownloadedData> archiveDownloadedDatas = archives.where((a) => archiveDownloadInfos[a.gid]!.group == oldGroup).toList();
+
+    await appDb.transaction(() async {
+      for (ArchiveDownloadedData a in archiveDownloadedDatas) {
+        archiveDownloadInfos[a.gid]!.group = newGroup;
+        await _updateArchiveInDatabase(a);
+      }
+    });
+  }
+
   /// Use meta in each archive folder to restore download tasks, then sync to database.
   /// this is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {
