@@ -85,7 +85,8 @@ dev_dependencies:
   test: ^1.19.5
   drift_dev: ^1.5.2
   build_runner: ^2.1.8
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons:
+    git: https://github.com/fluttercommunity/flutter_launcher_icons
 
 flutter:
   uses-material-design: true
@@ -97,3 +98,10 @@ flutter_icons:
   image_path_ios: "assets/icon-ios.png"
   adaptive_icon_background: "#fce219"
   adaptive_icon_foreground: "assets/ic_launcher_foreground.png"
+  windows:
+    generate: true
+    image_path: "assets/icon-ios.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/icon-ios.png"
