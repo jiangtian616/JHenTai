@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/widget/eh_group_name_dialog.dart';
 
 import '../../../database/database.dart';
+import '../../../model/gallery_image.dart';
 import '../../../model/read_page_info.dart';
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
@@ -115,6 +116,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
     }
 
     int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
+    List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
 
     toRoute(
       Routes.read,
@@ -124,9 +126,9 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
         galleryUrl: archive.galleryUrl,
         initialIndex: readIndexRecord,
         currentIndex: readIndexRecord,
-        pageCount: archive.pageCount,
+        pageCount: images.length,
         isOriginal: archive.isOriginal,
-        images: archiveDownloadService.getUnpackedImages(archive),
+        images: images,
       ),
     );
   }
