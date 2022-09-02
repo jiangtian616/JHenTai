@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/sentry_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
@@ -56,6 +57,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeConfig.light,
       darkTheme: ThemeConfig.dark,
       themeMode: StyleSetting.themeMode.value,
+
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'),
+        Locale('zh', 'CN'),
+        Locale('zh', 'TW'),
+      ],
       locale: StyleSetting.locale.value,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),

@@ -161,7 +161,7 @@ class en_US {
       'account': 'Account',
       'EH': 'EH',
       'style': 'Style',
-      'network': 'network',
+      'network': 'Network',
       'mouseWheel': 'Mouse Wheel',
       'advanced': 'Advanced',
       'security': 'Security',

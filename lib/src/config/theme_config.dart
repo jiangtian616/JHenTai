@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get_utils/src/platform/platform.dart';
 
 class ThemeConfig {
   static ThemeData light = ThemeData(
@@ -39,6 +40,7 @@ class ThemeConfig {
     elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.white,
     hoverColor: Colors.transparent,
+    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
   );
 
   static ThemeData dark = ThemeData(
@@ -75,5 +77,6 @@ class ThemeConfig {
     elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     cardColor: Colors.grey.shade900,
     hoverColor: Colors.transparent,
+    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
   );
 }
