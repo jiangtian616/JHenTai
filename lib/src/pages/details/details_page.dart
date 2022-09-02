@@ -17,6 +17,7 @@ import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
@@ -455,9 +456,16 @@ class DetailsPage extends StatelessWidget {
                 IconTextButton(
                   iconData: Icons.folder_zip,
                   iconSize: 28,
-                  text: Text(
-                    'archive'.tr,
-                    style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                  text: GetBuilder<ArchiveDownloadService>(
+                    id: '${ArchiveDownloadService.archiveStatusId}::${gallery.gid}',
+                    builder: (_) {
+                      ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[gallery.gid]?.archiveStatus;
+
+                      return Text(
+                        archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr,
+                        style: TextStyle(fontSize: 12, color: Get.theme.appBarTheme.titleTextStyle?.color),
+                      );
+                    },
                   ),
                   onPressed: detailsPageState.galleryDetails == null ? null : detailsPageLogic.handleTapArchive,
                 ),
