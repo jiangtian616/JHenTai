@@ -331,7 +331,7 @@ class ArchiveDownloadPage extends StatelessWidget {
 
   Widget _buildReUnlockButton(ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
-      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
         ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
@@ -373,7 +373,7 @@ class ArchiveDownloadPage extends StatelessWidget {
 
   Widget _buildButton(ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
-      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
         ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return GestureDetector(
@@ -399,7 +399,7 @@ class ArchiveDownloadPage extends StatelessWidget {
 
   Widget _buildInfoFooter(ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
-      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}::${archive.isOriginal}',
+      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
         ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return Column(

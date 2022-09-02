@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_utils/get_utils.dart';
+import 'package:get/state_manager.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:intl/intl.dart';
@@ -110,6 +112,8 @@ class ArchiveDownloadService extends GetxController {
     await _deleteArchiveInDisk(archive);
 
     _deleteArchiveInMemory(archive.gid, archive.isOriginal);
+
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> pauseAllDownloadArchive() async {
@@ -131,7 +135,7 @@ class ArchiveDownloadService extends GetxController {
     archiveDownloadInfo.archiveStatus = needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused;
     await _updateArchiveInDatabase(archive);
 
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> resumeAllDownloadArchive() async {
@@ -152,7 +156,7 @@ class ArchiveDownloadService extends GetxController {
     archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
     await _updateArchiveInDatabase(archive);
 
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
 
     downloadArchive(archive, resume: true);
   }
@@ -167,7 +171,7 @@ class ArchiveDownloadService extends GetxController {
     archiveDownloadInfo.downloadUrl = null;
     archiveDownloadInfo.cancelToken = CancelToken();
     await _updateArchiveInDatabase(archive);
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
 
     try {
       await retry(
@@ -349,6 +353,22 @@ class ArchiveDownloadService extends GetxController {
     return !archiveDownloadInfos.containsKey(archive.gid) || archiveDownloadInfos[archive.gid]!.archiveStatus.index <= ArchiveStatus.paused.index;
   }
 
+  bool _invalidDownload(Response response) {
+    Headers headers = response.headers;
+
+    if (headers['content-transfer-encoding']?.contains('binary') ?? false) {
+      return false;
+    }
+    if (headers['accept-ranges']?.contains('bytes') ?? false) {
+      return false;
+    }
+    if (headers['content-type']?.contains('application/zip') ?? false) {
+      return false;
+    }
+
+    return true;
+  }
+
   // TASKS
 
   Future<void> _requestUnlock(ArchiveDownloadedData archive) async {
@@ -393,7 +413,7 @@ class ArchiveDownloadService extends GetxController {
     }
 
     await _updateArchiveInDatabase(archive);
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> _getDownloadPageUrl(ArchiveDownloadedData archive) async {
@@ -448,7 +468,7 @@ class ArchiveDownloadService extends GetxController {
     Log.verbose('Archive download url: ${archiveDownloadInfo.downloadUrl}');
 
     await _updateArchiveInDatabase(archive);
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> _doDownloadArchive(ArchiveDownloadedData archive) async {
@@ -462,8 +482,9 @@ class ArchiveDownloadService extends GetxController {
       ..downloadedBytes = latestDownloadedBytes
       ..start();
 
+    Response response;
     try {
-      await EHRequest.download(
+      response = await EHRequest.download(
         url: archiveDownloadInfo.downloadUrl!,
         path: _computePackingFileDownloadPath(archive),
         receiveTimeout: 0,
@@ -502,10 +523,21 @@ class ArchiveDownloadService extends GetxController {
 
     Log.download('Download archive success: ${archive.title}, original: ${archive.isOriginal}');
 
+    if (_invalidDownload(response)) {
+      Log.error('Invalid archive!');
+      Log.upload(Exception('Invalid archive!'), extraInfos: {
+        'code': response.statusCode,
+        'headers': response.headers,
+      });
+      await _deletePackingFileInDisk(archive);
+      await Future.delayed(const Duration(milliseconds: 1000));
+      return _doDownloadArchive(archive);
+    }
+
     speedComputer.dispose();
     archiveDownloadInfo.archiveStatus = ArchiveStatus.downloaded;
     await _updateArchiveInDatabase(archive);
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> _reParseDownloadUrlAndDownload(ArchiveDownloadedData archive) async {
@@ -541,7 +573,7 @@ class ArchiveDownloadService extends GetxController {
     archiveDownloadInfo.archiveStatus = ArchiveStatus.completed;
     await _updateArchiveInDatabase(archive);
 
-    update(['$archiveStatusId::${archive.gid}::${archive.isOriginal}']);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   // ALL
