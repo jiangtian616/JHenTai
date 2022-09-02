@@ -199,6 +199,7 @@ class ArchiveDownloadService extends GetxController {
         await _updateArchiveInDatabase(a);
       }
     });
+    _sortArchives();
   }
 
   /// Use meta in each archive folder to restore download tasks, then sync to database.
