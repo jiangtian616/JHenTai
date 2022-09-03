@@ -37,14 +37,15 @@ class DesktopLayoutPage extends StatelessWidget {
       child: Row(
         children: [
           _leftTabBar(context),
-          Expanded(child: ResizableWidget(
+          Expanded(
+            child: ResizableWidget(
               children: [
-                _leftColumn(), 
+                _leftColumn(),
                 _rightColumn(),
-                ],
+              ],
               separatorColor: Colors.black,
               separatorSize: 2,
-              percentages: [0.3, 0.7],            
+              percentages: [0.3, 0.7],
             ),
           ),
         ],

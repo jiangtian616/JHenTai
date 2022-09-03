@@ -487,9 +487,11 @@ packages:
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
-      name: flutter_launcher_icons
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "07a4bea254e122b9dd9d79237d659ad3034cfe68"
+      url: "https://github.com/fluttercommunity/flutter_launcher_icons"
+    source: git
     version: "0.10.0"
   flutter_lints:
     dependency: "direct dev"
@@ -1110,6 +1112,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.4.5"
+  resizable_widget:
+    dependency: "direct main"
+    description:
+      name: resizable_widget
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.5"
   retry:
     dependency: "direct main"
     description:
