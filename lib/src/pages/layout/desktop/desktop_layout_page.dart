@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:resizable_widget/resizable_widget.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -36,12 +37,13 @@ class DesktopLayoutPage extends StatelessWidget {
       child: Row(
         children: [
           _leftTabBar(context),
-          Expanded(child: _leftColumn()),
-          Expanded(
-            child: DecoratedBox(
-              position: DecorationPosition.foreground,
-              decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-              child: _rightColumn(),
+          Expanded(child: ResizableWidget(
+              children: [
+                _leftColumn(), 
+                _rightColumn(),
+                ],
+              separatorColor: Colors.black,
+              separatorSize: 2,              
             ),
           ),
         ],
