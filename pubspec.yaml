@@ -68,6 +68,7 @@ dependencies:
   bitsdojo_window: ^0.1.2
   permission_handler: 9.2.0
   grouped_list: ^5.1.2
+  resizable_widget: ^1.0.5
 
 dependency_overrides:
   dio:
