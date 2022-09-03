@@ -47,9 +47,7 @@ class EHTag extends StatelessWidget {
         color: tag.backgroundColor ??
             (addNameSpaceColor
                 ? ColorConsts.zhTagNameSpaceColor[tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[tag.tagData.key]!
-                : Get.theme.brightness == Brightness.light
-                    ? Colors.grey.shade200
-                    : Colors.grey.shade800),
+                : Get.theme.colorScheme.secondaryContainer),
         padding: padding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -59,12 +57,7 @@ class EHTag extends StatelessWidget {
               style: TextStyle(
                 fontSize: fontSize,
                 height: textHeight,
-                color: tag.color ??
-                    (addNameSpaceColor
-                        ? Colors.black
-                        : Get.theme.brightness == Brightness.light
-                            ? Colors.grey.shade800
-                            : Colors.grey.shade300),
+                color: tag.color ?? Get.theme.colorScheme.onSecondaryContainer,
               ),
             ),
           ],

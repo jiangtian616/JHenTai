@@ -406,11 +406,7 @@ class ReadPage extends StatelessWidget {
           return const Center();
         }
 
-        return EHImage.file(
-          galleryImage: state.images[index]!,
-          adaptive: true,
-          fit: BoxFit.contain,
-        );
+        return EHImage.file(galleryImage: state.images[index]!);
       },
     );
   }

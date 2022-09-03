@@ -18,14 +18,11 @@ enum ListMode {
   flat,
 }
 
-enum CoverMode { cover, contain }
-
 class StyleSetting {
   static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
-  static Rx<CoverMode> coverMode = CoverMode.cover.obs;
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
@@ -79,12 +76,6 @@ class StyleSetting {
     _save();
   }
 
-  static saveCoverMode(CoverMode coverMode) {
-    Log.debug('saveCoverMode:${coverMode.name}');
-    StyleSetting.coverMode.value = coverMode;
-    _save();
-  }
-
   static saveLayoutMode(LayoutMode layoutMode) {
     Log.debug('saveLayoutMode:${layoutMode.name}');
     StyleSetting.layout.value = layoutMode;
@@ -117,7 +108,6 @@ class StyleSetting {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
-      'coverMode': coverMode.value.index,
       'layout': layout.value.index,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
     };
@@ -128,7 +118,6 @@ class StyleSetting {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
-    coverMode.value = CoverMode.values[map['coverMode']];
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
     actualLayout = layout.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;

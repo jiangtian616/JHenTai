@@ -12,7 +12,6 @@ import 'package:jhentai/src/widget/re_unlock_dialog.dart';
 import '../../../model/gallery_image.dart';
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
-import '../../../setting/style_setting.dart';
 import '../../../utils/byte_util.dart';
 import '../../../utils/date_util.dart';
 import '../../../utils/route_util.dart';
@@ -258,16 +257,9 @@ class ArchiveDownloadPage extends StatelessWidget {
   Widget _buildCover(ArchiveDownloadedData archive) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toRoute(Routes.details, arguments: archive.galleryUrl),
-      child: Obx(
-        () => EHImage.network(
-          containerHeight: 130,
-          containerWidth: 110,
-          galleryImage: GalleryImage(url: archive.coverUrl, width: archive.coverWidth, height: archive.coverHeight),
-          adaptive: true,
-          fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-          clearMemoryCacheWhenDispose: false,
-        ),
+      onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl}),
+      child: EHImage.network(
+        galleryImage: GalleryImage(url: archive.coverUrl, width: archive.coverWidth, height: archive.coverHeight),
       ),
     );
   }

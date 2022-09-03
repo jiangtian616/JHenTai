@@ -3,9 +3,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -23,17 +22,17 @@ import '../../../utils/snack_util.dart';
 
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
-  final double? height;
   final int? maxLines;
   final bool canTapUrl;
+  final bool isSelectable;
   final bool showVotingButtons;
 
   const EHComment({
     Key? key,
     required this.comment,
-    this.height,
     this.maxLines,
-    this.canTapUrl = false,
+    required this.canTapUrl,
+    required this.isSelectable,
     this.showVotingButtons = true,
   }) : super(key: key);
 
@@ -44,104 +43,95 @@ class EHComment extends StatefulWidget {
 class _EHCommentState extends State<EHComment> {
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        color: Get.theme.brightness == Brightness.light ? Colors.grey.shade200 : Colors.grey.shade800,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.comment.userName ?? 'unknownUser'.tr,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: widget.comment.userName == null
-                        ? Colors.grey.shade600
-                        : widget.comment.userName == UserSetting.userName.value
-                            ? Get.theme.primaryColorLight
-                            : Get.theme.primaryColor,
-                  ),
-                ),
-                Text(
-                  widget.comment.time,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-              ],
-            ),
-            if (widget.maxLines != null)
-              Expanded(
-                child: HtmlWidget(
-                  _wrapUrlInATag(widget.comment.content),
-                  textStyle: const TextStyle(fontSize: 12),
-                  factoryBuilder: () => _WidgetFactoryWithTextMaxLine(
-                    maxLines: widget.maxLines,
-                    overflow: TextOverflow.ellipsis,
-                    canTapUrl: false,
-                  ),
-                ).marginOnly(top: 4),
-              ),
-            if (widget.maxLines == null)
-              HtmlWidget(
-                _wrapUrlInATag(widget.comment.content),
-                textStyle: const TextStyle(fontSize: 13),
-                onTapUrl: _handleTapUrl,
-                isSelectable: true,
-                customWidgetBuilder: (element) {
-                  if (element.localName == 'img') {
-                    return Center(
-                      child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
-                    );
-                  }
-                },
-                factoryBuilder: () => _WidgetFactoryWithTextMaxLine(),
-              ).marginOnly(top: 2, bottom: 14),
-            Row(
-              children: [
-                if (widget.comment.lastEditTime != null)
-                  Text(
-                    '${'lastEditedOn'.tr}: ${widget.comment.lastEditTime}',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                const Expanded(child: SizedBox()),
-                if (widget.showVotingButtons && widget.comment.score.isNotEmpty)
-                  LikeButton(
-                    size: 18,
-                    likeBuilder: (isLiked) => Icon(
-                      Icons.thumb_up,
-                      size: 18,
-                      color: Colors.green.shade800,
-                    ),
-                    onTap: (isLiked) => _handleVotingComment(widget.comment.id, true),
-                  ).marginOnly(right: 14),
-                if (widget.showVotingButtons && widget.comment.score.isNotEmpty)
-                  LikeButton(
-                    size: 18,
-                    likeBuilder: (isLiked) => Icon(
-                      Icons.thumb_down,
-                      size: 18,
-                      color: Colors.red.shade800,
-                    ),
-                    onTap: (isLiked) => _handleVotingComment(widget.comment.id, false),
-                  ).marginOnly(right: 14),
-                Text(
-                  widget.comment.score.isNotEmpty ? widget.comment.score : 'uploader'.tr,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ).paddingOnly(top: 12, bottom: 7, left: 12, right: 12),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 2),
+      child: Column(
+        children: [
+          _EHCommentHeader(username: widget.comment.username, commentTime: widget.comment.time),
+          _EHCommentTextBody(
+            html: widget.comment.content,
+            maxLines: widget.maxLines,
+            canTapUrl: widget.canTapUrl,
+            isSelectable: widget.isSelectable,
+          ).marginOnly(top: 2, bottom: 16),
+          if (widget.maxLines != null) const Expanded(child: SizedBox()),
+          _EHCommentFooter(
+            commentId: widget.comment.id,
+            score: widget.comment.score,
+            lastEditTime: widget.comment.lastEditTime,
+            showVotingButtons: widget.showVotingButtons,
+          ),
+        ],
+      ).marginOnly(top: 12, bottom: 7, left: 12, right: 12),
+    );
+  }
+}
+
+class _EHCommentHeader extends StatelessWidget {
+  final String? username;
+  final String commentTime;
+
+  const _EHCommentHeader({Key? key, required this.username, required this.commentTime}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          username ?? 'unknownUser'.tr,
+          style: TextStyle(
+            fontSize: GlobalConfig.commentAuthorTextSize,
+            fontWeight: FontWeight.bold,
+            color: username == null
+                ? GlobalConfig.commentUnknownAuthorTextColor
+                : username == UserSetting.userName.value
+                    ? GlobalConfig.commentOwnAuthorTextColor
+                    : GlobalConfig.commentOtherAuthorTextColor,
+          ),
+        ),
+        Text(
+          commentTime,
+          style: TextStyle(fontSize: GlobalConfig.commentTimeTextSize, color: GlobalConfig.commentTimeTextColor),
+        ),
+      ],
+    );
+  }
+}
+
+class _EHCommentTextBody extends StatelessWidget {
+  final String html;
+  final bool canTapUrl;
+  final bool isSelectable;
+  final int? maxLines;
+
+  const _EHCommentTextBody({
+    Key? key,
+    required this.html,
+    required this.canTapUrl,
+    required this.isSelectable,
+    this.maxLines,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return HtmlWidget(
+      _wrapUrlInATag(html),
+      textStyle: const TextStyle(fontSize: GlobalConfig.commentBodyTextSize),
+      onTapUrl: canTapUrl ? _handleTapUrl : null,
+      isSelectable: isSelectable,
+      customWidgetBuilder: (element) {
+        if (element.localName != 'img') {
+          return null;
+        }
+        return Center(
+          child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
+        );
+      },
+      factoryBuilder: () => _WidgetFactory(
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+        canTapUrl: canTapUrl,
       ),
     );
   }
@@ -156,56 +146,22 @@ class _EHCommentState extends State<EHComment> {
     });
   }
 
-  Future<bool?> _handleVotingComment(int commentId, bool isVotingUp) async {
-    if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
-      return null;
-    }
-
-    Log.info('Voting comment:$commentId');
-
-    final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
-    int score;
-    try {
-      score = await EHRequest.voteComment(
-        detailsPageState.gallery!.gid,
-        detailsPageState.gallery!.token,
-        UserSetting.ipbMemberId.value!,
-        detailsPageState.apikey,
-        commentId,
-        isVotingUp,
-        parser: EHSpiderParser.votingCommentResponse2Score,
-      );
-    } on DioError catch (e) {
-      Log.error('voteCommentFailed'.tr, e.message);
-      snack('voteCommentFailed'.tr, e.message);
-      return false;
-    }
-
-    setState(() {
-      widget.comment.score = score >= 0 ? '+' + score.toString() : score.toString();
-    });
-    return true;
-  }
-
   Future<bool> _handleTapUrl(String url) async {
-    if (!widget.canTapUrl) {
-      return false;
-    }
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
-      toRoute(Routes.details, arguments: url, offAllBefore: false);
+      toRoute(Routes.details, arguments: {'galleryUrl': url}, offAllBefore: false);
       return true;
     }
+
     return await launchUrlString(url, mode: LaunchMode.externalApplication);
   }
 }
 
-class _WidgetFactoryWithTextMaxLine extends WidgetFactory {
+class _WidgetFactory extends WidgetFactory {
   int? maxLines;
   TextOverflow? overflow;
   final bool canTapUrl;
 
-  _WidgetFactoryWithTextMaxLine({
+  _WidgetFactory({
     this.maxLines,
     this.overflow,
     this.canTapUrl = true,
@@ -255,14 +211,119 @@ class _WidgetFactoryWithTextMaxLine extends WidgetFactory {
       children: children,
       mouseCursor: canTapUrl && recognizer != null ? SystemMouseCursors.click : null,
       recognizer: canTapUrl ? recognizer : null,
-      style: style,
+      style: style?.copyWith(overflow: TextOverflow.ellipsis),
       text: text,
     );
   }
 
-  /// don't show image in details page
   @override
   Widget? buildImageWidget(BuildMetadata meta, ImageSource src) {
-    return null;
+    /// Don't show image in details page
+    if (maxLines != null) {
+      return null;
+    }
+
+    return super.buildImageWidget(meta, src);
+  }
+}
+
+class _EHCommentFooter extends StatefulWidget {
+  final int commentId;
+  final String? lastEditTime;
+  final String score;
+  final bool showVotingButtons;
+
+  const _EHCommentFooter({
+    Key? key,
+    required this.commentId,
+    this.lastEditTime,
+    required this.score,
+    required this.showVotingButtons,
+  }) : super(key: key);
+
+  @override
+  State<_EHCommentFooter> createState() => _EHCommentFooterState();
+}
+
+class _EHCommentFooterState extends State<_EHCommentFooter> {
+  late String score;
+
+  @override
+  void initState() {
+    score = widget.score;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (widget.lastEditTime?.isNotEmpty ?? false)
+          Text(
+            '${'lastEditedOn'.tr}: ${widget.lastEditTime}',
+            style: TextStyle(fontSize: GlobalConfig.commentLastEditTimeTextSize, color: GlobalConfig.commentFooterTextColor),
+          ),
+        const Expanded(child: SizedBox()),
+        if (widget.showVotingButtons) ...[
+          LikeButton(
+            size: GlobalConfig.commentButtonSize,
+            likeBuilder: (isLiked) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            onTap: (isLiked) => _handleVotingComment(widget.commentId, true),
+          ).marginOnly(right: 18),
+          LikeButton(
+            size: GlobalConfig.commentButtonSize,
+            likeBuilder: (isLiked) => Icon(Icons.thumb_down, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            onTap: (isLiked) => _handleVotingComment(widget.commentId, false),
+          ),
+        ],
+        SizedBox(
+          width: 40,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              score.isNotEmpty ? score : 'uploader'.tr,
+              style: TextStyle(fontSize: GlobalConfig.commentScoreSize, color: GlobalConfig.commentFooterTextColor),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<bool?> _handleVotingComment(int commentId, bool isVotingUp) async {
+    if (!UserSetting.hasLoggedIn()) {
+      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      return null;
+    }
+
+    _doVoteComment(commentId, isVotingUp);
+
+    return true;
+  }
+
+  Future<void> _doVoteComment(int commentId, bool isVotingUp) async {
+    Log.info('Voting comment: $commentId, isVotingUp: $isVotingUp');
+
+    final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
+    int newScore;
+    try {
+      newScore = await EHRequest.voteComment(
+        detailsPageState.gallery!.gid,
+        detailsPageState.gallery!.token,
+        UserSetting.ipbMemberId.value!,
+        detailsPageState.apikey,
+        commentId,
+        isVotingUp,
+        parser: EHSpiderParser.votingCommentResponse2Score,
+      );
+    } on DioError catch (e) {
+      Log.error('voteCommentFailed'.tr, e.message);
+      snack('voteCommentFailed'.tr, e.message);
+      return;
+    }
+
+    setState(() {
+      score = newScore >= 0 ? '+' + newScore.toString() : newScore.toString();
+    });
   }
 }

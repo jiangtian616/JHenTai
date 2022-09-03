@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -96,7 +95,7 @@ class ReadPageLogic extends GetxController {
     restoreSystemBar();
 
     /// update read progress in detail page
-    DetailsPageLogic.current?.update([bodyId]);
+    DetailsPageLogic.current?.update();
 
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);

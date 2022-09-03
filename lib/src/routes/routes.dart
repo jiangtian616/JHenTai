@@ -45,6 +45,7 @@ class Routes {
   static const String blank = "/blank";
 
   static const String read = "/read";
+  static const String singleImagePage = "/single_image_page";
 
   /// left
   static const String mobileLayout = "/mobile_layout";
@@ -64,7 +65,6 @@ class Routes {
 
   /// right
   static const String details = "/details";
-  static const String singleImagePage = "/single_image_page";
   static const String comment = "/comment";
   static const String webview = "/webview";
   static const String quickSearch = "/qucik_search";
@@ -195,7 +195,7 @@ class Routes {
     EHPage(
       name: singleImagePage,
       page: () => SingleImagePage(),
-      transition: Transition.cupertino,
+      transition: Transition.noTransition,
       offAllBefore: false,
     ),
     EHPage(

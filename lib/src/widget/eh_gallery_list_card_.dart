@@ -113,13 +113,11 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget _buildCover(GalleryImage image) {
-    return Obx(() => EHImage.network(
-          containerHeight: withTags ? 200 : 125,
-          containerWidth: withTags ? 140 : 85,
-          adaptive: true,
-          galleryImage: image,
-          fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-        ));
+    return SizedBox(
+      height: withTags ? 200 : 125,
+      width: withTags ? 140 : 85,
+      child: EHImage.network(galleryImage: image),
+    );
   }
 
   Widget _buildInfo(Gallery gallery) {

@@ -29,7 +29,7 @@ dependencies:
   logger: ^1.1.0
   flutter_rating_bar: ^4.0.0
   waterfall_flow: ^3.0.2
-  extended_image: ^6.2.1
+  extended_image: ^6.3.0
   font_awesome_flutter: ^9.2.0
   intl: ^0.17.0
   collection: 1.16.0

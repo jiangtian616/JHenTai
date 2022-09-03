@@ -288,8 +288,7 @@ class SearchPageLogic extends GetxController {
 
     /// chinese => database
     /// other => EH api
-    if (StyleSetting.enableTagZHTranslation.isTrue &&
-        tagTranslationService.loadingState.value == LoadingState.success) {
+    if (StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
       state.suggestions = await tagTranslationService.searchTags(state.tabBarConfig.searchConfig.keyword!);
     } else {
       try {
@@ -354,6 +353,12 @@ class SearchPageLogic extends GetxController {
   }
 
   void handleTapCard(Gallery gallery) {
-    toRoute(Routes.details, arguments: gallery);
+    toRoute(
+      Routes.details,
+      arguments: {
+        'galleryUrl': gallery.galleryUrl,
+        'gallery': gallery,
+      },
+    );
   }
 }

@@ -64,11 +64,7 @@ abstract class BaseLayout extends StatelessWidget {
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return EHImage.network(
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
           galleryImage: readPageState.images[index]!,
-          adaptive: true,
-          fit: BoxFit.contain,
           loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
           failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
         );
@@ -95,11 +91,7 @@ abstract class BaseLayout extends StatelessWidget {
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return EHImage.file(
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
           galleryImage: readPageState.images[index]!,
-          adaptive: true,
-          fit: BoxFit.contain,
           downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
           pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
         );
@@ -195,7 +187,7 @@ abstract class BaseLayout extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
-          iconData: Icons.error,
+          icon: const Icon(Icons.error),
           text: Text('networkError'.tr, style: readPageState.readPageTextStyle),
           onPressed: state.reLoadImage,
         ),

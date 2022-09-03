@@ -17,6 +17,7 @@ class GalleryDetail {
   LinkedHashMap<String, List<GalleryTag>> fullTags;
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
+  int thumbnailsPageCount;
 
   GalleryDetail({
     required this.rawTitle,
@@ -31,5 +32,6 @@ class GalleryDetail {
     required this.fullTags,
     required this.comments,
     required this.thumbnails,
+    required this.thumbnailsPageCount,
   });
 }

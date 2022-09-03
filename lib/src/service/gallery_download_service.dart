@@ -210,7 +210,10 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
-    newGallery = newGallery.copyWith(oldVersionGalleryUrl: oldGallery.galleryUrl, groupName: oldGallery.groupName);
+    newGallery = newGallery.copyWith(
+      oldVersionGalleryUrl: oldGallery.galleryUrl,
+      groupName: galleryDownloadInfos[oldGallery.gid]?.group,
+    );
 
     downloadGallery(newGallery);
   }

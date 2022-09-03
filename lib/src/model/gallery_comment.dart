@@ -1,6 +1,6 @@
 class GalleryComment {
   int id;
-  String? userName;
+  String? username;
   String score;
   String content;
   String time;
@@ -8,7 +8,7 @@ class GalleryComment {
 
   GalleryComment({
     required this.id,
-    this.userName,
+    this.username,
     required this.score,
     required this.content,
     required this.time,

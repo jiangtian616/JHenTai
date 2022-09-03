@@ -66,13 +66,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           Size(constraints.maxWidth, constraints.maxHeight),
         );
 
-        return EHImage.network(
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
-          galleryImage: image,
-          adaptive: true,
-          fit: BoxFit.contain,
-        );
+        return EHImage.network(galleryImage: image);
       },
     );
   }

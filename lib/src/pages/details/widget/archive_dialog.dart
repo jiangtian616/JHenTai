@@ -148,7 +148,7 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
         loadingState = LoadingState.error;
       });
       return;
-    } on NotUploadException catch (e) {
+    } on NotUploadException catch (_) {
       snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.TOP, longDuration: true);
       setState(() {
         loadingState = LoadingState.error;

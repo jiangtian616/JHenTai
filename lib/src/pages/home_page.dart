@@ -197,7 +197,7 @@ class _HomePageState extends State<HomePage> {
         if (url != null) {
           toRoute(
             Routes.details,
-            arguments: url,
+            arguments: {'galleryUrl': url},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -208,7 +208,7 @@ class _HomePageState extends State<HomePage> {
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
       (String url) => toRoute(
         Routes.details,
-        arguments: url,
+        arguments: {'galleryUrl': url},
         offAllBefore: false,
         preventDuplicates: false,
       ),
@@ -239,7 +239,7 @@ class _HomePageState extends State<HomePage> {
       onTap: (snackbar) {
         toRoute(
           Routes.details,
-          arguments: text,
+          arguments: {'galleryUrl': text},
           offAllBefore: false,
           preventDuplicates: false,
         );

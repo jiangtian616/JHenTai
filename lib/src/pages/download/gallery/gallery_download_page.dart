@@ -10,7 +10,6 @@ import '../../../database/database.dart';
 import '../../../model/gallery_image.dart';
 import '../../../routes/routes.dart';
 import '../../../service/gallery_download_service.dart';
-import '../../../setting/style_setting.dart';
 import '../../../utils/date_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_category_tag.dart';
@@ -261,7 +260,7 @@ class GalleryDownloadPage extends StatelessWidget {
   Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toRoute(Routes.details, arguments: gallery.galleryUrl),
+      onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
       child: GetBuilder<GalleryDownloadService>(
         id: '$downloadImageUrlId::${gallery.gid}::0',
         builder: (_) {
@@ -276,14 +275,9 @@ class GalleryDownloadPage extends StatelessWidget {
             );
           }
 
-          return Obx(() => EHImage.file(
-                containerHeight: 130,
-                containerWidth: 110,
-                galleryImage: image!,
-                adaptive: true,
-                fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-                clearMemoryCacheWhenDispose: false,
-              ));
+          return EHImage.file(
+            galleryImage: image!,
+          );
         },
       ),
     );

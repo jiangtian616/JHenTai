@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
@@ -18,6 +20,7 @@ import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
@@ -31,11 +34,12 @@ import 'package:jhentai/src/widget/download_original_image_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../model/gallery.dart';
+import '../../model/gallery_image.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
-import '../../setting/site_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
@@ -45,26 +49,29 @@ import '../layout/desktop/desktop_layout_page_logic.dart';
 import '../search/mobile/search_page_logic.dart';
 import 'details_page_state.dart';
 
-String bodyId = 'bodyId';
-String loadingStateId = 'loadingStateId';
-String addFavoriteStateId = 'addFavoriteStateId';
-String ratingStateId = 'ratingStateId';
-String thumbnailsId = 'thumbnailsId';
+class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin {
+  static const String thumbnailsId = 'thumbnailsId';
+  static const String thumbnailId = 'thumbnailId';
+  static const String loadingStateId = 'loadingStateId';
+  static const String loadingThumbnailsStateId = 'loadingThumbnailsStateId';
+  static const String addFavoriteStateId = 'addFavoriteStateId';
+  static const String ratingStateId = 'ratingStateId';
 
-class DetailsPageLogic extends GetxController {
   /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
   /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
   String tag;
-
-  final DetailsPageState state = DetailsPageState();
-  final GalleryDownloadService downloadService = Get.find();
-  final StorageService storageService = Get.find();
-  final HistoryService historyService = Get.find();
-  final TagTranslationService tagTranslationService = Get.find();
-
   static final List<DetailsPageLogic> _stack = <DetailsPageLogic>[];
 
   static DetailsPageLogic? get current => _stack.isEmpty ? null : _stack.last;
+
+  @override
+  final DetailsPageState state = DetailsPageState();
+
+  final GalleryDownloadService galleryDownloadService = Get.find();
+  final ArchiveDownloadService archiveDownloadService = Get.find();
+  final StorageService storageService = Get.find();
+  final HistoryService historyService = Get.find();
+  final TagTranslationService tagTranslationService = Get.find();
 
   DetailsPageLogic(this.tag) {
     _stack.add(this);
@@ -74,20 +81,13 @@ class DetailsPageLogic extends GetxController {
   void onInit() async {
     super.onInit();
 
-    dynamic arg = Get.arguments;
-
-    /// enter from galleryPage
-    if (arg is Gallery) {
-      state.gallery = arg;
-      getDetails().then((_) => historyService.record(state.gallery));
+    if (Get.arguments is! Map) {
       return;
     }
 
-    /// enter from downloadPage or url or clipboard
-    if (arg is String) {
-      state.galleryUrl = arg;
-      getFullPage().then((_) => historyService.record(state.gallery));
-    }
+    state.galleryUrl = Get.arguments['galleryUrl'];
+    state.gallery = Get.arguments['gallery'];
+    getDetails();
   }
 
   @override
@@ -97,198 +97,79 @@ class DetailsPageLogic extends GetxController {
     super.onClose();
   }
 
-  void showLoginSnack() {
-    snack('operationFailed'.tr, 'needLoginToOperate'.tr);
-  }
-
-  Future<void> getFullPage() async {
-    state.loadingPageState = LoadingState.loading;
-    update([loadingStateId]);
-
-    Map<String, dynamic>? galleryAndDetailAndApikey;
-
-    if (state.galleryUrl!.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
-      try {
-        galleryAndDetailAndApikey = await EHRequest.requestDetailPage(
-          galleryUrl: state.galleryUrl!.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
-          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        );
-        Log.verbose('Try redirect to EH success, url: ${state.galleryUrl!}');
-      } on DioError catch (e) {
-        if (e.response?.statusCode != 404) {
-          Log.error('getGalleryDetailFailed'.tr, e.message);
-          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-          state.loadingPageState = LoadingState.error;
-          update([bodyId]);
-          return;
-        } else {
-          Log.verbose('Try redirect to EH failed, url: ${state.galleryUrl!}');
-        }
-      }
-    }
-
-    if (galleryAndDetailAndApikey == null) {
-      try {
-        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: state.galleryUrl!,
-          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        );
-      } on DioError catch (e) {
-        if (e.response?.statusCode == 404) {
-          Log.error('404', e.message);
-          snack('invisible2User'.tr, 'invisibleHints'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-        } else {
-          Log.error('getGalleryDetailFailed'.tr, e.message);
-          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-        }
-        state.loadingPageState = LoadingState.error;
-        update([bodyId]);
-        return;
-      }
-    }
-
-    state.gallery = galleryAndDetailAndApikey['gallery']!;
-    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails']!;
-    state.apikey = galleryAndDetailAndApikey['apikey']!;
-    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
-    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
-
-    state.loadingPageState = LoadingState.success;
-    state.loadingDetailsState = LoadingState.success;
-
-    await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-    update([bodyId]);
-    return;
-  }
-
-  Future<void> getDetails() async {
-    if (state.loadingDetailsState == LoadingState.loading || state.loadingDetailsState == LoadingState.success) {
+  Future<void> getDetails({bool refresh = false}) async {
+    if (state.loadingState == LoadingState.loading) {
       return;
     }
 
-    LoadingState prevState = state.loadingDetailsState;
-    state.loadingDetailsState = LoadingState.loading;
-    if (prevState == LoadingState.error) {
+    state.loadingState = LoadingState.loading;
+    if (!refresh) {
       update([loadingStateId]);
     }
 
-    Log.info('get gallery details', false);
+    Log.info('Get gallery details:${state.galleryUrl}');
+
     Map<String, dynamic>? galleryAndDetailAndApikey;
-
-    if (state.gallery!.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
-      try {
-        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: state.gallery!.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
-          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        );
-        Log.verbose('Try redirect to EH success, url: ${state.gallery!.galleryUrl}');
-        state.gallery!.galleryUrl = state.gallery!.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-      } on DioError catch (e) {
-        if (e.response?.statusCode != 404) {
-          Log.error('Get Gallery Detail Failed', e.message);
-          snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-          state.loadingDetailsState = LoadingState.error;
-          update([loadingStateId]);
-          return;
-        }
-
-        Log.verbose('Try redirect to EH failed, url: ${state.gallery!.galleryUrl}');
-      }
-    }
-
-    if (galleryAndDetailAndApikey == null) {
-      try {
-        galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: state.gallery!.galleryUrl,
-          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        );
-      } on DioError catch (e) {
-        Log.error('Get Gallery Detail Failed', e.message);
-        snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-        state.loadingDetailsState = LoadingState.error;
+    try {
+      galleryAndDetailAndApikey = await _getDetailsWithRedirect(useCache: !refresh);
+    } on DioError catch (e) {
+      Log.error('Get Gallery Detail Failed', e.message);
+      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      state.loadingState = LoadingState.error;
+      if (!refresh) {
         update([loadingStateId]);
-        return;
       }
+      return;
     }
 
+    Gallery newGallery = galleryAndDetailAndApikey['gallery']!;
+
+    state.gallery ??= newGallery;
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
     state.apikey = galleryAndDetailAndApikey['apikey'];
-    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
-    state.gallery!.uploader = (galleryAndDetailAndApikey['gallery'] as Gallery).uploader;
-    state.gallery!.isFavorite = (galleryAndDetailAndApikey['gallery'] as Gallery).isFavorite;
-    state.gallery!.favoriteTagIndex = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagIndex;
-    state.gallery!.favoriteTagName = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagName;
-    state.gallery!.hasRated = (galleryAndDetailAndApikey['gallery'] as Gallery).hasRated;
-    state.gallery!.rating = (galleryAndDetailAndApikey['gallery'] as Gallery).rating;
-    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
+    state.nextPageIndexToLoadThumbnails = 1;
+
+    /// some field in [Gallery] sometimes is null
+    state.gallery?.pageCount = newGallery.pageCount;
+    state.gallery?.uploader = newGallery.uploader;
+    state.gallery?.isFavorite = newGallery.isFavorite;
+    state.gallery?.favoriteTagIndex = newGallery.favoriteTagIndex;
+    state.gallery?.favoriteTagName = newGallery.favoriteTagName;
+    state.gallery?.hasRated = newGallery.hasRated;
+    state.gallery?.rating = newGallery.rating;
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-    state.loadingDetailsState = LoadingState.success;
+    historyService.record(state.gallery);
+
+    state.loadingState = LoadingState.success;
 
     /// Attention! If enter into detail page and exit very quickly, [update] will cause
     /// an fatal exception because this [logic] has been destroyed, in order to avoid it,
     /// I check if this [logic] has called [disposed]
     if (_stack.contains(this)) {
-      update([bodyId]);
+      update();
     }
-  }
-
-  Future<void> handleRefresh() async {
-    Log.info('refresh gallery details', false);
-
-    Map<String, dynamic> galleryAndDetailAndApikey;
-    try {
-      galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-        galleryUrl: state.gallery!.galleryUrl,
-        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-        useCacheIfAvailable: false,
-      );
-    } on DioError catch (e) {
-      snack('refreshGalleryDetailsFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
-      Log.error('refreshGalleryDetailsFailed'.tr, e.message);
-      return;
-    }
-
-    state.refresh();
-    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
-    state.apikey = galleryAndDetailAndApikey['apikey'];
-    state.gallery!.pageCount = (galleryAndDetailAndApikey['gallery'] as Gallery).pageCount;
-    state.gallery!.uploader = (galleryAndDetailAndApikey['gallery'] as Gallery).uploader;
-    state.gallery!.isFavorite = (galleryAndDetailAndApikey['gallery'] as Gallery).isFavorite;
-    state.gallery!.favoriteTagIndex = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagIndex;
-    state.gallery!.favoriteTagName = (galleryAndDetailAndApikey['gallery'] as Gallery).favoriteTagName;
-    state.gallery!.hasRated = (galleryAndDetailAndApikey['gallery'] as Gallery).hasRated;
-    state.gallery!.rating = (galleryAndDetailAndApikey['gallery'] as Gallery).rating;
-    state.thumbnailsPageCount = ((galleryAndDetailAndApikey['gallery'] as Gallery).pageCount! / SiteSetting.thumbnailsCountPerPage.value).ceil();
-
-    await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-    update([bodyId]);
   }
 
   Future<void> loadMoreThumbnails() async {
     if (state.loadingThumbnailsState == LoadingState.loading) {
       return;
     }
-    update([loadingStateId]);
 
-    /// no more page
-    if (state.nextPageIndexToLoadThumbnails >= state.thumbnailsPageCount) {
+    /// no more thumbnails
+    if (state.nextPageIndexToLoadThumbnails >= state.galleryDetails!.thumbnailsPageCount) {
       state.loadingThumbnailsState = LoadingState.noMore;
-
-      update([loadingStateId]);
+      update([loadingThumbnailsStateId]);
       return;
     }
 
-    LoadingState prevState = state.loadingThumbnailsState;
     state.loadingThumbnailsState = LoadingState.loading;
-    if (prevState == LoadingState.error) {
-      update([loadingStateId]);
-    }
+    update([loadingThumbnailsStateId]);
 
     List<GalleryThumbnail> newThumbNails;
     try {
       newThumbNails = await EHRequest.requestDetailPage(
-        galleryUrl: state.gallery!.galleryUrl,
+        galleryUrl: state.galleryUrl,
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
@@ -296,54 +177,96 @@ class DetailsPageLogic extends GetxController {
       Log.error('failToGetThumbnails'.tr, e.message);
       snack('failToGetThumbnails'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingThumbnailsState = LoadingState.error;
-      update([loadingStateId]);
+      update([loadingThumbnailsStateId]);
       return;
     }
-    state.galleryDetails!.thumbnails.addAll(newThumbNails);
 
-    /// a full page contains x thumbnails, if not, means there's no more data.
-    if (newThumbNails.length % SiteSetting.thumbnailsCountPerPage.value != 0) {
-      state.loadingThumbnailsState = LoadingState.noMore;
-    }
+    state.galleryDetails!.thumbnails.addAll(newThumbNails);
     state.nextPageIndexToLoadThumbnails++;
+
     state.loadingThumbnailsState = LoadingState.idle;
-    update([bodyId]);
+    update([thumbnailsId]);
   }
 
-  Future<void> shareGallery() async {
-    Log.info('Share gallery:${state.gallery!.galleryUrl}');
+  Future<void> handleRefresh() async {
+    return getDetails(refresh: true);
+  }
 
-    if (GetPlatform.isDesktop) {
-      await FlutterClipboard.copy(state.gallery!.galleryUrl);
-      toast('hasCopiedToClipboard'.tr);
+  Future<void> handleTapDownload() async {
+    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
+    Gallery gallery = state.gallery!;
+    GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
+
+    if (downloadProgress == null) {
+      String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
+          ? 'default'.tr
+          : await Get.dialog(EHGroupNameDialog(
+              type: EHGroupNameDialogType.insert,
+              candidates: downloadService.allGroups.toList(),
+            ));
+      if (group == null) {
+        return;
+      }
+
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.always) {
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true, group: group));
+        return;
+      }
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.never) {
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false, group: group));
+        return;
+      }
+      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.manual) {
+        bool? downloadOriginalImage = await Get.dialog(const DownloadOriginalImageDialog());
+        if (downloadOriginalImage == null) {
+          return;
+        }
+        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage, group: group));
+      }
+      toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
 
-    Share.share(
-      state.gallery!.galleryUrl,
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
-    );
+    if (downloadProgress.downloadStatus == DownloadStatus.paused) {
+      downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
+      toast('${'resume'.tr}： ${gallery.gid}', isCenter: false);
+      return;
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
+      downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
+      toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl == null) {
+      goToReadPage();
+    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl != null) {
+      downloadService.updateGallery(gallery.toGalleryDownloadedData(), state.galleryDetails!.newVersionGalleryUrl!);
+      toast('${'update'.tr}： ${gallery.gid}', isCenter: false);
+    }
   }
 
   Future<void> handleTapFavorite() async {
+    if (!UserSetting.hasLoggedIn()) {
+      showLoginSnack();
+      return;
+    }
+
     if (state.favoriteState == LoadingState.loading) {
       return;
     }
+
     if (!FavoriteSetting.inited) {
       FavoriteSetting.refresh();
     }
 
     int? favIndex = await Get.dialog(FavoriteDialog());
 
-    /// not selected
     if (favIndex == null) {
       return;
     }
 
-    Log.info('Favorite gallery:${state.gallery!.gid}');
+    Log.info('Favorite gallery: ${state.gallery!.gid}');
 
     state.favoriteState = LoadingState.loading;
     update([addFavoriteStateId]);
+
     try {
       if (favIndex == state.gallery?.favoriteTagIndex) {
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
@@ -376,35 +299,25 @@ class DetailsPageLogic extends GetxController {
     if (Get.isRegistered<GallerysPageLogic>()) {
       Get.find<GallerysPageLogic>().updateBody();
     }
-    SearchPageLogic.current?.update([bodyId]);
+    SearchPageLogic.current?.update();
     if (Get.isRegistered<DesktopSearchPageLogic>()) {
       Get.find<DesktopSearchPageLogic>().updateBody();
     }
   }
 
-  Future<void> searchUploader(String author) async {
-    String keyword = 'uploader:"$author"';
-    newSearch(keyword);
-  }
-
-  Future<void> searchSimilar() async {
-    /// r'\[[^\]]*\]|\([[^\)]*\)|{[^\}]*}'
-    String title = '"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"';
-    newSearch(title);
-  }
-
   Future<void> handleTapRating() async {
-    double? rating = await Get.dialog(
-      const RatingDialog(),
-      barrierColor: Colors.black38,
-    );
+    if (!UserSetting.hasLoggedIn()) {
+      showLoginSnack();
+      return;
+    }
 
-    /// not selected
+    double? rating = await Get.dialog(const RatingDialog(), barrierColor: Colors.black38);
+
     if (rating == null) {
       return;
     }
 
-    Log.info('Rate gallery:${state.gallery!.gid}');
+    Log.info('Rate gallery: ${state.gallery!.gid}');
 
     state.ratingState = LoadingState.loading;
     update([ratingStateId]);
@@ -437,7 +350,7 @@ class DetailsPageLogic extends GetxController {
 
     _removeCache();
 
-    update([bodyId]);
+    update();
     if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
       Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
     }
@@ -446,58 +359,55 @@ class DetailsPageLogic extends GetxController {
     }
   }
 
-  Future<void> handleTapDownload() async {
-    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
-    Gallery gallery = state.gallery!;
-    GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
-
-    if (downloadProgress == null) {
-      String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
-          ? 'default'.tr
-          : await Get.dialog(
-              EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: downloadService.allGroups.toList()),
-            );
-      if (group == null) {
-        return;
-      }
-
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.always) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true, group: group));
-        return;
-      }
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.never) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false, group: group));
-        return;
-      }
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.manual) {
-        bool? downloadOriginalImage = await Get.dialog(const DownloadOriginalImageDialog());
-        if (downloadOriginalImage == null) {
-          return;
-        }
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage, group: group));
-      }
-      toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
+  Future<void> handleTapArchive() async {
+    if (!UserSetting.hasLoggedIn()) {
+      showLoginSnack();
       return;
     }
 
-    if (downloadProgress.downloadStatus == DownloadStatus.paused) {
-      downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
-      toast('${'resume'.tr}： ${gallery.gid}', isCenter: false);
-      return;
-    } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
-      downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
-      toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
-    } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl != null) {
-      downloadService.updateGallery(gallery.toGalleryDownloadedData(), state.galleryDetails!.newVersionGalleryUrl!);
-      toast('${'update'.tr}： ${gallery.gid}', isCenter: false);
+    ArchiveStatus? archiveStatus = archiveDownloadService.archiveDownloadInfos[state.gallery?.gid]?.archiveStatus;
+    if (archiveStatus == null) {
+      return Get.dialog(const ArchiveDialog());
     }
+
+    ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == state.gallery?.gid);
+    if (ArchiveStatus.unlocking.index <= archiveStatus.index && archiveStatus.index < ArchiveStatus.downloaded.index) {
+      return archiveDownloadService.pauseDownloadArchive(archive);
+    }
+
+    if (archiveStatus == ArchiveStatus.completed) {
+      int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
+      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
+
+      toRoute(
+        Routes.read,
+        arguments: ReadPageInfo(
+          mode: ReadMode.archive,
+          gid: archive.gid,
+          galleryUrl: archive.galleryUrl,
+          initialIndex: readIndexRecord,
+          currentIndex: readIndexRecord,
+          pageCount: images.length,
+          isOriginal: archive.isOriginal,
+          images: images,
+        ),
+      );
+    }
+  }
+
+  void searchSimilar() {
+    newSearch('"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
+  }
+
+  void searchUploader() {
+    newSearch('uploader:"${state.gallery!.uploader!}"');
   }
 
   Future<void> handleTapTorrent() async {
     if (state.galleryDetails!.torrentCount == '0') {
       return;
     }
-    Get.dialog(TorrentDialog());
+    Get.dialog(const TorrentDialog());
   }
 
   Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {
@@ -518,7 +428,7 @@ class DetailsPageLogic extends GetxController {
     ).then((result) {
       int score = jsonDecode(result)['comment_score'];
       state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score = score >= 0 ? '+' + score.toString() : score.toString();
-      update([bodyId]);
+      update();
     }).catchError((error) {
       Log.error('voteCommentFailed'.tr, (error as DioError).message);
       snack('voteCommentFailed'.tr, error.message);
@@ -527,16 +437,59 @@ class DetailsPageLogic extends GetxController {
     return true;
   }
 
-  Future<void> handleTapArchive() async {
-    if (!UserSetting.hasLoggedIn()) {
-      showLoginSnack();
-      return;
-    }
-    Get.dialog(const ArchiveDialog());
-  }
-
   Future<void> handleTapStatistic() async {
     Get.dialog(const StatDialog());
+  }
+
+  Future<void> shareGallery() async {
+    Log.info('Share gallery:${state.galleryUrl}');
+
+    if (GetPlatform.isDesktop) {
+      await FlutterClipboard.copy(state.galleryUrl);
+      toast('hasCopiedToClipboard'.tr);
+      return;
+    }
+
+    Share.share(
+      state.galleryUrl,
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+    );
+  }
+
+  void goToReadPage([int? forceIndex]) {
+    /// downloading
+    if (galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.downloadProgress != null) {
+      toRoute(
+        Routes.read,
+        arguments: ReadPageInfo(
+          mode: ReadMode.downloaded,
+          gid: state.gallery!.gid,
+          galleryUrl: state.galleryUrl,
+          initialIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          currentIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          pageCount: state.gallery!.pageCount!,
+        ),
+      );
+    }
+
+    /// online
+    else {
+      toRoute(
+        Routes.read,
+        arguments: ReadPageInfo(
+          mode: ReadMode.online,
+          gid: state.gallery!.gid,
+          galleryUrl: state.galleryUrl,
+          initialIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          currentIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          pageCount: state.gallery!.pageCount!,
+        ),
+      );
+    }
+  }
+
+  int getReadIndexRecord() {
+    return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0;
   }
 
   KeyEventResult onKeyEvent(FocusNode node, KeyEvent event) {
@@ -577,49 +530,35 @@ class DetailsPageLogic extends GetxController {
     return KeyEventResult.ignored;
   }
 
-  void goToReadPage([int? index]) {
-    /// downloading
-    if (downloadService.galleryDownloadInfos[state.gallery!.gid]?.downloadProgress != null) {
-      toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.downloaded,
-          gid: state.gallery!.gid,
-          galleryUrl: state.gallery!.galleryUrl,
-          initialIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          currentIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          pageCount: state.gallery!.pageCount!,
-        ),
-      );
+  Future<Map<String, dynamic>> _getDetailsWithRedirect({bool useCache = true}) async {
+    /// try EH site
+    if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
+      try {
+        Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+          galleryUrl: state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+          parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+          useCacheIfAvailable: useCache,
+        );
+        Log.verbose('Try redirect to EH success, url: ${state.galleryUrl}');
+        state.galleryUrl = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+        state.gallery?.galleryUrl = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+        return galleryAndDetailAndApikey;
+      } on DioError catch (e) {
+        if (e.response?.statusCode != 404) {
+          rethrow;
+        }
+        Log.verbose('Try redirect to EH failed, url: ${state.galleryUrl}');
+      }
     }
 
-    /// online
-    else {
-      toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.online,
-          gid: state.gallery!.gid,
-          galleryUrl: state.gallery!.galleryUrl,
-          initialIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          currentIndex: index ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          pageCount: state.gallery!.pageCount!,
-        ),
-      );
-    }
-  }
-
-  void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-      );
-    }
+    return EHRequest.requestDetailPage<Map<String, dynamic>>(
+      galleryUrl: state.galleryUrl,
+      parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+      useCacheIfAvailable: useCache,
+    );
   }
 
   void _removeCache() {
-    Get.find<EHCacheInterceptor>().removeCacheByUrl('${state.gallery!.galleryUrl}?p=0');
+    Get.find<EHCacheInterceptor>().removeCacheByUrl('${state.galleryUrl}?p=0');
   }
 }

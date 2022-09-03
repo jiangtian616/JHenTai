@@ -225,7 +225,13 @@ class NestedGallerysPageLogic extends GetxController with GetTickerProviderState
 
   /// click the card and enter details page
   void handleTapCard(Gallery gallery) async {
-    toRoute(Routes.details, arguments: gallery);
+    toRoute(
+      Routes.details,
+      arguments: {
+        'galleryUrl': gallery.galleryUrl,
+        'gallery': gallery,
+      },
+    );
   }
 
   /// add customized tab

@@ -343,7 +343,13 @@ abstract class BasePageLogic extends GetxController {
 
   /// click the card and enter details page
   void handleTapCard(Gallery gallery) async {
-    toRoute(Routes.details, arguments: gallery);
+    toRoute(
+      Routes.details,
+      arguments: {
+        'galleryUrl': gallery.galleryUrl,
+        'gallery': gallery,
+      },
+    );
   }
 
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex);

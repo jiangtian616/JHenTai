@@ -25,7 +25,10 @@ class JHDashboardCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => toRoute(Routes.details, arguments: gallery),
+        onTap: () => toRoute(Routes.details, arguments: {
+          'galleryUrl': gallery.galleryUrl,
+          'gallery': gallery,
+        }),
         child: Stack(
           children: [
             _buildCover(gallery.cover),
@@ -39,9 +42,6 @@ class JHDashboardCard extends StatelessWidget {
 
   Widget _buildCover(GalleryImage image) {
     return EHImage.network(
-      containerHeight: GlobalConfig.dashboardCardSize,
-      containerWidth: GlobalConfig.dashboardCardSize,
-      adaptive: true,
       galleryImage: image,
       fit: BoxFit.cover,
     );

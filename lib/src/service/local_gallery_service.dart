@@ -109,7 +109,14 @@ class LocalGalleryService extends GetxController {
       return false;
     }
 
-    List<io.FileSystemEntity> entities = galleryDir.listSync();
+    List<io.FileSystemEntity> entities;
+    try {
+      entities = galleryDir.listSync();
+    } on Exception catch (e) {
+      Log.error('Check legal gallery directory error!', e);
+      Log.upload(Exception('Check legal gallery directory error!'), extraInfos: {'path': galleryDir.path});
+      return false;
+    }
 
     /// has at least one image
     for (io.FileSystemEntity image in entities) {

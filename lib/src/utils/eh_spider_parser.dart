@@ -128,6 +128,7 @@ class EHSpiderParser {
       fullTags: detailPage2Tags(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: detailPage2Thumbnails(response),
+      thumbnailsPageCount: detailPage2ThumbnailsPageCount(document),
     );
   }
 
@@ -183,6 +184,15 @@ class EHSpiderParser {
     }
     thumbNailElements = document.querySelectorAll('#gdt > .gdtl');
     return _parseGalleryDetailsLargeThumbnails(thumbNailElements);
+  }
+
+  static int detailPage2ThumbnailsPageCount(Document document) {
+    Element? tr = document.querySelector('.ptt > tbody > tr');
+    if (tr == null || tr.children.isEmpty) {
+      return 0;
+    }
+    Element td = tr.children[tr.children.length - 2];
+    return int.parse(td.querySelector('a')!.text);
   }
 
   static List<GalleryComment> detailPage2Comments(Response response) {
@@ -963,7 +973,7 @@ class EHSpiderParser {
         .map(
           (element) => GalleryComment(
             id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
-            userName: element.querySelector('.c2 > .c3 > a')?.text,
+            username: element.querySelector('.c2 > .c3 > a')?.text,
             score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
             content: element.querySelector('.c6')?.outerHtml ?? '',
             time: _parsePostedLocalTime(element),

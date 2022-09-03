@@ -63,10 +63,7 @@ class LoadingStateIndicator extends StatelessWidget {
 
     switch (loadingState) {
       case LoadingState.loading:
-        child = loadingWidget ??
-            (useCupertinoIndicator
-                ? CupertinoActivityIndicator(radius: indicatorRadius)
-                : const CircularProgressIndicator());
+        child = loadingWidget ?? (useCupertinoIndicator ? CupertinoActivityIndicator(radius: indicatorRadius) : const CircularProgressIndicator());
         break;
       case LoadingState.error:
         child = errorWidget ??
@@ -108,11 +105,7 @@ class LoadingStateIndicator extends StatelessWidget {
     }
 
     return Center(
-      child: SizedBox(
-        height: height,
-        width: width,
-        child: child,
-      ),
+      child: SizedBox(height: height, width: width, child: child),
     );
   }
 }

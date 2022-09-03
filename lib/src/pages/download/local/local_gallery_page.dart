@@ -1,5 +1,3 @@
-import 'dart:io' as io;
-
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../setting/style_setting.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
@@ -281,15 +278,8 @@ class LocalGalleryPage extends StatelessWidget {
   }
 
   Widget _buildCover(LocalGallery gallery, BuildContext context) {
-    return Obx(
-      () => EHImage.file(
-        containerHeight: 130,
-        containerWidth: 110,
-        galleryImage: gallery.images[0],
-        adaptive: true,
-        fit: StyleSetting.coverMode.value == CoverMode.contain ? BoxFit.contain : BoxFit.cover,
-        clearMemoryCacheWhenDispose: false,
-      ),
+    return EHImage.file(
+      galleryImage: gallery.images[0],
     );
   }
 

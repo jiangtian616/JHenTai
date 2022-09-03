@@ -128,10 +128,9 @@ class LoginPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         IconTextButton(
+                          icon: Icon(Icons.public, color: Get.theme.primaryColor),
                           text: const Text('Web', style: TextStyle(fontSize: 10)),
-                          iconData: Icons.public,
                           onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
-                          iconColor: Get.theme.primaryColor,
                         ).marginOnly(right: 12),
                         LoadingStateIndicator(
                           width: 56,
@@ -151,13 +150,12 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                         IconTextButton(
+                          icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: Get.theme.primaryColor),
                           text: Text(
                             state.loginType == LoginType.password ? 'Cookie' : 'User',
                             style: const TextStyle(fontSize: 10),
                           ),
                           onPressed: logic.changeLoginType,
-                          iconData: state.loginType == LoginType.password ? Icons.cookie : Icons.face,
-                          iconColor: Get.theme.primaryColor,
                         ).marginOnly(left: 12),
                       ],
                     )

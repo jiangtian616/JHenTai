@@ -657,7 +657,7 @@ class ArchiveDownloadService extends GetxController {
     );
 
     _sortArchives();
-    update([archiveCountChangedId]);
+    update([archiveCountChangedId, '$archiveStatusId::::${archive.gid}']);
   }
 
   void _deleteArchiveInMemory(int gid, bool isOriginal) {

@@ -21,7 +21,7 @@ class WindowsApp extends StatelessWidget {
       child: Column(
         children: [
           ColoredBox(
-            color: Theme.of(context).appBarTheme.backgroundColor!,
+            color: Get.theme.colorScheme.background,
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onPanStart: (details) => appWindow.startDragging(),

@@ -54,8 +54,8 @@ class DesktopLayoutPage extends StatelessWidget {
       child: Container(
         width: GlobalConfig.desktopLeftTabBarWidth,
         decoration: BoxDecoration(
-          color: Theme.of(context).appBarTheme.backgroundColor,
-          border: Border(right: BorderSide(color: Theme.of(context).appBarTheme.foregroundColor!, width: 0.3)),
+          color: Get.theme.colorScheme.background,
+          border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3)),
         ),
         child: FocusScope(
           autofocus: true,
@@ -95,7 +95,7 @@ class DesktopLayoutPage extends StatelessWidget {
                           height: 32,
                           width: 48,
                           decoration: state.selectedTabIndex == index
-                              ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Theme.of(context).appBarTheme.foregroundColor!)))
+                              ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)))
                               : null,
                           child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
                         ).paddingAll(8),

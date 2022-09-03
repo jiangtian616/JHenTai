@@ -14,21 +14,16 @@ class SingleImagePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return EHKeyboardListener(
       handleEsc: () => backRoute(currentRoute: Routes.singleImagePage),
-      child: Scaffold(
-        appBar: AppBar(
-          leading: BackButton(onPressed: () => backRoute(currentRoute: Routes.singleImagePage, closeOverlays: true)),
-        ),
-        body: Container(
+      child: ExtendedImageSlidePage(
+        resetPageDuration: const Duration(milliseconds: 200),
+        slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
+        child: ConstrainedBox(
           constraints: const BoxConstraints.expand(),
-          color: Colors.white,
           child: EHImage.network(
             galleryImage: Get.arguments,
-            adaptive: true,
-            fit: BoxFit.contain,
-            mode: ExtendedImageMode.gesture,
-            initGestureConfigHandler: (_) {
-              return GestureConfig();
-            },
+            enableSlideOutPage: true,
+            enableFadeInAnime: false,
+            heroTag: Get.arguments,
           ),
         ),
       ),

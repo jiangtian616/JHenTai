@@ -34,7 +34,7 @@ class EHCookieManager extends CookieManager {
       if (str != null && str.isNotEmpty) {
         json.decode(str);
       }
-    } on Exception catch (e) {
+    } on Exception catch (_) {
       Log.warning('cookieJar init failed, use default setting');
       Set<String> defaultHostSet = NetworkSetting.currentHost2IP.entries.fold<Set<String>>(
         <String>{},

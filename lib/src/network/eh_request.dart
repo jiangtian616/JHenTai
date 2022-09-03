@@ -14,7 +14,6 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/service/check_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';

@@ -105,27 +105,6 @@ class SettingStylePage extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text('coverStyle'.tr),
-              trailing: DropdownButton<CoverMode>(
-                value: StyleSetting.coverMode.value,
-                elevation: 4,
-                alignment: AlignmentDirectional.centerEnd,
-                onChanged: (CoverMode? newValue) {
-                  StyleSetting.saveCoverMode(newValue!);
-                },
-                items: [
-                  DropdownMenuItem(
-                    child: Text('cover'.tr),
-                    value: CoverMode.cover,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('adaptive'.tr),
-                    value: CoverMode.contain,
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
               title: Text('enableTagZHTranslation'.tr),
               subtitle: tagTranslationService.loadingState.value == LoadingState.success
                   ? Text(
