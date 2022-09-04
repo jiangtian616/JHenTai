@@ -38,7 +38,12 @@ class DesktopSearchPage extends BasePage with BaseSearchPage {
             ),
           )
         else if (state.hasSearched)
-          Expanded(child: super.buildBody(context)),
+          Expanded(
+            child: GetBuilder<DesktopSearchPageLogic>(
+              id: logic.galleryBodyId,
+              builder: (_) => super.buildBody(context),
+            ),
+          ),
       ],
     );
   }

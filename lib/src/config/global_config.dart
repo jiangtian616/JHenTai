@@ -35,7 +35,7 @@ class GlobalConfig {
   static const double detailsPageThirdSpanWidthSize = 80;
   static const double detailsPageNewVersionHintHeight = 36;
   static const double detailsPageActionsHeight = 64;
-  static const double detailsPageActionExtent = 72;
+  static const double detailsPageActionExtent = 74;
 
   static Color get detailsPageActionIconColor => Get.theme.colorScheme.primary;
 
@@ -70,12 +70,13 @@ class GlobalConfig {
   static Color get commentFooterTextColor => Get.theme.colorScheme.outline;
 
   /// Group name dialog
-  static Color get groupDialogColor => Get.theme.colorScheme.surfaceVariant;
-  static Color get groupDialogTextColor => Get.theme.colorScheme.onPrimaryContainer;
   static const double groupDialogHeight = 50;
   static const double groupDialogCheckBoxHeight = 20;
   static const double groupDialogWidth = 230;
   static const double groupDialogChipTextSize = 11;
+
+  static Color get groupDialogChipColor => Get.theme.colorScheme.secondaryContainer;
+
   static const double groupDialogTextFieldLabelTextSize = 12;
   static const double groupDialogTextFieldTextSize = 16;
   static const double groupDialogCheckBoxTextSize = 12;
@@ -84,4 +85,12 @@ class GlobalConfig {
 
   /// Download original image dialog
   static Color get downloadOriginalImageDialogColor => Get.theme.colorScheme.surfaceVariant;
+
+  /// Favorite dialog
+  static const double favoriteDialogHeight = 400;
+  static const double favoriteDialogCountTextSize = 12;
+
+  static Color get favoriteDialogCountTextColor => Get.theme.colorScheme.outline;
+
+  static Color get favoriteDialogTileColor => Get.theme.colorScheme.secondaryContainer;
 }

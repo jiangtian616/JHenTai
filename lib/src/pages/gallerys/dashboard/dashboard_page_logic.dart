@@ -125,6 +125,10 @@ class DashboardPageLogic extends BasePageLogic {
     ]);
   }
 
+  void updateGalleryList(){
+    update([galleryListId]);
+  }
+
   @override
   Future<List> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get gallery data, pageIndex:$pageIndex', false);

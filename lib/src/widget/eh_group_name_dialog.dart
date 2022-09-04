@@ -33,7 +33,6 @@ class _EHGroupNameDialogState extends State<EHGroupNameDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: GlobalConfig.groupDialogColor,
       title: Center(child: Text(widget.type == EHGroupNameDialogType.update ? 'changeGroup'.tr : 'chooseGroup'.tr)),
       actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
       content: Column(
@@ -82,13 +81,14 @@ class _EHGroupNameDialogState extends State<EHGroupNameDialog> {
   Widget _chipBuilder(_, int index) {
     return ChoiceChip(
       label: Text(widget.candidates[index]),
-      labelStyle: TextStyle(fontSize: GlobalConfig.groupDialogChipTextSize, height: 1, color: GlobalConfig.groupDialogTextColor),
+      labelStyle: const TextStyle(fontSize: GlobalConfig.groupDialogChipTextSize, height: 1),
       labelPadding: const EdgeInsets.symmetric(horizontal: 3),
       selected: textEditingController.value.text == widget.candidates[index],
       onSelected: (bool value) {
         setState(() => textEditingController.value = TextEditingValue(text: widget.candidates[index]));
       },
       side: BorderSide.none,
+      backgroundColor: GlobalConfig.groupDialogChipColor,
     ).marginOnly(right: 4);
   }
 
@@ -104,7 +104,7 @@ class _EHGroupNameDialogState extends State<EHGroupNameDialog> {
             labelText: 'groupName'.tr,
             labelStyle: const TextStyle(fontSize: GlobalConfig.groupDialogTextFieldLabelTextSize),
           ),
-          style: TextStyle(fontSize: GlobalConfig.groupDialogTextFieldTextSize, color: GlobalConfig.groupDialogTextColor),
+          style: const TextStyle(fontSize: GlobalConfig.groupDialogTextFieldTextSize),
           controller: textEditingController,
         ),
       ),

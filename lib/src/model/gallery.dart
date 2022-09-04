@@ -25,18 +25,6 @@ class Gallery {
   String? uploader;
   String publishTime;
 
-  void addFavorite(int favIndex, String tagName) {
-    isFavorite = true;
-    favoriteTagIndex = favIndex;
-    favoriteTagName = tagName;
-  }
-
-  void removeFavorite() {
-    isFavorite = false;
-    favoriteTagIndex = null;
-    favoriteTagName = null;
-  }
-
   GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(
       gid: gid,

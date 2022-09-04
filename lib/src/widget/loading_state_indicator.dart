@@ -21,6 +21,7 @@ typedef ErrorTapCallback = void Function();
 typedef NoDataTapCallback = void Function();
 typedef SuccessWidgetBuilder = Widget Function();
 
+/// A widget that change itself when [loadingState] changes
 class LoadingStateIndicator extends StatelessWidget {
   final double? height;
   final double? width;
@@ -71,11 +72,7 @@ class LoadingStateIndicator extends StatelessWidget {
                 ? idleWidget!
                 : GestureDetector(
                     onTap: errorTapCallback,
-                    child: Icon(
-                      FontAwesomeIcons.redoAlt,
-                      size: indicatorRadius * 2,
-                      color: Colors.grey.shade700,
-                    ),
+                    child: Icon(FontAwesomeIcons.redoAlt, size: indicatorRadius * 2, color: Colors.grey.shade700),
                   ));
         break;
       case LoadingState.idle:

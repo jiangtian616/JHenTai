@@ -522,7 +522,7 @@ class _ActionButtons extends StatelessWidget {
             : downloadProgress.downloadStatus == DownloadStatus.paused
                 ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? Icon(Icons.pause_circle_outline,color: Get.theme.colorScheme.error)
+                    ? Icon(Icons.pause_circle_outline, color: Get.theme.colorScheme.error)
                     : state.galleryDetails?.newVersionGalleryUrl == null
                         ? const Icon(Icons.done, color: Colors.green)
                         : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
@@ -555,7 +555,11 @@ class _ActionButtons extends StatelessWidget {
               state.gallery!.isFavorite ? state.gallery!.favoriteTagName! : 'favorite'.tr,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor),
+              style: TextStyle(
+                fontSize: GlobalConfig.detailsPageActionTextSize,
+                color: GlobalConfig.detailsPageActionTextColor,
+                height: 1,
+              ),
             ),
             onPressed: state.galleryDetails == null ? null : logic.handleTapFavorite,
           ),
@@ -708,6 +712,7 @@ class _Comments extends StatelessWidget {
                     maxLines: 4,
                     canTapUrl: false,
                     isSelectable: false,
+
                     /// can't vote for uploader or ourself
                     showVotingButtons: comment.username != UserSetting.userName.value && comment.score.isNotEmpty,
                   ),

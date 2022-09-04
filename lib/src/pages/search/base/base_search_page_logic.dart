@@ -23,6 +23,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
 
   String get searchFieldId;
   String get suggestionBodyId;
+  String get galleryBodyId;
 
   @override
   bool showScroll2TopButton = false;
@@ -193,5 +194,9 @@ mixin BaseSearchPageLogic on BasePageLogic {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
     showScroll2TopButton = state.bodyType == SearchPageBodyType.gallerys;
     update([pageId]);
+  }
+
+  void updateGalleryBody() {
+    update([galleryBodyId]);
   }
 }

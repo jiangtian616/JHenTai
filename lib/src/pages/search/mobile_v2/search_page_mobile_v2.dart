@@ -75,7 +75,14 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
             ),
           )
         else if (state.hasSearched)
-          Expanded(child: super.buildBody(context)),
+          Expanded(
+            child: GetBuilder<SearchPageMobileV2Logic>(
+              id: logic.galleryBodyId,
+              global: false,
+              init: logic,
+              builder: (_) => super.buildBody(context),
+            ),
+          ),
       ],
     );
   }

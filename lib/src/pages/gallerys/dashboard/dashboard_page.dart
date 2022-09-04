@@ -212,7 +212,10 @@ class DashboardPage extends BasePage {
   }
 
   Widget _buildGalleryBody(BuildContext context) {
-    return buildGalleryCollection(context);
+    return GetBuilder<DashboardPageLogic>(
+      id: logic.galleryListId,
+      builder: (_) => buildGalleryCollection(context),
+    );
   }
 
   String? _getRanklistBadge(int index) {

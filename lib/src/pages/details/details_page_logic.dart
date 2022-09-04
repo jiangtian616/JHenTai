@@ -13,7 +13,9 @@ import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
-import 'package:jhentai/src/pages/details/widget/favorite_dialog.dart';
+import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
+import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
+import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
@@ -243,7 +245,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
       FavoriteSetting.refresh();
     }
 
-    int? favIndex = await Get.dialog(FavoriteDialog());
+    int? favIndex = await Get.dialog(EHFavoriteDialog(selectedIndex: state.gallery?.favoriteTagIndex));
 
     if (favIndex == null) {
       return;
@@ -258,13 +260,20 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
       if (favIndex == state.gallery?.favoriteTagIndex) {
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
         FavoriteSetting.decrementFavByIndex(favIndex);
-        state.gallery!.removeFavorite();
+        state.gallery!
+          ..isFavorite = false
+          ..favoriteTagIndex = null
+          ..favoriteTagName = null;
       } else {
         await EHRequest.requestAddFavorite(state.gallery!.gid, state.gallery!.token, favIndex);
         FavoriteSetting.incrementFavByIndex(favIndex);
         FavoriteSetting.decrementFavByIndex(state.gallery?.favoriteTagIndex);
-        state.gallery!.addFavorite(favIndex, FavoriteSetting.favoriteTagNames[favIndex]);
+        state.gallery!
+          ..isFavorite = true
+          ..favoriteTagIndex = favIndex
+          ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
       }
+
       FavoriteSetting.save();
     } on DioError catch (e) {
       Log.error('favoriteGalleryFailed'.tr, e.message);
@@ -279,16 +288,24 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     state.favoriteState = LoadingState.idle;
     update([addFavoriteStateId]);
 
-    /// update homePage and searchPage status
+    /// update galleryPage status
     if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
       Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
     }
     if (Get.isRegistered<GallerysPageLogic>()) {
       Get.find<GallerysPageLogic>().updateBody();
     }
+    if (Get.isRegistered<DashboardPageLogic>()) {
+      Get.find<DashboardPageLogic>().updateGalleryList();
+    }
+
+    /// update  searchPage status
     SearchPageLogic.current?.update();
     if (Get.isRegistered<DesktopSearchPageLogic>()) {
-      Get.find<DesktopSearchPageLogic>().updateBody();
+      Get.find<DesktopSearchPageLogic>().updateGalleryBody();
+    }
+    if (Get.isRegistered<SearchPageMobileV2Logic>()) {
+      Get.find<SearchPageMobileV2Logic>().updateGalleryBody();
     }
   }
 
