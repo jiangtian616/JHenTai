@@ -43,7 +43,12 @@ class Gallery {
     );
   }
 
-  ArchiveDownloadedData toArchiveDownloadedData(String archivePageUrl, bool isOriginal, int size, {String? group}) {
+  ArchiveDownloadedData toArchiveDownloadedData({
+    required String archivePageUrl,
+    required bool isOriginal,
+    required int size,
+    required String group,
+  }) {
     return ArchiveDownloadedData(
       gid: gid,
       token: token,

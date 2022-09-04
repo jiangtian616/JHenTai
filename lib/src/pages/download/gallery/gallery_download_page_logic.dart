@@ -8,7 +8,7 @@ import '../../../routes/routes.dart';
 import '../../../service/gallery_download_service.dart';
 import '../../../service/storage_service.dart';
 import '../../../utils/route_util.dart';
-import '../../../widget/eh_group_name_dialog.dart';
+import '../../../widget/eh_download_dialog.dart';
 import 'gallery_download_page_state.dart';
 
 class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStateMixin {
@@ -54,8 +54,7 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
 
-    String? newGroup = await Get.dialog(EHGroupNameDialog(
-      type: EHGroupNameDialogType.update,
+    String? newGroup = await Get.dialog(EHDownloadDialog(
       candidates: downloadService.allGroups.toList(),
       currentGroup: oldGroup,
     ));
@@ -72,8 +71,7 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<void> handleRenameGroup(String oldGroupName) async {
-    String? newGroup = await Get.dialog(EHGroupNameDialog(
-      type: EHGroupNameDialogType.update,
+    String? newGroup = await Get.dialog(EHDownloadDialog(
       candidates: downloadService.allGroups.toList(),
       currentGroup: oldGroupName,
     ));

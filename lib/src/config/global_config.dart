@@ -69,19 +69,32 @@ class GlobalConfig {
 
   static Color get commentFooterTextColor => Get.theme.colorScheme.outline;
 
-  /// Group name dialog
-  static const double groupDialogHeight = 50;
-  static const double groupDialogCheckBoxHeight = 20;
-  static const double groupDialogWidth = 230;
-  static const double groupDialogChipTextSize = 11;
+  /// Group selector
+  static const double groupSelectorHeight = 100;
+  static const double groupSelectorWidth = 230;
+  static const double groupSelectorChipsHeight = 40;
+  static const double groupSelectorChipTextSize = 11;
 
-  static Color get groupDialogChipColor => Get.theme.colorScheme.secondaryContainer;
+  static Color get groupSelectorChipColor => Get.theme.colorScheme.secondaryContainer;
+  static const double groupSelectorTextFieldLabelTextSize = 12;
+  static const double groupSelectorTextFieldTextSize = 16;
 
-  static const double groupDialogTextFieldLabelTextSize = 12;
-  static const double groupDialogTextFieldTextSize = 16;
+  /// Download dialog
+  static const double downloadDialogWidth = 230;
+  static const double downloadDialogBodyHeight = 140;
+  static const double downloadDialogCheckBoxHeight = 20;
+
   static const double groupDialogCheckBoxTextSize = 12;
 
   static Color get groupDialogCheckBoxColor => Get.theme.colorScheme.primary;
+
+  /// Archive dialog
+  static const double archiveDialogBodyHeight = 230;
+  static const double archiveDialogCostTextSize = 10;
+  static const double archiveDialogDownloadTextSize = 14;
+  static const double archiveDialogDownloadIconSize = 16;
+
+  static Color get archiveDialogCostTextColor => Get.theme.colorScheme.outline;
 
   /// Download original image dialog
   static Color get downloadOriginalImageDialogColor => Get.theme.colorScheme.surfaceVariant;

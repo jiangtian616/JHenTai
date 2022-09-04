@@ -2,7 +2,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/widget/eh_group_name_dialog.dart';
+import 'package:jhentai/src/widget/eh_download_dialog.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_image.dart';
@@ -56,8 +56,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
 
-    String? newGroup = await Get.dialog(EHGroupNameDialog(
-      type: EHGroupNameDialogType.update,
+    String? newGroup = await Get.dialog(EHDownloadDialog(
       candidates: archiveDownloadService.allGroups.toList(),
       currentGroup: oldGroup,
     ));
@@ -74,8 +73,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<void> handleRenameGroup(String oldGroupName) async {
-    String? newGroup = await Get.dialog(EHGroupNameDialog(
-      type: EHGroupNameDialogType.update,
+    String? newGroup = await Get.dialog(EHDownloadDialog(
       candidates: archiveDownloadService.allGroups.toList(),
       currentGroup: oldGroupName,
     ));

@@ -12,7 +12,7 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
+import 'package:jhentai/src/widget/eh_archive_dialog.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
@@ -44,13 +44,13 @@ import '../../service/storage_service.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
-import '../../widget/eh_group_name_dialog.dart';
+import '../../widget/eh_download_dialog.dart';
 import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
 import '../layout/desktop/desktop_layout_page_logic.dart';
 import '../search/mobile/search_page_logic.dart';
 import 'details_page_state.dart';
 
-class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin,UpdateGlobalGalleryStatusLogicMixin {
+class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   static const String thumbnailsId = 'thumbnailsId';
   static const String thumbnailId = 'thumbnailId';
   static const String loadingStateId = 'loadingStateId';
@@ -201,7 +201,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     /// new download
     if (downloadProgress == null) {
       Map<String, dynamic>? result = await Get.dialog(
-        EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: downloadService.allGroups.toList()),
+        EHDownloadDialog(candidates: downloadService.allGroups.toList()),
       );
 
       if (result == null) {
@@ -351,8 +351,30 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     }
 
     ArchiveStatus? archiveStatus = archiveDownloadService.archiveDownloadInfos[state.gallery?.gid]?.archiveStatus;
+
+    /// new download
     if (archiveStatus == null) {
-      return Get.dialog(const ArchiveDialog());
+      Map<String, dynamic>? result = await Get.dialog(EHArchiveDialog(
+        archivePageUrl: state.galleryDetails!.archivePageUrl,
+        candidates: archiveDownloadService.allGroups.toList(),
+        currentGroup: 'default'.tr,
+      ));
+      if (result == null) {
+        return;
+      }
+
+      ArchiveDownloadedData archive = state.gallery!.toArchiveDownloadedData(
+        archivePageUrl: state.galleryDetails!.archivePageUrl,
+        isOriginal: result['isOriginal'],
+        size: result['size'],
+        group: result['group'] ?? 'default'.tr,
+      );
+
+      archiveDownloadService.downloadArchive(archive);
+
+      Log.info('Begin to download archive: ${archive.title}');
+      snack('beginToDownloadArchive'.tr, 'beginToDownloadArchiveHint'.tr);
+      return;
     }
 
     ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == state.gallery?.gid);

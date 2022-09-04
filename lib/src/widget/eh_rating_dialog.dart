@@ -31,7 +31,7 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
     return SimpleDialog(
       contentPadding: const EdgeInsets.only(top: 16, bottom: 12),
       children: [
-        Center(child: Text(rating.toString())),
+        Center(child: Text(rating.toString(), style: const TextStyle(fontWeight: FontWeight.bold))),
         _buildRatingBar().marginOnly(top: 16),
         _buildSubmitButton().marginOnly(top: 12),
       ],

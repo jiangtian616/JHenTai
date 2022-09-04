@@ -47,6 +47,7 @@ const int rightV2 = 5;
 Routing leftRouting = Routing();
 Routing rightRouting = Routing();
 
+/// Core widget to decide which layout to be applied
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -128,7 +129,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _checkUpdate() async {
+  Future<void> _checkUpdate() async  {
     if (AdvancedSetting.enableCheckUpdate.isFalse) {
       return;
     }

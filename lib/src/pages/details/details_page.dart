@@ -601,10 +601,10 @@ class _ActionButtons extends StatelessWidget {
         Icon icon = archiveStatus == null
             ? Icon(Icons.archive, color: GlobalConfig.detailsPageActionIconColor)
             : archiveStatus == ArchiveStatus.paused
-                ? Icon(Icons.play_circle_outline, color: Get.theme.primaryColor)
-                : archiveStatus == ArchiveStatus.downloading
-                    ? Icon(Icons.pause_circle_outline, color: Get.theme.primaryColor)
-                    : const Icon(Icons.done, color: Colors.green);
+                ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
+                : archiveStatus == ArchiveStatus.completed
+                    ? const Icon(Icons.done, color: Colors.green)
+                    : Icon(Icons.pause_circle_outline, color: Get.theme.colorScheme.error);
 
         return IconTextButton(
           icon: icon,
