@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../utils/screen_size_util.dart';
 
 class GlobalConfig {
   /// layout
@@ -116,4 +120,11 @@ class GlobalConfig {
   static const double torrentDialogTitleSize = 12;
   static const double torrentDialogSubtitleIconSize = 10;
   static const double torrentDialogSubtitleTextSize = 9;
+
+  /// Statistics dialog
+  static const double statisticsDialogColumnSpacing = 40;
+  static const double statisticsDialogColumnWidth = 50;
+  static const double statisticsDialogGraphHeight = 300;
+
+  static double get statisticsDialogGraphWidth => max(300, fullScreenWidth * 2 / 3);
 }

@@ -6,7 +6,7 @@ import 'package:get/get_utils/src/extensions/widget_extensions.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
-import 'package:jhentai/src/pages/details/widget/eh_comment.dart';
+import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../setting/user_setting.dart';

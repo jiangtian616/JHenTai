@@ -1,36 +1,34 @@
-import 'dart:math';
-
 import 'package:animate_do/animate_do.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/pages/details/details_page_logic.dart';
-import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class StatDialog extends StatefulWidget {
-  const StatDialog({Key? key}) : super(key: key);
+enum GraphType { allTime, year, month, day }
+
+class EHGalleryStatDialog extends StatefulWidget {
+  final int gid;
+  final String token;
+
+  const EHGalleryStatDialog({Key? key, required this.gid, required this.token}) : super(key: key);
 
   @override
-  State<StatDialog> createState() => _StatDialogState();
+  State<EHGalleryStatDialog> createState() => _EHGalleryStatDialogState();
 }
 
-class _StatDialogState extends State<StatDialog> {
-  final DetailsPageLogic logic = DetailsPageLogic.current!;
-  final DetailsPageState state = DetailsPageLogic.current!.state;
-
+class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
   late GalleryStats galleryStats;
   LoadingState loadingState = LoadingState.idle;
 
-  String graphType = 'allTime';
+  GraphType graphType = GraphType.allTime;
 
   @override
   void initState() {
@@ -42,36 +40,36 @@ class _StatDialogState extends State<StatDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Center(child: Text('VisitorStatistics'.tr)),
-      contentPadding: const EdgeInsets.symmetric(vertical: 16),
       children: [
         LoadingStateIndicator(
           loadingState: loadingState,
-          successWidgetBuilder: () => CupertinoSlidingSegmentedControl<String>(
-            groupValue: graphType,
-            children: {
-              'allTime': Text('allTime'.tr).paddingSymmetric(horizontal: 12),
-              'year': Text('year'.tr).paddingSymmetric(horizontal: 12),
-              'month': Text('month'.tr).paddingSymmetric(horizontal: 12),
-              'day': Text('day'.tr).paddingSymmetric(horizontal: 12),
-            },
-            onValueChanged: (value) {
-              setState(() {
-                graphType = value!;
-              });
-            },
-          ).marginSymmetric(horizontal: 24),
+          successWidgetBuilder: () => Column(
+            children: [
+              _buildSegmentedControl().marginOnly(bottom: 24),
+              if (graphType == GraphType.allTime) FadeIn(key: const Key('1'), child: _AllTimeTable(galleryStats: galleryStats)),
+              if (graphType == GraphType.year) FadeIn(key: const Key('2'), child: _LineGraph(datasource: galleryStats.yearlyStats)),
+              if (graphType == GraphType.month) FadeIn(key: const Key('3'), child: _LineGraph(datasource: galleryStats.monthlyStats)),
+              if (graphType == GraphType.day) FadeIn(key: const Key('4'), child: _LineGraph(datasource: galleryStats.dailyStats)),
+            ],
+          ),
           errorTapCallback: _getGalleryStats,
           noDataWidget: Text('invisible2UserWithoutDonation'.tr),
           noDataTapCallback: _getGalleryStats,
         ),
-        if (loadingState == LoadingState.success && graphType == 'allTime') FadeIn(key: const Key('1'), child: _allTimeGraph()).marginOnly(top: 24),
-        if (loadingState == LoadingState.success && graphType == 'year')
-          FadeIn(key: const Key('2'), child: _lineGraph(galleryStats.yearlyStats)).marginOnly(top: 24),
-        if (loadingState == LoadingState.success && graphType == 'month')
-          FadeIn(key: const Key('3'), child: _lineGraph(galleryStats.monthlyStats)).marginOnly(top: 24),
-        if (loadingState == LoadingState.success && graphType == 'day')
-          FadeIn(key: const Key('4'), child: _lineGraph(galleryStats.dailyStats)).marginOnly(top: 24),
       ],
+    );
+  }
+
+  Widget _buildSegmentedControl() {
+    return CupertinoSlidingSegmentedControl<GraphType>(
+      groupValue: graphType,
+      children: {
+        GraphType.allTime: Text('allTime'.tr).paddingSymmetric(horizontal: 12),
+        GraphType.year: Text('year'.tr).paddingSymmetric(horizontal: 12),
+        GraphType.month: Text('month'.tr).paddingSymmetric(horizontal: 12),
+        GraphType.day: Text('day'.tr).paddingSymmetric(horizontal: 12),
+      },
+      onValueChanged: (value) => setState(() => graphType = value!),
     );
   }
 
@@ -82,116 +80,106 @@ class _StatDialogState extends State<StatDialog> {
 
     try {
       galleryStats = await EHRequest.requestStatPage(
-        gid: state.gallery!.gid,
-        token: state.gallery!.token,
+        gid: widget.gid,
+        token: widget.token,
         parser: EHSpiderParser.statPage2GalleryStats,
       );
     } on DioError catch (e) {
-      if (!mounted) {
-        return;
-      }
       if (e.response?.statusCode == 404) {
         Log.info('invisible2UserWithoutDonation'.tr, false);
-        setState(() {
-          loadingState = LoadingState.noData;
-        });
-      } else {
-        Log.error('getGalleryStatisticsFailed'.tr, e.message);
-        snack('getGalleryStatisticsFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
-        setState(() {
-          loadingState = LoadingState.error;
-        });
+        if (mounted) {
+          setState(() => loadingState = LoadingState.noData);
+        }
+        return;
       }
+
+      Log.error('getGalleryStatisticsFailed'.tr, e.message);
+      snack('getGalleryStatisticsFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      if (mounted) {
+        setState(() => loadingState = LoadingState.error);
+      }
+
       return;
     }
 
-    if (!mounted) {
-      return;
+    if (mounted) {
+      setState(() {
+        loadingState = LoadingState.success;
+      });
     }
-    setState(() {
-      loadingState = LoadingState.success;
-    });
   }
+}
 
-  Widget _allTimeGraph() {
+class _AllTimeTable extends StatelessWidget {
+  final GalleryStats galleryStats;
+
+  const _AllTimeTable({Key? key, required this.galleryStats}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          '${'totalVisits'.tr}: ${galleryStats.totalVisits}',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
+        Text('${'totalVisits'.tr}: ${galleryStats.totalVisits}', style: const TextStyle(fontWeight: FontWeight.bold)),
         DataTable(
-          columnSpacing: 40,
+          columnSpacing: GlobalConfig.statisticsDialogColumnSpacing,
           columns: <DataColumn>[
             DataColumn(
-              label: SizedBox(width: 50, child: Center(child: Text('period'.tr))),
+              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('period'.tr))),
             ),
             DataColumn(
-              label: SizedBox(width: 50, child: Center(child: Text('ranking'.tr))),
+              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('ranking'.tr))),
             ),
             DataColumn(
-              label: SizedBox(width: 50, child: Center(child: Text('score'.tr))),
+              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('score'.tr))),
             ),
           ],
           rows: <DataRow>[
             DataRow(
               cells: <DataCell>[
                 DataCell(Center(child: Text('allTime'.tr))),
-                DataCell(
-                  Center(
-                    child: Text(galleryStats.allTimeRanking == null ? '-' : '#${galleryStats.allTimeRanking}'),
-                  ),
-                ),
-                DataCell(
-                  Center(child: Text(galleryStats.allTimeScore == null ? '-' : galleryStats.allTimeScore.toString())),
-                ),
+                DataCell(Center(child: Text(galleryStats.allTimeRanking == null ? '-' : '#${galleryStats.allTimeRanking}'))),
+                DataCell(Center(child: Text(galleryStats.allTimeScore == null ? '-' : galleryStats.allTimeScore.toString()))),
               ],
             ),
             DataRow(
               cells: <DataCell>[
                 DataCell(Center(child: Text('year'.tr))),
-                DataCell(
-                  Center(child: Text(galleryStats.yearRanking == null ? '-' : '#${galleryStats.yearRanking}')),
-                ),
-                DataCell(
-                  Center(child: Text(galleryStats.yearScore == null ? '-' : galleryStats.yearScore.toString())),
-                ),
+                DataCell(Center(child: Text(galleryStats.yearRanking == null ? '-' : '#${galleryStats.yearRanking}'))),
+                DataCell(Center(child: Text(galleryStats.yearScore == null ? '-' : galleryStats.yearScore.toString()))),
               ],
             ),
             DataRow(
               cells: <DataCell>[
                 DataCell(Center(child: Text('month'.tr))),
-                DataCell(
-                  Center(child: Text(galleryStats.monthRanking == null ? '-' : '#${galleryStats.monthRanking}')),
-                ),
-                DataCell(
-                  Center(child: Text(galleryStats.monthScore == null ? '-' : galleryStats.monthScore.toString())),
-                ),
+                DataCell(Center(child: Text(galleryStats.monthRanking == null ? '-' : '#${galleryStats.monthRanking}'))),
+                DataCell(Center(child: Text(galleryStats.monthScore == null ? '-' : galleryStats.monthScore.toString()))),
               ],
             ),
             DataRow(
               cells: <DataCell>[
                 DataCell(Center(child: Text('day'.tr))),
-                DataCell(
-                  Center(child: Text(galleryStats.dayRanking == null ? '-' : '#${galleryStats.dayRanking}')),
-                ),
-                DataCell(
-                  Center(child: Text(galleryStats.dayScore == null ? '-' : galleryStats.dayScore.toString())),
-                ),
+                DataCell(Center(child: Text(galleryStats.dayRanking == null ? '-' : '#${galleryStats.dayRanking}'))),
+                DataCell(Center(child: Text(galleryStats.dayScore == null ? '-' : galleryStats.dayScore.toString()))),
               ],
             ),
           ],
-        ).marginOnly(top: 18),
+        ).marginOnly(top: 4),
       ],
     );
   }
+}
 
-  Widget _lineGraph(List<VisitStat> datasource) {
+class _LineGraph extends StatelessWidget {
+  final List<VisitStat> datasource;
+
+  const _LineGraph({Key? key, required this.datasource}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return FadeIn(
-      key: Key(datasource.hashCode.toString()),
       child: SizedBox(
-        height: 300,
-        width: max(300, fullScreenWidth / 2),
+        height: GlobalConfig.statisticsDialogGraphHeight,
+        width: GlobalConfig.statisticsDialogGraphWidth,
         child: SfCartesianChart(
           trackballBehavior: TrackballBehavior(
             enable: true,
@@ -209,11 +197,7 @@ class _StatDialogState extends State<StatDialog> {
           primaryYAxis: NumericAxis(
             title: AxisTitle(
               text: 'visits'.tr,
-              textStyle: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(75, 135, 185, 1),
-              ),
+              textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color.fromRGBO(75, 135, 185, 1)),
             ),
             tickPosition: TickPosition.inside,
             labelStyle: const TextStyle(fontSize: 10),
@@ -225,20 +209,13 @@ class _StatDialogState extends State<StatDialog> {
               opposedPosition: true,
               title: AxisTitle(
                 text: 'imageAccesses'.tr,
-                textStyle: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromRGBO(192, 108, 132, 1),
-                ),
+                textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color.fromRGBO(192, 108, 132, 1)),
               ),
               labelStyle: const TextStyle(fontSize: 10),
               majorTickLines: const MajorTickLines(width: 1, size: 3),
             ),
           ],
-          legend: Legend(
-            isVisible: true,
-            position: LegendPosition.bottom,
-          ),
+          legend: Legend(isVisible: true, position: LegendPosition.bottom),
           series: <ChartSeries<VisitStat, String>>[
             LineSeries<VisitStat, String>(
               name: 'visits'.tr,

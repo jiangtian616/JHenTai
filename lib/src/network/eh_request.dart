@@ -329,12 +329,14 @@ class EHRequest {
   }
 
   static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(EHConsts.ETorrent,
-        queryParameters: {
-          'gid': gid,
-          't': token,
-        },
-        options: EHCacheInterceptor.cacheOption.toOptions());
+    Response<String> response = await _dio.get(
+      EHConsts.ETorrent,
+      queryParameters: {
+        'gid': gid,
+        't': token,
+      },
+      options: EHCacheInterceptor.cacheOption.toOptions(),
+    );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
@@ -356,7 +358,10 @@ class EHRequest {
     required String token,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.get('${EHConsts.EStat}?gid=$gid&t=$token');
+    Response<String> response = await _dio.get(
+      '${EHConsts.EStat}?gid=$gid&t=$token',
+      options: EHCacheInterceptor.cacheOption.toOptions(),
+    );
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 

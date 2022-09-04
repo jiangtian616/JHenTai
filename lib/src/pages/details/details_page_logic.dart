@@ -12,11 +12,11 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/widget/eh_torrent_dialog.dart';
+import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
 import 'package:jhentai/src/widget/eh_rating_dialog.dart';
-import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
+import 'package:jhentai/src/widget/eh_gallery_stat_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -407,7 +407,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
   }
 
   Future<void> handleTapTorrent() async {
-    Get.dialog(EHTorrentDialog(gid: state.gallery!.gid, token: state.gallery!.token));
+    Get.dialog(EHGalleryTorrentsDialog(gid: state.gallery!.gid, token: state.gallery!.token));
   }
 
   Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {
@@ -438,7 +438,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
   }
 
   Future<void> handleTapStatistic() async {
-    Get.dialog(const StatDialog());
+    Get.dialog(EHGalleryStatDialog(gid: state.gallery!.gid, token: state.gallery!.token));
   }
 
   Future<void> shareGallery() async {

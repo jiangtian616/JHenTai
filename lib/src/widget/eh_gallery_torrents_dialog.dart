@@ -15,17 +15,17 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../utils/snack_util.dart';
 import '../utils/toast_util.dart';
 
-class EHTorrentDialog extends StatefulWidget {
+class EHGalleryTorrentsDialog extends StatefulWidget {
   final int gid;
   final String token;
 
-  const EHTorrentDialog({Key? key, required this.gid, required this.token}) : super(key: key);
+  const EHGalleryTorrentsDialog({Key? key, required this.gid, required this.token}) : super(key: key);
 
   @override
-  _EHTorrentDialogState createState() => _EHTorrentDialogState();
+  _EHGalleryTorrentsDialogState createState() => _EHGalleryTorrentsDialogState();
 }
 
-class _EHTorrentDialogState extends State<EHTorrentDialog> {
+class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
   List<GalleryTorrent> galleryTorrents = <GalleryTorrent>[];
   LoadingState loadingState = LoadingState.idle;
 
@@ -43,10 +43,12 @@ class _EHTorrentDialogState extends State<EHTorrentDialog> {
       children: [
         LoadingStateIndicator(
           loadingState: loadingState,
+          indicatorRadius: 16,
           successWidgetBuilder: () => _TorrentList(galleryTorrents: galleryTorrents),
           errorWidget: GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: _getTorrent,
-            child: Icon(FontAwesomeIcons.redoAlt, size: 24, color: Colors.grey.shade700),
+            child: Icon(Icons.refresh, size: 32, color: Get.theme.colorScheme.onSecondaryContainer),
           ),
         ),
       ],
