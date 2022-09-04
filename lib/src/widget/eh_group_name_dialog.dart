@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 
 enum EHGroupNameDialogType { update, insert }
 
@@ -17,60 +20,114 @@ class EHGroupNameDialog extends StatefulWidget {
 
 class _EHGroupNameDialogState extends State<EHGroupNameDialog> {
   TextEditingController textEditingController = TextEditingController();
+  bool? downloadOriginalImage = DownloadSetting.downloadOriginalImageByDefault.value;
 
   @override
   void initState() {
     textEditingController.value = TextEditingValue(text: widget.currentGroup ?? 'default'.tr);
+    widget.candidates.remove(textEditingController.value.text);
+    widget.candidates.insert(0, textEditingController.value.text);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: GlobalConfig.groupDialogColor,
       title: Center(child: Text(widget.type == EHGroupNameDialogType.update ? 'changeGroup'.tr : 'chooseGroup'.tr)),
-      contentPadding: const EdgeInsets.only(left: 24, right: 24, top: 12),
+      actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.candidates.isNotEmpty) SizedBox(height: 50, width: 230, child: _buildChips()),
-          SizedBox(height: 50, width: 230, child: _buildTextField()),
+          if (widget.candidates.isNotEmpty) _buildChips(),
+          _buildTextField(),
+          if (downloadOriginalImage != null) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
         ],
       ),
       actions: [
         TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
-        TextButton(onPressed: () => backRoute(result: textEditingController.value.text), child: Text('OK'.tr)),
+        TextButton(
+          onPressed: () {
+            if (textEditingController.value.text.isEmpty) {
+              toast('invalid'.tr);
+              backRoute();
+              return;
+            }
+            backRoute(result: {
+              'group': textEditingController.value.text,
+              'downloadOriginalImage': downloadOriginalImage,
+            });
+          },
+          child: Text('OK'.tr),
+        ),
       ],
     );
   }
 
   Widget _buildChips() {
-    return ListView.builder(
-      scrollDirection: Axis.horizontal,
-      itemCount: widget.candidates.length,
-      itemBuilder: (_, int index) => GestureDetector(
-        onTap: () => setState(() {
-          textEditingController.value = TextEditingValue(text: widget.candidates[index]);
-        }),
-        child: Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-              height: 22,
-              color: Get.isDarkMode ? Colors.grey.shade600 : Colors.grey.shade200,
-              child: Center(
-                child: Text(widget.candidates[index], style: const TextStyle(fontSize: 11, height: 1)),
-              ).marginSymmetric(horizontal: 8),
-            ),
-          ).marginOnly(right: 6),
+    return SizedBox(
+      height: GlobalConfig.groupDialogHeight,
+      width: GlobalConfig.groupDialogWidth,
+      child: Center(
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: EdgeInsets.zero,
+          itemCount: widget.candidates.length,
+          itemBuilder: _chipBuilder,
         ),
       ),
     );
   }
 
+  Widget _chipBuilder(_, int index) {
+    return ChoiceChip(
+      label: Text(widget.candidates[index]),
+      labelStyle: TextStyle(fontSize: GlobalConfig.groupDialogChipTextSize, height: 1, color: GlobalConfig.groupDialogTextColor),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 3),
+      selected: textEditingController.value.text == widget.candidates[index],
+      onSelected: (bool value) {
+        setState(() => textEditingController.value = TextEditingValue(text: widget.candidates[index]));
+      },
+      side: BorderSide.none,
+    ).marginOnly(right: 4);
+  }
+
   Widget _buildTextField() {
-    return TextField(
-      decoration: InputDecoration(isDense: true, alignLabelWithHint: true, labelText: 'groupName'.tr, labelStyle: const TextStyle(fontSize: 12)),
-      controller: textEditingController,
+    return SizedBox(
+      height: GlobalConfig.groupDialogHeight,
+      width: GlobalConfig.groupDialogWidth,
+      child: Center(
+        child: TextField(
+          decoration: InputDecoration(
+            isDense: true,
+            alignLabelWithHint: true,
+            labelText: 'groupName'.tr,
+            labelStyle: const TextStyle(fontSize: GlobalConfig.groupDialogTextFieldLabelTextSize),
+          ),
+          style: TextStyle(fontSize: GlobalConfig.groupDialogTextFieldTextSize, color: GlobalConfig.groupDialogTextColor),
+          controller: textEditingController,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDownloadOriginalImageCheckBox() {
+    return SizedBox(
+      height: GlobalConfig.groupDialogCheckBoxHeight,
+      width: GlobalConfig.groupDialogWidth,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('downloadOriginalImage'.tr + ' ?', style: const TextStyle(fontSize: GlobalConfig.groupDialogCheckBoxTextSize)),
+          Checkbox(
+            value: downloadOriginalImage,
+            activeColor: GlobalConfig.groupDialogCheckBoxColor,
+            onChanged: (bool? value) => setState(() => downloadOriginalImage = (value ?? true)),
+          ),
+        ],
+      ),
     );
   }
 }

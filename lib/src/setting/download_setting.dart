@@ -7,18 +7,15 @@ import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
 
-enum DownloadOriginalImageMode { never, manual, always }
-
 class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
-  static Rx<DownloadOriginalImageMode> downloadOriginalImage = DownloadOriginalImageMode.never.obs;
+  static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxInt timeout = 10.obs;
   static RxBool downloadInOrderOfInsertTime = true.obs;
-  static RxBool alwaysUseDefaultGroup = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
@@ -31,8 +28,10 @@ class DownloadSetting {
 
     /// listen to login and logout
     ever(UserSetting.ipbMemberId, (v) {
-      if (!UserSetting.hasLoggedIn()) {
-        saveDownloadOriginalImage(DownloadOriginalImageMode.never);
+      if (UserSetting.hasLoggedIn()) {
+        saveDownloadOriginalImageByDefault(false);
+      } else {
+        saveDownloadOriginalImageByDefault(null);
       }
     });
   }
@@ -43,9 +42,9 @@ class DownloadSetting {
     _save();
   }
 
-  static saveDownloadOriginalImage(DownloadOriginalImageMode value) {
-    Log.debug('saveDownloadOriginalImage:${value.name}');
-    DownloadSetting.downloadOriginalImage.value = value;
+  static saveDownloadOriginalImageByDefault(bool? value) {
+    Log.debug('saveDownloadOriginalImageByDefault:$value');
+    DownloadSetting.downloadOriginalImageByDefault.value = value;
     _save();
   }
 
@@ -85,12 +84,6 @@ class DownloadSetting {
     _save();
   }
 
-  static saveAlwaysUseDefaultGroup(bool value) {
-    Log.debug('saveAlwaysUseDefaultGroup:$value');
-    alwaysUseDefaultGroup.value = value;
-    _save();
-  }
-
   static Future<void> _save() async {
     await Get.find<StorageService>().write('downloadSetting', _toMap());
   }
@@ -98,24 +91,22 @@ class DownloadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'downloadPath': downloadPath.value,
-      'downloadOriginalImage': downloadOriginalImage.value.index,
+      'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
       'timeout': timeout.value,
       'downloadInOrderOfInsertTime': downloadInOrderOfInsertTime.value,
-      'alwaysUseDefaultGroup': alwaysUseDefaultGroup.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     downloadPath.value = map['downloadPath'] ?? downloadPath.value;
-    downloadOriginalImage.value = DownloadOriginalImageMode.values[map['downloadOriginalImage'] ?? downloadOriginalImage.value.index];
+    downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
     downloadInOrderOfInsertTime.value = map['downloadInOrderOfInsertTime'] ?? downloadInOrderOfInsertTime.value;
-    alwaysUseDefaultGroup.value = map['alwaysUseDefaultGroup'] ?? alwaysUseDefaultGroup.value;
   }
 }

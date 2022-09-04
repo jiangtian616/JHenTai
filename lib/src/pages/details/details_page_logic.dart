@@ -22,7 +22,6 @@ import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart'
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -30,7 +29,6 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
-import 'package:jhentai/src/widget/download_original_image_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -197,32 +195,21 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     Gallery gallery = state.gallery!;
     GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
 
+    /// new download
     if (downloadProgress == null) {
-      String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
-          ? 'default'.tr
-          : await Get.dialog(EHGroupNameDialog(
-              type: EHGroupNameDialogType.insert,
-              candidates: downloadService.allGroups.toList(),
-            ));
-      if (group == null) {
+      Map<String, dynamic>? result = await Get.dialog(
+        EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: downloadService.allGroups.toList()),
+      );
+
+      if (result == null) {
         return;
       }
 
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.always) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: true, group: group));
-        return;
-      }
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.never) {
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: false, group: group));
-        return;
-      }
-      if (DownloadSetting.downloadOriginalImage.value == DownloadOriginalImageMode.manual) {
-        bool? downloadOriginalImage = await Get.dialog(const DownloadOriginalImageDialog());
-        if (downloadOriginalImage == null) {
-          return;
-        }
-        downloadService.downloadGallery(gallery.toGalleryDownloadedData(downloadOriginalImage: downloadOriginalImage, group: group));
-      }
+      downloadService.downloadGallery(gallery.toGalleryDownloadedData(
+        downloadOriginalImage: result['downloadOriginalImage'] ?? false,
+        group: result['group'] ?? 'default'.tr,
+      ));
+
       toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }

@@ -195,11 +195,9 @@ class _ArchiveDialogState extends State<ArchiveDialog> {
   }
 
   Future<void> _downloadArchive(bool isOriginal) async {
-    String? group = DownloadSetting.alwaysUseDefaultGroup.isTrue
-        ? 'default'.tr
-        : await Get.dialog(
-            EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: archiveDownloadService.allGroups.toList()),
-          );
+    String? group = await Get.dialog(
+      EHGroupNameDialog(type: EHGroupNameDialogType.insert, candidates: archiveDownloadService.allGroups.toList()),
+    );
     if (group == null) {
       return;
     }

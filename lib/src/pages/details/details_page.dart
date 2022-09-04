@@ -520,12 +520,12 @@ class _ActionButtons extends StatelessWidget {
         Icon icon = downloadProgress == null
             ? Icon(Icons.download, color: GlobalConfig.detailsPageActionIconColor)
             : downloadProgress.downloadStatus == DownloadStatus.paused
-                ? Icon(Icons.play_circle_outline, color: Get.theme.primaryColor)
+                ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? Icon(Icons.pause_circle_outline, color: Get.theme.primaryColor)
+                    ? Icon(Icons.pause_circle_outline,color: Get.theme.colorScheme.error)
                     : state.galleryDetails?.newVersionGalleryUrl == null
                         ? const Icon(Icons.done, color: Colors.green)
-                        : Icon(Icons.auto_awesome, color: Get.theme.primaryColor);
+                        : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
 
         return IconTextButton(
           icon: icon,

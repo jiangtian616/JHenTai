@@ -62,32 +62,16 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                 onLongPress: _handleResetDownloadPath,
               ),
             ListTile(
-              title: Text('downloadOriginalImage'.tr),
-              trailing: DropdownButton<DownloadOriginalImageMode>(
-                value: DownloadSetting.downloadOriginalImage.value,
-                elevation: 4,
-                alignment: AlignmentDirectional.bottomEnd,
-                onChanged: (DownloadOriginalImageMode? newValue) {
-                  if (newValue != DownloadOriginalImageMode.never && !UserSetting.hasLoggedIn()) {
+              title: Text('downloadOriginalImageByDefault'.tr),
+              trailing: Switch(
+                value: DownloadSetting.downloadOriginalImageByDefault.value ?? false,
+                onChanged: (value) {
+                  if ( !UserSetting.hasLoggedIn()) {
                     toast('needLoginToOperate'.tr);
                     return;
                   }
-                  DownloadSetting.saveDownloadOriginalImage(newValue!);
+                  DownloadSetting.saveDownloadOriginalImageByDefault(value);
                 },
-                items: [
-                  DropdownMenuItem(
-                    child: Text('never'.tr),
-                    value: DownloadOriginalImageMode.never,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('manual'.tr),
-                    value: DownloadOriginalImageMode.manual,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('always'.tr),
-                    value: DownloadOriginalImageMode.always,
-                  ),
-                ],
               ),
             ),
             ListTile(
@@ -234,13 +218,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               trailing: Switch(
                 value: DownloadSetting.downloadInOrderOfInsertTime.value,
                 onChanged: (value) => DownloadSetting.saveDownloadInOrderOfInsertTime(value),
-              ),
-            ),
-            ListTile(
-              title: Text('alwaysUseDefaultGroup'.tr),
-              trailing: Switch(
-                value: DownloadSetting.alwaysUseDefaultGroup.value,
-                onChanged: (value) => DownloadSetting.saveAlwaysUseDefaultGroup(value),
               ),
             ),
             ListTile(

@@ -13,11 +13,11 @@ import '../service/tag_translation_service.dart';
 import '../utils/route_util.dart';
 import 'loading_state_indicator.dart';
 
-class JHDashboardCard extends StatelessWidget {
+class EHDashboardCard extends StatelessWidget {
   final Gallery gallery;
   final String? badge;
 
-  const JHDashboardCard({Key? key, required this.gallery, this.badge}) : super(key: key);
+  const EHDashboardCard({Key? key, required this.gallery, this.badge}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

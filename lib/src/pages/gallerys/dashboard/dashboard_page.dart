@@ -6,7 +6,7 @@ import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-import 'package:jhentai/src/widget/jh_dashboard_card.dart';
+import 'package:jhentai/src/widget/eh_dashboard_card.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../config/global_config.dart';
@@ -93,7 +93,7 @@ class DashboardPage extends BasePage {
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: state.ranklistGallerys.length,
-              itemBuilder: (_, index) => JHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
+              itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
             ).paddingSymmetric(horizontal: 10),
@@ -143,7 +143,7 @@ class DashboardPage extends BasePage {
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: state.popularGallerys.length,
-              itemBuilder: (_, index) => JHDashboardCard(gallery: state.popularGallerys[index]),
+              itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGallerys[index]),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
             ).paddingSymmetric(horizontal: 10),

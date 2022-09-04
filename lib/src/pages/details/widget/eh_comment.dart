@@ -44,6 +44,7 @@ class _EHCommentState extends State<EHComment> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 2,
       margin: const EdgeInsets.only(bottom: 2),
       child: Column(
         children: [
