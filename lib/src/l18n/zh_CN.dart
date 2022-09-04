@@ -132,6 +132,7 @@ class zh_CN {
       'hasDownloaded': '已下载',
       '410Hints': '下载此归档次数过多，你需要重新购买、解锁后才能继续下载',
       'getUnpackedImagesFailedMsg': 'JHenTai无法读取此归档的图片，请检查本地文件是否正常',
+      'getGalleryTorrentsFailed': '获取种子失败',
 
       /// comment page
       'newComment': '新评论',

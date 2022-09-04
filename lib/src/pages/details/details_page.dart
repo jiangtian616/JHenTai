@@ -142,7 +142,7 @@ class DetailsPage extends StatelessWidget {
 
   Widget _buildActions() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: 20),
       sliver: SliverToBoxAdapter(child: _ActionButtons()),
     );
   }
@@ -488,13 +488,22 @@ class _ActionButtons extends StatelessWidget {
   }
 
   Widget _buildReadButton() {
+    bool disabled = state.gallery?.pageCount == null;
+
     int readIndexRecord = logic.getReadIndexRecord();
     String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
 
     return IconTextButton(
-      icon: Icon(Icons.visibility, color: GlobalConfig.detailsPageActionIconColor),
-      text: Text(text, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
-      onPressed: state.gallery?.pageCount == null ? null : logic.goToReadPage,
+      icon: Icon(Icons.visibility, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      text: Text(
+        text,
+        style: TextStyle(
+          fontSize: GlobalConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          height: 1,
+        ),
+      ),
+      onPressed: disabled ? null : logic.goToReadPage,
     );
   }
 
@@ -502,6 +511,8 @@ class _ActionButtons extends StatelessWidget {
     return GetBuilder<GalleryDownloadService>(
       id: '$galleryDownloadProgressId::${state.gallery!.gid}',
       builder: (_) {
+        bool disabled = state.gallery?.pageCount == null;
+
         GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.downloadProgress;
 
         String text = downloadProgress == null
@@ -515,7 +526,7 @@ class _ActionButtons extends StatelessWidget {
                         : 'update'.tr;
 
         Icon icon = downloadProgress == null
-            ? Icon(Icons.download, color: GlobalConfig.detailsPageActionIconColor)
+            ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor)
             : downloadProgress.downloadStatus == DownloadStatus.paused
                 ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
@@ -526,8 +537,15 @@ class _ActionButtons extends StatelessWidget {
 
         return IconTextButton(
           icon: icon,
-          onPressed: state.gallery?.pageCount == null ? null : logic.handleTapDownload,
-          text: Text(text, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
+          onPressed: disabled ? null : logic.handleTapDownload,
+          text: Text(
+            text,
+            style: TextStyle(
+              fontSize: GlobalConfig.detailsPageActionTextSize,
+              color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+              height: 1,
+            ),
+          ),
         );
       },
     );
@@ -538,15 +556,18 @@ class _ActionButtons extends StatelessWidget {
       id: DetailsPageLogic.addFavoriteStateId,
       tag: logic.tag,
       builder: (_) {
+        bool disabled = state.gallery == null;
+
         return LoadingStateIndicator(
           loadingState: state.favoriteState,
           idleWidget: IconTextButton(
             icon: Icon(
-              state.gallery!.isFavorite && state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
-              size: 24,
-              color: state.gallery!.isFavorite && state.gallery!.favoriteTagIndex != null
-                  ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
-                  : GlobalConfig.detailsPageActionIconColor,
+              state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
+              color: disabled
+                  ? Get.theme.disabledColor
+                  : state.gallery!.favoriteTagIndex != null
+                      ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
+                      : GlobalConfig.detailsPageActionIconColor,
             ),
             text: Text(
               state.gallery!.isFavorite ? state.gallery!.favoriteTagName! : 'favorite'.tr,
@@ -554,11 +575,11 @@ class _ActionButtons extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: GlobalConfig.detailsPageActionTextSize,
-                color: GlobalConfig.detailsPageActionTextColor,
+                color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
                 height: 1,
               ),
             ),
-            onPressed: state.galleryDetails == null ? null : logic.handleTapFavorite,
+            onPressed: disabled ? null : logic.handleTapFavorite,
           ),
           errorWidgetSameWithIdle: true,
         );
@@ -571,18 +592,28 @@ class _ActionButtons extends StatelessWidget {
       id: DetailsPageLogic.ratingStateId,
       tag: logic.tag,
       builder: (_) {
+        bool disabled = state.galleryDetails == null;
+
         return LoadingStateIndicator(
           loadingState: state.ratingState,
           idleWidget: IconTextButton(
             icon: Icon(
-              state.gallery!.hasRated && state.galleryDetails != null ? Icons.star : Icons.star_border,
-              color: state.gallery!.hasRated && state.galleryDetails != null ? Get.theme.colorScheme.error : GlobalConfig.detailsPageActionIconColor,
+              state.gallery!.hasRated ? Icons.star : Icons.star_border,
+              color: disabled
+                  ? Get.theme.disabledColor
+                  : state.gallery!.hasRated
+                      ? Get.theme.colorScheme.error
+                      : GlobalConfig.detailsPageActionIconColor,
             ),
             text: Text(
               state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
-              style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor),
+              style: TextStyle(
+                fontSize: GlobalConfig.detailsPageActionTextSize,
+                color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+                height: 1,
+              ),
             ),
-            onPressed: state.galleryDetails == null ? null : logic.handleTapRating,
+            onPressed: disabled ? null : logic.handleTapRating,
           ),
           errorWidgetSameWithIdle: true,
         );
@@ -594,12 +625,14 @@ class _ActionButtons extends StatelessWidget {
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${state.gallery!.gid}',
       builder: (_) {
+        bool disabled = state.galleryDetails == null;
+
         ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gallery!.gid]?.archiveStatus;
 
         String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
         Icon icon = archiveStatus == null
-            ? Icon(Icons.archive, color: GlobalConfig.detailsPageActionIconColor)
+            ? Icon(Icons.archive, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor)
             : archiveStatus == ArchiveStatus.paused
                 ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : archiveStatus == ArchiveStatus.completed
@@ -608,35 +641,69 @@ class _ActionButtons extends StatelessWidget {
 
         return IconTextButton(
           icon: icon,
-          text: Text(text, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
-          onPressed: state.galleryDetails == null ? null : logic.handleTapArchive,
+          text: Text(
+            text,
+            style: TextStyle(
+              fontSize: GlobalConfig.detailsPageActionTextSize,
+              color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+              height: 1,
+            ),
+          ),
+          onPressed: disabled ? null : logic.handleTapArchive,
         );
       },
     );
   }
 
   Widget _buildSimilarButton() {
+    bool disabled = state.galleryDetails == null;
+
     return IconTextButton(
-      icon: Icon(Icons.saved_search, color: GlobalConfig.detailsPageActionIconColor),
-      text: Text('similar'.tr, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
-      onPressed: state.galleryDetails == null ? null : logic.searchSimilar,
+      icon: Icon(Icons.saved_search, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      text: Text(
+        'similar'.tr,
+        style: TextStyle(
+          fontSize: GlobalConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          height: 1,
+        ),
+      ),
+      onPressed: disabled ? null : logic.searchSimilar,
     );
   }
 
   Widget _buildTorrentButton() {
+    bool disabled = state.galleryDetails == null || state.galleryDetails!.torrentCount == '0';
+
     String text = '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})';
 
     return IconTextButton(
-      icon: Icon(FontAwesomeIcons.magnet, size: 20, color: GlobalConfig.detailsPageActionIconColor),
-      text: Text(text, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
-      onPressed: state.galleryDetails == null ? null : logic.handleTapTorrent,
+      icon: Icon(Icons.file_present, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      text: Text(
+        text,
+        style: TextStyle(
+          fontSize: GlobalConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          height: 1,
+        ),
+      ),
+      onPressed: disabled || state.galleryDetails!.torrentCount == '0' ? null : logic.handleTapTorrent,
     );
   }
 
   Widget _buildStatisticButton() {
+    bool disabled = state.galleryDetails == null;
+
     return IconTextButton(
-      icon: Icon(Icons.analytics, color: GlobalConfig.detailsPageActionIconColor),
-      text: Text('statistic'.tr, style: TextStyle(fontSize: GlobalConfig.detailsPageActionTextSize, color: GlobalConfig.detailsPageActionTextColor)),
+      icon: Icon(Icons.analytics, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      text: Text(
+        'statistic'.tr,
+        style: TextStyle(
+          fontSize: GlobalConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          height: 1,
+        ),
+      ),
       onPressed: state.galleryDetails == null ? null : logic.handleTapStatistic,
     );
   }

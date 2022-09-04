@@ -111,4 +111,9 @@ class GlobalConfig {
   static const double ratingDialogStarSize = 36;
   static const double ratingDialogButtonBoxHeight = 40;
   static const double ratingDialogButtonBoxWidth = 80;
+
+  /// Torrent dialog
+  static const double torrentDialogTitleSize = 12;
+  static const double torrentDialogSubtitleIconSize = 10;
+  static const double torrentDialogSubtitleTextSize = 9;
 }

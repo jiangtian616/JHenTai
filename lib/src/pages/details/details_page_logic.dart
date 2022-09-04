@@ -12,15 +12,11 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/widget/eh_torrent_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
-import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
 import 'package:jhentai/src/widget/eh_rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
-import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
-import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
-import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -411,10 +407,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
   }
 
   Future<void> handleTapTorrent() async {
-    if (state.galleryDetails!.torrentCount == '0') {
-      return;
-    }
-    Get.dialog(const TorrentDialog());
+    Get.dialog(EHTorrentDialog(gid: state.gallery!.gid, token: state.gallery!.token));
   }
 
   Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {

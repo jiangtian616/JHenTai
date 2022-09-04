@@ -132,6 +132,7 @@ class en_US {
       'hasDownloaded': 'Has downloaded',
       '410Hints': 'You have clocked too many downloaded bytes on this archive, and need to re-unlock of this archive to resume',
       'getUnpackedImagesFailedMsg': 'JHenTai can\'t load images of this archive, please check your local file.',
+      'getGalleryTorrentsFailed': 'Get torrents failed',
 
       /// comment page
       'newComment': 'New Comment',
