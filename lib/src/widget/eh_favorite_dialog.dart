@@ -13,35 +13,34 @@ class EHFavoriteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return SimpleDialog(
       title: Center(child: Text('chooseFavorite'.tr)),
-      content: Obx(
-        () => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: FavoriteSetting.favoriteTagNames
-              .mapIndexed(
-                (index, tagName) => ListTile(
-                  dense: true,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                  selected: selectedIndex == index,
-                  selectedTileColor: GlobalConfig.favoriteDialogTileColor,
-                  visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
-                  leading: Text(tagName),
-                  trailing: Text(
-                    FavoriteSetting.favoriteCounts[index].toString(),
-                    style: TextStyle(fontSize: GlobalConfig.favoriteDialogCountTextSize, color: GlobalConfig.favoriteDialogCountTextColor),
+      children: [
+        Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: FavoriteSetting.favoriteTagNames
+                .mapIndexed(
+                  (index, tagName) => ListTile(
+                    dense: true,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    selected: selectedIndex == index,
+                    selectedTileColor: GlobalConfig.favoriteDialogTileColor,
+                    visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
+                    leading: Text(tagName),
+                    trailing: Text(
+                      FavoriteSetting.favoriteCounts[index].toString(),
+                      style: TextStyle(fontSize: GlobalConfig.favoriteDialogCountTextSize, color: GlobalConfig.favoriteDialogCountTextColor),
+                    ),
+                    onTap: () => backRoute(result: index),
                   ),
-                  onTap: () => backRoute(result: index),
-                ),
-              )
-              .toList(),
+                )
+                .toList(),
+          ),
         ),
-      ),
-      contentPadding: const EdgeInsets.only(top: 18, left: 12, right: 12),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: <Widget>[
-        TextButton(child: Text('cancel'.tr), onPressed: backRoute),
+        TextButton(child: Text('cancel'.tr), onPressed: backRoute).marginOnly(top: 12),
       ],
+      contentPadding: const EdgeInsets.only(top: 18, left: 12, right: 12, bottom: 12),
     );
   }
 }

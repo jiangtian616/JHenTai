@@ -16,7 +16,7 @@ import 'package:jhentai/src/pages/details/widget/archive_dialog.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
-import 'package:jhentai/src/pages/details/widget/rating_dialog.dart';
+import 'package:jhentai/src/widget/eh_rating_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/stat_dialog.dart';
 import 'package:jhentai/src/pages/details/widget/torrent_dialog.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
@@ -35,6 +35,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
 import '../../service/history_service.dart';
@@ -49,7 +50,7 @@ import '../layout/desktop/desktop_layout_page_logic.dart';
 import '../search/mobile/search_page_logic.dart';
 import 'details_page_state.dart';
 
-class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin {
+class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin,UpdateGlobalGalleryStatusLogicMixin {
   static const String thumbnailsId = 'thumbnailsId';
   static const String thumbnailId = 'thumbnailId';
   static const String loadingStateId = 'loadingStateId';
@@ -288,25 +289,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     state.favoriteState = LoadingState.idle;
     update([addFavoriteStateId]);
 
-    /// update galleryPage status
-    if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
-      Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
-    }
-    if (Get.isRegistered<GallerysPageLogic>()) {
-      Get.find<GallerysPageLogic>().updateBody();
-    }
-    if (Get.isRegistered<DashboardPageLogic>()) {
-      Get.find<DashboardPageLogic>().updateGalleryList();
-    }
-
-    /// update  searchPage status
-    SearchPageLogic.current?.update();
-    if (Get.isRegistered<DesktopSearchPageLogic>()) {
-      Get.find<DesktopSearchPageLogic>().updateGalleryBody();
-    }
-    if (Get.isRegistered<SearchPageMobileV2Logic>()) {
-      Get.find<SearchPageMobileV2Logic>().updateGalleryBody();
-    }
+    updateGlobalGalleryStatus();
   }
 
   Future<void> handleTapRating() async {
@@ -315,13 +298,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
       return;
     }
 
-    double? rating = await Get.dialog(const RatingDialog(), barrierColor: Colors.black38);
+    double? rating = await Get.dialog(EHRatingDialog(
+      rating: state.gallery!.rating,
+      hasRated: state.gallery!.hasRated,
+    ));
 
     if (rating == null) {
       return;
     }
 
-    Log.info('Rate gallery: ${state.gallery!.gid}');
+    Log.info('Rate gallery: ${state.gallery!.gid}, rating: $rating');
 
     state.ratingState = LoadingState.loading;
     update([ratingStateId]);
@@ -350,17 +336,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     state.galleryDetails!.ratingCount = ratingInfo['rating_cnt'];
     state.galleryDetails!.realRating = ratingInfo['rating_avg'];
 
-    state.ratingState = LoadingState.idle;
-
     _removeCache();
 
+    state.ratingState = LoadingState.idle;
     update();
-    if (Get.isRegistered<g.NestedGallerysPageLogic>()) {
-      Get.find<g.NestedGallerysPageLogic>().update([g.bodyId]);
-    }
-    if (Get.isRegistered<GallerysPageLogic>()) {
-      Get.find<GallerysPageLogic>().updateBody();
-    }
+
+    updateGlobalGalleryStatus();
   }
 
   Future<void> handleTapArchive() async {

@@ -93,4 +93,9 @@ class GlobalConfig {
   static Color get favoriteDialogCountTextColor => Get.theme.colorScheme.outline;
 
   static Color get favoriteDialogTileColor => Get.theme.colorScheme.secondaryContainer;
+
+  /// Rating dialog
+  static const double ratingDialogStarSize = 36;
+  static const double ratingDialogButtonBoxHeight = 40;
+  static const double ratingDialogButtonBoxWidth = 80;
 }

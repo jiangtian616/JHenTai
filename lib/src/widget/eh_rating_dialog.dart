@@ -1,0 +1,70 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get_utils/src/extensions/widget_extensions.dart';
+import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
+import 'package:jhentai/src/pages/details/details_page_state.dart';
+
+import '../utils/route_util.dart';
+
+class EHRatingDialog extends StatefulWidget {
+  final double rating;
+  final bool hasRated;
+
+  const EHRatingDialog({Key? key, required this.rating, required this.hasRated}) : super(key: key);
+
+  @override
+  _EHRatingDialogState createState() => _EHRatingDialogState();
+}
+
+class _EHRatingDialogState extends State<EHRatingDialog> {
+  late double rating = widget.rating;
+  late bool hasRated = widget.hasRated;
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      contentPadding: const EdgeInsets.only(top: 16, bottom: 12),
+      children: [
+        Center(child: Text(rating.toString())),
+        _buildRatingBar().marginOnly(top: 16),
+        _buildSubmitButton().marginOnly(top: 12),
+      ],
+    );
+  }
+
+  Widget _buildRatingBar() {
+    return Center(
+      child: RatingBar.builder(
+        unratedColor: Colors.grey.shade300,
+        minRating: 0.5,
+        initialRating: max(rating, 0.5),
+        itemCount: 5,
+        allowHalfRating: true,
+        itemSize: GlobalConfig.ratingDialogStarSize,
+        itemPadding: const EdgeInsets.only(left: 4),
+        updateOnDrag: true,
+        itemBuilder: (context, index) => Icon(Icons.star, color: hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
+        onRatingUpdate: (rating) => setState(() => this.rating = rating),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Center(
+      child: SizedBox(
+        height: GlobalConfig.ratingDialogButtonBoxHeight,
+        width: GlobalConfig.ratingDialogButtonBoxWidth,
+        child: TextButton(
+          onPressed: () => backRoute(result: rating),
+          child: Text('submit'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+        ),
+      ),
+    );
+  }
+}

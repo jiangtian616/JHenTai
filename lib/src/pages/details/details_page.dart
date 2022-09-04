@@ -424,10 +424,7 @@ class _DetailsPageHeader extends StatelessWidget {
       allowHalfRating: true,
       itemSize: 18,
       ignoreGestures: true,
-      itemBuilder: (context, index) => Icon(
-        Icons.star,
-        color: state.gallery!.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
-      ),
+      itemBuilder: (context, index) => Icon(Icons.star, color: state.gallery!.hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
       onRatingUpdate: (_) {},
     );
   }
@@ -545,9 +542,9 @@ class _ActionButtons extends StatelessWidget {
           loadingState: state.favoriteState,
           idleWidget: IconTextButton(
             icon: Icon(
-              state.gallery!.isFavorite && state.galleryDetails != null ? Icons.favorite : Icons.favorite_border,
+              state.gallery!.isFavorite && state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
               size: 24,
-              color: state.gallery!.isFavorite && state.galleryDetails != null
+              color: state.gallery!.isFavorite && state.gallery!.favoriteTagIndex != null
                   ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
                   : GlobalConfig.detailsPageActionIconColor,
             ),
@@ -579,7 +576,7 @@ class _ActionButtons extends StatelessWidget {
           idleWidget: IconTextButton(
             icon: Icon(
               state.gallery!.hasRated && state.galleryDetails != null ? Icons.star : Icons.star_border,
-              color: state.gallery!.hasRated && state.galleryDetails != null ? Colors.red : GlobalConfig.detailsPageActionIconColor,
+              color: state.gallery!.hasRated && state.galleryDetails != null ? Get.theme.colorScheme.error : GlobalConfig.detailsPageActionIconColor,
             ),
             text: Text(
               state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
