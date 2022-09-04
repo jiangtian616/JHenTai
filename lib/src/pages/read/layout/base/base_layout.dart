@@ -65,6 +65,8 @@ abstract class BaseLayout extends StatelessWidget {
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return EHImage.network(
           galleryImage: readPageState.images[index]!,
+          containerWidth: fittedSizes.destination.width,
+          containerHeight: fittedSizes.destination.height,
           loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
           failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
         );
@@ -92,6 +94,8 @@ abstract class BaseLayout extends StatelessWidget {
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return EHImage.file(
           galleryImage: readPageState.images[index]!,
+          containerWidth: fittedSizes.destination.width,
+          containerHeight: fittedSizes.destination.height,
           downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
           pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
         );
