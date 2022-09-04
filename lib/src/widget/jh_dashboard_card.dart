@@ -42,6 +42,8 @@ class JHDashboardCard extends StatelessWidget {
 
   Widget _buildCover(GalleryImage image) {
     return EHImage.network(
+      containerHeight: GlobalConfig.dashboardCardSize,
+      containerWidth: GlobalConfig.dashboardCardSize,
       galleryImage: image,
       fit: BoxFit.cover,
     );

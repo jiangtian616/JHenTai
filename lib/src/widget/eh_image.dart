@@ -93,7 +93,7 @@ class EHImage extends StatelessWidget {
 
 
     FittedSizes fittedSizes = applyBoxFit(
-      BoxFit.contain,
+      fit,
       Size(galleryImage.width, galleryImage.height),
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );

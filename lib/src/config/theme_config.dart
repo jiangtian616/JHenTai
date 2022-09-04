@@ -30,6 +30,13 @@ class ThemeConfig {
       surfaceVariant: Color(0xFFE7E0EC),
       onSurfaceVariant: Color(0xFF49454F),
     ),
+    tabBarTheme: TabBarTheme(
+      labelColor: Colors.pink.shade300,
+      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+      unselectedLabelColor: Colors.grey.shade600,
+      indicatorSize: TabBarIndicatorSize.label,
+      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
+    ),
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade100,
@@ -46,13 +53,7 @@ class ThemeConfig {
     //   actionsIconTheme: IconThemeData(color: Colors.grey.shade900),
     //   elevation: 0,
     // ),
-    // tabBarTheme: TabBarTheme(
-    //   labelColor: Colors.pink.shade300,
-    //   labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-    //   unselectedLabelColor: Colors.grey.shade600,
-    //   indicatorSize: TabBarIndicatorSize.label,
-    //   indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
-    // ),
+
     // cupertinoOverrideTheme: const CupertinoThemeData(scaffoldBackgroundColor: Colors.white),
     // dialogTheme: const DialogTheme(
     //   titleTextStyle: TextStyle(
@@ -95,6 +96,13 @@ class ThemeConfig {
       surfaceVariant: Color(0xFF49454F),
       onSurfaceVariant: Color(0xFFCAC4D0),
     ),
+    tabBarTheme: TabBarTheme(
+      labelColor: Colors.pink.shade300,
+      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+      unselectedLabelColor: Colors.grey.shade600,
+      indicatorSize: TabBarIndicatorSize.label,
+      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
+    ),
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade900,
@@ -109,13 +117,7 @@ class ThemeConfig {
     //   titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
     //   actionsIconTheme: const IconThemeData(color: Colors.white),
     // ),
-    // tabBarTheme: TabBarTheme(
-    //   labelColor: Colors.pink.shade300,
-    //   labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-    //   unselectedLabelColor: Colors.grey.shade600,
-    //   indicatorSize: TabBarIndicatorSize.label,
-    //   indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
-    // ),
+
     // cupertinoOverrideTheme: CupertinoThemeData(scaffoldBackgroundColor: Colors.grey.shade900),
     // dialogTheme: const DialogTheme(
     //   titleTextStyle: TextStyle(

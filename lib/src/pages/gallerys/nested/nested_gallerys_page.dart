@@ -191,12 +191,9 @@ class NestedGallerysPage extends StatelessWidget {
                   height: GlobalConfig.tabBarHeight,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: AppBarTheme.of(context).backgroundColor,
+                    color: Get.theme.colorScheme.background,
                     border: Border(
-                      bottom: BorderSide(
-                        width: 0.2,
-                        color: AppBarTheme.of(context).foregroundColor!,
-                      ),
+                      bottom: BorderSide(width: 0.2, color: Get.theme.colorScheme.onBackground),
                     ),
                   ),
                   child: Row(
