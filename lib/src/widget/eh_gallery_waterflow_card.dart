@@ -31,7 +31,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       child: FocusWidget(
         focusedDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!),
+          border: Border.all(width: 3, color: Get.theme.colorScheme.onBackground),
         ),
         handleTapEnter: () => handleTapCard(gallery),
         child: GestureDetector(

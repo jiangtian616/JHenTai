@@ -35,7 +35,7 @@ class LocalGalleryPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.arrow_upward, size: 28),
         foregroundColor: Get.theme.primaryColor,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Get.theme.colorScheme.background,
         elevation: 3,
         heroTag: null,
         onPressed: logic.scroll2Top,
@@ -133,7 +133,7 @@ class LocalGalleryPage extends StatelessWidget {
 
   Widget parentDirectoryItemBuilder(BuildContext context) {
     return FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: logic.backRoute,
       handleTapArrowRight: logic.backRoute,
@@ -149,7 +149,7 @@ class LocalGalleryPage extends StatelessWidget {
     String childPath = logic.computeChildPath(index);
 
     return FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => logic.pushRoute(childPath),
       handleTapArrowRight: () => logic.pushRoute(childPath),
@@ -197,7 +197,7 @@ class LocalGalleryPage extends StatelessWidget {
         : logic.localGalleryService.path2Gallerys[state.currentPath]![index];
 
     Widget child = FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => logic.goToReadPage(gallery),
       handleTapArrowRight: () => logic.goToReadPage(gallery),

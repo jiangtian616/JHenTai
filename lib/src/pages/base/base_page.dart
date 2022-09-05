@@ -70,7 +70,7 @@ abstract class BasePage extends StatelessWidget {
           return FloatingActionButton(
             child: const Icon(Icons.arrow_upward, size: 28),
             foregroundColor: Get.theme.primaryColor,
-            backgroundColor: Theme.of(context).backgroundColor,
+            backgroundColor: Get.theme.colorScheme.background,
             elevation: 3,
             heroTag: null,
             onPressed: logic.scroll2Top,

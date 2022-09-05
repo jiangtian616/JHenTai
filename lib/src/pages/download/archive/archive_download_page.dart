@@ -40,7 +40,7 @@ class ArchiveDownloadPage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.arrow_upward, size: 28),
         foregroundColor: Get.theme.primaryColor,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Get.theme.colorScheme.background,
         elevation: 3,
         heroTag: null,
         onPressed: logic.scroll2Top,
@@ -171,7 +171,7 @@ class ArchiveDownloadPage extends StatelessWidget {
         }
 
         Widget child = FocusWidget(
-          focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!))),
+          focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
           handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
           handleTapEnter: () => logic.goToReadPage(archive),
           handleTapArrowRight: () => logic.goToReadPage(archive),
