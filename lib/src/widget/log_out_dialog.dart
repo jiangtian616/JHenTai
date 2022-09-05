@@ -13,15 +13,12 @@ class LogoutDialog extends StatelessWidget {
     return CupertinoAlertDialog(
       title: Text('logout'.tr + ' ?'),
       actions: [
-        CupertinoDialogAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
+        CupertinoDialogAction(child: Text('cancel'.tr), onPressed: backRoute),
         CupertinoDialogAction(
           child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
           onPressed: () {
             EHRequest.requestLogout();
-            untilRoute(predicate: (route) => !Get.isDialogOpen!);
+            backRoute();
           },
         ),
       ],

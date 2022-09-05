@@ -19,39 +19,36 @@ class SettingAccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('accountSetting'.tr),
-        elevation: 1,
-      ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      appBar: AppBar(centerTitle: true, title: Text('accountSetting'.tr)),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 12),
           children: [
             if (!UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('login'.tr),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
+                trailing: IconButton(onPressed: () => toRoute(Routes.login), icon: const Icon(Icons.keyboard_arrow_right)),
                 onTap: () => toRoute(Routes.login),
               ),
-            if (UserSetting.hasLoggedIn())
+            if (UserSetting.hasLoggedIn()) ...[
               ListTile(
                 title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
+                onTap: () => Get.dialog(const LogoutDialog()),
                 trailing: IconButton(
                   icon: const Icon(Icons.logout),
-                  color: Colors.red,
+                  color: Get.theme.colorScheme.error,
                   onPressed: () => Get.dialog(const LogoutDialog()),
                 ),
               ),
-            if (UserSetting.hasLoggedIn())
               ListTile(
                 title: Text('copyCookies'.tr),
                 subtitle: Text('tap2Copy'.tr),
-                onTap: () => _copyCookie(),
+                onTap: _copyCookie,
               ),
+            ],
           ],
-        ).paddingSymmetric(vertical: 16);
-      }),
+        ),
+      ),
     );
   }
 
