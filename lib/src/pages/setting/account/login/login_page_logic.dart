@@ -186,6 +186,7 @@ class LoginPageLogic extends GetxController {
     toRoute(
       Routes.webview,
       arguments: {
+        'title': 'login'.tr,
         'url': EHConsts.ELogin,
         'onPageStarted': onLogin,
       },
@@ -209,7 +210,6 @@ class LoginPageLogic extends GetxController {
 
     /// temporary name
     UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
-
 
     toast('loginSuccess'.tr);
     untilRoute(

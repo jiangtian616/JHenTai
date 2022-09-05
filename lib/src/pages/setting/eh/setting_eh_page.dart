@@ -23,91 +23,100 @@ class SettingEHPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('ehSetting'.tr),
-        elevation: 1,
-      ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      appBar: AppBar(centerTitle: true, title: Text('ehSetting'.tr)),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 16),
           children: [
-            ListTile(
-              title: Text('site'.tr),
-              trailing: CupertinoSlidingSegmentedControl<String>(
-                groupValue: EHSetting.site.value,
-                children: const {
-                  'EH': Text('E-Hentai'),
-                  'EX': Text('EXHentai'),
-                },
-                onValueChanged: (value) {
-                  EHSetting.saveSite(value!);
-                },
-              ),
-            ),
-            if (EHSetting.site.value == 'EX')
-              FadeIn(
-                child: ListTile(
-                  title: Text('redirect2Eh'.tr),
-                  trailing: Switch(
-                    value: EHSetting.redirect2Eh.value,
-                    onChanged: EHSetting.saveRedirect2Eh,
-                  ),
-                ),
-              ),
-            ListTile(
-              title: Text('siteSetting'.tr),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: _gotoSiteSettingPage,
-            ),
-            ListTile(
-              title: Text('imageLimits'.tr),
-              trailing: SizedBox(
-                width: 150,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    LoadingStateIndicator(
-                      loadingState: EHSetting.refreshState.value,
-                      width: 40,
-                      indicatorRadius: 10,
-                      idleWidget: const IconButton(
-                        onPressed: EHSetting.refresh,
-                        icon: Icon(Icons.refresh, size: 20),
-                      ),
-                      errorWidgetSameWithIdle: true,
-                    ),
-                    Text('${EHSetting.currentConsumption} / ${EHSetting.totalLimit}'),
-                  ],
-                ),
-              ),
-            ),
-            ListTile(
-              title: Text('myTags'.tr),
-              subtitle: Text('myTagsHint'.tr),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16).marginOnly(right: 4),
-              onTap: () => toRoute(Routes.tagSets),
-            ),
+            _buildSiteSegmentControl(),
+            _buildRedirect2EH(),
+            _buildSiteSetting(),
+            _buildImageLimit(),
+            _buildMyTags(),
           ],
-        );
-      }).paddingSymmetric(vertical: 16),
+        ),
+      ),
     );
   }
 
-  Future<void> _gotoSiteSettingPage() async {
-    if (GetPlatform.isDesktop) {
-      launchUrlString(EHConsts.EUconfig);
-      return;
+  Widget _buildSiteSegmentControl() {
+    return ListTile(
+      title: Text('site'.tr),
+      trailing: CupertinoSlidingSegmentedControl<String>(
+        groupValue: EHSetting.site.value,
+        children: const {
+          'EH': Text('E-Hentai'),
+          'EX': Text('EXHentai'),
+        },
+        onValueChanged: (value) => EHSetting.saveSite(value ?? 'EH'),
+      ),
+    );
+  }
+
+  Widget _buildRedirect2EH() {
+    if (EHSetting.site.value == 'EH') {
+      return const SizedBox();
     }
 
-    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-    await toRoute(
-      Routes.webview,
-      arguments: {
-        'url': EHConsts.EUconfig,
-        'cookies': CookieUtil.parse2String(cookies),
+    return FadeIn(
+      child: ListTile(
+        title: Text('redirect2Eh'.tr),
+        trailing: Switch(value: EHSetting.redirect2Eh.value, onChanged: EHSetting.saveRedirect2Eh),
+      ),
+    );
+  }
+
+  Widget _buildSiteSetting() {
+    return ListTile(
+      title: Text('siteSetting'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () async {
+        if (GetPlatform.isDesktop) {
+          launchUrlString(EHConsts.EUconfig);
+          return;
+        }
+
+        List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
+        await toRoute(
+          Routes.webview,
+          arguments: {
+            'title': 'siteSetting'.tr,
+            'url': EHConsts.EUconfig,
+            'cookies': CookieUtil.parse2String(cookies),
+          },
+        );
+
+        SiteSetting.refresh();
       },
     );
-    SiteSetting.refresh();
+  }
+
+  Widget _buildImageLimit() {
+    return ListTile(
+      title: Text('imageLimits'.tr),
+      onTap: EHSetting.refresh,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: EHSetting.refreshState.value,
+            indicatorRadius: 10,
+            idleWidget: const SizedBox(),
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 12),
+          Text('${EHSetting.currentConsumption} / ${EHSetting.totalLimit}').marginOnly(right: 4),
+          const Icon(Icons.keyboard_arrow_right),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMyTags() {
+    return ListTile(
+      title: Text('myTags'.tr),
+      subtitle: Text('myTagsHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.tagSets),
+    );
   }
 }

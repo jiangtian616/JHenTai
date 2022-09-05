@@ -14,7 +14,8 @@ class WebviewPage extends StatefulWidget {
 }
 
 class _WebviewPageState extends State<WebviewPage> {
-  late String initialUrl;
+  late final String title;
+  late final String initialUrl;
   late final List<WebViewCookie> initialCookies;
   late final Function? pageStartedCallback;
   late final PageStartedCallback onPageStarted;
@@ -26,6 +27,7 @@ class _WebviewPageState extends State<WebviewPage> {
   @override
   void initState() {
     super.initState();
+    title = Get.arguments['title'];
     initialUrl = Get.arguments['url'];
     initialCookies = CookieUtil.parse2Cookies(Get.arguments['cookies'])
         .map(
@@ -47,7 +49,10 @@ class _WebviewPageState extends State<WebviewPage> {
     return Scaffold(
       appBar: AppBar(
         elevation: 1,
-        title: LoadingStateIndicator(loadingState: loadingState).paddingOnly(right: 40),
+        title: LoadingStateIndicator(
+          loadingState: loadingState,
+          successWidgetBuilder: () => Text(title),
+        ).paddingOnly(right: 40),
       ),
       body: WebView(
         initialUrl: initialUrl,

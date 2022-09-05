@@ -24,27 +24,10 @@ class SettingAccountPage extends StatelessWidget {
         () => ListView(
           padding: const EdgeInsets.only(top: 12),
           children: [
-            if (!UserSetting.hasLoggedIn())
-              ListTile(
-                title: Text('login'.tr),
-                trailing: IconButton(onPressed: () => toRoute(Routes.login), icon: const Icon(Icons.keyboard_arrow_right)),
-                onTap: () => toRoute(Routes.login),
-              ),
+            if (!UserSetting.hasLoggedIn()) _buildLogin(),
             if (UserSetting.hasLoggedIn()) ...[
-              ListTile(
-                title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
-                onTap: () => Get.dialog(const LogoutDialog()),
-                trailing: IconButton(
-                  icon: const Icon(Icons.logout),
-                  color: Get.theme.colorScheme.error,
-                  onPressed: () => Get.dialog(const LogoutDialog()),
-                ),
-              ),
-              ListTile(
-                title: Text('copyCookies'.tr),
-                subtitle: Text('tap2Copy'.tr),
-                onTap: _copyCookie,
-              ),
+              _buildLogout(),
+              _buildCopyCookie(),
             ],
           ],
         ),
@@ -52,9 +35,35 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Future<void> _copyCookie() async {
-    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-    await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
-    toast('hasCopiedToClipboard'.tr);
+  Widget _buildLogin() {
+    return ListTile(
+      title: Text('login'.tr),
+      trailing: IconButton(onPressed: () => toRoute(Routes.login), icon: const Icon(Icons.keyboard_arrow_right)),
+      onTap: () => toRoute(Routes.login),
+    );
+  }
+
+  Widget _buildLogout() {
+    return ListTile(
+      title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
+      onTap: () => Get.dialog(const LogoutDialog()),
+      trailing: IconButton(
+        icon: const Icon(Icons.logout),
+        color: Get.theme.colorScheme.error,
+        onPressed: () => Get.dialog(const LogoutDialog()),
+      ),
+    );
+  }
+
+  Widget _buildCopyCookie() {
+    return ListTile(
+      title: Text('copyCookies'.tr),
+      subtitle: Text('tap2Copy'.tr),
+      onTap: () async {
+        List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
+        await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
+        toast('hasCopiedToClipboard'.tr);
+      },
+    );
   }
 }
