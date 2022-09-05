@@ -30,6 +30,17 @@ class GlobalConfig {
   static Color get galleryCardTextColor => Get.theme.colorScheme.outline;
   static const double galleryCardTagsHeight = 70;
 
+  /// Login page
+  static const Color loginPageForegroundColor = Colors.white;
+
+  static Color get loginPageBackgroundColor => Get.theme.primaryColor;
+
+  static Color get loginPageFieldColor => Colors.grey.shade200;
+
+  static Color get loginPageHintColor => Colors.grey.shade700;
+
+  static Color get loginPagePrefixIconColor => Colors.grey.shade600;
+
   /// Detail page
   static const double detailsPageHeaderHeight = 200;
   static const double detailsPageCoverHeight = 200;

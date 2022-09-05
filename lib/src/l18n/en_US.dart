@@ -21,7 +21,7 @@ class en_US {
       'systemError': "System Error",
       'invalid': "Invalid",
       'internalError': "Internal Error",
-      'you':'You',
+      'you': 'You',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -60,6 +60,7 @@ class en_US {
       'copyCookies': 'Copy Cookies',
       'tap2Copy': 'Tap to copy',
       'webLoginIsDisabled': 'Web login is disabled on desktop',
+      'loginSuccess': 'Login Success',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',

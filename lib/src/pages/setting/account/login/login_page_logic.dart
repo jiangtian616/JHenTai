@@ -11,6 +11,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -22,29 +23,32 @@ import '../../../../utils/snack_util.dart';
 import 'login_page_state.dart';
 
 class LoginPageLogic extends GetxController {
+  static const formId = 'formId';
+  static const loadingStateId = 'loadingStateId';
+
   final LoginPageState state = LoginPageState();
   final EHCookieManager cookieManager = Get.find<EHCookieManager>();
 
-  void changeLoginType() {
+  void toggleLoginType() {
     state.loginType = (state.loginType == LoginType.cookie ? LoginType.password : LoginType.cookie);
-    update();
+    update([formId]);
   }
 
-  Future<void> handleLogin() async {
+  void handleLogin() {
     if (state.loginState == LoadingState.loading) {
       return;
     }
 
     if (state.loginType == LoginType.password) {
-      await _handlePasswordLogin();
+      _handlePasswordLogin();
     } else {
-      await _handleCookieLogin();
+      _handleCookieLogin();
     }
   }
 
   Future<void> _handlePasswordLogin() async {
     if (state.userName == null || state.password == null || state.userName!.isEmpty || state.password!.isEmpty) {
-      snack('loginFail'.tr, 'userNameOrPasswordMismatch'.tr);
+      toast('userNameOrPasswordMismatch'.tr);
       return;
     }
 
@@ -52,7 +56,7 @@ class LoginPageLogic extends GetxController {
     Get.focusScope?.unfocus();
 
     state.loginState = LoadingState.loading;
-    update();
+    update([loadingStateId]);
 
     Map<String, dynamic> userInfoOrErrorMsg;
     try {
@@ -65,45 +69,49 @@ class LoginPageLogic extends GetxController {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
-      update();
+      update([loadingStateId]);
       return;
     }
 
-    if (userInfoOrErrorMsg['errorMsg'] == null) {
-      Log.info('Login success by password.');
-
-      state.loginState = LoadingState.success;
-      UserSetting.saveUserInfo(
-        userName: state.userName!,
-        ipbMemberId: userInfoOrErrorMsg['ipbMemberId'],
-        ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
-      );
-
-      EHRequest.requestForum(userInfoOrErrorMsg['ipbMemberId'], EHSpiderParser.forumPage2UserInfo)
-          .then((userInfo) => UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl']);
-
-      /// await DoneWidget animation
-      await Future.delayed(const Duration(milliseconds: 700));
-      backRoute(currentRoute: Routes.login);
-    } else {
+    if (userInfoOrErrorMsg['errorMsg'] != null) {
       Log.info('Login failed by password.');
+      snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
 
       state.loginState = LoadingState.error;
-      snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg']);
-      EHRequest.requestLogout();
+      update([loadingStateId]);
+
+      return EHRequest.requestLogout();
     }
-    update();
+
+    Log.info('Login success by password.');
+
+    UserSetting.saveUserInfo(
+      userName: state.userName!,
+      ipbMemberId: userInfoOrErrorMsg['ipbMemberId'],
+      ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
+    );
+
+    EHRequest.requestForum(
+      userInfoOrErrorMsg['ipbMemberId'],
+      EHSpiderParser.forumPage2UserInfo,
+    ).then((userInfo) => UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl']);
+
+    state.loginState = LoadingState.success;
+    update([loadingStateId]);
+
+    toast('loginSuccess'.tr);
+    backRoute(currentRoute: Routes.login);
   }
 
   Future<void> _handleCookieLogin() async {
     if (state.cookie == null || state.cookie!.isEmpty) {
-      snack('loginFail'.tr, 'cookieIsBlack'.tr);
+      toast('cookieIsBlack'.tr);
       return;
     }
 
     RegExpMatch? match = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(state.cookie!);
     if (match == null) {
-      snack('loginFail'.tr, 'cookieFormatError'.tr);
+      toast('cookieFormatError'.tr);
       return;
     }
 
@@ -115,7 +123,7 @@ class LoginPageLogic extends GetxController {
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e);
       Log.upload(e);
-      snack('loginFail'.tr, 'cookieFormatError'.tr);
+      toast('cookieFormatError'.tr);
       return;
     }
 
@@ -128,7 +136,7 @@ class LoginPageLogic extends GetxController {
     Get.focusScope?.unfocus();
 
     state.loginState = LoadingState.loading;
-    update();
+    update([loadingStateId]);
 
     Map<String, String?>? userInfo;
     try {
@@ -138,36 +146,40 @@ class LoginPageLogic extends GetxController {
     } on DioError catch (e) {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
-      state.loginState = LoadingState.error;
+
       await cookieManager.removeAllCookies();
-      update();
+
+      state.loginState = LoadingState.error;
+      update([loadingStateId]);
       return;
     }
 
-    if (userInfo != null) {
-      Log.info('Login success by cookie.');
-
-      state.loginState = LoadingState.success;
-      update();
-
-      UserSetting.saveUserInfo(
-        userName: userInfo['userName']!,
-        ipbMemberId: ipbMemberId,
-        ipbPassHash: ipbPassHash,
-        avatarImgUrl: userInfo['avatarImgUrl'],
-      );
-
-      /// await DownWidget animation
-      await Future.delayed(const Duration(milliseconds: 1000));
-      backRoute(currentRoute: Routes.login);
-    } else {
+    if (userInfo == null) {
       Log.info('Login failed by cookie.');
 
-      state.loginState = LoadingState.error;
-      update();
       await cookieManager.removeAllCookies();
+
+      state.loginState = LoadingState.error;
+      update([loadingStateId]);
+
       snack('loginFail'.tr, 'invalidCookie'.tr);
+      return;
     }
+
+    Log.info('Login success by cookie.');
+
+    state.loginState = LoadingState.success;
+    update([loadingStateId]);
+
+    UserSetting.saveUserInfo(
+      userName: userInfo['userName']!,
+      ipbMemberId: ipbMemberId,
+      ipbPassHash: ipbPassHash,
+      avatarImgUrl: userInfo['avatarImgUrl'],
+    );
+
+    toast('loginSuccess'.tr);
+    backRoute(currentRoute: Routes.login);
   }
 
   Future<void> handleWebLogin() async {

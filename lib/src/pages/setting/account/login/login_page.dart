@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -19,153 +21,177 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<LoginPageLogic>(builder: (logic) {
-      return Scaffold(
-        /// must set false
+    return GetBuilder<LoginPageLogic>(
+      builder: (_) => Scaffold(
+        /// set false to deal with keyboard
         resizeToAvoidBottomInset: false,
-        backgroundColor: Get.theme.primaryColor,
-        appBar: AppBar(
-          backgroundColor: Get.theme.primaryColor,
-          iconTheme: const IconThemeData(color: Colors.white),
-          elevation: 0,
-        ),
+        backgroundColor: GlobalConfig.loginPageBackgroundColor,
+        appBar:
+            AppBar(backgroundColor: GlobalConfig.loginPageBackgroundColor, leading: const BackButton(color: GlobalConfig.loginPageForegroundColor)),
         body: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(height: (screenHeight - GlobalConfig.appBarHeight) / 10, width: fullScreenWidth),
-            const Text('EHenTai', style: TextStyle(color: Colors.white, fontSize: 60)),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                height: 300,
-                width: 300,
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if (state.loginType == LoginType.password)
-                      Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: Container(
-                              color: Colors.grey.shade200,
-                              height: 48,
-                              child: TextFormField(
-                                onEditingComplete: () => FocusScope.of(context).requestFocus(state.passwordFocusNode),
-                                onChanged: (userName) => state.userName = userName,
-                                style: const TextStyle(color: Colors.black),
-                                textAlignVertical: TextAlignVertical.center,
-                                decoration: InputDecoration(
-                                  hintText: 'userName'.tr,
-                                  hintStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-                                  border: InputBorder.none,
-                                  prefixIcon: Icon(Icons.account_circle, size: 22, color: Colors.grey.shade600),
-                                ),
-                              ),
-                            ),
-                          ).marginSymmetric(horizontal: 16),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: Container(
-                              color: Colors.grey.shade200,
-                              height: 48,
-                              child: TextFormField(
-                                focusNode: state.passwordFocusNode,
-                                obscureText: state.obscureText,
-                                style: const TextStyle(color: Colors.black),
-                                onChanged: (password) => state.password = password,
-                                onFieldSubmitted: (v) => logic.handleLogin(),
-                                textAlignVertical: TextAlignVertical.center,
-                                decoration: InputDecoration(
-                                  hintText: 'password'.tr,
-                                  border: InputBorder.none,
-                                  hintStyle: TextStyle(color: Colors.grey.shade700, fontSize: 14),
-                                  prefixIcon: Icon(Icons.key, size: 22, color: Colors.grey.shade600),
-                                  suffixIcon: InkWell(
-                                    child: state.obscureText
-                                        ? Icon(Icons.visibility, size: 22, color: Colors.grey.shade600)
-                                        : Icon(Icons.visibility_off, size: 22, color: Colors.grey.shade600),
-                                    onTap: () {
-                                      state.obscureText = !state.obscureText;
-                                      logic.update();
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ).marginSymmetric(horizontal: 16).marginOnly(top: 18),
-                        ],
-                      ),
-                    if (state.loginType == LoginType.cookie)
-                      Column(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(40),
-                            child: Container(
-                              color: Colors.grey.shade200,
-                              height: 44,
-                              child: TextFormField(
-                                key: const Key('cookie'),
-                                style: const TextStyle(color: Colors.black),
-                                decoration: InputDecoration(
-                                  hintText: 'Cookie',
-                                  border: InputBorder.none,
-                                  hintStyle: TextStyle(color: Colors.grey.shade700),
-                                  prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: Colors.grey.shade600).paddingOnly(),
-                                ),
-                                onChanged: (cookie) => state.cookie = cookie,
-                                onFieldSubmitted: (v) => logic.handleLogin(),
-                              ),
-                            ),
-                          ).marginSymmetric(horizontal: 16),
-                          Text(
-                            'ipb_member_id=xxx; ipb_pass_hash=xxx;',
-                            style: TextStyle(color: Colors.grey.shade400),
-                          ).marginOnly(top: 12),
-                        ],
-                      ).marginOnly(bottom: 42),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconTextButton(
-                          icon: Icon(Icons.public, color: Get.theme.primaryColor),
-                          text: const Text('Web', style: TextStyle(fontSize: 10)),
-                          onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
-                        ).marginOnly(right: 12),
-                        LoadingStateIndicator(
-                          width: 56,
-                          height: 56,
-                          loadingState: state.loginState,
-                          errorWidgetSameWithIdle: true,
-                          successWidgetBuilder: () => const DoneWidget(outline: true),
-                          idleWidget: FloatingActionButton(
-                            onPressed: logic.handleLogin,
-                            elevation: 2,
-                            foregroundColor: Colors.white,
-                            backgroundColor: Get.theme.primaryColor,
-                            child: const Icon(
-                              Icons.arrow_forward,
-                              size: 28,
-                            ),
-                          ),
-                        ),
-                        IconTextButton(
-                          icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: Get.theme.primaryColor),
-                          text: Text(
-                            state.loginType == LoginType.password ? 'Cookie' : 'User',
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          onPressed: logic.changeLoginType,
-                        ).marginOnly(left: 12),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ).marginOnly(top: 24),
+            const _TopArea(),
+            const Text('EHenTai', style: TextStyle(color: GlobalConfig.loginPageForegroundColor, fontSize: 60)),
+            _buildForm(),
           ],
         ),
-      );
-    });
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Container(
+      height: 300,
+      width: 300,
+      decoration: BoxDecoration(color: GlobalConfig.loginPageForegroundColor, borderRadius: BorderRadius.circular(20)),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          GetBuilder<LoginPageLogic>(
+            id: LoginPageLogic.formId,
+            builder: (_) => SizedBox(
+              height: 140,
+              child: Center(child: state.loginType == LoginType.password ? _buildUserNameForm() : _buildCookieForm()),
+            ),
+          ),
+          _buildButtons().marginOnly(top: 24),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserNameForm() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildUsernameField(),
+        _buildPasswordField().marginOnly(top: 18),
+      ],
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(color: GlobalConfig.loginPageFieldColor, borderRadius: BorderRadius.circular(40)),
+      child: TextFormField(
+        onEditingComplete: state.passwordFocusNode.requestFocus,
+        onChanged: (userName) => state.userName = userName,
+        textAlignVertical: TextAlignVertical.center,
+        decoration: InputDecoration(
+          hintText: 'userName'.tr,
+          hintStyle: TextStyle(color: GlobalConfig.loginPageHintColor, fontSize: 14, height: 1),
+          border: InputBorder.none,
+          prefixIcon: Icon(Icons.account_circle, size: 22, color: GlobalConfig.loginPagePrefixIconColor),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return Container(
+      decoration: BoxDecoration(color: GlobalConfig.loginPageFieldColor, borderRadius: BorderRadius.circular(40)),
+      height: 48,
+      child: TextFormField(
+        focusNode: state.passwordFocusNode,
+        obscureText: state.obscureText,
+        onChanged: (password) => state.password = password,
+        onFieldSubmitted: (v) => logic.handleLogin(),
+        textAlignVertical: TextAlignVertical.center,
+        decoration: InputDecoration(
+          hintText: 'password'.tr,
+          border: InputBorder.none,
+          hintStyle: TextStyle(color: GlobalConfig.loginPageHintColor, fontSize: 14, height: 1),
+          prefixIcon: Icon(Icons.key, size: 22, color: GlobalConfig.loginPagePrefixIconColor),
+          suffixIcon: InkWell(
+            child: state.obscureText
+                ? Icon(Icons.visibility, size: 22, color: GlobalConfig.loginPagePrefixIconColor)
+                : Icon(Icons.visibility_off, size: 22, color: GlobalConfig.loginPagePrefixIconColor),
+            onTap: () {
+              state.obscureText = !state.obscureText;
+              logic.update();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCookieForm() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          decoration: BoxDecoration(color: GlobalConfig.loginPageFieldColor, borderRadius: BorderRadius.circular(40)),
+          height: 48,
+          child: TextFormField(
+            key: const Key('cookie'),
+            decoration: InputDecoration(
+              hintText: 'Cookie',
+              border: InputBorder.none,
+              hintStyle: TextStyle(color: GlobalConfig.loginPageHintColor, fontSize: 14, height: 1),
+              prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: GlobalConfig.loginPagePrefixIconColor),
+            ),
+            onChanged: (cookie) => state.cookie = cookie,
+            onFieldSubmitted: (_) => logic.handleLogin(),
+          ),
+        ),
+        Text('ipb_member_id=xxx; ipb_pass_hash=xxx;', style: TextStyle(color: Colors.grey.shade400)).marginOnly(top: 12),
+      ],
+    );
+  }
+
+  Widget _buildButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconTextButton(
+          icon: Icon(Icons.public, color: GlobalConfig.loginPageBackgroundColor),
+          text: const Text('Web', style: TextStyle(fontSize: 10)),
+          onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
+        ),
+        ElevatedButton(
+          onPressed: logic.handleLogin,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: GlobalConfig.loginPageBackgroundColor,
+            foregroundColor: GlobalConfig.loginPageForegroundColor,
+            shape: const CircleBorder(),
+            padding: const EdgeInsets.all(16),
+            minimumSize: const Size(56, 56),
+            maximumSize: const Size(56, 56),
+          ),
+          child: GetBuilder<LoginPageLogic>(
+            id: LoginPageLogic.loadingStateId,
+            builder: (_) => LoadingStateIndicator(
+              loadingState: state.loginState,
+              indicatorRadius: 10,
+              indicatorColor: GlobalConfig.loginPageForegroundColor,
+              idleWidget: const Icon(Icons.arrow_forward),
+              successWidgetBuilder: () => const Icon(Icons.check),
+              errorWidgetSameWithIdle: true,
+            ),
+          ),
+        ).marginSymmetric(horizontal: 12),
+        IconTextButton(
+          icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: GlobalConfig.loginPageBackgroundColor),
+          text: Text(state.loginType == LoginType.password ? 'Cookie' : 'User', style: const TextStyle(fontSize: 10)),
+          onPressed: logic.toggleLoginType,
+        ),
+      ],
+    );
+  }
+}
+
+class _TopArea extends StatelessWidget {
+  const _TopArea({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: max(screenHeight / 10 - MediaQuery.of(context).viewInsets.bottom, 0),
+      width: double.infinity,
+    );
   }
 }

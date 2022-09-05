@@ -30,6 +30,7 @@ class LoadingStateIndicator extends StatelessWidget {
   final NoDataTapCallback? noDataTapCallback;
   final bool useCupertinoIndicator;
   final double indicatorRadius;
+  final Color? indicatorColor;
   final Widget? idleWidget;
   final Widget? loadingWidget;
   final Widget? noMoreWidget;
@@ -48,6 +49,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.noDataTapCallback,
     this.useCupertinoIndicator = true,
     this.indicatorRadius = 12,
+    this.indicatorColor,
     this.idleWidget,
     this.loadingWidget,
     this.noMoreWidget,
@@ -64,7 +66,8 @@ class LoadingStateIndicator extends StatelessWidget {
 
     switch (loadingState) {
       case LoadingState.loading:
-        child = loadingWidget ?? (useCupertinoIndicator ? CupertinoActivityIndicator(radius: indicatorRadius) : const CircularProgressIndicator());
+        child = loadingWidget ??
+            (useCupertinoIndicator ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor) : const CircularProgressIndicator());
         break;
       case LoadingState.error:
         child = errorWidget ??
