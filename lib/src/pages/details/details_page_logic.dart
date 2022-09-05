@@ -75,15 +75,20 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
   }
 
   @override
-  void onInit() async {
-    super.onInit();
-
+  void onInit() {
     if (Get.arguments is! Map) {
       return;
     }
 
     state.galleryUrl = Get.arguments['galleryUrl'];
     state.gallery = Get.arguments['gallery'];
+
+    super.onInit();
+  }
+
+  @override
+  void onReady() async {
+    super.onReady();
     getDetails();
   }
 

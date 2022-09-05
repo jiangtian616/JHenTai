@@ -22,7 +22,6 @@ class SingleImagePage extends StatelessWidget {
           child: EHImage.network(
             galleryImage: Get.arguments,
             enableSlideOutPage: true,
-            enableFadeInAnime: false,
             heroTag: Get.arguments,
           ),
         ),

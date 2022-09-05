@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
-import 'package:jhentai/src/routes/EHPage.dart';
+import 'package:jhentai/src/routes/eh_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 

@@ -5,8 +5,9 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import '../model/jh_layout.dart';
 
 class FocusWidget extends StatefulWidget {
-  final bool enableFocus;
   final Widget child;
+  final bool enableFocus;
+
   final BoxDecoration? focusedDecoration;
   final BoxDecoration? foregroundDecoration;
   final VoidCallback? handleTapEnter;
@@ -15,10 +16,10 @@ class FocusWidget extends StatefulWidget {
 
   const FocusWidget({
     Key? key,
+    required this.child,
     this.enableFocus = true,
     this.focusedDecoration,
     this.foregroundDecoration,
-    required this.child,
     this.handleTapEnter,
     this.handleTapArrowLeft,
     this.handleTapArrowRight,

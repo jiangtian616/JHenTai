@@ -19,6 +19,17 @@ class GlobalConfig {
 
   static const double dashboardCardSize = 210;
 
+  /// Gallery card
+  static const double galleryCardHeight = 200;
+  static const double galleryCardHeightWithoutTags = 125;
+  static const double galleryCardCoverWidth = 140;
+  static const double galleryCardCoverWidthWithoutTags = 85;
+  static const double galleryCardTitleSize = 15;
+  static const double galleryCardTextSize = 12;
+
+  static Color get galleryCardTextColor => Get.theme.colorScheme.outline;
+  static const double galleryCardTagsHeight = 70;
+
   /// Detail page
   static const double detailsPageHeaderHeight = 200;
   static const double detailsPageCoverHeight = 200;
@@ -127,4 +138,8 @@ class GlobalConfig {
   static const double statisticsDialogGraphHeight = 300;
 
   static double get statisticsDialogGraphWidth => max(300, fullScreenWidth * 2 / 3);
+
+  /// Tag dialog
+  static Color get tagDialogButtonColor => Get.theme.colorScheme.onPrimaryContainer;
+  static const double tagDialogButtonSize = 22;
 }

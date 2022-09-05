@@ -268,12 +268,12 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
         if (widget.showVotingButtons) ...[
           LikeButton(
             size: GlobalConfig.commentButtonSize,
-            likeBuilder: (isLiked) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            likeBuilder: (_) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
             onTap: (isLiked) => _handleVotingComment(widget.commentId, true),
           ).marginOnly(right: 18),
           LikeButton(
             size: GlobalConfig.commentButtonSize,
-            likeBuilder: (isLiked) => Icon(Icons.thumb_down, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            likeBuilder: (_) => Icon(Icons.thumb_down, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
             onTap: (isLiked) => _handleVotingComment(widget.commentId, false),
           ),
         ],

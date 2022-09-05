@@ -28,7 +28,6 @@ class EHImage extends StatelessWidget {
   final ExtendedImageMode mode;
   final InitGestureConfigHandler? initGestureConfigHandler;
   final bool enableSlideOutPage;
-  final bool enableFadeInAnime;
   final BorderRadius? borderRadius;
   final Object? heroTag;
   final List<BoxShadow>? shadows;
@@ -48,7 +47,6 @@ class EHImage extends StatelessWidget {
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
     this.enableSlideOutPage = false,
-    this.enableFadeInAnime = true,
     this.borderRadius,
     this.heroTag,
     this.shadows,
@@ -69,7 +67,6 @@ class EHImage extends StatelessWidget {
     this.mode = ExtendedImageMode.none,
     this.initGestureConfigHandler,
     this.enableSlideOutPage = false,
-    this.enableFadeInAnime = true,
     this.borderRadius,
     this.heroTag,
     this.shadows,
@@ -91,13 +88,11 @@ class EHImage extends StatelessWidget {
       return child;
     }
 
-
     FittedSizes fittedSizes = applyBoxFit(
       fit,
       Size(galleryImage.width, galleryImage.height),
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
-
 
     return Container(
       height: containerHeight,
@@ -137,11 +132,11 @@ class EHImage extends StatelessWidget {
           case LoadState.failed:
             return failedWidgetBuilder?.call(state);
           case LoadState.completed:
-            return enableFadeInAnime
-                ? FadeIn(
+            return state.wasSynchronouslyLoaded
+                ? completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state)
+                : FadeIn(
                     child: completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state),
-                  )
-                : completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state);
+                  );
         }
       },
     );

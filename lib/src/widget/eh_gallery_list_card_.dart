@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/home_page.dart';
@@ -11,6 +13,7 @@ import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart'
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_gallery_favorite_tag.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -29,12 +32,43 @@ class EHGalleryListCard extends StatelessWidget {
   final TapCardCallback handleTapCard;
   final bool withTags;
 
-  const EHGalleryListCard({
-    Key? key,
-    required this.gallery,
-    required this.handleTapCard,
-    this.withTags = true,
-  }) : super(key: key);
+  const EHGalleryListCard({Key? key, required this.gallery, required this.handleTapCard, this.withTags = true}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FocusWidget(
+      focusedDecoration: StyleSetting.listMode.value == ListMode.flat
+          ? BoxDecoration(
+              color: Get.theme.cardColor,
+              border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground)),
+            )
+          : const BoxDecoration(color: Colors.grey),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapEnter: () => handleTapCard(gallery),
+      handleTapArrowRight: () {
+        if (!isRouteAtTop(Routes.details)) {
+          handleTapCard(gallery);
+          return;
+        }
+
+        if (rightRouting.args is Gallery && rightRouting.args.galleryUrl != gallery.galleryUrl) {
+          handleTapCard(gallery);
+          return;
+        }
+
+        Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode.requestFocus();
+      },
+      child: GalleryCard(gallery: gallery, withTags: withTags, handleTapCard: handleTapCard),
+    );
+  }
+}
+
+class GalleryCard extends StatelessWidget {
+  final Gallery gallery;
+  final bool withTags;
+  final TapCardCallback handleTapCard;
+
+  const GalleryCard({Key? key, required this.gallery, required this.withTags, required this.handleTapCard}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,41 +77,26 @@ class EHGalleryListCard extends StatelessWidget {
       onTap: () => handleTapCard(gallery),
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
-        child: FocusWidget(
-          focusedDecoration: StyleSetting.listMode.value == ListMode.flat
-              ? BoxDecoration(
-                  color: Get.theme.cardColor,
-                  border: Border(right: BorderSide(width: 3, color: Theme.of(context).appBarTheme.foregroundColor!)),
-                )
-              : const BoxDecoration(color: Colors.grey),
-          handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-          handleTapEnter: () => handleTapCard(gallery),
-          handleTapArrowRight: () {
-            if (!isRouteAtTop(Routes.details)) {
-              handleTapCard(gallery);
-              return;
-            }
-
-            if (rightRouting.args is Gallery && rightRouting.args.galleryUrl != gallery.galleryUrl) {
-              handleTapCard(gallery);
-              return;
-            }
-
-            Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode.requestFocus();
-          },
-          child: SizedBox(
-            height: withTags ? 200 : 125,
-            child: Obx(() {
-              if (StyleSetting.listMode.value == ListMode.flat) return buildFlatCard(context);
-              return buildRoundedCard(context);
-            }),
-          ),
+        child: SizedBox(
+          height: withTags ? GlobalConfig.galleryCardHeight : GlobalConfig.galleryCardHeightWithoutTags,
+          child: Obx(() {
+            if (StyleSetting.listMode.value == ListMode.flat) return _FlatGalleryCard(gallery: gallery, withTags: withTags);
+            return _RoundGalleryCard(gallery: gallery, withTags: withTags);
+          }),
         ),
       ),
     );
   }
+}
 
-  Widget buildRoundedCard(BuildContext context) {
+class _RoundGalleryCard extends StatelessWidget {
+  final Gallery gallery;
+  final bool withTags;
+
+  const _RoundGalleryCard({Key? key, required this.gallery, required this.withTags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -93,104 +112,140 @@ class EHGalleryListCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Row(
-          children: [
-            _buildCover(gallery.cover),
-            _buildInfo(gallery),
-          ],
-        ),
+        child: _FlatGalleryCard(gallery: gallery, withTags: withTags),
       ),
     );
   }
+}
 
-  Widget buildFlatCard(BuildContext context) {
+class _FlatGalleryCard extends StatelessWidget {
+  final Gallery gallery;
+  final bool withTags;
+
+  const _FlatGalleryCard({Key? key, required this.gallery, required this.withTags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
-        _buildCover(gallery.cover),
-        _buildInfo(gallery),
+        _GalleryCardCover(image: gallery.cover, withTags: withTags),
+        Expanded(
+          child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
+        ),
       ],
     );
   }
+}
 
-  Widget _buildCover(GalleryImage image) {
-    return SizedBox(
-      height: withTags ? 200 : 125,
-      width: withTags ? 140 : 85,
-      child: EHImage.network(galleryImage: image),
+class _GalleryCardCover extends StatelessWidget {
+  final GalleryImage image;
+  final bool withTags;
+
+  const _GalleryCardCover({Key? key, required this.image, required this.withTags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return EHImage.network(
+      containerColor: Get.theme.colorScheme.surfaceVariant,
+      containerHeight: withTags ? GlobalConfig.galleryCardHeight : GlobalConfig.galleryCardHeightWithoutTags,
+      containerWidth: withTags ? GlobalConfig.galleryCardCoverWidth : GlobalConfig.galleryCardCoverWidthWithoutTags,
+      heroTag: image,
+      fit: BoxFit.fitWidth,
+      galleryImage: image,
     );
   }
+}
 
-  Widget _buildInfo(Gallery gallery) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitleAndUploader(gallery.title, gallery.uploader),
-          if (gallery.tags.isNotEmpty && withTags) _buildTagWaterFlow(gallery.tags),
-          _buildFooter(gallery),
-        ],
-      ).paddingOnly(left: 6, right: 10, top: 5, bottom: 5),
-    );
-  }
+class _GalleryCardInfo extends StatelessWidget {
+  final Gallery gallery;
+  final bool withTags;
 
-  Widget _buildTitleAndUploader(String title, String? uploader) {
+  const _GalleryCardInfo({Key? key, required this.gallery, required this.withTags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _GalleryCardInfoHeader(title: gallery.title, uploader: gallery.uploader),
+        if (withTags && gallery.tags.isNotEmpty) _GalleryCardTagWaterFlow(tags: gallery.tags),
+        _GalleryInfoFooter(gallery: gallery),
+      ],
+    );
+  }
+}
+
+class _GalleryCardInfoHeader extends StatelessWidget {
+  final String title;
+  final String? uploader;
+
+  const _GalleryCardInfoHeader({Key? key, required this.title, this.uploader}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 15, height: 1.2),
+          style: const TextStyle(fontSize: GlobalConfig.galleryCardTitleSize, height: 1.2),
         ),
         if (uploader != null)
           Text(
-            uploader,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
+            uploader!,
+            style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
           ).marginOnly(top: 2),
       ],
     );
   }
+}
 
-  Widget _buildTagWaterFlow(Map<String, List<GalleryTag>> tags) {
+class _GalleryCardTagWaterFlow extends StatelessWidget {
+  final LinkedHashMap<String, List<GalleryTag>> tags;
+
+  const _GalleryCardTagWaterFlow({Key? key, required this.tags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     List<GalleryTag> mergedList = [];
     tags.forEach((namespace, galleryTags) {
       mergedList.addAll(galleryTags);
     });
 
     return SizedBox(
-      height: 70,
+      height: GlobalConfig.galleryCardTagsHeight,
       child: WaterfallFlow.builder(
         scrollDirection: Axis.horizontal,
 
-        /// disable keepScrollOffset because we used [PageStorageKey] in ranklist view, which leads to
-        /// a conflict with this WaterfallFlow
+        /// disable keepScrollOffset because we used [PageStorageKey], which leads to a conflict with this WaterfallFlow
         controller: ScrollController(keepScrollOffset: false),
-        physics: const BouncingScrollPhysics(),
         gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3,
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),
         itemCount: mergedList.length,
-        itemBuilder: (BuildContext context, int index) => EHTag(
+        itemBuilder: (_, int index) => EHTag(
           tag: mergedList[index],
-          fontSize: 12,
-          textHeight: 1.2,
-          borderRadius: 4,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ),
       ),
     );
   }
+}
 
-  Widget _buildFooter(Gallery gallery) {
+class _GalleryInfoFooter extends StatelessWidget {
+  final Gallery gallery;
+
+  const _GalleryInfoFooter({Key? key, required this.gallery}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -198,80 +253,48 @@ class EHGalleryListCard extends StatelessWidget {
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
             if (gallery.isFavorite)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.favorite,
-                        size: 8,
-                        color: Colors.white,
-                      ),
-                      Text(
-                        gallery.favoriteTagName!,
-                        style: const TextStyle(
-                          fontSize: 10,
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                      ).marginOnly(left: 2),
-                    ],
-                  ),
-                ),
-              ).marginOnly(right: 4),
+              EHGalleryFavoriteTag(name: gallery.favoriteTagName!, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]),
             if (gallery.language != null)
               Text(
                 LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
-              ).marginOnly(right: 4),
-            if (gallery.pageCount != null)
-              Icon(
-                Icons.panorama,
-                size: 12,
-                color: Colors.grey.shade600,
-              ).marginOnly(right: 2),
-            if (gallery.pageCount != null)
+                style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
+              ).marginOnly(left: 4),
+            if (gallery.pageCount != null) ...[
+              Icon(Icons.panorama, size: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor).marginOnly(right: 1, left: 6),
               Text(
                 gallery.pageCount.toString(),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
               ),
+            ],
           ],
-        ),
+        ).marginOnly(bottom: 2),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            RatingBar.builder(
-              unratedColor: Colors.grey.shade300,
-              initialRating: gallery.rating,
-              itemCount: 5,
-              allowHalfRating: true,
-              itemSize: 16,
-              ignoreGestures: true,
-              itemBuilder: (context, _) => Icon(
-                Icons.star,
-                color: gallery.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
-              ),
-              onRatingUpdate: (rating) {},
-            ),
+            _buildRatingBar(),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
             ),
           ],
-        ).marginOnly(top: 2),
+        ),
       ],
+    );
+  }
+
+  Widget _buildRatingBar() {
+    return RatingBar.builder(
+      unratedColor: Colors.grey.shade300,
+      initialRating: gallery.rating,
+      itemCount: 5,
+      allowHalfRating: true,
+      itemSize: 16,
+      ignoreGestures: true,
+      itemBuilder: (context, _) => Icon(
+        Icons.star,
+        color: gallery.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
+      ),
+      onRatingUpdate: (rating) {},
     );
   }
 }

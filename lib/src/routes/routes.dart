@@ -37,7 +37,7 @@ import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/single_image/single_image.dart';
-import 'EHPage.dart';
+import 'eh_page.dart';
 
 class Routes {
   static const String home = "/";

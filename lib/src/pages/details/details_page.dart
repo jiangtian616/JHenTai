@@ -154,7 +154,14 @@ class DetailsPage extends StatelessWidget {
 
     return SliverPadding(
       padding: const EdgeInsets.only(top: 16),
-      sliver: SliverToBoxAdapter(child: _GalleryTags(tagList: tagList!)),
+      sliver: SliverToBoxAdapter(
+        child: _GalleryTags(
+          tagList: tagList!,
+          gid: state.gallery!.gid,
+          token: state.gallery!.token,
+          apikey: state.apikey,
+        ),
+      ),
     );
   }
 
@@ -265,7 +272,6 @@ class _DetailsPageHeader extends StatelessWidget {
         containerHeight: GlobalConfig.detailsPageCoverHeight,
         containerWidth: GlobalConfig.detailsPageCoverWidth,
         galleryImage: state.gallery!.cover,
-        enableFadeInAnime: false,
         borderRadius: BorderRadius.circular(GlobalConfig.detailsPageCoverBorderRadius),
         heroTag: state.gallery!.cover,
         shadows: [
@@ -710,8 +716,17 @@ class _ActionButtons extends StatelessWidget {
 
 class _GalleryTags extends StatelessWidget {
   final LinkedHashMap<String, List<GalleryTag>> tagList;
+  final int gid;
+  final String token;
+  final String apikey;
 
-  const _GalleryTags({Key? key, required this.tagList}) : super(key: key);
+  const _GalleryTags({
+    Key? key,
+    required this.tagList,
+    required this.gid,
+    required this.token,
+    required this.apikey,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -721,8 +736,10 @@ class _GalleryTags extends StatelessWidget {
             (entry) => Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCategory(entry.key).marginOnly(right: 10),
-                _buildTag(entry.value),
+                _buildCategoryTag(entry.key).marginOnly(right: 10),
+                Expanded(
+                  child: Wrap(spacing: 5, runSpacing: 5, children: _buildTags(entry.value)),
+                ),
               ],
             ).marginOnly(top: 10),
           )
@@ -730,7 +747,7 @@ class _GalleryTags extends StatelessWidget {
     );
   }
 
-  Widget _buildCategory(String category) {
+  Widget _buildCategoryTag(String category) {
     return EHTag(
       tag: GalleryTag(
         tagData: TagData(
@@ -743,11 +760,16 @@ class _GalleryTags extends StatelessWidget {
     );
   }
 
-  Widget _buildTag(List<GalleryTag> tags) {
-    /// use [expanded] and [wrap] to implement 'flex-wrap'
-    return Expanded(
-      child: Wrap(spacing: 5, runSpacing: 5, children: tags.map((tag) => EHTag(tag: tag, enableTapping: true)).toList()),
-    );
+  List<Widget> _buildTags(List<GalleryTag> tags) {
+    return tags
+        .map((tag) => EHTag(
+              tag: tag,
+              enableTapping: true,
+              gid: gid,
+              token: token,
+              apikey: apikey,
+            ))
+        .toList();
   }
 }
 
