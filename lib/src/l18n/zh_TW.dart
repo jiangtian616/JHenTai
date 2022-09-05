@@ -21,6 +21,7 @@ class zh_TW {
       'systemError': "系統錯誤",
       'invalid': "無效",
       'internalError': "內部錯誤",
+      'you': '你',
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -140,6 +141,7 @@ class zh_TW {
       'voteCommentFailed': '投票評論失敗',
       'unknownUser': '未知用戶',
       'failedToDealWith': '處理失敗',
+      'atLeast3Characters': '至少3個字符',
 
       /// EHImage
       'reloadImage': "重新載入圖片",

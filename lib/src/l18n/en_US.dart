@@ -21,6 +21,7 @@ class en_US {
       'systemError': "System Error",
       'invalid': "Invalid",
       'internalError': "Internal Error",
+      'you':'You',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -140,6 +141,7 @@ class en_US {
       'sendCommentFailed': 'Send Comment Failed',
       'voteCommentFailed': 'Vote Comment Failed',
       'unknownUser': 'Unknown User',
+      'atLeast3Characters': 'At least 3 characters',
 
       /// EHImage
       'reloadImage': "Reload Image",

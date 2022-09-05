@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../network/eh_request.dart';
 import '../pages/details/details_page_logic.dart';
@@ -24,46 +25,43 @@ class CommentDialogState extends State<CommentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return SimpleDialog(
-      contentPadding: const EdgeInsets.fromLTRB(0.0, 12.0, 24.0, 16.0),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('newComment'.tr),
-          Icon(Icons.chat, color: Theme.of(context).primaryColor, size: 26),
-        ],
-      ),
-      children: [
-        CupertinoTextFormFieldRow(
-          autofocus: true,
-          minLines: 1,
-          maxLines: 5,
-          style: const TextStyle(fontSize: 14),
-          onChanged: (content) => this.content = content,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            LoadingStateIndicator(
+    return AlertDialog(
+      title: Text('newComment'.tr),
+      content: TextField(
+        autofocus: true,
+        minLines: 1,
+        maxLines: 10,
+        onChanged: (String text) => content = text,
+        decoration: InputDecoration(
+          isDense: true,
+          alignLabelWithHint: true,
+          labelText: 'atLeast3Characters'.tr,
+          labelStyle: const TextStyle(fontSize: 14),
+          suffix: SizedBox(
+            height: 16,
+            width: 16,
+            child: LoadingStateIndicator(
+              indicatorRadius: 8,
               loadingState: sendCommentState,
-              idleWidget: InkWell(
-                onTap: _sendComment,
-                child: Icon(
-                  Icons.send,
-                  color: Colors.green.shade600,
-                ),
-              ),
+              idleWidget: const SizedBox(),
               errorWidgetSameWithIdle: true,
-            )
-          ],
+            ),
+          ),
         ),
+      ),
+      actions: [
+        TextButton(child: const Icon(Icons.send), onPressed: _sendComment),
       ],
     );
   }
 
   Future<void> _sendComment() async {
     if (content.length <= 2) {
-      snack('failed'.tr, 'commentTooShort'.tr);
+      toast('commentTooShort'.tr);
+      return;
+    }
+
+    if (sendCommentState == LoadingState.loading) {
       return;
     }
 
@@ -82,27 +80,20 @@ class CommentDialogState extends State<CommentDialog> {
       if (e.response?.statusCode != 302) {
         Log.error('sendCommentFailed'.tr, e.message);
         snack('sendCommentFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
-        setState(() {
-          sendCommentState = LoadingState.idle;
-        });
         return;
       }
+    } finally {
+      setState(() {
+        sendCommentState = LoadingState.idle;
+      });
     }
 
     if (errMsg == null) {
-      setState(() {
-        sendCommentState = LoadingState.loading;
-        backRoute(result: true);
-      });
+      toast('success'.tr);
+      backRoute(result: true);
       return;
     }
 
-    setState(() {
-      sendCommentState = LoadingState.idle;
-    });
     snack('sendCommentFailed'.tr, errMsg);
-
-    DetailsPageLogic.current?.update();
-    return;
   }
 }

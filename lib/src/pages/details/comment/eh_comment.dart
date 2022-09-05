@@ -44,16 +44,18 @@ class _EHCommentState extends State<EHComment> {
       margin: const EdgeInsets.only(bottom: 2),
       child: Column(
         children: [
-          _EHCommentHeader(username: widget.comment.username, commentTime: widget.comment.time),
-          _EHCommentTextBody(
-            html: widget.comment.content,
-            maxLines: widget.maxLines,
-          ).marginOnly(top: 2, bottom: 12),
+          _EHCommentHeader(
+            username: widget.comment.username,
+            commentTime: widget.comment.time,
+            fromMe: widget.comment.fromMe,
+          ),
+          _EHCommentTextBody(html: widget.comment.content, maxLines: widget.maxLines).marginOnly(top: 2, bottom: 12),
           if (widget.maxLines != null) const Expanded(child: SizedBox()),
           _EHCommentFooter(
             commentId: widget.comment.id,
             score: widget.comment.score,
             lastEditTime: widget.comment.lastEditTime,
+            fromMe: widget.comment.fromMe,
             showVotingButtons: widget.showVotingButtons,
           ),
         ],
@@ -65,8 +67,14 @@ class _EHCommentState extends State<EHComment> {
 class _EHCommentHeader extends StatelessWidget {
   final String? username;
   final String commentTime;
+  final bool fromMe;
 
-  const _EHCommentHeader({Key? key, required this.username, required this.commentTime}) : super(key: key);
+  const _EHCommentHeader({
+    Key? key,
+    required this.username,
+    required this.commentTime,
+    required this.fromMe,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,13 +82,13 @@ class _EHCommentHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          username ?? 'unknownUser'.tr,
+          (username ?? 'unknownUser'.tr) + (fromMe ? ' (${'you'.tr})' : ''),
           style: TextStyle(
             fontSize: GlobalConfig.commentAuthorTextSize,
             fontWeight: FontWeight.bold,
             color: username == null
                 ? GlobalConfig.commentUnknownAuthorTextColor
-                : username == UserSetting.userName.value
+                : fromMe
                     ? GlobalConfig.commentOwnAuthorTextColor
                     : GlobalConfig.commentOtherAuthorTextColor,
           ),
@@ -202,6 +210,7 @@ class _EHCommentFooter extends StatefulWidget {
   final int commentId;
   final String? lastEditTime;
   final String score;
+  final bool fromMe;
   final bool showVotingButtons;
 
   const _EHCommentFooter({
@@ -209,6 +218,7 @@ class _EHCommentFooter extends StatefulWidget {
     required this.commentId,
     this.lastEditTime,
     required this.score,
+    required this.fromMe,
     required this.showVotingButtons,
   }) : super(key: key);
 
@@ -235,7 +245,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
             style: TextStyle(fontSize: GlobalConfig.commentLastEditTimeTextSize, color: GlobalConfig.commentFooterTextColor),
           ),
         const Expanded(child: SizedBox()),
-        if (widget.showVotingButtons) ...[
+        if (widget.showVotingButtons && !widget.fromMe) ...[
           LikeButton(
             size: GlobalConfig.commentButtonSize,
             likeBuilder: (_) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),

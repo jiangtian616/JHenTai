@@ -69,19 +69,21 @@ class _CommentPageState extends State<CommentPage> {
 
     bool? success = await Get.dialog(const CommentDialog());
 
-    if (success ?? false) {
-      List<GalleryComment> newComments = await EHRequest.requestDetailPage(
-        galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
-        parser: EHSpiderParser.detailPage2Comments,
-        useCacheIfAvailable: false,
-      );
-
-      setState(() {
-        comments.clear();
-        comments.addAll(newComments);
-      });
-
-      DetailsPageLogic.current?.update();
+    if (success == null || success == false) {
+      return;
     }
+
+    List<GalleryComment> newComments = await EHRequest.requestDetailPage(
+      galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
+      parser: EHSpiderParser.detailPage2Comments,
+      useCacheIfAvailable: false,
+    );
+
+    setState(() {
+      comments.clear();
+      comments.addAll(newComments);
+    });
+
+    DetailsPageLogic.current?.update();
   }
 }

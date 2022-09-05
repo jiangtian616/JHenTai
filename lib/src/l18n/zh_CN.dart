@@ -21,6 +21,7 @@ class zh_CN {
       'systemError': "系统错误",
       'invalid': "无效",
       'internalError': "内部错误",
+      'you': '你',
 
       'home': "主页",
       'gallery': "画廊",
@@ -140,6 +141,7 @@ class zh_CN {
       'sendCommentFailed': '发送评论失败',
       'voteCommentFailed': '投票评论失败',
       'unknownUser': '未知用户',
+      'atLeast3Characters': '至少3个字符',
 
       /// EHImage
       'reloadImage': "重新加载图片",

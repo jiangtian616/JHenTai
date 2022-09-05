@@ -978,6 +978,7 @@ class EHSpiderParser {
             content: element.querySelector('.c6')?.outerHtml ?? '',
             time: _parsePostedLocalTime(element),
             lastEditTime: _parsePostedEditedTime(element),
+            fromMe: element.querySelector('.c2 > .c4.nosel > a[href]') != null,
           ),
         )
         .toList();

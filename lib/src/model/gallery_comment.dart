@@ -5,6 +5,7 @@ class GalleryComment {
   String content;
   String time;
   String? lastEditTime;
+  bool fromMe;
 
   GalleryComment({
     required this.id,
@@ -13,5 +14,6 @@ class GalleryComment {
     required this.content,
     required this.time,
     this.lastEditTime,
+    required this.fromMe,
   });
 }
