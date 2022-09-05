@@ -201,24 +201,23 @@ class LoginPageLogic extends GetxController {
 
     Log.info('Login success by web.');
 
-    List<Cookie> cookies = cookieString.split('; ').map((pair) {
-      List<String> nameAndValue = pair.split('=');
-      return Cookie(nameAndValue[0], nameAndValue[1]);
-    }).toList();
+    List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
+    await cookieManager.storeEhCookiesForAllUri(cookies);
 
     int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
     String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
-    await cookieManager.storeEhCookiesForAllUri(cookies);
-
     /// temporary name
     UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
+
+    toast('loginSuccess'.tr);
     untilRoute(
       currentRoute: Routes.webview,
       predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.home,
     );
 
+    /// get username and avartar
     Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
     UserSetting.saveUserNameAndAvatar(userName: userInfo!['userName']!, avatarImgUrl: userInfo['avatarImgUrl']);
   }
