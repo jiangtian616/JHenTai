@@ -100,7 +100,7 @@ class MobileLayoutPageV2State {
         routeName: Routes.setting,
         selectedIcon: const Icon(Icons.settings),
         unselectedIcon: const Icon(Icons.settings_outlined),
-        page: () => const SettingPage(showMenuButton: true),
+        page: () => const SettingPage(),
         shouldRender: false,
         enterNewRoute: true,
       ),

@@ -22,16 +22,12 @@ class SettingPage extends StatelessWidget {
           centerTitle: true,
           title: Text('setting'.tr),
           leading: showMenuButton
-              ? IconButton(
-                  icon: const Icon(FontAwesomeIcons.bars, size: 20),
-                  onPressed: () => TapMenuButtonNotification().dispatch(context),
-                )
+              ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
               : null,
-          elevation: 1,
         ),
-        body: Obx(() {
-          return ListView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        body: Obx(
+          () => ListView(
+            padding: const EdgeInsets.only(top: 12),
             children: [
               ListTile(
                 leading: const Icon(Icons.account_circle),
@@ -87,8 +83,8 @@ class SettingPage extends StatelessWidget {
                 onTap: () => toRoute(Routes.settingPrefix + 'about'),
               ),
             ],
-          );
-        }).paddingSymmetric(vertical: 16),
+          ),
+        ),
       ),
     );
   }

@@ -5,6 +5,9 @@ class ThemeConfig {
   static ThemeData light = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+
+    /// default w500 is not supported for chinese characters in some devices
+    textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
     colorScheme: ColorScheme.light(
       primary: Color(0xFF6750A4),
       onPrimary: Color(0xFFFFFFFF),
@@ -71,6 +74,9 @@ class ThemeConfig {
   static ThemeData dark = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+
+    /// default w500 is not supported for chinese characters in some devices
+    textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
     colorScheme: ColorScheme.dark(
       primary: Color(0xFFD0BCFF),
       onPrimary: Color(0xFF381E72),

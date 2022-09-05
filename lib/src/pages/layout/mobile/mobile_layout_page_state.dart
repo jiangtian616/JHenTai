@@ -18,7 +18,7 @@ class MobileLayoutPageState {
         BottomNavigationBarItem(icon: const Icon(Icons.settings), label: 'setting'.tr),
       ];
 
-  List<Widget> navigationBarViews = [NestedGallerysPage(), RanklistPage(), const DownloadPage(), const SettingPage()];
+  List<Widget> navigationBarViews = [NestedGallerysPage(), const RanklistPage(), const DownloadPage(), const SettingPage()];
 
   /// record tap time to implement 'double tap to refresh'
   DateTime? lastTapTime;
