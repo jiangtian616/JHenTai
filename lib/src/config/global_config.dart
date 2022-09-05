@@ -57,7 +57,7 @@ class GlobalConfig {
   static Color get detailsPageActionTextColor => Get.theme.colorScheme.secondary;
   static const double detailsPageActionTextSize = 11;
   static const double detailsPageCommentIndicatorHeight = 50;
-  static const double detailsPageCommentsHeight = 150;
+  static const double detailsPageCommentsHeight = 142;
   static const double detailsPageCommentsWidth = 300;
 
   static Color get detailsPageThumbnailIndexColor => Get.theme.colorScheme.outline;

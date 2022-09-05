@@ -52,8 +52,6 @@ class _CommentPageState extends State<CommentPage> {
               .map(
                 (comment) => EHComment(
                   comment: comment,
-                  canTapUrl: true,
-                  isSelectable: true,
                   showVotingButtons: comment.username != UserSetting.userName.value && comment.score.isNotEmpty,
                 ).marginOnly(bottom: 8),
               )

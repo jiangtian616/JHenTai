@@ -795,8 +795,6 @@ class _Comments extends StatelessWidget {
                   child: EHComment(
                     comment: comment,
                     maxLines: 4,
-                    canTapUrl: false,
-                    isSelectable: false,
 
                     /// can't vote for uploader or ourself
                     showVotingButtons: comment.username != UserSetting.userName.value && comment.score.isNotEmpty,

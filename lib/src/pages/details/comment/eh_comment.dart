@@ -23,16 +23,12 @@ import '../../../utils/snack_util.dart';
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
   final int? maxLines;
-  final bool canTapUrl;
-  final bool isSelectable;
   final bool showVotingButtons;
 
   const EHComment({
     Key? key,
     required this.comment,
     this.maxLines,
-    required this.canTapUrl,
-    required this.isSelectable,
     this.showVotingButtons = true,
   }) : super(key: key);
 
@@ -52,9 +48,7 @@ class _EHCommentState extends State<EHComment> {
           _EHCommentTextBody(
             html: widget.comment.content,
             maxLines: widget.maxLines,
-            canTapUrl: widget.canTapUrl,
-            isSelectable: widget.isSelectable,
-          ).marginOnly(top: 2, bottom: 16),
+          ).marginOnly(top: 2, bottom: 12),
           if (widget.maxLines != null) const Expanded(child: SizedBox()),
           _EHCommentFooter(
             commentId: widget.comment.id,
@@ -102,15 +96,11 @@ class _EHCommentHeader extends StatelessWidget {
 
 class _EHCommentTextBody extends StatelessWidget {
   final String html;
-  final bool canTapUrl;
-  final bool isSelectable;
   final int? maxLines;
 
   const _EHCommentTextBody({
     Key? key,
     required this.html,
-    required this.canTapUrl,
-    required this.isSelectable,
     this.maxLines,
   }) : super(key: key);
 
@@ -119,21 +109,24 @@ class _EHCommentTextBody extends StatelessWidget {
     return HtmlWidget(
       _wrapUrlInATag(html),
       textStyle: const TextStyle(fontSize: GlobalConfig.commentBodyTextSize),
-      onTapUrl: canTapUrl ? _handleTapUrl : null,
-      isSelectable: isSelectable,
+      onTapUrl: maxLines == null ? _handleTapUrl : null,
+      isSelectable: maxLines == null,
       customWidgetBuilder: (element) {
         if (element.localName != 'img') {
           return null;
         }
+
+        /// not show image in details page
+        if (maxLines != null) {
+          return const SizedBox();
+        }
+
+        /// use [ExtendedImage]
         return Center(
           child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
         );
       },
-      factoryBuilder: () => _WidgetFactory(
-        maxLines: maxLines,
-        overflow: TextOverflow.ellipsis,
-        canTapUrl: canTapUrl,
-      ),
+      factoryBuilder: () => _WidgetFactory(maxLines: maxLines),
     );
   }
 
@@ -159,32 +152,19 @@ class _EHCommentTextBody extends StatelessWidget {
 
 class _WidgetFactory extends WidgetFactory {
   int? maxLines;
-  TextOverflow? overflow;
-  final bool canTapUrl;
 
-  _WidgetFactory({
-    this.maxLines,
-    this.overflow,
-    this.canTapUrl = true,
-  });
+  _WidgetFactory({this.maxLines});
 
   /// set maxLines and overflow
   @override
   Widget? buildText(BuildMetadata meta, TextStyleHtml tsh, InlineSpan text) {
-    if (selectableText && meta.overflow == TextOverflow.clip && text is TextSpan) {
-      return SelectableText.rich(
-        text,
-        maxLines: maxLines ?? (meta.maxLines > 0 ? meta.maxLines : null),
-        textAlign: tsh.textAlign ?? TextAlign.start,
-        textDirection: tsh.textDirection,
-        textScaleFactor: 1.0,
-        onSelectionChanged: selectableTextOnChanged,
-      );
+    if (selectableText) {
+      return super.buildText(meta, tsh, text);
     }
 
     return RichText(
       maxLines: maxLines ?? (meta.maxLines > 0 ? meta.maxLines : null),
-      overflow: overflow ?? meta.overflow,
+      overflow: TextOverflow.ellipsis,
       text: text,
       textAlign: tsh.textAlign ?? TextAlign.start,
       textDirection: tsh.textDirection,
@@ -210,21 +190,11 @@ class _WidgetFactory extends WidgetFactory {
 
     return TextSpan(
       children: children,
-      mouseCursor: canTapUrl && recognizer != null ? SystemMouseCursors.click : null,
-      recognizer: canTapUrl ? recognizer : null,
+      mouseCursor: maxLines == null && recognizer != null ? SystemMouseCursors.click : null,
+      recognizer: maxLines == null ? recognizer : null,
       style: style?.copyWith(overflow: TextOverflow.ellipsis),
       text: text,
     );
-  }
-
-  @override
-  Widget? buildImageWidget(BuildMetadata meta, ImageSource src) {
-    /// Don't show image in details page
-    if (maxLines != null) {
-      return null;
-    }
-
-    return super.buildImageWidget(meta, src);
   }
 }
 
