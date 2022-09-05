@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
@@ -978,7 +979,7 @@ class EHSpiderParser {
             content: element.querySelector('.c6')?.outerHtml ?? '',
             time: _parsePostedLocalTime(element),
             lastEditTime: _parsePostedEditedTime(element),
-            fromMe: element.querySelector('.c2 > .c4.nosel > a[href]') != null,
+            fromMe: element.querySelector('.c2 > .c4.nosel > a')?.text == 'Edit',
           ),
         )
         .toList();

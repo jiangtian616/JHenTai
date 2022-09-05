@@ -23,13 +23,13 @@ import '../../../utils/snack_util.dart';
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
   final int? maxLines;
-  final bool showVotingButtons;
+  final bool disableButtons;
 
   const EHComment({
     Key? key,
     required this.comment,
     this.maxLines,
-    this.showVotingButtons = true,
+    this.disableButtons = false,
   }) : super(key: key);
 
   @override
@@ -56,7 +56,7 @@ class _EHCommentState extends State<EHComment> {
             score: widget.comment.score,
             lastEditTime: widget.comment.lastEditTime,
             fromMe: widget.comment.fromMe,
-            showVotingButtons: widget.showVotingButtons,
+            disableButtons: widget.disableButtons,
           ),
         ],
       ).marginOnly(top: 12, bottom: 7, left: 12, right: 12),
@@ -211,7 +211,7 @@ class _EHCommentFooter extends StatefulWidget {
   final String? lastEditTime;
   final String score;
   final bool fromMe;
-  final bool showVotingButtons;
+  final bool disableButtons;
 
   const _EHCommentFooter({
     Key? key,
@@ -219,7 +219,7 @@ class _EHCommentFooter extends StatefulWidget {
     this.lastEditTime,
     required this.score,
     required this.fromMe,
-    required this.showVotingButtons,
+    required this.disableButtons,
   }) : super(key: key);
 
   @override
@@ -245,7 +245,9 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
             style: TextStyle(fontSize: GlobalConfig.commentLastEditTimeTextSize, color: GlobalConfig.commentFooterTextColor),
           ),
         const Expanded(child: SizedBox()),
-        if (widget.showVotingButtons && !widget.fromMe) ...[
+
+        /// can't vote for uploader or ourselves, and if we have commented, we can't vote for all of the comments
+        if (score.isNotEmpty && !widget.fromMe && !widget.disableButtons) ...[
           LikeButton(
             size: GlobalConfig.commentButtonSize,
             likeBuilder: (_) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),

@@ -22,14 +22,10 @@ class CommentPage extends StatefulWidget {
 }
 
 class _CommentPageState extends State<CommentPage> {
-  late List<GalleryComment> comments;
-  final ScrollController _scrollController = ScrollController();
+  late List<GalleryComment> comments = Get.arguments;
+  late bool disableButtons = comments.any((comment) => comment.fromMe);
 
-  @override
-  void initState() {
-    comments = Get.arguments;
-    super.initState();
-  }
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
@@ -50,10 +46,7 @@ class _CommentPageState extends State<CommentPage> {
           controller: _scrollController,
           children: comments
               .map(
-                (comment) => EHComment(
-                  comment: comment,
-                  showVotingButtons: comment.username != UserSetting.userName.value && comment.score.isNotEmpty,
-                ).marginOnly(bottom: 8),
+                (comment) => EHComment(comment: comment, disableButtons: disableButtons).marginOnly(bottom: 8),
               )
               .toList(),
         ),

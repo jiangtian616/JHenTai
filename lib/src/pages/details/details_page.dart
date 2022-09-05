@@ -780,6 +780,8 @@ class _Comments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool disableButtons = comments.any((comment) => comment.fromMe);
+
     return FadeIn(
       child: SizedBox(
         height: GlobalConfig.detailsPageCommentsHeight,
@@ -792,13 +794,7 @@ class _Comments extends StatelessWidget {
               .map(
                 (comment) => GestureDetector(
                   onTap: () => toRoute(Routes.comment, arguments: comments),
-                  child: EHComment(
-                    comment: comment,
-                    maxLines: 4,
-
-                    /// can't vote for uploader or ourself
-                    showVotingButtons: comment.username != UserSetting.userName.value && comment.score.isNotEmpty,
-                  ),
+                  child: EHComment(comment: comment, maxLines: 4, disableButtons: disableButtons),
                 ).marginOnly(right: 10),
               )
               .toList(),
