@@ -12,14 +12,14 @@ import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 import 'loading_state_indicator.dart';
 
-class CommentDialog extends StatefulWidget {
-  const CommentDialog({Key? key}) : super(key: key);
+class EHCommentDialog extends StatefulWidget {
+  const EHCommentDialog({Key? key}) : super(key: key);
 
   @override
-  CommentDialogState createState() => CommentDialogState();
+  EHCommentDialogState createState() => EHCommentDialogState();
 }
 
-class CommentDialogState extends State<CommentDialog> {
+class EHCommentDialogState extends State<EHCommentDialog> {
   String content = '';
   LoadingState sendCommentState = LoadingState.idle;
 

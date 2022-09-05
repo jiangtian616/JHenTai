@@ -12,7 +12,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/snack_util.dart';
-import '../../../widget/comment_dialog.dart';
+import '../../../widget/eh_comment_dialog.dart';
 
 class CommentPage extends StatefulWidget {
   const CommentPage({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _CommentPageState extends State<CommentPage> {
       return;
     }
 
-    bool? success = await Get.dialog(const CommentDialog());
+    bool? success = await Get.dialog(const EHCommentDialog());
 
     if (success == null || success == false) {
       return;
