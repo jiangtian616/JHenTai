@@ -542,7 +542,6 @@ class _ActionButtons extends StatelessWidget {
 
         return IconTextButton(
           icon: icon,
-          onPressed: disabled ? null : logic.handleTapDownload,
           text: Text(
             text,
             style: TextStyle(
@@ -551,6 +550,8 @@ class _ActionButtons extends StatelessWidget {
               height: 1,
             ),
           ),
+          onPressed: disabled ? null : logic.handleTapDownload,
+          onLongPress: () => toRoute(Routes.download),
         );
       },
     );
@@ -655,6 +656,7 @@ class _ActionButtons extends StatelessWidget {
             ),
           ),
           onPressed: disabled ? null : logic.handleTapArchive,
+          onLongPress: () => toRoute(Routes.download),
         );
       },
     );

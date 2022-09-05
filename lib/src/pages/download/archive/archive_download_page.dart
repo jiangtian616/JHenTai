@@ -63,20 +63,14 @@ class ArchiveDownloadPage extends StatelessWidget {
         },
         onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),
       ),
-      elevation: 1,
-      leadingWidth: 70,
-      leading: ExcludeFocus(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showMenuButton)
-              IconButton(
+      leading: showMenuButton
+          ? ExcludeFocus(
+              child: IconButton(
                 icon: const Icon(FontAwesomeIcons.bars, size: 20),
                 onPressed: () => TapMenuButtonNotification().dispatch(context),
               ),
-          ],
-        ),
-      ),
+            )
+          : null,
       actions: [
         SizedBox(
           width: 88,

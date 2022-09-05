@@ -6,6 +6,7 @@ class IconTextButton extends StatelessWidget {
   final Icon icon;
   final Widget text;
   final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
 
   const IconTextButton({
     Key? key,
@@ -14,6 +15,7 @@ class IconTextButton extends StatelessWidget {
     required this.icon,
     required this.text,
     this.onPressed,
+    this.onLongPress,
   }) : super(key: key);
 
   @override
@@ -21,11 +23,14 @@ class IconTextButton extends StatelessWidget {
     return SizedBox(
       height: height,
       width: width,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [icon, text],
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        child: IconButton(
+          onPressed: onPressed,
+          icon: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [icon, text],
+          ),
         ),
       ),
     );

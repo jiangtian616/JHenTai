@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
@@ -171,6 +172,12 @@ class Routes {
     EHPage(
       name: history,
       page: () => HistoryPage(),
+      transition: Transition.cupertino,
+      side: Side.left,
+    ),
+    EHPage(
+      name: download,
+      page: () => const DownloadPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
