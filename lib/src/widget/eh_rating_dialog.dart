@@ -6,7 +6,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/extensions/widget_extensions.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 
@@ -46,7 +46,7 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
         initialRating: max(rating, 0.5),
         itemCount: 5,
         allowHalfRating: true,
-        itemSize: GlobalConfig.ratingDialogStarSize,
+        itemSize: UIConfig.ratingDialogStarSize,
         itemPadding: const EdgeInsets.only(left: 4),
         updateOnDrag: true,
         itemBuilder: (context, index) => Icon(Icons.star, color: hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
@@ -58,8 +58,8 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
   Widget _buildSubmitButton() {
     return Center(
       child: SizedBox(
-        height: GlobalConfig.ratingDialogButtonBoxHeight,
-        width: GlobalConfig.ratingDialogButtonBoxWidth,
+        height: UIConfig.ratingDialogButtonBoxHeight,
+        width: UIConfig.ratingDialogButtonBoxWidth,
         child: TextButton(
           onPressed: () => backRoute(result: rating),
           child: Text('submit'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),

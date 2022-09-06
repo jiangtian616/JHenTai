@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../../setting/tab_bar_setting.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_collection.dart';
@@ -156,8 +156,8 @@ class NestedGallerysPage extends StatelessWidget {
 
           /// build AppBar and TabBar, use a handy class to avoid write a separate [SliverPersistentHeaderDelegate] class.
           delegate: EHSliverHeaderDelegate(
-            minHeight: context.mediaQueryPadding.top + GlobalConfig.tabBarHeight,
-            maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.tabBarHeight,
+            minHeight: context.mediaQueryPadding.top + UIConfig.tabBarHeight,
+            maxHeight: context.mediaQueryPadding.top + UIConfig.appBarHeight + UIConfig.tabBarHeight,
 
             /// make sure the color changes with theme
             otherCondition: Get.theme.hashCode,
@@ -188,7 +188,7 @@ class NestedGallerysPage extends StatelessWidget {
                       }),
                 ),
                 Container(
-                  height: GlobalConfig.tabBarHeight,
+                  height: UIConfig.tabBarHeight,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Get.theme.colorScheme.background,
@@ -310,9 +310,9 @@ class _GalleryTabBarViewState extends State<GalleryTabBarView> {
   Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
-      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.tabBarHeight),
+      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + UIConfig.tabBarHeight),
       sliver: CupertinoSliverRefreshControl(
-        refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+        refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
         onRefresh: () => gallerysViewLogic.handlePullDown(gallerysViewLogic.tabController.index),
       ),
     );

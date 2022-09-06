@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -121,16 +121,16 @@ class _AllTimeTable extends StatelessWidget {
       children: [
         Text('${'totalVisits'.tr}: ${galleryStats.totalVisits}', style: const TextStyle(fontWeight: FontWeight.bold)),
         DataTable(
-          columnSpacing: GlobalConfig.statisticsDialogColumnSpacing,
+          columnSpacing: UIConfig.statisticsDialogColumnSpacing,
           columns: <DataColumn>[
             DataColumn(
-              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('period'.tr))),
+              label: SizedBox(width: UIConfig.statisticsDialogColumnWidth, child: Center(child: Text('period'.tr))),
             ),
             DataColumn(
-              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('ranking'.tr))),
+              label: SizedBox(width: UIConfig.statisticsDialogColumnWidth, child: Center(child: Text('ranking'.tr))),
             ),
             DataColumn(
-              label: SizedBox(width: GlobalConfig.statisticsDialogColumnWidth, child: Center(child: Text('score'.tr))),
+              label: SizedBox(width: UIConfig.statisticsDialogColumnWidth, child: Center(child: Text('score'.tr))),
             ),
           ],
           rows: <DataRow>[
@@ -178,8 +178,8 @@ class _LineGraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return FadeIn(
       child: SizedBox(
-        height: GlobalConfig.statisticsDialogGraphHeight,
-        width: GlobalConfig.statisticsDialogGraphWidth,
+        height: UIConfig.statisticsDialogGraphHeight,
+        width: UIConfig.statisticsDialogGraphWidth,
         child: SfCartesianChart(
           trackballBehavior: TrackballBehavior(
             enable: true,

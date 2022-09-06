@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
@@ -189,7 +189,7 @@ class DetailsPage extends StatelessWidget {
     return SliverToBoxAdapter(
       child: FadeIn(
         child: SizedBox(
-          height: GlobalConfig.detailsPageCommentIndicatorHeight,
+          height: UIConfig.detailsPageCommentIndicatorHeight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -254,7 +254,7 @@ class _DetailsPageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GlobalConfig.detailsPageHeaderHeight,
+      height: UIConfig.detailsPageHeaderHeight,
       child: Row(
         children: [
           _buildCover(),
@@ -268,10 +268,10 @@ class _DetailsPageHeader extends StatelessWidget {
     return GestureDetector(
       onTap: () => toRoute(Routes.singleImagePage, arguments: state.gallery!.cover),
       child: EHImage.network(
-        containerHeight: GlobalConfig.detailsPageCoverHeight,
-        containerWidth: GlobalConfig.detailsPageCoverWidth,
+        containerHeight: UIConfig.detailsPageCoverHeight,
+        containerWidth: UIConfig.detailsPageCoverWidth,
         galleryImage: state.gallery!.cover,
-        borderRadius: BorderRadius.circular(GlobalConfig.detailsPageCoverBorderRadius),
+        borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
         heroTag: state.gallery!.cover,
         shadows: [
           BoxShadow(
@@ -303,9 +303,9 @@ class _DetailsPageHeader extends StatelessWidget {
       minLines: 1,
       maxLines: 5,
       style: const TextStyle(
-        fontSize: GlobalConfig.detailsPageTitleTextSize,
-        letterSpacing: GlobalConfig.detailsPageTitleLetterSpacing,
-        height: GlobalConfig.detailsPageTitleTextHeight,
+        fontSize: UIConfig.detailsPageTitleTextSize,
+        letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
+        height: UIConfig.detailsPageTitleTextHeight,
       ),
     );
   }
@@ -317,7 +317,7 @@ class _DetailsPageHeader extends StatelessWidget {
 
     return SelectableText(
       state.gallery!.uploader!,
-      style: TextStyle(fontSize: GlobalConfig.detailsPageUploaderTextSize, color: GlobalConfig.detailsPageUploaderTextColor),
+      style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor),
       onTap: logic.searchUploader,
     ).marginOnly(top: 10);
   }
@@ -330,75 +330,75 @@ class _DetailsPageHeader extends StatelessWidget {
           runSpacing: 2,
           children: [
             SizedBox(
-              width: max(GlobalConfig.detailsPageFirstSpanWidthSize, constraints.maxWidth / 6),
+              width: max(UIConfig.detailsPageFirstSpanWidthSize, constraints.maxWidth / 6),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.language, size: 10, color: GlobalConfig.detailsPageIconColor),
+                  Icon(Icons.language, size: 10, color: UIConfig.detailsPageIconColor),
                   Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese',
-                          style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize))
+                          style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize))
                       .marginOnly(left: 2),
                 ],
               ),
             ),
             SizedBox(
-              width: max(GlobalConfig.detailsPageSecondSpanWidthSize, minWidth),
+              width: max(UIConfig.detailsPageSecondSpanWidthSize, minWidth),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.favorite, size: 10, color: GlobalConfig.detailsPageIconColor),
+                  Icon(Icons.favorite, size: 10, color: UIConfig.detailsPageIconColor),
                   Text(
                     state.galleryDetails?.favoriteCount.toString() ?? '...',
-                    style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize),
+                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
                   )
                 ],
               ),
             ),
             SizedBox(
-              width: max(GlobalConfig.detailsPageFirstSpanWidthSize, minWidth),
+              width: max(UIConfig.detailsPageFirstSpanWidthSize, minWidth),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.archive, size: 10, color: GlobalConfig.detailsPageIconColor).marginOnly(right: 2),
-                  Text(state.galleryDetails?.size ?? '...', style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize)),
+                  Icon(Icons.archive, size: 10, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                  Text(state.galleryDetails?.size ?? '...', style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize)),
                 ],
               ),
             ),
             SizedBox(
-              width: max(GlobalConfig.detailsPageFirstSpanWidthSize, minWidth),
+              width: max(UIConfig.detailsPageFirstSpanWidthSize, minWidth),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.collections, size: 10, color: GlobalConfig.detailsPageIconColor),
+                  Icon(Icons.collections, size: 10, color: UIConfig.detailsPageIconColor),
                   Text(
                     state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(),
-                    style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize),
+                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
                   ).marginOnly(left: 2),
                 ],
               ),
             ),
             SizedBox(
-              width: max(GlobalConfig.detailsPageSecondSpanWidthSize, minWidth),
+              width: max(UIConfig.detailsPageSecondSpanWidthSize, minWidth),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.star, size: 10, color: GlobalConfig.detailsPageIconColor),
+                  Icon(Icons.star, size: 10, color: UIConfig.detailsPageIconColor),
                   Text(
                     state.galleryDetails?.ratingCount.toString() ?? '...',
-                    style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize),
+                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
                   ),
                 ],
               ),
             ),
             SizedBox(
-              width: max(GlobalConfig.detailsPageThirdSpanWidthSize, minWidth),
+              width: max(UIConfig.detailsPageThirdSpanWidthSize, minWidth),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_upload, size: 10, color: GlobalConfig.detailsPageIconColor).marginOnly(right: 2),
+                  Icon(Icons.cloud_upload, size: 10, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
                   Text(
                     DateUtil.transform2LocalTimeString(state.gallery!.publishTime),
-                    style: const TextStyle(fontSize: GlobalConfig.detailsPageDetailsTextSize),
+                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
                   ),
                 ],
               ),
@@ -413,7 +413,7 @@ class _DetailsPageHeader extends StatelessWidget {
     return Row(
       children: [
         _buildRatingBar(),
-        Text(state.galleryDetails?.realRating.toString() ?? '...', style: const TextStyle(fontSize: GlobalConfig.detailsPageRatingTextSize)),
+        Text(state.galleryDetails?.realRating.toString() ?? '...', style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize)),
         const Expanded(child: SizedBox()),
         EHGalleryCategoryTag(category: state.gallery!.category)
       ],
@@ -442,7 +442,7 @@ class _NewVersionHint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GlobalConfig.detailsPageNewVersionHintHeight,
+      height: UIConfig.detailsPageNewVersionHintHeight,
       child: FadeIn(
         child: TextButton(
           child: Text('thisGalleryHasANewVersion'.tr),
@@ -468,12 +468,12 @@ class _ActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return ExcludeFocus(
       child: SizedBox(
-        height: GlobalConfig.detailsPageActionsHeight,
+        height: UIConfig.detailsPageActionsHeight,
         child: LayoutBuilder(
           builder: (_, BoxConstraints constraints) => ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(GlobalConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 8),
+            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 8),
             padding: EdgeInsets.zero,
             children: [
               _buildReadButton(),
@@ -498,12 +498,12 @@ class _ActionButtons extends StatelessWidget {
     String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
 
     return IconTextButton(
-      icon: Icon(Icons.visibility, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.visibility, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
       text: Text(
         text,
         style: TextStyle(
-          fontSize: GlobalConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          fontSize: UIConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
           height: 1,
         ),
       ),
@@ -530,7 +530,7 @@ class _ActionButtons extends StatelessWidget {
                         : 'update'.tr;
 
         Icon icon = downloadProgress == null
-            ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor)
+            ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
             : downloadProgress.downloadStatus == DownloadStatus.paused
                 ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
@@ -544,8 +544,8 @@ class _ActionButtons extends StatelessWidget {
           text: Text(
             text,
             style: TextStyle(
-              fontSize: GlobalConfig.detailsPageActionTextSize,
-              color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+              fontSize: UIConfig.detailsPageActionTextSize,
+              color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
               height: 1,
             ),
           ),
@@ -572,15 +572,15 @@ class _ActionButtons extends StatelessWidget {
                   ? Get.theme.disabledColor
                   : state.gallery!.favoriteTagIndex != null
                       ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
-                      : GlobalConfig.detailsPageActionIconColor,
+                      : UIConfig.detailsPageActionIconColor,
             ),
             text: Text(
               state.gallery!.isFavorite ? state.gallery!.favoriteTagName! : 'favorite'.tr,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: GlobalConfig.detailsPageActionTextSize,
-                color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+                fontSize: UIConfig.detailsPageActionTextSize,
+                color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
                 height: 1,
               ),
             ),
@@ -608,13 +608,13 @@ class _ActionButtons extends StatelessWidget {
                   ? Get.theme.disabledColor
                   : state.gallery!.hasRated
                       ? Get.theme.colorScheme.error
-                      : GlobalConfig.detailsPageActionIconColor,
+                      : UIConfig.detailsPageActionIconColor,
             ),
             text: Text(
               state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
               style: TextStyle(
-                fontSize: GlobalConfig.detailsPageActionTextSize,
-                color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+                fontSize: UIConfig.detailsPageActionTextSize,
+                color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
                 height: 1,
               ),
             ),
@@ -637,7 +637,7 @@ class _ActionButtons extends StatelessWidget {
         String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
         Icon icon = archiveStatus == null
-            ? Icon(Icons.archive, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor)
+            ? Icon(Icons.archive, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
             : archiveStatus == ArchiveStatus.paused
                 ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
                 : archiveStatus == ArchiveStatus.completed
@@ -649,8 +649,8 @@ class _ActionButtons extends StatelessWidget {
           text: Text(
             text,
             style: TextStyle(
-              fontSize: GlobalConfig.detailsPageActionTextSize,
-              color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+              fontSize: UIConfig.detailsPageActionTextSize,
+              color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
               height: 1,
             ),
           ),
@@ -665,12 +665,12 @@ class _ActionButtons extends StatelessWidget {
     bool disabled = state.galleryDetails == null;
 
     return IconTextButton(
-      icon: Icon(Icons.saved_search, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.saved_search, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
       text: Text(
         'similar'.tr,
         style: TextStyle(
-          fontSize: GlobalConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          fontSize: UIConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
           height: 1,
         ),
       ),
@@ -684,12 +684,12 @@ class _ActionButtons extends StatelessWidget {
     String text = '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})';
 
     return IconTextButton(
-      icon: Icon(Icons.file_present, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.file_present, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
       text: Text(
         text,
         style: TextStyle(
-          fontSize: GlobalConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          fontSize: UIConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
           height: 1,
         ),
       ),
@@ -701,12 +701,12 @@ class _ActionButtons extends StatelessWidget {
     bool disabled = state.galleryDetails == null;
 
     return IconTextButton(
-      icon: Icon(Icons.analytics, color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.analytics, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
       text: Text(
         'statistic'.tr,
         style: TextStyle(
-          fontSize: GlobalConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : GlobalConfig.detailsPageActionTextColor,
+          fontSize: UIConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
           height: 1,
         ),
       ),
@@ -785,12 +785,12 @@ class _Comments extends StatelessWidget {
 
     return FadeIn(
       child: SizedBox(
-        height: GlobalConfig.detailsPageCommentsHeight,
+        height: UIConfig.detailsPageCommentsHeight,
         child: ListView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.zero,
-          itemExtent: GlobalConfig.detailsPageCommentsWidth,
+          itemExtent: UIConfig.detailsPageCommentsWidth,
           children: comments
               .map(
                 (comment) => GestureDetector(
@@ -798,7 +798,7 @@ class _Comments extends StatelessWidget {
                   child: EHComment(
                     comment: comment,
                     maxLines: 4,
-                    bodyHeight: GlobalConfig.detailsPageCommentBodyHeight,
+                    bodyHeight: UIConfig.detailsPageCommentBodyHeight,
                     disableButtons: disableButtons,
                   ),
                 ).marginOnly(right: 10),
@@ -851,7 +851,7 @@ class _Thumbnails extends StatelessWidget {
                   ),
                   Text(
                     (index + 1).toString(),
-                    style: TextStyle(color: GlobalConfig.detailsPageThumbnailIndexColor),
+                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor),
                   ).paddingOnly(top: 3),
                 ],
               ),
@@ -860,8 +860,8 @@ class _Thumbnails extends StatelessWidget {
           childCount: state.galleryDetails!.thumbnails.length,
         ),
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          mainAxisExtent: GlobalConfig.detailsPageThumbnailHeight,
-          maxCrossAxisExtent: GlobalConfig.detailsPageThumbnailWidth,
+          mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
+          maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
           mainAxisSpacing: 20,
           crossAxisSpacing: 5,
         ),

@@ -5,7 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/home_page.dart';
@@ -78,7 +78,7 @@ class GalleryCard extends StatelessWidget {
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
-          height: withTags ? GlobalConfig.galleryCardHeight : GlobalConfig.galleryCardHeightWithoutTags,
+          height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
           child: Obx(() {
             if (StyleSetting.listMode.value == ListMode.flat) return _FlatGalleryCard(gallery: gallery, withTags: withTags);
             return _RoundGalleryCard(gallery: gallery, withTags: withTags);
@@ -147,8 +147,8 @@ class _GalleryCardCover extends StatelessWidget {
   Widget build(BuildContext context) {
     return EHImage.network(
       containerColor: Get.theme.colorScheme.surfaceVariant,
-      containerHeight: withTags ? GlobalConfig.galleryCardHeight : GlobalConfig.galleryCardHeightWithoutTags,
-      containerWidth: withTags ? GlobalConfig.galleryCardCoverWidth : GlobalConfig.galleryCardCoverWidthWithoutTags,
+      containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
+      containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
       heroTag: image,
       fit: BoxFit.fitWidth,
       galleryImage: image,
@@ -192,12 +192,12 @@ class _GalleryCardInfoHeader extends StatelessWidget {
           title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: GlobalConfig.galleryCardTitleSize, height: 1.2),
+          style: const TextStyle(fontSize: UIConfig.galleryCardTitleSize, height: 1.2),
         ),
         if (uploader != null)
           Text(
             uploader!,
-            style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
+            style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
           ).marginOnly(top: 2),
       ],
     );
@@ -217,7 +217,7 @@ class _GalleryCardTagWaterFlow extends StatelessWidget {
     });
 
     return SizedBox(
-      height: GlobalConfig.galleryCardTagsHeight,
+      height: UIConfig.galleryCardTagsHeight,
       child: WaterfallFlow.builder(
         scrollDirection: Axis.horizontal,
 
@@ -257,13 +257,13 @@ class _GalleryInfoFooter extends StatelessWidget {
             if (gallery.language != null)
               Text(
                 LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-                style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
+                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
               ).marginOnly(left: 4),
             if (gallery.pageCount != null) ...[
-              Icon(Icons.panorama, size: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor).marginOnly(right: 1, left: 6),
+              Icon(Icons.panorama, size: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor).marginOnly(right: 1, left: 6),
               Text(
                 gallery.pageCount.toString(),
-                style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
+                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
               ),
             ],
           ],
@@ -274,7 +274,7 @@ class _GalleryInfoFooter extends StatelessWidget {
             _buildRatingBar(),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(fontSize: GlobalConfig.galleryCardTextSize, color: GlobalConfig.galleryCardTextColor),
+              style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
             ),
           ],
         ),

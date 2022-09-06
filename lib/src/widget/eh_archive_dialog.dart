@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
@@ -48,7 +48,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     return AlertDialog(
       title: Center(child: Text('archive'.tr)),
       content: SizedBox(
-        height: GlobalConfig.archiveDialogBodyHeight,
+        height: UIConfig.archiveDialogBodyHeight,
         child: LoadingStateIndicator(
           loadingState: loadingState,
           errorTapCallback: _getArchiveInfo,
@@ -237,21 +237,21 @@ class _ArchiveButtonSet extends StatelessWidget {
         if (cost != null)
           Text(
             cost!,
-            style: TextStyle(color: GlobalConfig.archiveDialogCostTextColor, fontSize: GlobalConfig.archiveDialogCostTextSize),
+            style: TextStyle(color: UIConfig.archiveDialogCostTextColor, fontSize: UIConfig.archiveDialogCostTextSize),
           ),
         ElevatedButton(
           onPressed: callback,
           child: Row(
             children: [
-              Text(text, style: const TextStyle(fontSize: GlobalConfig.archiveDialogDownloadTextSize)),
-              const Icon(Icons.download_for_offline, size: GlobalConfig.archiveDialogDownloadIconSize),
+              Text(text, style: const TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize)),
+              const Icon(Icons.download_for_offline, size: UIConfig.archiveDialogDownloadIconSize),
             ],
           ),
         ),
         if (size != null)
           Text(
             size!,
-            style: TextStyle(color: GlobalConfig.archiveDialogCostTextColor, fontSize: GlobalConfig.archiveDialogCostTextSize),
+            style: TextStyle(color: UIConfig.archiveDialogCostTextColor, fontSize: UIConfig.archiveDialogCostTextSize),
           ),
       ],
     );

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
-import '../config/global_config.dart';
+import '../config/ui_config.dart';
 
 import '../consts/locale_consts.dart';
 import '../model/gallery_image.dart';
@@ -32,8 +32,8 @@ class EHDashboardCard extends StatelessWidget {
         child: Stack(
           children: [
             _buildCover(gallery.cover),
-            Positioned(child: _buildShade(), height: 60, width: GlobalConfig.dashboardCardSize, bottom: 0),
-            Positioned(child: _buildGalleryDesc(), width: GlobalConfig.dashboardCardSize, bottom: 10),
+            Positioned(child: _buildShade(), height: 60, width: UIConfig.dashboardCardSize, bottom: 0),
+            Positioned(child: _buildGalleryDesc(), width: UIConfig.dashboardCardSize, bottom: 10),
           ],
         ),
       ),
@@ -42,8 +42,8 @@ class EHDashboardCard extends StatelessWidget {
 
   Widget _buildCover(GalleryImage image) {
     return EHImage.network(
-      containerHeight: GlobalConfig.dashboardCardSize,
-      containerWidth: GlobalConfig.dashboardCardSize,
+      containerHeight: UIConfig.dashboardCardSize,
+      containerWidth: UIConfig.dashboardCardSize,
       galleryImage: image,
       fit: BoxFit.cover,
     );

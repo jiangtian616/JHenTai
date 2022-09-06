@@ -10,7 +10,7 @@ import 'package:resizable_widget/resizable_widget.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
@@ -56,7 +56,7 @@ class DesktopLayoutPage extends StatelessWidget {
   Widget _leftTabBar(BuildContext context) {
     return Material(
       child: Container(
-        width: GlobalConfig.desktopLeftTabBarWidth,
+        width: UIConfig.desktopLeftTabBarWidth,
         decoration: BoxDecoration(
           color: Get.theme.colorScheme.background,
           border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3)),

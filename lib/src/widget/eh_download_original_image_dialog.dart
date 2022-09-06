@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../config/global_config.dart';
+import '../config/ui_config.dart';
 import '../utils/route_util.dart';
 
 class EHDownloadOriginalImageDialog extends StatelessWidget {
@@ -11,7 +11,7 @@ class EHDownloadOriginalImageDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: GlobalConfig.downloadOriginalImageDialogColor,
+      backgroundColor: UIConfig.downloadOriginalImageDialogColor,
       title: Text('downloadOriginalImage'.tr + ' ?'),
       actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
       actions: [

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -96,17 +96,17 @@ class _TorrentList extends StatelessWidget {
               dense: true,
               title: InkWell(
                 onTap: () => launchUrlString(torrent.torrentUrl, mode: LaunchMode.externalApplication),
-                child: Text(torrent.title, style: const TextStyle(fontSize: GlobalConfig.torrentDialogTitleSize, color: Colors.blue)),
+                child: Text(torrent.title, style: const TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: Colors.blue)),
               ),
               subtitle: Row(
                 children: [
-                  const Icon(Icons.account_circle, size: GlobalConfig.torrentDialogSubtitleIconSize),
-                  Text(torrent.peers.toString(), style: const TextStyle(fontSize: GlobalConfig.torrentDialogSubtitleTextSize)),
-                  const Icon(Icons.download, size: GlobalConfig.torrentDialogSubtitleIconSize).marginOnly(left: 6),
-                  Text(torrent.downloads.toString(), style: const TextStyle(fontSize: GlobalConfig.torrentDialogSubtitleTextSize)),
-                  const Icon(Icons.attach_file, size: GlobalConfig.torrentDialogSubtitleIconSize).marginOnly(left: 6),
-                  Text(torrent.size, style: const TextStyle(fontSize: GlobalConfig.torrentDialogSubtitleTextSize)),
-                  Text(torrent.postTime, style: const TextStyle(fontSize: GlobalConfig.torrentDialogSubtitleTextSize)).marginOnly(left: 6),
+                  const Icon(Icons.account_circle, size: UIConfig.torrentDialogSubtitleIconSize),
+                  Text(torrent.peers.toString(), style: const TextStyle(fontSize: UIConfig.torrentDialogSubtitleTextSize)),
+                  const Icon(Icons.download, size: UIConfig.torrentDialogSubtitleIconSize).marginOnly(left: 6),
+                  Text(torrent.downloads.toString(), style: const TextStyle(fontSize: UIConfig.torrentDialogSubtitleTextSize)),
+                  const Icon(Icons.attach_file, size: UIConfig.torrentDialogSubtitleIconSize).marginOnly(left: 6),
+                  Text(torrent.size, style: const TextStyle(fontSize: UIConfig.torrentDialogSubtitleTextSize)),
+                  Text(torrent.postTime, style: const TextStyle(fontSize: UIConfig.torrentDialogSubtitleTextSize)).marginOnly(left: 6),
                 ],
               ),
               trailing: IconButton(

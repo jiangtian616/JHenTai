@@ -13,17 +13,13 @@ class HostMappingPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text('hostMapping'.tr),
-        elevation: 1,
         actions: [
-          IconButton(
-            onPressed: () => toast('hostDataSource'.tr,isShort: false),
-            icon: const Icon(Icons.help),
-          ),
+          IconButton(onPressed: () => toast('hostDataSource'.tr, isShort: false), icon: const Icon(Icons.help)),
         ],
       ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 16),
           children: [
             ListTile(
               title: const Text('e-hentai.org'),
@@ -71,8 +67,8 @@ class HostMappingPage extends StatelessWidget {
               ),
             ),
           ],
-        );
-      }),
+        ),
+      ),
     );
   }
 

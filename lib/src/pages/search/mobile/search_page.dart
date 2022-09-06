@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../../widget/eh_gallery_collection.dart';
 import '../../../widget/eh_sliver_header_delegate.dart';
 import '../../../widget/eh_tab_bar_config_dialog.dart';
@@ -49,8 +49,8 @@ class SearchPage extends StatelessWidget {
           pinned: true,
           floating: true,
           delegate: EHSliverHeaderDelegate(
-            minHeight: context.mediaQueryPadding.top + GlobalConfig.searchBarHeight,
-            maxHeight: context.mediaQueryPadding.top + GlobalConfig.appBarHeight + GlobalConfig.searchBarHeight,
+            minHeight: context.mediaQueryPadding.top + UIConfig.searchBarHeight,
+            maxHeight: context.mediaQueryPadding.top + UIConfig.appBarHeight + UIConfig.searchBarHeight,
 
             /// make sure the color changes with theme's change
             otherCondition: Get.theme.appBarTheme.backgroundColor,
@@ -106,7 +106,7 @@ class SearchPage extends StatelessWidget {
                       }),
                 ),
                 Container(
-                  height: GlobalConfig.searchBarHeight,
+                  height: UIConfig.searchBarHeight,
                   width: double.infinity,
                   color: Get.theme.backgroundColor,
                   child: Row(
@@ -320,9 +320,9 @@ class SearchPage extends StatelessWidget {
   Widget _buildPullDownIndicator() {
     /// take responsibility of [SliverOverlapInjector]
     return SliverPadding(
-      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + GlobalConfig.searchBarHeight),
+      padding: EdgeInsets.only(top: Get.mediaQuery.padding.top + UIConfig.searchBarHeight),
       sliver: CupertinoSliverRefreshControl(
-        refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+        refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
         onRefresh: logic.handlePullDown,
       ),
     );

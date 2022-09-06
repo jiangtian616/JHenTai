@@ -9,7 +9,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../base/base_page.dart';
 import '../base/base_search_page_state.dart';
 
@@ -50,7 +50,7 @@ class DesktopSearchPage extends BasePage with BaseSearchPage {
 
   Widget buildHeader(BuildContext context) {
     return Container(
-      height: GlobalConfig.searchBarHeight,
+      height: UIConfig.searchBarHeight,
       margin: const EdgeInsets.only(top: 8, bottom: 8, left: 2, right: 2),
       child: Row(
         children: [

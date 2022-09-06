@@ -35,199 +35,154 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('downloadSetting'.tr),
-        elevation: 1,
-      ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      appBar: AppBar(centerTitle: true, title: Text('downloadSetting'.tr)),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 16),
           children: [
-            ListTile(
-              title: Text('downloadPath'.tr),
-              subtitle: Text(DownloadSetting.downloadPath.value),
-              trailing: changeDownloadPathState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
-              onTap: () {
-                if (!GetPlatform.isIOS) {
-                  toast('changeDownloadPathHint'.tr, isShort: false);
-                }
-              },
-              onLongPress: _handleChangeDownloadPath,
-            ),
-            if (!GetPlatform.isIOS)
-              ListTile(
-                title: Text('resetDownloadPath'.tr),
-                subtitle: Text('longPress2Reset'.tr),
-                onLongPress: _handleResetDownloadPath,
-              ),
-            ListTile(
-              title: Text('downloadOriginalImageByDefault'.tr),
-              trailing: Switch(
-                value: DownloadSetting.downloadOriginalImageByDefault.value ?? false,
-                onChanged: (value) {
-                  if ( !UserSetting.hasLoggedIn()) {
-                    toast('needLoginToOperate'.tr);
-                    return;
-                  }
-                  DownloadSetting.saveDownloadOriginalImageByDefault(value);
-                },
-              ),
-            ),
-            ListTile(
-              title: Text('downloadTaskConcurrency'.tr),
-              trailing: DropdownButton<int>(
-                value: DownloadSetting.downloadTaskConcurrency.value,
-                elevation: 4,
-                onChanged: (int? newValue) {
-                  DownloadSetting.saveDownloadTaskConcurrency(newValue!);
-                },
-                items: const [
-                  DropdownMenuItem(
-                    child: Text('2'),
-                    value: 2,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('4'),
-                    value: 4,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('6'),
-                    value: 6,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('8'),
-                    value: 8,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('10'),
-                    value: 10,
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: Text('speedLimit'.tr),
-              subtitle: Text('speedLimitHint'.tr),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  DropdownButton<int>(
-                    value: DownloadSetting.maximum.value,
-                    elevation: 4,
-                    alignment: AlignmentDirectional.bottomEnd,
-                    onChanged: (int? newValue) {
-                      DownloadSetting.saveMaximum(newValue!);
-                    },
-                    items: const [
-                      DropdownMenuItem(
-                        child: Text('1'),
-                        value: 1,
-                      ),
-                      DropdownMenuItem(
-                        child: Text('2'),
-                        value: 2,
-                      ),
-                      DropdownMenuItem(
-                        child: Text('3'),
-                        value: 3,
-                      ),
-                      DropdownMenuItem(
-                        child: Text('5'),
-                        value: 5,
-                      ),
-                      DropdownMenuItem(
-                        child: Text('10'),
-                        value: 10,
-                      ),
-                      DropdownMenuItem(
-                        child: Text('99'),
-                        value: 99,
-                      ),
-                    ],
-                  ),
-                  Text('${'images'.tr} ${'per'.tr}').marginSymmetric(horizontal: 4),
-                  DropdownButton<Duration>(
-                    value: DownloadSetting.period.value,
-                    elevation: 4,
-                    alignment: AlignmentDirectional.bottomEnd,
-                    onChanged: (Duration? newValue) {
-                      DownloadSetting.savePeriod(newValue!);
-                    },
-                    items: const [
-                      DropdownMenuItem(
-                        child: Text('1s'),
-                        value: Duration(seconds: 1),
-                      ),
-                      DropdownMenuItem(
-                        child: Text('2s'),
-                        value: Duration(seconds: 2),
-                      ),
-                      DropdownMenuItem(
-                        child: Text('3s'),
-                        value: Duration(seconds: 3),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: Text('downloadTimeout'.tr),
-              trailing: DropdownButton<int>(
-                value: DownloadSetting.timeout.value,
-                elevation: 4,
-                onChanged: (int? newValue) {
-                  DownloadSetting.saveTimeout(newValue!);
-                },
-                items: const [
-                  DropdownMenuItem(
-                    child: Text('5s'),
-                    value: 5,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('10s'),
-                    value: 10,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('15s'),
-                    value: 15,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('20s'),
-                    value: 20,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('30s'),
-                    value: 30,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('60s'),
-                    value: 60,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('180s'),
-                    value: 180,
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: Text('downloadInOrder'.tr),
-              trailing: Switch(
-                value: DownloadSetting.downloadInOrderOfInsertTime.value,
-                onChanged: (value) => DownloadSetting.saveDownloadInOrderOfInsertTime(value),
-              ),
-            ),
-            ListTile(
-              title: Text('restoreDownloadTasks'.tr),
-              subtitle: Text('restoreDownloadTasksHint'.tr),
-              onTap: _restore,
-            ),
+            _buildDownloadPath(),
+            if (!GetPlatform.isIOS) _buildResetDownloadPath(),
+            _buildDownloadOriginalImage(),
+            _buildDownloadConcurrency(),
+            _buildSpeedLimit(),
+            _buildTimeout(),
+            _buildDownloadInOrder(),
+            _buildRestore(),
           ],
-        ).paddingSymmetric(vertical: 16);
-      }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDownloadPath() {
+    return ListTile(
+      title: Text('downloadPath'.tr),
+      subtitle: Text(DownloadSetting.downloadPath.value),
+      trailing: changeDownloadPathState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
+      onTap: () {
+        if (!GetPlatform.isIOS) {
+          toast('changeDownloadPathHint'.tr, isShort: false);
+        }
+      },
+      onLongPress: _handleChangeDownloadPath,
+    );
+  }
+
+  Widget _buildResetDownloadPath() {
+    return ListTile(
+      title: Text('resetDownloadPath'.tr),
+      subtitle: Text('longPress2Reset'.tr),
+      onLongPress: _handleResetDownloadPath,
+    );
+  }
+
+  Widget _buildDownloadOriginalImage() {
+    return ListTile(
+      title: Text('downloadOriginalImageByDefault'.tr),
+      trailing: Switch(
+        value: DownloadSetting.downloadOriginalImageByDefault.value ?? false,
+        onChanged: (value) {
+          if (!UserSetting.hasLoggedIn()) {
+            toast('needLoginToOperate'.tr);
+            return;
+          }
+          DownloadSetting.saveDownloadOriginalImageByDefault(value);
+        },
+      ),
+    );
+  }
+
+  Widget _buildDownloadConcurrency() {
+    return ListTile(
+      title: Text('downloadTaskConcurrency'.tr),
+      trailing: DropdownButton<int>(
+        value: DownloadSetting.downloadTaskConcurrency.value,
+        elevation: 4,
+        onChanged: (int? newValue) => DownloadSetting.saveDownloadTaskConcurrency(newValue!),
+        items: const [
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('4'), value: 4),
+          DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('10'), value: 10),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSpeedLimit() {
+    return ListTile(
+      title: Text('speedLimit'.tr),
+      subtitle: Text('speedLimitHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          DropdownButton<int>(
+            value: DownloadSetting.maximum.value,
+            elevation: 4,
+            alignment: AlignmentDirectional.bottomEnd,
+            onChanged: (int? newValue) {
+              DownloadSetting.saveMaximum(newValue!);
+            },
+            items: const [
+              DropdownMenuItem(child: Text('1'), value: 1),
+              DropdownMenuItem(child: Text('2'), value: 2),
+              DropdownMenuItem(child: Text('3'), value: 3),
+              DropdownMenuItem(child: Text('5'), value: 5),
+              DropdownMenuItem(child: Text('10'), value: 10),
+              DropdownMenuItem(child: Text('99'), value: 99),
+            ],
+          ),
+          Text('${'images'.tr} ${'per'.tr}').marginSymmetric(horizontal: 8),
+          DropdownButton<Duration>(
+            value: DownloadSetting.period.value,
+            elevation: 4,
+            alignment: AlignmentDirectional.bottomEnd,
+            onChanged: (Duration? newValue) => DownloadSetting.savePeriod(newValue!),
+            items: const [
+              DropdownMenuItem(child: Text('1s'), value: Duration(seconds: 1)),
+              DropdownMenuItem(child: Text('2s'), value: Duration(seconds: 2)),
+              DropdownMenuItem(child: Text('3s'), value: Duration(seconds: 3)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeout() {
+    return ListTile(
+      title: Text('downloadTimeout'.tr),
+      trailing: DropdownButton<int>(
+        value: DownloadSetting.timeout.value,
+        elevation: 4,
+        onChanged: (int? newValue) => DownloadSetting.saveTimeout(newValue!),
+        items: const [
+          DropdownMenuItem(child: Text('5s'), value: 5),
+          DropdownMenuItem(child: Text('10s'), value: 10),
+          DropdownMenuItem(child: Text('15s'), value: 15),
+          DropdownMenuItem(child: Text('20s'), value: 20),
+          DropdownMenuItem(child: Text('30s'), value: 30),
+          DropdownMenuItem(child: Text('60s'), value: 60),
+          DropdownMenuItem(child: Text('180s'), value: 180),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDownloadInOrder() {
+    return ListTile(
+      title: Text('downloadInOrder'.tr),
+      trailing: Switch(value: DownloadSetting.downloadInOrderOfInsertTime.value, onChanged: DownloadSetting.saveDownloadInOrderOfInsertTime),
+    );
+  }
+
+  Widget _buildRestore() {
+    return ListTile(
+      title: Text('restoreDownloadTasks'.tr),
+      subtitle: Text('restoreDownloadTasksHint'.tr),
+      onTap: _restore,
     );
   }
 
@@ -258,11 +213,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     }
 
     if (newDownloadPath == null || newDownloadPath == oldDownloadPath) {
-      return;
-    }
-
-    if (absolute(newDownloadPath).startsWith(oldDownloadPath)) {
-      toast('invalidPath'.tr, isShort: false);
       return;
     }
 
@@ -305,6 +255,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
       /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
+
       await localGalleryService.refreshLocalGallerys();
     } on Exception catch (e) {
       Log.error('_handleChangeDownloadPath failed!', e);
@@ -315,8 +266,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     }
   }
 
-  void _handleResetDownloadPath() {
-    _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
+  Future<void> _handleResetDownloadPath() {
+    return _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
   }
 
   Future<void> _restore() async {
@@ -332,7 +283,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   bool _checkPermissionForNewPath(String newDownloadPath) {
     try {
-      io.File file = io.File(join(newDownloadPath, 'test'));
+      io.File file = io.File(join(newDownloadPath, 'JHenTaiTest'));
       file.createSync(recursive: true);
       file.deleteSync();
     } on FileSystemException catch (e) {
@@ -340,6 +291,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       Log.upload(e, extraInfos: {'path': newDownloadPath});
       return false;
     }
+
     return true;
   }
 }

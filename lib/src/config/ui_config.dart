@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 
 import '../utils/screen_size_util.dart';
 
-class GlobalConfig {
+class UIConfig {
   /// layout
   static const double appBarHeight = 40;
   static const double tabBarHeight = 36;

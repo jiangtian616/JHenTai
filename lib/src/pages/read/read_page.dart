@@ -12,7 +12,7 @@ import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../config/global_config.dart';
+import '../../config/ui_config.dart';
 import '../../routes/routes.dart';
 import '../../service/gallery_download_service.dart';
 import '../../setting/read_setting.dart';
@@ -262,9 +262,9 @@ class ReadPage extends StatelessWidget {
       builder: (_) => AnimatedPositioned(
         duration: const Duration(milliseconds: 200),
         curve: Curves.ease,
-        height: state.isMenuOpen ? GlobalConfig.appBarHeight + context.mediaQuery.padding.top : 0,
+        height: state.isMenuOpen ? UIConfig.appBarHeight + context.mediaQuery.padding.top : 0,
         child: SizedBox(
-          height: GlobalConfig.appBarHeight + context.mediaQuery.padding.top,
+          height: UIConfig.appBarHeight + context.mediaQuery.padding.top,
           width: fullScreenWidth,
           child: AppBar(
             iconTheme: const IconThemeData(color: Colors.white),
@@ -318,8 +318,8 @@ class ReadPage extends StatelessWidget {
           height: !state.isMenuOpen
               ? 0
               : ReadSetting.showThumbnails.isTrue
-                  ? GlobalConfig.bottomMenuHeight
-                  : GlobalConfig.bottomMenuHeightWithoutThumbnails,
+                  ? UIConfig.bottomMenuHeight
+                  : UIConfig.bottomMenuHeightWithoutThumbnails,
           child: ColoredBox(
             color: Colors.black.withOpacity(0.8),
             child: Column(

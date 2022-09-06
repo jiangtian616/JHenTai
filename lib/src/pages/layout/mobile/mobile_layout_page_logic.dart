@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../gallerys/nested/nested_gallerys_page.dart';
 import '../../gallerys/nested/nested_gallerys_page_logic.dart';
 import 'mobile_layout_page_state.dart';
@@ -55,7 +55,7 @@ class MobileLayoutPageLogic extends GetxController {
 
         /// default value equals to CupertinoSliverRefreshControl._defaultRefreshTriggerPullDistance
         () => scrollController?.animateTo(
-          -GlobalConfig.refreshTriggerPullDistance,
+          -UIConfig.refreshTriggerPullDistance,
           duration: const Duration(milliseconds: 400),
           curve: Curves.ease,
         ),

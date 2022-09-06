@@ -6,7 +6,7 @@ import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../config/global_config.dart';
+import '../../config/ui_config.dart';
 import '../../widget/eh_gallery_collection.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
@@ -149,7 +149,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
-      refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+      refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
       onRefresh: () => logic.handlePullDown(),
     );
   }

@@ -394,7 +394,7 @@ class en_US {
           'Long press to change. Change download path will copy downloaded gallerys automatically and keep old files. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset Download Path',
       'downloadOriginalImage': 'Download Original Image',
-      'downloadOriginalImageByDefault': 'Download Original Image By Default',
+      'downloadOriginalImageByDefault': 'Choose Original Image By Default',
       'originalImage': 'Original',
       'resampleImage': 'Resample',
       'never': 'Never',

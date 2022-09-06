@@ -10,7 +10,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../config/global_config.dart';
+import '../config/ui_config.dart';
 import '../database/database.dart';
 import '../network/eh_request.dart';
 import '../setting/user_setting.dart';
@@ -110,8 +110,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
     return LikeButton(
       likeBuilder: (bool liked) => Icon(
         Icons.thumb_up,
-        size: GlobalConfig.tagDialogButtonSize,
-        color: liked ? Colors.green : GlobalConfig.tagDialogButtonColor,
+        size: UIConfig.tagDialogButtonSize,
+        color: liked ? Colors.green : UIConfig.tagDialogButtonColor,
       ),
       onTap: (bool liked) => liked ? Future.value(true) : vote(isVotingUp: true),
     );
@@ -121,8 +121,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
     return LikeButton(
       likeBuilder: (bool liked) => Icon(
         Icons.thumb_down,
-        size: GlobalConfig.tagDialogButtonSize,
-        color: liked ? Colors.red : GlobalConfig.tagDialogButtonColor,
+        size: UIConfig.tagDialogButtonSize,
+        color: liked ? Colors.red : UIConfig.tagDialogButtonColor,
       ),
       onTap: (bool liked) => liked ? Future.value(true) : vote(isVotingUp: false),
     );
@@ -132,8 +132,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
     return LikeButton(
       likeBuilder: (bool liked) => Icon(
         Icons.favorite,
-        size: GlobalConfig.tagDialogButtonSize,
-        color: liked ? Colors.red : GlobalConfig.tagDialogButtonColor,
+        size: UIConfig.tagDialogButtonSize,
+        color: liked ? Colors.red : UIConfig.tagDialogButtonColor,
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(true),
     );
@@ -143,8 +143,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
     return LikeButton(
       likeBuilder: (bool liked) => Icon(
         Icons.visibility_off,
-        size: GlobalConfig.tagDialogButtonSize,
-        color: liked ? Colors.red : GlobalConfig.tagDialogButtonColor,
+        size: UIConfig.tagDialogButtonSize,
+        color: liked ? Colors.red : UIConfig.tagDialogButtonColor,
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(false),
     );
@@ -154,8 +154,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
     return LikeButton(
       likeBuilder: (_) => Icon(
         Icons.settings,
-        size: GlobalConfig.tagDialogButtonSize,
-        color: GlobalConfig.tagDialogButtonColor,
+        size: UIConfig.tagDialogButtonSize,
+        color: UIConfig.tagDialogButtonColor,
       ),
       onTap: (_) async {
         toRoute(Routes.tagSets);

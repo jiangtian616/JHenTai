@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -107,7 +107,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.favorite, color: GlobalConfig.tagSetsPageIconColor),
+                leading: Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor),
                 title: Text('favorite'.tr),
                 onTap: () {
                   backRoute();
@@ -115,7 +115,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.not_interested, color: GlobalConfig.tagSetsPageIconColor),
+                leading: Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor),
                 title: Text('hidden'.tr),
                 onTap: () {
                   backRoute();
@@ -123,7 +123,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
                 },
               ),
               ListTile(
-                leading: Icon(Icons.question_mark, color: GlobalConfig.tagSetsPageIconColor),
+                leading: Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
                 title: Text('nope'.tr),
                 onTap: () {
                   backRoute();

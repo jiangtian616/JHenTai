@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -90,18 +90,18 @@ class _EHCommentHeader extends StatelessWidget {
         Text(
           (username ?? 'unknownUser'.tr) + (fromMe ? ' (${'you'.tr})' : ''),
           style: TextStyle(
-            fontSize: GlobalConfig.commentAuthorTextSize,
+            fontSize: UIConfig.commentAuthorTextSize,
             fontWeight: FontWeight.bold,
             color: username == null
-                ? GlobalConfig.commentUnknownAuthorTextColor
+                ? UIConfig.commentUnknownAuthorTextColor
                 : fromMe
-                    ? GlobalConfig.commentOwnAuthorTextColor
-                    : GlobalConfig.commentOtherAuthorTextColor,
+                    ? UIConfig.commentOwnAuthorTextColor
+                    : UIConfig.commentOtherAuthorTextColor,
           ),
         ),
         Text(
           commentTime,
-          style: TextStyle(fontSize: GlobalConfig.commentTimeTextSize, color: GlobalConfig.commentTimeTextColor),
+          style: TextStyle(fontSize: UIConfig.commentTimeTextSize, color: UIConfig.commentTimeTextColor),
         ),
       ],
     );
@@ -126,7 +126,7 @@ class _EHCommentTextBody extends StatelessWidget {
       height: bodyHeight,
       child: HtmlWidget(
         maxLines == null ? _wrapUrlInATag(html) : _wrapUrlInATag(html).replaceAll('<br>', ' '),
-        textStyle: const TextStyle(fontSize: GlobalConfig.commentBodyTextSize),
+        textStyle: const TextStyle(fontSize: UIConfig.commentBodyTextSize),
         onTapUrl: maxLines == null ? _handleTapUrl : null,
         isSelectable: maxLines == null,
         customWidgetBuilder: (element) {
@@ -259,20 +259,20 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
         if (widget.lastEditTime?.isNotEmpty ?? false)
           Text(
             '${'lastEditedOn'.tr}: ${widget.lastEditTime}',
-            style: TextStyle(fontSize: GlobalConfig.commentLastEditTimeTextSize, color: GlobalConfig.commentFooterTextColor),
+            style: TextStyle(fontSize: UIConfig.commentLastEditTimeTextSize, color: UIConfig.commentFooterTextColor),
           ),
         const Expanded(child: SizedBox()),
 
         /// can't vote for uploader or ourselves, and if we have commented, we can't vote for all of the comments
         if (score.isNotEmpty && !widget.fromMe && !widget.disableButtons) ...[
           LikeButton(
-            size: GlobalConfig.commentButtonSize,
-            likeBuilder: (_) => Icon(Icons.thumb_up, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            size: UIConfig.commentButtonSize,
+            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSize, color: UIConfig.commentButtonColor),
             onTap: (isLiked) => _handleVotingComment(widget.commentId, true),
           ).marginOnly(right: 18),
           LikeButton(
-            size: GlobalConfig.commentButtonSize,
-            likeBuilder: (_) => Icon(Icons.thumb_down, size: GlobalConfig.commentButtonSize, color: GlobalConfig.commentButtonColor),
+            size: UIConfig.commentButtonSize,
+            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSize, color: UIConfig.commentButtonColor),
             onTap: (isLiked) => _handleVotingComment(widget.commentId, false),
           ),
         ],
@@ -282,7 +282,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
             alignment: Alignment.centerRight,
             child: Text(
               score.isNotEmpty ? score : 'uploader'.tr,
-              style: TextStyle(fontSize: GlobalConfig.commentScoreSize, color: GlobalConfig.commentFooterTextColor),
+              style: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor),
             ),
           ),
         ),

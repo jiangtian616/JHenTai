@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../config/global_config.dart';
+import '../config/ui_config.dart';
 
 class EHGroupNameSelector extends StatefulWidget {
   final String? currentGroup;
@@ -41,8 +41,8 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: GlobalConfig.groupSelectorHeight,
-      width: GlobalConfig.groupSelectorWidth,
+      height: UIConfig.groupSelectorHeight,
+      width: UIConfig.groupSelectorWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -55,7 +55,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
 
   Widget _buildChips() {
     return SizedBox(
-      height: GlobalConfig.groupSelectorChipsHeight,
+      height: UIConfig.groupSelectorChipsHeight,
       child: Center(
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
@@ -70,14 +70,14 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
   Widget _chipBuilder(_, int index) {
     return ChoiceChip(
       label: Text(widget.candidates[index]),
-      labelStyle: const TextStyle(fontSize: GlobalConfig.groupSelectorChipTextSize, height: 1),
+      labelStyle: const TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1),
       labelPadding: const EdgeInsets.symmetric(horizontal: 3),
       selected: textEditingController.value.text == widget.candidates[index],
       onSelected: (bool value) {
         setState(() => textEditingController.value = TextEditingValue(text: widget.candidates[index]));
       },
       side: BorderSide.none,
-      backgroundColor: GlobalConfig.groupSelectorChipColor,
+      backgroundColor: UIConfig.groupSelectorChipColor,
     ).marginOnly(right: 4);
   }
 
@@ -88,9 +88,9 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
           isDense: true,
           alignLabelWithHint: true,
           labelText: 'groupName'.tr,
-          labelStyle: const TextStyle(fontSize: GlobalConfig.groupSelectorTextFieldLabelTextSize),
+          labelStyle: const TextStyle(fontSize: UIConfig.groupSelectorTextFieldLabelTextSize),
         ),
-        style: const TextStyle(fontSize: GlobalConfig.groupSelectorTextFieldTextSize),
+        style: const TextStyle(fontSize: UIConfig.groupSelectorTextFieldTextSize),
         controller: textEditingController,
       ),
     );

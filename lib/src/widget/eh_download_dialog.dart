@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -55,8 +55,8 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
 
   Widget _buildBody() {
     return SizedBox(
-      height: GlobalConfig.downloadDialogBodyHeight,
-      width: GlobalConfig.downloadDialogWidth,
+      height: UIConfig.downloadDialogBodyHeight,
+      width: UIConfig.downloadDialogWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -73,17 +73,17 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
 
   Widget _buildDownloadOriginalImageCheckBox() {
     return SizedBox(
-      height: GlobalConfig.downloadDialogCheckBoxHeight,
-      width: GlobalConfig.downloadDialogWidth,
+      height: UIConfig.downloadDialogCheckBoxHeight,
+      width: UIConfig.downloadDialogWidth,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text('downloadOriginalImage'.tr + ' ?', style: const TextStyle(fontSize: GlobalConfig.groupDialogCheckBoxTextSize)),
+          Text('downloadOriginalImage'.tr + ' ?', style: const TextStyle(fontSize: UIConfig.groupDialogCheckBoxTextSize)),
           Checkbox(
             value: downloadOriginalImage,
-            activeColor: GlobalConfig.groupDialogCheckBoxColor,
+            activeColor: UIConfig.groupDialogCheckBoxColor,
             onChanged: (bool? value) => setState(() => downloadOriginalImage = (value ?? true)),
           ),
         ],

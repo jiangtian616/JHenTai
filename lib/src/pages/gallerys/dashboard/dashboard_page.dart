@@ -9,7 +9,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/eh_dashboard_card.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../../config/global_config.dart';
+import '../../../config/ui_config.dart';
 import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'dashboard_page_logic.dart';
 
@@ -76,7 +76,7 @@ class DashboardPage extends BasePage {
   @override
   Widget buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
-      refreshTriggerPullDistance: GlobalConfig.refreshTriggerPullDistance,
+      refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
       onRefresh: () => logic.handleRefreshTotalPage(),
     );
   }
@@ -84,7 +84,7 @@ class DashboardPage extends BasePage {
   Widget _buildRanklist() {
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: GlobalConfig.dashboardCardSize,
+        height: UIConfig.dashboardCardSize,
         child: GetBuilder<DashboardPageLogic>(
           id: logic.ranklistId,
           builder: (_) => LoadingStateIndicator(
@@ -134,7 +134,7 @@ class DashboardPage extends BasePage {
   Widget _buildPopular() {
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: GlobalConfig.dashboardCardSize,
+        height: UIConfig.dashboardCardSize,
         child: GetBuilder<DashboardPageLogic>(
           id: logic.popularListId,
           builder: (_) => LoadingStateIndicator(

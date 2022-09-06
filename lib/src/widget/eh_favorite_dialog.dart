@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 import '../setting/favorite_setting.dart';
 import '../utils/route_util.dart';
@@ -25,12 +25,12 @@ class EHFavoriteDialog extends StatelessWidget {
                     dense: true,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                     selected: selectedIndex == index,
-                    selectedTileColor: GlobalConfig.favoriteDialogTileColor,
+                    selectedTileColor: UIConfig.favoriteDialogTileColor,
                     visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
                     leading: Text(tagName),
                     trailing: Text(
                       FavoriteSetting.favoriteCounts[index].toString(),
-                      style: TextStyle(fontSize: GlobalConfig.favoriteDialogCountTextSize, color: GlobalConfig.favoriteDialogCountTextColor),
+                      style: TextStyle(fontSize: UIConfig.favoriteDialogCountTextSize, color: UIConfig.favoriteDialogCountTextColor),
                     ),
                     onTap: () => backRoute(result: index),
                   ),

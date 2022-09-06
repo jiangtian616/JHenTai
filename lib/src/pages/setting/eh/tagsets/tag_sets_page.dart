@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/global_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_logic.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_state.dart';
@@ -143,7 +143,7 @@ class _TagHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<TagSetStatus>(
-      icon: Icon(_computeIcon(), color: GlobalConfig.tagSetsPageIconColor),
+      icon: Icon(_computeIcon(), color: UIConfig.tagSetsPageIconColor),
       initialValue: _computeStatus(),
       onSelected: onStatusUpdated,
       elevation: 4,
@@ -152,7 +152,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.watched,
           child: Row(
             children: [
-              Icon(Icons.favorite, color: GlobalConfig.tagSetsPageIconColor),
+              Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor),
               const SizedBox(width: 8),
               Text('watched'.tr),
             ],
@@ -162,7 +162,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.hidden,
           child: Row(
             children: [
-              Icon(Icons.not_interested, color: GlobalConfig.tagSetsPageIconColor),
+              Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor),
               const SizedBox(width: 8),
               Text('hidden'.tr),
             ],
@@ -172,7 +172,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.nope,
           child: Row(
             children: [
-              Icon(Icons.question_mark, color: GlobalConfig.tagSetsPageIconColor),
+              Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
               const SizedBox(width: 8),
               Text('nope'.tr),
             ],
