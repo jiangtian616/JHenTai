@@ -48,6 +48,7 @@ class TagTranslationService extends GetxService {
     if (loadingState.value == LoadingState.loading) {
       return;
     }
+
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 MB';
 
@@ -80,10 +81,13 @@ class TagTranslationService extends GetxService {
 
     await _clear();
     await _save(tagList);
+
     storageService.write('TagTranslationServiceLoadingState', LoadingState.success.index);
     storageService.write('TagTranslationServiceTimestamp', timeStamp.value);
+
     loadingState.value = LoadingState.success;
-    Log.info('update tagTranslation database success', false);
+    Log.info('Update tagTranslation database success', false);
+
     io.File(savePath).delete();
   }
 
@@ -136,20 +140,17 @@ class TagTranslationService extends GetxService {
   Future<List> _getDataList() async {
     try {
       await retry(
-        () async {
-          await EHRequest.download(
-              url: downloadUrl,
-              path: savePath,
-              receiveTimeout: 30000,
-              onReceiveProgress: (count, total) {
-                downloadProgress.value = (count / 1024 / 1024).toStringAsFixed(2) + ' MB';
-              });
-        },
+        () => EHRequest.download(
+          url: downloadUrl,
+          path: savePath,
+          receiveTimeout: 30000,
+          onReceiveProgress: (count, total) => downloadProgress.value = (count / 1024 / 1024).toStringAsFixed(2) + ' MB',
+        ),
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('download tag translation data failed, retry.'),
+        onRetry: (error) => Log.warning('Download tag translation data failed, retry.'),
       );
     } on DioError catch (e) {
-      Log.error('download tag translation data failed after 3 times', e.message);
+      Log.error('Download tag translation data failed after 3 times', e.message);
       loadingState.value = LoadingState.error;
       return [];
     }
@@ -163,7 +164,8 @@ class TagTranslationService extends GetxService {
 
     List dataList = dataMap['data'] as List;
 
-    Log.info('tag translation data downloaded, length: ${dataList.length}', false);
+    Log.info('Tag translation data downloaded, length: ${dataList.length}');
+
     return dataList;
   }
 

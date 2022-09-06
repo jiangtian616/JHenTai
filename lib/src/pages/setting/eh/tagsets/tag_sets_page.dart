@@ -118,9 +118,10 @@ class _Tag extends StatelessWidget {
         onTap: Get.focusScope?.unfocus,
         onLongPress: onLongPress,
         leading: _TagHeader(watched: tagSet.watched, hidden: tagSet.hidden, onStatusUpdated: onStatusUpdated),
-        title:
-            Text(tagSet.tagData.translatedNamespace == null ? '${tagSet.tagData.namespace}:${tagSet.tagData.key}' : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
-        subtitle:tagSet.tagData.translatedNamespace == null?null: Text('${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
+        title: Text(tagSet.tagData.translatedNamespace == null
+            ? '${tagSet.tagData.namespace}:${tagSet.tagData.key}'
+            : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
+        subtitle: tagSet.tagData.translatedNamespace == null ? null : Text('${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
         trailing: _TagFooter(weight: tagSet.weight, onWeightUpdated: onWeightUpdated),
       ),
     );
@@ -145,7 +146,7 @@ class _TagHeader extends StatelessWidget {
       icon: Icon(_computeIcon(), color: GlobalConfig.tagSetsPageIconColor),
       initialValue: _computeStatus(),
       onSelected: onStatusUpdated,
-      enableFeedback: true,
+      elevation: 4,
       itemBuilder: (_) => [
         PopupMenuItem<TagSetStatus>(
           value: TagSetStatus.watched,
