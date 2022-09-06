@@ -17,30 +17,29 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoAlertDialog(
+    return AlertDialog(
+      contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 6),
+      actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
       content: SizedBox(
         height: 150,
         child: CupertinoPicker.builder(
           itemExtent: 30,
           onSelectedItemChanged: (index) => interval = (index + 1) * 0.5,
           scrollController: FixedExtentScrollController(initialItem: interval ~/ 0.5 - 1),
-          itemBuilder: (BuildContext context, int index) => Center(
-            child: Text(
-              '${(index + 1) * 0.5} s',
-              style: TextStyle(color: Get.isDarkMode ? Colors.white : Colors.black),
-            ),
+          itemBuilder: (_, int index) => Center(
+            child: Text('${(index + 1) * 0.5} s', style: TextStyle(color: Get.theme.colorScheme.onBackground)),
           ),
           childCount: 39,
         ),
       ),
       actions: [
-        CupertinoDialogAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
-        CupertinoDialogAction(
+        TextButton(child: Text('cancel'.tr), onPressed: backRoute),
+        TextButton(
           child: Text('OK'.tr),
-          onPressed: () => backRoute(result: interval),
+          onPressed: () {
+            ReadSetting.saveAutoModeInterval(interval);
+            backRoute();
+          },
         ),
       ],
     );
