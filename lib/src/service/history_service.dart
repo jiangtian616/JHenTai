@@ -12,7 +12,7 @@ class HistoryService extends GetxController {
 
   List<Gallery> history = [];
 
-  static const int pageSize = 25;
+  static const int pageSize = 50;
 
   int get pageCount => history.isEmpty ? 0 : (history.length - 1) ~/ pageSize + 1;
 

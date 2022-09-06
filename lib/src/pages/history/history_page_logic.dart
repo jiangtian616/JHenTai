@@ -30,8 +30,4 @@ class HistoryPageLogic extends BasePageLogic {
     await historyService.deleteAll();
     clearAndRefresh();
   }
-
-  void updateBody() {
-    update([bodyId]);
-  }
 }
