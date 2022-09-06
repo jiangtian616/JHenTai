@@ -6,8 +6,6 @@ import 'favorite_page_state.dart';
 
 class FavoritePageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';
@@ -23,9 +21,6 @@ class FavoritePageLogic extends BasePageLogic {
 
   @override
   bool get useSearchConfig => true;
-
-  @override
-  bool get showFilterButton => true;
 
   @override
   bool get autoLoadNeedLogin => true;

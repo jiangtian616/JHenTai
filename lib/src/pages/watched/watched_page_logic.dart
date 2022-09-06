@@ -8,8 +8,6 @@ import '../base/base_page_logic.dart';
 
 class WatchedPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';
@@ -22,9 +20,6 @@ class WatchedPageLogic extends BasePageLogic {
 
   @override
   int get tabIndex => 5;
-
-  @override
-  bool get showFilterButton => true;
 
   @override
   bool get autoLoadNeedLogin => true;

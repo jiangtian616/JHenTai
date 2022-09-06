@@ -10,8 +10,6 @@ import '../base/base_page_logic.dart';
 
 class RanklistPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';

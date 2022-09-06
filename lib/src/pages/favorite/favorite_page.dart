@@ -13,11 +13,13 @@ class FavoritePage extends BasePage {
     bool showTitle = false,
     String? name,
   }) : super(
-    key: key,
-    showMenuButton: showMenuButton,
-    showTitle: showTitle,
-    name: name,
-  );
+          key: key,
+          showMenuButton: showMenuButton,
+          showJumpButton: true,
+          showFilterButton: true,
+          showTitle: showTitle,
+          name: name,
+        );
 
   @override
   FavoritePageLogic get logic => Get.find<FavoritePageLogic>();

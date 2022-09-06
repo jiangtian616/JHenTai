@@ -5,6 +5,12 @@ import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 mixin Scroll2TopLogicMixin on GetxController {
   Scroll2TopStateMixin get state;
 
+  void jump2Top() {
+    if (state.scrollController.hasClients) {
+      state.scrollController.jumpTo(0);
+    }
+  }
+
   void scroll2Top() {
     if (state.scrollController.hasClients) {
       state.scrollController.animateTo(
@@ -16,7 +22,7 @@ mixin Scroll2TopLogicMixin on GetxController {
   }
 
   @override
-  void dispose() {
+  void onClose() {
     state.scrollController.dispose();
     super.dispose();
   }

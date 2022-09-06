@@ -13,8 +13,6 @@ import '../../../widget/loading_state_indicator.dart';
 
 class DashboardPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';

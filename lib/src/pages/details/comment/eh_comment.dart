@@ -55,7 +55,7 @@ class _EHCommentState extends State<EHComment> {
             html: widget.comment.content,
             maxLines: widget.maxLines,
             bodyHeight: widget.bodyHeight,
-          ).marginOnly(top: 2),
+          ).marginOnly(top: 2,bottom: 12),
           if (widget.maxLines != null) const Expanded(child: SizedBox()),
           _EHCommentFooter(
             commentId: widget.comment.id,

@@ -16,6 +16,7 @@ class PopularPage extends BasePage {
           key: key,
           showMenuButton: showMenuButton,
           showTitle: showTitle,
+          showJumpButton: false,
           name: name,
         );
 

@@ -94,9 +94,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
 
   @override
   void onClose() {
-    _stack.remove(this);
-    state.scrollController.dispose();
     super.onClose();
+    _stack.remove(this);
   }
 
   Future<void> getDetails({bool refresh = false}) async {

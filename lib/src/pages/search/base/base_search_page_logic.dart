@@ -107,7 +107,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
 
     state.loadingState = LoadingState.loading;
     state.searchConfig.keyword = null;
-    update([pageId]);
+    update();
 
     try {
       state.redirectUrl = await EHRequest.requestLookup(
@@ -185,7 +185,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
   void clearHistory() {
     storageService.remove('searchHistory').then((_) {
       if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
-        update([pageId]);
+        update();
       }
     });
   }
@@ -193,7 +193,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
     showScroll2TopButton = state.bodyType == SearchPageBodyType.gallerys;
-    update([pageId]);
+    update();
   }
 
   void updateGalleryBody() {

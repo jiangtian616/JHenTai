@@ -10,7 +10,7 @@ import 'eh_gallery_list_card_.dart';
 import '../setting/style_setting.dart';
 import 'eh_gallery_waterflow_card.dart';
 
-/// act as a List or WaterfallFlow according to Style Setting
+/// Act as a List or WaterfallFlow according to Style Setting
 Widget EHGalleryCollection({
   Key? key,
   required BuildContext context,
@@ -121,6 +121,7 @@ Widget EHGalleryCollection({
         StyleSetting.listMode.value == ListMode.listWithTags) {
       return _buildGalleryList();
     }
+
     return _buildGalleryWaterfallFlow();
   });
 }

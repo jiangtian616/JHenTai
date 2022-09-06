@@ -7,8 +7,6 @@ import 'popular_page_state.dart';
 
 class PopularPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';
@@ -21,9 +19,6 @@ class PopularPageLogic extends BasePageLogic {
 
   @override
   int get tabIndex => 2;
-
-  @override
-  bool get showJumpButton => false;
 
   @override
   final PopularPageState state = PopularPageState();

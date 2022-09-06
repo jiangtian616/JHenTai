@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 import 'package:jhentai/src/model/search_config.dart';
 
 import '../../model/gallery.dart';
 import '../../widget/loading_state_indicator.dart';
 
-class BasePageState {
+class BasePageState with Scroll2TopStateMixin {
   List<Gallery> gallerys = List.empty(growable: true);
+
   SearchConfig searchConfig = SearchConfig();
 
   int pageCount = -1;
@@ -15,9 +17,9 @@ class BasePageState {
   LoadingState refreshState = LoadingState.idle;
   LoadingState loadingState = LoadingState.idle;
 
+  /// used for refresh
   Key galleryCollectionKey = UniqueKey();
 
-  ScrollController scrollController = ScrollController();
   late PageStorageKey pageStorageKey;
 
   BasePageState() {

@@ -11,6 +11,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
+import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../model/gallery.dart';
 import '../../routes/routes.dart';
 import '../../service/tag_translation_service.dart';
@@ -23,10 +24,9 @@ import '../../widget/jump_page_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_state.dart';
 
-abstract class BasePageLogic extends GetxController {
+abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
+  @override
   BasePageState get state;
-
-  String get pageId;
 
   String get appBarId;
 
@@ -43,10 +43,6 @@ abstract class BasePageLogic extends GetxController {
   bool get autoLoadForFirstTime => true;
 
   bool get autoLoadNeedLogin => false;
-
-  bool get showFilterButton => false;
-
-  bool get showJumpButton => true;
 
   bool get showScroll2TopButton => true;
 
@@ -77,26 +73,21 @@ abstract class BasePageLogic extends GetxController {
         toast('needLoginToOperate'.tr);
         return;
       }
+
       loadMore();
     }
-  }
-
-  @override
-  void onClose() {
-    state.scrollController.dispose();
-    super.onClose();
   }
 
   /// pull-down
   Future<void> handlePullDown() async {
     if (state.prevPageIndexToLoad == null) {
-      await handleRefresh();
-    } else {
-      await loadBefore();
+      return handleRefresh();
     }
+
+    return loadBefore();
   }
 
-  /// pull-down to refresh
+  /// not clear current data before refresh
   Future<void> handleRefresh({String? refreshId}) async {
     if (state.refreshState == LoadingState.loading) {
       return;
@@ -132,7 +123,11 @@ abstract class BasePageLogic extends GetxController {
       state.loadingState = LoadingState.idle;
     }
 
-    update([refreshId ?? pageId]);
+    if (refreshId != null) {
+      update([refreshId]);
+    } else {
+      update();
+    }
 
     CheckService.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
@@ -140,24 +135,22 @@ abstract class BasePageLogic extends GetxController {
     ).check();
   }
 
+  /// clear current data first, then refresh
   Future<void> clearAndRefresh() async {
     if (state.loadingState == LoadingState.loading) {
       return;
     }
-    if (state.loadingState == LoadingState.idle) {
-      state.loadingState = LoadingState.loading;
-    }
+
+    state.loadingState = LoadingState.loading;
 
     state.gallerys.clear();
     state.prevPageIndexToLoad = null;
     state.nextPageIndexToLoad = 0;
     state.pageCount = -1;
 
-    if (state.scrollController.hasClients) {
-      state.scrollController.jumpTo(0);
-    }
+    jump2Top();
 
-    update([pageId]);
+    update();
 
     loadMore(checkLoadingState: false);
   }
@@ -189,7 +182,7 @@ abstract class BasePageLogic extends GetxController {
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
 
     state.loadingState = prevState;
-    update([pageId]);
+    update();
   }
 
   /// has scrolled to bottom, so need to load more data.
@@ -200,9 +193,12 @@ abstract class BasePageLogic extends GetxController {
 
     LoadingState prevState = state.loadingState;
     state.loadingState = LoadingState.loading;
+
     if (state.gallerys.isEmpty) {
+      /// for [CenterStatusIndicator]
       update([bodyId]);
     } else if (prevState == LoadingState.error || prevState == LoadingState.noData) {
+      /// for [LoadMoreIndicator]
       update([loadingStateId]);
     }
 
@@ -240,7 +236,8 @@ abstract class BasePageLogic extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
-    update([pageId]);
+
+    update();
 
     CheckService.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
@@ -258,7 +255,7 @@ abstract class BasePageLogic extends GetxController {
 
     state.gallerys.clear();
     state.loadingState = LoadingState.loading;
-    update([pageId]);
+    update();
     state.scrollController.jumpTo(0);
 
     pageIndex = max(pageIndex, 0);
@@ -290,22 +287,13 @@ abstract class BasePageLogic extends GetxController {
     } else {
       state.loadingState = LoadingState.idle;
     }
-    update([pageId]);
+
+    update();
 
     CheckService.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'jumpPage state.nextPageIndexToLoad == null!',
     ).check();
-  }
-
-  void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-      );
-    }
   }
 
   Future<void> handleTapJumpButton() async {

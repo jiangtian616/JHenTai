@@ -14,7 +14,7 @@ import '../../base/base_page.dart';
 import '../base/base_search_page_state.dart';
 
 class DesktopSearchPage extends BasePage with BaseSearchPage {
-  const DesktopSearchPage({Key? key}) : super(key: key);
+  const DesktopSearchPage({Key? key}) : super(key: key, showJumpButton: true);
 
   @override
   DesktopSearchPageLogic get logic => Get.find<DesktopSearchPageLogic>();

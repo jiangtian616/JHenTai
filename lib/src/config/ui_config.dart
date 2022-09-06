@@ -68,9 +68,9 @@ class UIConfig {
   static Color get detailsPageActionTextColor => Get.theme.colorScheme.secondary;
   static const double detailsPageActionTextSize = 11;
   static const double detailsPageCommentIndicatorHeight = 50;
-  static const double detailsPageCommentsHeight = 142;
+  static const double detailsPageCommentsHeight = 154;
   static const double detailsPageCommentsWidth = 300;
-  static const double detailsPageCommentBodyHeight = 76;
+  static const double detailsPageCommentBodyHeight = 74;
 
   static Color get detailsPageThumbnailIndexColor => Get.theme.colorScheme.outline;
   static const double detailsPageThumbnailHeight = 200;

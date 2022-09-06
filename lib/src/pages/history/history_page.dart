@@ -16,6 +16,7 @@ class HistoryPage extends BasePage {
           key: key,
           showMenuButton: showMenuButton,
           showTitle: showTitle,
+          showJumpButton: true,
           name: name,
         );
 

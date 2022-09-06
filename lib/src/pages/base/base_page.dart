@@ -15,12 +15,16 @@ import 'base_page_state.dart';
 abstract class BasePage extends StatelessWidget {
   /// For mobile layout v2
   final bool showMenuButton;
+  final bool showJumpButton;
+  final bool showFilterButton;
   final bool showTitle;
   final String? name;
 
   const BasePage({
     Key? key,
     this.showMenuButton = false,
+    this.showJumpButton = false,
+    this.showFilterButton = false,
     this.showTitle = false,
     this.name,
   }) : super(key: key);
@@ -32,11 +36,10 @@ abstract class BasePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BasePageLogic>(
-      id: logic.pageId,
       global: false,
       init: logic,
       builder: (_) => Scaffold(
-        appBar: logic.showFilterButton || logic.showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
+        appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
         body: SafeArea(child: buildBody(context)),
         floatingActionButton: buildFloatingActionButton(context),
       ),
@@ -45,12 +48,8 @@ abstract class BasePage extends StatelessWidget {
 
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
-      elevation: 1,
       leading: showMenuButton
-          ? IconButton(
-              icon: const Icon(FontAwesomeIcons.bars, size: 20),
-              onPressed: () => TapMenuButtonNotification().dispatch(context),
-            )
+          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       title: showTitle ? Text(name!) : null,
       centerTitle: true,
@@ -60,38 +59,32 @@ abstract class BasePage extends StatelessWidget {
 
   Widget buildFloatingActionButton(BuildContext context) {
     return GetBuilder<BasePageLogic>(
-        id: logic.scroll2TopButtonId,
-        global: false,
-        init: logic,
-        builder: (_) {
-          if (!logic.showScroll2TopButton || logic.state.gallerys.isEmpty) {
-            return const SizedBox();
-          }
-          return FloatingActionButton(
-            child: const Icon(Icons.arrow_upward, size: 28),
-            foregroundColor: Get.theme.primaryColor,
-            backgroundColor: Get.theme.colorScheme.background,
-            elevation: 3,
-            heroTag: null,
-            onPressed: logic.scroll2Top,
-          );
-        });
+      id: logic.scroll2TopButtonId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        if (!logic.showScroll2TopButton || logic.state.gallerys.isEmpty) {
+          return const SizedBox();
+        }
+
+        return FloatingActionButton(child: const Icon(Icons.arrow_upward), heroTag: null, onPressed: logic.scroll2Top);
+      },
+    );
   }
 
   List<Widget> buildAppBarButtons() {
     return [
-      if (logic.showJumpButton && state.gallerys.isNotEmpty)
+      if (showJumpButton && state.gallerys.isNotEmpty)
         ExcludeFocus(
           child: IconButton(
             icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
             onPressed: logic.handleTapJumpButton,
           ),
         ),
-      if (logic.showFilterButton)
+      if (showFilterButton)
         ExcludeFocus(
           child: IconButton(
             icon: const Icon(Icons.filter_alt_outlined, size: 28),
-            padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
             onPressed: logic.handleTapFilterButton,
           ),
         ),
@@ -150,7 +143,7 @@ abstract class BasePage extends StatelessWidget {
   Widget buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
       refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
-      onRefresh: () => logic.handlePullDown(),
+      onRefresh: logic.handlePullDown,
     );
   }
 
@@ -163,11 +156,11 @@ abstract class BasePage extends StatelessWidget {
           global: false,
           init: logic,
           builder: (_) => LoadingStateIndicator(
+            loadingState: state.loadingState,
             errorTapCallback: () {
               Log.info('LoadMoreIndicator errorTapCallback => loadMore');
               logic.loadMore();
             },
-            loadingState: state.loadingState,
           ),
         ),
       ),
@@ -181,7 +174,7 @@ abstract class BasePage extends StatelessWidget {
       gallerys: state.gallerys,
       loadingState: state.loadingState,
       handleTapCard: logic.handleTapCard,
-      handleLoadMore: () => logic.loadMore(),
+      handleLoadMore: logic.loadMore,
     );
   }
 }

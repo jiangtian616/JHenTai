@@ -19,7 +19,7 @@ final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 class SearchPageMobileV2 extends BasePage with BaseSearchPage {
   final String tag = UniqueKey().toString();
 
-  SearchPageMobileV2({Key? key}) : super(key: key) {
+  SearchPageMobileV2({Key? key}) : super(key: key,showJumpButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
     state = logic.state;
   }
@@ -33,7 +33,6 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SearchPageMobileV2Logic>(
-      id: logic.pageId,
       global: false,
       init: logic,
       builder: (_) => Obx(

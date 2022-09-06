@@ -16,6 +16,7 @@ class RanklistPage extends BasePage {
           key: key,
           showMenuButton: showMenuButton,
           showTitle: showTitle,
+          showJumpButton: true,
         );
 
   @override

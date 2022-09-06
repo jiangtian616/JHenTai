@@ -4,10 +4,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_state.dart';
 import '../../base/base_page.dart';
-import 'gallerys_page_state.dart';
 
 class GallerysPage extends BasePage {
-  const GallerysPage({Key? key}) : super(key: key);
+  const GallerysPage({Key? key}) : super(key: key, showFilterButton: true);
 
   @override
   GallerysPageLogic get logic => Get.find<GallerysPageLogic>();

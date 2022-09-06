@@ -25,9 +25,6 @@ class GallerysPageLogic extends BasePageLogic {
   bool get useSearchConfig => true;
 
   @override
-  bool get showFilterButton => true;
-
-  @override
   final GallerysPageState state = GallerysPageState();
 
   @override

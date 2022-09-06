@@ -7,8 +7,6 @@ import 'history_page_state.dart';
 
 class HistoryPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
   final String appBarId = 'appBarId';
   @override
   final String bodyId = 'bodyId';
@@ -21,9 +19,6 @@ class HistoryPageLogic extends BasePageLogic {
 
   @override
   int get tabIndex => 6;
-
-  @override
-  bool get showJumpButton => true;
 
   @override
   final HistoryPageState state = HistoryPageState();
