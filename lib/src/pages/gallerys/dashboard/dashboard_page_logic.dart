@@ -12,17 +12,6 @@ import '../../../utils/snack_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 class DashboardPageLogic extends BasePageLogic {
-  @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
-
   final String ranklistId = 'ranklistId';
   final String popularListId = 'popularListId';
   final String galleryListId = 'galleryListId';

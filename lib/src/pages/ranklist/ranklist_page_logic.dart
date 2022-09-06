@@ -10,17 +10,6 @@ import '../base/base_page_logic.dart';
 
 class RanklistPageLogic extends BasePageLogic {
   @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
-
-  @override
   int get tabIndex => 3;
 
   @override

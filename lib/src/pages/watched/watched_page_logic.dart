@@ -8,17 +8,6 @@ import '../base/base_page_logic.dart';
 
 class WatchedPageLogic extends BasePageLogic {
   @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
-
-  @override
   int get tabIndex => 5;
 
   @override
@@ -29,16 +18,12 @@ class WatchedPageLogic extends BasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('get watched data, pageIndex:$pageIndex', false);
+    Log.info('Get watched data, pageIndex:$pageIndex', false);
 
     return await EHRequest.requestGalleryPage(
       url: EHConsts.EWatched,
       pageNo: pageIndex,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
-  }
-
-  void updateBody() {
-    update([bodyId]);
   }
 }

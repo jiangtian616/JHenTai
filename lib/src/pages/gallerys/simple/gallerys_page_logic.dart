@@ -6,19 +6,6 @@ import 'gallerys_page_state.dart';
 
 class GallerysPageLogic extends BasePageLogic {
   @override
-  final String pageId = 'pageId';
-  @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
-
-  @override
   int get tabIndex => 0;
 
   @override

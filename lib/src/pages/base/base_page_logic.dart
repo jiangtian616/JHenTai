@@ -28,15 +28,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   @override
   BasePageState get state;
 
-  String get appBarId;
-
-  String get bodyId;
-
-  String get scroll2TopButtonId;
-
-  String get refreshStateId;
-
-  String get loadingStateId;
+  final String appBarId = 'appBarId';
+  final String bodyId = 'bodyId';
+  final String refreshStateId = 'refreshStateId';
+  final String loadingStateId = 'loadingStateId';
 
   bool get useSearchConfig => false;
 

@@ -38,8 +38,4 @@ class FavoritePageLogic extends BasePageLogic {
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
   }
-
-  void updateBody() {
-    update([bodyId]);
-  }
 }

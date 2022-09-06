@@ -7,19 +7,9 @@ import '../../base/base_page_logic.dart';
 
 class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogic {
   @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
   final String suggestionBodyId = 'suggestionBodyId';
   @override
   final String galleryBodyId = 'galleryBodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
   @override
   final String searchFieldId = 'searchFieldId';
 

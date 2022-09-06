@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
 mixin Scroll2TopLogicMixin on GetxController {
+  final String scroll2TopButtonId = 'scroll2TopButtonId';
+
   Scroll2TopStateMixin get state;
 
   void jump2Top() {
