@@ -29,12 +29,12 @@ class HistoryPage extends BasePage {
   final HistoryService historyService = Get.find<HistoryService>();
 
   @override
-  List<Widget> buildAppBarButtons() {
+  List<Widget> buildAppBarActions() {
     return [
       ExcludeFocus(
         child: IconButton(icon: const Icon(Icons.delete_outline_outlined, size: 27), onPressed: logic.deleteAll),
       ),
-      ...super.buildAppBarButtons(),
+      ...super.buildAppBarActions(),
     ];
   }
 }

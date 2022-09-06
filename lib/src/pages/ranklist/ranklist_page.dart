@@ -32,7 +32,7 @@ class RanklistPage extends BasePage {
       centerTitle: true,
       leading: showMenuButton ? super.buildAppBarMenuButton(context) : null,
       actions: [
-        ...super.buildAppBarButtons(),
+        ...super.buildAppBarActions(),
         ExcludeFocus(
           child: PopupMenuButton(
             initialValue: state.ranklistType,

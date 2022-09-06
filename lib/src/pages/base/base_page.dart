@@ -51,7 +51,7 @@ abstract class BasePage extends StatelessWidget {
       leading: showMenuButton ? buildAppBarMenuButton(context) : null,
       title: showTitle ? Text(name!) : null,
       centerTitle: true,
-      actions: buildAppBarButtons(),
+      actions: buildAppBarActions(),
     );
   }
 
@@ -77,7 +77,7 @@ abstract class BasePage extends StatelessWidget {
     );
   }
 
-  List<Widget> buildAppBarButtons() {
+  List<Widget> buildAppBarActions() {
     return [
       if (showJumpButton && state.gallerys.isNotEmpty)
         ExcludeFocus(

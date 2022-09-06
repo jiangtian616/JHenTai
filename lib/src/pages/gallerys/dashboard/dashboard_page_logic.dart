@@ -48,6 +48,7 @@ class DashboardPageLogic extends BasePageLogic {
     }
 
     Log.info('Get ranklist data', false);
+
     List<dynamic> gallerysAndPageInfo;
     try {
       gallerysAndPageInfo = await EHRequest.requestRanklistPage(
@@ -65,6 +66,7 @@ class DashboardPageLogic extends BasePageLogic {
 
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     state.ranklistGallerys = gallerysAndPageInfo[0];
+
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
   }
@@ -81,6 +83,7 @@ class DashboardPageLogic extends BasePageLogic {
     }
 
     Log.info('Get popular list data', false);
+
     List<dynamic> gallerysAndPageInfo;
     try {
       gallerysAndPageInfo = await EHRequest.requestGalleryPage(
@@ -99,6 +102,7 @@ class DashboardPageLogic extends BasePageLogic {
 
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     state.popularGallerys = gallerysAndPageInfo[0];
+
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);
   }

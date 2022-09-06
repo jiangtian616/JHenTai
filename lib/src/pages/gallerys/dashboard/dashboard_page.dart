@@ -14,13 +14,7 @@ import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'dashboard_page_logic.dart';
 
 class DashboardPage extends BasePage {
-  const DashboardPage({Key? key}) : super(key: key);
-
-  @override
-  bool get showMenuButton => true;
-
-  @override
-  bool get showTitle => true;
+  const DashboardPage({Key? key}) : super(key: key, showMenuButton: true, showTitle: true);
 
   @override
   String get name => 'home'.tr;
@@ -32,16 +26,14 @@ class DashboardPage extends BasePage {
   DashboardPageState get state => Get.find<DashboardPageLogic>().state;
 
   @override
-  List<Widget> buildAppBarButtons() {
+  List<Widget> buildAppBarActions() {
     return [
       IconButton(
-        icon: const Icon(Icons.search, size: 28),
-        padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
+        icon: const Icon(Icons.search),
         onPressed: () => toRoute(Routes.mobileV2Search),
       ),
       IconButton(
-        icon: const Icon(Icons.more_vert, size: 28),
-        padding: const EdgeInsets.only(left: 8, right: 18, top: 8, bottom: 8),
+        icon: const Icon(Icons.more_vert),
         onPressed: MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
       ),
     ];
@@ -66,7 +58,7 @@ class DashboardPage extends BasePage {
             _buildPopular(),
             _buildGalleryDesc(),
             _buildGalleryBody(context),
-            buildLoadMoreIndicator(),
+            super.buildLoadMoreIndicator(),
           ],
         ),
       ),
@@ -77,7 +69,38 @@ class DashboardPage extends BasePage {
   Widget buildPullDownIndicator() {
     return CupertinoSliverRefreshControl(
       refreshTriggerPullDistance: UIConfig.refreshTriggerPullDistance,
-      onRefresh: () => logic.handleRefreshTotalPage(),
+      onRefresh: logic.handleRefreshTotalPage,
+    );
+  }
+
+  Widget _buildRanklistDesc() {
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+      sliver: SliverToBoxAdapter(
+        child: Row(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('🏆 ', style: TextStyle(fontSize: 16)),
+                Text('ranklistBoard'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              ],
+            ),
+            const Expanded(child: SizedBox()),
+            TextButton(
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+              onPressed: () => toRoute(Routes.ranklist),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
+                  Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -92,40 +115,44 @@ class DashboardPage extends BasePage {
             errorTapCallback: logic.loadRanklist,
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               itemCount: state.ranklistGallerys.length,
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
-            ).paddingSymmetric(horizontal: 10),
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildRanklistDesc() {
-    return SliverToBoxAdapter(
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 16),
-        visualDensity: const VisualDensity(vertical: -4),
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildPopularListDesc() {
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 16),
+      sliver: SliverToBoxAdapter(
+        child: Row(
           children: [
-            const Text('🏆 ', style: TextStyle(fontSize: 16)),
-            Text('ranklistBoard'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('🥵 ', style: TextStyle(fontSize: 16)),
+                Text('popular'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              ],
+            ),
+            const Expanded(child: SizedBox()),
+            TextButton(
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+              onPressed: () => toRoute(Routes.popular),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
+                  Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+                ],
+              ),
+            )
           ],
-        ),
-        trailing: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => toRoute(Routes.ranklist),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-              Icon(Icons.arrow_forward_ios, color: Get.theme.primaryColor, size: 14).marginOnly(top: 1),
-            ],
-          ),
         ),
       ),
     );
@@ -142,39 +169,12 @@ class DashboardPage extends BasePage {
             errorTapCallback: logic.loadPopular,
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               itemCount: state.popularGallerys.length,
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGallerys[index]),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
-            ).paddingSymmetric(horizontal: 10),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPopularListDesc() {
-    return SliverToBoxAdapter(
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 16),
-        visualDensity: const VisualDensity(vertical: -3),
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('🥵 ', style: TextStyle(fontSize: 16)),
-            Text('popular'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          ],
-        ),
-        trailing: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => toRoute(Routes.popular),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-              Icon(Icons.arrow_forward_ios, color: Get.theme.primaryColor, size: 14).marginOnly(top: 1),
-            ],
+            ),
           ),
         ),
       ),
@@ -182,29 +182,34 @@ class DashboardPage extends BasePage {
   }
 
   Widget _buildGalleryDesc() {
-    return SliverToBoxAdapter(
-      child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.only(left: 10, right: 10, top: 16),
-        visualDensity: const VisualDensity(vertical: -2),
-        leading: Row(
-          mainAxisSize: MainAxisSize.min,
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 24),
+      sliver: SliverToBoxAdapter(
+        child: Row(
           children: [
-            const Text('🎁 ', style: TextStyle(fontSize: 16)),
-            Text('newest'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            GestureDetector(
-              child: Icon(Icons.settings, color: Get.theme.primaryColor, size: 22),
-              onTap: logic.handleTapFilterButton,
-            ).marginOnly(right: 16),
-            GestureDetector(
-              child: Icon(Icons.refresh, color: Get.theme.primaryColor, size: 25),
-              onTap: logic.clearAndRefresh,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('🎁 ', style: TextStyle(fontSize: 16)),
+                Text('newest'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              ],
             ),
+            const Expanded(child: SizedBox()),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.primary),
+                  onPressed: logic.handleTapFilterButton,
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+                ),
+                IconButton(
+                  icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.primary),
+                  onPressed: logic.clearAndRefresh,
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
+                ),
+              ],
+            )
           ],
         ),
       ),
