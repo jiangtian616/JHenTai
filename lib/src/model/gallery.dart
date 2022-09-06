@@ -142,4 +142,42 @@ class Gallery {
   String toString() {
     return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime}';
   }
+
+  Gallery copyWith({
+    int? gid,
+    String? token,
+    String? title,
+    String? category,
+    GalleryImage? cover,
+    int? pageCount,
+    double? rating,
+    bool? hasRated,
+    bool? isFavorite,
+    int? favoriteTagIndex,
+    String? favoriteTagName,
+    String? galleryUrl,
+    LinkedHashMap<String, List<GalleryTag>>? tags,
+    String? language,
+    String? uploader,
+    String? publishTime,
+  }) {
+    return Gallery(
+      gid: gid ?? this.gid,
+      token: token ?? this.token,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      cover: cover ?? this.cover,
+      pageCount: pageCount ?? this.pageCount,
+      rating: rating ?? this.rating,
+      hasRated: hasRated ?? this.hasRated,
+      isFavorite: isFavorite ?? this.isFavorite,
+      favoriteTagIndex: favoriteTagIndex ?? this.favoriteTagIndex,
+      favoriteTagName: favoriteTagName ?? this.favoriteTagName,
+      galleryUrl: galleryUrl ?? this.galleryUrl,
+      tags: tags ?? this.tags,
+      language: language ?? this.language,
+      uploader: uploader ?? this.uploader,
+      publishTime: publishTime ?? this.publishTime,
+    );
+  }
 }

@@ -43,7 +43,8 @@ class HistoryService extends GetxController {
 
     try {
       if (record == null) {
-        history.insert(0, gallery);
+        /// use a copy to deal with hero tag
+        history.insert(0, gallery.copyWith());
         await appDb.insertHistory(gallery.gid, json.encode(gallery), DateTime.now().toString());
       } else {
         history.remove(record);
