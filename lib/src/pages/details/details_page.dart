@@ -16,7 +16,6 @@ import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
@@ -796,7 +795,12 @@ class _Comments extends StatelessWidget {
               .map(
                 (comment) => GestureDetector(
                   onTap: () => toRoute(Routes.comment, arguments: comments),
-                  child: EHComment(comment: comment, maxLines: 4, disableButtons: disableButtons),
+                  child: EHComment(
+                    comment: comment,
+                    maxLines: 4,
+                    bodyHeight: GlobalConfig.detailsPageCommentBodyHeight,
+                    disableButtons: disableButtons,
+                  ),
                 ).marginOnly(right: 10),
               )
               .toList(),

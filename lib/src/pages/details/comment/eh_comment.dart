@@ -23,12 +23,14 @@ import '../../../utils/snack_util.dart';
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
   final int? maxLines;
+  final double? bodyHeight;
   final bool disableButtons;
 
   const EHComment({
     Key? key,
     required this.comment,
     this.maxLines,
+    this.bodyHeight,
     this.disableButtons = false,
   }) : super(key: key);
 
@@ -49,7 +51,11 @@ class _EHCommentState extends State<EHComment> {
             commentTime: widget.comment.time,
             fromMe: widget.comment.fromMe,
           ),
-          _EHCommentTextBody(html: widget.comment.content, maxLines: widget.maxLines).marginOnly(top: 2, bottom: 12),
+          _EHCommentTextBody(
+            html: widget.comment.content,
+            maxLines: widget.maxLines,
+            bodyHeight: widget.bodyHeight,
+          ).marginOnly(top: 2),
           if (widget.maxLines != null) const Expanded(child: SizedBox()),
           _EHCommentFooter(
             commentId: widget.comment.id,
@@ -105,36 +111,35 @@ class _EHCommentHeader extends StatelessWidget {
 class _EHCommentTextBody extends StatelessWidget {
   final String html;
   final int? maxLines;
+  final double? bodyHeight;
 
   const _EHCommentTextBody({
     Key? key,
     required this.html,
     this.maxLines,
+    this.bodyHeight,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return HtmlWidget(
-      _wrapUrlInATag(html),
-      textStyle: const TextStyle(fontSize: GlobalConfig.commentBodyTextSize),
-      onTapUrl: maxLines == null ? _handleTapUrl : null,
-      isSelectable: maxLines == null,
-      customWidgetBuilder: (element) {
-        if (element.localName != 'img') {
+    return SizedBox(
+      height: bodyHeight,
+      child: HtmlWidget(
+        maxLines == null ? _wrapUrlInATag(html) : _wrapUrlInATag(html).replaceAll('<br>', ' '),
+        textStyle: const TextStyle(fontSize: GlobalConfig.commentBodyTextSize),
+        onTapUrl: maxLines == null ? _handleTapUrl : null,
+        isSelectable: maxLines == null,
+        customWidgetBuilder: (element) {
+          /// only show text in details page
+          if (maxLines != null &&
+              (element.localName != 'div' && element.localName != 'p' && element.localName != 'strong' && element.localName != 'a')) {
+            return const SizedBox();
+          }
+
           return null;
-        }
-
-        /// not show image in details page
-        if (maxLines != null) {
-          return const SizedBox();
-        }
-
-        /// use [ExtendedImage]
-        return Center(
-          child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
-        );
-      },
-      factoryBuilder: () => _WidgetFactory(maxLines: maxLines),
+        },
+        factoryBuilder: () => _WidgetFactory(maxLines: maxLines),
+      ),
     );
   }
 
@@ -202,6 +207,18 @@ class _WidgetFactory extends WidgetFactory {
       recognizer: maxLines == null ? recognizer : null,
       style: style?.copyWith(overflow: TextOverflow.ellipsis),
       text: text,
+    );
+  }
+
+  @override
+  Widget? buildImage(BuildMetadata meta, ImageMetadata data) {
+    final src = data.sources.isNotEmpty ? data.sources.first : null;
+    if (src == null) {
+      return null;
+    }
+
+    return Center(
+      child: ExtendedImage.network(src.url).marginSymmetric(vertical: 20),
     );
   }
 }
