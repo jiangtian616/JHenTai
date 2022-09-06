@@ -112,15 +112,17 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      dense: true,
-      onTap: Get.focusScope?.unfocus,
-      onLongPress: onLongPress,
-      leading: _TagHeader(watched: tagSet.watched, hidden: tagSet.hidden, onStatusUpdated: onStatusUpdated),
-      title:
-          Text(tagSet.tagData.translatedNamespace == null ? tagSet.tagData.key : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
-      subtitle: Text(tagSet.tagData.translatedNamespace == null ? tagSet.tagData.namespace : '${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
-      trailing: _TagFooter(weight: tagSet.weight, onWeightUpdated: onWeightUpdated),
+    return Center(
+      child: ListTile(
+        dense: true,
+        onTap: Get.focusScope?.unfocus,
+        onLongPress: onLongPress,
+        leading: _TagHeader(watched: tagSet.watched, hidden: tagSet.hidden, onStatusUpdated: onStatusUpdated),
+        title:
+            Text(tagSet.tagData.translatedNamespace == null ? '${tagSet.tagData.namespace}:${tagSet.tagData.key}' : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
+        subtitle:tagSet.tagData.translatedNamespace == null?null: Text('${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
+        trailing: _TagFooter(weight: tagSet.weight, onWeightUpdated: onWeightUpdated),
+      ),
     );
   }
 }
