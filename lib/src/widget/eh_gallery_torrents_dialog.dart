@@ -39,7 +39,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       title: Center(child: Text('torrent'.tr)),
-      contentPadding: const EdgeInsets.only(left: 4, right: 0, bottom: 12, top: 24),
+      contentPadding: const EdgeInsets.only(bottom: 12, top: 24),
       children: [
         LoadingStateIndicator(
           loadingState: loadingState,

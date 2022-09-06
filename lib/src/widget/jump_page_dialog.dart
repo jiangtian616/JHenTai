@@ -3,25 +3,30 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
-class JumpPageDialog extends StatelessWidget {
-  final TextEditingController controller = TextEditingController();
-
+class JumpPageDialog extends StatefulWidget {
   final int totalPageNo;
   final int currentNo;
 
-  JumpPageDialog({Key? key, required this.totalPageNo, required this.currentNo}) : super(key: key);
+  const JumpPageDialog({Key? key, required this.totalPageNo, required this.currentNo}) : super(key: key);
+
+  @override
+  State<JumpPageDialog> createState() => _JumpPageDialogState();
+}
+
+class _JumpPageDialogState extends State<JumpPageDialog> {
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('jumpPageTo'.tr),
-      contentPadding: const EdgeInsets.fromLTRB(24.0, 20.0, 24.0, 0.0),
+      actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
       content: TextField(
         controller: controller,
-        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d'))],
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
-          labelText: '${'range'.tr}: 1 - $totalPageNo, ${'current'.tr}: $currentNo',
+          labelText: '${'range'.tr}: 1 - ${widget.totalPageNo}, ${'current'.tr}: ${widget.currentNo}',
         ),
         onSubmitted: (_) => backRoute(result: controller.text.isEmpty ? null : int.parse(controller.text) - 1),
       ),
