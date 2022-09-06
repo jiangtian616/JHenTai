@@ -192,6 +192,8 @@ class zh_CN {
       /// tag setting page
       'myTags': '我的标签',
       'myTagsHint': '管理关注和隐藏的标签',
+      'hidden': '屏蔽',
+      'nope': '无',
       'getTagSetFailed': '获取标签数据失败',
       'updateTagSetFailed': '更新标签数据失败',
       'deleteTagSetSuccess': '删除标签数据成功',

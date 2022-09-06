@@ -226,7 +226,7 @@ class GalleryHistory extends Table
   bool get dontWriteConstraints => true;
 }
 
-class TagData extends DataClass implements Insertable<TagData> {
+class  TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
   final String? translatedNamespace;

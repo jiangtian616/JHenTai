@@ -192,6 +192,8 @@ class en_US {
       /// tag setting page
       'myTags': 'My Tags',
       'myTagsHint': 'manage watched and hidden tags',
+      'hidden': 'Hidden',
+      'nope': 'Nope',
       'getTagSetFailed': 'Get Tag Set Failed',
       'updateTagSetFailed': 'Update Tag Set Failed',
       'deleteTagSetSuccess': 'Delete Tag Set Success',

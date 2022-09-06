@@ -153,4 +153,7 @@ class GlobalConfig {
   /// Tag dialog
   static Color get tagDialogButtonColor => Get.theme.colorScheme.onPrimaryContainer;
   static const double tagDialogButtonSize = 22;
+
+  /// Tag sets page
+  static Color get tagSetsPageIconColor => Get.theme.colorScheme.primary;
 }

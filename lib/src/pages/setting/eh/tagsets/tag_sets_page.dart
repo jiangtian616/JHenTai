@@ -1,11 +1,14 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/global_config.dart';
 import 'package:jhentai/src/model/tag_set.dart';
-import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_logic.dart';
-import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_state.dart';
+import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_logic.dart';
+import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_state.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../widget/loading_state_indicator.dart';
 
@@ -18,166 +21,216 @@ class TagSetsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        elevation: 1,
-        title: GetBuilder<TagSetsLogic>(
-          id: titleId,
-          builder: (logic) {
-            return Text(
-              state.tagSetNames.isEmpty ? 'myTags'.tr : state.tagSetNames[state.currentTagSetIndex],
-            );
-          },
-        ),
-        actions: [
-          GetBuilder<TagSetsLogic>(
-            id: 'titleId',
-            builder: (logic) {
-              return PopupMenuButton<int>(
-                initialValue: state.currentTagSetIndex,
-                padding: EdgeInsets.zero,
-                tooltip: "",
-                onSelected: (value) {
-                  if (state.currentTagSetIndex == value) {
-                    return;
-                  }
-                  state.currentTagSetIndex = value;
-                  logic.getTagSet();
-                },
-                itemBuilder: (BuildContext context) => state.tagSetNames
-                    .mapIndexed(
-                      (index, element) => PopupMenuItem<int>(
-                        value: index,
-                        child: Center(child: Text(state.tagSetNames[index])),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(),
       body: GetBuilder<TagSetsLogic>(
-        id: bodyId,
-        builder: (logic) {
-          if (state.loadingState != LoadingState.idle) {
+        id: TagSetsLogic.bodyId,
+        builder: (_) {
+          if (state.loadingState != LoadingState.success) {
             return LoadingStateIndicator(
               loadingState: state.loadingState,
               errorTapCallback: logic.getTagSet,
               errorWidgetSameWithIdle: true,
             );
           }
-          return ListView.builder(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemCount: state.tagSets.length,
-            itemBuilder: (context, index) {
-              TagSet tagSet = state.tagSets[index];
-              return FadeIn(
-                child: ListTile(
-                  dense: true,
-                  leading: CircleAvatar(
-                    radius: 18,
-                    backgroundColor: state.tagSets[index].color,
-                    child: GetBuilder<TagSetsLogic>(
-                      id: '$updateWeightStateId-${tagSet.tagId}',
-                      builder: (logic) {
-                        return LoadingStateIndicator(
-                          loadingState: state.updateTagState,
-                          idleWidget: TextField(
-                            controller: TextEditingController(text: state.tagSets[index].weight.toString()),
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle1
-                                ?.copyWith(color: _tagWeightTextColor(tagSet.color)),
-                            decoration: const InputDecoration(isDense: true, border: InputBorder.none),
-                            textAlign: TextAlign.center,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'\d|-')),
-                              NumberRangeTextInputFormatter(minValue: -99, maxValue: 99),
-                            ],
-                            onSubmitted: (value) => logic.handleUpdateWeight(index, value),
-                          ),
-                        );
-                      },
+
+          return EHWheelSpeedController(
+            scrollController: state.scrollController,
+            child: SafeArea(
+              child: ListView.builder(
+                itemExtent: 64,
+                cacheExtent: 3000,
+                itemCount: state.tagSets.length,
+                controller: state.scrollController,
+                itemBuilder: (_, int index) => GetBuilder<TagSetsLogic>(
+                  id: '${TagSetsLogic.tagId}::${state.tagSets[index].tagId}',
+                  builder: (_) => LoadingStateIndicator(
+                    loadingState: state.updateTagState,
+                    idleWidget: FadeIn(
+                      child: _Tag(
+                        tagSet: state.tagSets[index],
+                        onLongPress: () => logic.showBottomSheet(index, context),
+                        onWeightUpdated: (v) => logic.handleUpdateWeight(index, v),
+                        onStatusUpdated: (v) => logic.handleUpdateStatus(index, v),
+                      ),
                     ),
+                    errorWidgetSameWithIdle: true,
                   ),
-                  title: GetBuilder<TagSetsLogic>(
-                    id: '$deleteStateId-$index',
-                    builder: (logic) {
-                      return LoadingStateIndicator(
-                        loadingState: state.deleteTagState,
-                        idleWidget: Text(
-                          '${tagSet.tagData.namespace} : ${tagSet.tagData.key}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        errorWidgetSameWithIdle: true,
-                      );
-                    },
-                  ),
-                  trailing: SizedBox(
-                    width: 100,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GetBuilder<TagSetsLogic>(
-                          id: '$updateWatchedStateId-${tagSet.tagId}',
-                          builder: (logic) {
-                            return LoadingStateIndicator(
-                              width: 45,
-                              loadingState: state.updateTagState,
-                              idleWidget: IconButton(
-                                onPressed: () => logic.handleTapWatchButton(index),
-                                icon: Icon(
-                                  Icons.visibility,
-                                  color: state.tagSets[index].watched ? Colors.blue : null,
-                                ),
-                              ),
-                              errorWidgetSameWithIdle: true,
-                            );
-                          },
-                        ),
-                        GetBuilder<TagSetsLogic>(
-                          id: '$updateHiddenStateId-${tagSet.tagId}',
-                          builder: (logic) {
-                            return LoadingStateIndicator(
-                              width: 45,
-                              loadingState: state.updateTagState,
-                              idleWidget: IconButton(
-                                onPressed: () => logic.handleTapHiddenButton(index),
-                                icon: Icon(
-                                  Icons.visibility_off,
-                                  color: state.tagSets[index].hidden ? Colors.red : null,
-                                ),
-                              ),
-                              errorWidgetSameWithIdle: true,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () => logic.showDeleteBottomSheet(index),
                 ),
-              );
-            },
+              ),
+            ),
           );
         },
-      ).paddingSymmetric(vertical: 16),
+      ),
     );
   }
 
-  Color _tagWeightTextColor(Color? color) {
-    if (color == null) {
-      return Colors.white;
-    }
-    switch (ThemeData.estimateBrightnessForColor(color)) {
-      case Brightness.dark:
-        return Get.theme.primaryColorLight;
-      case Brightness.light:
-        return Get.theme.primaryColor;
-    }
+  AppBar _buildAppBar() {
+    return AppBar(
+      centerTitle: true,
+      title: GetBuilder<TagSetsLogic>(
+        id: TagSetsLogic.titleId,
+        builder: (_) => Text(state.tagSetNames.isEmpty ? 'myTags'.tr : state.tagSetNames[state.currentTagSetIndex]),
+      ),
+      actions: [
+        GetBuilder<TagSetsLogic>(
+          id: TagSetsLogic.titleId,
+          builder: (_) => PopupMenuButton<int>(
+            initialValue: state.currentTagSetIndex,
+            padding: EdgeInsets.zero,
+            onSelected: (value) {
+              if (state.currentTagSetIndex == value) {
+                return;
+              }
+              state.currentTagSetIndex = value;
+              logic.getTagSet();
+            },
+            itemBuilder: (_) => state.tagSetNames
+                .mapIndexed(
+                  (index, element) => PopupMenuItem<int>(value: index, child: Center(child: Text(element))),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
   }
 }
+
+class _Tag extends StatelessWidget {
+  final TagSet tagSet;
+  final VoidCallback? onLongPress;
+  final ValueChanged<String> onWeightUpdated;
+  final ValueChanged<TagSetStatus> onStatusUpdated;
+
+  const _Tag({
+    Key? key,
+    required this.tagSet,
+    this.onLongPress,
+    required this.onWeightUpdated,
+    required this.onStatusUpdated,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      dense: true,
+      onTap: Get.focusScope?.unfocus,
+      onLongPress: onLongPress,
+      leading: _TagHeader(watched: tagSet.watched, hidden: tagSet.hidden, onStatusUpdated: onStatusUpdated),
+      title:
+          Text(tagSet.tagData.translatedNamespace == null ? tagSet.tagData.key : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
+      subtitle: Text(tagSet.tagData.translatedNamespace == null ? tagSet.tagData.namespace : '${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
+      trailing: _TagFooter(weight: tagSet.weight, onWeightUpdated: onWeightUpdated),
+    );
+  }
+}
+
+class _TagHeader extends StatelessWidget {
+  final bool watched;
+  final bool hidden;
+  final ValueChanged<TagSetStatus> onStatusUpdated;
+
+  const _TagHeader({
+    Key? key,
+    required this.watched,
+    required this.hidden,
+    required this.onStatusUpdated,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<TagSetStatus>(
+      icon: Icon(_computeIcon(), color: GlobalConfig.tagSetsPageIconColor),
+      initialValue: _computeStatus(),
+      onSelected: onStatusUpdated,
+      enableFeedback: true,
+      itemBuilder: (_) => [
+        PopupMenuItem<TagSetStatus>(
+          value: TagSetStatus.watched,
+          child: Row(
+            children: [
+              Icon(Icons.favorite, color: GlobalConfig.tagSetsPageIconColor),
+              const SizedBox(width: 8),
+              Text('watched'.tr),
+            ],
+          ),
+        ),
+        PopupMenuItem<TagSetStatus>(
+          value: TagSetStatus.hidden,
+          child: Row(
+            children: [
+              Icon(Icons.not_interested, color: GlobalConfig.tagSetsPageIconColor),
+              const SizedBox(width: 8),
+              Text('hidden'.tr),
+            ],
+          ),
+        ),
+        PopupMenuItem<TagSetStatus>(
+          value: TagSetStatus.nope,
+          child: Row(
+            children: [
+              Icon(Icons.question_mark, color: GlobalConfig.tagSetsPageIconColor),
+              const SizedBox(width: 8),
+              Text('nope'.tr),
+            ],
+          ),
+        ),
+      ],
+      onCanceled: Get.focusScope?.unfocus,
+    );
+  }
+
+  IconData _computeIcon() {
+    if (watched) {
+      return Icons.favorite;
+    }
+
+    if (hidden) {
+      return Icons.not_interested;
+    }
+
+    return Icons.question_mark;
+  }
+
+  TagSetStatus _computeStatus() {
+    if (watched) {
+      return TagSetStatus.watched;
+    }
+
+    if (hidden) {
+      return TagSetStatus.hidden;
+    }
+
+    return TagSetStatus.nope;
+  }
+}
+
+class _TagFooter extends StatelessWidget {
+  final int weight;
+  final ValueChanged<String> onWeightUpdated;
+
+  const _TagFooter({Key? key, required this.weight, required this.onWeightUpdated}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 40,
+      child: TextField(
+        controller: TextEditingController(text: weight.toString()),
+        style: const TextStyle(fontSize: 12),
+        decoration: const InputDecoration(isDense: true),
+        textAlign: TextAlign.center,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          NumberRangeTextInputFormatter(minValue: -99, maxValue: 99),
+        ],
+        onSubmitted: onWeightUpdated,
+      ),
+    );
+  }
+}
+
+enum TagSetStatus { watched, hidden, nope }
 
 class NumberRangeTextInputFormatter extends TextInputFormatter {
   double? minValue;

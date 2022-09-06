@@ -192,6 +192,8 @@ class zh_TW {
       /// tag setting page
       'myTags': '我的標籤',
       'myTagsHint': '管理關注和隱藏的標籤',
+      'hidden': '屏蔽',
+      'nope': '無',
       'getTagSetFailed': '獲取標籤數據失敗',
       'updateTagSetFailed': '更新標籤數據失敗',
       'deleteTagSetSuccess': '刪除標籤數據成功',

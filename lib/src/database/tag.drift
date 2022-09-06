@@ -1,10 +1,10 @@
 CREATE TABLE tag
 (
-    namespace           TEXT NOT NULL,
-    _key                TEXT NOT NULL,
-    translatedNamespace TEXT,
-    tagName             TEXT,
-    fullTagName         TEXT,
+    namespace           TEXT NOT NULL, -- raw namespace of the tag
+    _key                TEXT NOT NULL, -- raw tagName of the tag
+    translatedNamespace TEXT,          -- translated namespace of the tag
+    tagName             TEXT,          -- translated tagName of the tag
+    fullTagName         TEXT,          -- full translated tagName of the tag(in html form)
     intro               TEXT,
     links               TEXT,
     primary key (namespace, _key)

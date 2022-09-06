@@ -14,4 +14,10 @@ mixin Scroll2TopLogicMixin on GetxController {
       );
     }
   }
+
+  @override
+  void dispose() {
+    state.scrollController.dispose();
+    super.dispose();
+  }
 }
