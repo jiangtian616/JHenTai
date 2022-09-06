@@ -3,6 +3,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:like_button/like_button.dart';
@@ -65,6 +67,7 @@ class _EHTagDialogState extends State<EHTagDialog> {
             _buildVoteDownButton(),
             _buildWatchTagButton(),
             _buildHideTagButton(),
+            _buildGoToTagSetsButton(),
           ],
         ).marginOnly(top: 12),
       ],
@@ -144,6 +147,20 @@ class _EHTagDialogState extends State<EHTagDialog> {
         color: liked ? Colors.red : GlobalConfig.tagDialogButtonColor,
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(false),
+    );
+  }
+
+  Widget _buildGoToTagSetsButton() {
+    return LikeButton(
+      likeBuilder: (_) => Icon(
+        Icons.settings,
+        size: GlobalConfig.tagDialogButtonSize,
+        color: GlobalConfig.tagDialogButtonColor,
+      ),
+      onTap: (_) async {
+        toRoute(Routes.tagSets);
+        return null;
+      },
     );
   }
 
