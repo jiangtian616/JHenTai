@@ -22,7 +22,9 @@ mixin BaseSearchPageLogic on BasePageLogic {
   BaseSearchPageState get state;
 
   String get searchFieldId;
+
   String get suggestionBodyId;
+
   String get galleryBodyId;
 
   @override
@@ -61,23 +63,19 @@ mixin BaseSearchPageLogic on BasePageLogic {
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.debug('Get gallerys info at page: $pageIndex');
 
-    List<dynamic> gallerysAndPageInfo;
     if (state.redirectUrl == null) {
-      gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+      return await EHRequest.requestGalleryPage(
         pageNo: pageIndex,
         searchConfig: state.searchConfig,
         parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
       );
-    } else {
-      gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-        url: state.redirectUrl,
-        pageNo: pageIndex,
-        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
-      );
     }
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    return gallerysAndPageInfo;
+    return await EHRequest.requestGalleryPage(
+      url: state.redirectUrl,
+      pageNo: pageIndex,
+      parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+    );
   }
 
   Future<void> handleFileSearch() async {

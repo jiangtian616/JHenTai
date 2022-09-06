@@ -31,14 +31,11 @@ class WatchedPageLogic extends BasePageLogic {
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('get watched data, pageIndex:$pageIndex', false);
 
-    List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+    return await EHRequest.requestGalleryPage(
       url: EHConsts.EWatched,
       pageNo: pageIndex,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
-
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    return gallerysAndPageInfo;
   }
 
   void updateBody() {

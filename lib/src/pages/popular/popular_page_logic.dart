@@ -34,7 +34,6 @@ class PopularPageLogic extends BasePageLogic {
     );
     gallerysAndPageInfo[1] = 1;
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     return gallerysAndPageInfo;
   }
 }

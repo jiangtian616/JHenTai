@@ -123,7 +123,7 @@ class DashboardPageLogic extends BasePageLogic {
     ]);
   }
 
-  void updateGalleryList(){
+  void updateGalleryList() {
     update([galleryListId]);
   }
 
@@ -131,13 +131,10 @@ class DashboardPageLogic extends BasePageLogic {
   Future<List> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get gallery data, pageIndex:$pageIndex', false);
 
-    List<dynamic> gallerysAndPageInfo = await EHRequest.requestGalleryPage(
+    return await EHRequest.requestGalleryPage(
       pageNo: pageIndex,
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
-
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    return gallerysAndPageInfo;
   }
 }

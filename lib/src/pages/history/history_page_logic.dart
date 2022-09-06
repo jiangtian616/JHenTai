@@ -29,15 +29,12 @@ class HistoryPageLogic extends BasePageLogic {
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get history by page index $pageIndex');
 
-    List<dynamic> gallerysAndPageInfo = [
+    return [
       historyService.getByPageIndex(pageIndex),
       historyService.pageCount,
       pageIndex >= 1 ? pageIndex - 1 : null,
       pageIndex < historyService.pageCount - 1 ? pageIndex + 1 : null,
     ];
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-
-    return gallerysAndPageInfo;
   }
 
   Future<void> deleteAll() async {

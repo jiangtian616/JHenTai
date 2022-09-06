@@ -26,28 +26,26 @@ class RanklistPageLogic extends BasePageLogic {
   @override
   final RanklistPageState state = RanklistPageState();
 
-  Future<void> handleChangeRanklist(RanklistType result) async {
+  Future<void> handleChangeRanklist(RanklistType newType) async {
     if (state.loadingState == LoadingState.loading) {
       return;
     }
-
-    if (result != state.ranklistType) {
-      state.ranklistType = result;
-      super.clearAndRefresh();
+    if (newType == state.ranklistType) {
+      return;
     }
+
+    state.ranklistType = newType;
+    super.clearAndRefresh();
   }
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get ranklist data, type:${state.ranklistType.name}, pageIndex:$pageIndex', false);
 
-    List<dynamic> gallerysAndPageInfo = await EHRequest.requestRanklistPage(
+    return await EHRequest.requestRanklistPage(
       ranklistType: state.ranklistType,
       pageNo: pageIndex,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
-
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    return gallerysAndPageInfo;
   }
 }

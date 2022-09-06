@@ -48,12 +48,17 @@ abstract class BasePage extends StatelessWidget {
 
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
-      leading: showMenuButton
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
-          : null,
+      leading: showMenuButton ? buildAppBarMenuButton(context) : null,
       title: showTitle ? Text(name!) : null,
       centerTitle: true,
       actions: buildAppBarButtons(),
+    );
+  }
+
+  Widget buildAppBarMenuButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(FontAwesomeIcons.bars, size: 20),
+      onPressed: () => TapMenuButtonNotification().dispatch(context),
     );
   }
 

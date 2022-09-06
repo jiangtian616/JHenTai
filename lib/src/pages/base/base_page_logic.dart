@@ -107,6 +107,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
+    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+
     state.gallerys = gallerysAndPageInfo[0];
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
@@ -177,6 +179,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
+    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+
     state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
@@ -224,6 +228,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>, state.gallerys);
+    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+
     state.gallerys.addAll(gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
@@ -273,6 +279,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       update([loadingStateId]);
       return;
     }
+
+    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
     state.gallerys.addAll(gallerysAndPageInfo[0]);
     state.pageCount = gallerysAndPageInfo[1];
