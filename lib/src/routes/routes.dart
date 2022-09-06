@@ -17,7 +17,6 @@ import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
-import 'package:jhentai/src/pages/setting/network/hostmapping/host_mapping_page.dart';
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
 import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
@@ -37,6 +36,7 @@ import '../pages/search/mobile/search_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
+import '../pages/setting/network/host_mapping/host_mapping_page.dart';
 import '../pages/single_image/single_image.dart';
 import 'eh_page.dart';
 
