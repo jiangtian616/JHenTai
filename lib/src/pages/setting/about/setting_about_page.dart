@@ -34,29 +34,19 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('JHenTai'),
-        elevation: 1,
-      ),
+      appBar: AppBar(centerTitle: true, title: const Text('JHenTai')),
       body: ListView(
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        padding: const EdgeInsets.only(top: 16),
         children: [
-          ListTile(
-            title: Text('version'.tr),
-            subtitle: Text(version.isEmpty ? '1.0.0' : '$version+$buildNumber'),
-          ),
-          ListTile(
-            title: Text('author'.tr),
-            subtitle: SelectableText(author),
-          ),
+          ListTile(title: Text('version'.tr), subtitle: Text(version.isEmpty ? '1.0.0' : '$version+$buildNumber')),
+          ListTile(title: Text('author'.tr), subtitle: SelectableText(author)),
           ListTile(
             title: const Text('Github'),
             subtitle: SelectableText(gitRepo),
             onTap: () => launchUrlString(gitRepo, mode: LaunchMode.externalApplication),
           ),
         ],
-      ).paddingSymmetric(horizontal: 6),
+      ),
     );
   }
 }

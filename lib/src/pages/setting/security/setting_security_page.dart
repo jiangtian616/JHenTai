@@ -8,33 +8,30 @@ class SettingSecurityPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('securitySetting'.tr),
-        elevation: 1,
-      ),
-      body: Obx(() {
-        return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      appBar: AppBar(centerTitle: true, title: Text('securitySetting'.tr)),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 16),
           children: [
-            if (SecuritySetting.supportFingerPrintLock)
-              ListTile(
-                title: Text('enableFingerPrintLock'.tr),
-                trailing: Switch(
-                  value: SecuritySetting.enableFingerPrintLock.value,
-                  onChanged: SecuritySetting.saveEnableFingerPrintLock,
-                ),
-              ),
-            ListTile(
-              title: Text('enableBlurBackgroundApp'.tr),
-              trailing: Switch(
-                value: SecuritySetting.enableBlur.value,
-                onChanged: SecuritySetting.saveEnableBlur,
-              ),
-            ),
+            if (SecuritySetting.supportFingerPrintLock) _buildEnableFingerPrintLock(),
+            _buildEnableBlurBackgroundApp(),
           ],
-        ).paddingSymmetric(vertical: 16);
-      }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnableFingerPrintLock() {
+    return ListTile(
+      title: Text('enableFingerPrintLock'.tr),
+      trailing: Switch(value: SecuritySetting.enableFingerPrintLock.value, onChanged: SecuritySetting.saveEnableFingerPrintLock),
+    );
+  }
+
+  Widget _buildEnableBlurBackgroundApp() {
+    return ListTile(
+      title: Text('enableBlurBackgroundApp'.tr),
+      trailing: Switch(value: SecuritySetting.enableBlur.value, onChanged: SecuritySetting.saveEnableBlur),
     );
   }
 }

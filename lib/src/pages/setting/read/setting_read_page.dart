@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
-import 'auto_mode_interval_dialog.dart';
+import '../../../widget/auto_mode_interval_dialog.dart';
 
 class SettingReadPage extends StatelessWidget {
   const SettingReadPage({Key? key}) : super(key: key);

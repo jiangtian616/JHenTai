@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
-import '../../../utils/route_util.dart';
+import '../utils/route_util.dart';
 
 class AutoModeIntervalDialog extends StatefulWidget {
   const AutoModeIntervalDialog({Key? key}) : super(key: key);
