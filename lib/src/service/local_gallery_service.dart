@@ -85,9 +85,18 @@ class LocalGalleryService extends GetxController {
 
   void _parseDirectory(io.Directory directory) {
     String parentPath = directory.path;
-    List<io.Directory> gallerysInCurrentPath = directory.listSync().whereType<io.Directory>().where((dir) => _checkLegalGalleryDir(dir)).toList();
-    List<io.Directory> nestedDirectoriesInCurrentPath =
-        directory.listSync().whereType<io.Directory>().where((dir) => _checkLegalNestedDirectories(dir)).toList();
+
+    List<io.Directory> directories;
+    try {
+      directories = directory.listSync().whereType<io.Directory>().toList();
+    } on Exception catch (e) {
+      Log.error('List directory error!', e);
+      Log.upload(Exception('List directory error!'), extraInfos: {'path': directory.path});
+      return;
+    }
+
+    List<io.Directory> gallerysInCurrentPath = directories.where((dir) => _checkLegalGalleryDir(dir)).toList();
+    List<io.Directory> nestedDirectoriesInCurrentPath = directories.where((dir) => _checkLegalNestedDirectories(dir)).toList();
 
     for (io.Directory galleryDir in gallerysInCurrentPath) {
       _initGalleryInfoInMemory(galleryDir, parentPath);
@@ -162,8 +171,8 @@ class LocalGalleryService extends GetxController {
         .listSync()
         .whereType<io.File>()
         .where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null)
-        .toList();
-    imageFiles.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+        .toList()
+      ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
     List<GalleryImage> images = [];
     for (io.File file in imageFiles) {
