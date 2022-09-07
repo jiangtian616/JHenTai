@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -13,6 +14,7 @@ import '../../../config/ui_config.dart';
 import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'dashboard_page_logic.dart';
 
+/// For mobile v2 layout
 class DashboardPage extends BasePage {
   const DashboardPage({Key? key}) : super(key: key, showMenuButton: true, showTitle: true);
 
@@ -74,32 +76,10 @@ class DashboardPage extends BasePage {
   }
 
   Widget _buildRanklistDesc() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
+    return const SliverPadding(
+      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
       sliver: SliverToBoxAdapter(
-        child: Row(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('🏆 ', style: TextStyle(fontSize: 16)),
-                Text('ranklistBoard'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ],
-            ),
-            const Expanded(child: SizedBox()),
-            TextButton(
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
-              onPressed: () => toRoute(Routes.ranklist),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-                  Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
-                ],
-              ),
-            )
-          ],
-        ),
+        child: _RankListDesc(),
       ),
     );
   }
@@ -120,7 +100,7 @@ class DashboardPage extends BasePage {
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
-            ),
+            ).fadeIn(),
           ),
         ),
       ),
@@ -128,32 +108,10 @@ class DashboardPage extends BasePage {
   }
 
   Widget _buildPopularListDesc() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 16),
+    return const SliverPadding(
+      padding: EdgeInsets.only(left: 10, right: 10, top: 16),
       sliver: SliverToBoxAdapter(
-        child: Row(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('🥵 ', style: TextStyle(fontSize: 16)),
-                Text('popular'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ],
-            ),
-            const Expanded(child: SizedBox()),
-            TextButton(
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
-              onPressed: () => toRoute(Routes.popular),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-                  Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
-                ],
-              ),
-            )
-          ],
-        ),
+        child: _PopularListDesc(),
       ),
     );
   }
@@ -174,7 +132,7 @@ class DashboardPage extends BasePage {
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGallerys[index]),
               separatorBuilder: (_, __) => const VerticalDivider(),
               cacheExtent: 2000,
-            ),
+            ).fadeIn(),
           ),
         ),
       ),
@@ -185,31 +143,18 @@ class DashboardPage extends BasePage {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 10, right: 10, top: 24),
       sliver: SliverToBoxAdapter(
-        child: Row(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text('🎁 ', style: TextStyle(fontSize: 16)),
-                Text('newest'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              ],
+        child: _GalleryListDesc(
+          actions: [
+            IconButton(
+              icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.primary),
+              onPressed: logic.handleTapFilterButton,
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
             ),
-            const Expanded(child: SizedBox()),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.primary),
-                  onPressed: logic.handleTapFilterButton,
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
-                ),
-                IconButton(
-                  icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.primary),
-                  onPressed: logic.clearAndRefresh,
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
-                ),
-              ],
-            )
+            IconButton(
+              icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.primary),
+              onPressed: logic.clearAndRefresh,
+              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
+            ),
           ],
         ),
       ),
@@ -234,5 +179,90 @@ class DashboardPage extends BasePage {
       default:
         return null;
     }
+  }
+}
+
+class _RankListDesc extends StatelessWidget {
+  const _RankListDesc({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🏆 ', style: TextStyle(fontSize: 16)),
+            Text('ranklistBoard'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
+        const Expanded(child: SizedBox()),
+        TextButton(
+          style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+          onPressed: () => toRoute(Routes.ranklist),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
+              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class _PopularListDesc extends StatelessWidget {
+  const _PopularListDesc({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🥵 ', style: TextStyle(fontSize: 16)),
+            Text('popular'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
+        const Expanded(child: SizedBox()),
+        TextButton(
+          style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+          onPressed: () => toRoute(Routes.popular),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
+              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class _GalleryListDesc extends StatelessWidget {
+  final List<Widget> actions;
+
+  const _GalleryListDesc({Key? key, required this.actions}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('🎁 ', style: TextStyle(fontSize: 16)),
+            Text('newest'.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          ],
+        ),
+        const Expanded(child: SizedBox()),
+        Row(mainAxisSize: MainAxisSize.min, children: actions)
+      ],
+    );
   }
 }

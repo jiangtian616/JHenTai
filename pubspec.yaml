@@ -69,6 +69,9 @@ dependencies:
   permission_handler: 9.2.0
   grouped_list: ^5.1.2
   resizable_widget: ^1.0.5
+  loading_animation_widget: ^1.2.0+3
+  simple_animations: ^5.0.0+2
+  animated_flip_counter: ^0.2.5
 
 dependency_overrides:
   dio:

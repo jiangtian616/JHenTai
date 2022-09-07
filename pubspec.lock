@@ -29,6 +29,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  animated_flip_counter:
+    dependency: "direct main"
+    description:
+      name: animated_flip_counter
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.5"
   archive:
     dependency: "direct main"
     description:
@@ -802,6 +809,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
+  loading_animation_widget:
+    dependency: "direct main"
+    description:
+      name: loading_animation_widget
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.0+3"
   local_auth:
     dependency: "direct main"
     description:
@@ -1224,6 +1238,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.2"
+  simple_animations:
+    dependency: "direct main"
+    description:
+      name: simple_animations
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "5.0.0+2"
   sky_engine:
     dependency: transitive
     description: flutter
