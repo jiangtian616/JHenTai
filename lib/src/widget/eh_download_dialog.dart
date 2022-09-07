@@ -33,7 +33,8 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Center(child: Text('chooseGroup'.tr)),
+      title: Text('chooseGroup'.tr),
+      contentPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12, top: 24),
       actionsPadding: const EdgeInsets.only(left: 24, right: 20, bottom: 12),
       content: _buildBody(),
       actions: [

@@ -46,7 +46,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Center(child: Text('archive'.tr)),
+      title: Text('chooseArchive'.tr),
       content: SizedBox(
         height: UIConfig.archiveDialogBodyHeight,
         child: LoadingStateIndicator(
@@ -86,22 +86,22 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _ArchiveButtonSet(
-          cost: archive.originalCost,
-          size: archive.originalSize,
-          text: 'original'.tr,
-          callback: _canAffordDownload(isOriginal: true)
-              ? () => backRoute(
-                    result: {'isOriginal': true, 'size': _computeSizeInBytes(isOriginal: true), 'group': group},
-                  )
-              : null,
-        ),
-        _ArchiveButtonSet(
           cost: archive.resampleCost,
           size: archive.resampleSize,
           text: 'resample'.tr,
           callback: _canAffordDownload(isOriginal: false)
               ? () => backRoute(
                     result: {'isOriginal': false, 'size': _computeSizeInBytes(isOriginal: false), 'group': group},
+                  )
+              : null,
+        ),
+        _ArchiveButtonSet(
+          cost: archive.originalCost,
+          size: archive.originalSize,
+          text: 'original'.tr,
+          callback: _canAffordDownload(isOriginal: true)
+              ? () => backRoute(
+                    result: {'isOriginal': true, 'size': _computeSizeInBytes(isOriginal: true), 'group': group},
                   )
               : null,
         ),

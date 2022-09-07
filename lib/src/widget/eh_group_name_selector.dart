@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
+import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
 import '../config/ui_config.dart';
 
@@ -34,8 +36,8 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
 
   @override
   void dispose() {
-    textEditingController.dispose();
     super.dispose();
+    textEditingController.dispose();
   }
 
   @override
@@ -47,7 +49,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.candidates.isNotEmpty) _buildChips(),
-          _buildTextField(),
+          _buildTextField().marginOnly(left: 4),
         ],
       ),
     );
@@ -61,24 +63,20 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.zero,
           itemCount: widget.candidates.length,
-          itemBuilder: _chipBuilder,
+          itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right:4),
         ),
       ),
     );
   }
 
   Widget _chipBuilder(_, int index) {
-    return ChoiceChip(
-      label: Text(widget.candidates[index]),
-      labelStyle: const TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 3),
+    return GroupChip(
+      text: widget.candidates[index],
       selected: textEditingController.value.text == widget.candidates[index],
-      onSelected: (bool value) {
-        setState(() => textEditingController.value = TextEditingValue(text: widget.candidates[index]));
+      onTap: () {
+        setState(() => textEditingController.text = widget.candidates[index]);
       },
-      side: BorderSide.none,
-      backgroundColor: UIConfig.groupSelectorChipColor,
-    ).marginOnly(right: 4);
+    );
   }
 
   Widget _buildTextField() {
@@ -92,6 +90,70 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
         ),
         style: const TextStyle(fontSize: UIConfig.groupSelectorTextFieldTextSize),
         controller: textEditingController,
+      ),
+    );
+  }
+}
+
+class GroupChip extends StatefulWidget {
+  final String text;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  const GroupChip({Key? key, required this.text, required this.selected, this.onTap}) : super(key: key);
+
+  @override
+  State<GroupChip> createState() => _GroupChipState();
+}
+
+class _GroupChipState extends State<GroupChip> with AnimationMixin {
+  bool _selected = false;
+
+  late Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = widget.selected;
+  }
+
+  @override
+  void didUpdateWidget(covariant GroupChip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      _selected = widget.selected;
+      if (_selected) {
+        controller.play(duration: const Duration(milliseconds: 200));
+      } else {
+        controller.reverse();
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+          height: 26,
+          decoration: BoxDecoration(
+            color: _selected ? UIConfig.groupSelectorSelectedChipColor : UIConfig.groupSelectorChipColor,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                heightFactor: animation.value,
+                widthFactor: animation.value,
+                child: Transform.scale(scale: animation.value, child: const Icon(Icons.check, size: 12)),
+              ).marginOnly(right: animation.value),
+              Text(widget.text, style: const TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1)),
+            ],
+          ),
+        ),
       ),
     );
   }

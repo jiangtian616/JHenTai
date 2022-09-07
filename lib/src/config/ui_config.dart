@@ -102,16 +102,17 @@ class UIConfig {
   static const double groupSelectorChipsHeight = 40;
   static const double groupSelectorChipTextSize = 11;
 
-  static Color get groupSelectorChipColor => Get.theme.colorScheme.secondaryContainer;
+  static Color get groupSelectorSelectedChipColor => Get.theme.colorScheme.primaryContainer;
+  static Color get groupSelectorChipColor => Get.theme.colorScheme.primaryContainer.withOpacity(0.3);
   static const double groupSelectorTextFieldLabelTextSize = 12;
-  static const double groupSelectorTextFieldTextSize = 16;
+  static const double groupSelectorTextFieldTextSize = 14;
 
   /// Download dialog
   static const double downloadDialogWidth = 230;
   static const double downloadDialogBodyHeight = 140;
   static const double downloadDialogCheckBoxHeight = 20;
 
-  static const double groupDialogCheckBoxTextSize = 12;
+  static const double groupDialogCheckBoxTextSize = 14;
 
   static Color get groupDialogCheckBoxColor => Get.theme.colorScheme.primary;
 
