@@ -95,7 +95,7 @@ Future<void> init() async {
       return true;
     }
 
-    Log.error('PlatformDispatcher Error', error, stack);
+    Log.error('Global Error', error, stack);
     Log.upload(error, stackTrace: stack);
     return false;
   };

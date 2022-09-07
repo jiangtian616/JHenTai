@@ -20,6 +20,7 @@ import 'package:throttling/throttling.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../network/eh_request.dart';
+import '../../service/check_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
 import '../../setting/site_setting.dart';
@@ -144,6 +145,19 @@ class ReadPageLogic extends GetxController {
     }
 
     int from = index ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
+
+    CheckService.build(
+      () => from + newThumbnails.length <= state.thumbnails.length,
+      errorMsg: "Out of index of imageHrefs!",
+    ).withUploadParam({
+      'pageCount': state.readPageInfo.pageCount,
+      'imageHrefsLength': state.thumbnails.length,
+      'from': from,
+      'thumbnailsLength': newThumbnails.length,
+    }).onFailed(() {
+      newThumbnails = newThumbnails.sublist(0, state.thumbnails.length - from);
+    }).check(throwExceptionWhenFailed: false);
+
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i] = newThumbnails[i];
     }
