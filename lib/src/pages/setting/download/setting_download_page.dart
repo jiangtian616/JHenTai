@@ -197,7 +197,12 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     if (!GetPlatform.isMacOS) {
       try {
-        await Permission.manageExternalStorage.request().isGranted && await Permission.storage.request().isGranted;
+        await Permission.manageExternalStorage.request().isGranted;
+      } on Exception catch (e) {
+        Log.error('Request manageExternalStorage permission failed!', e);
+      }
+      try {
+        await Permission.storage.request().isGranted;
       } on Exception catch (e) {
         Log.error('Request storage permission failed!', e);
       }
