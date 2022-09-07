@@ -17,6 +17,7 @@ class FavoritePage extends BasePage {
           showMenuButton: showMenuButton,
           showJumpButton: true,
           showFilterButton: true,
+          showScroll2TopButton: true,
           showTitle: showTitle,
           name: name,
         );

@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_mixin.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -11,10 +11,15 @@ import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
 import '../../../config/ui_config.dart';
 import '../../base/base_page.dart';
-import '../base/base_search_page_state.dart';
+import '../base/base_search_page_state_mixin.dart';
 
-class DesktopSearchPage extends BasePage with BaseSearchPage {
-  const DesktopSearchPage({Key? key}) : super(key: key, showJumpButton: true);
+class DesktopSearchPage extends BasePage with BaseSearchPageMixin {
+  const DesktopSearchPage({Key? key})
+      : super(
+          key: key,
+          showJumpButton: true,
+          showScroll2TopButton: true,
+        );
 
   @override
   DesktopSearchPageLogic get logic => Get.find<DesktopSearchPageLogic>();
@@ -34,7 +39,7 @@ class DesktopSearchPage extends BasePage with BaseSearchPage {
           Expanded(
             child: GetBuilder<DesktopSearchPageLogic>(
               id: logic.suggestionBodyId,
-              builder: (_) => buildSuggestionAndHistoryBody(context),
+              builder: (_) => buildSuggestionAndHistoryBody(),
             ),
           )
         else if (state.hasSearched)

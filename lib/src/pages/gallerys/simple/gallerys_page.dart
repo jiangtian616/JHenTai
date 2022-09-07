@@ -7,7 +7,7 @@ import '../../base/base_page.dart';
 
 /// For desktop layout
 class GallerysPage extends BasePage {
-  const GallerysPage({Key? key}) : super(key: key, showFilterButton: true);
+  const GallerysPage({Key? key}) : super(key: key, showFilterButton: true, showScroll2TopButton: true);
 
   @override
   GallerysPageLogic get logic => Get.find<GallerysPageLogic>();

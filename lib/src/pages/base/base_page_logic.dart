@@ -39,8 +39,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   bool get autoLoadNeedLogin => false;
 
-  bool get showScroll2TopButton => true;
-
   int get tabIndex;
 
   final TagTranslationService tagTranslationService = Get.find();

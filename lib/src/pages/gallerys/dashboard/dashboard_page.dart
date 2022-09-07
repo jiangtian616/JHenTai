@@ -16,7 +16,13 @@ import 'dashboard_page_logic.dart';
 
 /// For mobile v2 layout
 class DashboardPage extends BasePage {
-  const DashboardPage({Key? key}) : super(key: key, showMenuButton: true, showTitle: true);
+  const DashboardPage({Key? key})
+      : super(
+          key: key,
+          showMenuButton: true,
+          showTitle: true,
+          showScroll2TopButton: true,
+        );
 
   @override
   String get name => 'home'.tr;

@@ -89,6 +89,16 @@ class UIConfig {
   static const double detailsPageThumbnailHeight = 200;
   static const double detailsPageThumbnailWidth = 150;
 
+  /// Search page
+  static Color get searchPageSuggestionHighlightColor => Colors.red;
+
+  static Color get searchPageSuggestionTitleColor => Get.theme.colorScheme.secondary.withOpacity(0.8);
+
+  static Color get searchPageSuggestionSubTitleColor => Get.theme.colorScheme.secondary.withOpacity(0.5);
+
+  static const double searchPageSuggestionTitleTextSize = 15;
+  static const double searchPageSuggestionSubTitleTextSize = 12;
+
   /// Comment
   static const double commentAuthorTextSize = 13;
 

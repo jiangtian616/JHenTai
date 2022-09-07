@@ -6,8 +6,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart';
 import 'package:jhentai/src/service/check_service.dart';
+import 'package:throttling/throttling.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
@@ -17,29 +18,22 @@ import '../../../utils/log.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 
-mixin BaseSearchPageLogic on BasePageLogic {
+mixin BaseSearchPageLogicMixin on BasePageLogic {
   @override
-  BaseSearchPageState get state;
+  BaseSearchPageStateMixin get state;
 
-  String get searchFieldId;
-
-  String get suggestionBodyId;
-
-  String get galleryBodyId;
-
-  @override
-  bool showScroll2TopButton = false;
+  final String suggestionBodyId = 'suggestionBodyId';
+  final String galleryBodyId = 'galleryBodyId';
+  final String searchFieldId = 'searchFieldId';
 
   final QuickSearchService quickSearchService = Get.find();
 
-  /// used for delayed search suggestion
-  Timer? timer;
-  static const Duration searchDelay = Duration(milliseconds: 300);
+  Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   @override
-  void dispose() {
-    state.searchFieldFocusNode.dispose();
+  void onClose() {
     super.dispose();
+    state.searchFieldFocusNode.dispose();
   }
 
   @override
@@ -51,31 +45,12 @@ mixin BaseSearchPageLogic on BasePageLogic {
     }
     state.redirectUrl = null;
 
-    _writeHistory();
+    writeHistory();
 
-    /// Reset scroll offset
+    /// reset scroll offset
     state.pageStorageKey = PageStorageKey('$runtimeType::${Random().nextInt(9999999)}');
 
     return super.clearAndRefresh();
-  }
-
-  @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.debug('Get gallerys info at page: $pageIndex');
-
-    if (state.redirectUrl == null) {
-      return await EHRequest.requestGalleryPage(
-        pageNo: pageIndex,
-        searchConfig: state.searchConfig,
-        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
-      );
-    }
-
-    return await EHRequest.requestGalleryPage(
-      url: state.redirectUrl,
-      pageNo: pageIndex,
-      parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
-    );
   }
 
   Future<void> handleFileSearch() async {
@@ -90,7 +65,7 @@ mixin BaseSearchPageLogic on BasePageLogic {
       return;
     }
 
-    Log.info('File search', false);
+    Log.info('File search');
 
     state.hasSearched = true;
 
@@ -131,16 +106,16 @@ mixin BaseSearchPageLogic on BasePageLogic {
 
   /// search only if there's no timer active (300ms)
   Future<void> waitAndSearchTags() async {
-    timer?.cancel();
-
     if (state.searchConfig.keyword?.isEmpty ?? true) {
       return;
     }
-    timer = Timer(searchDelay, searchTags);
+
+    /// only search after 300ms
+    debouncing.debounce(searchTags);
   }
 
   Future<void> searchTags() async {
-    Log.info('search for ${state.searchConfig.keyword}', false);
+    Log.info('search for ${state.searchConfig.keyword}');
 
     /// chinese => database
     /// other => EH api
@@ -164,7 +139,26 @@ mixin BaseSearchPageLogic on BasePageLogic {
     return history.cast<String>();
   }
 
-  void _writeHistory() {
+  @override
+  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+    Log.debug('Get gallerys info at page: $pageIndex');
+
+    if (state.redirectUrl == null) {
+      return await EHRequest.requestGalleryPage(
+        pageNo: pageIndex,
+        searchConfig: state.searchConfig,
+        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+      );
+    }
+
+    return await EHRequest.requestGalleryPage(
+      url: state.redirectUrl,
+      pageNo: pageIndex,
+      parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+    );
+  }
+
+  void writeHistory() {
     /// do not record file search
     if (state.redirectUrl != null) {
       return;
@@ -175,22 +169,20 @@ mixin BaseSearchPageLogic on BasePageLogic {
     }
 
     List history = storageService.read('searchHistory') ?? <String>[];
+
     history.remove(state.searchConfig.keyword);
     history.insert(0, state.searchConfig.keyword);
+
     storageService.write('searchHistory', history);
   }
 
-  void clearHistory() {
-    storageService.remove('searchHistory').then((_) {
-      if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
-        update();
-      }
-    });
+  Future<void> clearHistory() async {
+    await storageService.remove('searchHistory');
+    update([suggestionBodyId]);
   }
 
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
-    showScroll2TopButton = state.bodyType == SearchPageBodyType.gallerys;
     update();
   }
 

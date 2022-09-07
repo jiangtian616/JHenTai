@@ -18,6 +18,7 @@ class WatchedPage extends BasePage {
           showJumpButton: true,
           showFilterButton: true,
           showTitle: showTitle,
+          showScroll2TopButton: true,
           name: name,
         );
 

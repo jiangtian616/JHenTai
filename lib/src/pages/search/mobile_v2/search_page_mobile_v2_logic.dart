@@ -1,18 +1,11 @@
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_logic_mixin.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 
 import '../../../model/search_config.dart';
 import '../../base/base_page_logic.dart';
 
-class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogic {
-  @override
-  final String suggestionBodyId = 'suggestionBodyId';
-  @override
-  final String galleryBodyId = 'galleryBodyId';
-  @override
-  final String searchFieldId = 'searchFieldId';
-
+class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixin {
   @override
   int get tabIndex => 1;
 
@@ -53,7 +46,7 @@ class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogic {
 
   @override
   void onClose() {
-    stack.remove(this);
     super.onClose();
+    stack.remove(this);
   }
 }

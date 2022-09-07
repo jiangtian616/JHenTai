@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_mixin.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -11,15 +11,15 @@ import 'package:jhentai/src/utils/route_util.dart';
 import '../../../setting/style_setting.dart';
 import '../../../widget/eh_search_config_dialog.dart';
 import '../../base/base_page.dart';
-import '../base/base_search_page_state.dart';
+import '../base/base_search_page_state_mixin.dart';
 import '../quick_search/quick_search_page.dart';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-class SearchPageMobileV2 extends BasePage with BaseSearchPage {
+class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
   final String tag = UniqueKey().toString();
 
-  SearchPageMobileV2({Key? key}) : super(key: key,showJumpButton: true) {
+  SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
     state = logic.state;
   }
@@ -70,7 +70,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPage {
               id: logic.suggestionBodyId,
               global: false,
               init: logic,
-              builder: (_) => buildSuggestionAndHistoryBody(context),
+              builder: (_) => buildSuggestionAndHistoryBody(),
             ),
           )
         else if (state.hasSearched)

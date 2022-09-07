@@ -17,6 +17,7 @@ abstract class BasePage extends StatelessWidget {
   final bool showMenuButton;
   final bool showJumpButton;
   final bool showFilterButton;
+  final bool showScroll2TopButton;
   final bool showTitle;
   final String? name;
 
@@ -25,6 +26,7 @@ abstract class BasePage extends StatelessWidget {
     this.showMenuButton = false,
     this.showJumpButton = false,
     this.showFilterButton = false,
+    this.showScroll2TopButton = false,
     this.showTitle = false,
     this.name,
   }) : super(key: key);
@@ -68,7 +70,7 @@ abstract class BasePage extends StatelessWidget {
       global: false,
       init: logic,
       builder: (_) {
-        if (!logic.showScroll2TopButton || logic.state.gallerys.isEmpty) {
+        if (!showScroll2TopButton || logic.state.gallerys.isEmpty) {
           return const SizedBox();
         }
 

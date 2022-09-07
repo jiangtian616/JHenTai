@@ -64,7 +64,13 @@ class _EHTagState extends State<EHTag> {
         alignment: Alignment.center,
         child: Text(
           widget.tag.tagData.tagName ?? widget.tag.tagData.key,
-          style: TextStyle(fontSize: 12, height: 1, color: widget.tag.color ?? Get.theme.colorScheme.onSecondaryContainer),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12,
+            height: 1,
+            color: widget.tag.color ?? Get.theme.colorScheme.onSecondaryContainer,
+          ),
         ),
       ),
     );
