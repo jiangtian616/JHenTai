@@ -52,7 +52,7 @@ class en_US {
       'cookieFormatError': 'Cookie Format Error',
       'invalidCookie': 'Login failed or invalid cookie',
       'loginFail': 'Login Failed',
-      'userName': 'UserName',
+      'userName': 'Username',
       'EHUser': 'EH User',
       'password': 'Password',
       'needCaptcha': 'Need captcha, please login via cookie or web again.',
@@ -394,7 +394,7 @@ class en_US {
       'changeDownloadPathHint':
           'Long press to change. Change download path will copy downloaded gallerys automatically and keep old files. If you find it fails to load image, try to reset path.',
       'resetDownloadPath': 'Reset Download Path',
-      'downloadOriginalImage': 'Download Original Image',
+      'downloadOriginalImage': 'Original Image',
       'downloadOriginalImageByDefault': 'Choose Original Image By Default',
       'originalImage': 'Original',
       'resampleImage': 'Resample',

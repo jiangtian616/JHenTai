@@ -55,7 +55,7 @@ class _EHCommentState extends State<EHComment> {
             html: widget.comment.content,
             maxLines: widget.maxLines,
             bodyHeight: widget.bodyHeight,
-          ).marginOnly(top: 2,bottom: 12),
+          ).marginOnly(top: 2, bottom: 12),
           if (widget.maxLines != null) const Expanded(child: SizedBox()),
           _EHCommentFooter(
             commentId: widget.comment.id,
@@ -276,8 +276,10 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
             onTap: (isLiked) => _handleVotingComment(widget.commentId, false),
           ),
         ],
-        SizedBox(
-          width: 40,
+
+        /// fix width to align buttons
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 32),
           child: Align(
             alignment: Alignment.centerRight,
             child: Text(
