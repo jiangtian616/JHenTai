@@ -213,7 +213,7 @@ class Routes {
     ),
     EHPage(
       name: quickSearch,
-      page: () => QuickSearchPage(),
+      page: () => QuickSearchPage(automaticallyImplyLeading: true),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

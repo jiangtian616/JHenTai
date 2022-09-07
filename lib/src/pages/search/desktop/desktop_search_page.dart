@@ -59,7 +59,7 @@ class DesktopSearchPage extends BasePage with BaseSearchPageMixin {
       margin: const EdgeInsets.only(top: 8, bottom: 8, left: 2, right: 2),
       child: Row(
         children: [
-          Expanded(child: buildSearchField(context).marginSymmetric(horizontal: 16)),
+          Expanded(child: buildSearchField().marginSymmetric(horizontal: 16)),
           ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
           if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
             ExcludeFocus(

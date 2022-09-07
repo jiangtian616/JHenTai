@@ -20,14 +20,13 @@ mixin BaseSearchPageMixin on BasePage {
   @override
   BaseSearchPageStateMixin get state;
 
-  Widget buildSearchField(BuildContext context) {
+  Widget buildSearchField() {
     return GetBuilder<BaseSearchPageLogicMixin>(
       global: false,
       init: logic,
       id: logic.searchFieldId,
       builder: (_) => TextField(
         focusNode: state.searchFieldFocusNode,
-        autofocus: true,
         controller: TextEditingController.fromValue(
           TextEditingValue(
             text: state.searchConfig.keyword ?? '',

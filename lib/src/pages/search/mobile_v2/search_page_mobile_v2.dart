@@ -39,7 +39,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
         () => Scaffold(
           key: scaffoldKey,
           appBar: buildAppBar(context),
-          endDrawer: _buildRightDrawer(),
+          endDrawer: Drawer(width: 278, child: QuickSearchPage()),
           endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
           floatingActionButton: buildFloatingActionButton(context),
@@ -52,11 +52,10 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
   @override
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
-      elevation: 1,
       leading: InkResponse(child: const Icon(Icons.arrow_back), onTap: () => backRoute(currentRoute: Routes.mobileV2Search)),
-      title: buildSearchField(context),
+      title: buildSearchField(),
       titleSpacing: 0,
-      actions: _buildHeaderActions(context),
+      actions: _buildHeaderActions(),
     );
   }
 
@@ -86,23 +85,16 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
     );
   }
 
-  Widget _buildRightDrawer() {
-    return Drawer(
-      width: 278,
-      child: QuickSearchPage(automaticallyImplyLeading: false),
-    );
-  }
-
-  List<Widget> _buildHeaderActions(BuildContext context) {
+  List<Widget> _buildHeaderActions() {
     return [
       InkResponse(
-        child: const Icon(Icons.attach_file),
+        child: const Icon(Icons.attach_file, size: 22),
         onTap: logic.handleFileSearch,
-      ).marginOnly(right: 12, left: 8),
+      ).marginOnly(right: 12, left: 8,top: 1),
       if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
         FadeIn(
           child: InkResponse(
-            child: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+            child: const Icon(FontAwesomeIcons.paperPlane, size: 18),
             onTap: () {
               state.searchFieldFocusNode.unfocus();
               logic.handleTapJumpButton();
@@ -110,7 +102,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
           ).marginOnly(right: 16),
         ),
       InkResponse(
-        child: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
+        child: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.switch_left : Icons.switch_right, size: 28),
         onTap: logic.toggleBodyType,
       ).marginOnly(right: 12),
       InkResponse(

@@ -55,7 +55,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
                       dense: true,
                       title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       selected: state.selectedDrawerTabIndex == index,
-                      selectedTileColor: Get.theme.primaryColor.withOpacity(0.1),
+                      selectedTileColor: Get.theme.colorScheme.primaryContainer,
                       leading: state.icons[index].unselectedIcon,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadiusDirectional.only(topEnd: Radius.circular(32), bottomEnd: Radius.circular(32)),
@@ -72,10 +72,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
   }
 
   Widget buildRightDrawer() {
-    return Drawer(
-      width: 278,
-      child: QuickSearchPage(automaticallyImplyLeading: false),
-    );
+    return Drawer(width: 278, child: QuickSearchPage());
   }
 
   Widget buildBottomNavigationBar(BuildContext context) {

@@ -7,7 +7,7 @@ import 'package:jhentai/src/utils/search_util.dart';
 class QuickSearchPage extends StatelessWidget {
   final bool automaticallyImplyLeading;
 
-  QuickSearchPage({Key? key, this.automaticallyImplyLeading = true}) : super(key: key);
+  QuickSearchPage({Key? key, this.automaticallyImplyLeading = false}) : super(key: key);
 
   final QuickSearchService quickSearchService = Get.find();
 
@@ -18,44 +18,38 @@ class QuickSearchPage extends StatelessWidget {
         centerTitle: true,
         title: Text('quickSearch'.tr),
         automaticallyImplyLeading: automaticallyImplyLeading,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, size: 24),
-            onPressed: () => handleAddQuickSearch(),
-          ),
+        actions: const [
+          IconButton(icon: Icon(Icons.add_circle_outline, size: 24), onPressed: handleAddQuickSearch),
         ],
       ),
       body: GetBuilder<QuickSearchService>(
         builder: (_) {
-          Iterable<MapEntry<String, SearchConfig>> entries = quickSearchService.quickSearchConfigs.entries;
+          List<MapEntry<String, SearchConfig>> entries = quickSearchService.quickSearchConfigs.entries.toList();
 
           return ReorderableListView.builder(
             itemCount: quickSearchService.quickSearchConfigs.length,
             onReorder: quickSearchService.reOrderQuickSearch,
             itemBuilder: (_, int index) => Column(
-              key: Key(entries.elementAt(index).key),
+              key: Key(entries[index].key),
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   dense: true,
-                  title: Text(
-                    entries.elementAt(index).key,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
+                  title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.delete, size: 24, color: Colors.red.shade400),
-                        onPressed: () => quickSearchService.removeQuickSearch(entries.elementAt(index).key),
+                        icon: Icon(Icons.delete,  color: Get.theme.colorScheme.error),
+                        onPressed: () => quickSearchService.removeQuickSearch(entries[index].key),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.settings, size: 24),
-                        onPressed: () => quickSearchService.handleUpdateQuickSearch(entries.elementAt(index)),
+                        icon: const Icon(Icons.settings),
+                        onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]),
                       ),
                     ],
                   ).marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
-                  onTap: () => newSearchWithConfig(entries.elementAt(index).value),
+                  onTap: () => newSearchWithConfig(entries[index].value),
                 ),
                 const Divider(thickness: 0.7, height: 2),
               ],
