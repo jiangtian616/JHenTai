@@ -33,6 +33,14 @@ class ThemeConfig {
       surfaceVariant: Color(0xFFE7E0EC),
       onSurfaceVariant: Color(0xFF49454F),
     ),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 56,
+      indicatorColor: Color(0xFFEADDFF),
+      surfaceTintColor: Color(0xFFE7E0EC),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+    ),
+
+    /// for mobile layout v1
     tabBarTheme: TabBarTheme(
       labelColor: Colors.pink.shade300,
       labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
@@ -40,6 +48,7 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
+    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade100,
@@ -68,7 +77,6 @@ class ThemeConfig {
     // elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     // cardColor: Colors.white,
     // hoverColor: Colors.transparent,
-    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
   );
 
   static ThemeData dark = ThemeData(
@@ -102,6 +110,14 @@ class ThemeConfig {
       surfaceVariant: Color(0xFF49454F),
       onSurfaceVariant: Color(0xFFCAC4D0),
     ),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 56,
+      indicatorColor: Color(0xFF4F378B),
+      surfaceTintColor: Color(0xFF49454F),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+    ),
+
+    /// for mobile layout v1
     tabBarTheme: TabBarTheme(
       labelColor: Colors.pink.shade300,
       labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
@@ -109,6 +125,7 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
+    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade900,
@@ -135,6 +152,5 @@ class ThemeConfig {
     // elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
     // cardColor: Colors.grey.shade900,
     // hoverColor: Colors.transparent,
-    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
   );
 }

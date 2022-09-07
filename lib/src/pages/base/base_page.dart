@@ -72,7 +72,11 @@ abstract class BasePage extends StatelessWidget {
           return const SizedBox();
         }
 
-        return FloatingActionButton(child: const Icon(Icons.arrow_upward), heroTag: null, onPressed: logic.scroll2Top);
+        return FloatingActionButton(
+          child: const Icon(Icons.arrow_upward),
+          heroTag: null,
+          onPressed: logic.scroll2Top,
+        );
       },
     );
   }

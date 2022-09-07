@@ -135,6 +135,10 @@ Future<void> init() async {
   MouseSetting.init();
 
   QuickSearchService.init();
+
+  ArchiveDownloadService.init();
+  GalleryDownloadService.init();
+  LocalGalleryService.init();
 }
 
 Future<void> onReady() async {
@@ -143,10 +147,6 @@ Future<void> onReady() async {
   EHSetting.refresh();
 
   ReadSetting.init();
-
-  ArchiveDownloadService.init();
-  GalleryDownloadService.init();
-  LocalGalleryService.init();
 }
 
 void _doForDesktop() {

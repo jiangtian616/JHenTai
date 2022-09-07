@@ -1,11 +1,24 @@
 import 'dart:math';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../utils/screen_size_util.dart';
 
 class UIConfig {
+  /// common
+  static ScrollBehavior behaviorWithScrollBar = const MaterialScrollBehavior().copyWith(
+    dragDevices: {
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.touch,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.unknown,
+    },
+    scrollbars: true,
+  );
+
   /// layout
   static const double appBarHeight = 40;
   static const double tabBarHeight = 36;
@@ -103,6 +116,7 @@ class UIConfig {
   static const double groupSelectorChipTextSize = 11;
 
   static Color get groupSelectorSelectedChipColor => Get.theme.colorScheme.primaryContainer;
+
   static Color get groupSelectorChipColor => Get.theme.colorScheme.primaryContainer.withOpacity(0.3);
   static const double groupSelectorTextFieldLabelTextSize = 12;
   static const double groupSelectorTextFieldTextSize = 14;

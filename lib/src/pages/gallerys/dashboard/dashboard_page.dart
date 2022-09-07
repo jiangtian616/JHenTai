@@ -77,7 +77,7 @@ class DashboardPage extends BasePage {
 
   Widget _buildRanklistDesc() {
     return const SliverPadding(
-      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+      padding: EdgeInsets.only(left: 10, right: 10, top: 4),
       sliver: SliverToBoxAdapter(
         child: _RankListDesc(),
       ),
@@ -109,7 +109,7 @@ class DashboardPage extends BasePage {
 
   Widget _buildPopularListDesc() {
     return const SliverPadding(
-      padding: EdgeInsets.only(left: 10, right: 10, top: 16),
+      padding: EdgeInsets.only(left: 10, right: 10, top: 8),
       sliver: SliverToBoxAdapter(
         child: _PopularListDesc(),
       ),
@@ -141,17 +141,17 @@ class DashboardPage extends BasePage {
 
   Widget _buildGalleryDesc() {
     return SliverPadding(
-      padding: const EdgeInsets.only(left: 10, right: 10, top: 24),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
       sliver: SliverToBoxAdapter(
         child: _GalleryListDesc(
           actions: [
             IconButton(
-              icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.primary),
+              icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.onSurfaceVariant),
               onPressed: logic.handleTapFilterButton,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
             ),
             IconButton(
-              icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.primary),
+              icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.onSurfaceVariant),
               onPressed: logic.clearAndRefresh,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
             ),

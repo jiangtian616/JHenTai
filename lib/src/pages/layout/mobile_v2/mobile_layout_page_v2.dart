@@ -3,10 +3,13 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
+import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -22,29 +25,21 @@ class MobileLayoutPageV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: {
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.touch,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-          PointerDeviceKind.unknown,
-        },
-        scrollbars: true,
-      ),
+      behavior: UIConfig.behaviorWithScrollBar,
       child: Obx(
         () => Scaffold(
           key: MobileLayoutPageV2State.scaffoldKey,
-          drawer: _buildLeftDrawer(),
-          endDrawer: _buildRightDrawer(),
+          drawer: buildLeftDrawer(),
+          endDrawer: buildRightDrawer(),
           endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
-          body: _buildBody(),
+          body: buildBody(),
+          bottomNavigationBar: buildBottomNavigationBar(context),
         ),
       ),
     );
   }
 
-  Widget _buildLeftDrawer() {
+  Widget buildLeftDrawer() {
     return Drawer(
       width: 278,
       child: GetBuilder<MobileLayoutPageV2Logic>(
@@ -53,13 +48,13 @@ class MobileLayoutPageV2 extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildAvatar(),
+              const EHUserAvatar(),
               ...state.icons
                   .mapIndexed(
                     (index, icon) => ListTile(
                       dense: true,
                       title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                      selected: state.selectedTabIndex == index,
+                      selected: state.selectedDrawerTabIndex == index,
                       selectedTileColor: Get.theme.primaryColor.withOpacity(0.1),
                       leading: state.icons[index].unselectedIcon,
                       shape: const RoundedRectangleBorder(
@@ -76,37 +71,71 @@ class MobileLayoutPageV2 extends StatelessWidget {
     );
   }
 
-  Widget _buildRightDrawer() {
+  Widget buildRightDrawer() {
     return Drawer(
       width: 278,
       child: QuickSearchPage(automaticallyImplyLeading: false),
     );
   }
 
-  Widget _buildBody() {
-    return SafeArea(
-      child: NotificationListener<TapMenuButtonNotification>(
-        child: GetBuilder<MobileLayoutPageV2Logic>(
-          id: logic.pageId,
-          builder: (_) => Stack(
-            children: state.icons
-                .where((icon) => icon.shouldRender)
-                .mapIndexed((index, icon) => Offstage(
-                      offstage: state.selectedTabOrder != index,
-                      child: icon.page.call(),
-                    ))
-                .toList(),
-          ),
+  Widget buildBottomNavigationBar(BuildContext context) {
+    return GetBuilder<MobileLayoutPageV2Logic>(
+      id: logic.bottomNavigationBarId,
+      builder: (_) => Theme(
+        data: Theme.of(context).copyWith(splashColor: Colors.transparent),
+        child: NavigationBar(
+          selectedIndex: state.selectedNavigationIndex,
+          onDestinationSelected: (int index) => logic.handleTapNavigationBarButton(index, context),
+          destinations: [
+            NavigationDestination(icon: const Icon(Icons.home), label: 'home'.tr),
+            NavigationDestination(icon: const Icon(Icons.download), label: 'download'.tr),
+            NavigationDestination(icon: const Icon(Icons.settings), label: 'setting'.tr),
+          ],
         ),
-        onNotification: (_) {
-          MobileLayoutPageV2State.scaffoldKey.currentState?.openDrawer();
-          return true;
-        },
       ),
     );
   }
 
-  Widget _buildAvatar() {
+  Widget buildBody() {
+    return NotificationListener<TapMenuButtonNotification>(
+      child: GetBuilder<MobileLayoutPageV2Logic>(
+        id: logic.bodyId,
+        builder: (_) => Stack(
+          children: [
+            Offstage(offstage: state.selectedNavigationIndex != 0, child: buildHomeBody()),
+            Offstage(offstage: state.selectedNavigationIndex != 1, child: const DownloadPage()),
+            Offstage(offstage: state.selectedNavigationIndex != 2, child: const SettingPage()),
+          ],
+        ),
+      ),
+      onNotification: (_) {
+        MobileLayoutPageV2State.scaffoldKey.currentState?.openDrawer();
+        return true;
+      },
+    );
+  }
+
+  /// use [shouldRender] to implement lazy load with [Offstage]
+  Widget buildHomeBody() {
+    return Stack(
+      children: state.icons
+          .where((icon) => icon.shouldRender)
+          .mapIndexed(
+            (index, icon) => Offstage(
+              offstage: state.selectedDrawerTabOrder != index,
+              child: icon.page.call(),
+            ),
+          )
+          .toList(),
+    );
+  }
+}
+
+class EHUserAvatar extends StatelessWidget {
+  const EHUserAvatar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
       height: 120,
       child: Obx(
@@ -119,21 +148,18 @@ class MobileLayoutPageV2 extends StatelessWidget {
                 foregroundImage: UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!) : null,
                 child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: Colors.grey.withOpacity(0.8), size: 32),
               ),
-              onTap: _handleTapAvatar,
+              onTap: () {
+                if (!UserSetting.hasLoggedIn()) {
+                  toRoute(Routes.login);
+                  return;
+                }
+                Get.dialog(const LogoutDialog());
+              },
             ),
             title: Text(UserSetting.hasLoggedIn() ? UserSetting.userName.value! : ''),
           ),
         ),
       ),
     );
-  }
-
-  void _handleTapAvatar() {
-    if (!UserSetting.hasLoggedIn()) {
-      toRoute(Routes.login);
-      return;
-    }
-
-    Get.dialog(const LogoutDialog());
   }
 }

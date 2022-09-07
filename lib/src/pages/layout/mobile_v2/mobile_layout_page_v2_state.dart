@@ -16,14 +16,14 @@ import '../../watched/watched_page.dart';
 class MobileLayoutPageV2State {
   late final List<TabBarIcon> icons;
 
-  int selectedTabIndex = 0;
+  int selectedDrawerTabIndex = 0;
+  int selectedNavigationIndex = 0;
 
-  /// selectedTabIndex in [shouldRender] icons
-  int get selectedTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
+  /// selectedNavigationIndex's order in [shouldRender] tabs
+  int get selectedDrawerTabOrder =>
+      icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedDrawerTabIndex].name);
 
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-
-  final PageController pageController = PageController();
 
   MobileLayoutPageV2State() {
     icons = [
@@ -57,10 +57,7 @@ class MobileLayoutPageV2State {
         routeName: Routes.ranklist,
         selectedIcon: const Icon(Icons.bar_chart_rounded, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.bar_chart_outlined),
-        page: () => const RanklistPage(
-          showMenuButton: true,
-          showTitle: true,
-        ),
+        page: () => const RanklistPage(showMenuButton: true, showTitle: true),
         shouldRender: false,
       ),
       TabBarIcon(
@@ -86,23 +83,6 @@ class MobileLayoutPageV2State {
         unselectedIcon: const Icon(Icons.history_outlined),
         page: () => HistoryPage(showMenuButton: true, showTitle: true, name: 'history'.tr),
         shouldRender: false,
-      ),
-      TabBarIcon(
-        name: 'download',
-        routeName: Routes.download,
-        selectedIcon: const Icon(Icons.download),
-        unselectedIcon: const Icon(Icons.download_outlined),
-        page: () => const DownloadPage(showMenuButton: true),
-        shouldRender: false,
-      ),
-      TabBarIcon(
-        name: 'setting',
-        routeName: Routes.setting,
-        selectedIcon: const Icon(Icons.settings),
-        unselectedIcon: const Icon(Icons.settings_outlined),
-        page: () => const SettingPage(),
-        shouldRender: false,
-        enterNewRoute: true,
       ),
     ];
   }
