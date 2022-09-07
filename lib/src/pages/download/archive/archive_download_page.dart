@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:grouped_list/grouped_list.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/re_unlock_dialog.dart';
@@ -25,9 +26,7 @@ import 'archive_download_page_logic.dart';
 import 'archive_download_page_state.dart';
 
 class ArchiveDownloadPage extends StatelessWidget {
-  final bool showMenuButton;
-
-  ArchiveDownloadPage({Key? key, required this.showMenuButton}) : super(key: key);
+  ArchiveDownloadPage({Key? key}) : super(key: key);
 
   final ArchiveDownloadPageLogic logic = Get.put<ArchiveDownloadPageLogic>(ArchiveDownloadPageLogic(), permanent: true);
   final ArchiveDownloadPageState state = Get.find<ArchiveDownloadPageLogic>().state;
@@ -38,10 +37,7 @@ class ArchiveDownloadPage extends StatelessWidget {
       appBar: buildAppBar(context),
       body: FadeIn(child: buildBody(context)),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward, size: 28),
-        foregroundColor: Get.theme.primaryColor,
-        backgroundColor: Get.theme.colorScheme.background,
-        elevation: 3,
+        child: const Icon(Icons.arrow_upward),
         heroTag: null,
         onPressed: logic.scroll2Top,
       ),
@@ -51,47 +47,22 @@ class ArchiveDownloadPage extends StatelessWidget {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
-        groupValue: DownloadPageBodyType.archive,
-        children: {
-          DownloadPageBodyType.download: SizedBox(
-            width: 66,
-            child: Center(child: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-          ),
-          DownloadPageBodyType.archive: Text('archive'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-          DownloadPageBodyType.local: Text('local'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-        },
-        onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),
-      ),
-      leading: showMenuButton
-          ? ExcludeFocus(
-              child: IconButton(
-                icon: const Icon(FontAwesomeIcons.bars, size: 20),
-                onPressed: () => TapMenuButtonNotification().dispatch(context),
-              ),
-            )
-          : null,
+      titleSpacing: 0,
+      title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
       actions: [
-        SizedBox(
-          width: 88,
-          child: Row(
-            children: [
-              ExcludeFocus(
-                child: IconButton(
-                  icon: Icon(Icons.play_arrow, size: 26, color: Get.theme.primaryColor),
-                  onPressed: logic.archiveDownloadService.resumeAllDownloadArchive,
-                  visualDensity: const VisualDensity(horizontal: -4),
-                ),
-              ),
-              ExcludeFocus(
-                child: IconButton(
-                  icon: Icon(Icons.pause, size: 26, color: Get.theme.primaryColorLight),
-                  onPressed: logic.archiveDownloadService.pauseAllDownloadArchive,
-                ),
-              ),
-            ],
+        ExcludeFocus(
+          child: IconButton(
+            icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
+            onPressed: logic.archiveDownloadService.resumeAllDownloadArchive,
+            visualDensity: const VisualDensity(horizontal: -4),
           ),
-        )
+        ),
+        ExcludeFocus(
+          child: IconButton(
+            icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
+            onPressed: logic.archiveDownloadService.pauseAllDownloadArchive,
+          ),
+        ),
       ],
     );
   }

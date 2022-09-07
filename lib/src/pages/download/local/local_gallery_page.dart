@@ -5,6 +5,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
@@ -20,12 +21,12 @@ import 'local_gallery_page_logic.dart';
 import 'local_gallery_page_state.dart';
 
 class LocalGalleryPage extends StatelessWidget {
-  final bool showMenuButton;
-
-  LocalGalleryPage({Key? key, required this.showMenuButton}) : super(key: key);
+  LocalGalleryPage({Key? key}) : super(key: key);
 
   final LocalGalleryPageLogic logic = Get.put<LocalGalleryPageLogic>(LocalGalleryPageLogic(), permanent: true);
-  final LocalGalleryPageState state = Get.find<LocalGalleryPageLogic>().state;
+  final LocalGalleryPageState state = Get
+      .find<LocalGalleryPageLogic>()
+      .state;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +34,7 @@ class LocalGalleryPage extends StatelessWidget {
       appBar: buildAppBar(context),
       body: FadeIn(child: buildBody()),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward, size: 28),
-        foregroundColor: Get.theme.primaryColor,
-        backgroundColor: Get.theme.colorScheme.background,
-        elevation: 3,
+        child: const Icon(Icons.arrow_upward),
         heroTag: null,
         onPressed: logic.scroll2Top,
       ),
@@ -46,58 +44,31 @@ class LocalGalleryPage extends StatelessWidget {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      title: CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
-        groupValue: DownloadPageBodyType.local,
-        children: {
-          DownloadPageBodyType.download: SizedBox(
-            width: 66,
-            child: Center(child: Text('download'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold))),
-          ),
-          DownloadPageBodyType.archive: Text('archive'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-          DownloadPageBodyType.local: Text('local'.tr, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-        },
-        onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),
-      ),
-      elevation: 1,
-      leadingWidth: 70,
+      titleSpacing: 0,
+      title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
       leading: ExcludeFocus(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showMenuButton)
-              IconButton(
-                icon: const Icon(FontAwesomeIcons.bars, size: 20),
-                onPressed: () => TapMenuButtonNotification().dispatch(context),
-              ),
-            IconButton(
-              icon: const Icon(Icons.help, size: 22),
-              onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false),
-              visualDensity: const VisualDensity(horizontal: -4),
-            ),
-          ],
+        child: IconButton(
+          icon: const Icon(Icons.help, size: 22),
+          onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false),
         ),
       ),
       actions: [
-        SizedBox(
-          width: 88,
-          child: Row(
-            children: [
-              ExcludeFocus(
-                child: IconButton(
-                  icon: Icon(Icons.merge, size: 24, color: state.aggregateDirectories ? Get.theme.primaryColor : Colors.grey),
-                  onPressed: logic.toggleAggregateDirectory,
-                  visualDensity: const VisualDensity(horizontal: -4),
-                ),
-              ),
-              ExcludeFocus(
-                child: IconButton(
-                  icon: Icon(Icons.refresh, size: 26, color: Get.theme.primaryColor),
-                  onPressed: logic.handleRefreshLocalGallery,
-                ),
-              ),
-            ],
+        ExcludeFocus(
+          child: GetBuilder<LocalGalleryPageLogic>(
+            id: LocalGalleryPageLogic.appBarId,
+            builder: (_) => IconButton(
+              icon: Icon(Icons.merge, size: 26, color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline),
+              onPressed: logic.toggleAggregateDirectory,
+              visualDensity: const VisualDensity(horizontal: -4),
+            ),
           ),
-        )
+        ),
+        ExcludeFocus(
+          child: IconButton(
+            icon: Icon(Icons.refresh, size: 26, color: Get.theme.colorScheme.primary),
+            onPressed: logic.handleRefreshLocalGallery,
+          ),
+        ),
       ],
     );
   }
@@ -105,36 +76,42 @@ class LocalGalleryPage extends StatelessWidget {
   Widget buildBody() {
     return GetBuilder<LocalGalleryPageLogic>(
       id: LocalGalleryPageLogic.bodyId,
-      builder: (_) => EHWheelSpeedController(
-        scrollController: state.scrollController,
-        child: ListView.builder(
-          controller: state.scrollController,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          itemCount: logic.computeItemCount(),
-          itemBuilder: (context, index) {
-            if (state.aggregateDirectories) {
-              return galleryItemBuilder(context, index);
-            }
+      builder: (_) =>
+          EHWheelSpeedController(
+            scrollController: state.scrollController,
+            child: ListView.builder(
+              controller: state.scrollController,
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              itemCount: logic.computeItemCount(),
+              itemBuilder: (context, index) {
+                if (state.aggregateDirectories) {
+                  return galleryItemBuilder(context, index);
+                }
 
-            if (index == 0) {
-              return parentDirectoryItemBuilder(context);
-            }
+                if (index == 0) {
+                  return parentDirectoryItemBuilder(context);
+                }
 
-            if (index <= logic.computeCurrentDirectoryCount()) {
-              return nestedDirectoryItemBuilder(context, index - 1);
-            }
+                if (index <= logic.computeCurrentDirectoryCount()) {
+                  return nestedDirectoryItemBuilder(context, index - 1);
+                }
 
-            return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
-          },
-        ),
-      ),
+                return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+              },
+            ),
+          ),
     );
   }
 
   Widget parentDirectoryItemBuilder(BuildContext context) {
     return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapArrowLeft: () =>
+          Get
+              .find<DesktopLayoutPageLogic>()
+              .state
+              .leftTabBarFocusScopeNode
+              .requestFocus(),
       handleTapEnter: logic.backRoute,
       handleTapArrowRight: logic.backRoute,
       child: GestureDetector(
@@ -150,7 +127,12 @@ class LocalGalleryPage extends StatelessWidget {
 
     return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapArrowLeft: () =>
+          Get
+              .find<DesktopLayoutPageLogic>()
+              .state
+              .leftTabBarFocusScopeNode
+              .requestFocus(),
       handleTapEnter: () => logic.pushRoute(childPath),
       handleTapArrowRight: () => logic.pushRoute(childPath),
       child: GestureDetector(
@@ -165,7 +147,9 @@ class LocalGalleryPage extends StatelessWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme
+            .of(context)
+            .cardColor,
 
         /// covered when in dark mode
         boxShadow: [
@@ -198,7 +182,12 @@ class LocalGalleryPage extends StatelessWidget {
 
     Widget child = FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+      handleTapArrowLeft: () =>
+          Get
+              .find<DesktopLayoutPageLogic>()
+              .state
+              .leftTabBarFocusScopeNode
+              .requestFocus(),
       handleTapEnter: () => logic.goToReadPage(gallery),
       handleTapArrowRight: () => logic.goToReadPage(gallery),
       child: Slidable(
@@ -250,7 +239,9 @@ class LocalGalleryPage extends StatelessWidget {
       child: Container(
         height: 130,
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Theme
+              .of(context)
+              .cardColor,
 
           /// covered when in dark mode
           boxShadow: [
@@ -307,21 +298,22 @@ class LocalGalleryPage extends StatelessWidget {
   void showBottomSheet(LocalGallery gallery, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              logic.handleRemoveItem(gallery);
-              backRoute();
-            },
+      builder: (BuildContext context) =>
+          CupertinoActionSheet(
+            actions: <CupertinoActionSheetAction>[
+              CupertinoActionSheetAction(
+                child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+                onPressed: () {
+                  logic.handleRemoveItem(gallery);
+                  backRoute();
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: Text('cancel'.tr),
+              onPressed: backRoute,
+            ),
           ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
     );
   }
 }

@@ -89,6 +89,12 @@ class UIConfig {
   static const double detailsPageThumbnailHeight = 200;
   static const double detailsPageThumbnailWidth = 150;
 
+  /// Download page
+  static const double downloadPageSegmentedControlWidth = 60;
+  static const double downloadPageSegmentedTextSize = 13;
+  static Color get resumeButtonColor => Get.theme.primaryColor;
+  static Color get pauseButtonColor => Get.theme.colorScheme.primary;
+
   /// Search page
   static Color get searchPageSuggestionHighlightColor => Colors.red;
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../database/database.dart';
+import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../model/read_page_info.dart';
 import '../../../routes/routes.dart';
 import '../../../service/gallery_download_service.dart';
@@ -11,10 +12,11 @@ import '../../../utils/route_util.dart';
 import '../../../widget/eh_download_dialog.dart';
 import 'gallery_download_page_state.dart';
 
-class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStateMixin {
+class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStateMixin, Scroll2TopLogicMixin {
   static const String bodyId = 'pageId';
   static const String groupId = 'groupId';
 
+  @override
   GalleryDownloadPageState state = GalleryDownloadPageState();
 
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
@@ -132,15 +134,5 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
         pageCount: gallery.pageCount,
       ),
     );
-  }
-
-  void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-      );
-    }
   }
 }

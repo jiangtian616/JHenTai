@@ -209,8 +209,11 @@ class _RankListDesc extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+              Text(
+                'seeAll'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+              ),
+              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary),
             ],
           ),
         )
@@ -240,8 +243,11 @@ class _PopularListDesc extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('seeAll'.tr, style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w300)),
-              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary).marginOnly(top: 2),
+              Text(
+                'seeAll'.tr,
+                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+              ),
+              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary),
             ],
           ),
         )

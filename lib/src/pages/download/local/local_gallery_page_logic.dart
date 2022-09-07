@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:path/path.dart';
 
 import '../../../model/read_page_info.dart';
@@ -15,10 +16,11 @@ import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import 'local_gallery_page_state.dart';
 
-class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMixin {
-  static const String pageId = 'pageId';
+class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMixin, Scroll2TopLogicMixin {
+  static const String appBarId = 'appBarId';
   static const String bodyId = 'bodyId';
 
+  @override
   LocalGalleryPageState state = LocalGalleryPageState();
 
   final LocalGalleryService localGalleryService = Get.find<LocalGalleryService>();
@@ -113,7 +115,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     state.aggregateDirectories = !state.aggregateDirectories;
     storageService.write('LocalGalleryBody_AggregateDirectories', !state.aggregateDirectories);
 
-    update([bodyId]);
+    update([appBarId, bodyId]);
   }
 
   Future<void> handleRefreshLocalGallery() async {
@@ -123,15 +125,5 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     update([bodyId]);
 
     toast('${'newGalleryCount'.tr}: $addCount');
-  }
-
-  void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-      );
-    }
   }
 }

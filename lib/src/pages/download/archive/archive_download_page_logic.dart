@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/widget/eh_download_dialog.dart';
 
 import '../../../database/database.dart';
+import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../model/gallery_image.dart';
 import '../../../model/read_page_info.dart';
 import '../../../routes/routes.dart';
@@ -13,10 +14,11 @@ import '../../../service/storage_service.dart';
 import '../../../utils/route_util.dart';
 import 'archive_download_page_state.dart';
 
-class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStateMixin {
+class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStateMixin, Scroll2TopLogicMixin {
   static const String bodyId = 'pageId';
   static const String groupId = 'groupId';
 
+  @override
   ArchiveDownloadPageState state = ArchiveDownloadPageState();
 
   final ArchiveDownloadService archiveDownloadService = Get.find();
@@ -129,15 +131,5 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
         images: images,
       ),
     );
-  }
-
-  void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-      );
-    }
   }
 }
