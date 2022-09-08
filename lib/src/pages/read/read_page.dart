@@ -1,10 +1,11 @@
+import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
@@ -38,16 +39,7 @@ class ReadPage extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: ScrollConfiguration(
-        behavior: const MaterialScrollBehavior().copyWith(
-          dragDevices: {
-            PointerDeviceKind.mouse,
-            PointerDeviceKind.touch,
-            PointerDeviceKind.stylus,
-            PointerDeviceKind.trackpad,
-            PointerDeviceKind.unknown,
-          },
-          scrollbars: GetPlatform.isDesktop ? true : false,
-        ),
+        behavior: GetPlatform.isDesktop ? UIConfig.behaviorWithScrollBar : UIConfig.behaviorWithoutScrollBar,
         child: EHKeyboardListener(
           focusNode: state.focusNode,
           handleEsc: backRoute,
@@ -56,18 +48,26 @@ class ReadPage extends StatelessWidget {
           handlePageUp: logic.toPrev,
           handleArrowDown: logic.toNext,
           handleArrowUp: logic.toPrev,
-          handleArrowRight: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toPrev() : logic.toNext(),
-          handleArrowLeft: () => ReadSetting.readDirection.value == ReadDirection.right2left ? logic.toNext() : logic.toPrev(),
-          handleLCtrl: logic.toNext,
+          handleArrowRight: logic.toRight,
+          handleArrowLeft: logic.toLeft,
+          handleLCtrl: logic.toLeft,
+          handleRCtrl: logic.toRight,
           handleEnd: backRoute,
-          child: Stack(
-            children: [
-              buildLayout(),
-              buildRightBottomInfo(context),
-              buildGestureRegion(),
-              buildTopMenu(context),
-              buildBottomMenu(context),
-            ],
+          child: DefaultTextStyle(
+            style: DefaultTextStyle.of(context).style.copyWith(
+                  color: Get.theme.colorScheme.surface,
+                  fontSize: 12,
+                  decoration: TextDecoration.none,
+                ),
+            child: Stack(
+              children: [
+                buildLayout(),
+                buildRightBottomInfo(context),
+                buildGestureRegion(),
+                buildTopMenu(context),
+                buildBottomMenu(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -94,81 +94,68 @@ class ReadPage extends StatelessWidget {
 
   /// right-bottom info
   Widget buildRightBottomInfo(BuildContext context) {
-    return Obx(
-      () {
-        if (ReadSetting.showStatusInfo.isFalse) {
-          return const SizedBox();
-        }
+    return Positioned(
+      bottom: 0,
+      right: 0,
+      child: Obx(
+        () {
+          if (ReadSetting.showStatusInfo.isFalse) {
+            return const SizedBox();
+          }
 
-        return GetBuilder<ReadPageLogic>(
-          id: logic.rightBottomInfoId,
-          builder: (_) => state.isMenuOpen
-              ? const SizedBox()
-              : Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade800,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildPageNoInfo().marginOnly(right: 8),
-                        _buildCurrentTime().marginOnly(right: 8),
-                        if (!GetPlatform.isDesktop) _buildBatteryLevel(),
-                      ],
-                    ).paddingOnly(right: 32, top: 3, bottom: 1, left: 6),
-                  ),
+          Widget child = DefaultTextStyle(
+            style: DefaultTextStyle.of(context).style.copyWith(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none,
                 ),
-        );
-      },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Get.theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.only(right: 32, bottom: 1, top: 3, left: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildPageNoInfo().marginOnly(right: 10),
+                  _buildCurrentTime().marginOnly(right: 10),
+                  if (!GetPlatform.isDesktop) _buildBatteryLevel(),
+                ],
+              ),
+            ),
+          );
+
+          return GetBuilder<ReadPageLogic>(
+            id: logic.rightBottomInfoId,
+            builder: (_) => state.isMenuOpen ? child.fadeOut() : child.fadeIn(),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildPageNoInfo() {
     return GetBuilder<ReadPageLogic>(
       id: logic.pageNoId,
-      builder: (_) => Text(
-        '${state.readPageInfo.currentIndex + 1}/${state.readPageInfo.pageCount}',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          decoration: TextDecoration.none,
-        ),
-      ),
+      builder: (_) => Text('${state.readPageInfo.currentIndex + 1}/${state.readPageInfo.pageCount}'),
     );
   }
 
   Widget _buildCurrentTime() {
     return GetBuilder<ReadPageLogic>(
       id: logic.currentTimeId,
-      builder: (_) => Text(
-        DateFormat('HH:mm').format(DateTime.now()),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          decoration: TextDecoration.none,
-        ),
-      ),
+      builder: (_) => Text(DateFormat('HH:mm').format(DateTime.now())),
     );
   }
 
   Widget _buildBatteryLevel() {
     return GetBuilder<ReadPageLogic>(
       id: logic.batteryId,
-      builder: (_) => Text(
-        '${state.batteryLevel}%',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          decoration: TextDecoration.none,
-        ),
-      ),
+      builder: (_) => Text('${state.batteryLevel}%'),
     );
   }
 
@@ -263,44 +250,38 @@ class ReadPage extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         curve: Curves.ease,
         height: state.isMenuOpen ? UIConfig.appBarHeight + context.mediaQuery.padding.top : 0,
-        child: SizedBox(
-          height: UIConfig.appBarHeight + context.mediaQuery.padding.top,
-          width: fullScreenWidth,
-          child: AppBar(
-            iconTheme: const IconThemeData(color: Colors.white),
-            actionsIconTheme: const IconThemeData(color: Colors.white),
-            backgroundColor: Colors.black.withOpacity(0.8),
-            actions: [
-              if (GetPlatform.isDesktop)
-                IconButton(
-                  onPressed: () => toast(
-                    'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
-                    '\n'
-                    'PageUp、 ←、↑  :  ${'toPrev'.tr}'
-                    '\n'
-                    'Esc、End  :  ${'back'.tr}'
-                    '\n'
-                    'Space  :  ${'toggleMenu'.tr}',
-                    isShort: false,
-                  ),
-                  icon: const Icon(Icons.help),
-                ),
-              GetBuilder<ReadPageLogic>(
-                id: logic.autoModeId,
-                builder: (logic) {
-                  return IconButton(
-                    onPressed: logic.toggleAutoMode,
-                    icon: const Icon(Icons.schedule),
-                    color: state.autoMode ? Colors.blue : null,
-                  );
-                },
-              ),
+        width: fullScreenWidth,
+        child: AppBar(
+          backgroundColor: UIConfig.readPageMenuColor,
+          leading: BackButton(color: Get.theme.colorScheme.surfaceVariant),
+          actions: [
+            if (GetPlatform.isDesktop)
               IconButton(
-                onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
-                icon: const Icon(Icons.settings),
+                icon: Icon(Icons.help, color: Get.theme.colorScheme.surfaceVariant),
+                onPressed: () => toast(
+                  'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
+                  '\n'
+                  'PageUp、 ←、↑  :  ${'toPrev'.tr}'
+                  '\n'
+                  'Esc、End  :  ${'back'.tr}'
+                  '\n'
+                  'Space  :  ${'toggleMenu'.tr}',
+                  isShort: false,
+                ),
               ),
-            ],
-          ),
+            GetBuilder<ReadPageLogic>(
+              id: logic.autoModeId,
+              builder: (_) => IconButton(
+                icon: const Icon(Icons.schedule),
+                onPressed: logic.toggleAutoMode,
+                color: state.autoMode ? Get.theme.colorScheme.primary : Get.theme.colorScheme.surfaceVariant,
+              ),
+            ),
+            IconButton(
+              onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
+              icon: Icon(Icons.settings, color: Get.theme.colorScheme.surfaceVariant),
+            ),
+          ],
         ),
       ),
     );
@@ -314,18 +295,21 @@ class ReadPage extends StatelessWidget {
         () => AnimatedPositioned(
           duration: const Duration(milliseconds: 200),
           curve: Curves.ease,
-          bottom: 0,
-          height: !state.isMenuOpen
+          bottom: state.isMenuOpen
               ? 0
               : ReadSetting.showThumbnails.isTrue
-                  ? UIConfig.bottomMenuHeight
-                  : UIConfig.bottomMenuHeightWithoutThumbnails,
+                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight +
+                      UIConfig.readPageBottomSliderHeight +
+                      max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
+                  : -(UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
           child: ColoredBox(
-            color: Colors.black.withOpacity(0.8),
+            color: UIConfig.readPageMenuColor,
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails().marginOnly(top: 12),
-                _buildSlider().marginOnly(top: 8),
+                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(),
+                _buildSlider(),
+                SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
               ],
             ),
           ),
@@ -337,7 +321,7 @@ class ReadPage extends StatelessWidget {
   Widget _buildThumbnails() {
     return SizedBox(
       width: fullScreenWidth,
-      height: 120,
+      height: UIConfig.readPageBottomThumbnailsRegionHeight,
       child: Obx(
         () => ScrollablePositionedList.separated(
           scrollDirection: Axis.horizontal,
@@ -349,34 +333,32 @@ class ReadPage extends StatelessWidget {
           itemScrollController: state.thumbnailsScrollController,
           itemPositionsListener: state.thumbnailPositionsListener,
           itemBuilder: (_, index) => SizedBox(
-            width: 80,
-            height: 100,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => logic.jump2PageIndex(index),
-                    child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
-                  ),
-                ),
-                GetBuilder<ReadPageLogic>(
-                  id: logic.thumbnailsId,
-                  builder: (logic) {
-                    return Text(
-                      (index + 1).toString(),
-                      style: state.readPageTextStyle.copyWith(
-                        fontSize: 9,
-                        color: state.readPageInfo.currentIndex == index ? Get.theme.primaryColorLight : null,
+            width: UIConfig.readPageThumbnailWidth,
+            height: UIConfig.readPageThumbnailHeight,
+            child: GetBuilder<ReadPageLogic>(
+                id: logic.thumbnailNoId,
+                builder: (_) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => logic.jump2PageIndex(index),
+                          child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                        ),
                       ),
-                    );
-                  },
-                ).marginOnly(top: 4),
-              ],
-            ),
+                      GetBuilder<ReadPageLogic>(
+                        builder: (_) => Text(
+                          (index + 1).toString(),
+                          style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
+                        ),
+                      ).marginOnly(top: 4),
+                    ],
+                  );
+                }),
           ),
-          separatorBuilder: (_, __) => const Divider(indent: 4),
+          separatorBuilder: (_, __) => const VerticalDivider(width: 4),
         ),
       ),
     );
@@ -390,7 +372,8 @@ class ReadPage extends StatelessWidget {
           if (state.parseImageHrefsStates[index] == LoadingState.idle) {
             logic.beginToParseImageHref(index);
           }
-          return const Center(child: CupertinoActivityIndicator());
+
+          return Center(child: UIConfig.loadingAnimation);
         }
 
         return Center(child: EHThumbnail(thumbnail: state.thumbnails[index]!));
@@ -403,10 +386,15 @@ class ReadPage extends StatelessWidget {
       id: '$downloadImageId::${state.readPageInfo.gid}',
       builder: (_) {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
-          return const Center();
+          return Center(child: UIConfig.loadingAnimation);
         }
 
-        return EHImage.file(galleryImage: state.images[index]!);
+        return EHImage.file(
+          borderRadius: BorderRadius.circular(8),
+          containerHeight: UIConfig.readPageThumbnailHeight,
+          containerWidth: UIConfig.readPageThumbnailWidth,
+          galleryImage: state.images[index]!,
+        );
       },
     );
   }
@@ -415,13 +403,11 @@ class ReadPage extends StatelessWidget {
     return GetBuilder<ReadPageLogic>(
       id: logic.sliderId,
       builder: (_) => SizedBox(
+        height: UIConfig.readPageBottomSliderHeight,
         width: fullScreenWidth,
         child: Row(
           children: [
-            Text(
-              (state.readPageInfo.currentIndex + 1).toString(),
-              style: state.readPageTextStyle,
-            ).marginSymmetric(horizontal: 16),
+            Text((state.readPageInfo.currentIndex + 1).toString()).marginOnly(left: 36, right: 4),
             Expanded(
               child: Material(
                 color: Colors.transparent,
@@ -431,17 +417,14 @@ class ReadPage extends StatelessWidget {
                     min: 1,
                     max: state.readPageInfo.pageCount.toDouble(),
                     value: state.readPageInfo.currentIndex + 1.0,
-                    thumbColor: Colors.white,
+                    thumbColor: Get.theme.colorScheme.surface,
                     onChanged: logic.handleSlide,
                     onChangeEnd: logic.handleSlideEnd,
                   ),
                 ),
               ),
             ),
-            Text(
-              state.readPageInfo.pageCount.toString(),
-              style: state.readPageTextStyle,
-            ).marginSymmetric(horizontal: 16),
+            Text(state.readPageInfo.pageCount.toString()).marginOnly(right: 36, left: 4),
           ],
         ),
       ),

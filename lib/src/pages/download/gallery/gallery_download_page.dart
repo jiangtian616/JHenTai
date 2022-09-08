@@ -18,7 +18,6 @@ import '../../../widget/eh_image.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
-import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../download_base_page.dart';
 import 'gallery_download_page_logic.dart';
 import 'gallery_download_page_state.dart';

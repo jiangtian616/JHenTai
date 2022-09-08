@@ -2,10 +2,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
@@ -15,7 +13,6 @@ import '../../../widget/eh_image.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
-import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../download_base_page.dart';
 import 'local_gallery_page_logic.dart';
 import 'local_gallery_page_state.dart';

@@ -26,6 +26,7 @@ import '../../setting/read_setting.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
+import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../details/details_page_logic.dart';
 
@@ -40,7 +41,7 @@ class ReadPageLogic extends GetxController {
   final String bottomMenuId = 'bottomMenuId';
   final String rightBottomInfoId = 'rightBottomInfoId';
   final String pageNoId = 'pageNoId';
-  final String thumbnailsId = 'thumbnailsId';
+  final String thumbnailNoId = 'thumbnailsId';
   final String sliderId = 'sliderId';
 
   ReadPageState state = ReadPageState();
@@ -56,15 +57,18 @@ class ReadPageLogic extends GetxController {
   final StorageService storageService = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
+  late Worker toggleCurrentImmersiveModeLister;
 
   final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
 
   @override
   void onReady() {
+    super.onReady();
+
     toggleCurrentImmersiveMode();
 
     /// Listen to change
-    ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
+    toggleCurrentImmersiveModeLister= ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -83,18 +87,19 @@ class ReadPageLogic extends GetxController {
         update([currentTimeId]);
       },
     );
-
-    super.onReady();
   }
 
   @override
   void onClose() {
-    refreshCurrentTimeAndBatteryLevelTimer.cancel();
-    state.focusNode.dispose();
+    super.onClose();
 
-    storageService.write('readIndexRecord::${state.readPageInfo.gid}', state.readPageInfo.currentIndex);
+    state.focusNode.dispose();
+    refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    toggleCurrentImmersiveModeLister.dispose();
+
     restoreSystemBar();
 
+    storageService.write('readIndexRecord::${state.readPageInfo.gid}', state.readPageInfo.currentIndex);
     /// update read progress in detail page
     DetailsPageLogic.current?.update();
 
@@ -102,8 +107,6 @@ class ReadPageLogic extends GetxController {
     Get.delete<HorizontalListLayoutLogic>(force: true);
     Get.delete<HorizontalPageLayoutLogic>(force: true);
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
-
-    super.onClose();
   }
 
   void beginToParseImageHref(int index) {
@@ -124,14 +127,14 @@ class ReadPageLogic extends GetxController {
     List<GalleryThumbnail> newThumbnails;
     try {
       newThumbnails = await retry(
-        () async => await EHRequest.requestDetailPage(
+        () => EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: index ~/ SiteSetting.thumbnailsCountPerPage.value,
           parser: EHSpiderParser.detailPage2Thumbnails,
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
-        onRetry: (e) => Log.error('get thumbnails error!', (e as DioError).message),
+        onRetry: (e) => Log.error('Get thumbnails error!', (e as DioError).message),
       );
     } on DioError catch (e) {
       if (e.error is EHException) {
@@ -190,7 +193,7 @@ class ReadPageLogic extends GetxController {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
-        onRetry: (e) => Log.error('parse gallery image failed, index: ${index.toString()}', (e as DioError).message),
+        onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioError).message),
       );
     } on DioError catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
@@ -231,12 +234,17 @@ class ReadPageLogic extends GetxController {
     update([topMenuId, bottomMenuId, rightBottomInfoId]);
   }
 
-  void toggleAutoMode() {
+  Future<void> toggleAutoMode() async{
     if (state.autoMode) {
-      closeAutoMode();
-    } else {
-      enterAutoMode();
+      return closeAutoMode();
     }
+
+    bool? begin = await Get.dialog(const AutoModeIntervalDialog());
+    if (begin == null || !begin) {
+      return;
+    }
+
+    enterAutoMode();
   }
 
   void enterAutoMode() {
@@ -275,13 +283,13 @@ class ReadPageLogic extends GetxController {
     layoutLogic.jump2PageIndex(pageIndex);
   }
 
-  void handleSlide(double value) {
-    state.readPageInfo.currentIndex = (value - 1).toInt();
+  void handleSlide(double pageNo) {
+    state.readPageInfo.currentIndex = (pageNo - 1).toInt();
     update([sliderId, pageNoId]);
   }
 
-  void handleSlideEnd(double value) {
-    jump2PageIndex((value - 1).toInt());
+  void handleSlideEnd(double pageNo) {
+    jump2PageIndex((pageNo - 1).toInt());
   }
 
   /// Sync thumbnails after user scrolling to image whose index is [targetImageIndex]
@@ -335,10 +343,6 @@ class ReadPageLogic extends GetxController {
 
   void recordReadProgress(int index) {
     state.readPageInfo.currentIndex = index;
-    update([sliderId, pageNoId, thumbnailsId]);
-  }
-
-  void callbackAfterSwitchLayout() {
-    closeAutoMode();
+    update([sliderId, pageNoId, thumbnailNoId]);
   }
 }

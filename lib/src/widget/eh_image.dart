@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'dart:io' as io;
@@ -112,9 +113,9 @@ class EHImage extends StatelessWidget {
     return ExtendedImage.network(
       _replaceEXUrl(galleryImage.url),
       fit: fit,
+      mode: mode,
       height: containerHeight,
       width: containerWidth,
-      mode: mode,
       initGestureConfigHandler: initGestureConfigHandler,
       handleLoadingProgress: loadingWidgetBuilder != null,
       printError: false,
@@ -125,9 +126,11 @@ class EHImage extends StatelessWidget {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return loadingWidgetBuilder?.call(
-              _computeLoadingProgress(state.loadingProgress, state.extendedImageInfo),
-            );
+            return loadingWidgetBuilder != null
+                ? loadingWidgetBuilder!.call(
+                    _computeLoadingProgress(state.loadingProgress, state.extendedImageInfo),
+                  )
+                : Center(child: UIConfig.loadingAnimation);
           case LoadState.failed:
             return failedWidgetBuilder?.call(state);
           case LoadState.completed:
@@ -154,6 +157,8 @@ class EHImage extends StatelessWidget {
       io.File(_computeFilePath(galleryImage.path!)),
       fit: fit,
       mode: mode,
+      height: containerHeight,
+      width: containerWidth,
       enableLoadState: true,
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,

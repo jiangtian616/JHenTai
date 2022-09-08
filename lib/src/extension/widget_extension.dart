@@ -9,4 +9,8 @@ extension WidgetExtension on Widget {
   Widget fadeIn([Key? key]) {
     return FadeIn(key: key, child: this);
   }
+
+  Widget fadeOut([Key? key]) {
+    return FadeOut(key: key, child: this, animate: true);
+  }
 }

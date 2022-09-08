@@ -15,7 +15,6 @@ class SettingReadPage extends StatelessWidget {
       body: Obx(
         () => SafeArea(
           child: ListView(
-            itemExtent: 64,
             padding: const EdgeInsets.only(top: 16),
             children: [
               _buildEnableImmersiveMode().center(),
@@ -40,7 +39,7 @@ class SettingReadPage extends StatelessWidget {
                   ReadSetting.enableContinuousHorizontalScroll.isFalse &&
                   ReadSetting.enableDoubleColumn.isFalse)
                 _buildEnableAutoScaleUp().fadeIn(const Key('enableAutoScaleUp')).center(),
-              _buildAutoModeInterval().center(),
+              // _buildAutoModeInterval().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
                 _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)

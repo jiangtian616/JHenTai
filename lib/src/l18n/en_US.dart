@@ -277,7 +277,7 @@ class en_US {
       'readDirection': 'Read Direction',
       'showThumbnails': 'Show Thumbnails',
       'showStatusInfo': 'Show Status at Bottom',
-      'autoModeInterval': 'Turn Page Interval in Auto Mode',
+      'autoModeInterval': 'Turn Page Interval',
       'autoModeStyle': 'Auto mode style',
       'scroll': 'Scroll',
       'turnPage': 'Turn page',

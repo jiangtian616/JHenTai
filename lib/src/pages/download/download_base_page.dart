@@ -51,20 +51,30 @@ class EHDownloadPageSegmentControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
       groupValue: bodyType,
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
       children: {
         DownloadPageBodyType.download: SizedBox(
           width: UIConfig.downloadPageSegmentedControlWidth,
           child: Center(
-            child: Text('download'.tr, style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold)),
+            child: Text(
+              'download'.tr,
+              style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ),
         DownloadPageBodyType.archive: Text(
           'archive'.tr,
           style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         DownloadPageBodyType.local: Text(
           'local'.tr,
           style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
       },
       onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),

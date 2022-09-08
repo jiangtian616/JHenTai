@@ -18,8 +18,9 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 6),
-      actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+      contentPadding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 6),
+      actionsPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+      title: Text('autoModeInterval'.tr),
       content: SizedBox(
         height: 150,
         child: CupertinoPicker.builder(
@@ -38,7 +39,7 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
           child: Text('OK'.tr),
           onPressed: () {
             ReadSetting.saveAutoModeInterval(interval);
-            backRoute();
+            backRoute(result: true);
           },
         ),
       ],

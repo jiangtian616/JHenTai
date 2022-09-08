@@ -31,17 +31,15 @@ class EHThumbnail extends StatelessWidget {
   }
 
   Widget _buildThumbnailByLocalImage() {
-    return ClipRRect(
+    return EHImage.file(
       borderRadius: BorderRadius.circular(8),
-      child: EHImage.file(
-        galleryImage: image!,
-        completedWidgetBuilder: (ExtendedImageState state) => ExtendedRawImage(image: state.extendedImageInfo?.image, fit: BoxFit.contain),
-      ),
+      galleryImage: image!,
     );
   }
 
   Widget _buildLargeThumbnail() {
     return EHImage.network(
+      borderRadius: BorderRadius.circular(8),
       galleryImage: GalleryImage(
         url: thumbnail.thumbUrl,
         height: thumbnail.thumbHeight!,

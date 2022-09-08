@@ -3,10 +3,12 @@ import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
 
 class UIConfig {
+
   /// common
   static ScrollBehavior behaviorWithScrollBar = const MaterialScrollBehavior().copyWith(
     dragDevices: {
@@ -19,6 +21,19 @@ class UIConfig {
     scrollbars: true,
   );
 
+  static ScrollBehavior behaviorWithoutScrollBar = const MaterialScrollBehavior().copyWith(
+    dragDevices: {
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.touch,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.unknown,
+    },
+    scrollbars: false,
+  );
+
+  static Widget loadingAnimation = LoadingAnimationWidget.horizontalRotatingDots(color: Colors.grey.shade800, size: 32);
+
   /// layout
   static const double appBarHeight = 40;
   static const double tabBarHeight = 36;
@@ -26,11 +41,6 @@ class UIConfig {
   static const double refreshTriggerPullDistance = 100;
 
   static const double desktopLeftTabBarWidth = 56;
-
-  static const double bottomMenuHeight = 220;
-  static const double bottomMenuHeightWithoutThumbnails = 100;
-
-  static const double dashboardCardSize = 210;
 
   /// Gallery card
   static const double galleryCardHeight = 200;
@@ -42,6 +52,8 @@ class UIConfig {
 
   static Color get galleryCardTextColor => Get.theme.colorScheme.outline;
   static const double galleryCardTagsHeight = 70;
+
+  static const double dashboardCardSize = 210;
 
   /// Login page
   static const Color loginPageForegroundColor = Colors.white;
@@ -90,9 +102,11 @@ class UIConfig {
   static const double detailsPageThumbnailWidth = 150;
 
   /// Download page
-  static const double downloadPageSegmentedControlWidth = 60;
+  static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;
+
   static Color get resumeButtonColor => Get.theme.primaryColor;
+
   static Color get pauseButtonColor => Get.theme.colorScheme.primary;
 
   /// Search page
@@ -104,6 +118,14 @@ class UIConfig {
 
   static const double searchPageSuggestionTitleTextSize = 15;
   static const double searchPageSuggestionSubTitleTextSize = 12;
+
+  /// Read page
+  static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
+  static const double readPageBottomThumbnailsRegionHeight = 132;
+  static const double readPageThumbnailHeight = 100;
+  static const double readPageThumbnailWidth = 80;
+  static const double readPageBottomSliderHeight = 56;
+  static const double readPageBottomSpacingHeight = 36;
 
   /// Comment
   static const double commentAuthorTextSize = 13;
