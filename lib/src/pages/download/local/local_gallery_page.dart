@@ -81,7 +81,7 @@ class LocalGalleryPage extends StatelessWidget {
             scrollController: state.scrollController,
             child: ListView.builder(
               controller: state.scrollController,
-              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              padding: const EdgeInsets.only(bottom: 80),
               itemCount: logic.computeItemCount(),
               itemBuilder: (context, index) {
                 if (state.aggregateDirectories) {

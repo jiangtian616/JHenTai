@@ -12,7 +12,7 @@ class en_US {
       'error': "Error",
       'failed': "Failed",
       'reload': 'Reload',
-      'noMoreData': 'No More Data',
+      'noMoreData': 'No More',
       'noData': 'No Data',
       'operationFailed': 'Operation Failed',
       'needLoginToOperate': 'Need Log In To Operate',

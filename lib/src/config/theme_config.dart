@@ -34,7 +34,7 @@ class ThemeConfig {
       onSurfaceVariant: Color(0xFF49454F),
     ),
     navigationBarTheme: const NavigationBarThemeData(
-      height: 56,
+      height: 48,
       indicatorColor: Color(0xFFEADDFF),
       surfaceTintColor: Color(0xFFE7E0EC),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
@@ -111,7 +111,7 @@ class ThemeConfig {
       onSurfaceVariant: Color(0xFFCAC4D0),
     ),
     navigationBarTheme: const NavigationBarThemeData(
-      height: 56,
+      height: 48,
       indicatorColor: Color(0xFF4F378B),
       surfaceTintColor: Color(0xFF49454F),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
