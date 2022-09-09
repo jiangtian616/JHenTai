@@ -119,6 +119,9 @@ class UIConfig {
   static const double searchPageSuggestionTitleTextSize = 15;
   static const double searchPageSuggestionSubTitleTextSize = 12;
 
+  static const double searchDialogSuggestionTitleTextSize = 13;
+  static const double searchDialogSuggestionSubTitleTextSize = 11;
+
   /// Read page
   static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
   static const double readPageBottomThumbnailsRegionHeight = 132;

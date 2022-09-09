@@ -1,5 +1,4 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -9,7 +8,6 @@ import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart'
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
-import '../../../utils/string_uril.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
@@ -29,7 +27,7 @@ mixin BaseSearchPageMixin on BasePage {
         focusNode: state.searchFieldFocusNode,
         controller: TextEditingController.fromValue(
           TextEditingValue(
-            text: state.searchConfig.keyword ?? '',
+            text: state.searchConfig.computeKeywords(),
 
             /// make cursor stay at last letter
             selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
@@ -42,6 +40,7 @@ mixin BaseSearchPageMixin on BasePage {
             child: const Icon(Icons.cancel, size: 18),
             onTap: () {
               state.searchConfig.keyword = '';
+              state.searchConfig.tags?.clear();
               logic.update([logic.searchFieldId]);
             },
           ),
@@ -101,7 +100,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return EHWheelSpeedController(
-      scrollController: scrollController,
+      controller: scrollController,
       child: CustomScrollView(
         key: const PageStorageKey('suggestionBody'),
         controller: scrollController,
@@ -148,11 +147,11 @@ class SuggestionAndHistoryBody extends StatelessWidget {
               .map((tagData) => FadeIn(
                     duration: const Duration(milliseconds: 500),
                     child: ListTile(
-                      title: RichText(text: _highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
+                      title: RichText(text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
                       subtitle: tagData.tagName == null
                           ? null
                           : RichText(
-                              text: _highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                              text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
                             ),
                       leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor),
                       dense: true,
@@ -165,6 +164,54 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// highlight keyword in rawText
+  TextSpan highlightKeyword(String rawText, String currentKeyword, bool isSubTitle) {
+    List<TextSpan> children = <TextSpan>[];
+
+    List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
+
+    int indexHandling = 0;
+    for (int index in matchIndexes) {
+      if (index > indexHandling) {
+        children.add(
+          TextSpan(
+            text: rawText.substring(indexHandling, index),
+            style: TextStyle(
+              fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
+              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+            ),
+          ),
+        );
+      }
+
+      children.add(
+        TextSpan(
+          text: currentKeyword,
+          style: TextStyle(
+            fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
+            color: UIConfig.searchPageSuggestionHighlightColor,
+          ),
+        ),
+      );
+
+      indexHandling = index + currentKeyword.length;
+    }
+
+    if (rawText.length > indexHandling) {
+      children.add(
+        TextSpan(
+          text: rawText.substring(indexHandling, rawText.length),
+          style: TextStyle(
+            fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
+            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+          ),
+        ),
+      );
+    }
+
+    return TextSpan(children: children);
   }
 }
 
@@ -200,87 +247,4 @@ class HistoryChips extends StatelessWidget {
   }
 }
 
-class SearchSuggestionList extends StatelessWidget {
-  final String currentKeyword;
-  final List<TagData> suggestions;
-  final ValueChanged<TagData> onTapSuggestion;
 
-  const SearchSuggestionList({
-    Key? key,
-    required this.currentKeyword,
-    required this.suggestions,
-    required this.onTapSuggestion,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (_, index) {
-        TagData tagData = suggestions[index];
-        return FadeIn(
-          duration: const Duration(milliseconds: 500),
-          child: ListTile(
-            title: RichText(text: _highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
-            subtitle: tagData.tagName == null
-                ? null
-                : RichText(
-                    text: _highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
-                  ),
-            leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor),
-            dense: true,
-            minLeadingWidth: 20,
-            onTap: () => onTapSuggestion(tagData),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// highlight keyword in rawText
-TextSpan _highlightKeyword(String rawText, String currentKeyword, bool isSubTitle) {
-  List<TextSpan> children = <TextSpan>[];
-
-  List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
-
-  int indexHandling = 0;
-  for (int index in matchIndexes) {
-    if (index > indexHandling) {
-      children.add(
-        TextSpan(
-          text: rawText.substring(indexHandling, index),
-          style: TextStyle(
-            fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
-          ),
-        ),
-      );
-    }
-
-    children.add(
-      TextSpan(
-        text: currentKeyword,
-        style: TextStyle(
-          fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-          color: UIConfig.searchPageSuggestionHighlightColor,
-        ),
-      ),
-    );
-
-    indexHandling = index + currentKeyword.length;
-  }
-
-  if (rawText.length > indexHandling) {
-    children.add(
-      TextSpan(
-        text: rawText.substring(indexHandling, rawText.length),
-        style: TextStyle(
-          fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-          color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
-        ),
-      ),
-    );
-  }
-
-  return TextSpan(children: children);
-}

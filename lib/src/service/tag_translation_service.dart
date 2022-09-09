@@ -119,7 +119,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<List<TagData>> searchTags(String keyword) async {
-    return await appDb.searchTags('%$keyword%').get();
+    return (await appDb.searchTags('%$keyword%').get()).where((tag) => tag.namespace != 'rows').toList();
   }
 
   /// won't translate keys

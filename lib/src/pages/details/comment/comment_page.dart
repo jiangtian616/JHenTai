@@ -39,7 +39,7 @@ class _CommentPageState extends State<CommentPage> {
       appBar: AppBar(title: Text('allComments'.tr)),
       floatingActionButton: FloatingActionButton(onPressed: _handleAddComment, child: const Icon(Icons.add)),
       body: EHWheelSpeedController(
-        scrollController: _scrollController,
+        controller: _scrollController,
         child: ListView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           padding: const EdgeInsets.only(top: 6, left: 8, right: 8, bottom: 200),

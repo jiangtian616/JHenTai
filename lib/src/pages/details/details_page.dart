@@ -79,7 +79,7 @@ class DetailsPage extends StatelessWidget {
           ? (Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode..onKeyEvent = logic.onKeyEvent)
           : null,
       child: EHWheelSpeedController(
-        scrollController: state.scrollController,
+        controller: state.scrollController,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           controller: state.scrollController,

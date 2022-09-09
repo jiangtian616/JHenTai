@@ -1,16 +1,29 @@
+import 'package:animate_do/animate_do.dart';
+import 'package:collection/collection.dart';
+import 'package:dio/dio.dart';
 import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:throttling/throttling.dart';
 
+import '../config/ui_config.dart';
+import '../database/database.dart';
+import '../network/eh_request.dart';
+import '../setting/style_setting.dart';
+import '../utils/eh_spider_parser.dart';
+import '../utils/log.dart';
 import 'eh_gallery_category_tag.dart';
+import 'loading_state_indicator.dart';
 
 enum EHSearchConfigDialogType { update, add, filter }
 
@@ -26,41 +39,54 @@ class EHSearchConfigDialog extends StatefulWidget {
 }
 
 class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
-  final ScrollController _scrollController = ScrollController();
-
-  late final SearchConfig searchConfig;
+  final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
 
   String? quickSearchName;
+  late final SearchConfig searchConfig;
+
+  final ScrollController _scrollController = ScrollController();
+
+  bool _isShowingSuggestions = false;
+  List<TagData> suggestions = [];
+  Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
+
+  LayerLink layerLink = LayerLink();
+  OverlayEntry? overlayEntry;
+  FocusNode focusNode = FocusNode();
+  bool isDoubleBackspace = false;
 
   @override
   void initState() {
+    super.initState();
+
     if (widget.searchConfig == null) {
       searchConfig = SearchConfig();
     } else {
       searchConfig = widget.searchConfig!.copyWith();
     }
+
     quickSearchName = widget.quickSearchName;
-    super.initState();
   }
 
   @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
+    _scrollController.dispose();
+    overlayEntry?.remove();
+    focusNode.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 60.0, vertical: 24.0),
       child: Container(
         height: 500,
         width: 200,
-        margin: const EdgeInsets.symmetric(vertical: 22),
+        padding: const EdgeInsets.only(top: 24, bottom: 24, left: 12, right: 12),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            buildTitle(),
+            buildHeader(),
             Expanded(child: buildBody()),
           ],
         ),
@@ -68,78 +94,70 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
-  Widget buildTitle() {
-    return AppBar(
-      title: Text(_buildTitleText(), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      centerTitle: true,
-      automaticallyImplyLeading: false,
-      backgroundColor: Get.theme.dialogBackgroundColor,
-      toolbarHeight: 48,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.close),
-        onPressed: () => backRoute(),
-      ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.check),
-          onPressed: checkAndBack,
-        ).marginOnly(right: 16),
+  Widget buildHeader() {
+    String title = () {
+      switch (widget.type) {
+        case EHSearchConfigDialogType.update:
+          return 'updateQuickSearch'.tr;
+        case EHSearchConfigDialogType.add:
+          return 'addQuickSearch'.tr;
+        case EHSearchConfigDialogType.filter:
+          return 'filter'.tr;
+      }
+    }();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
+        Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        IconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
       ],
     );
   }
 
-  String _buildTitleText() {
-    switch (widget.type) {
-      case EHSearchConfigDialogType.update:
-        return 'updateQuickSearch'.tr;
-      case EHSearchConfigDialogType.add:
-        return 'addQuickSearch'.tr;
-      case EHSearchConfigDialogType.filter:
-        return 'filter'.tr;
-    }
-  }
-
   Widget buildBody() {
     return EHWheelSpeedController(
-      scrollController: _scrollController,
-      child: SingleChildScrollView(
+      controller: _scrollController,
+      child: ListView(
         controller: _scrollController,
-        child: Column(
-          children: [
-            if (widget.type != EHSearchConfigDialogType.filter) _buildSearchConfigName().marginOnly(left: 16, right: 16),
-            if (widget.type == EHSearchConfigDialogType.add) _buildSearchTypeSelector().marginOnly(top: 12),
-            if (searchConfig.searchType == SearchType.favorite)
-              Column(
-                children: [
-                  _buildFavoriteTags().marginOnly(top: 20).paddingSymmetric(horizontal: 16),
-                  _buildKeywordTextField().marginOnly(left: 16, right: 16, top: 16),
-                  _buildSearchNameForFavoriteSwitch().marginOnly(top: 24),
-                  _buildSearchTagsForFavoriteSwitch(),
-                  _buildSearchNoteForFavoriteSwitch(),
-                ],
-              )
-            else
-              Column(
-                children: [
-                  _buildCategoryTags().marginOnly(top: 20).paddingSymmetric(horizontal: 16),
-                  _buildKeywordTextField().marginOnly(left: 16, right: 16, top: 16),
-                  _buildSearchNameSwitch().marginOnly(top: 24),
-                  _buildSearchTagsSwitch(),
-                  _buildSearchDescriptionSwitch(),
-                  _buildSearchExpungedGalleriesSwitch(),
-                  _buildOnlySearchGallerysWithTorrentsSwitch(),
-                  _buildSearchLowerTagsSwitch(),
-                  _buildDownVotedTagsSwitch(),
-                  _buildPageRangeSelector(),
-                  _buildRatingSelector(),
-                  _buildDisableFilterForLanguageSwitch(),
-                  _buildDisableFilterForUploaderSwitch(),
-                  _buildDisableFilterForTagsSwitch(),
-                ],
-              ),
-          ],
-        ),
+        cacheExtent: 3000,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        children: [
+          if (widget.type != EHSearchConfigDialogType.filter) _buildSearchConfigName(),
+          if (widget.type == EHSearchConfigDialogType.add) _buildSearchTypeSelector().marginOnly(top: 16),
+          if (searchConfig.searchType == SearchType.favorite)
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildFavoriteTags().marginOnly(top: 20),
+                _buildKeywordTextField().marginOnly(top: 12),
+                _buildSearchNameForFavoriteSwitch().marginOnly(top: 20),
+                _buildSearchTagsForFavoriteSwitch(),
+                _buildSearchNoteForFavoriteSwitch(),
+              ],
+            )
+          else
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildCategoryTags().marginOnly(top: 20),
+                _buildKeywordTextField().marginOnly(top: 12),
+                _buildSearchNameSwitch().marginOnly(top: 20),
+                _buildSearchTagsSwitch(),
+                _buildSearchDescriptionSwitch(),
+                _buildSearchExpungedGalleriesSwitch(),
+                _buildOnlySearchGallerysWithTorrentsSwitch(),
+                _buildSearchLowerTagsSwitch(),
+                _buildDownVotedTagsSwitch(),
+                _buildPageRangeSelector(),
+                _buildRatingSelector(),
+                _buildDisableFilterForLanguageSwitch(),
+                _buildDisableFilterForUploaderSwitch(),
+                _buildDisableFilterForTagsSwitch(),
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -158,23 +176,16 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Widget _buildSearchTypeSelector() {
-    return CupertinoSlidingSegmentedControl<SearchType>(
-      groupValue: searchConfig.searchType,
-      children: {
-        SearchType.gallery: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 40),
-          child: Center(child: Text('gallery'.tr)),
-        ),
-        SearchType.favorite: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 40),
-          child: Center(child: Text('favorite'.tr)),
-        ),
-        SearchType.watched: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 40),
-          child: Center(child: Text('watched'.tr)),
-        ),
-      },
-      onValueChanged: (type) => setState(() => searchConfig.searchType = type!),
+    return Center(
+      child: CupertinoSlidingSegmentedControl<SearchType>(
+        groupValue: searchConfig.searchType,
+        children: {
+          SearchType.gallery: ConstrainedBox(constraints: const BoxConstraints(minWidth: 44), child: Center(child: Text('gallery'.tr))),
+          SearchType.favorite: ConstrainedBox(constraints: const BoxConstraints(minWidth: 44), child: Center(child: Text('favorite'.tr))),
+          SearchType.watched: ConstrainedBox(constraints: const BoxConstraints(minWidth: 44), child: Center(child: Text('watched'.tr))),
+        },
+        onValueChanged: (type) => setState(() => searchConfig.searchType = type!),
+      ),
     );
   }
 
@@ -182,7 +193,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     return Column(
       children: [0, 2, 4, 6, 8]
           .map((tagIndex) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildTag(
                     category: FavoriteSetting.favoriteTagNames[tagIndex],
@@ -217,23 +228,93 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Widget _buildKeywordTextField() {
-    return TextField(
-      decoration: InputDecoration(
-        isDense: true,
-        alignLabelWithHint: true,
-        labelText: 'keyword'.tr,
-        labelStyle: const TextStyle(fontSize: 12),
+    return CompositedTransformTarget(
+      link: layerLink,
+      child: KeyboardListener(
+        focusNode: focusNode,
+        onKeyEvent: _handleDeleteTag,
+        child: TextField(
+          decoration: InputDecoration(
+            isDense: true,
+            alignLabelWithHint: true,
+            labelText: 'keyword'.tr,
+            labelStyle: const TextStyle(fontSize: 12),
+            helperText: searchConfig.toTagKeywords(withTranslation: true, separator: '  /  '),
+            helperMaxLines: 99,
+            hintText: searchConfig.tags?.isEmpty ?? true ? null : 'backspace2DeleteTag'.tr,
+            hintStyle: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline.withOpacity(0.5)),
+          ),
+          controller: TextEditingController.fromValue(
+            TextEditingValue(
+              text: searchConfig.keyword ?? '',
+
+              /// make cursor stay at last letter
+              selection: TextSelection.fromPosition(TextPosition(offset: searchConfig.keyword?.length ?? 0)),
+            ),
+          ),
+          onTap: hideSuggestions,
+          enableSuggestions: false,
+          onChanged: (keyword) {
+            searchConfig.keyword = keyword;
+            waitAndSearchTags(keyword);
+          },
+          onSubmitted: (keyword) {
+            searchConfig.keyword = '';
+            hideSuggestions();
+
+            if (keyword.isEmpty) {
+              return;
+            }
+
+            /// simulate a TagData
+            addSearchTag(TagData(namespace: '', key: keyword));
+          },
+        ),
       ),
-      controller: TextEditingController(text: searchConfig.keyword),
-      onChanged: (keyword) => searchConfig.keyword = keyword,
+    );
+  }
+
+  OverlayEntry _buildSuggestions(String keyword) {
+    return OverlayEntry(
+      builder: (BuildContext overlayContext) => UnconstrainedBox(
+        child: CompositedTransformFollower(
+          link: layerLink,
+          targetAnchor: Alignment.bottomLeft,
+          followerAnchor: Alignment.topLeft,
+          child: Material(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 280 - 24 - 20, maxHeight: 150),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    blurRadius: 4,
+                    blurStyle: BlurStyle.outer,
+                  ),
+                ],
+              ),
+              child: SearchSuggestionList(
+                currentKeyword: keyword,
+                suggestions: suggestions,
+                onTapSuggestion: (TagData tagData) {
+                  hideSuggestions();
+                  searchConfig.keyword = '';
+                  addSearchTag(tagData);
+                },
+              ),
+            ).fadeIn(),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildSearchNameForFavoriteSwitch() {
     return ListTile(
       key: const Key('searchName'),
-      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
       trailing: KeepAliveWrapper(
         child: Switch(
           value: searchConfig.searchFavoriteName,
@@ -246,8 +327,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   Widget _buildSearchTagsForFavoriteSwitch() {
     return ListTile(
       key: const Key('searchTags'),
-      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
       trailing: KeepAliveWrapper(
         child: Switch(
           value: searchConfig.searchFavoriteTags,
@@ -260,8 +342,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   Widget _buildSearchNoteForFavoriteSwitch() {
     return ListTile(
       key: const Key('searchNote'),
-      title: Text('searchNote'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchNote'.tr, style: const TextStyle(fontSize: 15)),
       trailing: KeepAliveWrapper(
         child: Switch(
           value: searchConfig.searchFavoriteNote,
@@ -273,9 +356,10 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildCategoryTags() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildTag(
               category: 'Doujinshi',
@@ -290,7 +374,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           ],
         ),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildTag(
               category: 'Image Set',
@@ -305,7 +389,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           ],
         ).marginOnly(top: 4),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildTag(
               category: 'Artist CG',
@@ -320,7 +404,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           ],
         ).marginOnly(top: 4),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildTag(
               category: 'Non-H',
@@ -335,7 +419,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           ],
         ).marginOnly(top: 4),
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildTag(
               category: 'Western',
@@ -355,8 +439,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildSearchNameSwitch() {
     return ListTile(
-      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchGalleryName,
         onChanged: (bool value) => setState(() => searchConfig.searchGalleryName = value),
@@ -367,8 +452,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   Widget _buildSearchTagsSwitch() {
     return ListTile(
       key: const Key('searchTags'),
-      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchFavoriteTags,
         onChanged: (bool value) => setState(() => searchConfig.searchFavoriteTags = value),
@@ -378,8 +464,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildSearchDescriptionSwitch() {
     return ListTile(
-      title: Text('searchGalleryDescription'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchGalleryDescription'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchGalleryDescription,
         onChanged: (bool value) => setState(() => searchConfig.searchGalleryDescription = value),
@@ -389,8 +476,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildSearchExpungedGalleriesSwitch() {
     return ListTile(
-      title: Text('searchExpungedGalleries'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchExpungedGalleries'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchExpungedGalleries,
         onChanged: (bool value) => setState(() => searchConfig.searchExpungedGalleries = value),
@@ -400,8 +488,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildOnlySearchGallerysWithTorrentsSwitch() {
     return ListTile(
-      title: Text('onlyShowGalleriesWithTorrents'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('onlyShowGalleriesWithTorrents'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.onlyShowGalleriesWithTorrents,
         onChanged: (bool value) => setState(() => searchConfig.onlyShowGalleriesWithTorrents = value),
@@ -411,8 +500,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildSearchLowerTagsSwitch() {
     return ListTile(
-      title: Text('searchLowPowerTags'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchLowPowerTags'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchLowPowerTags,
         onChanged: (bool value) => setState(() => searchConfig.searchLowPowerTags = value),
@@ -422,8 +512,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildDownVotedTagsSwitch() {
     return ListTile(
-      title: Text('searchDownVotedTags'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('searchDownVotedTags'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.searchDownVotedTags,
         onChanged: (bool value) => setState(() => searchConfig.searchDownVotedTags = value),
@@ -433,8 +524,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildPageRangeSelector() {
     return ListTile(
-      title: Text('pagesBetween'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('pagesBetween'.tr, style: const TextStyle(fontSize: 15)),
       trailing: SizedBox(
         width: 110,
         child: Row(
@@ -469,8 +561,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildRatingSelector() {
     return ListTile(
-      title: Text('minimumRating'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('minimumRating'.tr, style: const TextStyle(fontSize: 15)),
       trailing: SizedBox(
         width: 50,
         child: DropdownButton<int>(
@@ -482,26 +575,11 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             });
           },
           items: const [
-            DropdownMenuItem(
-              child: Text('1'),
-              value: 1,
-            ),
-            DropdownMenuItem(
-              child: Text('2'),
-              value: 2,
-            ),
-            DropdownMenuItem(
-              child: Text('3'),
-              value: 3,
-            ),
-            DropdownMenuItem(
-              child: Text('4'),
-              value: 4,
-            ),
-            DropdownMenuItem(
-              child: Text('5'),
-              value: 5,
-            ),
+            DropdownMenuItem(child: Text('1'), value: 1),
+            DropdownMenuItem(child: Text('2'), value: 2),
+            DropdownMenuItem(child: Text('3'), value: 3),
+            DropdownMenuItem(child: Text('4'), value: 4),
+            DropdownMenuItem(child: Text('5'), value: 5),
           ],
         ),
       ),
@@ -510,8 +588,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildDisableFilterForLanguageSwitch() {
     return ListTile(
-      title: Text('disableFilterForLanguage'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('disableFilterForLanguage'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.disableFilterForLanguage,
         onChanged: (bool value) => setState(() => searchConfig.disableFilterForLanguage = value),
@@ -521,8 +600,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildDisableFilterForUploaderSwitch() {
     return ListTile(
-      title: Text('disableFilterForUploader'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('disableFilterForUploader'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.disableFilterForUploader,
         onChanged: (bool value) => setState(() => searchConfig.disableFilterForUploader = value),
@@ -532,8 +612,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget _buildDisableFilterForTagsSwitch() {
     return ListTile(
-      title: Text('disableFilterForTags'.tr, style: const TextStyle(fontSize: 15)),
       dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('disableFilterForTags'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
         value: searchConfig.disableFilterForTags,
         onChanged: (bool value) => setState(() => searchConfig.disableFilterForTags = value),
@@ -553,6 +634,85 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
+  /// double backspace to delete last selected tag
+  void _handleDeleteTag(KeyEvent event) {
+    if (event is! KeyDownEvent) {
+      return;
+    }
+    if (event.logicalKey != LogicalKeyboardKey.backspace) {
+      return;
+    }
+    if (searchConfig.keyword?.isNotEmpty ?? false) {
+      return;
+    }
+    if (searchConfig.tags?.isEmpty ?? true) {
+      return;
+    }
+    if (!isDoubleBackspace) {
+      isDoubleBackspace = true;
+      return;
+    }
+    isDoubleBackspace = false;
+    setState(() => searchConfig.tags!.removeLast());
+  }
+
+  /// search only if there's no timer active (300ms)
+  Future<void> waitAndSearchTags(String keyword) async {
+    if (keyword.isEmpty) {
+      hideSuggestions();
+      return;
+    }
+
+    /// only search after 300ms
+    debouncing.debounce(() => searchTags(keyword));
+  }
+
+  Future<void> searchTags(String keyword) async {
+    Log.info('search for ${searchConfig.keyword}');
+
+    /// chinese => database
+    /// other => EH api
+    if (StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
+      suggestions = await tagTranslationService.searchTags(keyword);
+    } else {
+      try {
+        suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
+      } on DioError catch (e) {
+        Log.error('Request tag suggestion failed', e);
+      }
+    }
+
+    showSuggestions(keyword);
+  }
+
+  void showSuggestions(String keyword) {
+    if (_isShowingSuggestions) {
+      overlayEntry?.remove();
+    }
+
+    overlayEntry = _buildSuggestions(keyword);
+    Overlay.of(context)?.insert(overlayEntry!);
+
+    _isShowingSuggestions = true;
+  }
+
+  void hideSuggestions() {
+    overlayEntry?.remove();
+    overlayEntry = null;
+    _isShowingSuggestions = false;
+  }
+
+  void addSearchTag(TagData tag) {
+    searchConfig.tags ??= [];
+    if (searchConfig.tags!.singleWhereOrNull((t) => t.namespace == tag.namespace && t.key == tag.key) != null) {
+      return;
+    }
+
+    setState(() {
+      searchConfig.tags!.add(tag);
+    });
+  }
+
   void checkAndBack() {
     if (widget.type == EHSearchConfigDialogType.filter) {
       backRoute(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
@@ -565,5 +725,99 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     }
 
     backRoute(result: {'searchConfig': searchConfig, 'quickSearchName': quickSearchName});
+  }
+}
+
+class SearchSuggestionList extends StatelessWidget {
+  final String currentKeyword;
+  final List<TagData> suggestions;
+  final ValueChanged<TagData> onTapSuggestion;
+
+  const SearchSuggestionList({
+    Key? key,
+    required this.currentKeyword,
+    required this.suggestions,
+    required this.onTapSuggestion,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: suggestions.length,
+      padding: EdgeInsets.zero,
+      shrinkWrap: true,
+      itemBuilder: (_, index) {
+        TagData tagData = suggestions[index];
+        return FadeIn(
+          duration: const Duration(milliseconds: 400),
+          child: ListTile(
+            dense: true,
+            visualDensity: const VisualDensity(vertical: -4),
+            minVerticalPadding: 0,
+            title: RichText(
+              text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: tagData.tagName == null
+                ? null
+                : RichText(
+                    text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+            onTap: () => onTapSuggestion(tagData),
+          ),
+        );
+      },
+    );
+  }
+
+  /// highlight keyword in rawText
+  TextSpan highlightKeyword(String rawText, String currentKeyword, bool isSubTitle) {
+    List<TextSpan> children = <TextSpan>[];
+
+    List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
+
+    int indexHandling = 0;
+    for (int index in matchIndexes) {
+      if (index > indexHandling) {
+        children.add(
+          TextSpan(
+            text: rawText.substring(indexHandling, index),
+            style: TextStyle(
+              fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
+              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+            ),
+          ),
+        );
+      }
+
+      children.add(
+        TextSpan(
+          text: currentKeyword,
+          style: TextStyle(
+            fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
+            color: UIConfig.searchPageSuggestionHighlightColor,
+          ),
+        ),
+      );
+
+      indexHandling = index + currentKeyword.length;
+    }
+
+    if (rawText.length > indexHandling) {
+      children.add(
+        TextSpan(
+          text: rawText.substring(indexHandling, rawText.length),
+          style: TextStyle(
+            fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
+            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+          ),
+        ),
+      );
+    }
+
+    return TextSpan(children: children);
   }
 }

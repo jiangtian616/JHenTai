@@ -5,13 +5,13 @@ import 'package:get/get.dart';
 import '../setting/mouse_setting.dart';
 
 class EHWheelSpeedController extends StatelessWidget {
-  final ScrollController? scrollController;
+  final ScrollController? controller;
   final Widget child;
 
 
   const EHWheelSpeedController({
     Key? key,
-    required this.scrollController,
+    required this.controller,
     required this.child,
   }) : super(key: key);
 
@@ -26,7 +26,7 @@ class EHWheelSpeedController extends StatelessWidget {
       /// so i call [animateTo] manually to simulate a faster scroll speed.
       onPointerSignal: (PointerSignalEvent event) {
         if (event is PointerScrollEvent) {
-          if (scrollController == null || !scrollController!.hasClients) {
+          if (controller == null || !controller!.hasClients) {
             return;
           }
 
@@ -37,7 +37,7 @@ class EHWheelSpeedController extends StatelessWidget {
 
           GestureBinding.instance.pointerSignalResolver.resolve(event);
 
-          ScrollPosition position = scrollController!.position;
+          ScrollPosition position = controller!.position;
 
           /// at edge
           if (position.pixels < position.minScrollExtent || position.pixels > position.maxScrollExtent) {

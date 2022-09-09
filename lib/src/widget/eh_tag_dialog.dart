@@ -85,7 +85,7 @@ class _EHTagDialogState extends State<EHTagDialog> {
         maxWidth: 200,
       ),
       child: EHWheelSpeedController(
-        scrollController: scrollController,
+        controller: scrollController,
         child: HtmlWidget(
           content,
           renderMode: ListViewMode(shrinkWrap: true, controller: scrollController),

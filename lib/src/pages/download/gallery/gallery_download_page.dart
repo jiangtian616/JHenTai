@@ -70,7 +70,7 @@ class GalleryDownloadPage extends StatelessWidget {
       builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
         id: GalleryDownloadPageLogic.bodyId,
         builder: (_) => EHWheelSpeedController(
-          scrollController: state.scrollController,
+          controller: state.scrollController,
           child: GroupedListView<GalleryDownloadedData, String>(
             padding: const EdgeInsets.only(bottom: 80),
             controller: state.scrollController,

@@ -71,7 +71,7 @@ class ArchiveDownloadPage extends StatelessWidget {
       builder: (_) => GetBuilder<ArchiveDownloadPageLogic>(
         id: ArchiveDownloadPageLogic.bodyId,
         builder: (_) => EHWheelSpeedController(
-          scrollController: state.scrollController,
+          controller: state.scrollController,
           child: GroupedListView<ArchiveDownloadedData, String>(
             padding: const EdgeInsets.only(bottom: 80),
             controller: state.scrollController,

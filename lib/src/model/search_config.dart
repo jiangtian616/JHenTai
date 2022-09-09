@@ -1,4 +1,5 @@
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 enum SearchType {
@@ -25,6 +26,7 @@ class SearchConfig {
   bool includeMisc = true;
 
   String? keyword;
+  List<TagData>? tags;
 
   bool searchGalleryName = true;
   bool searchGalleryTags = true;
@@ -62,6 +64,7 @@ class SearchConfig {
     this.includeAsianPorn = true,
     this.includeMisc = true,
     this.keyword,
+    this.tags,
     this.searchGalleryName = true,
     this.searchGalleryTags = true,
     this.searchGalleryDescription = false,
@@ -104,8 +107,8 @@ class SearchConfig {
     if (searchType == SearchType.gallery) {
       params['advsearch'] = 1;
       params['f_cats'] = _computeFCats();
-      if (keyword != null) {
-        params['f_search'] = keyword;
+      if (keyword != null || (tags?.isNotEmpty ?? false)) {
+        params['f_search'] = computeKeywords();
       }
       if (searchGalleryName) {
         params['f_sname'] = 'on';
@@ -171,72 +174,29 @@ class SearchConfig {
     return params;
   }
 
-  factory SearchConfig.fromJson(Map<String, dynamic> json) {
-    return SearchConfig(
-      searchType: SearchType.values[json["searchType"]],
-      includeDoujinshi: json["includeDoujinshi"],
-      includeManga: json["includeManga"],
-      includeArtistCG: json["includeArtistCG"],
-      includeGameCg: json["includeGameCg"],
-      includeWestern: json["includeWestern"],
-      includeNonH: json["includeNonH"],
-      includeImageSet: json["includeImageSet"],
-      includeCosplay: json["includeCosplay"],
-      includeAsianPorn: json["includeAsianPorn"],
-      includeMisc: json["includeMisc"],
-      keyword: json["keyword"],
-      searchGalleryName: json["searchGalleryName"],
-      searchGalleryTags: json["searchGalleryTags"],
-      searchGalleryDescription: json["searchGalleryDescription"],
-      searchExpungedGalleries: json["searchExpungedGalleries"],
-      onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
-      searchLowPowerTags: json["searchLowPowerTags"],
-      searchDownVotedTags: json["searchDownVotedTags"],
-      pageAtLeast: json["pageAtLeast"],
-      pageAtMost: json["pageAtMost"],
-      minimumRating: json["minimumRating"],
-      disableFilterForLanguage: json["disableFilterForLanguage"],
-      disableFilterForUploader: json["disableFilterForUploader"],
-      disableFilterForTags: json["disableFilterForTags"],
-      searchFavoriteCategoryIndex: json["searchFavoriteCategoryIndex"],
-      searchFavoriteName: json["searchFavoriteName"],
-      searchFavoriteTags: json["searchFavoriteTags"],
-      searchFavoriteNote: json["searchFavoriteNote"],
-    );
+  String computeKeywords() {
+    return (keyword ?? '') + toTagKeywords(withTranslation: false, separator: ' ');
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "searchType": this.searchType.index,
-      "includeDoujinshi": this.includeDoujinshi,
-      "includeManga": this.includeManga,
-      "includeArtistCG": this.includeArtistCG,
-      "includeGameCg": this.includeGameCg,
-      "includeWestern": this.includeWestern,
-      "includeNonH": this.includeNonH,
-      "includeImageSet": this.includeImageSet,
-      "includeCosplay": this.includeCosplay,
-      "includeAsianPorn": this.includeAsianPorn,
-      "includeMisc": this.includeMisc,
-      "keyword": this.keyword,
-      "searchGalleryName": this.searchGalleryName,
-      "searchGalleryTags": this.searchGalleryTags,
-      "searchGalleryDescription": this.searchGalleryDescription,
-      "searchExpungedGalleries": this.searchExpungedGalleries,
-      "onlyShowGalleriesWithTorrents": this.onlyShowGalleriesWithTorrents,
-      "searchLowPowerTags": this.searchLowPowerTags,
-      "searchDownVotedTags": this.searchDownVotedTags,
-      "pageAtLeast": this.pageAtLeast,
-      "pageAtMost": this.pageAtMost,
-      "minimumRating": this.minimumRating,
-      "disableFilterForLanguage": this.disableFilterForLanguage,
-      "disableFilterForUploader": this.disableFilterForUploader,
-      "disableFilterForTags": this.disableFilterForTags,
-      "searchFavoriteCategoryIndex": this.searchFavoriteCategoryIndex,
-      "searchFavoriteName": this.searchFavoriteName,
-      "searchFavoriteTags": this.searchFavoriteTags,
-      "searchFavoriteNote": this.searchFavoriteNote,
-    };
+  String toTagKeywords({required bool withTranslation, required String separator}) {
+    List<String> strs = [];
+
+    tags?.forEach((tag) {
+      /// manual input
+      if (tag.namespace.isEmpty) {
+        strs.add(tag.key);
+        return;
+      }
+
+      if (withTranslation && tag.tagName != null) {
+        strs.add('${tag.translatedNamespace}:${tag.tagName}');
+        return;
+      }
+
+      strs.add('${tag.namespace}:${tag.key}');
+    });
+
+    return strs.join(separator);
   }
 
   int _computeFCats() {
@@ -274,6 +234,76 @@ class SearchConfig {
     return f_cats;
   }
 
+  factory SearchConfig.fromJson(Map<String, dynamic> json) {
+    return SearchConfig(
+      searchType: SearchType.values[json["searchType"]],
+      includeDoujinshi: json["includeDoujinshi"],
+      includeManga: json["includeManga"],
+      includeArtistCG: json["includeArtistCG"],
+      includeGameCg: json["includeGameCg"],
+      includeWestern: json["includeWestern"],
+      includeNonH: json["includeNonH"],
+      includeImageSet: json["includeImageSet"],
+      includeCosplay: json["includeCosplay"],
+      includeAsianPorn: json["includeAsianPorn"],
+      includeMisc: json["includeMisc"],
+      keyword: json["keyword"],
+      tags: (json["tags"] as List?)?.map((e) => TagData.fromJson(e)).toList(),
+      searchGalleryName: json["searchGalleryName"],
+      searchGalleryTags: json["searchGalleryTags"],
+      searchGalleryDescription: json["searchGalleryDescription"],
+      searchExpungedGalleries: json["searchExpungedGalleries"],
+      onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
+      searchLowPowerTags: json["searchLowPowerTags"],
+      searchDownVotedTags: json["searchDownVotedTags"],
+      pageAtLeast: json["pageAtLeast"],
+      pageAtMost: json["pageAtMost"],
+      minimumRating: json["minimumRating"],
+      disableFilterForLanguage: json["disableFilterForLanguage"],
+      disableFilterForUploader: json["disableFilterForUploader"],
+      disableFilterForTags: json["disableFilterForTags"],
+      searchFavoriteCategoryIndex: json["searchFavoriteCategoryIndex"],
+      searchFavoriteName: json["searchFavoriteName"],
+      searchFavoriteTags: json["searchFavoriteTags"],
+      searchFavoriteNote: json["searchFavoriteNote"],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "searchType": this.searchType.index,
+      "includeDoujinshi": this.includeDoujinshi,
+      "includeManga": this.includeManga,
+      "includeArtistCG": this.includeArtistCG,
+      "includeGameCg": this.includeGameCg,
+      "includeWestern": this.includeWestern,
+      "includeNonH": this.includeNonH,
+      "includeImageSet": this.includeImageSet,
+      "includeCosplay": this.includeCosplay,
+      "includeAsianPorn": this.includeAsianPorn,
+      "includeMisc": this.includeMisc,
+      "keyword": this.keyword,
+      "tags": this.tags,
+      "searchGalleryName": this.searchGalleryName,
+      "searchGalleryTags": this.searchGalleryTags,
+      "searchGalleryDescription": this.searchGalleryDescription,
+      "searchExpungedGalleries": this.searchExpungedGalleries,
+      "onlyShowGalleriesWithTorrents": this.onlyShowGalleriesWithTorrents,
+      "searchLowPowerTags": this.searchLowPowerTags,
+      "searchDownVotedTags": this.searchDownVotedTags,
+      "pageAtLeast": this.pageAtLeast,
+      "pageAtMost": this.pageAtMost,
+      "minimumRating": this.minimumRating,
+      "disableFilterForLanguage": this.disableFilterForLanguage,
+      "disableFilterForUploader": this.disableFilterForUploader,
+      "disableFilterForTags": this.disableFilterForTags,
+      "searchFavoriteCategoryIndex": this.searchFavoriteCategoryIndex,
+      "searchFavoriteName": this.searchFavoriteName,
+      "searchFavoriteTags": this.searchFavoriteTags,
+      "searchFavoriteNote": this.searchFavoriteNote,
+    };
+  }
+
   SearchConfig copyWith({
     SearchType? searchType,
     bool? includeDoujinshi,
@@ -287,6 +317,7 @@ class SearchConfig {
     bool? includeAsianPorn,
     bool? includeMisc,
     String? keyword,
+    List<TagData>? tags,
     bool? searchGalleryName,
     bool? searchGalleryTags,
     bool? searchGalleryDescription,
@@ -317,6 +348,7 @@ class SearchConfig {
       includeAsianPorn: includeAsianPorn ?? this.includeAsianPorn,
       includeMisc: includeMisc ?? this.includeMisc,
       keyword: keyword ?? this.keyword,
+      tags: tags ?? this.tags?.map((tag) => tag.copyWith()).toList(),
       searchGalleryName: searchGalleryName ?? this.searchGalleryName,
       searchGalleryTags: searchGalleryTags ?? this.searchGalleryTags,
       searchGalleryDescription: searchGalleryDescription ?? this.searchGalleryDescription,
@@ -339,6 +371,6 @@ class SearchConfig {
 
   @override
   String toString() {
-    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, searchGalleryName: $searchGalleryName, searchGalleryTags: $searchGalleryTags, searchGalleryDescription: $searchGalleryDescription, searchExpungedGalleries: $searchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, searchDownVotedTags: $searchDownVotedTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex, searchFavoriteName: $searchFavoriteName, searchFavoriteTags: $searchFavoriteTags, searchFavoriteNote: $searchFavoriteNote}';
+    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, searchGalleryName: $searchGalleryName, searchGalleryTags: $searchGalleryTags, searchGalleryDescription: $searchGalleryDescription, searchExpungedGalleries: $searchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, searchDownVotedTags: $searchDownVotedTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex, searchFavoriteName: $searchFavoriteName, searchFavoriteTags: $searchFavoriteTags, searchFavoriteNote: $searchFavoriteNote}';
   }
 }

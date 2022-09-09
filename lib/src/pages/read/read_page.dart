@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -169,11 +168,16 @@ class ReadPage extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: logic.toLeft,
-            onDoubleTapDown: (TapDownDetails details) =>
-                ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toLeft(),
-
-            /// just to invoke [onDoubleTapDown]
-            onDoubleTap: () {},
+            onDoubleTapDown: (TapDownDetails details) {
+              if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {
+                logic.toggleScale(details.globalPosition);
+              }
+            },
+            onDoubleTap: () {
+              if (ReadSetting.enableDoubleTapToScaleUp.isFalse) {
+                logic.toLeft();
+              }
+            },
           ),
         ),
 
@@ -231,11 +235,16 @@ class ReadPage extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
             onTap: logic.toRight,
-            onDoubleTapDown: (TapDownDetails details) =>
-                ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toRight(),
-
-            /// just to invoke [onDoubleTapDown]
-            onDoubleTap: () {},
+            onDoubleTapDown: (TapDownDetails details) {
+              if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {
+                logic.toggleScale(details.globalPosition);
+              }
+            },
+            onDoubleTap: () {
+              if (ReadSetting.enableDoubleTapToScaleUp.isFalse) {
+                logic.toRight();
+              }
+            },
           ),
         ),
       ],

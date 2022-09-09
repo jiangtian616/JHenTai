@@ -347,6 +347,7 @@ class zh_TW {
       'watched': '關注',
       'history': '歷史',
       'keyword': '關鍵詞',
+      'backspace2DeleteTag':'雙擊退格來刪除標簽',
       'searchGalleryName': '搜尋畫廊名字',
       'searchGalleryTags': '搜尋畫廊標籤',
       'searchGalleryDescription': '搜尋畫廊描述',

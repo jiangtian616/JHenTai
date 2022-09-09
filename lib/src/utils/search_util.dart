@@ -69,7 +69,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     backRoute(currentRoute: Routes.mobileV2Search);
 
     if (SearchPageMobileV2Logic.current == null) {
-      toRoute(Routes.mobileV2Search, arguments: searchConfig);
+      toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
       return;
     }
 
@@ -83,7 +83,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
       return;
     }
 
-    toRoute(Routes.mobileV2Search, arguments: searchConfig);
+    toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
   }
 }
 

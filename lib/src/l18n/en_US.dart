@@ -348,6 +348,7 @@ class en_US {
       'watched': 'Watched',
       'history': 'History',
       'keyword': 'Keyword',
+      'backspace2DeleteTag':'Backspace to Delete Tag',
       'searchGalleryName': 'Search Gallery Name',
       'searchGalleryTags': 'Search Gallery Tags',
       'searchGalleryDescription': 'Search Gallery Description',

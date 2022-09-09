@@ -75,7 +75,7 @@ class LocalGalleryPage extends StatelessWidget {
       id: LocalGalleryPageLogic.bodyId,
       builder: (_) =>
           EHWheelSpeedController(
-            scrollController: state.scrollController,
+            controller: state.scrollController,
             child: ListView.builder(
               controller: state.scrollController,
               padding: const EdgeInsets.only(bottom: 80),

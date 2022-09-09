@@ -114,7 +114,7 @@ abstract class BasePage extends StatelessWidget {
       builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
           ? buildCenterStatusIndicator()
           : EHWheelSpeedController(
-              scrollController: state.scrollController,
+              controller: state.scrollController,
               child: CustomScrollView(
                 key: state.pageStorageKey,
                 controller: state.scrollController,

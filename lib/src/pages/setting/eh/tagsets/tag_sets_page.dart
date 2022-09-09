@@ -34,7 +34,7 @@ class TagSetsPage extends StatelessWidget {
           }
 
           return EHWheelSpeedController(
-            scrollController: state.scrollController,
+            controller: state.scrollController,
             child: SafeArea(
               child: ListView.builder(
                 itemExtent: 64,

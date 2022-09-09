@@ -83,7 +83,7 @@ class _EHTabBarConfigDialogState extends State<EHTabBarConfigDialog> {
             ).marginOnly(bottom: 12),
             Expanded(
               child: EHWheelSpeedController(
-                scrollController: _scrollController,
+                controller: _scrollController,
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   child: Column(

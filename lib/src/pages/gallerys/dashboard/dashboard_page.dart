@@ -52,7 +52,7 @@ class DashboardPage extends BasePage {
     return GetBuilder<DashboardPageLogic>(
       id: logic.bodyId,
       builder: (_) => EHWheelSpeedController(
-        scrollController: state.scrollController,
+        controller: state.scrollController,
         child: CustomScrollView(
           key: state.pageStorageKey,
           controller: state.scrollController,
