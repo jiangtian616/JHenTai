@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
+import '../../../config/ui_config.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
@@ -21,9 +22,7 @@ class LocalGalleryPage extends StatelessWidget {
   LocalGalleryPage({Key? key}) : super(key: key);
 
   final LocalGalleryPageLogic logic = Get.put<LocalGalleryPageLogic>(LocalGalleryPageLogic(), permanent: true);
-  final LocalGalleryPageState state = Get
-      .find<LocalGalleryPageLogic>()
-      .state;
+  final LocalGalleryPageState state = Get.find<LocalGalleryPageLogic>().state;
 
   @override
   Widget build(BuildContext context) {
@@ -44,10 +43,7 @@ class LocalGalleryPage extends StatelessWidget {
       titleSpacing: 0,
       title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
       leading: ExcludeFocus(
-        child: IconButton(
-          icon: const Icon(Icons.help, size: 22),
-          onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false),
-        ),
+        child: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
       ),
       actions: [
         ExcludeFocus(
@@ -73,48 +69,42 @@ class LocalGalleryPage extends StatelessWidget {
   Widget buildBody() {
     return GetBuilder<LocalGalleryPageLogic>(
       id: LocalGalleryPageLogic.bodyId,
-      builder: (_) =>
-          EHWheelSpeedController(
-            controller: state.scrollController,
-            child: ListView.builder(
-              controller: state.scrollController,
-              padding: const EdgeInsets.only(bottom: 80),
-              itemCount: logic.computeItemCount(),
-              itemBuilder: (context, index) {
-                if (state.aggregateDirectories) {
-                  return galleryItemBuilder(context, index);
-                }
+      builder: (_) => EHWheelSpeedController(
+        controller: state.scrollController,
+        child: ListView.builder(
+          controller: state.scrollController,
+          padding: const EdgeInsets.only(bottom: 80),
+          itemCount: logic.computeItemCount(),
+          itemBuilder: (context, index) {
+            if (state.aggregateDirectories) {
+              return galleryItemBuilder(context, index);
+            }
 
-                if (index == 0) {
-                  return parentDirectoryItemBuilder(context);
-                }
+            if (index == 0) {
+              return parentDirectoryItemBuilder(context);
+            }
 
-                if (index <= logic.computeCurrentDirectoryCount()) {
-                  return nestedDirectoryItemBuilder(context, index - 1);
-                }
+            if (index <= logic.computeCurrentDirectoryCount()) {
+              return nestedDirectoryItemBuilder(context, index - 1);
+            }
 
-                return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
-              },
-            ),
-          ),
+            return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+          },
+        ),
+      ),
     );
   }
 
   Widget parentDirectoryItemBuilder(BuildContext context) {
     return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () =>
-          Get
-              .find<DesktopLayoutPageLogic>()
-              .state
-              .leftTabBarFocusScopeNode
-              .requestFocus(),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: logic.backRoute,
       handleTapArrowRight: logic.backRoute,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: logic.backRoute,
-        child: _buildNestedDirectory('/..', context),
+        child: _buildNestedDirectory('/..', context).marginAll(5),
       ),
     );
   }
@@ -124,12 +114,7 @@ class LocalGalleryPage extends StatelessWidget {
 
     return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () =>
-          Get
-              .find<DesktopLayoutPageLogic>()
-              .state
-              .leftTabBarFocusScopeNode
-              .requestFocus(),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => logic.pushRoute(childPath),
       handleTapArrowRight: () => logic.pushRoute(childPath),
       child: GestureDetector(
@@ -142,29 +127,17 @@ class LocalGalleryPage extends StatelessWidget {
 
   Widget _buildNestedDirectory(String displayPath, BuildContext context) {
     return Container(
-      height: 50,
+      height: UIConfig.downloadPageGroupHeight,
       decoration: BoxDecoration(
-        color: Theme
-            .of(context)
-            .cardColor,
-
-        /// covered when in dark mode
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            spreadRadius: 1,
-            offset: const Offset(0.3, 1),
-          )
-        ],
+        color: UIConfig.downloadPageGroupColor,
+        boxShadow: [UIConfig.downloadPageGroupShadow],
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
           children: [
-            const SizedBox(width: 110, child: Center(child: Icon(Icons.folder_open))),
+            const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Expanded(child: Text(displayPath, maxLines: 1, overflow: TextOverflow.ellipsis))
           ],
         ),
@@ -179,12 +152,7 @@ class LocalGalleryPage extends StatelessWidget {
 
     Widget child = FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () =>
-          Get
-              .find<DesktopLayoutPageLogic>()
-              .state
-              .leftTabBarFocusScopeNode
-              .requestFocus(),
+      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => logic.goToReadPage(gallery),
       handleTapArrowRight: () => logic.goToReadPage(gallery),
       child: Slidable(
@@ -193,7 +161,7 @@ class LocalGalleryPage extends StatelessWidget {
         child: GestureDetector(
           onSecondaryTap: () => showBottomSheet(gallery, context),
           onLongPress: () => showBottomSheet(gallery, context),
-          child: _buildGallery(gallery, context),
+          child: _buildGallery(gallery, context).marginAll(5),
         ),
       ),
     );
@@ -234,30 +202,18 @@ class LocalGalleryPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => logic.goToReadPage(gallery),
       child: Container(
-        height: 130,
+        height: UIConfig.downloadPageCardHeight,
         decoration: BoxDecoration(
-          color: Theme
-              .of(context)
-              .cardColor,
-
-          /// covered when in dark mode
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 2,
-              spreadRadius: 1,
-              offset: const Offset(0.3, 1),
-            )
-          ],
+          color: UIConfig.downloadPageCardColor,
+          boxShadow: [UIConfig.downloadPageCardShadow],
           borderRadius: BorderRadius.circular(15),
         ),
-        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: Row(
             children: [
               _buildCover(gallery, context),
-              _buildInfo(gallery),
+              Expanded(child: _buildInfo(gallery)),
             ],
           ),
         ),
@@ -267,50 +223,61 @@ class LocalGalleryPage extends StatelessWidget {
 
   Widget _buildCover(LocalGallery gallery, BuildContext context) {
     return EHImage.file(
+      containerWidth: UIConfig.downloadPageCoverWidth,
+      containerHeight: UIConfig.downloadPageCoverHeight,
+      fit: BoxFit.fitWidth,
       galleryImage: gallery.images[0],
     );
   }
 
   Widget _buildInfo(LocalGallery gallery) {
-    return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(gallery.title, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, height: 1.2)),
-          const Expanded(child: SizedBox()),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(gallery.time), style: TextStyle(fontSize: 12, color: Colors.grey.shade600))],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [Text('${gallery.pageCount} P', style: TextStyle(fontSize: 12, color: Colors.grey.shade600))],
-          ),
-        ],
-      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
-    );
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(gallery.title,
+            maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
+        const Expanded(child: SizedBox()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              DateFormat('yyyy-MM-dd HH:mm:ss').format(gallery.time),
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              '${gallery.pageCount} P',
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+            ),
+          ],
+        ),
+      ],
+    ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5);
   }
 
   void showBottomSheet(LocalGallery gallery, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (BuildContext context) =>
-          CupertinoActionSheet(
-            actions: <CupertinoActionSheetAction>[
-              CupertinoActionSheetAction(
-                child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-                onPressed: () {
-                  logic.handleRemoveItem(gallery);
-                  backRoute();
-                },
-              ),
-            ],
-            cancelButton: CupertinoActionSheetAction(
-              child: Text('cancel'.tr),
-              onPressed: backRoute,
-            ),
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              logic.handleRemoveItem(gallery);
+              backRoute();
+            },
           ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: backRoute,
+        ),
+      ),
     );
   }
 }

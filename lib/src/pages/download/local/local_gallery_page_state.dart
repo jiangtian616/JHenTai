@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
 import '../../../setting/download_setting.dart';

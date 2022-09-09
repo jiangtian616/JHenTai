@@ -14,7 +14,7 @@ class DownloadSetting {
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
-  static RxInt timeout = 10.obs;
+  static RxInt timeout = 20.obs;
   static RxBool downloadInOrderOfInsertTime = true.obs;
 
   static void init() {

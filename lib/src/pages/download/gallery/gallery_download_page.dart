@@ -75,7 +75,7 @@ class GalleryDownloadPage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 80),
             controller: state.scrollController,
             groupBy: (archive) => logic.downloadService.galleryDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: _groupBuilder,
+            groupSeparatorBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
             elements: logic.downloadService.gallerys,
             itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
             sort: false,
@@ -91,31 +91,21 @@ class GalleryDownloadPage extends StatelessWidget {
       onLongPress: () => logic.handleRenameGroup(groupName),
       onSecondaryTap: () => logic.handleRenameGroup(groupName),
       child: Container(
-        height: 50,
+        height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
-          color: Get.theme.cardColor,
-
-          /// covered when in dark mode
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 2,
-              spreadRadius: 1,
-              offset: const Offset(0.3, 1),
-            )
-          ],
+          color: UIConfig.downloadPageGroupColor,
+          boxShadow: [UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
-        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
         child: Row(
           children: [
-            const SizedBox(width: 110, child: Center(child: Icon(Icons.folder_open))),
+            const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
             GetBuilder<GalleryDownloadPageLogic>(
               id: '${GalleryDownloadPageLogic.groupId}::$groupName',
-              builder: (_) => Icon(state.displayGroups.contains(groupName) ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right),
-            ).marginOnly(right: 8),
+              builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
+            ),
           ],
         ),
       ),
@@ -143,7 +133,7 @@ class GalleryDownloadPage extends StatelessWidget {
             child: GestureDetector(
               onSecondaryTap: () => showBottomSheet(gallery, context),
               onLongPress: () => showBottomSheet(gallery, context),
-              child: _buildCard(gallery, context),
+              child: _buildCard(gallery, context).marginAll(5),
             ),
           ),
         );
@@ -193,22 +183,12 @@ class GalleryDownloadPage extends StatelessWidget {
 
   Widget _buildCard(GalleryDownloadedData gallery, BuildContext context) {
     return Container(
-      height: 130,
+      height: UIConfig.downloadPageCardHeight,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-
-        /// covered when in dark mode
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            spreadRadius: 1,
-            offset: const Offset(0.3, 1),
-          )
-        ],
+        color: UIConfig.downloadPageCardColor,
+        boxShadow: [UIConfig.downloadPageCardShadow],
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
@@ -232,14 +212,17 @@ class GalleryDownloadPage extends StatelessWidget {
 
           /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
-            return const SizedBox(
-              height: 130,
-              width: 110,
-              child: CupertinoActivityIndicator(),
+            return SizedBox(
+              width: UIConfig.downloadPageCoverWidth,
+              height: UIConfig.downloadPageCoverHeight,
+              child: Center(child: UIConfig.loadingAnimation),
             );
           }
 
           return EHImage.file(
+            containerWidth: UIConfig.downloadPageCoverWidth,
+            containerHeight: UIConfig.downloadPageCoverHeight,
+            fit: BoxFit.fitWidth,
             galleryImage: image!,
           );
         },
@@ -253,15 +236,15 @@ class GalleryDownloadPage extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: () => logic.goToReadPage(gallery),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             _buildInfoHeader(gallery),
             const Expanded(child: SizedBox()),
             _buildInfoCenter(gallery),
-            _buildInfoFooter(gallery).marginOnly(top: 4),
+            const Expanded(child: SizedBox()),
+            _buildInfoFooter(gallery),
           ],
-        ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+        ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
       ),
     );
   }
@@ -274,7 +257,7 @@ class GalleryDownloadPage extends StatelessWidget {
           gallery.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 15, height: 1.2),
+          style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -283,38 +266,27 @@ class GalleryDownloadPage extends StatelessWidget {
             if (gallery.uploader != null)
               Text(
                 gallery.uploader!,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ).marginOnly(top: 5),
+                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+              ),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
             ),
           ],
-        )
+        ).marginOnly(top: 5),
       ],
     );
   }
 
   Widget _buildInfoCenter(GalleryDownloadedData gallery) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            EHGalleryCategoryTag(category: gallery.category),
-            const Expanded(child: SizedBox()),
-            _buildIsOriginal(gallery).marginOnly(right: 10),
-            _buildPriority(gallery).marginOnly(right: 6),
-            _buildButton(gallery),
-          ],
-        ),
+        EHGalleryCategoryTag(category: gallery.category),
+        const Expanded(child: SizedBox()),
+        _buildIsOriginal(gallery).marginOnly(right: 10),
+        _buildPriority(gallery).marginOnly(right: 6),
+        _buildButton(gallery),
       ],
     );
   }
@@ -329,11 +301,11 @@ class GalleryDownloadPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Get.theme.primaryColorLight),
+        border: Border.all(color: UIConfig.pauseButtonColor),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
@@ -346,15 +318,15 @@ class GalleryDownloadPage extends StatelessWidget {
 
     switch (priority) {
       case 1:
-        return Text('①', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+        return Text('①', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
       case 2:
-        return Text('②', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+        return Text('②', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
       case 3:
-        return Text('③', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+        return Text('③', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
       case GalleryDownloadService.defaultDownloadGalleryPriority:
         return const SizedBox();
       case 5:
-        return Text('⑤', style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold));
+        return Text('⑤', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
       default:
         return const SizedBox();
     }
@@ -378,7 +350,7 @@ class GalleryDownloadPage extends StatelessWidget {
                     ? Icons.pause
                     : Icons.done,
             size: 26,
-            color: downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+            color: downloadStatus == DownloadStatus.downloading ? UIConfig.pauseButtonColor : UIConfig.resumeButtonColor,
           ),
         );
       },
@@ -394,22 +366,19 @@ class GalleryDownloadPage extends StatelessWidget {
         return Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (downloadProgress.downloadStatus == DownloadStatus.downloading)
                   GetBuilder<GalleryDownloadService>(
                     id: '$galleryDownloadSpeedComputerId::${gallery.gid}',
-                    builder: (logic) {
-                      return Text(
-                        speedComputer.speed,
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                      );
-                    },
+                    builder: (_) => Text(
+                      speedComputer.speed,
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                    ),
                   ),
                 const Expanded(child: SizedBox()),
                 Text(
                   '${downloadProgress.curCount}/${downloadProgress.totalCount}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
                 ),
               ],
             ),
@@ -418,7 +387,9 @@ class GalleryDownloadPage extends StatelessWidget {
                 height: 3,
                 child: LinearProgressIndicator(
                   value: downloadProgress.curCount / downloadProgress.totalCount,
-                  color: downloadProgress.downloadStatus == DownloadStatus.downloading ? Get.theme.primaryColorLight : Get.theme.primaryColor,
+                  color: downloadProgress.downloadStatus == DownloadStatus.downloading
+                      ? UIConfig.downloadPageProgressIndicatorColor
+                      : UIConfig.downloadPageProgressIndicatorPausedColor,
                 ),
               ).marginOnly(top: 4),
           ],

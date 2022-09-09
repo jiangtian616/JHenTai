@@ -8,7 +8,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../utils/screen_size_util.dart';
 
 class UIConfig {
-
   /// common
   static ScrollBehavior behaviorWithScrollBar = const MaterialScrollBehavior().copyWith(
     dragDevices: {
@@ -32,7 +31,7 @@ class UIConfig {
     scrollbars: false,
   );
 
-  static Widget loadingAnimation = LoadingAnimationWidget.horizontalRotatingDots(color: Colors.grey.shade800, size: 32);
+  static final Widget loadingAnimation = LoadingAnimationWidget.horizontalRotatingDots(color: Colors.grey.shade800, size: 32);
 
   /// layout
   static const double appBarHeight = 40;
@@ -108,6 +107,40 @@ class UIConfig {
   static Color get resumeButtonColor => Get.theme.primaryColor;
 
   static Color get pauseButtonColor => Get.theme.colorScheme.primary;
+
+  static const double downloadPageGroupHeight = 50;
+
+  static Color get downloadPageGroupColor => Get.theme.colorScheme.secondaryContainer;
+
+  static BoxShadow get downloadPageGroupShadow => BoxShadow(
+        color: Colors.black.withOpacity(0.3),
+        blurRadius: 2,
+        offset: const Offset(0.3, 1),
+      );
+
+  static const double downloadPageGroupHeaderWidth = 110;
+  static const double downloadPageCardHeight = 130;
+
+  static Color get downloadPageCardColor => Get.theme.colorScheme.surface;
+
+  static BoxShadow get downloadPageCardShadow => BoxShadow(
+        color: Colors.black.withOpacity(0.1),
+        blurRadius: 2,
+        spreadRadius: 1,
+        offset: const Offset(0.3, 1),
+      );
+  static const double downloadPageCoverWidth = 110;
+  static const double downloadPageCoverHeight = 130;
+  static const double downloadPageCardTitleSize = 14;
+
+  static const double downloadPageCardTextSize = 11;
+
+  static Color get downloadPageCardTextColor => Get.theme.colorScheme.outline;
+  static const double downloadPageProgressIndicatorHeight = 3;
+
+  static Color get downloadPageProgressIndicatorColor => Get.theme.primaryColor;
+
+  static Color get downloadPageProgressIndicatorPausedColor => Get.theme.colorScheme.surfaceVariant;
 
   /// Search page
   static Color get searchPageSuggestionHighlightColor => Colors.red;

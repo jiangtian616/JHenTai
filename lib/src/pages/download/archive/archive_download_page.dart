@@ -76,7 +76,7 @@ class ArchiveDownloadPage extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 80),
             controller: state.scrollController,
             groupBy: (archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: _groupBuilder,
+            groupSeparatorBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
             elements: logic.archiveDownloadService.archives,
             itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
             sort: false,
@@ -92,31 +92,21 @@ class ArchiveDownloadPage extends StatelessWidget {
       onLongPress: () => logic.handleRenameGroup(groupName),
       onSecondaryTap: () => logic.handleRenameGroup(groupName),
       child: Container(
-        height: 50,
+        height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
-          color: Get.theme.cardColor,
-
-          /// covered when in dark mode
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 2,
-              spreadRadius: 1,
-              offset: const Offset(0.3, 1),
-            )
-          ],
+          color: UIConfig.downloadPageGroupColor,
+          boxShadow: [UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
-        margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
         child: Row(
           children: [
-            const SizedBox(width: 110, child: Center(child: Icon(Icons.folder_open))),
+            const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
             GetBuilder<ArchiveDownloadPageLogic>(
               id: '${ArchiveDownloadPageLogic.groupId}::$groupName',
-              builder: (_) => Icon(state.displayGroups.contains(groupName) ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right),
-            ).marginOnly(right: 8),
+              builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
+            ),
           ],
         ),
       ),
@@ -144,7 +134,7 @@ class ArchiveDownloadPage extends StatelessWidget {
             child: GestureDetector(
               onSecondaryTap: () => showArchiveBottomSheet(archive, context),
               onLongPress: () => showArchiveBottomSheet(archive, context),
-              child: _buildCard(archive, context),
+              child: _buildCard(archive, context).marginAll(5),
             ),
           ),
         );
@@ -189,22 +179,12 @@ class ArchiveDownloadPage extends StatelessWidget {
 
   Widget _buildCard(ArchiveDownloadedData archive, BuildContext context) {
     return Container(
-      height: 130,
+      height: UIConfig.downloadPageCardHeight,
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-
-        /// covered when in dark mode
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 2,
-            spreadRadius: 1,
-            offset: const Offset(0.3, 1),
-          )
-        ],
+        color: UIConfig.downloadPageCardColor,
+        boxShadow: [UIConfig.downloadPageCardShadow],
         borderRadius: BorderRadius.circular(15),
       ),
-      margin: const EdgeInsets.only(top: 5, bottom: 5, left: 5, right: 5),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
@@ -222,7 +202,14 @@ class ArchiveDownloadPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl}),
       child: EHImage.network(
-        galleryImage: GalleryImage(url: archive.coverUrl, width: archive.coverWidth, height: archive.coverHeight),
+        containerWidth: UIConfig.downloadPageCoverWidth,
+        containerHeight: UIConfig.downloadPageCoverHeight,
+        fit: BoxFit.fitWidth,
+        galleryImage: GalleryImage(
+          url: archive.coverUrl,
+          width: archive.coverWidth,
+          height: archive.coverHeight,
+        ),
       ),
     );
   }
@@ -232,26 +219,28 @@ class ArchiveDownloadPage extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () => logic.goToReadPage(archive),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           _buildInfoHeader(archive),
+          const Expanded(child: SizedBox()),
           _buildInfoCenter(archive),
+          const Expanded(child: SizedBox()),
           _buildInfoFooter(archive),
         ],
-      ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5),
+      ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
     );
   }
 
   Widget _buildInfoHeader(ArchiveDownloadedData archive) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           archive.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 15, height: 1.2),
+          style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,20 +249,21 @@ class ArchiveDownloadPage extends StatelessWidget {
             if (archive.uploader != null)
               Text(
                 archive.uploader!,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ).marginOnly(top: 5),
+                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+              ),
             Text(
               DateUtil.transform2LocalTimeString(archive.publishTime),
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
             ),
           ],
-        )
+        ).marginOnly(top: 5),
       ],
     );
   }
 
   Widget _buildInfoCenter(ArchiveDownloadedData archive) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         EHGalleryCategoryTag(category: archive.category),
         const Expanded(child: SizedBox()),
@@ -317,11 +307,11 @@ class ArchiveDownloadPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: Get.theme.primaryColorLight),
+        border: Border.all(color: UIConfig.pauseButtonColor),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: Get.theme.primaryColorLight, fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
@@ -344,8 +334,8 @@ class ArchiveDownloadPage extends StatelessWidget {
             size: 26,
             color: (archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.unlocking.index &&
                     archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
-                ? Get.theme.primaryColorLight
-                : Get.theme.primaryColor,
+                ? UIConfig.pauseButtonColor
+                : UIConfig.resumeButtonColor,
           ),
         );
       },
@@ -358,13 +348,17 @@ class ArchiveDownloadPage extends StatelessWidget {
       builder: (_) {
         ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
                 if (archiveDownloadInfo.archiveStatus == ArchiveStatus.downloading)
                   GetBuilder<ArchiveDownloadService>(
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
-                    builder: (_) => Text(archiveDownloadInfo.speedComputer.speed, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                    builder: (_) => Text(
+                      archiveDownloadInfo.speedComputer.speed,
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                    ),
                   ),
                 const Expanded(child: SizedBox()),
                 if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
@@ -372,25 +366,29 @@ class ArchiveDownloadPage extends StatelessWidget {
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                     builder: (_) => Text(
                       '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
                     ),
                   ),
                 if (archiveDownloadInfo.archiveStatus != ArchiveStatus.downloading)
-                  Text(archiveDownloadInfo.archiveStatus.name.tr, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)).marginOnly(left: 8),
+                  Text(
+                    archiveDownloadInfo.archiveStatus.name.tr,
+                    style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor, height: 1),
+                  ).marginOnly(left: 8),
               ],
             ),
             if (archiveDownloadInfo.archiveStatus.index < ArchiveStatus.downloaded.index)
               SizedBox(
-                height: 3,
+                height: UIConfig.downloadPageProgressIndicatorHeight,
                 child: GetBuilder<ArchiveDownloadService>(
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => LinearProgressIndicator(
                     value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
-                    color:
-                        archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ? Get.theme.primaryColor : Get.theme.primaryColorLight,
+                    color: archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                        ? UIConfig.downloadPageProgressIndicatorPausedColor
+                        : UIConfig.downloadPageProgressIndicatorColor,
                   ),
                 ),
-              ).marginOnly(top: 4),
+              ).marginOnly(top: 6),
           ],
         );
       },
