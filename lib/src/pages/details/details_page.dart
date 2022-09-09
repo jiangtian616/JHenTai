@@ -532,9 +532,9 @@ class _ActionButtons extends StatelessWidget {
         Icon icon = downloadProgress == null
             ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
             : downloadProgress.downloadStatus == DownloadStatus.paused
-                ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
+                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? Icon(Icons.pause_circle_outline, color: Get.theme.colorScheme.error)
+                    ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
                     : state.galleryDetails?.newVersionGalleryUrl == null
                         ? const Icon(Icons.done, color: Colors.green)
                         : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
@@ -639,10 +639,10 @@ class _ActionButtons extends StatelessWidget {
         Icon icon = archiveStatus == null
             ? Icon(Icons.archive, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
             : archiveStatus == ArchiveStatus.paused
-                ? Icon(Icons.play_circle_outline, color: Get.theme.colorScheme.error)
+                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
                 : archiveStatus == ArchiveStatus.completed
                     ? const Icon(Icons.done, color: Colors.green)
-                    : Icon(Icons.pause_circle_outline, color: Get.theme.colorScheme.error);
+                    : Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor);
 
         return IconTextButton(
           icon: icon,
