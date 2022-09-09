@@ -22,13 +22,14 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
   final StorageService storageService = Get.find<StorageService>();
 
-  final Map<int, AnimationController> removedGid2AnimationController = {};
-  final Map<int, Animation<double>> removedGid2Animation = {};
+  final Set<String> removedGroups = {};
+  final Set<int> removedGids = {};
+  final Set<int> removedGidsWithoutImages = {};
 
   @override
   void onInit() {
-    state.displayGroups = Set.from(storageService.read('displayGalleryGroups') ?? ['default'.tr]);
     super.onInit();
+    state.displayGroups = Set.from(storageService.read('displayGalleryGroups') ?? ['default'.tr]);
   }
 
   @override
@@ -36,10 +37,6 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
     super.onClose();
 
     state.scrollController.dispose();
-
-    for (AnimationController controller in removedGid2AnimationController.values) {
-      controller.dispose();
-    }
   }
 
   void toggleDisplayGroups(String groupName) {
@@ -93,21 +90,17 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
     update([bodyId]);
   }
 
-  void handleRemoveItem(BuildContext context, GalleryDownloadedData gallery, bool deleteImages) {
-    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-        removedGid2AnimationController.remove(gallery.gid);
-        removedGid2Animation.remove(gallery.gid);
+  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
+    if (deleteImages) {
+      removedGids.add(gallery.gid);
+    } else {
+      removedGidsWithoutImages.add(gallery.gid);
+    }
 
-        Get.engine.addPostFrameCallback((_) {
-          downloadService.deleteGallery(gallery, deleteImages: deleteImages);
-        });
-      }
-    });
-    removedGid2AnimationController[gallery.gid] = controller;
-    removedGid2Animation[gallery.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
+    String group = downloadService.galleryDownloadInfos[gallery.gid]!.group;
+    if(downloadService.galleryDownloadInfos.values.every((g) => g.group != group)) {
+      removedGroups.add(group);
+    }
 
     downloadService.update([galleryCountOrOrderChangedId]);
   }

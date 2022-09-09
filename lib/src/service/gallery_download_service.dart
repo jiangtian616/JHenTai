@@ -178,15 +178,13 @@ class GalleryDownloadService extends GetxController {
   Future<void> deleteGallery(GalleryDownloadedData gallery, {bool deleteImages = true}) async {
     await pauseDownloadGallery(gallery);
 
-    Log.info('Delete download gallery: ${gallery.title}');
+    Log.info('Delete download gallery: ${gallery.title}, deleteImages:$deleteImages');
 
     await _clearGalleryDownloadInfoInDatabase(gallery.gid);
     if (deleteImages) {
       _clearDownloadedImageInDisk(gallery);
     }
     _clearGalleryInfoInMemory(gallery);
-
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   /// Update local downloaded gallery if there's a new version.

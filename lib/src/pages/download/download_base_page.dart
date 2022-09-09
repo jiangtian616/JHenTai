@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -117,9 +118,9 @@ class _GroupOpenIndicatorState extends State<GroupOpenIndicator> with AnimationM
 
     isOpen = widget.isOpen;
     if (isOpen) {
-      controller.play(duration: const Duration(milliseconds: 100));
+      controller.play(duration: const Duration(milliseconds: 150));
     } else {
-      controller.playReverse(duration: const Duration(milliseconds: 100));
+      controller.playReverse(duration: const Duration(milliseconds: 150));
     }
   }
 
@@ -127,7 +128,134 @@ class _GroupOpenIndicatorState extends State<GroupOpenIndicator> with AnimationM
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: animation,
-      child: Icon(Icons.keyboard_arrow_left),
+      child: const Icon(Icons.keyboard_arrow_left),
+    );
+  }
+}
+
+class FadeShrinkWidget extends StatefulWidget {
+  final bool show;
+  final Widget child;
+  final VoidCallback? afterDisappear;
+
+  const FadeShrinkWidget({
+    Key? key,
+    required this.show,
+    required this.child,
+    this.afterDisappear,
+  }) : super(key: key);
+
+  @override
+  State<FadeShrinkWidget> createState() => _FadeShrinkWidgetState();
+}
+
+class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin {
+  bool show = false;
+
+  late Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.ease);
+
+  @override
+  void initState() {
+    super.initState();
+
+    show = widget.show;
+    if (show) {
+      controller.forward(from: 1);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant FadeShrinkWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.show == widget.show) {
+      return;
+    }
+
+    show = widget.show;
+    if (show) {
+      controller.play(duration: const Duration(milliseconds: 1000));
+    } else {
+      controller.playReverse(duration: const Duration(milliseconds: 1000)).then((_) {
+        widget.afterDisappear?.call();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: animation,
+      child: SizeTransition(
+        sizeFactor: animation,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class GroupList<E, G> extends StatefulWidget {
+  final List<G> groups;
+  final List<E> elements;
+
+  /// Defines which elements are grouped together.
+  final G Function(E element) groupBy;
+
+  final Widget Function(G group) groupBuilder;
+  final Widget Function(BuildContext context, E element) itemBuilder;
+
+  const GroupList({
+    Key? key,
+    required this.groups,
+    required this.elements,
+    required this.groupBy,
+    required this.groupBuilder,
+    required this.itemBuilder,
+  }) : super(key: key);
+
+  @override
+  State<GroupList> createState() => _GroupListState();
+}
+
+class _GroupListState<E, G> extends State<GroupList<E, G>> {
+  ScrollController scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    assert(widget.groups.every((g) => widget.elements.singleWhereOrNull((e) => widget.groupBy(e) == g) != null));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: widget.elements.length + widget.groups.length,
+      itemBuilder: (BuildContext context, int index) {
+        int remainingCount = index;
+        int groupIndex = 0;
+
+        while (true) {
+          G group = widget.groups[groupIndex];
+          List<E> itemsWithGroup = widget.elements.where((element) => widget.groupBy(element) == group).toList();
+
+          if (remainingCount == 0) {
+            return widget.groupBuilder(group);
+          }
+
+          if (remainingCount - itemsWithGroup.length <= 0) {
+            return widget.itemBuilder(context, itemsWithGroup[remainingCount - 1]);
+          }
+
+          groupIndex++;
+          remainingCount -= 1 + itemsWithGroup.length;
+        }
+      },
     );
   }
 }

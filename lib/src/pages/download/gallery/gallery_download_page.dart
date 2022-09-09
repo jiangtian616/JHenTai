@@ -117,42 +117,32 @@ class GalleryDownloadPage extends StatelessWidget {
 
     return GetBuilder<GalleryDownloadPageLogic>(
       id: '${GalleryDownloadPageLogic.groupId}::$group',
-      builder: (_) {
-        if (!state.displayGroups.contains(group)) {
-          return const SizedBox();
-        }
-
-        Widget child = FocusWidget(
-          focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-          handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-          handleTapEnter: () => logic.goToReadPage(gallery),
-          handleTapArrowRight: () => logic.goToReadPage(gallery),
-          child: Slidable(
-            key: Key(gallery.gid.toString()),
-            endActionPane: _buildEndActionPane(gallery),
-            child: GestureDetector(
-              onSecondaryTap: () => showBottomSheet(gallery, context),
-              onLongPress: () => showBottomSheet(gallery, context),
-              child: _buildCard(gallery, context).marginAll(5),
+      builder: (_) => FocusWidget(
+        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
+        handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+        handleTapEnter: () => logic.goToReadPage(gallery),
+        handleTapArrowRight: () => logic.goToReadPage(gallery),
+        child: Slidable(
+          key: Key(gallery.gid.toString()),
+          endActionPane: _buildEndActionPane(gallery),
+          child: GestureDetector(
+            onSecondaryTap: () => showBottomSheet(gallery, context),
+            onLongPress: () => showBottomSheet(gallery, context),
+            child: FadeShrinkWidget(
+              show: state.displayGroups.contains(group),
+              child: FadeShrinkWidget(
+                show: !logic.removedGids.contains(gallery.gid) && !logic.removedGidsWithoutImages.contains(gallery.gid),
+                child: _buildCard(gallery, context).marginAll(5),
+                afterDisappear: () {
+                  logic.removedGids.remove(gallery.gid);
+                  logic.removedGidsWithoutImages.remove(gallery.gid);
+                  Get.engine.addPostFrameCallback((_) => logic.downloadService.deleteGallery(gallery, deleteImages: false));
+                },
+              ),
             ),
           ),
-        );
-
-        /// has not been deleted
-        if (!logic.removedGid2AnimationController.containsKey(gallery.gid)) {
-          return child;
-        }
-
-        AnimationController controller = logic.removedGid2AnimationController[gallery.gid]!;
-        Animation<double> animation = logic.removedGid2Animation[gallery.gid]!;
-
-        /// has been deleted, start animation
-        if (!controller.isAnimating) {
-          controller.forward();
-        }
-
-        return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
-      },
+        ),
+      ),
     );
   }
 
@@ -175,7 +165,7 @@ class GalleryDownloadPage extends StatelessWidget {
           icon: Icons.delete,
           foregroundColor: Colors.red,
           backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (BuildContext context) => logic.handleRemoveItem(context, gallery, true),
+          onPressed: (BuildContext context) => logic.handleRemoveItem(gallery, true),
         )
       ],
     );
@@ -427,14 +417,14 @@ class GalleryDownloadPage extends StatelessWidget {
           CupertinoActionSheetAction(
             child: Text('deleteTask'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              logic.handleRemoveItem(context, gallery, false);
+              logic.handleRemoveItem(gallery, false);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
             child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              logic.handleRemoveItem(context, gallery, true);
+              logic.handleRemoveItem(gallery, true);
               backRoute();
             },
           ),
