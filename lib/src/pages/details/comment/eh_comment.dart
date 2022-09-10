@@ -3,6 +3,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -126,7 +128,7 @@ class _EHCommentTextBody extends StatelessWidget {
       height: bodyHeight,
       child: HtmlWidget(
         maxLines == null ? _wrapUrlInATag(html) : _wrapUrlInATag(html).replaceAll('<br>', ' '),
-        textStyle: const TextStyle(fontSize: UIConfig.commentBodyTextSize),
+        textStyle:  TextStyle(fontSize: UIConfig.commentBodyTextSize,color: Get.theme.colorScheme.onSecondaryContainer),
         onTapUrl: maxLines == null ? _handleTapUrl : null,
         isSelectable: maxLines == null,
         customWidgetBuilder: (element) {

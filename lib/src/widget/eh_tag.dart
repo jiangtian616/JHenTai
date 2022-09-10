@@ -53,7 +53,7 @@ class _EHTagState extends State<EHTag> {
           style: TextStyle(
             fontSize: 12,
             height: 1,
-            color: widget.tag.color ?? Get.theme.colorScheme.onSecondaryContainer,
+            color: widget.tag.color ?? (widget.addNameSpaceColor ? Colors.black : Get.theme.colorScheme.onSecondaryContainer),
           ),
         ),
       ),

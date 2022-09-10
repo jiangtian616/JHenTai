@@ -99,7 +99,7 @@ class _RoundGalleryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.background,
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.3),
@@ -292,7 +292,7 @@ class _GalleryInfoFooter extends StatelessWidget {
       ignoreGestures: true,
       itemBuilder: (context, _) => Icon(
         Icons.star,
-        color: gallery.hasRated ? Get.theme.primaryColor : Colors.amber.shade800,
+        color: gallery.hasRated ? UIConfig.resumeButtonColor : Colors.amber.shade800,
       ),
       onRatingUpdate: (rating) {},
     );

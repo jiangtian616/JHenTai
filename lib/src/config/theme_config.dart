@@ -49,34 +49,6 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-    // primaryColor: const Color.fromARGB(255, 0, 122, 255),
-    // primaryColorLight: Colors.pink.shade300,
-    // backgroundColor: Colors.grey.shade100,
-    // appBarTheme: AppBarTheme(
-    //   foregroundColor: Colors.grey.shade900,
-    //   backgroundColor: Colors.white,
-    //   systemOverlayStyle: const SystemUiOverlayStyle(
-    //     statusBarColor: Colors.transparent,
-    //     statusBarBrightness: Brightness.light,
-    //     statusBarIconBrightness: Brightness.dark,
-    //   ),
-    //   titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-    //   iconTheme: IconThemeData(color: Colors.grey.shade800),
-    //   actionsIconTheme: IconThemeData(color: Colors.grey.shade900),
-    //   elevation: 0,
-    // ),
-
-    // cupertinoOverrideTheme: const CupertinoThemeData(scaffoldBackgroundColor: Colors.white),
-    // dialogTheme: const DialogTheme(
-    //   titleTextStyle: TextStyle(
-    //     fontSize: 16,
-    //     color: Colors.black,
-    //     fontWeight: FontWeight.bold,
-    //   ),
-    // ),
-    // elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
-    // cardColor: Colors.white,
-    // hoverColor: Colors.transparent,
   );
 
   static ThemeData dark = ThemeData(
@@ -86,6 +58,9 @@ class ThemeConfig {
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+    cardTheme: CardTheme(
+      color: Colors.grey.shade900,
+    ),
     colorScheme: ColorScheme.dark(
       primary: Color(0xFFD0BCFF),
       onPrimary: Color(0xFF381E72),
@@ -94,7 +69,7 @@ class ThemeConfig {
       secondary: Color(0xFFCCC2DC),
       onSecondary: Color(0xFF332D41),
       secondaryContainer: Colors.grey.shade800,
-      onSecondaryContainer: Color(0xFF1D192B),
+      onSecondaryContainer: Colors.grey.shade400,
       tertiary: Color(0xFFEFB8C8),
       onTertiary: Color(0xFF492532),
       tertiaryContainer: Color(0xFF633B48),
@@ -108,7 +83,7 @@ class ThemeConfig {
       surface: Color(0xFF1C1B1F),
       onSurface: Color(0xFFE6E1E5),
       outline: Color(0xFF938F99),
-      surfaceVariant: Color(0xFF49454F),
+      surfaceVariant: Color(0xFF232123),
       onSurfaceVariant: Color(0xFFCAC4D0),
     ),
     navigationBarTheme: const NavigationBarThemeData(
@@ -126,32 +101,5 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-
-    // primaryColor: const Color.fromARGB(255, 0, 122, 255),
-    // primaryColorLight: Colors.pink.shade300,
-    // backgroundColor: Colors.grey.shade900,
-    // appBarTheme: AppBarTheme(
-    //   foregroundColor: Colors.grey.shade100,
-    //   backgroundColor: Colors.grey.shade900,
-    //   systemOverlayStyle: const SystemUiOverlayStyle(
-    //     statusBarColor: Colors.transparent,
-    //     statusBarBrightness: Brightness.dark,
-    //     statusBarIconBrightness: Brightness.light,
-    //   ),
-    //   titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-    //   actionsIconTheme: const IconThemeData(color: Colors.white),
-    // ),
-
-    // cupertinoOverrideTheme: CupertinoThemeData(scaffoldBackgroundColor: Colors.grey.shade900),
-    // dialogTheme: const DialogTheme(
-    //   titleTextStyle: TextStyle(
-    //     fontSize: 16,
-    //     color: Colors.white,
-    //     fontWeight: FontWeight.bold,
-    //   ),
-    // ),
-    // elevatedButtonTheme: ElevatedButtonThemeData(style: ButtonStyle(elevation: MaterialStateProperty.all(0))),
-    // cardColor: Colors.grey.shade900,
-    // hoverColor: Colors.transparent,
   );
 }

@@ -49,7 +49,10 @@ class DesktopLayoutPage extends StatelessWidget {
     return Material(
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
-        decoration: BoxDecoration(border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3))),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.background,
+          border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3)),
+        ),
         child: FocusScope(
           autofocus: true,
           node: state.leftTabBarFocusScopeNode,

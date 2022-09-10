@@ -45,8 +45,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   final StorageService storageService = Get.find();
 
   @override
-  void onReady() {
-    super.onReady();
+  void onInit() {
+    super.onInit();
 
     if (Get.isRegistered<DesktopLayoutPageLogic>() && StyleSetting.actualLayout == LayoutMode.desktop) {
       Get.find<DesktopLayoutPageLogic>().state.scrollControllers[tabIndex] = state.scrollController;
@@ -63,7 +63,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       if (autoLoadNeedLogin && !UserSetting.hasLoggedIn()) {
         state.loadingState = LoadingState.noData;
         update([bodyId]);
-        toast('needLoginToOperate'.tr);
+        Get.engine.addPostFrameCallback((_) => toast('needLoginToOperate'.tr));
         return;
       }
 

@@ -34,13 +34,10 @@ Future<T?>? toRoute<T>(
     if (StyleSetting.layout.value == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
-      int tabIndex = logic.state.icons.indexWhere((icon) => icon.routeName == routeName);
-      if (logic.state.selectedTabIndex != tabIndex) {
-        logic.state.selectedTabIndex = tabIndex;
-        logic.update([logic.tabBarId, logic.leftColumnId]);
-      }
+      logic.handleTapTabBarButton(logic.state.icons.indexWhere((icon) => icon.routeName == routeName));
       return Future.value(null);
     }
+
 
     /// left [Route]
     return Get.toNamed(

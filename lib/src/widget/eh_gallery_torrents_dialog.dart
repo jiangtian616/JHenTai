@@ -96,7 +96,7 @@ class _TorrentList extends StatelessWidget {
               dense: true,
               title: InkWell(
                 onTap: () => launchUrlString(torrent.torrentUrl, mode: LaunchMode.externalApplication),
-                child: Text(torrent.title, style: const TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: Colors.blue)),
+                child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumeButtonColor)),
               ),
               subtitle: Row(
                 children: [
@@ -110,7 +110,7 @@ class _TorrentList extends StatelessWidget {
                 ],
               ),
               trailing: IconButton(
-                icon: const Icon(FontAwesomeIcons.magnet, size: 16, color: Colors.blue),
+                icon: Icon(FontAwesomeIcons.magnet, size: 16, color: UIConfig.resumeButtonColor),
                 padding: EdgeInsets.zero,
                 onPressed: () => FlutterClipboard.copy(
                   torrent.magnetUrl,

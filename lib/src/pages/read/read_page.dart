@@ -54,7 +54,7 @@ class ReadPage extends StatelessWidget {
           handleEnd: backRoute,
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
-                  color: Get.theme.colorScheme.surface,
+                  color: Colors.white,
                   fontSize: 12,
                   decoration: TextDecoration.none,
                 ),

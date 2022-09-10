@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 
@@ -78,7 +79,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveProxyAddress(proxyAddressController.value.text);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: Get.theme.primaryColor),
+            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
           ),
         ],
       ),
@@ -134,7 +135,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: Get.theme.primaryColor),
+            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
           ),
         ],
       ),
@@ -170,7 +171,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: Get.theme.primaryColor),
+            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
           ),
         ],
       ),

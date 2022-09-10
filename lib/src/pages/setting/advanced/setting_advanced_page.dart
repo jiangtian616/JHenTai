@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 
-import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,6 +11,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 
+import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 
@@ -73,7 +73,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('clearLogs'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(Log.getSize(), style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumeButtonColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () {
         Log.clear();
         setState(() {
@@ -87,7 +87,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('clearImagesCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: Get.theme.primaryColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumeButtonColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () async {
         await clearDiskCachedImages();
         setState(() {

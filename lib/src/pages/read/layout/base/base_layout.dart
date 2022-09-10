@@ -126,9 +126,8 @@ abstract class BaseLayout extends StatelessWidget {
               ),
               Text(
                 readPageState.parseImageHrefsStates[index] == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
-                style: readPageState.readPageTextStyle,
               ).marginOnly(top: 8),
-              Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),
+              Text(index.toString()).marginOnly(top: 4),
             ],
           ),
         ),
@@ -159,9 +158,8 @@ abstract class BaseLayout extends StatelessWidget {
               ),
               Text(
                 readPageState.parseImageUrlStates[index] == LoadingState.error ? readPageState.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
-                style: readPageState.readPageTextStyle,
               ).marginOnly(top: 8),
-              Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),
+              Text(index.toString()).marginOnly(top: 4),
             ],
           ),
         ),
@@ -175,8 +173,8 @@ abstract class BaseLayout extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         CircularProgressIndicator(value: progress),
-        Text('loading'.tr, style: readPageState.readPageTextStyle).marginOnly(top: 8),
-        Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),
+        Text('loading'.tr).marginOnly(top: 8),
+        Text(index.toString()).marginOnly(top: 4),
       ],
     );
   }
@@ -190,10 +188,10 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         IconTextButton(
           icon: const Icon(Icons.error),
-          text: Text('networkError'.tr, style: readPageState.readPageTextStyle),
+          text: Text('networkError'.tr),
           onPressed: state.reLoadImage,
         ),
-        Text(index.toString(), style: readPageState.readPageTextStyle),
+        Text(index.toString()),
       ],
     );
   }
@@ -232,11 +230,8 @@ abstract class BaseLayout extends StatelessWidget {
         children: [
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
-          Text(
-            downloadStatus == DownloadStatus.downloading ? 'parsingPage'.tr : 'paused'.tr,
-            style: readPageState.readPageTextStyle,
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),
+          Text(downloadStatus == DownloadStatus.downloading ? 'parsingPage'.tr : 'paused'.tr).marginOnly(top: 8),
+          Text(index.toString()).marginOnly(top: 4),
         ],
       ),
     );
@@ -254,11 +249,8 @@ abstract class BaseLayout extends StatelessWidget {
         children: [
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
-          Text(
-            downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr,
-            style: readPageState.readPageTextStyle,
-          ).marginOnly(top: 8),
-          Text(index.toString(), style: readPageState.readPageTextStyle).marginOnly(top: 4),
+          Text(downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr).marginOnly(top: 8),
+          Text(index.toString()).marginOnly(top: 4),
         ],
       ),
     );
@@ -277,8 +269,8 @@ abstract class BaseLayout extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
-            Text('downloading'.tr, style: readPageState.readPageTextStyle).marginOnly(top: 8),
-            Text(index.toString(), style: readPageState.readPageTextStyle),
+            Text('downloading'.tr).marginOnly(top: 8),
+            Text(index.toString()),
           ],
         );
       },
@@ -291,8 +283,8 @@ abstract class BaseLayout extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(Icons.pause_circle_outline, color: Colors.white),
-        Text('paused'.tr, style: readPageState.readPageTextStyle).marginOnly(top: 8),
-        Text(index.toString(), style: readPageState.readPageTextStyle),
+        Text('paused'.tr).marginOnly(top: 8),
+        Text(index.toString()),
       ],
     );
   }

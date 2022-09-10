@@ -53,10 +53,4 @@ class ReadPageState {
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
   }
-
-  TextStyle get readPageTextStyle => TextStyle(
-        color: Get.theme.colorScheme.surface,
-        fontSize: 12,
-        decoration: TextDecoration.none,
-      );
 }

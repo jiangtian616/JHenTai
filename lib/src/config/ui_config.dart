@@ -31,7 +31,8 @@ class UIConfig {
     scrollbars: false,
   );
 
-  static final Widget loadingAnimation = LoadingAnimationWidget.horizontalRotatingDots(color: Colors.grey.shade800, size: 32);
+  static Widget get loadingAnimation =>
+      LoadingAnimationWidget.horizontalRotatingDots(color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800, size: 32);
 
   /// layout
   static const double appBarHeight = 40;
@@ -59,7 +60,7 @@ class UIConfig {
   /// Login page
   static const Color loginPageForegroundColor = Colors.white;
 
-  static Color get loginPageBackgroundColor => Get.theme.primaryColor;
+  static Color get loginPageBackgroundColor => Colors.blue;
 
   static Color get loginPageFieldColor => Colors.grey.shade200;
 
@@ -106,7 +107,7 @@ class UIConfig {
   static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;
 
-  static Color get resumeButtonColor => Get.theme.primaryColor;
+  static Color get resumeButtonColor => Colors.blue;
 
   static Color get pauseButtonColor => Get.theme.colorScheme.primary;
 
@@ -140,7 +141,7 @@ class UIConfig {
   static Color get downloadPageCardTextColor => Get.theme.colorScheme.outline;
   static const double downloadPageProgressIndicatorHeight = 3;
 
-  static Color get downloadPageProgressIndicatorColor => Get.theme.primaryColor;
+  static Color get downloadPageProgressIndicatorColor => Colors.blue;
 
   static Color get downloadPageProgressIndicatorPausedColor => Get.theme.colorScheme.surfaceVariant;
 
@@ -191,9 +192,10 @@ class UIConfig {
   static const double groupSelectorChipsHeight = 40;
   static const double groupSelectorChipTextSize = 11;
 
-  static Color get groupSelectorSelectedChipColor => Get.theme.colorScheme.primaryContainer;
+  static const Color groupSelectorSelectedChipColor = Color(0xFFEADDFF);
 
-  static Color get groupSelectorChipColor => Get.theme.colorScheme.primaryContainer.withOpacity(0.3);
+  static Color get groupSelectorChipColor => groupSelectorSelectedChipColor.withOpacity(0.3);
+  static const Color groupSelectorTextColor = Colors.black;
   static const double groupSelectorTextFieldLabelTextSize = 12;
   static const double groupSelectorTextFieldTextSize = 14;
 

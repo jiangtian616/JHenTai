@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 
 import '../../../utils/toast_util.dart';
@@ -42,7 +43,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.check, color: Get.theme.primaryColor),
+                    icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
                     onPressed: () {
                       double? value = double.tryParse(wheelScrollSpeedController.value.text);
                       if (value == null) {

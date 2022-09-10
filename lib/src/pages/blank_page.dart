@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class BlankPage extends StatelessWidget {
   const BlankPage({Key? key}) : super(key: key);
@@ -7,7 +6,7 @@ class BlankPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Get.theme.colorScheme.background,
+      color: Theme.of(context).colorScheme.background,
       child: Center(
         child: Text(
           'J',
