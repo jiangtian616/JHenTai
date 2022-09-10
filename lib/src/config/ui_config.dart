@@ -103,6 +103,8 @@ class UIConfig {
   static const double detailsPageThumbnailHeight = 200;
   static const double detailsPageThumbnailWidth = 150;
 
+  static const int detailsPageAnimationDuration = 150;
+
   /// Download page
   static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;

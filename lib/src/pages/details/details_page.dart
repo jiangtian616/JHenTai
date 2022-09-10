@@ -349,7 +349,14 @@ class _DetailsPageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor),
-                      Text(state.galleryDetails?.favoriteCount.toString() ?? '...', style: TextStyle(fontSize: textSize)).marginOnly(left: 2)
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                        child: Text(
+                          state.galleryDetails?.favoriteCount.toString() ?? '...',
+                          key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
+                          style: TextStyle(fontSize: textSize),
+                        ),
+                      ).marginOnly(left: 2),
                     ],
                   ),
                 ),
@@ -359,7 +366,14 @@ class _DetailsPageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
-                      Text(state.galleryDetails?.size ?? '...', style: TextStyle(fontSize: textSize)),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                        child: Text(
+                          state.galleryDetails?.size ?? '...',
+                          key: Key(state.galleryDetails?.size ?? '...'),
+                          style: TextStyle(fontSize: textSize),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -373,8 +387,14 @@ class _DetailsPageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor),
-                      Text(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(), style: TextStyle(fontSize: textSize))
-                          .marginOnly(left: 2),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                        child: Text(
+                          state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(),
+                          key: Key(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString()),
+                          style: TextStyle(fontSize: textSize),
+                        ),
+                      ).marginOnly(left: 2),
                     ],
                   ),
                 ),
@@ -384,7 +404,14 @@ class _DetailsPageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor),
-                      Text(state.galleryDetails?.ratingCount.toString() ?? '...', style: TextStyle(fontSize: textSize)).marginOnly(left: 2),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                        child: Text(
+                          state.galleryDetails?.ratingCount.toString() ?? '...',
+                          key: Key(state.galleryDetails?.ratingCount.toString() ?? '...'),
+                          style: TextStyle(fontSize: textSize),
+                        ),
+                      ).marginOnly(left: 2),
                     ],
                   ),
                 ),
@@ -410,7 +437,14 @@ class _DetailsPageHeader extends StatelessWidget {
     return Row(
       children: [
         _buildRatingBar(),
-        Text(state.galleryDetails?.realRating.toString() ?? '...', style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize)),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+          child: Text(
+            state.galleryDetails?.realRating.toString() ?? '...',
+            key: Key(state.galleryDetails?.realRating.toString() ?? '...'),
+            style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize),
+          ),
+        ),
         const Expanded(child: SizedBox()),
         EHGalleryCategoryTag(category: state.gallery!.category)
       ],
@@ -418,14 +452,35 @@ class _DetailsPageHeader extends StatelessWidget {
   }
 
   Widget _buildRatingBar() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+      child: state.galleryDetails == null
+          ? _buildDefaultRatingBar()
+          : KeyedSubtree(
+              child: RatingBar.builder(
+                unratedColor: Colors.grey.shade300,
+                initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
+                itemCount: 5,
+                allowHalfRating: true,
+                itemSize: 18,
+                ignoreGestures: true,
+                itemBuilder: (context, index) =>
+                    Icon(Icons.star, color: state.gallery!.hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
+                onRatingUpdate: (_) {},
+              ),
+            ),
+    );
+  }
+
+  Widget _buildDefaultRatingBar() {
     return RatingBar.builder(
       unratedColor: Colors.grey.shade300,
-      initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
+      initialRating: 0,
       itemCount: 5,
       allowHalfRating: true,
       itemSize: 18,
       ignoreGestures: true,
-      itemBuilder: (context, index) => Icon(Icons.star, color: state.gallery!.hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
+      itemBuilder: (context, index) => const Icon(Icons.star),
       onRatingUpdate: (_) {},
     );
   }
