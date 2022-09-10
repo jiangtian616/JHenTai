@@ -27,14 +27,16 @@ class EHDownloadDialog extends StatefulWidget {
 
 class _EHDownloadDialogState extends State<EHDownloadDialog> {
   late String group;
-
+  late List<String> candidates;
   bool? downloadOriginalImage = DownloadSetting.downloadOriginalImageByDefault.value;
 
   @override
   void initState() {
     group = widget.currentGroup ?? 'default'.tr;
-    widget.candidates.remove(group);
-    widget.candidates.insert(0, group);
+    candidates = List.of(widget.candidates);
+
+    candidates.remove(group);
+    candidates.insert(0, group);
     super.initState();
   }
 
@@ -70,7 +72,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
         children: [
           EHGroupNameSelector(
             currentGroup: widget.currentGroup ?? 'default'.tr,
-            candidates: widget.candidates,
+            candidates: candidates,
             listener: (g) => group = g,
           ),
           if (widget.showDownloadOriginalImageCheckBox && downloadOriginalImage != null) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
