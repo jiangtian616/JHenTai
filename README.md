@@ -71,7 +71,7 @@ mush thanks to these projects and people🙇‍
 
 ### Mobile Layout V2
 
-<img width="250" style="margin-right:10px" src="screenshot/mobileV2_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/>
 
 ### Mobile Layout (Maintenance stopped)
 
@@ -91,8 +91,8 @@ mush thanks to these projects and people🙇‍
 
 ### Gallery & Search
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
-<img width="250" src="screenshot/filter_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh_2.jpg"/>
+<img width="250" src="screenshot/search_filter_en.jpg"/>
 
 ### Gallery Detail
 
@@ -116,6 +116,9 @@ mush thanks to these projects and people🙇‍
 - [x] online reading and download, support restore download task, support synchronize updates after the uploader has
   uploaded a new version
 - [x] archive download and automatic unpacking and reading
+- [x] support loading local images and read
+- [x] support assign priority to download task manually
+- [x] support assign group to gallery and archive
 - [x] favorite, rating, torrent, archive, statistics, share
 - [x] password login, Cookie login, web login
 - [x] support EX site(domain fronting optional)

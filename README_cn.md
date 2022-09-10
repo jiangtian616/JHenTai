@@ -81,8 +81,8 @@ App翻译：
 
 ### 画廊页 & 搜索页
 
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/2.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/3.jpg"/>
-<img width="250" src="screenshot/filter_zh.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobileV2_zh.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh_2.jpg"/>
+<img width="250" src="screenshot/search_filter_zh.jpg"/>
 
 ### 画廊详情页
 
@@ -105,6 +105,9 @@ App翻译：
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页
 - [x] 在线阅读与下载，支持恢复下载记录，支持在上传者更新画廊后同步更新本地已下载的画廊
 - [x] 支持下载归档并自动解压、阅读
+- [x] 支持读取本地图片，当作本地阅读器
+- [x] 下载画廊支持手动调节任务优先级
+- [x] 画廊和归档支持打上分组标签，统一展开折叠
 - [x] 收藏、评分、磁力、归档、统计、分享
 - [x] 账号密码登录、Cookie登录、Web登录
 - [x] 支持域名前置直连里站
