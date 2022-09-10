@@ -120,7 +120,7 @@ class LocalGalleryPage extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => logic.pushRoute(childPath),
-        child: _buildNestedDirectory(p.relative(childPath, from: state.currentPath), context),
+        child: _buildNestedDirectory(p.relative(childPath, from: state.currentPath), context).marginAll(5),
       ),
     );
   }

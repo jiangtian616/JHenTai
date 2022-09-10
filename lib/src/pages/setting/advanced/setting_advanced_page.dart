@@ -33,11 +33,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           children: [
             _buildEnableLogging(),
             if (AdvancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
+            _buildOpenLogs(),
 
             /// Can't delete file that file is being used on Windows
             if (!GetPlatform.isWindows) _buildClearLogs(),
-            _buildOpenLogs(),
-            _buildClearLogs(),
             _buildClearImageCache(),
             _buildClearNetworkCache(),
             _buildCheckUpdate(),

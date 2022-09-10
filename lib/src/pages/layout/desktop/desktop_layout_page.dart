@@ -24,28 +24,20 @@ class DesktopLayoutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: const MaterialScrollBehavior().copyWith(
-        dragDevices: {
-          PointerDeviceKind.mouse,
-          PointerDeviceKind.touch,
-          PointerDeviceKind.stylus,
-          PointerDeviceKind.trackpad,
-          PointerDeviceKind.unknown,
-        },
-        scrollbars: true,
-      ),
+      behavior: UIConfig.behaviorWithScrollBar,
       child: Row(
         children: [
           _leftTabBar(context),
           Expanded(
             child: ResizableWidget(
+              separatorColor: Colors.black,
+              separatorSize: 1.5,
+              percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
+              onResized: logic.handleResized,
               children: [
                 _leftColumn(),
                 _rightColumn(),
               ],
-              separatorColor: Colors.black,
-              separatorSize: 2,
-              percentages: [0.3, 0.7],
             ),
           ),
         ],
@@ -57,10 +49,7 @@ class DesktopLayoutPage extends StatelessWidget {
     return Material(
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
-        decoration: BoxDecoration(
-          color: Get.theme.colorScheme.background,
-          border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3)),
-        ),
+        decoration: BoxDecoration(border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3))),
         child: FocusScope(
           autofocus: true,
           node: state.leftTabBarFocusScopeNode,
@@ -68,7 +57,7 @@ class DesktopLayoutPage extends StatelessWidget {
             id: logic.tabBarId,
             builder: (_) => ListView.builder(
               itemCount: state.icons.length,
-              itemExtent: 64,
+              itemExtent: UIConfig.desktopLeftTabBarItemHeight,
               itemBuilder: (_, int index) => MouseRegion(
                 onEnter: (_) {
                   state.hoveredTabIndex = index;
@@ -81,35 +70,38 @@ class DesktopLayoutPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    FocusWidget(
-                      enableFocus: state.icons[index].routeName != Routes.setting,
-                      focusedDecoration: const BoxDecoration(color: Colors.grey),
-                      handleTapEnter: () => logic.handleTapTabBarButton(index),
-                      handleTapArrowRight: () {
-                        if (state.selectedTabIndex != index) {
-                          logic.handleTapTabBarButton(index);
-                        } else {
-                          state.leftColumnFocusScopeNode.requestFocus();
-                        }
-                      },
-                      child: GestureDetector(
-                        onTap: () => logic.handleTapTabBarButton(index),
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          height: 32,
-                          width: 48,
-                          decoration: state.selectedTabIndex == index
-                              ? BoxDecoration(border: Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)))
-                              : null,
-                          child: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                        ).paddingAll(8),
+                    Expanded(
+                      child: FocusWidget(
+                        enableFocus: state.icons[index].routeName != Routes.setting,
+                        focusedDecoration: BoxDecoration(
+                          color: Colors.grey,
+                          border: Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)),
+                        ),
+                        handleTapEnter: () => logic.handleTapTabBarButton(index),
+                        handleTapArrowRight: () {
+                          if (state.selectedTabIndex != index) {
+                            logic.handleTapTabBarButton(index);
+                          } else {
+                            state.leftColumnFocusScopeNode.requestFocus();
+                          }
+                        },
+                        child: ExcludeFocus(
+                          child: IconButton(
+                            onPressed: () => logic.handleTapTabBarButton(index),
+                            icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                          ),
+                        ),
                       ),
                     ),
-                    if (state.hoveredTabIndex == index)
-                      FadeIn(
-                        child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
-                        duration: const Duration(milliseconds: 200),
-                      )
+                    SizedBox(
+                      height: UIConfig.desktopLeftTabBarTextHeight,
+                      child: state.hoveredTabIndex != index
+                          ? null
+                          : FadeIn(
+                              child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
+                              duration: const Duration(milliseconds: 200),
+                            ),
+                    ),
                   ],
                 ),
               ),
@@ -124,7 +116,7 @@ class DesktopLayoutPage extends StatelessWidget {
     return FocusScope(
       node: state.leftColumnFocusScopeNode,
       child: GetBuilder<DesktopLayoutPageLogic>(
-        id: logic.pageId,
+        id: logic.leftColumnId,
         builder: (_) => Stack(
           children: state.icons
               .where((icon) => icon.shouldRender)

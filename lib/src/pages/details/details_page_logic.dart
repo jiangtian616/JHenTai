@@ -41,9 +41,7 @@ import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/eh_download_dialog.dart';
-import '../gallerys/nested/nested_gallerys_page_logic.dart' as g;
 import '../layout/desktop/desktop_layout_page_logic.dart';
-import '../search/mobile/search_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
@@ -407,7 +405,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
   }
 
   void searchSimilar() {
-    newSearch('"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
+    newSearch(state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim());
   }
 
   void searchUploader() {

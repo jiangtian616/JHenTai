@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/network/eh_cookie_manager.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
 import 'package:path/path.dart' as p;
@@ -80,7 +81,7 @@ class EHImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child = galleryImage.path == null ? buildNetworkImage() : buildFileImage();
-    if (heroTag != null) {
+    if (heroTag != null && StyleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);
     }
 

@@ -5,6 +5,7 @@ class ThemeConfig {
   static ThemeData light = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: GetPlatform.isWindows ? '微软雅黑' : null,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
@@ -48,7 +49,6 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade100,
@@ -82,6 +82,7 @@ class ThemeConfig {
   static ThemeData dark = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: GetPlatform.isWindows ? '微软雅黑' : null,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
@@ -125,7 +126,7 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
-    fontFamily: GetPlatform.isWindows ? '新宋体' : null,
+
     // primaryColor: const Color.fromARGB(255, 0, 122, 255),
     // primaryColorLight: Colors.pink.shade300,
     // backgroundColor: Colors.grey.shade900,

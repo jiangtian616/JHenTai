@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -98,49 +99,64 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   Future<void> showBottomSheet(int index, BuildContext context) async {
     Get.focusScope?.unfocus();
 
-    showModalBottomSheet(
-      context: Get.context!,
-      builder: (_) => BottomSheet(
-        onClosing: () {},
-        builder: (_) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor),
-                title: Text('favorite'.tr),
-                onTap: () {
-                  backRoute();
-                  handleUpdateStatus(index, TagSetStatus.watched);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor),
-                title: Text('hidden'.tr),
-                onTap: () {
-                  backRoute();
-                  handleUpdateStatus(index, TagSetStatus.hidden);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
-                title: Text('nope'.tr),
-                onTap: () {
-                  backRoute();
-                  handleUpdateStatus(index, TagSetStatus.nope);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.delete, color: Get.theme.colorScheme.error),
-                title: Text('delete'.tr),
-                onTap: () {
-                  backRoute();
-                  deleteTagSet(index);
-                },
-              ),
-            ],
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor).marginOnly(right: 4),
+                SizedBox(width: 56, child: Text('favorite'.tr)),
+              ],
+            ),
+            onPressed: () {
+              backRoute();
+              handleUpdateStatus(index, TagSetStatus.watched);
+            },
           ),
-        ),
+          CupertinoActionSheetAction(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor).marginOnly(right: 4),
+                SizedBox(width: 56, child: Text('hidden'.tr)),
+              ],
+            ),
+            onPressed: () {
+              backRoute();
+              handleUpdateStatus(index, TagSetStatus.hidden);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
+                SizedBox(width: 56, child: Text('nope'.tr)),
+              ],
+            ),
+            onPressed: () {
+              backRoute();
+              handleUpdateStatus(index, TagSetStatus.nope);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.delete, color: Get.theme.colorScheme.error),
+                SizedBox(width: 56, child: Text('delete'.tr)),
+              ],
+            ),
+            onPressed: () {
+              backRoute();
+              deleteTagSet(index);
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
     );
   }

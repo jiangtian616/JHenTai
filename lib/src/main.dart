@@ -157,6 +157,11 @@ void _doForDesktop() {
 
   doWhenWindowReady(() {
     appWindow.title = 'JHenTai';
+
+    if (Get.find<StorageService>().read('windowMaximize') == true) {
+      appWindow.maximize();
+    }
+
     appWindow.show();
   });
 }

@@ -325,84 +325,81 @@ class _DetailsPageHeader extends StatelessWidget {
   Widget _buildInfo() {
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
-        double minWidth = constraints.maxWidth / 6;
-        return Wrap(
-          runSpacing: 2,
+        double iconSize = 10 + constraints.maxWidth / 120;
+        double textSize = 6 + constraints.maxWidth / 120;
+
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SizedBox(
-              width: max(UIConfig.detailsPageFirstSpanWidthSize, constraints.maxWidth / 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.language, size: 10, color: UIConfig.detailsPageIconColor),
-                  Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese',
-                          style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize))
-                      .marginOnly(left: 2),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: max(UIConfig.detailsPageSecondSpanWidthSize, minWidth),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.favorite, size: 10, color: UIConfig.detailsPageIconColor),
-                  Text(
-                    state.galleryDetails?.favoriteCount.toString() ?? '...',
-                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              width: max(UIConfig.detailsPageFirstSpanWidthSize, minWidth),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.archive, size: 10, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
-                  Text(state.galleryDetails?.size ?? '...', style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize)),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: max(UIConfig.detailsPageFirstSpanWidthSize, minWidth),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.collections, size: 10, color: UIConfig.detailsPageIconColor),
-                  Text(
-                    state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(),
-                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
-                  ).marginOnly(left: 2),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: max(UIConfig.detailsPageSecondSpanWidthSize, minWidth),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star, size: 10, color: UIConfig.detailsPageIconColor),
-                  Text(
-                    state.galleryDetails?.ratingCount.toString() ?? '...',
-                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
+            Row(
+              children: [
+                Expanded(
+                  flex: 9,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese', style: TextStyle(fontSize: textSize)).marginOnly(left: 2),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            SizedBox(
-              width: max(UIConfig.detailsPageThirdSpanWidthSize, minWidth),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_upload, size: 10, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
-                  Text(
-                    DateUtil.transform2LocalTimeString(state.gallery!.publishTime),
-                    style: const TextStyle(fontSize: UIConfig.detailsPageDetailsTextSize),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Text(state.galleryDetails?.favoriteCount.toString() ?? '...', style: TextStyle(fontSize: textSize)).marginOnly(left: 2)
+                    ],
                   ),
-                ],
-              ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                      Text(state.galleryDetails?.size ?? '...', style: TextStyle(fontSize: textSize)),
+                    ],
+                  ),
+                ),
+              ],
             ),
+            Row(
+              children: [
+                Expanded(
+                  flex: 9,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Text(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(), style: TextStyle(fontSize: textSize))
+                          .marginOnly(left: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Text(state.galleryDetails?.ratingCount.toString() ?? '...', style: TextStyle(fontSize: textSize)).marginOnly(left: 2),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                      Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime), style: TextStyle(fontSize: textSize)),
+                    ],
+                  ),
+                ),
+              ],
+            ).marginOnly(top: 2),
           ],
         );
       },

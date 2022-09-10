@@ -40,6 +40,8 @@ class UIConfig {
   static const double refreshTriggerPullDistance = 100;
 
   static const double desktopLeftTabBarWidth = 56;
+  static const double desktopLeftTabBarItemHeight = 60;
+  static const double desktopLeftTabBarTextHeight = 18;
 
   /// Gallery card
   static const double galleryCardHeight = 200;

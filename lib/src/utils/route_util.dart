@@ -37,7 +37,7 @@ Future<T?>? toRoute<T>(
       int tabIndex = logic.state.icons.indexWhere((icon) => icon.routeName == routeName);
       if (logic.state.selectedTabIndex != tabIndex) {
         logic.state.selectedTabIndex = tabIndex;
-        logic.update([logic.tabBarId, logic.pageId]);
+        logic.update([logic.tabBarId, logic.leftColumnId]);
       }
       return Future.value(null);
     }
@@ -57,6 +57,18 @@ Future<T?>? toRoute<T>(
       (route) => route.settings.name == Routes.blank,
       id: StyleSetting.isInV2Layout ? rightV2 : right,
     );
+
+    Get.engine.addPostFrameCallback((_) {
+      Get.toNamed(
+        routeName,
+        arguments: arguments,
+        id: StyleSetting.isInV2Layout ? rightV2 : right,
+        parameters: parameters,
+        preventDuplicates: preventDuplicates,
+      );
+    });
+
+    return null;
   }
 
   /// right [Route]

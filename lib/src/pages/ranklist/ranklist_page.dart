@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
-import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 
 class RanklistPage extends BasePage {
   const RanklistPage({
@@ -36,6 +34,7 @@ class RanklistPage extends BasePage {
         ...super.buildAppBarActions(),
         ExcludeFocus(
           child: PopupMenuButton(
+            tooltip: '',
             initialValue: state.ranklistType,
             onSelected: logic.handleChangeRanklist,
             itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[

@@ -44,7 +44,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   String? quickSearchName;
   late final SearchConfig searchConfig;
 
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _bodyScrollController = ScrollController();
+  final ScrollController _suggestionScrollController = ScrollController();
 
   bool _isShowingSuggestions = false;
   List<TagData> suggestions = [];
@@ -71,7 +72,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   @override
   void dispose() {
     super.dispose();
-    _scrollController.dispose();
+    _bodyScrollController.dispose();
+    _suggestionScrollController.dispose();
     overlayEntry?.remove();
     focusNode.dispose();
   }
@@ -118,9 +120,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   Widget buildBody() {
     return EHWheelSpeedController(
-      controller: _scrollController,
+      controller: _bodyScrollController,
       child: ListView(
-        controller: _scrollController,
+        controller: _bodyScrollController,
         cacheExtent: 3000,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         children: [
@@ -294,6 +296,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 ],
               ),
               child: SearchSuggestionList(
+                scrollController: _suggestionScrollController,
                 currentKeyword: keyword,
                 suggestions: suggestions,
                 onTapSuggestion: (TagData tagData) {
@@ -732,44 +735,50 @@ class SearchSuggestionList extends StatelessWidget {
   final String currentKeyword;
   final List<TagData> suggestions;
   final ValueChanged<TagData> onTapSuggestion;
+  final ScrollController scrollController;
 
   const SearchSuggestionList({
     Key? key,
     required this.currentKeyword,
     required this.suggestions,
     required this.onTapSuggestion,
+    required this.scrollController,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: suggestions.length,
-      padding: EdgeInsets.zero,
-      shrinkWrap: true,
-      itemBuilder: (_, index) {
-        TagData tagData = suggestions[index];
-        return FadeIn(
-          duration: const Duration(milliseconds: 400),
-          child: ListTile(
-            dense: true,
-            visualDensity: const VisualDensity(vertical: -4),
-            minVerticalPadding: 0,
-            title: RichText(
-              text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return EHWheelSpeedController(
+      controller: scrollController,
+      child: ListView.builder(
+        itemCount: suggestions.length,
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        controller: scrollController,
+        itemBuilder: (_, index) {
+          TagData tagData = suggestions[index];
+          return FadeIn(
+            duration: const Duration(milliseconds: 400),
+            child: ListTile(
+              dense: true,
+              visualDensity: const VisualDensity(vertical: -4),
+              minVerticalPadding: 0,
+              title: RichText(
+                text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              subtitle: tagData.tagName == null
+                  ? null
+                  : RichText(
+                      text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+              onTap: () => onTapSuggestion(tagData),
             ),
-            subtitle: tagData.tagName == null
-                ? null
-                : RichText(
-                    text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-            onTap: () => onTapSuggestion(tagData),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 

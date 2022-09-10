@@ -1,15 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/service/storage_service.dart';
+import 'package:resizable_widget/resizable_widget.dart';
 
 import '../../../config/ui_config.dart';
+import '../../../utils/log.dart';
 import '../../home_page.dart';
 import 'desktop_layout_page_state.dart';
 
 class DesktopLayoutPageLogic extends GetxController {
   final String tabBarId = 'tabBarId';
-  final String pageId = 'pageId';
+  final String leftColumnId = 'leftColumnId';
 
   DesktopLayoutPageState state = DesktopLayoutPageState();
+
+  final StorageService storageService = Get.find<StorageService>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    state.leftColumnWidthRatio = storageService.read('leftColumnWidthRatio') ?? state.leftColumnWidthRatio;
+  }
 
   @override
   void onClose() {
@@ -31,7 +42,7 @@ class DesktopLayoutPageLogic extends GetxController {
     if (prevIndex != index) {
       leftRouting.args = null;
       Get.parameters = {};
-      update([tabBarId, pageId]);
+      update([tabBarId, leftColumnId]);
       return;
     }
 
@@ -70,5 +81,18 @@ class DesktopLayoutPageLogic extends GetxController {
     }
 
     state.lastTapTime = DateTime.now();
+  }
+
+  void handleResized(List<WidgetSizeInfo> infoList) {
+    if (state.leftColumnWidthRatio == infoList[0].percentage) {
+      return;
+    }
+
+    state.debouncing.debounce(() {
+      state.leftColumnWidthRatio = infoList[0].percentage;
+
+      Log.info('Resize left column ratio to: ${state.leftColumnWidthRatio}');
+      storageService.write('leftColumnWidthRatio', state.leftColumnWidthRatio);
+    });
   }
 }

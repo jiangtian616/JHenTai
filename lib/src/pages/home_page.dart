@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _checkUpdate() async  {
+  Future<void> _checkUpdate() async {
     if (AdvancedSetting.enableCheckUpdate.isFalse) {
       return;
     }

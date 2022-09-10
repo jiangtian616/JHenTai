@@ -12,16 +12,12 @@ class SettingMouseWheelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('mouseWheelSetting'.tr),
-        elevation: 1,
-      ),
+      appBar: AppBar(centerTitle: true, title: Text('mouseWheelSetting'.tr)),
       body: Obx(() {
         TextEditingController wheelScrollSpeedController = TextEditingController(text: MouseSetting.wheelScrollSpeed.value.toString());
 
         return ListView(
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          padding: const EdgeInsets.only(top: 16),
           children: [
             ListTile(
               title: Text('wheelScrollSpeed'.tr),
@@ -32,15 +28,9 @@ class SettingMouseWheelPage extends StatelessWidget {
                     width: 50,
                     child: TextField(
                       controller: wheelScrollSpeedController,
-                      decoration: const InputDecoration(
-                        isDense: true,
-                        labelStyle: TextStyle(fontSize: 12),
-                      ),
+                      decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
                       textAlign: TextAlign.center,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'\d|\.')),
-                        NumberRangeTextInputFormatter(minValue: 0),
-                      ],
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d|\.')), NumberRangeTextInputFormatter(minValue: 0)],
                       onSubmitted: (_) {
                         double? value = double.tryParse(wheelScrollSpeedController.value.text);
                         if (value == null) {
@@ -52,6 +42,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
+                    icon: Icon(Icons.check, color: Get.theme.primaryColor),
                     onPressed: () {
                       double? value = double.tryParse(wheelScrollSpeedController.value.text);
                       if (value == null) {
@@ -60,13 +51,12 @@ class SettingMouseWheelPage extends StatelessWidget {
                       MouseSetting.saveWheelScrollSpeed(value);
                       toast('saveSuccess'.tr);
                     },
-                    icon: Icon(Icons.check, color: Get.theme.primaryColor),
                   ),
                 ],
               ),
             ),
           ],
-        ).paddingSymmetric(vertical: 16);
+        );
       }),
     );
   }
