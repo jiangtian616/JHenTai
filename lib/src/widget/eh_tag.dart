@@ -62,14 +62,17 @@ class _EHTagState extends State<EHTag> {
     if (!widget.enableTapping) {
       return child;
     }
-    return GestureDetector(
-      onTap: _searchTag,
-      onSecondaryTap: _showDialog,
-      onLongPress: () {
-        Feedback.forLongPress(context);
-        _showDialog();
-      },
-      child: child,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: _searchTag,
+        onSecondaryTap: _showDialog,
+        onLongPress: () {
+          Feedback.forLongPress(context);
+          _showDialog();
+        },
+        child: child,
+      ),
     );
   }
 

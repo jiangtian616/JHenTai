@@ -73,6 +73,7 @@ class _CommentPageState extends State<CommentPage> {
     );
 
     setState(() {
+      disableButtons = true;
       comments.clear();
       comments.addAll(newComments);
     });
