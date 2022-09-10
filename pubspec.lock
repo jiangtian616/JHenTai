@@ -1117,9 +1117,11 @@ packages:
   resizable_widget:
     dependency: "direct main"
     description:
-      name: resizable_widget
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "689b427e6f5af38f32ebe5770f6c731f2c466181"
+      url: "https://github.com/eurisit/resizable_widget"
+    source: git
     version: "1.0.5"
   retry:
     dependency: "direct main"
