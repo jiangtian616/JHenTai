@@ -26,6 +26,9 @@ class IconTextButton extends StatelessWidget {
       child: GestureDetector(
         onLongPress: onLongPress,
         child: IconButton(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
           onPressed: onPressed,
           icon: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
