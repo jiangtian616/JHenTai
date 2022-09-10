@@ -328,6 +328,7 @@ class _DetailsPageHeader extends StatelessWidget {
       builder: (_, BoxConstraints constraints) {
         double iconSize = 10 + constraints.maxWidth / 120;
         double textSize = 6 + constraints.maxWidth / 120;
+        double space = 4 / 3 + constraints.maxWidth / 300;
 
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -340,7 +341,7 @@ class _DetailsPageHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor),
-                      Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese', style: TextStyle(fontSize: textSize)).marginOnly(left: 2),
+                      Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese', style: TextStyle(fontSize: textSize)).marginOnly(left: space),
                     ],
                   ),
                 ),
@@ -357,7 +358,7 @@ class _DetailsPageHeader extends StatelessWidget {
                           key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
                           style: TextStyle(fontSize: textSize),
                         ),
-                      ).marginOnly(left: 2),
+                      ).marginOnly(left: space),
                     ],
                   ),
                 ),
@@ -366,7 +367,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right:space),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -395,7 +396,7 @@ class _DetailsPageHeader extends StatelessWidget {
                           key: Key(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString()),
                           style: TextStyle(fontSize: textSize),
                         ),
-                      ).marginOnly(left: 2),
+                      ).marginOnly(left: space),
                     ],
                   ),
                 ),
@@ -412,7 +413,7 @@ class _DetailsPageHeader extends StatelessWidget {
                           key: Key(state.galleryDetails?.ratingCount.toString() ?? '...'),
                           style: TextStyle(fontSize: textSize),
                         ),
-                      ).marginOnly(left: 2),
+                      ).marginOnly(left: space),
                     ],
                   ),
                 ),
@@ -421,13 +422,13 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: space),
                       Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime), style: TextStyle(fontSize: textSize)),
                     ],
                   ),
                 ),
               ],
-            ).marginOnly(top: 2),
+            ).marginOnly(top: space),
           ],
         );
       },
