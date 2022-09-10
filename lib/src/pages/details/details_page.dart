@@ -49,6 +49,7 @@ class DetailsPage extends StatelessWidget {
     return GetBuilder<DetailsPageLogic>(
       tag: tag,
       builder: (_) => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: buildAppBar(),
         body: buildBody(),
         floatingActionButton: buildFloatingButton(),

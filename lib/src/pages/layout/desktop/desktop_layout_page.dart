@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:jhentai/src/widget/eh_separator.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -31,7 +32,8 @@ class DesktopLayoutPage extends StatelessWidget {
           Expanded(
             child: ResizableWidget(
               separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-              separatorSize: 1.5,
+              separatorSize: 7.5,
+              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
               percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
               onResized: logic.windowService.handleResized,
               isDisabledSmartHide: true,
