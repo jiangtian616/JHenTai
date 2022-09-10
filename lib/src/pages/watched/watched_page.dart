@@ -23,7 +23,7 @@ class WatchedPage extends BasePage {
         );
 
   @override
-  WatchedPageLogic get logic => Get.find<WatchedPageLogic>();
+  WatchedPageLogic get logic => Get.put<WatchedPageLogic>(WatchedPageLogic(), permanent: true);
 
   @override
   WatchedPageState get state => Get.find<WatchedPageLogic>().state;

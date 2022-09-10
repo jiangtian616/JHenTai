@@ -22,7 +22,7 @@ class PopularPage extends BasePage {
         );
 
   @override
-  PopularPageLogic get logic => Get.find<PopularPageLogic>();
+  PopularPageLogic get logic => Get.put<PopularPageLogic>(PopularPageLogic(), permanent: true);
 
   @override
   PopularPageState get state => Get.find<PopularPageLogic>().state;

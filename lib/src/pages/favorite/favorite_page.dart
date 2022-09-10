@@ -23,7 +23,7 @@ class FavoritePage extends BasePage {
         );
 
   @override
-  FavoritePageLogic get logic => Get.find<FavoritePageLogic>();
+  FavoritePageLogic get logic => Get.put<FavoritePageLogic>(FavoritePageLogic(), permanent: true);
 
   @override
   FavoritePageState get state => Get.find<FavoritePageLogic>().state;

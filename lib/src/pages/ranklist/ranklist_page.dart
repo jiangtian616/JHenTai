@@ -19,7 +19,7 @@ class RanklistPage extends BasePage {
         );
 
   @override
-  RanklistPageLogic get logic => Get.find<RanklistPageLogic>();
+  RanklistPageLogic get logic => Get.put<RanklistPageLogic>(RanklistPageLogic(), permanent: true);
 
   @override
   RanklistPageState get state => Get.find<RanklistPageLogic>().state;

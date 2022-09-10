@@ -22,7 +22,7 @@ class HistoryPage extends BasePage {
         );
 
   @override
-  HistoryPageLogic get logic => Get.find<HistoryPageLogic>();
+  HistoryPageLogic get logic => Get.put<HistoryPageLogic>(HistoryPageLogic(), permanent: true);
 
   @override
   HistoryPageState get state => Get.find<HistoryPageLogic>().state;

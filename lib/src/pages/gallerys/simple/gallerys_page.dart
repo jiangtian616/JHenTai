@@ -10,7 +10,7 @@ class GallerysPage extends BasePage {
   const GallerysPage({Key? key}) : super(key: key, showFilterButton: true, showScroll2TopButton: true);
 
   @override
-  GallerysPageLogic get logic => Get.find<GallerysPageLogic>();
+  GallerysPageLogic get logic => Get.put<GallerysPageLogic>(GallerysPageLogic(), permanent: true);
 
   @override
   GallerysPageState get state => Get.find<GallerysPageLogic>().state;

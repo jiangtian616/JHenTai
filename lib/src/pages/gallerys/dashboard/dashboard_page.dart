@@ -28,7 +28,7 @@ class DashboardPage extends BasePage {
   String get name => 'home'.tr;
 
   @override
-  DashboardPageLogic get logic => Get.find<DashboardPageLogic>();
+  DashboardPageLogic get logic => Get.put<DashboardPageLogic>(DashboardPageLogic(), permanent: true);
 
   @override
   DashboardPageState get state => Get.find<DashboardPageLogic>().state;

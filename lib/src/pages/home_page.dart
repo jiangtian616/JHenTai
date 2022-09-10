@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     initToast(context);
-    _initPageLogic();
     _initSharingIntent();
     _checkUpdate();
     _handleUrlInClipBoard();
@@ -169,22 +168,6 @@ class _HomePageState extends State<HomePage> {
     Get.engine.addPostFrameCallback((_) {
       Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
     });
-  }
-
-  void _initPageLogic() {
-    /// Mobile layout v2
-    Get.lazyPut(() => DashboardPageLogic(), fenix: true);
-
-    /// Desktop layout
-    Get.lazyPut(() => GallerysPageLogic(), fenix: true);
-    Get.lazyPut(() => DesktopSearchPageLogic(), fenix: true);
-
-    /// Mobile layout v2 & Desktop layout
-    Get.lazyPut(() => PopularPageLogic(), fenix: true);
-    Get.lazyPut(() => RanklistPageLogic(), fenix: true);
-    Get.lazyPut(() => FavoritePageLogic(), fenix: true);
-    Get.lazyPut(() => WatchedPageLogic(), fenix: true);
-    Get.lazyPut(() => HistoryPageLogic(), fenix: true);
   }
 
   /// Listen to share or open urls/text coming from outside the app while the app is in the memory or is closed
