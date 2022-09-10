@@ -27,24 +27,17 @@ class _DownloadPageState extends State<DownloadPage> {
           setState(() => bodyType = notification.bodyType);
           return true;
         },
-        child: Stack(
-          children: [
-            Offstage(
-              offstage: bodyType != DownloadPageBodyType.archive,
-              child: ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody')),
-            ),
-            Offstage(
-              offstage: bodyType != DownloadPageBodyType.download,
-              child: GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody')),
-            ),
-            Offstage(
-              offstage: bodyType != DownloadPageBodyType.local,
-              child: LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody')),
-            ),
-          ],
-        ),
+        child: _buildChild(),
       ),
     );
+  }
+
+  Widget _buildChild() {
+    return bodyType == DownloadPageBodyType.download
+        ? GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody'))
+        : bodyType == DownloadPageBodyType.archive
+            ? ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody'))
+            : LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody'));
   }
 }
 
