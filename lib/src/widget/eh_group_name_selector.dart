@@ -59,11 +59,14 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
     return SizedBox(
       height: UIConfig.groupSelectorChipsHeight,
       child: Center(
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.zero,
-          itemCount: widget.candidates.length,
-          itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
+        child: ScrollConfiguration(
+          behavior: UIConfig.behaviorWithScrollBar,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: widget.candidates.length,
+            itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
+          ),
         ),
       ),
     );
