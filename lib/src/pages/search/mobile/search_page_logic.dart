@@ -16,6 +16,7 @@ import '../../../service/tag_translation_service.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
+import '../../../utils/toast_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 import 'search_page_state.dart';
 
@@ -99,7 +100,7 @@ class SearchPageLogic extends GetxController {
       }
     } on DioError catch (e) {
       Log.error('searchFailed'.tr, e.message);
-      snack('searchFailed'.tr, e.message);
+      toast('${'searchFailed'.tr}: ${e.message}');
       state.loadingState = LoadingState.error;
       update([loadingStateId]);
       return;

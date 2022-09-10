@@ -432,7 +432,7 @@ class ArchiveDownloadService extends GetxController {
 
       if (e.error is EHException) {
         Log.download('Download error, reason: ${e.error.msg}');
-        snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        snack('error'.tr, e.error.msg, longDuration: true);
         pauseAllDownloadArchive();
         return;
       }
@@ -489,7 +489,7 @@ class ArchiveDownloadService extends GetxController {
 
       if (e.error is EHException) {
         Log.download('Download error, reason: ${e.error.msg}');
-        snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        snack('error'.tr, e.error.msg, longDuration: true);
         pauseAllDownloadArchive();
         return;
       }

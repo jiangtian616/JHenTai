@@ -1,9 +1,10 @@
 import 'package:get/get.dart';
 
 import '../utils/snack_util.dart';
+import '../utils/toast_util.dart';
 
-mixin LoginRequiredLogicMixin on GetxController {
-  void showLoginSnack() {
-    snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+mixin LoginRequiredMixin {
+  showLoginToast() {
+    toast('needLoginToOperate'.tr);
   }
 }

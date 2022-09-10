@@ -8,15 +8,18 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
+import '../../../service/check_service.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
@@ -128,7 +131,7 @@ class _EHCommentTextBody extends StatelessWidget {
       height: bodyHeight,
       child: HtmlWidget(
         maxLines == null ? _wrapUrlInATag(html) : _wrapUrlInATag(html).replaceAll('<br>', ' '),
-        textStyle:  TextStyle(fontSize: UIConfig.commentBodyTextSize,color: Get.theme.colorScheme.onSecondaryContainer),
+        textStyle: TextStyle(fontSize: UIConfig.commentBodyTextSize, color: Get.theme.colorScheme.onSecondaryContainer),
         onTapUrl: maxLines == null ? _handleTapUrl : null,
         isSelectable: maxLines == null,
         customWidgetBuilder: (element) {
@@ -245,7 +248,7 @@ class _EHCommentFooter extends StatefulWidget {
   State<_EHCommentFooter> createState() => _EHCommentFooterState();
 }
 
-class _EHCommentFooterState extends State<_EHCommentFooter> {
+class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMixin {
   late String score;
 
   @override
@@ -296,7 +299,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
 
   Future<bool?> _handleVotingComment(int commentId, bool isVotingUp) async {
     if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      showLoginToast();
       return null;
     }
 
@@ -310,6 +313,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     int newScore;
+
     try {
       newScore = await EHRequest.voteComment(
         detailsPageState.gallery!.gid,
@@ -322,8 +326,12 @@ class _EHCommentFooterState extends State<_EHCommentFooter> {
       );
     } on DioError catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
-      snack('voteCommentFailed'.tr, e.message);
+      toast('${'voteCommentFailed'.tr}: ${e.message}');
       return;
+    } on CheckException catch (_) {
+      /// expired apikey
+      await DetailsPageLogic.current!.handleRefresh();
+      return _doVoteComment(commentId, isVotingUp);
     }
 
     setState(() {

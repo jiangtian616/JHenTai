@@ -9,6 +9,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
+import '../../../mixin/login_required_logic_mixin.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/snack_util.dart';
@@ -21,7 +22,7 @@ class CommentPage extends StatefulWidget {
   _CommentPageState createState() => _CommentPageState();
 }
 
-class _CommentPageState extends State<CommentPage> {
+class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   late List<GalleryComment> comments = Get.arguments;
   late bool disableButtons = comments.any((comment) => comment.fromMe);
 
@@ -56,7 +57,7 @@ class _CommentPageState extends State<CommentPage> {
 
   Future<void> _handleAddComment() async {
     if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      showLoginToast();
       return;
     }
 

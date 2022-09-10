@@ -202,7 +202,7 @@ class GalleryDownloadService extends GetxController {
     } on DioError catch (e) {
       if (e.error is EHException) {
         Log.info('${'updateGalleryError'.tr}, reason: ${e.error.msg}');
-        snack('updateGalleryError'.tr, e.error.msg, longDuration: true, closeBefore: true);
+        snack('updateGalleryError'.tr, e.error.msg, longDuration: true);
         pauseAllDownloadGallery();
       }
       return;
@@ -620,7 +620,7 @@ class GalleryDownloadService extends GetxController {
 
         if (e.error is EHException) {
           Log.download('Download error, reason: ${e.error.msg}');
-          snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+          snack('error'.tr, e.error.msg, longDuration: true);
           pauseAllDownloadGallery();
           return;
         }
@@ -700,7 +700,7 @@ class GalleryDownloadService extends GetxController {
 
         if (e.error is EHException) {
           Log.download('Download Error, reason: ${e.error.msg}');
-          snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+          snack('error'.tr, e.error.msg, longDuration: true);
           pauseAllDownloadGallery();
           return;
         }
@@ -773,7 +773,7 @@ class GalleryDownloadService extends GetxController {
 
         if (e.error is EHException) {
           Log.download('Download Error, reason: ${e.error.msg}');
-          snack('error'.tr, e.error.msg, longDuration: true, closeBefore: true);
+          snack('error'.tr, e.error.msg, longDuration: true);
           pauseAllDownloadGallery();
           return;
         }

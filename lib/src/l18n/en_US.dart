@@ -142,6 +142,7 @@ class en_US {
       'commentTooShort': 'Comment is Too Short',
       'sendCommentFailed': 'Send Comment Failed',
       'voteCommentFailed': 'Vote Comment Failed',
+      'voteCommentFailedHint': 'Try to pull-down to refresh details page first',
       'unknownUser': 'Unknown User',
       'atLeast3Characters': 'At least 3 characters',
 

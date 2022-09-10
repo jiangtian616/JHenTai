@@ -283,9 +283,10 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
     int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restoreTasks();
-    snack(
-      'restoreDownloadTasksSuccess'.tr,
-      '${'restoredGalleryCount'.tr}: $restoredGalleryCount, ${'restoredArchiveCount'.tr}: $restoredArchiveCount',
+
+    toast(
+      '${'restoredGalleryCount'.tr}: $restoredGalleryCount\n${'restoredArchiveCount'.tr}: $restoredArchiveCount',
+      isShort: false,
     );
   }
 

@@ -44,7 +44,7 @@ import '../../widget/eh_download_dialog.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 import 'details_page_state.dart';
 
-class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   static const String thumbnailsId = 'thumbnailsId';
   static const String thumbnailId = 'thumbnailId';
   static const String loadingStateId = 'loadingStateId';
@@ -236,7 +236,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
 
   Future<void> handleTapFavorite() async {
     if (!UserSetting.hasLoggedIn()) {
-      showLoginSnack();
+      showLoginToast();
       return;
     }
 
@@ -296,7 +296,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
 
   Future<void> handleTapRating() async {
     if (!UserSetting.hasLoggedIn()) {
-      showLoginSnack();
+      showLoginToast();
       return;
     }
 
@@ -348,7 +348,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
 
   Future<void> handleTapArchive() async {
     if (!UserSetting.hasLoggedIn()) {
-      showLoginSnack();
+      showLoginToast();
       return;
     }
 
@@ -374,8 +374,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
 
       archiveDownloadService.downloadArchive(archive);
 
-      Log.info('Begin to download archive: ${archive.title}');
-      snack('beginToDownloadArchive'.tr, 'beginToDownloadArchiveHint'.tr);
+      Log.info('${'beginToDownloadArchive'.tr}: ${archive.title}');
+      toast('${'beginToDownloadArchive'.tr}:  ${archive.title}', isCenter: false);
       return;
     }
 

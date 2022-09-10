@@ -3,6 +3,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -36,7 +37,7 @@ class EHTagDialog extends StatefulWidget {
   _EHTagDialogState createState() => _EHTagDialogState();
 }
 
-class _EHTagDialogState extends State<EHTagDialog> {
+class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   LoadingState voteUpState = LoadingState.idle;
   LoadingState voteDownState = LoadingState.idle;
   LoadingState addWatchedTagState = LoadingState.idle;
@@ -166,7 +167,7 @@ class _EHTagDialogState extends State<EHTagDialog> {
 
   Future<bool> vote({required bool isVotingUp}) async {
     if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      showLoginToast();
       return false;
     }
 
@@ -220,7 +221,7 @@ class _EHTagDialogState extends State<EHTagDialog> {
 
   Future<bool> addNewTagSet(bool watch) async {
     if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
+      showLoginToast();
       return false;
     }
 
@@ -251,7 +252,8 @@ class _EHTagDialogState extends State<EHTagDialog> {
       );
     } on DioError catch (e) {
       Log.error('addNewTagSetFailed'.tr, e.message);
-      snack('addNewTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      toast('${'addNewTagSetFailed'.tr}: ${e.message}', isShort: false);
+
       if (watch) {
         addWatchedTagState = LoadingState.error;
       } else {
@@ -266,11 +268,6 @@ class _EHTagDialogState extends State<EHTagDialog> {
       addHiddenTagState = LoadingState.success;
     }
 
-    snack(
-      watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr,
-      'addNewTagSetSuccessHint'.tr,
-      longDuration: true,
-      snackPosition: SnackPosition.TOP,
-    );
+    toast(watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr);
   }
 }
