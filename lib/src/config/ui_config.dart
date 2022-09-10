@@ -164,6 +164,7 @@ class UIConfig {
 
   /// Read page
   static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
+  static Color get readPageButtonColor => Colors.white;
   static const double readPageBottomThumbnailsRegionHeight = 132;
   static const double readPageThumbnailHeight = 100;
   static const double readPageThumbnailWidth = 80;

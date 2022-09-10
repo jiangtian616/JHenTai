@@ -262,11 +262,11 @@ class ReadPage extends StatelessWidget {
         width: fullScreenWidth,
         child: AppBar(
           backgroundColor: UIConfig.readPageMenuColor,
-          leading: BackButton(color: Get.theme.colorScheme.surfaceVariant),
+          leading: BackButton(color: UIConfig.readPageButtonColor),
           actions: [
             if (GetPlatform.isDesktop)
               IconButton(
-                icon: Icon(Icons.help, color: Get.theme.colorScheme.surfaceVariant),
+                icon: Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
                   'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
                   '\n'
@@ -283,12 +283,12 @@ class ReadPage extends StatelessWidget {
               builder: (_) => IconButton(
                 icon: const Icon(Icons.schedule),
                 onPressed: logic.toggleAutoMode,
-                color: state.autoMode ? Get.theme.colorScheme.primary : Get.theme.colorScheme.surfaceVariant,
+                color: state.autoMode ? Get.theme.colorScheme.primary : UIConfig.readPageButtonColor,
               ),
             ),
             IconButton(
               onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
-              icon: Icon(Icons.settings, color: Get.theme.colorScheme.surfaceVariant),
+              icon: Icon(Icons.settings, color: UIConfig.readPageButtonColor),
             ),
           ],
         ),
