@@ -60,6 +60,8 @@ class UIConfig {
   /// Login page
   static Color get loginPageForegroundColor => Get.theme.colorScheme.background;
 
+  static Color get loginPageFormColor =>  Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
+
   static Color get loginPageBackgroundColor => Get.isDarkMode ? Colors.blue.shade900 : Colors.blue;
 
   static Color get loginPageFieldColor => Get.theme.colorScheme.secondaryContainer;

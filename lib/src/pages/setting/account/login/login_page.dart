@@ -42,7 +42,7 @@ class LoginPage extends StatelessWidget {
     return Container(
       height: 300,
       width: 300,
-      decoration: BoxDecoration(color: UIConfig.loginPageForegroundColor, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: UIConfig.loginPageFormColor, borderRadius: BorderRadius.circular(20)),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
