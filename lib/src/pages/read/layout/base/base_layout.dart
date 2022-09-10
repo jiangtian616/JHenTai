@@ -120,7 +120,6 @@ abstract class BaseLayout extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               LoadingStateIndicator(
-                useCupertinoIndicator: false,
                 loadingState: readPageState.parseImageHrefsStates[index],
                 idleWidget: const CircularProgressIndicator(),
                 errorWidget: const Icon(Icons.warning, color: Colors.yellow),
@@ -154,7 +153,6 @@ abstract class BaseLayout extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               LoadingStateIndicator(
-                useCupertinoIndicator: false,
                 loadingState: readPageState.parseImageUrlStates[index],
                 idleWidget: const CircularProgressIndicator(),
                 errorWidget: const Icon(Icons.warning, color: Colors.yellow),

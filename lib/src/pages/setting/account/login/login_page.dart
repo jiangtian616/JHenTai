@@ -165,6 +165,7 @@ class LoginPage extends StatelessWidget {
           child: GetBuilder<LoginPageLogic>(
             id: LoginPageLogic.loadingStateId,
             builder: (_) => LoadingStateIndicator(
+              useCupertinoIndicator: true,
               loadingState: state.loginState,
               indicatorRadius: 10,
               indicatorColor: UIConfig.loginPageForegroundColor,

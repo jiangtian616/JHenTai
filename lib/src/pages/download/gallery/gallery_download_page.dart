@@ -194,7 +194,7 @@ class GalleryDownloadPage extends StatelessWidget {
         builder: (_) {
           GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
-          /// cover is the first image, if we haven't downloaded first image, then return a [CupertinoActivityIndicator]
+          /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
             return SizedBox(
               width: UIConfig.downloadPageCoverWidth,

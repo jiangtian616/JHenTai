@@ -99,6 +99,7 @@ class SettingEHPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           LoadingStateIndicator(
+            useCupertinoIndicator: true,
             loadingState: EHSetting.refreshState.value,
             indicatorRadius: 10,
             idleWidget: const SizedBox(),

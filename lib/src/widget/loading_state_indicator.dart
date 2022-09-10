@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
+import '../config/ui_config.dart';
+
 enum LoadingState {
   /// didn't load or success
   idle,
@@ -47,7 +49,7 @@ class LoadingStateIndicator extends StatelessWidget {
     required this.loadingState,
     this.errorTapCallback,
     this.noDataTapCallback,
-    this.useCupertinoIndicator = true,
+    this.useCupertinoIndicator = false,
     this.indicatorRadius = 12,
     this.indicatorColor,
     this.idleWidget,
@@ -67,7 +69,9 @@ class LoadingStateIndicator extends StatelessWidget {
     switch (loadingState) {
       case LoadingState.loading:
         child = loadingWidget ??
-            (useCupertinoIndicator ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor) : const CircularProgressIndicator());
+            (useCupertinoIndicator
+                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
+                : Center(child: UIConfig.loadingAnimation));
         break;
       case LoadingState.error:
         child = errorWidget ??
@@ -79,10 +83,10 @@ class LoadingStateIndicator extends StatelessWidget {
                   ));
         break;
       case LoadingState.idle:
-        if (idleWidget != null) {
-          return idleWidget!;
-        }
-        child = CupertinoActivityIndicator(radius: indicatorRadius);
+        child = idleWidget ??
+            (useCupertinoIndicator
+                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
+                : Center(child: UIConfig.loadingAnimation));
         break;
       case LoadingState.noMore:
         child = noMoreWidget ?? Text('noMoreData'.tr, style: const TextStyle(color: Colors.grey));

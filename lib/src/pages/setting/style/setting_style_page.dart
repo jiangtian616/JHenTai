@@ -109,6 +109,7 @@ class SettingStylePage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           LoadingStateIndicator(
+            useCupertinoIndicator: true,
             loadingState: tagTranslationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,

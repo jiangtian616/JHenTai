@@ -41,6 +41,7 @@ class EHCommentDialogState extends State<EHCommentDialog> {
             height: 16,
             width: 16,
             child: LoadingStateIndicator(
+              useCupertinoIndicator: true,
               indicatorRadius: 8,
               loadingState: sendCommentState,
               idleWidget: const SizedBox(),
