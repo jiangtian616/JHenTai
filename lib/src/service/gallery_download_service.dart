@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
 
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
@@ -224,6 +225,28 @@ class GalleryDownloadService extends GetxController {
     downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: null));
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
+  }
+
+  Future<void> reDownloadImage(int gid, int serialNo) async {
+    GalleryDownloadedData? gallery = gallerys.singleWhereOrNull((g) => g.gid == gid);
+    GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos[gid];
+    GalleryImage? image = galleryDownloadInfo?.images[serialNo];
+
+    if (gallery == null || galleryDownloadInfo == null || image == null) {
+      return;
+    }
+
+    Log.info('Re-download image, gid: $gid, index: $serialNo');
+
+    galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
+    galleryDownloadInfo.downloadProgress.curCount--;
+    await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
+    await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
+    _deleteImageInDisk(image);
+
+    update(['$galleryDownloadProgressId::${gallery.gid}']);
+
+    _processImage(gallery, serialNo);
   }
 
   Future<void> assignPriority(GalleryDownloadedData gallery, int? priority) async {
@@ -1143,6 +1166,19 @@ class GalleryDownloadService extends GetxController {
       return;
     }
     directory.deleteSync(recursive: true);
+  }
+
+  void _deleteImageInDisk(GalleryImage image) {
+    try {
+      io.File file = io.File(image.path!);
+      if (!file.existsSync()) {
+        return;
+      }
+      file.deleteSync();
+    } on Exception catch (e) {
+      Log.error('Delete image in disk error', e);
+      Log.upload(e);
+    }
   }
 
   void _ensureDownloadDirExists() {

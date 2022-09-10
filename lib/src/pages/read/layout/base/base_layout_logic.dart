@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
@@ -17,6 +20,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
   final ReadPageState readPageState = Get.find<ReadPageLogic>().state;
+  final GalleryDownloadService galleryDownloadService = Get.find<GalleryDownloadService>();
 
   late AnimationController scaleAnimationController;
   late Animation<double> animation;
@@ -106,6 +110,33 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   @mustCallSuper
   void closeAutoMode() {
     autoModeTimer?.cancel();
+  }
+
+  void showBottomMenu(int index, BuildContext context) {
+    if (readPageState.readPageInfo.mode != ReadMode.downloaded) {
+      return;
+    }
+
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+      return;
+    }
+
+
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('reDownload'.tr),
+            onPressed: () {
+              backRoute();
+              galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+      ),
+    );
   }
 
   /// Compute image container size when we haven't parsed image's size

@@ -92,12 +92,15 @@ abstract class BaseLayout extends StatelessWidget {
 
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
-        return EHImage.file(
-          galleryImage: readPageState.images[index]!,
-          containerWidth: fittedSizes.destination.width,
-          containerHeight: fittedSizes.destination.height,
-          downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
-          pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
+        return GestureDetector(
+          onLongPress: () => logic.showBottomMenu(index, context),
+          child: EHImage.file(
+            galleryImage: readPageState.images[index]!,
+            containerWidth: fittedSizes.destination.width,
+            containerHeight: fittedSizes.destination.height,
+            downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
+            pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
+          ),
         );
       },
     );
