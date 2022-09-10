@@ -33,7 +33,7 @@ class ArchiveDownloadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: FadeIn(child: buildBody(context)),
+      body: buildBody(context),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.arrow_upward),
         heroTag: null,
@@ -70,17 +70,12 @@ class ArchiveDownloadPage extends StatelessWidget {
       id: ArchiveDownloadService.archiveCountChangedId,
       builder: (_) => GetBuilder<ArchiveDownloadPageLogic>(
         id: ArchiveDownloadPageLogic.bodyId,
-        builder: (_) => EHWheelSpeedController(
-          controller: state.scrollController,
-          child: GroupedListView<ArchiveDownloadedData, String>(
-            padding: const EdgeInsets.only(bottom: 80),
-            controller: state.scrollController,
-            groupBy: (archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
-            elements: logic.archiveDownloadService.archives,
-            itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
-            sort: false,
-          ),
+        builder: (_) => GroupList<ArchiveDownloadedData, String>(
+          groups: logic.archiveDownloadService.allGroups,
+          elements: logic.archiveDownloadService.archives,
+          groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,
+          groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+          itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
         ),
       ),
     );
@@ -89,8 +84,8 @@ class ArchiveDownloadPage extends StatelessWidget {
   Widget _groupBuilder(String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
-      onLongPress: () => logic.handleRenameGroup(groupName),
-      onSecondaryTap: () => logic.handleRenameGroup(groupName),
+      onLongPress: () => logic.handleLongPressGroup(groupName),
+      onSecondaryTap: () => logic.handleLongPressGroup(groupName),
       child: Container(
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
@@ -118,42 +113,33 @@ class ArchiveDownloadPage extends StatelessWidget {
 
     return GetBuilder<ArchiveDownloadPageLogic>(
       id: '${ArchiveDownloadPageLogic.groupId}::$group',
-      builder: (_) {
-        if (!state.displayGroups.contains(group)) {
-          return const SizedBox();
-        }
-
-        Widget child = FocusWidget(
-          focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-          handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-          handleTapEnter: () => logic.goToReadPage(archive),
-          handleTapArrowRight: () => logic.goToReadPage(archive),
-          child: Slidable(
-            key: Key(archive.gid.toString()),
-            endActionPane: _buildEndActionPane(archive),
-            child: GestureDetector(
-              onSecondaryTap: () => showArchiveBottomSheet(archive, context),
-              onLongPress: () => showArchiveBottomSheet(archive, context),
-              child: _buildCard(archive, context).marginAll(5),
+      builder: (_) => FocusWidget(
+        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
+        handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
+        handleTapEnter: () => logic.goToReadPage(archive),
+        handleTapArrowRight: () => logic.goToReadPage(archive),
+        child: Slidable(
+          key: Key(archive.gid.toString()),
+          endActionPane: _buildEndActionPane(archive),
+          child: GestureDetector(
+            onSecondaryTap: () => showArchiveBottomSheet(archive, context),
+            onLongPress: () => showArchiveBottomSheet(archive, context),
+            child: FadeShrinkWidget(
+              show: state.displayGroups.contains(group),
+              child: FadeShrinkWidget(
+                show: !state.removedGids.contains(archive.gid),
+                child: _buildCard(archive, context).marginAll(5),
+                afterDisappear: () {
+                  Get.engine.addPostFrameCallback(
+                    (_) => logic.archiveDownloadService.deleteArchive(archive),
+                  );
+                  state.removedGids.remove(archive.gid);
+                },
+              ),
             ),
           ),
-        );
-
-        /// has not been deleted
-        if (!logic.removedGidAndIsOrigin2AnimationController.containsKey(archive.gid)) {
-          return child;
-        }
-
-        AnimationController controller = logic.removedGidAndIsOrigin2AnimationController[archive.gid]!;
-        Animation<double> animation = logic.removedGidAndIsOrigin2Animation[archive.gid]!;
-
-        /// has been deleted, start animation
-        if (!controller.isAnimating) {
-          controller.forward();
-        }
-
-        return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
-      },
+        ),
+      ),
     );
   }
 

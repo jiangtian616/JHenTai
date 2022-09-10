@@ -327,6 +327,8 @@ class zh_CN {
       'changePriority': '改变优先级',
       'changeGroup': '改变分组',
       'chooseGroup': '选择分组',
+      'renameGroup': '重命名分组',
+      'deleteGroup': '删除分组',
       'groupName': '分组名称',
 
       /// search dialog

@@ -63,7 +63,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.zero,
           itemCount: widget.candidates.length,
-          itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right:4),
+          itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
         ),
       ),
     );
@@ -114,7 +114,11 @@ class _GroupChipState extends State<GroupChip> with AnimationMixin {
   @override
   void initState() {
     super.initState();
+
     _selected = widget.selected;
+    if (_selected) {
+      controller.forward(from: 1);
+    }
   }
 
   @override

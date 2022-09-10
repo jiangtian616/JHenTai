@@ -12,6 +12,7 @@ import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
 import '../../../service/storage_service.dart';
 import '../../../utils/route_util.dart';
+import '../../../widget/eh_alert_dialog.dart';
 import 'archive_download_page_state.dart';
 
 class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStateMixin, Scroll2TopLogicMixin {
@@ -58,55 +59,69 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
 
-    String? newGroup = await Get.dialog(EHDownloadDialog(
-      candidates: archiveDownloadService.allGroups.toList(),
-      currentGroup: oldGroup,
-    ));
-    if (newGroup == null) {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: archiveDownloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
       return;
     }
 
+    String newGroup = result['group'] ?? 'default'.tr;
     if (newGroup == oldGroup) {
       return;
     }
 
-    await archiveDownloadService.updateArchiveGroup(archive, newGroup);
+    await archiveDownloadService.updateGroup(archive, newGroup);
     update([bodyId]);
   }
 
-  Future<void> handleRenameGroup(String oldGroupName) async {
-    String? newGroup = await Get.dialog(EHDownloadDialog(
-      candidates: archiveDownloadService.allGroups.toList(),
-      currentGroup: oldGroupName,
-    ));
-    if (newGroup == null) {
+  Future<void> handleLongPressGroup(String groupName) {
+    if (archiveDownloadService.archiveDownloadInfos.values.every((a) => a.group != groupName)) {
+      return handleDeleteGroup(groupName);
+    }
+    return handleRenameGroup(groupName);
+  }
+
+  Future<void> handleRenameGroup(String oldGroup) async {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'renameGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: archiveDownloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
       return;
     }
 
-    if (newGroup == oldGroupName) {
+    String newGroup = result['group'] ?? 'default'.tr;
+    if (newGroup == oldGroup) {
       return;
     }
 
-    await archiveDownloadService.renameGroupName(oldGroupName, newGroup);
+    await archiveDownloadService.renameGroup(oldGroup, newGroup);
+    update([bodyId]);
+  }
+
+  Future<void> handleDeleteGroup(String oldGroup) async {
+    bool? success = await Get.dialog(EHAlertDialog(title: 'deleteGroup'.tr + '?'));
+    if (success == null || !success) {
+      return;
+    }
+
+    await archiveDownloadService.deleteGroup(oldGroup);
+
     update([bodyId]);
   }
 
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-        removedGidAndIsOrigin2AnimationController.remove(archive.gid);
-        removedGidAndIsOrigin2Animation.remove(archive.gid);
-
-        Get.engine.addPostFrameCallback((_) {
-          archiveDownloadService.deleteArchive(archive);
-        });
-      }
-    });
-    removedGidAndIsOrigin2AnimationController[archive.gid] = controller;
-    removedGidAndIsOrigin2Animation[archive.gid] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
-
+    state.removedGids.add(archive.gid);
     archiveDownloadService.update([ArchiveDownloadService.archiveCountChangedId]);
   }
 

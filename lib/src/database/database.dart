@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -21,7 +22,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -53,6 +54,9 @@ class AppDb extends _$AppDb {
           if (5 <= from && from < 7) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.groupName);
             await m.addColumn(archiveDownloaded, archiveDownloaded.groupName);
+          }
+          if (from < 8) {
+            await _createGroupTable(m);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -100,11 +104,36 @@ class AppDb extends _$AppDb {
       Log.upload(e);
     }
   }
+
+  Future<void> _createGroupTable(Migrator m) async {
+    try {
+      await m.createTable(galleryGroup);
+      await m.createTable(archiveGroup);
+
+      Set<String> galleryGroups = (await appDb.selectGallerys().get()).map((g) => g.groupName ?? 'default'.tr).toSet();
+      Set<String> archiveGroups = (await appDb.selectArchives().get()).map((g) => g.groupName ?? 'default'.tr).toSet();
+
+      Log.info('Migrate gallery groups: $galleryGroups');
+      Log.info('Migrate archive groups: $archiveGroups');
+
+      await appDb.transaction(() async {
+        for (String groupName in galleryGroups) {
+          await appDb.insertGalleryGroup(groupName);
+        }
+        for (String groupName in archiveGroups) {
+          await appDb.insertArchiveGroup(groupName);
+        }
+      });
+    } on Exception catch (e) {
+      Log.error('Create Group Table failed!', e);
+      Log.upload(e);
+    }
+  }
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(p.join(PathSetting.appSupportDir.path, 'db.sqlite'));
+    final file = io.File(p.join(PathSetting.getVisibleDir().path, 'db.sqlite'));
     return NativeDatabase(file);
   });
 }

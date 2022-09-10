@@ -327,6 +327,8 @@ class zh_TW {
       'changePriority': '改變優先級',
       'changeGroup': '改變分組',
       'chooseGroup': '選擇分組',
+      'renameGroup': '重命名分組',
+      'deleteGroup': '刪除分組',
       'groupName': '分組名稱',
 
       /// search dialog

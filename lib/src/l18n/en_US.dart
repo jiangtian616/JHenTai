@@ -328,6 +328,8 @@ class en_US {
       'changePriority': 'Change Priority',
       'changeGroup': 'Change Group',
       'chooseGroup': 'Choose Group',
+      'renameGroup': 'Rename Group',
+      'deleteGroup': 'Delete Group',
       'groupName': 'Group Name',
 
       /// search dialog

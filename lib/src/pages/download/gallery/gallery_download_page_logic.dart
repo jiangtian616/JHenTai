@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
 import '../../../database/database.dart';
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
@@ -22,14 +23,10 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
   final StorageService storageService = Get.find<StorageService>();
 
-  final Set<String> removedGroups = {};
-  final Set<int> removedGids = {};
-  final Set<int> removedGidsWithoutImages = {};
-
   @override
   void onInit() {
     super.onInit();
-    state.displayGroups = Set.from(storageService.read('displayGalleryGroups') ?? ['default'.tr]);
+    state.displayGroups = Set.from(storageService.read('displayGalleryGroups') ?? []);
   }
 
   @override
@@ -53,53 +50,77 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
 
-    String? newGroup = await Get.dialog(EHDownloadDialog(
-      candidates: downloadService.allGroups.toList(),
-      currentGroup: oldGroup,
-    ));
-    if (newGroup == null) {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: downloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
       return;
     }
 
+    String newGroup = result['group'] ?? 'default'.tr;
     if (newGroup == oldGroup) {
       return;
     }
 
-    await downloadService.updateGalleryGroup(gallery, newGroup);
+    await downloadService.updateGroup(gallery, newGroup);
+
     update([bodyId]);
   }
 
-  Future<void> handleRenameGroup(String oldGroupName) async {
-    String? newGroup = await Get.dialog(EHDownloadDialog(
-      candidates: downloadService.allGroups.toList(),
-      currentGroup: oldGroupName,
-    ));
-    if (newGroup == null) {
+  Future<void> handleLongPressGroup(String oldGroup) async {
+    if (downloadService.galleryDownloadInfos.values.every((g) => g.group != oldGroup)) {
+      return handleDeleteGroup(oldGroup);
+    }
+    return handleRenameGroup(oldGroup);
+  }
+
+  Future<void> handleRenameGroup(String oldGroup) async {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'renameGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: downloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
       return;
     }
 
-    if (newGroup == oldGroupName) {
+    String newGroup = result['group'] ?? 'default'.tr;
+    if (newGroup == oldGroup) {
       return;
     }
 
-    await downloadService.renameGroupName(oldGroupName, newGroup);
+    await downloadService.renameGroup(oldGroup, newGroup);
 
-    state.displayGroups.remove(oldGroupName);
+    state.displayGroups.remove(oldGroup);
     state.displayGroups.add(newGroup);
+
+    update([bodyId]);
+  }
+
+  Future<void> handleDeleteGroup(String oldGroup) async {
+    bool? success = await Get.dialog(EHAlertDialog(title: 'deleteGroup'.tr + '?'));
+    if (success == null || !success) {
+      return;
+    }
+
+    await downloadService.deleteGroup(oldGroup);
 
     update([bodyId]);
   }
 
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
     if (deleteImages) {
-      removedGids.add(gallery.gid);
+      state.removedGids.add(gallery.gid);
     } else {
-      removedGidsWithoutImages.add(gallery.gid);
-    }
-
-    String group = downloadService.galleryDownloadInfos[gallery.gid]!.group;
-    if(downloadService.galleryDownloadInfos.values.every((g) => g.group != group)) {
-      removedGroups.add(group);
+      state.removedGidsWithoutImages.add(gallery.gid);
     }
 
     downloadService.update([galleryCountOrOrderChangedId]);

@@ -117,7 +117,6 @@ Future<void> init() async {
   TagTranslationService.init();
   StyleSetting.init();
   TabBarSetting.init();
-  HistoryService.init();
 
   SiteSetting.init();
   FavoriteSetting.init();
@@ -137,6 +136,8 @@ Future<void> init() async {
   QuickSearchService.init();
 
   GalleryDownloadService.init();
+  ArchiveDownloadService.init();
+  LocalGalleryService.init();
 }
 
 Future<void> onReady() async {
@@ -146,8 +147,7 @@ Future<void> onReady() async {
 
   ReadSetting.init();
 
-  ArchiveDownloadService.init();
-  LocalGalleryService.init();
+  HistoryService.init();
 }
 
 void _doForDesktop() {

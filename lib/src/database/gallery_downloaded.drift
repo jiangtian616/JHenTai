@@ -27,7 +27,11 @@ CREATE TABLE image
     imageHash           TEXT NOT NULL,
     downloadStatusIndex INT  NOT NULL,
     PRIMARY KEY (gid, serialNo)
+);
 
+CREATE TABLE gallery_group
+(
+    groupName TEXT NOT NULL PRIMARY KEY
 );
 
 selectGallerysWithImages:
@@ -124,3 +128,27 @@ deleteImagesWithGid:
 delete
 from image
 where gid = :gid;
+
+
+selectGalleryGroups:
+SELECT *
+FROM gallery_group;
+
+insertGalleryGroup:
+insert into gallery_group
+values (:groupName);
+
+renameGalleryGroup:
+update gallery_group
+set groupName = :newGroupName
+where groupName = :oldGroupName;
+
+reGroupGallery:
+update gallery_downloaded
+set groupName = :newGroupName
+where groupName = :oldGroupName;
+
+deleteGalleryGroup:
+delete
+from gallery_group
+where groupName = :groupName;

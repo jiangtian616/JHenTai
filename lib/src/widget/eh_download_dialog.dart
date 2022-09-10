@@ -8,10 +8,18 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'eh_group_name_selector.dart';
 
 class EHDownloadDialog extends StatefulWidget {
+  final String title;
   final String? currentGroup;
   final List<String> candidates;
+  final bool showDownloadOriginalImageCheckBox;
 
-  const EHDownloadDialog({Key? key, this.currentGroup, required this.candidates}) : super(key: key);
+  const EHDownloadDialog({
+    Key? key,
+    required this.title,
+    this.currentGroup,
+    required this.candidates,
+    this.showDownloadOriginalImageCheckBox = false,
+  }) : super(key: key);
 
   @override
   State<EHDownloadDialog> createState() => _EHDownloadDialogState();
@@ -33,7 +41,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('chooseGroup'.tr),
+      title: Text(widget.title),
       contentPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12, top: 24),
       actionsPadding: const EdgeInsets.only(left: 24, right: 20, bottom: 12),
       content: _buildBody(),
@@ -56,7 +64,6 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
 
   Widget _buildBody() {
     return SizedBox(
-      height: UIConfig.downloadDialogBodyHeight,
       width: UIConfig.downloadDialogWidth,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -66,7 +73,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
             candidates: widget.candidates,
             listener: (g) => group = g,
           ),
-          if (downloadOriginalImage != null) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
+          if (widget.showDownloadOriginalImageCheckBox && downloadOriginalImage != null) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
         ],
       ),
     );

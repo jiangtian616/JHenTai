@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:get/state_manager.dart';
@@ -34,13 +35,12 @@ class ArchiveDownloadService extends GetxController {
   static const String metadataFileName = '.archive.metadata';
   static const int _maxTitleLength = 100;
 
+  List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
-  Set<String> get allGroups => archiveDownloadInfos.values.fold(<String>{}, (set, a) => set..add(a.group));
-
   static void init() {
-    Get.put(ArchiveDownloadService(), permanent: true);
+    Get.lazyPut(() => ArchiveDownloadService(), fenix: true);
   }
 
   @override
@@ -188,22 +188,45 @@ class ArchiveDownloadService extends GetxController {
     downloadArchive(archive, resume: true);
   }
 
-  Future<bool> updateArchiveGroup(ArchiveDownloadedData archive, String group) async {
+  Future<bool> updateGroup(ArchiveDownloadedData archive, String group) async {
     archiveDownloadInfos[archive.gid]?.group = group;
-    _sortArchives();
+
+    if (!allGroups.contains(group) && !await _addGroup(group)) {
+      return false;
+    }
+    _sortArchivesAndGroups();
+
     return _updateArchiveInDatabase(archive);
   }
 
-  Future<void> renameGroupName(String oldGroup, String newGroup) async {
+  Future<void> renameGroup(String oldGroup, String newGroup) async {
     List<ArchiveDownloadedData> archiveDownloadedDatas = archives.where((a) => archiveDownloadInfos[a.gid]!.group == oldGroup).toList();
 
     await appDb.transaction(() async {
+      if (!allGroups.contains(newGroup) && !await _addGroup(newGroup)) {
+        return;
+      }
+
       for (ArchiveDownloadedData a in archiveDownloadedDatas) {
         archiveDownloadInfos[a.gid]!.group = newGroup;
         await _updateArchiveInDatabase(a);
       }
+
+      await deleteGroup(oldGroup);
     });
-    _sortArchives();
+
+    _sortArchivesAndGroups();
+  }
+
+  Future<bool> deleteGroup(String group) async {
+    allGroups.remove(group);
+
+    try {
+      return (await appDb.deleteGalleryGroup(group) > 0);
+    } on SqliteException catch (e) {
+      Log.info(e);
+      return false;
+    }
   }
 
   /// Use meta in each archive folder to restore download tasks, then sync to database.
@@ -235,7 +258,7 @@ class ArchiveDownloadService extends GetxController {
         archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.paused.index);
       }
 
-      if (!await _saveArchiveInDatabase(archive)) {
+      if (!await _saveArchiveAndGroupInDatabase(archive)) {
         Log.error('Restore archive failed: $archive');
         deleteArchive(archive);
         continue;
@@ -323,7 +346,20 @@ class ArchiveDownloadService extends GetxController {
     return null;
   }
 
-  void _sortArchives() {
+  void _sortArchivesAndGroups() {
+    allGroups.sort((a, b) {
+      if (!(a == 'default'.tr && b == 'default'.tr)) {
+        if (a == 'default'.tr) {
+          return 1;
+        }
+        if (b == 'default'.tr) {
+          return -1;
+        }
+      }
+
+      return a.compareTo(b);
+    });
+
     archives.sort((a, b) {
       ArchiveDownloadInfo aInfo = archiveDownloadInfos[a.gid]!;
       ArchiveDownloadInfo bInfo = archiveDownloadInfos[b.gid]!;
@@ -579,6 +615,8 @@ class ArchiveDownloadService extends GetxController {
   // ALL
 
   Future<void> _instantiateFromDB() async {
+    allGroups = (await appDb.selectArchiveGroups().get()).map((e) => e.groupName).toList();
+
     List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
 
     for (ArchiveDownloadedData archive in archives) {
@@ -587,38 +625,59 @@ class ArchiveDownloadService extends GetxController {
   }
 
   Future<bool> _initArchiveInfo(ArchiveDownloadedData archive) async {
-    if (!await _saveArchiveInDatabase(archive)) {
+    if (!await _saveArchiveAndGroupInDatabase(archive)) {
       return false;
     }
     _initArchiveInMemory(archive);
     return true;
   }
 
+  Future<bool> _addGroup(String group) async {
+    if (!allGroups.contains(group)) {
+      allGroups.add(group);
+    }
+
+    try {
+      return (await appDb.insertGalleryGroup(group) > 0);
+    } on SqliteException catch (e) {
+      Log.info(e);
+      return false;
+    }
+  }
+
   // DB
 
-  Future<bool> _saveArchiveInDatabase(ArchiveDownloadedData archive) async {
-    return await appDb.insertArchive(
-          archive.gid,
-          archive.token,
-          archive.title,
-          archive.category,
-          archive.pageCount,
-          archive.galleryUrl,
-          archive.coverUrl,
-          archive.coverHeight,
-          archive.coverWidth,
-          archive.uploader,
-          archive.size,
-          archive.publishTime,
-          archive.archiveStatusIndex,
-          archive.archivePageUrl,
-          null,
-          null,
-          archive.isOriginal,
-          archive.insertTime ?? DateTime.now().toString(),
-          archive.groupName,
-        ) >
-        0;
+  Future<bool> _saveArchiveAndGroupInDatabase(ArchiveDownloadedData archive) async {
+    return appDb.transaction(() async {
+      try {
+        await appDb.insertGalleryGroup(archive.groupName ?? 'default'.tr);
+      } on SqliteException catch (e) {
+        Log.info(e);
+      }
+
+      return await appDb.insertArchive(
+            archive.gid,
+            archive.token,
+            archive.title,
+            archive.category,
+            archive.pageCount,
+            archive.galleryUrl,
+            archive.coverUrl,
+            archive.coverHeight,
+            archive.coverWidth,
+            archive.uploader,
+            archive.size,
+            archive.publishTime,
+            archive.archiveStatusIndex,
+            archive.archivePageUrl,
+            null,
+            null,
+            archive.isOriginal,
+            archive.insertTime ?? DateTime.now().toString(),
+            archive.groupName,
+          ) >
+          0;
+    });
   }
 
   Future<bool> _updateArchiveInDatabase(ArchiveDownloadedData archive) async {
@@ -642,6 +701,9 @@ class ArchiveDownloadService extends GetxController {
   // MEMORY
 
   void _initArchiveInMemory(ArchiveDownloadedData archive) {
+    if (!allGroups.contains(archive.groupName ?? 'default'.tr)) {
+      allGroups.add(archive.groupName ?? 'default'.tr);
+    }
     archives.add(archive);
 
     archiveDownloadInfos[archive.gid] = ArchiveDownloadInfo(
@@ -656,7 +718,7 @@ class ArchiveDownloadService extends GetxController {
       group: archive.groupName ?? 'default'.tr,
     );
 
-    _sortArchives();
+    _sortArchivesAndGroups();
     update([archiveCountChangedId, '$archiveStatusId::::${archive.gid}']);
   }
 

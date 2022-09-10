@@ -1,10 +1,8 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 
 import '../../../database/database.dart';
@@ -15,7 +13,6 @@ import '../../../utils/date_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_category_tag.dart';
 import '../../../widget/eh_image.dart';
-import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../download_base_page.dart';
@@ -32,7 +29,7 @@ class GalleryDownloadPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: FadeIn(child: buildBody()),
+      body: buildBody(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.arrow_upward),
         heroTag: null,
@@ -69,17 +66,12 @@ class GalleryDownloadPage extends StatelessWidget {
       id: galleryCountOrOrderChangedId,
       builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
         id: GalleryDownloadPageLogic.bodyId,
-        builder: (_) => EHWheelSpeedController(
-          controller: state.scrollController,
-          child: GroupedListView<GalleryDownloadedData, String>(
-            padding: const EdgeInsets.only(bottom: 80),
-            controller: state.scrollController,
-            groupBy: (archive) => logic.downloadService.galleryDownloadInfos[archive.gid]!.group,
-            groupSeparatorBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
-            elements: logic.downloadService.gallerys,
-            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
-            sort: false,
-          ),
+        builder: (_) => GroupList<GalleryDownloadedData, String>(
+          groups: logic.downloadService.allGroups,
+          elements: logic.downloadService.gallerys,
+          groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
+          groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+          itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
         ),
       ),
     );
@@ -88,8 +80,8 @@ class GalleryDownloadPage extends StatelessWidget {
   Widget _groupBuilder(String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
-      onLongPress: () => logic.handleRenameGroup(groupName),
-      onSecondaryTap: () => logic.handleRenameGroup(groupName),
+      onLongPress: () => logic.handleLongPressGroup(groupName),
+      onSecondaryTap: () => logic.handleLongPressGroup(groupName),
       child: Container(
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
@@ -131,12 +123,14 @@ class GalleryDownloadPage extends StatelessWidget {
             child: FadeShrinkWidget(
               show: state.displayGroups.contains(group),
               child: FadeShrinkWidget(
-                show: !logic.removedGids.contains(gallery.gid) && !logic.removedGidsWithoutImages.contains(gallery.gid),
+                show: !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
                 child: _buildCard(gallery, context).marginAll(5),
                 afterDisappear: () {
-                  logic.removedGids.remove(gallery.gid);
-                  logic.removedGidsWithoutImages.remove(gallery.gid);
-                  Get.engine.addPostFrameCallback((_) => logic.downloadService.deleteGallery(gallery, deleteImages: false));
+                  Get.engine.addPostFrameCallback(
+                    (_) => logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid)),
+                  );
+                  state.removedGids.remove(gallery.gid);
+                  state.removedGidsWithoutImages.remove(gallery.gid);
                 },
               ),
             ),

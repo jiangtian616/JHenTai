@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:io' as io;
 
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -40,6 +41,7 @@ const String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
 class GalleryDownloadService extends GetxController {
   late EHExecutor executor;
 
+  List<String> allGroups = [];
   List<GalleryDownloadedData> gallerys = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
@@ -50,10 +52,8 @@ class GalleryDownloadService extends GetxController {
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
 
-  Set<String> get allGroups => galleryDownloadInfos.values.fold(<String>{}, (set, a) => set..add(a.group));
-
   static void init() {
-    Get.put(GalleryDownloadService(), permanent: true);
+    Get.lazyPut(() => GalleryDownloadService(), fenix: true);
   }
 
   @override
@@ -237,7 +237,7 @@ class GalleryDownloadService extends GetxController {
 
     galleryDownloadInfos[gallery.gid]!.priority = priority;
 
-    _sortGallery();
+    _sortGalleryAndGroups();
     update([galleryCountOrOrderChangedId]);
 
     if (galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloading) {
@@ -246,21 +246,38 @@ class GalleryDownloadService extends GetxController {
     }
   }
 
-  Future<bool> updateGalleryGroup(GalleryDownloadedData gallery, String group) async {
+  Future<bool> updateGroup(GalleryDownloadedData gallery, String group) async {
     galleryDownloadInfos[gallery.gid]?.group = group;
-    _sortGallery();
+
+    if (!allGroups.contains(group) && !await _addGroup(group)) {
+      return false;
+    }
+    _sortGalleryAndGroups();
+
     return _updateGalleryGroupInDatabase(gallery.gid, group);
   }
 
-  Future<void> renameGroupName(String oldGroup, String newGroup) async {
+  Future<void> renameGroup(String oldGroup, String newGroup) async {
     List<GalleryDownloadedData> galleryDownloadedDatas = gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == oldGroup).toList();
 
     await appDb.transaction(() async {
+      if (!allGroups.contains(newGroup) && !await _addGroup(newGroup)) {
+        return;
+      }
+
       for (GalleryDownloadedData g in galleryDownloadedDatas) {
         galleryDownloadInfos[g.gid]!.group = newGroup;
         await _updateGalleryGroupInDatabase(g.gid, newGroup);
       }
+
+      await _deleteGroup(oldGroup);
     });
+
+    _sortGalleryAndGroups();
+  }
+
+  Future<void> deleteGroup(String group) {
+    return _deleteGroup(group);
   }
 
   /// Use metadata in each gallery folder to restore download status, then sync to database.
@@ -474,7 +491,20 @@ class GalleryDownloadService extends GetxController {
     );
   }
 
-  void _sortGallery() {
+  void _sortGalleryAndGroups() {
+    allGroups.sort((a, b) {
+      if (!(a == 'default'.tr && b == 'default'.tr)) {
+        if (a == 'default'.tr) {
+          return 1;
+        }
+        if (b == 'default'.tr) {
+          return -1;
+        }
+      }
+
+      return a.compareTo(b);
+    });
+
     gallerys.sort((a, b) {
       GalleryDownloadInfo aInfo = galleryDownloadInfos[a.gid]!;
       GalleryDownloadInfo bInfo = galleryDownloadInfos[b.gid]!;
@@ -847,6 +877,8 @@ class GalleryDownloadService extends GetxController {
   // ALL
 
   Future<void> _instantiateFromDB() async {
+    allGroups = (await appDb.selectGalleryGroups().get()).map((e) => e.groupName).toList();
+
     /// Get download info from database, order by insertTime DESC, serialNo
     List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
 
@@ -883,7 +915,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   Future<bool> _initGalleryInfo(GalleryDownloadedData gallery) async {
-    if (!await _saveGalleryInfoInDB(gallery)) {
+    if (!await _saveGalleryInfoAndGroupInDB(gallery)) {
       return false;
     }
 
@@ -917,9 +949,36 @@ class GalleryDownloadService extends GetxController {
     return true;
   }
 
+  Future<bool> _addGroup(String group) async {
+    if (!allGroups.contains(group)) {
+      allGroups.add(group);
+    }
+
+    try {
+      return (await appDb.insertGalleryGroup(group) > 0);
+    } on SqliteException catch (e) {
+      Log.info(e);
+      return false;
+    }
+  }
+
+  Future<bool> _deleteGroup(String group) async {
+    allGroups.remove(group);
+
+    try {
+      return (await appDb.deleteGalleryGroup(group) > 0);
+    } on SqliteException catch (e) {
+      Log.info(e);
+      return false;
+    }
+  }
+
   // MEMORY
 
   void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images}) {
+    if (!allGroups.contains(gallery.groupName ?? 'default'.tr)) {
+      allGroups.add(gallery.groupName ?? 'default'.tr);
+    }
     gallerys.add(gallery);
     galleryDownloadInfos[gallery.gid] = GalleryDownloadInfo(
       thumbnailsCountPerPage: SiteSetting.thumbnailsCountPerPage.value,
@@ -942,7 +1001,8 @@ class GalleryDownloadService extends GetxController {
       group: gallery.groupName ?? 'default'.tr,
     );
 
-    _sortGallery();
+    _sortGalleryAndGroups();
+
     update([galleryCountOrOrderChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
@@ -956,24 +1016,31 @@ class GalleryDownloadService extends GetxController {
 
   // DB
 
-  Future<bool> _saveGalleryInfoInDB(GalleryDownloadedData gallery) async {
-    return await appDb.insertGallery(
-          gallery.gid,
-          gallery.token,
-          gallery.title,
-          gallery.category,
-          gallery.pageCount,
-          gallery.galleryUrl,
-          gallery.oldVersionGalleryUrl,
-          gallery.uploader,
-          gallery.publishTime,
-          gallery.downloadStatusIndex,
-          gallery.insertTime ?? DateTime.now().toString(),
-          gallery.downloadOriginalImage,
-          gallery.priority ?? defaultDownloadGalleryPriority,
-          gallery.groupName,
-        ) >
-        0;
+  Future<bool> _saveGalleryInfoAndGroupInDB(GalleryDownloadedData gallery) async {
+    return appDb.transaction(() async {
+      try {
+        await appDb.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
+      } on SqliteException catch (e) {
+        Log.info(e);
+      }
+      return await appDb.insertGallery(
+            gallery.gid,
+            gallery.token,
+            gallery.title,
+            gallery.category,
+            gallery.pageCount,
+            gallery.galleryUrl,
+            gallery.oldVersionGalleryUrl,
+            gallery.uploader,
+            gallery.publishTime,
+            gallery.downloadStatusIndex,
+            gallery.insertTime ?? DateTime.now().toString(),
+            gallery.downloadOriginalImage,
+            gallery.priority ?? defaultDownloadGalleryPriority,
+            gallery.groupName,
+          ) >
+          0;
+    });
   }
 
   Future<bool> _saveNewImageInfoInDatabase(GalleryImage image, int serialNo, int gid) async {
@@ -1018,7 +1085,7 @@ class GalleryDownloadService extends GetxController {
       gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.paused.index);
     }
 
-    if (!await _saveGalleryInfoInDB(gallery)) {
+    if (!await _saveGalleryInfoAndGroupInDB(gallery)) {
       return false;
     }
 

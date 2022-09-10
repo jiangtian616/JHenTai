@@ -201,7 +201,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     /// new download
     if (downloadProgress == null) {
       Map<String, dynamic>? result = await Get.dialog(
-        EHDownloadDialog(candidates: downloadService.allGroups.toList()),
+        EHDownloadDialog(
+          title: 'chooseGroup'.tr,
+          candidates: downloadService.allGroups,
+          showDownloadOriginalImageCheckBox: true,
+        ),
       );
 
       if (result == null) {
@@ -356,7 +360,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredLogicMixin, Scro
     if (archiveStatus == null) {
       Map<String, dynamic>? result = await Get.dialog(EHArchiveDialog(
         archivePageUrl: state.galleryDetails!.archivePageUrl,
-        candidates: archiveDownloadService.allGroups.toList(),
+        candidates: archiveDownloadService.allGroups,
         currentGroup: 'default'.tr,
       ));
       if (result == null) {

@@ -34,7 +34,7 @@ class LocalGalleryService extends GetxController {
   Map<String, List<String>> path2Directories = {};
 
   static Future<void> init() async {
-    Get.put(LocalGalleryService(), permanent: true);
+    Get.lazyPut(()=>LocalGalleryService(), fenix: true);
   }
 
   @override

@@ -28,7 +28,7 @@ class LocalGalleryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: FadeIn(child: buildBody()),
+      body: buildBody(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.arrow_upward),
         heroTag: null,

@@ -226,7 +226,7 @@ class GalleryHistory extends Table
   bool get dontWriteConstraints => true;
 }
 
-class  TagData extends DataClass implements Insertable<TagData> {
+class TagData extends DataClass implements Insertable<TagData> {
   final String namespace;
   final String key;
   final String? translatedNamespace;
@@ -1482,6 +1482,154 @@ class ArchiveDownloaded extends Table
   bool get dontWriteConstraints => true;
 }
 
+class ArchiveGroupData extends DataClass
+    implements Insertable<ArchiveGroupData> {
+  final String groupName;
+  ArchiveGroupData({required this.groupName});
+  factory ArchiveGroupData.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return ArchiveGroupData(
+      groupName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}groupName'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['groupName'] = Variable<String>(groupName);
+    return map;
+  }
+
+  ArchiveGroupCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveGroupCompanion(
+      groupName: Value(groupName),
+    );
+  }
+
+  factory ArchiveGroupData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveGroupData(
+      groupName: serializer.fromJson<String>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'groupName': serializer.toJson<String>(groupName),
+    };
+  }
+
+  ArchiveGroupData copyWith({String? groupName}) => ArchiveGroupData(
+        groupName: groupName ?? this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveGroupData(')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => groupName.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveGroupData && other.groupName == this.groupName);
+}
+
+class ArchiveGroupCompanion extends UpdateCompanion<ArchiveGroupData> {
+  final Value<String> groupName;
+  const ArchiveGroupCompanion({
+    this.groupName = const Value.absent(),
+  });
+  ArchiveGroupCompanion.insert({
+    required String groupName,
+  }) : groupName = Value(groupName);
+  static Insertable<ArchiveGroupData> custom({
+    Expression<String>? groupName,
+  }) {
+    return RawValuesInsertable({
+      if (groupName != null) 'groupName': groupName,
+    });
+  }
+
+  ArchiveGroupCompanion copyWith({Value<String>? groupName}) {
+    return ArchiveGroupCompanion(
+      groupName: groupName ?? this.groupName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveGroupCompanion(')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class ArchiveGroup extends Table
+    with TableInfo<ArchiveGroup, ArchiveGroupData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  ArchiveGroup(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _groupNameMeta = const VerificationMeta('groupName');
+  late final GeneratedColumn<String?> groupName = GeneratedColumn<String?>(
+      'groupName', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  @override
+  List<GeneratedColumn> get $columns => [groupName];
+  @override
+  String get aliasedName => _alias ?? 'archive_group';
+  @override
+  String get actualTableName => 'archive_group';
+  @override
+  VerificationContext validateIntegrity(Insertable<ArchiveGroupData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {groupName};
+  @override
+  ArchiveGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return ArchiveGroupData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  ArchiveGroup createAlias(String alias) {
+    return ArchiveGroup(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class GalleryDownloadedData extends DataClass
     implements Insertable<GalleryDownloadedData> {
   final int gid;
@@ -2571,13 +2719,163 @@ class Image extends Table with TableInfo<Image, ImageData> {
   bool get dontWriteConstraints => true;
 }
 
+class GalleryGroupData extends DataClass
+    implements Insertable<GalleryGroupData> {
+  final String groupName;
+  GalleryGroupData({required this.groupName});
+  factory GalleryGroupData.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return GalleryGroupData(
+      groupName: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}groupName'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['groupName'] = Variable<String>(groupName);
+    return map;
+  }
+
+  GalleryGroupCompanion toCompanion(bool nullToAbsent) {
+    return GalleryGroupCompanion(
+      groupName: Value(groupName),
+    );
+  }
+
+  factory GalleryGroupData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GalleryGroupData(
+      groupName: serializer.fromJson<String>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'groupName': serializer.toJson<String>(groupName),
+    };
+  }
+
+  GalleryGroupData copyWith({String? groupName}) => GalleryGroupData(
+        groupName: groupName ?? this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GalleryGroupData(')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => groupName.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GalleryGroupData && other.groupName == this.groupName);
+}
+
+class GalleryGroupCompanion extends UpdateCompanion<GalleryGroupData> {
+  final Value<String> groupName;
+  const GalleryGroupCompanion({
+    this.groupName = const Value.absent(),
+  });
+  GalleryGroupCompanion.insert({
+    required String groupName,
+  }) : groupName = Value(groupName);
+  static Insertable<GalleryGroupData> custom({
+    Expression<String>? groupName,
+  }) {
+    return RawValuesInsertable({
+      if (groupName != null) 'groupName': groupName,
+    });
+  }
+
+  GalleryGroupCompanion copyWith({Value<String>? groupName}) {
+    return GalleryGroupCompanion(
+      groupName: groupName ?? this.groupName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GalleryGroupCompanion(')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class GalleryGroup extends Table
+    with TableInfo<GalleryGroup, GalleryGroupData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  GalleryGroup(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _groupNameMeta = const VerificationMeta('groupName');
+  late final GeneratedColumn<String?> groupName = GeneratedColumn<String?>(
+      'groupName', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  @override
+  List<GeneratedColumn> get $columns => [groupName];
+  @override
+  String get aliasedName => _alias ?? 'gallery_group';
+  @override
+  String get actualTableName => 'gallery_group';
+  @override
+  VerificationContext validateIntegrity(Insertable<GalleryGroupData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {groupName};
+  @override
+  GalleryGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return GalleryGroupData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  GalleryGroup createAlias(String alias) {
+    return GalleryGroup(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
   late final Tag tag = Tag(this);
   late final ArchiveDownloaded archiveDownloaded = ArchiveDownloaded(this);
+  late final ArchiveGroup archiveGroup = ArchiveGroup(this);
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
+  late final GalleryGroup galleryGroup = GalleryGroup(this);
   Selectable<GalleryHistoryData> selectHistorys() {
     return customSelect(
         'SELECT *\r\nFROM gallery_history\r\nORDER BY lastReadTime DESC',
@@ -2776,6 +3074,55 @@ abstract class _$AppDb extends GeneratedDatabase {
       ],
       updates: {archiveDownloaded},
       updateKind: UpdateKind.update,
+    );
+  }
+
+  Selectable<ArchiveGroupData> selectArchiveGroups() {
+    return customSelect('SELECT *\r\nFROM archive_group',
+        variables: [],
+        readsFrom: {
+          archiveGroup,
+        }).map(archiveGroup.mapFromRow);
+  }
+
+  Future<int> insertArchiveGroup(String groupName) {
+    return customInsert(
+      'insert into archive_group\r\nvalues (:groupName)',
+      variables: [Variable<String>(groupName)],
+      updates: {archiveGroup},
+    );
+  }
+
+  Future<int> renameArchiveGroup(String newGroupName, String oldGroupName) {
+    return customUpdate(
+      'update archive_group\r\nset groupName = :newGroupName\r\nwhere groupName = :oldGroupName',
+      variables: [
+        Variable<String>(newGroupName),
+        Variable<String>(oldGroupName)
+      ],
+      updates: {archiveGroup},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> reGroupArchive(String? newGroupName, String? oldGroupName) {
+    return customUpdate(
+      'update archive_downloaded\r\nset groupName = :newGroupName\r\nwhere groupName = :oldGroupName',
+      variables: [
+        Variable<String?>(newGroupName),
+        Variable<String?>(oldGroupName)
+      ],
+      updates: {archiveDownloaded},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> deleteArchiveGroup(String groupName) {
+    return customUpdate(
+      'delete\r\nfrom archive_group\r\nwhere groupName = :groupName',
+      variables: [Variable<String>(groupName)],
+      updates: {archiveGroup},
+      updateKind: UpdateKind.delete,
     );
   }
 
@@ -2981,11 +3328,67 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
+  Selectable<GalleryGroupData> selectGalleryGroups() {
+    return customSelect('SELECT *\r\nFROM gallery_group',
+        variables: [],
+        readsFrom: {
+          galleryGroup,
+        }).map(galleryGroup.mapFromRow);
+  }
+
+  Future<int> insertGalleryGroup(String groupName) {
+    return customInsert(
+      'insert into gallery_group\r\nvalues (:groupName)',
+      variables: [Variable<String>(groupName)],
+      updates: {galleryGroup},
+    );
+  }
+
+  Future<int> renameGalleryGroup(String newGroupName, String oldGroupName) {
+    return customUpdate(
+      'update gallery_group\r\nset groupName = :newGroupName\r\nwhere groupName = :oldGroupName',
+      variables: [
+        Variable<String>(newGroupName),
+        Variable<String>(oldGroupName)
+      ],
+      updates: {galleryGroup},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> reGroupGallery(String? newGroupName, String? oldGroupName) {
+    return customUpdate(
+      'update gallery_downloaded\r\nset groupName = :newGroupName\r\nwhere groupName = :oldGroupName',
+      variables: [
+        Variable<String?>(newGroupName),
+        Variable<String?>(oldGroupName)
+      ],
+      updates: {galleryDownloaded},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> deleteGalleryGroup(String groupName) {
+    return customUpdate(
+      'delete\r\nfrom gallery_group\r\nwhere groupName = :groupName',
+      variables: [Variable<String>(groupName)],
+      updates: {galleryGroup},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
   @override
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [galleryHistory, tag, archiveDownloaded, galleryDownloaded, image];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        galleryHistory,
+        tag,
+        archiveDownloaded,
+        archiveGroup,
+        galleryDownloaded,
+        image,
+        galleryGroup
+      ];
 }
 
 class SelectGallerysWithImagesResult {

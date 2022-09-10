@@ -1,8 +1,8 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/download/local/local_gallery_page.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import '../../config/ui_config.dart';
@@ -27,11 +27,22 @@ class _DownloadPageState extends State<DownloadPage> {
           setState(() => bodyType = notification.bodyType);
           return true;
         },
-        child: bodyType == DownloadPageBodyType.archive
-            ? ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody'))
-            : bodyType == DownloadPageBodyType.download
-                ? GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody'))
-                : LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody')),
+        child: Stack(
+          children: [
+            Offstage(
+              offstage: bodyType != DownloadPageBodyType.archive,
+              child: ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody')),
+            ),
+            Offstage(
+              offstage: bodyType != DownloadPageBodyType.download,
+              child: GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody')),
+            ),
+            Offstage(
+              offstage: bodyType != DownloadPageBodyType.local,
+              child: LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody')),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -174,9 +185,9 @@ class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin
 
     show = widget.show;
     if (show) {
-      controller.play(duration: const Duration(milliseconds: 1000));
+      controller.play(duration: const Duration(milliseconds: 150));
     } else {
-      controller.playReverse(duration: const Duration(milliseconds: 1000)).then((_) {
+      controller.playReverse(duration: const Duration(milliseconds: 150)).then((_) {
         widget.afterDisappear?.call();
       });
     }
@@ -214,7 +225,7 @@ class GroupList<E, G> extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<GroupList> createState() => _GroupListState();
+  State<GroupList<E, G>> createState() => _GroupListState<E, G>();
 }
 
 class _GroupListState<E, G> extends State<GroupList<E, G>> {
@@ -223,7 +234,7 @@ class _GroupListState<E, G> extends State<GroupList<E, G>> {
   @override
   void initState() {
     super.initState();
-    assert(widget.groups.every((g) => widget.elements.singleWhereOrNull((e) => widget.groupBy(e) == g) != null));
+    assert(widget.elements.every((element) => widget.groups.contains(widget.groupBy(element))));
   }
 
   @override
@@ -234,28 +245,32 @@ class _GroupListState<E, G> extends State<GroupList<E, G>> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: widget.elements.length + widget.groups.length,
-      itemBuilder: (BuildContext context, int index) {
-        int remainingCount = index;
-        int groupIndex = 0;
+    return EHWheelSpeedController(
+      controller: scrollController,
+      child: ListView.builder(
+        controller: scrollController,
+        itemCount: widget.elements.length + widget.groups.length,
+        itemBuilder: (BuildContext context, int index) {
+          int remainingCount = index;
+          int groupIndex = 0;
 
-        while (true) {
-          G group = widget.groups[groupIndex];
-          List<E> itemsWithGroup = widget.elements.where((element) => widget.groupBy(element) == group).toList();
+          while (true) {
+            G group = widget.groups[groupIndex];
+            List<E> itemsWithGroup = widget.elements.where((E element) => widget.groupBy.call(element) == group).toList();
 
-          if (remainingCount == 0) {
-            return widget.groupBuilder(group);
+            if (remainingCount == 0) {
+              return widget.groupBuilder(group);
+            }
+
+            if (remainingCount - itemsWithGroup.length <= 0) {
+              return widget.itemBuilder(context, itemsWithGroup[remainingCount - 1]);
+            }
+
+            groupIndex++;
+            remainingCount -= 1 + itemsWithGroup.length;
           }
-
-          if (remainingCount - itemsWithGroup.length <= 0) {
-            return widget.itemBuilder(context, itemsWithGroup[remainingCount - 1]);
-          }
-
-          groupIndex++;
-          remainingCount -= 1 + itemsWithGroup.length;
-        }
-      },
+        },
+      ),
     );
   }
 }

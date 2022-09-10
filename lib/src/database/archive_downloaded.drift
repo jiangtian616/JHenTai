@@ -22,6 +22,11 @@ CREATE TABLE archive_downloaded
     PRIMARY KEY (gid, isOriginal)
 );
 
+CREATE TABLE archive_group
+(
+    groupName TEXT NOT NULL PRIMARY KEY
+);
+
 selectArchives:
 SELECT *
 FROM archive_downloaded
@@ -47,3 +52,27 @@ set archiveStatusIndex = :archiveStatusIndex,
     groupName          = :groupName
 where gid = :gid
   AND isOriginal = :isOriginal;
+
+
+selectArchiveGroups:
+SELECT *
+FROM archive_group;
+
+insertArchiveGroup:
+insert into archive_group
+values (:groupName);
+
+renameArchiveGroup:
+update archive_group
+set groupName = :newGroupName
+where groupName = :oldGroupName;
+
+reGroupArchive:
+update archive_downloaded
+set groupName = :newGroupName
+where groupName = :oldGroupName;
+
+deleteArchiveGroup:
+delete
+from archive_group
+where groupName = :groupName;

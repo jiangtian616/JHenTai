@@ -1,6 +1,7 @@
-import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
 class GalleryDownloadPageState with Scroll2TopStateMixin {
-  Set<String> displayGroups = {'default'.tr};
+  Set<String> displayGroups = {};
+  final Set<int> removedGids = {};
+  final Set<int> removedGidsWithoutImages = {};
 }
