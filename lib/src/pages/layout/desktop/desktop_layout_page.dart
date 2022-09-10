@@ -33,7 +33,8 @@ class DesktopLayoutPage extends StatelessWidget {
               separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               separatorSize: 1.5,
               percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
-              onResized: logic.handleResized,
+              onResized: logic.windowService.handleResized,
+              isDisabledSmartHide: true,
               children: [
                 _leftColumn(),
                 _rightColumn(),

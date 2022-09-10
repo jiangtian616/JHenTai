@@ -11,6 +11,7 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
+import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/widget/app_state_listener.dart';
@@ -117,6 +118,7 @@ Future<void> init() async {
   TagTranslationService.init();
   StyleSetting.init();
   TabBarSetting.init();
+  WindowService.init();
 
   SiteSetting.init();
   FavoriteSetting.init();

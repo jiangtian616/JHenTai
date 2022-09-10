@@ -6,7 +6,6 @@ import 'package:jhentai/src/pages/popular/popular_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:throttling/throttling.dart';
 
 import '../../../model/tab_bar_icon.dart';
 import '../../favorite/favorite_page.dart';
@@ -18,7 +17,6 @@ class DesktopLayoutPageState {
   late final List<ScrollController?> scrollControllers;
 
   double leftColumnWidthRatio = 1 - 0.618;
-  final Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   int selectedTabIndex = 0;
 
