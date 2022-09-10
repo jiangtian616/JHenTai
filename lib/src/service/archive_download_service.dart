@@ -650,7 +650,7 @@ class ArchiveDownloadService extends GetxController {
   Future<bool> _saveArchiveAndGroupInDatabase(ArchiveDownloadedData archive) async {
     return appDb.transaction(() async {
       try {
-        await appDb.insertGalleryGroup(archive.groupName ?? 'default'.tr);
+        await appDb.insertArchiveGroup(archive.groupName ?? 'default'.tr);
       } on SqliteException catch (e) {
         Log.info(e);
       }

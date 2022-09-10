@@ -62,7 +62,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        EHGroupNameSelector(candidates: widget.candidates, currentGroup: 'default'.tr),
+        EHGroupNameSelector(candidates: widget.candidates, currentGroup: 'default'.tr, listener: (g) => group = g),
         if (archive.creditCount != null && archive.gpCount != null) _buildAssets().marginOnly(top: 20),
         _buildButtons().marginOnly(top: 12),
       ],
