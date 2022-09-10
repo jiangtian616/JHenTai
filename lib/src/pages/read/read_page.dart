@@ -426,7 +426,7 @@ class ReadPage extends StatelessWidget {
                     min: 1,
                     max: state.readPageInfo.pageCount.toDouble(),
                     value: state.readPageInfo.currentIndex + 1.0,
-                    thumbColor: Get.theme.colorScheme.surface,
+                    thumbColor: Colors.white,
                     onChanged: logic.handleSlide,
                     onChangeEnd: logic.handleSlideEnd,
                   ),

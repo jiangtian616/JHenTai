@@ -30,7 +30,7 @@ class DesktopLayoutPage extends StatelessWidget {
           _leftTabBar(context),
           Expanded(
             child: ResizableWidget(
-              separatorColor: Colors.black,
+              separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               separatorSize: 1.5,
               percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
               onResized: logic.handleResized,
