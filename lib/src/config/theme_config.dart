@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_utils/src/platform/platform.dart';
 
 class ThemeConfig {
   static ThemeData light = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    fontFamily: GetPlatform.isWindows ? '微软雅黑' : null,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
@@ -54,7 +52,6 @@ class ThemeConfig {
   static ThemeData dark = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    fontFamily: GetPlatform.isWindows ? '微软雅黑' : null,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
