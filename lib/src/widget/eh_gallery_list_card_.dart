@@ -102,10 +102,9 @@ class _RoundGalleryCard extends StatelessWidget {
         color: Theme.of(context).colorScheme.background,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            blurRadius: 5,
-            spreadRadius: 1,
-            offset: const Offset(3, 3),
+            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            blurRadius: 3,
+            offset: const Offset(2, 2),
           )
         ],
         borderRadius: BorderRadius.circular(15),
@@ -126,13 +125,16 @@ class _FlatGalleryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        _GalleryCardCover(image: gallery.cover, withTags: withTags),
-        Expanded(
-          child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
-        ),
-      ],
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.background,
+      child: Row(
+        children: [
+          _GalleryCardCover(image: gallery.cover, withTags: withTags),
+          Expanded(
+            child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
+          ),
+        ],
+      ),
     );
   }
 }

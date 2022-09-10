@@ -52,7 +52,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
   @override
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
-      leading: InkResponse(child: const Icon(Icons.arrow_back), onTap: () => backRoute(currentRoute: Routes.mobileV2Search)),
+      leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
       title: buildSearchField(),
       titleSpacing: 0,
       actions: _buildHeaderActions(),

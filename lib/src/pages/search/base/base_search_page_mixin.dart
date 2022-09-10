@@ -36,13 +36,16 @@ mixin BaseSearchPageMixin on BasePage {
         decoration: InputDecoration(
           hintText: 'search'.tr,
           contentPadding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
-          suffixIcon: GestureDetector(
-            child: const Icon(Icons.cancel, size: 18),
-            onTap: () {
-              state.searchConfig.keyword = '';
-              state.searchConfig.tags?.clear();
-              logic.update([logic.searchFieldId]);
-            },
+          suffixIcon: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              child: const Icon(Icons.cancel, size: 18),
+              onTap: () {
+                state.searchConfig.keyword = '';
+                state.searchConfig.tags?.clear();
+                logic.update([logic.searchFieldId]);
+              },
+            ),
           ),
           suffixIconConstraints: const BoxConstraints.tightFor(width: 24, height: 24),
         ),
@@ -232,10 +235,13 @@ class HistoryChips extends StatelessWidget {
             runSpacing: 7,
             children: history
                 .map(
-                  (keyword) => GestureDetector(
-                    onTap: () => onTapChip(keyword),
-                    child: EHTag(
-                      tag: GalleryTag(tagData: TagData(namespace: '', key: keyword)),
+                  (keyword) => MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => onTapChip(keyword),
+                      child: EHTag(
+                        tag: GalleryTag(tagData: TagData(namespace: '', key: keyword)),
+                      ),
                     ),
                   ),
                 )
@@ -246,5 +252,3 @@ class HistoryChips extends StatelessWidget {
     );
   }
 }
-
-

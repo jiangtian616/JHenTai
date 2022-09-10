@@ -53,7 +53,7 @@ class GalleryDownloadService extends GetxController {
   static const int _priorityBase = 100000000;
 
   static void init() {
-    Get.lazyPut(() => GalleryDownloadService(), fenix: true);
+    Get.put(GalleryDownloadService(), permanent: true);
   }
 
   @override

@@ -135,8 +135,8 @@ Future<void> init() async {
 
   QuickSearchService.init();
 
+  HistoryService.init();
   GalleryDownloadService.init();
-
 }
 
 Future<void> onReady() async {
@@ -145,8 +145,6 @@ Future<void> onReady() async {
   EHSetting.refresh();
 
   ReadSetting.init();
-
-  HistoryService.init();
 
   ArchiveDownloadService.init();
   LocalGalleryService.init();

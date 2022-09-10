@@ -36,7 +36,7 @@ Widget EHGalleryCollection({
           return Container(
             decoration: StyleSetting.listMode.value == ListMode.flat
                 ? BoxDecoration(
-                    color: Theme.of(context).cardColor,
+                    color: Theme.of(context).colorScheme.background,
                     border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
                   )
                 : null,

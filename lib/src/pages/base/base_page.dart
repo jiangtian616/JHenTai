@@ -41,6 +41,7 @@ abstract class BasePage extends StatelessWidget {
       global: false,
       init: logic,
       builder: (_) => Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
         body: SafeArea(child: buildBody(context)),
         floatingActionButton: buildFloatingActionButton(context),

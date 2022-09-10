@@ -60,33 +60,28 @@ class DesktopSearchPage extends BasePage with BaseSearchPageMixin {
       child: Row(
         children: [
           Expanded(child: buildSearchField().marginSymmetric(horizontal: 16)),
-          ExcludeFocus(child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch)),
+          ExcludeFocus(
+            child: IconButton(icon: const Icon(Icons.attach_file), onPressed: logic.handleFileSearch),
+          ),
           if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
             ExcludeFocus(
               child: FadeIn(
                 child: IconButton(
-                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 20),
+                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 18),
                   onPressed: logic.handleTapJumpButton,
-                ),
+                ).marginOnly(bottom: 2),
               ),
             ),
           ExcludeFocus(
             child: IconButton(
-              icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.update_disabled : Icons.history, size: 24),
+              icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.switch_left : Icons.switch_right, size: 30),
               onPressed: logic.toggleBodyType,
             ),
           ),
           ExcludeFocus(
               child: IconButton(icon: const Icon(Icons.filter_alt), onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter))),
           ExcludeFocus(
-            child: IconButton(
-              icon: Icon(
-                FontAwesomeIcons.bars,
-                color: Get.theme.appBarTheme.actionsIconTheme?.color,
-                size: 20,
-              ),
-              onPressed: () => toRoute(Routes.quickSearch),
-            ),
+            child: IconButton(icon: const Icon(Icons.more_vert), onPressed: () => toRoute(Routes.quickSearch)),
           ),
         ],
       ),
