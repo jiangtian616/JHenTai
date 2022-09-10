@@ -67,6 +67,7 @@ class GalleryDownloadPage extends StatelessWidget {
       builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
         id: GalleryDownloadPageLogic.bodyId,
         builder: (_) => GroupList<GalleryDownloadedData, String>(
+          scrollController: state.scrollController,
           groups: logic.downloadService.allGroups,
           elements: logic.downloadService.gallerys,
           groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,

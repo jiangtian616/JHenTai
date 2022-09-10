@@ -71,6 +71,7 @@ class ArchiveDownloadPage extends StatelessWidget {
       builder: (_) => GetBuilder<ArchiveDownloadPageLogic>(
         id: ArchiveDownloadPageLogic.bodyId,
         builder: (_) => GroupList<ArchiveDownloadedData, String>(
+          scrollController: state.scrollController,
           groups: logic.archiveDownloadService.allGroups,
           elements: logic.archiveDownloadService.archives,
           groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,

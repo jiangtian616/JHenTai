@@ -208,6 +208,8 @@ class GroupList<E, G> extends StatefulWidget {
   final Widget Function(G group) groupBuilder;
   final Widget Function(BuildContext context, E element) itemBuilder;
 
+  final ScrollController? scrollController;
+
   const GroupList({
     Key? key,
     required this.groups,
@@ -215,6 +217,7 @@ class GroupList<E, G> extends StatefulWidget {
     required this.groupBy,
     required this.groupBuilder,
     required this.itemBuilder,
+    this.scrollController,
   }) : super(key: key);
 
   @override
@@ -222,12 +225,14 @@ class GroupList<E, G> extends StatefulWidget {
 }
 
 class _GroupListState<E, G> extends State<GroupList<E, G>> {
-  ScrollController scrollController = ScrollController();
+  late ScrollController scrollController;
 
   @override
   void initState() {
-    super.initState();
     assert(widget.elements.every((element) => widget.groups.contains(widget.groupBy(element))));
+
+    super.initState();
+    scrollController = widget.scrollController ?? ScrollController();
   }
 
   @override
