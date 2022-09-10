@@ -136,8 +136,7 @@ Future<void> init() async {
   QuickSearchService.init();
 
   GalleryDownloadService.init();
-  ArchiveDownloadService.init();
-  LocalGalleryService.init();
+
 }
 
 Future<void> onReady() async {
@@ -148,6 +147,9 @@ Future<void> onReady() async {
   ReadSetting.init();
 
   HistoryService.init();
+
+  ArchiveDownloadService.init();
+  LocalGalleryService.init();
 }
 
 void _doForDesktop() {

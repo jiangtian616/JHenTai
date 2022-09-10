@@ -150,7 +150,7 @@ class LocalGalleryPage extends StatelessWidget {
         ? logic.localGalleryService.allGallerys[index]
         : logic.localGalleryService.path2Gallerys[state.currentPath]![index];
 
-    Widget child = FocusWidget(
+    return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
       handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
       handleTapEnter: () => logic.goToReadPage(gallery),
@@ -161,25 +161,19 @@ class LocalGalleryPage extends StatelessWidget {
         child: GestureDetector(
           onSecondaryTap: () => showBottomSheet(gallery, context),
           onLongPress: () => showBottomSheet(gallery, context),
-          child: _buildGallery(gallery, context).marginAll(5),
+          child: FadeShrinkWidget(
+            show: !state.removedGalleryTitles.contains(gallery.title),
+            child: _buildGallery(gallery, context).marginAll(5),
+            afterDisappear: () {
+              Get.engine.addPostFrameCallback(
+                (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
+              );
+              state.removedGalleryTitles.remove(gallery.title);
+            },
+          ),
         ),
       ),
     );
-
-    /// has not been deleted
-    if (!logic.removedTitle2AnimationController.containsKey(gallery.title)) {
-      return child;
-    }
-
-    AnimationController controller = logic.removedTitle2AnimationController[gallery.title]!;
-    Animation<double> animation = logic.removedTitle2Animation[gallery.title]!;
-
-    /// has been deleted, start animation
-    if (!controller.isAnimating) {
-      controller.forward();
-    }
-
-    return FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child));
   }
 
   ActionPane _buildEndActionPane(LocalGallery gallery) {

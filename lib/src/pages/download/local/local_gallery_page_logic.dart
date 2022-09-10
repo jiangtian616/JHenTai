@@ -26,9 +26,6 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   final LocalGalleryService localGalleryService = Get.find<LocalGalleryService>();
   final StorageService storageService = Get.find<StorageService>();
 
-  final Map<String, AnimationController> removedTitle2AnimationController = {};
-  final Map<String, Animation<double>> removedTitle2Animation = {};
-
   @override
   void onInit() {
     super.onInit();
@@ -41,10 +38,6 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     super.onClose();
 
     state.scrollController.dispose();
-
-    for (AnimationController controller in removedTitle2AnimationController.values) {
-      controller.dispose();
-    }
   }
 
   int computeItemCount() {
@@ -64,21 +57,8 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   }
 
   void handleRemoveItem(LocalGallery gallery) {
-    AnimationController controller = AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    controller.addStatusListener((AnimationStatus status) {
-      if (status == AnimationStatus.completed) {
-        controller.dispose();
-        removedTitle2AnimationController.remove(gallery.title);
-        removedTitle2Animation.remove(gallery.title);
-
-        Get.engine.addPostFrameCallback((_) {
-          localGalleryService.deleteGallery(gallery, state.currentPath);
-          update([bodyId]);
-        });
-      }
-    });
-    removedTitle2AnimationController[gallery.title] = controller;
-    removedTitle2Animation[gallery.title] = Tween(begin: 1.0, end: 0.0).animate(CurvedAnimation(curve: Curves.easeOut, parent: controller));
+    state.removedGalleryTitles.add(gallery.title);
+    update([bodyId]);
   }
 
   void pushRoute(String dirName) {

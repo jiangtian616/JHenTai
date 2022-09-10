@@ -40,7 +40,7 @@ class ArchiveDownloadService extends GetxController {
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
   static void init() {
-    Get.lazyPut(() => ArchiveDownloadService(), fenix: true);
+    Get.put(ArchiveDownloadService(), permanent: true);
   }
 
   @override

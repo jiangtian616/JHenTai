@@ -7,4 +7,6 @@ class LocalGalleryPageState with Scroll2TopStateMixin{
   String currentPath = DownloadSetting.downloadPath.value;
 
   bool aggregateDirectories = false;
+
+  final Set<String> removedGalleryTitles = {};
 }

@@ -25,9 +25,6 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final StorageService storageService = Get.find();
 
-  final Map<int, AnimationController> removedGidAndIsOrigin2AnimationController = {};
-  final Map<int, Animation<double>> removedGidAndIsOrigin2Animation = {};
-
   @override
   void onInit() {
     state.displayGroups = Set.from(storageService.read('displayArchiveGroups') ?? ['default'.tr]);
@@ -39,10 +36,6 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
     super.onClose();
 
     state.scrollController.dispose();
-
-    for (AnimationController controller in removedGidAndIsOrigin2AnimationController.values) {
-      controller.dispose();
-    }
   }
 
   void toggleDisplayGroups(String groupName) {
