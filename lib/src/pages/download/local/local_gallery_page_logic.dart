@@ -113,7 +113,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     Log.info('toggleAggregateDirectory -> ${!state.aggregateDirectories}');
 
     state.aggregateDirectories = !state.aggregateDirectories;
-    storageService.write('LocalGalleryBody_AggregateDirectories', !state.aggregateDirectories);
+    storageService.write('LocalGalleryBody_AggregateDirectories', state.aggregateDirectories);
 
     update([appBarId, bodyId]);
   }
