@@ -242,6 +242,7 @@ class _GroupListState<E, G> extends State<GroupList<E, G>> {
       controller: scrollController,
       child: ListView.builder(
         controller: scrollController,
+        padding: const EdgeInsets.only(bottom: 80),
         itemCount: widget.elements.length + widget.groups.length,
         itemBuilder: (BuildContext context, int index) {
           int remainingCount = index;
