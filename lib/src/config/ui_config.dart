@@ -58,15 +58,15 @@ class UIConfig {
   static const double dashboardCardSize = 210;
 
   /// Login page
-  static const Color loginPageForegroundColor = Colors.white;
+  static Color get loginPageForegroundColor => Get.theme.colorScheme.background;
 
-  static Color get loginPageBackgroundColor => Colors.blue;
+  static Color get loginPageBackgroundColor => Get.isDarkMode ? Colors.blue.shade900 : Colors.blue;
 
-  static Color get loginPageFieldColor => Colors.grey.shade200;
+  static Color get loginPageFieldColor => Get.theme.colorScheme.secondaryContainer;
 
-  static Color get loginPageHintColor => Colors.grey.shade700;
+  static Color get loginPageHintColor => Get.isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700;
 
-  static Color get loginPagePrefixIconColor => Colors.grey.shade600;
+  static Color get loginPagePrefixIconColor => Get.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600;
 
   /// Detail page
   static const double detailsPageHeaderHeight = 200;

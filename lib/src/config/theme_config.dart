@@ -69,7 +69,7 @@ class ThemeConfig {
       secondary: Color(0xFFCCC2DC),
       onSecondary: Color(0xFF332D41),
       secondaryContainer: Colors.grey.shade800,
-      onSecondaryContainer: Colors.grey.shade400,
+      onSecondaryContainer: Colors.grey.shade300,
       tertiary: Color(0xFFEFB8C8),
       onTertiary: Color(0xFF492532),
       tertiaryContainer: Color(0xFF633B48),

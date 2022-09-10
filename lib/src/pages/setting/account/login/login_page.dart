@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
@@ -26,13 +25,12 @@ class LoginPage extends StatelessWidget {
         /// set false to deal with keyboard
         resizeToAvoidBottomInset: false,
         backgroundColor: UIConfig.loginPageBackgroundColor,
-        appBar:
-            AppBar(backgroundColor: UIConfig.loginPageBackgroundColor, leading: const BackButton(color: UIConfig.loginPageForegroundColor)),
+        appBar: AppBar(backgroundColor: UIConfig.loginPageBackgroundColor, leading: BackButton(color: UIConfig.loginPageForegroundColor)),
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const _TopArea(),
-            const Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor, fontSize: 60)),
+            Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor, fontSize: 60)),
             _buildForm(),
           ],
         ),
