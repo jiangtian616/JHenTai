@@ -19,7 +19,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
-import '../../../service/check_service.dart';
+import '../../../utils/check_util.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';

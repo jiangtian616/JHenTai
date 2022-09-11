@@ -29,7 +29,7 @@ import 'package:jhentai/src/utils/color_util.dart';
 import '../database/database.dart';
 import '../model/gallery.dart';
 import '../network/eh_cache_interceptor.dart';
-import '../service/check_service.dart';
+import 'check_util.dart';
 import 'log.dart';
 
 T noOpParser<T>(v) => v as T;
@@ -509,7 +509,7 @@ class EHSpiderParser {
   static int votingCommentResponse2Score(Response response) {
     int? score = jsonDecode(response.toString())['comment_score'];
 
-    CheckService.build(() => score != null, errorMsg: "Voting comment result score shouldn't be null!").withUploadParam(response).check();
+    CheckUtil.build(() => score != null, errorMsg: "Voting comment result score shouldn't be null!").withUploadParam(response).check();
 
     return score!;
   }

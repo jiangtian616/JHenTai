@@ -13,7 +13,7 @@ import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
-import 'package:jhentai/src/service/check_service.dart';
+import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
@@ -238,8 +238,8 @@ class GalleryDownloadService extends GetxController {
 
     Log.info('Re-download image, gid: $gid, index: $serialNo');
 
-    galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
     galleryDownloadInfo.downloadProgress.curCount--;
+    galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
     await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
     await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
     _deleteImageInDisk(image);
@@ -660,7 +660,7 @@ class GalleryDownloadService extends GetxController {
       galleryDownloadInfo.thumbnailsCountPerPage = (thumbnails.length / 20).ceil() * 20;
       int from = serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage * galleryDownloadInfo.thumbnailsCountPerPage;
 
-      CheckService.build(
+      CheckUtil.build(
         () => from + thumbnails.length <= galleryDownloadInfo.imageHrefs.length,
         errorMsg: "Out of index of imageHrefs!",
       ).withUploadParam({

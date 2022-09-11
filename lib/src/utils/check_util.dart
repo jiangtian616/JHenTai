@@ -13,7 +13,7 @@ class CheckException implements Exception {
   }
 }
 
-class CheckService {
+class CheckUtil {
   final ValueGetter<bool> _checkExpression;
   final String _errorMsg;
 
@@ -21,23 +21,23 @@ class CheckService {
   VoidCallback? _onSuccess;
   VoidCallback? _onFailed;
 
-  CheckService._(this._checkExpression, this._errorMsg);
+  CheckUtil._(this._checkExpression, this._errorMsg);
 
-  factory CheckService.build(ValueGetter<bool> checkExpression, {String? errorMsg}) {
-    return CheckService._(checkExpression, errorMsg ?? "");
+  factory CheckUtil.build(ValueGetter<bool> checkExpression, {String? errorMsg}) {
+    return CheckUtil._(checkExpression, errorMsg ?? "");
   }
 
-  CheckService withUploadParam(dynamic uploadParam) {
+  CheckUtil withUploadParam(dynamic uploadParam) {
     _uploadParam = uploadParam;
     return this;
   }
 
-  CheckService onSuccess(VoidCallback onSuccess) {
+  CheckUtil onSuccess(VoidCallback onSuccess) {
     _onSuccess = onSuccess;
     return this;
   }
 
-  CheckService onFailed(VoidCallback onFailed) {
+  CheckUtil onFailed(VoidCallback onFailed) {
     _onFailed = onFailed;
     return this;
   }

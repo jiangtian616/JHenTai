@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/jh_layout.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
-import 'package:jhentai/src/service/check_service.dart';
+import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
@@ -124,7 +124,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       update();
     }
 
-    CheckService.build(
+    CheckUtil.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'handleRefresh state.nextPageIndexToLoad == null!',
     ).check();
@@ -199,7 +199,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       update([loadingStateId]);
     }
 
-    CheckService.build(
+    CheckUtil.build(
       () => state.nextPageIndexToLoad != null,
       errorMsg: 'state.nextPageIndexToLoad == null!',
     ).onFailed(() {
@@ -238,7 +238,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     update();
 
-    CheckService.build(
+    CheckUtil.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'loadMore state.nextPageIndexToLoad == null!',
     ).withUploadParam({
@@ -291,7 +291,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     update();
 
-    CheckService.build(
+    CheckUtil.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
       errorMsg: 'jumpPage state.nextPageIndexToLoad == null!',
     ).check();

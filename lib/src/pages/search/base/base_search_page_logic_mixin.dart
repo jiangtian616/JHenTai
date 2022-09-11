@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart';
-import 'package:jhentai/src/service/check_service.dart';
+import 'package:jhentai/src/utils/check_util.dart';
 import 'package:throttling/throttling.dart';
 
 import '../../../network/eh_request.dart';

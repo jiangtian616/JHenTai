@@ -12,7 +12,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
-import 'package:jhentai/src/service/check_service.dart';
+import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -579,7 +579,7 @@ class EHRequest {
         rethrow;
       }
 
-      CheckService.build(() => e.response != null, errorMsg: "Lookup response shouldn't be null!")
+      CheckUtil.build(() => e.response != null, errorMsg: "Lookup response shouldn't be null!")
           .withUploadParam(e)
           .onFailed(() => toast('systemError'.tr))
           .check();

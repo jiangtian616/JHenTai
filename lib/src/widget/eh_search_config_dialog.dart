@@ -75,6 +75,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     _bodyScrollController.dispose();
     _suggestionScrollController.dispose();
     overlayEntry?.remove();
+    overlayEntry?.dispose();
     focusNode.dispose();
   }
 
