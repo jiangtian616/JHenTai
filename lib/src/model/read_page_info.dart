@@ -18,6 +18,8 @@ class ReadPageInfo {
   /// used for archive
   bool isOriginal;
 
+  String readProgressRecordStorageKey;
+
   /// used for archive&local
   List<GalleryImage>? images;
 
@@ -29,6 +31,7 @@ class ReadPageInfo {
     required this.currentIndex,
     required this.pageCount,
     this.isOriginal = false,
+    required this.readProgressRecordStorageKey,
     this.images,
   });
 }

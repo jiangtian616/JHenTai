@@ -135,7 +135,8 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
   }
 
   void goToReadPage(GalleryDownloadedData gallery) {
-    int readIndexRecord = storageService.read('readIndexRecord::${gallery.gid}') ?? 0;
+    String storageKey = 'readIndexRecord::${gallery.gid}';
+    int readIndexRecord = storageService.read(storageKey) ?? 0;
 
     toRoute(
       Routes.read,
@@ -145,6 +146,7 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
         galleryUrl: gallery.galleryUrl,
         initialIndex: readIndexRecord,
         currentIndex: readIndexRecord,
+        readProgressRecordStorageKey:storageKey ,
         pageCount: gallery.pageCount,
       ),
     );

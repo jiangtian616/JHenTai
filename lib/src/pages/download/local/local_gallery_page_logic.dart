@@ -73,7 +73,8 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   }
 
   void goToReadPage(LocalGallery gallery) {
-    int readIndexRecord = storageService.read('readIndexRecord::${gallery.title}') ?? 0;
+    String storageKey = 'readIndexRecord::${gallery.title}';
+    int readIndexRecord = storageService.read(storageKey) ?? 0;
 
     toRoute(
       Routes.read,
@@ -82,6 +83,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
         initialIndex: readIndexRecord,
         currentIndex: readIndexRecord,
         pageCount: gallery.pageCount,
+        readProgressRecordStorageKey: storageKey,
         images: localGalleryService.allGallerys.firstWhere((g) => g.title == gallery.title).images,
       ),
     );

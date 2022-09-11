@@ -385,7 +385,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (archiveStatus == ArchiveStatus.completed) {
-      int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
+      String storageKey = 'readIndexRecord::${archive.gid}';
+      int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
 
       toRoute(
@@ -398,6 +399,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           currentIndex: readIndexRecord,
           pageCount: images.length,
           isOriginal: archive.isOriginal,
+          readProgressRecordStorageKey: storageKey,
           images: images,
         ),
       );
@@ -463,6 +465,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void goToReadPage([int? forceIndex]) {
+    String storageKey = 'readIndexRecord::${state.gallery!.gid}';
+    int readIndexRecord = storageService.read(storageKey) ?? 0;
+
     /// downloading
     if (galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.downloadProgress != null) {
       toRoute(
@@ -471,8 +476,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           mode: ReadMode.downloaded,
           gid: state.gallery!.gid,
           galleryUrl: state.galleryUrl,
-          initialIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          currentIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          initialIndex: forceIndex ?? readIndexRecord,
+          currentIndex: forceIndex ?? readIndexRecord,
+          readProgressRecordStorageKey: storageKey,
           pageCount: state.gallery!.pageCount!,
         ),
       );
@@ -486,8 +492,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           mode: ReadMode.online,
           gid: state.gallery!.gid,
           galleryUrl: state.galleryUrl,
-          initialIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
-          currentIndex: forceIndex ?? storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0,
+          initialIndex: forceIndex ?? readIndexRecord,
+          currentIndex: forceIndex ?? readIndexRecord,
+          readProgressRecordStorageKey: storageKey,
           pageCount: state.gallery!.pageCount!,
         ),
       );

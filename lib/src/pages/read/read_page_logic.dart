@@ -99,7 +99,8 @@ class ReadPageLogic extends GetxController {
 
     restoreSystemBar();
 
-    storageService.write('readIndexRecord::${state.readPageInfo.gid}', state.readPageInfo.currentIndex);
+    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentIndex);
+
     /// update read progress in detail page
     DetailsPageLogic.current?.update();
 

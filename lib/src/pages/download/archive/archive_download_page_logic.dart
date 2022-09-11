@@ -123,7 +123,8 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    int readIndexRecord = storageService.read('readIndexRecord::${archive.gid}') ?? 0;
+    String storageKey = 'readIndexRecord::${archive.gid}';
+    int readIndexRecord = storageService.read(storageKey) ?? 0;
     List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
 
     toRoute(
@@ -136,6 +137,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
         currentIndex: readIndexRecord,
         pageCount: images.length,
         isOriginal: archive.isOriginal,
+        readProgressRecordStorageKey: storageKey,
         images: images,
       ),
     );
