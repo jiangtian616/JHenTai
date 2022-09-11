@@ -225,20 +225,27 @@ class GroupList<E, G> extends StatefulWidget {
 }
 
 class _GroupListState<E, G> extends State<GroupList<E, G>> {
+  bool useInnerController = false;
   late ScrollController scrollController;
 
   @override
   void initState() {
     assert(widget.elements.every((element) => widget.groups.contains(widget.groupBy(element))));
-
     super.initState();
-    scrollController = widget.scrollController ?? ScrollController();
+
+    if (widget.scrollController == null) {
+      scrollController = ScrollController();
+      useInnerController = true;
+    }
+    scrollController = widget.scrollController!;
   }
 
   @override
   void dispose() {
     super.dispose();
-    scrollController.dispose();
+    if (useInnerController) {
+      scrollController.dispose();
+    }
   }
 
   @override
