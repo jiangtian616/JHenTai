@@ -275,9 +275,9 @@ class ReadPage extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
-                  'PageDown、LCtrl、→、↓  :  ${'toNext'.tr}'
+                  'PageDown、RCtrl、→、↓  :  ${'toNext'.tr}'
                   '\n'
-                  'PageUp、 ←、↑  :  ${'toPrev'.tr}'
+                  'PageUp、LCtrl、 ←、↑  :  ${'toPrev'.tr}'
                   '\n'
                   'Esc、End  :  ${'back'.tr}'
                   '\n'
