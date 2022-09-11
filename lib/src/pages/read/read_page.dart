@@ -36,7 +36,14 @@ class ReadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarColor: Colors.transparent,
+        systemNavigationBarIconBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
       child: ScrollConfiguration(
         behavior: GetPlatform.isDesktop ? UIConfig.behaviorWithScrollBar : UIConfig.behaviorWithoutScrollBar,
         child: EHKeyboardListener(
