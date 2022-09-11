@@ -68,10 +68,14 @@ class DetailsPage extends StatelessWidget {
 
   Widget buildBody() {
     if (state.gallery == null) {
-      return LoadingStateIndicator(
-        indicatorRadius: 18,
-        loadingState: state.loadingState,
-        errorTapCallback: logic.handleRefresh,
+      return GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.loadingStateId,
+        tag: tag,
+        builder: (_) => LoadingStateIndicator(
+          indicatorRadius: 18,
+          loadingState: state.loadingState,
+          errorTapCallback: logic.getDetails,
+        ),
       );
     }
 
