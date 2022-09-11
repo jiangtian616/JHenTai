@@ -102,7 +102,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     state.loadingState = LoadingState.loading;
-    if (!refresh) {
+    if (!refresh && _stack.contains(this)) {
       update([loadingStateId]);
     }
 
@@ -115,7 +115,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      if (!refresh) {
+      if (!refresh && _stack.contains(this)) {
         update([loadingStateId]);
       }
       return;

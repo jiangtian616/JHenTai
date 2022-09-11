@@ -42,9 +42,9 @@ class SecuritySetting {
       FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
     }
 
-    /// resume appbar color
     SystemChrome.setSystemUIOverlayStyle(
-        Get.theme.appBarTheme.systemOverlayStyle!.copyWith(systemStatusBarContrastEnforced: true));
+      const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
+    );
   }
 
   static saveEnableFingerPrintLock(bool enableFingerPrintLock) {
