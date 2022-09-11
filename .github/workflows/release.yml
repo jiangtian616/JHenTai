@@ -135,7 +135,7 @@ jobs:
       # 打包 apk
       - name: Collect Apks
         if: matrix.target == 'android'
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk -t lib/src/main.dart --release --split-per-abi
 #        env:
 #          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
 #          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -146,7 +146,7 @@ jobs:
         if: matrix.target == 'ios'
         run: |
           cd ios && pod update && pod install && cd ..
-          flutter build ios --release --no-codesign
+          flutter build ios -t lib/src/main.dart --release --no-codesign
       - name: Thin app
         if: matrix.target == 'ios'
         run: sh thin-payload.sh build/ios/iphoneos/*.app
@@ -164,7 +164,7 @@ jobs:
         if: matrix.target == 'macos'
         run: |
           cd macos && pod update && pod install && cd ..
-          flutter build macos --release
+          flutter build macos -t lib/src/main.dart --release
           APP_PATH=build/macos/Build/Products/Release/jhentai.app
           cp -a $APP_PATH ./build
           cd build && zip -qroy macos/JHenTai_macos.zip jhentai.app
@@ -172,7 +172,7 @@ jobs:
       - name: Build windows
         if: matrix.target == 'windows'
         run: |
-          flutter build windows --release
+          flutter build windows -t lib/src/main.dart --release
           $DestDir = "build\windows\JHenTai"
           $SrcDir = "build\windows\runner\Release"
           New-Item -Path $DestDir -ItemType Directory
