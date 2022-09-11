@@ -132,7 +132,7 @@ class _GroupChipState extends State<GroupChip> with AnimationMixin {
       if (_selected) {
         controller.play(duration: const Duration(milliseconds: 200));
       } else {
-        controller.reverse();
+        controller.playReverse(duration: const Duration(milliseconds: 200));
       }
     }
   }

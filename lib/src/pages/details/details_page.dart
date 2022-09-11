@@ -367,7 +367,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right:space),
+                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: space),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -590,7 +590,7 @@ class _ActionButtons extends StatelessWidget {
                 : downloadProgress.downloadStatus == DownloadStatus.downloading
                     ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
                     : state.galleryDetails?.newVersionGalleryUrl == null
-                        ? const Icon(Icons.done, color: Colors.green)
+                        ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
                         : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
 
         return IconTextButton(
@@ -695,7 +695,7 @@ class _ActionButtons extends StatelessWidget {
             : archiveStatus == ArchiveStatus.paused
                 ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
                 : archiveStatus == ArchiveStatus.completed
-                    ? const Icon(Icons.done, color: Colors.green)
+                    ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
                     : Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor);
 
         return IconTextButton(
