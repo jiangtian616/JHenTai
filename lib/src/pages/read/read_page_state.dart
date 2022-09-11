@@ -2,10 +2,9 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../database/database.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../service/gallery_download_service.dart';
@@ -16,6 +15,7 @@ class ReadPageState {
   final ReadPageInfo readPageInfo = Get.arguments;
 
   /// property used for parsing and loading
+  int thumbnailsCountPerPage = SiteSetting.thumbnailsCountPerPage.value;
   late List<GalleryThumbnail?> thumbnails;
   late List<GalleryImage?> images;
 

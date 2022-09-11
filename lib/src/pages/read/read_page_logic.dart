@@ -130,7 +130,7 @@ class ReadPageLogic extends GetxController {
       newThumbnails = await retry(
         () => EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
-          thumbnailsPageIndex: index ~/ SiteSetting.thumbnailsCountPerPage.value,
+          thumbnailsPageIndex: index ~/ state.thumbnailsCountPerPage,
           parser: EHSpiderParser.detailPage2Thumbnails,
         ),
         maxAttempts: 3,
@@ -148,12 +148,16 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    int from = index ~/ SiteSetting.thumbnailsCountPerPage.value * SiteSetting.thumbnailsCountPerPage.value;
+    /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
+    /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
+    state.thumbnailsCountPerPage = (newThumbnails.length / 20).ceil() * 20;
+    int from = index ~/ state.thumbnailsCountPerPage * state.thumbnailsCountPerPage;
 
     CheckUtil.build(
       () => from + newThumbnails.length <= state.thumbnails.length,
       errorMsg: "Out of index of imageHrefs!",
     ).withUploadParam({
+      'index': index,
       'pageCount': state.readPageInfo.pageCount,
       'imageHrefsLength': state.thumbnails.length,
       'from': from,
@@ -165,6 +169,13 @@ class ReadPageLogic extends GetxController {
     for (int i = 0; i < newThumbnails.length; i++) {
       state.thumbnails[from + i] = newThumbnails[i];
     }
+
+    /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
+    /// because the [thumbnailsPageIndex] we computed before is wrong, so we need to parse again
+    if (state.thumbnails[index] == null) {
+      return _parseImageHref(index);
+    }
+
     state.parseImageHrefsStates[index] = LoadingState.idle;
     for (int i = 0; i < newThumbnails.length; i++) {
       update(['$onlineImageId::${index + i}']);
