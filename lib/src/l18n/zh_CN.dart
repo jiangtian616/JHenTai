@@ -230,6 +230,7 @@ class zh_CN {
       'coverStyle': '封面图片样式',
       'cover': '覆盖',
       'adaptive': '自适应',
+      'hideBottomBar': '隐藏底部导航栏',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
 
       /// mouse wheel setting page

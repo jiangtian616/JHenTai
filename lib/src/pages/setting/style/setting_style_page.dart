@@ -1,7 +1,7 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -28,7 +28,8 @@ class SettingStylePage extends StatelessWidget {
             _buildListMode(),
             _buildTagTranslate(),
             _buildLayout(),
-            if (StyleSetting.isInV2Layout) FadeIn(child: _buildQuickSearch()),
+            if (StyleSetting.isInV2Layout)  _buildShowBottomNavigation().fadeIn(),
+            if (StyleSetting.isInV2Layout) _buildQuickSearch().fadeIn(),
           ],
         ),
       ),
@@ -148,6 +149,14 @@ class SettingStylePage extends StatelessWidget {
                 ))
             .toList(),
       ),
+    );
+  }
+
+  Widget _buildShowBottomNavigation() {
+    return SwitchListTile(
+      title: Text('hideBottomBar'.tr),
+      value: StyleSetting.hideBottomBar.value,
+      onChanged: StyleSetting.saveHideBottomBar,
     );
   }
 

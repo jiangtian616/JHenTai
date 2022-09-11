@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -33,7 +32,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
           endDrawer: buildRightDrawer(),
           endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
           body: buildBody(),
-          bottomNavigationBar: buildBottomNavigationBar(context),
+          bottomNavigationBar: StyleSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
         ),
       ),
     );
@@ -82,7 +81,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
         data: Theme.of(context).copyWith(splashColor: Colors.transparent),
         child: NavigationBar(
           selectedIndex: state.selectedNavigationIndex,
-          onDestinationSelected: (int index) => logic.handleTapNavigationBarButton(index, context),
+          onDestinationSelected: (int index) => logic.handleTapNavigationBarButton(index),
           destinations: [
             NavigationDestination(icon: const Icon(Icons.home), label: 'home'.tr),
             NavigationDestination(icon: const Icon(Icons.download), label: 'download'.tr),

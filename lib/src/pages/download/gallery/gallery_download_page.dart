@@ -111,7 +111,7 @@ class GalleryDownloadPage extends StatelessWidget {
     return GetBuilder<GalleryDownloadPageLogic>(
       id: '${GalleryDownloadPageLogic.groupId}::$group',
       builder: (_) => FocusWidget(
-        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
+        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).colorScheme.onBackground))),
         handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
         handleTapEnter: () => logic.goToReadPage(gallery),
         handleTapArrowRight: () => logic.goToReadPage(gallery),

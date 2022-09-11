@@ -84,6 +84,23 @@ class MobileLayoutPageV2State {
         page: () => HistoryPage(showMenuButton: true, showTitle: true, name: 'history'.tr),
         shouldRender: false,
       ),
+      TabBarIcon(
+        name: 'download',
+        routeName: Routes.download,
+        selectedIcon: const Icon(Icons.download),
+        unselectedIcon: const Icon(Icons.download_outlined),
+        page: () => const DownloadPage(),
+        shouldRender: false,
+      ),
+      TabBarIcon(
+        name: 'setting',
+        routeName: Routes.setting,
+        selectedIcon: const Icon(Icons.settings),
+        unselectedIcon: const Icon(Icons.settings_outlined),
+        page: () => const SettingPage(),
+        shouldRender: false,
+        enterNewRoute: true,
+      ),
     ];
   }
 }

@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
 class MobileLayoutPageV2Logic extends GetxController {
@@ -9,6 +9,26 @@ class MobileLayoutPageV2Logic extends GetxController {
   final String bottomNavigationBarId = 'bottomNavigationBarId';
 
   final MobileLayoutPageV2State state = MobileLayoutPageV2State();
+
+  Worker? hideBottomBarLister;
+
+  @override
+  void onReady() {
+    super.onReady();
+
+    /// If user hideBottomBar, reset the selected navigation index to 0
+    hideBottomBarLister = ever(StyleSetting.hideBottomBar, (_) {
+      if (StyleSetting.hideBottomBar.isTrue) {
+        handleTapNavigationBarButton(0);
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    hideBottomBarLister?.dispose();
+  }
 
   void handleTapTabBarButton(int index) {
     if (state.icons[index].enterNewRoute) {
@@ -28,7 +48,7 @@ class MobileLayoutPageV2Logic extends GetxController {
     }
   }
 
-  void handleTapNavigationBarButton(int index, BuildContext context) {
+  void handleTapNavigationBarButton(int index) {
     if (index != state.selectedNavigationIndex) {
       state.selectedNavigationIndex = index;
       update([bodyId, bottomNavigationBarId]);

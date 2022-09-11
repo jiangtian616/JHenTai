@@ -115,7 +115,7 @@ class ArchiveDownloadPage extends StatelessWidget {
     return GetBuilder<ArchiveDownloadPageLogic>(
       id: '${ArchiveDownloadPageLogic.groupId}::$group',
       builder: (_) => FocusWidget(
-        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
+        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).colorScheme.onBackground))),
         handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
         handleTapEnter: () => logic.goToReadPage(archive),
         handleTapArrowRight: () => logic.goToReadPage(archive),

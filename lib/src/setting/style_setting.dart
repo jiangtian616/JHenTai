@@ -29,6 +29,7 @@ class StyleSetting {
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
+  static RxBool hideBottomBar = true.obs;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;
@@ -88,6 +89,12 @@ class StyleSetting {
     _save();
   }
 
+  static saveHideBottomBar(bool hideBottomBar) {
+    Log.debug('saveHideBottomBar:$hideBottomBar');
+    StyleSetting.hideBottomBar.value = hideBottomBar;
+    _save();
+  }
+
   static ThemeData getCurrentThemeData() {
     return themeMode.value == ThemeMode.dark
         ? ThemeConfig.dark
@@ -110,6 +117,7 @@ class StyleSetting {
       'listMode': listMode.value.index,
       'layout': layout.value.index,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
+      'hideBottomBar': hideBottomBar.value,
     };
   }
 
@@ -121,5 +129,6 @@ class StyleSetting {
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
     actualLayout = layout.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
+    hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
   }
 }

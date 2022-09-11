@@ -231,6 +231,7 @@ class en_US {
       'coverStyle': 'Cover Style',
       'cover': 'Cover',
       'adaptive': 'Adaptive',
+      'hideBottomBar': 'Hide Bottom Bar',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
 
       /// mouse wheel setting page
