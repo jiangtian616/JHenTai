@@ -38,6 +38,7 @@ class ThemeConfig {
       surfaceTintColor: Color(0xFFE7E0EC),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
     ),
+    scaffoldBackgroundColor: Color(0xFFFFFBFE),
 
     /// for mobile layout v1
     tabBarTheme: TabBarTheme(
@@ -89,6 +90,7 @@ class ThemeConfig {
       surfaceTintColor: Color(0xFF49454F),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
     ),
+    scaffoldBackgroundColor: Color(0xFF1C1B1F),
 
     /// for mobile layout v1
     tabBarTheme: TabBarTheme(

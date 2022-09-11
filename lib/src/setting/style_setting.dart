@@ -29,7 +29,7 @@ class StyleSetting {
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
-  static RxBool hideBottomBar = true.obs;
+  static RxBool hideBottomBar = false.obs;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;

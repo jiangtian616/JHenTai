@@ -60,7 +60,7 @@ class UIConfig {
   /// Login page
   static Color get loginPageForegroundColor => Get.theme.colorScheme.background;
 
-  static Color get loginPageFormColor =>  Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
+  static Color get loginPageFormColor => Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
 
   static Color get loginPageBackgroundColor => Get.isDarkMode ? Colors.blue.shade900 : Colors.blue;
 
@@ -131,7 +131,7 @@ class UIConfig {
   static Color get downloadPageCardColor => Get.theme.colorScheme.surface;
 
   static BoxShadow get downloadPageCardShadow => BoxShadow(
-        color: Colors.black.withOpacity(0.1),
+        color: Get.theme.colorScheme.onBackground.withOpacity(0.1),
         blurRadius: 2,
         spreadRadius: 1,
         offset: const Offset(0.3, 1),
@@ -164,6 +164,7 @@ class UIConfig {
 
   /// Read page
   static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
+
   static Color get readPageButtonColor => Colors.white;
   static const double readPageBottomThumbnailsRegionHeight = 132;
   static const double readPageThumbnailHeight = 100;

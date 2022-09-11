@@ -38,8 +38,6 @@ class _EHSeparatorState extends State<EHSeparator> {
             dividerHeight /= 5;
           });
         },
-        onHover: (event) {
-        },
         cursor: widget.info.isHorizontalSeparator ? SystemMouseCursors.resizeRow : SystemMouseCursors.resizeColumn,
         child: Container(
           color: Theme.of(context).colorScheme.background,
