@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/sentry_config.dart';
@@ -86,6 +87,12 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> init() async {
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+    statusBarColor: Colors.transparent,
+  ));
+
   FlutterError.onError = (FlutterErrorDetails details) {
     Log.error(details.exception, null, details.stack);
     Log.upload(details.exception, stackTrace: details.stack);
