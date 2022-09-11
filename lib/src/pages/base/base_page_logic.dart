@@ -39,6 +39,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   bool get autoLoadNeedLogin => false;
 
+  /// used for desktop layout
   int get tabIndex;
 
   final TagTranslationService tagTranslationService = Get.find();
@@ -81,7 +82,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   /// not clear current data before refresh
-  Future<void> handleRefresh({String? refreshId}) async {
+  /// updateId is for subclass to override
+  Future<void> handleRefresh({String? updateId}) async {
     if (state.refreshState == LoadingState.loading) {
       return;
     }
@@ -118,8 +120,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.idle;
     }
 
-    if (refreshId != null) {
-      update([refreshId]);
+    if (updateId != null) {
+      update([updateId]);
     } else {
       update();
     }

@@ -6,17 +6,6 @@ import 'favorite_page_state.dart';
 
 class FavoritePageLogic extends BasePageLogic {
   @override
-  final String appBarId = 'appBarId';
-  @override
-  final String bodyId = 'bodyId';
-  @override
-  final String scroll2TopButtonId = 'scroll2TopButtonId';
-  @override
-  final String refreshStateId = 'refreshStateId';
-  @override
-  final String loadingStateId = 'loadingStateId';
-
-  @override
   int get tabIndex => 4;
 
   @override

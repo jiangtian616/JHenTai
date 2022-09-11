@@ -107,10 +107,17 @@ class DashboardPageLogic extends BasePageLogic {
     update([popularListId]);
   }
 
-  /// pull-down to refresh ranklist & popular & gallerys
+  /// pull-down to refresh ranklist & popular & gallerys, we need to sync loading state manually because [handleRefresh] doesn't
+  /// refresh loading state
   Future<void> handleRefreshTotalPage() async {
-    return Future.any([
-      super.handleRefresh(refreshId: galleryListId),
+    state.loadingState = LoadingState.loading;
+    update([loadingStateId]);
+
+    await Future.any([
+      super.handleRefresh(updateId: galleryListId).then((_){
+        state.loadingState = state.refreshState;
+        update([loadingStateId]);
+      }),
       loadRanklist(),
       loadPopular(),
     ]);

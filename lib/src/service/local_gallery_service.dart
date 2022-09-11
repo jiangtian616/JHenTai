@@ -91,7 +91,7 @@ class LocalGalleryService extends GetxController {
       directories = directory.listSync().whereType<io.Directory>().toList();
     } on Exception catch (e) {
       Log.error('List directory error!', e);
-      Log.upload(Exception('List directory error!'), extraInfos: {'path': directory.path});
+      Log.upload(e, extraInfos: {'path': directory.path});
       return;
     }
 
