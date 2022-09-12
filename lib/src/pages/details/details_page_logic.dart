@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:clipboard/clipboard.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -192,12 +193,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDownload() async {
-    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     Gallery gallery = state.gallery!;
+    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
+    GalleryDownloadedData? galleryDownloadedData = downloadService.gallerys.singleWhereOrNull((g) => g.gid == gallery.gid);
     GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
 
     /// new download
-    if (downloadProgress == null) {
+    if (galleryDownloadedData == null || downloadProgress == null) {
       Map<String, dynamic>? result = await Get.dialog(
         EHDownloadDialog(
           title: 'chooseGroup'.tr,
@@ -220,16 +222,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (downloadProgress.downloadStatus == DownloadStatus.paused) {
-      downloadService.resumeDownloadGallery(gallery.toGalleryDownloadedData());
+      downloadService.resumeDownloadGallery(galleryDownloadedData);
       toast('${'resume'.tr}： ${gallery.gid}', isCenter: false);
       return;
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
-      downloadService.pauseDownloadGallery(gallery.toGalleryDownloadedData());
+      downloadService.pauseDownloadGallery(galleryDownloadedData);
       toast('${'pause'.tr}： ${gallery.gid}', isCenter: false);
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl == null) {
       goToReadPage();
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl != null) {
-      downloadService.updateGallery(gallery.toGalleryDownloadedData(), state.galleryDetails!.newVersionGalleryUrl!);
+      downloadService.updateGallery(galleryDownloadedData, state.galleryDetails!.newVersionGalleryUrl!);
       toast('${'update'.tr}： ${gallery.gid}', isCenter: false);
     }
   }
