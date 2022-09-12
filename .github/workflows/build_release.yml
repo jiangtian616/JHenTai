@@ -61,14 +61,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       # Cache Flutter
-      - name: Cache ${{matrix.target}}
+      - name: Cache Flutter Dependencies
         uses: actions/cache@v3
         with:
           key: ${{ matrix.cache_key }}
           path: ${{ matrix.cache_path }}
           restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_restore_keys_hash_file)}}
       # Cache Pod
-      - name: Cache Pod ${{matrix.target}}
+      - name: Cache Pod
         if: matrix.cache_pod_key != null
         uses: actions/cache@v3
         with:
@@ -107,7 +107,6 @@ jobs:
         run: |
           cd ios
           pod update
-          pod install
           cd ..
           flutter build ios -t lib/src/main.dart --release --no-codesign
       # Thin iOS .app
@@ -136,8 +135,10 @@ jobs:
           cp -a build/macos/Build/Products/Release/jhentai.app ./build
           cd build
           zip -qroy macos/JHenTai_${version}_macOS.zip jhentai.app
+      # Build Windows .zip
       - name: Build Windows
         if: matrix.target == 'Windows'
+        shell: bash
         run: |
           version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)
           flutter build windows -t lib/src/main.dart --release
@@ -147,6 +148,7 @@ jobs:
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
           Compress-Archive $DestDir build\windows\JHenTai_${version}_windows.zip
+      # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
