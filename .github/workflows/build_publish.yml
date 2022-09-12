@@ -52,7 +52,9 @@ jobs:
         uses: actions/checkout@v3
       # Add Sentry DSN
       - name: Add Sentry DSN
-        run: echo ${{ secrets.SENTRY_CONFIG }} > lib/src/config/sentry_config.dart"
+        env:
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: echo $SENTRY_DSN > lib/src/config/sentry_config.dart
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
