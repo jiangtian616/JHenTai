@@ -136,6 +136,10 @@ App翻译：
 1. 三星用户与剪切板相关的操作可能无法正常进行: 为Flutter自身bug。
 2. 自定义下载路径不支持外置SD卡: Flutter自身尚未支持。
 
+## 项目编译相关
+
+1. 你需要自己管理安卓签名文件，见https://docs.flutter.dev/deployment/android#signing-the-app
+
 ## 主要dart依赖
 
 - [get](https://pub.flutter-io.cn/packages/get): 依赖管理、状态管理、国际化、NoSQL

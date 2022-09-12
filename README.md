@@ -148,6 +148,11 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 1. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
 2. Change download path to SD card is not supported now.
 
+
+## About compiling
+
+1. You need to manage your Android signing by yourself, check https://docs.flutter.dev/deployment/android#signing-the-app
+
 ## Main Dart Dependencies
 
 - [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL

@@ -50,9 +50,11 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
-      # Add secret
+      # Add Sentry DSN
       - name: Add Sentry DSN
-        run: echo "${{secrets.sentry_config}} > lib/src/config/sentry_config.dart"
+        env:
+          SENTRY_CONFIG: ${{ secrets.SENTRY_CONFIG }}
+        run: echo $SENTRY_CONFIG > lib/src/config/sentry_config.dart"
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -75,6 +77,15 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
           cache: gradle
+      # Add Android keystore
+      - name: Setup Android keystore
+        if: matrix.target == 'Android'
+        run: |
+          echo $ENCODED_KEYSTORE | base64 -di > android/app/upload-keystore.jks
+          echo $KEY_PROPERTIES > android/key.properties
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
       # Xcodebuild
       - name: Build Xcode
         if: matrix.os == 'macos-latest'
@@ -152,13 +163,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: /tmp/artifacts
-      - name: list all Artifacts
+      - name: List all Artifacts
         run: ls -R /tmp/artifacts
-#      - name: Upload to release
-#        uses: ncipollo/release-action@v1
-#        with:
-#          artifacts: "/tmp/artifacts/release-apk/*.apk,/tmp/artifacts/release-ios/*.ipa,/tmp/artifacts/release-mac/*.zip,/tmp/artifacts/release-windows/*.zip"
-#          tag: ${{ github.ref_name }}
-#          prerelease: true
-#          allowUpdates: true
-#          token: ${{ secrets.RELEASE_TOKEN }}
+      - name: Upload to release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          allowUpdates: true
+          bodyFile: changelog/${{ needs.Build.outputs.version }}.md
+          artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.zip,/tmp/artifacts/release-Windows/*.zip
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
