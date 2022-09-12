@@ -181,7 +181,7 @@ class LocalGalleryService extends GetxController {
         size = ImageSizeGetter.getSize(FileInput(file));
       } on Exception catch (e) {
         Log.error("Parse local images failed!", e);
-        Log.upload(e, extraInfos: {'file': file.path});
+        Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
         continue;
       }
 
