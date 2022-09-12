@@ -21,23 +21,14 @@ jobs:
         include:
           - target: Android
             os: ubuntu-latest
-            cache_key: android-flutter
-            cache_path: /opt/hostedtoolcache/flutter
-            cache_restore_keys_hash_file: pubspec.lock
             artifact_name: release-Android
             artifact_path: build/app/outputs/apk/release/*.apk
           - target: Windows
             os: windows-latest
-            cache_key: windows-flutter
-            cache_path: C:\hostedtoolcache\windows\flutter
-            cache_restore_keys_hash_file: pubspec.lock
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
           - target: iOS
             os: macos-latest
-            cache_key: ios-flutter
-            cache_path: /Users/runner/hostedtoolcache/flutter
-            cache_restore_keys_hash_file: pubspec.lock
             cache_pod_key: ios-pods
             cache_pod_path: ios/Pods
             cache_pod_restore_keys_hash_file: ios/Podfile.lock
@@ -45,9 +36,6 @@ jobs:
             artifact_path: build/**/*.ipa
           - target: macOS
             os: macos-latest
-            cache_key: macos-flutter
-            cache_path: /Users/runner/hostedtoolcache/flutter
-            cache_restore_keys_hash_file: pubspec.lock
             cache_pod_key: macos-pods
             cache_pod_path: macos/Pods
             cache_pod_restore_keys_hash_file: macos/Podfile.lock
@@ -62,13 +50,12 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
-      # Cache Flutter Pub Dependencies
-      - name: Cache Flutter Pub Dependencies
-        uses: actions/cache@v3
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          key: ${{ matrix.cache_key }}
-          path: ${{ matrix.cache_path }}
-          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_restore_keys_hash_file)}}
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
       # Cache Pod
       - name: Cache Pod
         if: matrix.cache_pod_key != null
@@ -85,11 +72,6 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
           cache: gradle
-      # Setup Flutter
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
       # Xcodebuild
       - name: Build Xcode
         if: matrix.os == 'macos-latest'
@@ -106,7 +88,7 @@ jobs:
         run: |
           echo "::set-output name=version::$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)"
       # Build Android .apk
-      - name: Build apk
+      - name: Build Android
         if: matrix.target == 'Android'
         run: |
           flutter build apk -t lib/src/main.dart --release --split-per-abi
@@ -114,33 +96,25 @@ jobs:
           mv app-arm64-v8a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-arm64-v8a.apk
           mv app-armeabi-v7a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-armeabi-v7a.apk
           mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x86_64.apk
-      # Build iOS .app
-      - name: Build iOS app
+      # Build iOS .ipa
+      - name: Build iOS
         if: matrix.target == 'ios'
         run: |
           cd ios
           pod update
           cd ..
           flutter build ios -t lib/src/main.dart --release --no-codesign
-      # Thin iOS .app
-      - name: Thin iOS app
-        if: matrix.target == 'iOS'
-        run: sh thin-payload.sh build/ios/iphoneos/*.app
-      # Build iOS .ipa
-      - name: Build iOS ipa
-        if: matrix.target == 'iOS'
-        run: |
+          sh thin-payload.sh build/ios/iphoneos/*.app
           cd build
           mkdir -p Payload
           mv ios/iphoneos/*.app Payload
           zip -9 JHenTai_${{ steps.get_version.outputs.version }}.ipa -r Payload
       # Build macOS .zip
-      - name: Build macOS zip
+      - name: Build macOS
         if: matrix.target == 'macOS'
         run: |
           cd macos
           pod update
-          pod install
           cd ..
           flutter build macos -t lib/src/main.dart --release
           cp -a build/macos/Build/Products/Release/jhentai.app ./build
@@ -169,13 +143,14 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Mkdir
+      - name: Mkdir tmp dir
         run: mkdir /tmp/artifacts
       - name: Download all Artifacts
         uses: actions/download-artifact@v3
         with:
           path: /tmp/artifacts
-      - run: ls -R /tmp/artifacts
+      - name: list all Artifacts
+        run: ls -R /tmp/artifacts
 #      - name: Upload to release
 #        uses: ncipollo/release-action@v1
 #        with:
