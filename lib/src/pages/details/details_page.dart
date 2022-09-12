@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
@@ -263,7 +264,7 @@ class _DetailsPageHeader extends StatelessWidget {
       child: Row(
         children: [
           _buildCover(),
-          Expanded(child: _buildDetails().marginOnly(left: 10)),
+          Expanded(child: _buildDetails(context).marginOnly(left: 10)),
         ],
       ),
     );
@@ -289,14 +290,14 @@ class _DetailsPageHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildDetails() {
+  Widget _buildDetails(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle(),
         _buildUploader(),
         const Expanded(child: SizedBox()),
-        _buildInfo().marginOnly(bottom: 4),
+        StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
         _buildRatingAndCategory(),
       ],
     );
@@ -304,7 +305,7 @@ class _DetailsPageHeader extends StatelessWidget {
 
   Widget _buildTitle() {
     return SelectableText(
-      state.gallery!.title,
+      state.gallery!.title.breakWord,
       minLines: 1,
       maxLines: 5,
       style: const TextStyle(
@@ -327,7 +328,7 @@ class _DetailsPageHeader extends StatelessWidget {
     ).marginOnly(top: 10);
   }
 
-  Widget _buildInfo() {
+  Widget _buildInfoInTwoRows() {
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double iconSize = 10 + constraints.maxWidth / 120;
@@ -439,6 +440,95 @@ class _DetailsPageHeader extends StatelessWidget {
     );
   }
 
+  Widget _buildInfoInThreeRows(BuildContext context) {
+    return DefaultTextStyle(
+      style: DefaultTextStyle.of(context).style.copyWith(fontSize: UIConfig.detailsPageInfoTextSize),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.language, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese').marginOnly(left: 2),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                    child: Text(
+                      state.galleryDetails?.ratingCount.toString() ?? '...',
+                      key: Key(state.galleryDetails?.ratingCount.toString() ?? '...'),
+                    ),
+                  ).marginOnly(left: 2),
+                ],
+              ).marginOnly(top: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.collections, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                    child: Text(
+                      state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString() + 'P',
+                      key: Key(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString()),
+                    ),
+                  ).marginOnly(left: 2),
+                ],
+              ).marginOnly(top: 2),
+            ],
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                    child: Text(
+                      state.galleryDetails?.favoriteCount.toString() ?? '...',
+                      key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
+                    ),
+                  ).marginOnly(left: 2),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.archive, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                    child: Text(
+                      state.galleryDetails?.size ?? '...',
+                      key: Key(state.galleryDetails?.size ?? '...'),
+                    ),
+                  ),
+                ],
+              ).marginOnly(top: 2),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.cloud_upload, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                  Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime)),
+                ],
+              ).marginOnly(top: 2),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildRatingAndCategory() {
     return Row(
       children: [
@@ -450,9 +540,14 @@ class _DetailsPageHeader extends StatelessWidget {
             key: Key(state.galleryDetails?.realRating.toString() ?? '...'),
             style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize),
           ),
-        ),
+        ).marginOnly(bottom: 1),
         const Expanded(child: SizedBox()),
-        EHGalleryCategoryTag(category: state.gallery!.category)
+        EHGalleryCategoryTag(
+          category: state.gallery!.category,
+          padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
+          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: Colors.white,height: 1),
+          borderRadius: 3,
+        ),
       ],
     );
   }
@@ -468,7 +563,7 @@ class _DetailsPageHeader extends StatelessWidget {
                 initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
                 itemCount: 5,
                 allowHalfRating: true,
-                itemSize: 18,
+                itemSize: 16,
                 ignoreGestures: true,
                 itemBuilder: (context, index) =>
                     Icon(Icons.star, color: state.gallery!.hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
@@ -484,7 +579,7 @@ class _DetailsPageHeader extends StatelessWidget {
       initialRating: 0,
       itemCount: 5,
       allowHalfRating: true,
-      itemSize: 18,
+      itemSize: 16,
       ignoreGestures: true,
       itemBuilder: (context, index) => const Icon(Icons.star),
       onRatingUpdate: (_) {},

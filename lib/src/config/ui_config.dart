@@ -83,6 +83,8 @@ class UIConfig {
   static Color get detailsPageUploaderTextColor => Get.theme.colorScheme.outline;
 
   static Color get detailsPageIconColor => Get.theme.colorScheme.outline;
+  static const double detailsPageInfoIconSize = 12;
+  static const double detailsPageInfoTextSize = 10;
   static const double detailsPageRatingTextSize = 12;
   static const double detailsPageDetailsTextSize = 8;
   static const double detailsPageFirstSpanWidthSize = 72;
