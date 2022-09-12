@@ -53,6 +53,8 @@ jobs:
             cache_pod_restore_keys_hash_file: macos/Podfile.lock
             artifact_name: release-macOS
             artifact_path: build/macos/*.zip
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
     env:
       FLUTTER_VERSION: 3.3.1
@@ -60,8 +62,8 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
-      # Cache Flutter
-      - name: Cache Flutter Dependencies
+      # Cache Flutter Pub Dependencies
+      - name: Cache Flutter Pub Dependencies
         uses: actions/cache@v3
         with:
           key: ${{ matrix.cache_key }}
@@ -97,10 +99,21 @@ jobs:
         run: |
           git config --global core.longpaths true
           flutter pub get
+      # Get app version
+      - name: Get app version
+        id: get_version
+        shell: bash
+        run: |
+          echo "::set-output name=version::$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)"
       # Build Android .apk
       - name: Build apk
         if: matrix.target == 'Android'
-        run: flutter build apk -t lib/src/main.dart --release --split-per-abi
+        run: |
+          flutter build apk -t lib/src/main.dart --release --split-per-abi
+          cd build/app/outputs/apk/release
+          mv app-arm64-v8a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-arm64-v8a.apk
+          mv app-armeabi-v7a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-armeabi-v7a.apk
+          mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x86_64.apk
       # Build iOS .app
       - name: Build iOS app
         if: matrix.target == 'ios'
@@ -117,16 +130,14 @@ jobs:
       - name: Build iOS ipa
         if: matrix.target == 'iOS'
         run: |
-          version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)
           cd build
           mkdir -p Payload
           mv ios/iphoneos/*.app Payload
-          zip -9 JHenTai_${version}.ipa -r Payload
-      # Build macOS .app
-      - name: Build macOS app
+          zip -9 JHenTai_${{ steps.get_version.outputs.version }}.ipa -r Payload
+      # Build macOS .zip
+      - name: Build macOS zip
         if: matrix.target == 'macOS'
         run: |
-          version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)
           cd macos
           pod update
           pod install
@@ -134,20 +145,18 @@ jobs:
           flutter build macos -t lib/src/main.dart --release
           cp -a build/macos/Build/Products/Release/jhentai.app ./build
           cd build
-          zip -qroy macos/JHenTai_${version}_macOS.zip jhentai.app
+          zip -qroy macos/JHenTai_${{ steps.get_version.outputs.version }}_macOS.zip jhentai.app
       # Build Windows .zip
       - name: Build Windows
         if: matrix.target == 'Windows'
-        shell: bash
         run: |
-          version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)
           flutter build windows -t lib/src/main.dart --release
           $DestDir = "build\windows\JHenTai"
           $SrcDir = "build\windows\runner\Release"
           New-Item -Path $DestDir -ItemType Directory
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
-          Compress-Archive $DestDir build\windows\JHenTai_${version}_windows.zip
+          Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_windows.zip
       # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
