@@ -24,7 +24,8 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 
 苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
-Windows安装： 下载zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。如果你使用的是Win11且出现打不开应用的情况，请尝试右键更改jhentai.exe的属性，以兼容模式启动。
+Windows安装： 下载zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。如果你使用的是Win11且出现打不开应用的情况，
+请尝试右键更改jhentai.exe的属性，以兼容模式启动。如果Windows Defender报毒，请信任它。
 
 Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
 

@@ -39,11 +39,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
         padding: const EdgeInsets.only(top: 16),
         children: [
           ListTile(title: Text('version'.tr), subtitle: Text(version.isEmpty ? '1.0.0' : '$version+$buildNumber')),
-          ListTile(
-            title: Text('author'.tr),
-            subtitle: SelectableText(author),
-            onTap: () => throw Exception('test'),
-          ),
+          ListTile(title: Text('author'.tr), subtitle: SelectableText(author)),
           ListTile(
             title: const Text('Github'),
             subtitle: SelectableText(gitRepo),
