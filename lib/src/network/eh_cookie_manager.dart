@@ -22,7 +22,7 @@ class EHCookieManager extends CookieManager {
 
   static Future<void> init() async {
     PersistCookieJar _cookieJar = PersistCookieJar(
-      storage: FileStorage(join(PathSetting.appSupportDir.path, "cookies")),
+      storage: FileStorage(join(PathSetting.getVisibleDir().path, "cookies")),
     );
 
     /// For some reason i don't know currently, local [_hostset] file will be broken,

@@ -21,7 +21,7 @@ class EHCacheInterceptor extends Interceptor {
   final CacheStore _store;
 
   static CacheOptions noCacheOption = CacheOptions(
-    store: DbCacheStore(databasePath: join(PathSetting.appSupportDir.path, 'cache')),
+    store: DbCacheStore(databasePath: join(PathSetting.getVisibleDir().path, 'cache')),
     policy: CachePolicy.noCache,
     hitCacheOnErrorExcept: [401, 403],
     priority: CachePriority.normal,

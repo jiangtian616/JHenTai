@@ -8,6 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
+import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as p;
@@ -22,7 +23,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -57,6 +58,9 @@ class AppDb extends _$AppDb {
           }
           if (from < 8) {
             await _createGroupTable(m);
+          }
+          if (from < 9) {
+            await _updateConfigFileLocation();
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -129,11 +133,16 @@ class AppDb extends _$AppDb {
       Log.upload(e);
     }
   }
+
+  /// copy files
+  Future<void> _updateConfigFileLocation() async {
+    await PathSetting.appSupportDir.copy(PathSetting.getVisibleDir().path);
+  }
 }
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(p.join(PathSetting.appSupportDir.path, 'db.sqlite'));
+    final file = io.File(p.join(PathSetting.getVisibleDir().path, 'db.sqlite'));
     return NativeDatabase(file);
   });
 }

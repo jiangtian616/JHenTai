@@ -1052,12 +1052,10 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "23063d535909027b8e198c2cffa83bf8f0480c96"
-      url: "https://gitee.com/jiangtian616/photo_view.git"
-    source: git
-    version: "0.13.0"
+      name: photo_view
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.14.0"
   platform:
     dependency: transitive
     description:

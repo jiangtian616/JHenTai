@@ -7,7 +7,7 @@ import '../utils/log.dart';
 class StorageService extends GetxService {
   static const storageFileName = '.GetStorage';
 
-  final GetStorage _storage = GetStorage(storageFileName, PathSetting.appSupportDir.path);
+  final GetStorage _storage = GetStorage(storageFileName, PathSetting.getVisibleDir().path);
 
   static Future<void>  init() async {
     StorageService storageService = StorageService();
