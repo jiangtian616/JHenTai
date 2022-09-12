@@ -16,7 +16,8 @@ import '../quick_search/quick_search_page.dart';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
+class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMobileV2State>
+    with BaseSearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
   final String tag = UniqueKey().toString();
 
   SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
@@ -90,7 +91,7 @@ class SearchPageMobileV2 extends BasePage with BaseSearchPageMixin {
       InkResponse(
         child: const Icon(Icons.attach_file, size: 22),
         onTap: logic.handleFileSearch,
-      ).marginOnly(right: 12, left: 8,top: 1),
+      ).marginOnly(right: 12, left: 8, top: 1),
       if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
         FadeIn(
           child: InkResponse(

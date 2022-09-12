@@ -12,7 +12,7 @@ import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
 import 'base_page_state.dart';
 
-abstract class BasePage extends StatelessWidget {
+abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extends StatelessWidget {
   /// For mobile layout v2
   final bool showMenuButton;
   final bool showJumpButton;
@@ -31,13 +31,13 @@ abstract class BasePage extends StatelessWidget {
     this.name,
   }) : super(key: key);
 
-  BasePageLogic get logic;
+  L get logic;
 
-  BasePageState get state;
+  S get state;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<BasePageLogic>(
+    return GetBuilder<L>(
       global: false,
       init: logic,
       builder: (_) => Scaffold(
@@ -66,7 +66,7 @@ abstract class BasePage extends StatelessWidget {
   }
 
   Widget buildFloatingActionButton(BuildContext context) {
-    return GetBuilder<BasePageLogic>(
+    return GetBuilder<L>(
       id: logic.scroll2TopButtonId,
       global: false,
       init: logic,
@@ -108,7 +108,7 @@ abstract class BasePage extends StatelessWidget {
   }
 
   Widget buildListBody(BuildContext context) {
-    return GetBuilder<BasePageLogic>(
+    return GetBuilder<L>(
       id: logic.bodyId,
       global: false,
       init: logic,
@@ -133,7 +133,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget buildCenterStatusIndicator() {
     return Center(
-      child: GetBuilder<BasePageLogic>(
+      child: GetBuilder<L>(
         id: logic.loadingStateId,
         global: false,
         init: logic,
@@ -163,7 +163,7 @@ abstract class BasePage extends StatelessWidget {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 8, bottom: 40),
       sliver: SliverToBoxAdapter(
-        child: GetBuilder<BasePageLogic>(
+        child: GetBuilder<L>(
           id: logic.loadingStateId,
           global: false,
           init: logic,

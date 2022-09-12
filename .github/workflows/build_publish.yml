@@ -52,13 +52,13 @@ jobs:
         uses: actions/checkout@v3
       # Add Sentry DSN
       - name: Add Sentry DSN
-        run: echo ${{ secrets.SENTRY_CONFIG }} > lib/src/config/sentry_config.dart
+        run: echo "${{ secrets.SENTRY_CONFIG }}" > lib/src/config/sentry_config.dart
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
         run: |
-          echo ${{ secrets.ENCODED_KEYSTORE }} | base64 -di > android/app/upload-keystore.jks
-          echo ${{ secrets.KEY_PROPERTIES }} > android/key.properties
+          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -di > android/app/upload-keystore.jks
+          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

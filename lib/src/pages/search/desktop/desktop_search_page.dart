@@ -13,7 +13,8 @@ import '../../../config/ui_config.dart';
 import '../../base/base_page.dart';
 import '../base/base_search_page_state_mixin.dart';
 
-class DesktopSearchPage extends BasePage with BaseSearchPageMixin {
+class DesktopSearchPage extends BasePage<DesktopSearchPageLogic, DesktopSearchPageState>
+    with BaseSearchPageMixin<DesktopSearchPageLogic, DesktopSearchPageState> {
   const DesktopSearchPage({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true);
 
   @override

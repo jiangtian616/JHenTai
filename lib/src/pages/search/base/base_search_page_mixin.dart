@@ -11,15 +11,15 @@ import '../../../model/gallery_tag.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
-mixin BaseSearchPageMixin on BasePage {
+mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSearchPageStateMixin> on BasePage<L, S> {
   @override
-  BaseSearchPageLogicMixin get logic;
+  L get logic;
 
   @override
-  BaseSearchPageStateMixin get state;
+  S get state;
 
   Widget buildSearchField() {
-    return GetBuilder<BaseSearchPageLogicMixin>(
+    return GetBuilder<L>(
       global: false,
       init: logic,
       id: logic.searchFieldId,
