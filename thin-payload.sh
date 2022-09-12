@@ -22,7 +22,7 @@ foreachThin(){
 }
 
 if [ $# eq 0 ]; then
-  ehco "no argument"
+  echo "no argument"
 else
   foreachThin $1
 fi

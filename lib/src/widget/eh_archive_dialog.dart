@@ -123,21 +123,27 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     } on DioError catch (e) {
       Log.error('getGalleryArchiveFailed'.tr, e.message);
       snack('getGalleryArchiveFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
-      setState(() {
-        loadingState = LoadingState.error;
-      });
+      if (mounted) {
+        setState(() {
+          loadingState = LoadingState.error;
+        });
+      }
       return;
     } on NotUploadException catch (_) {
       snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.TOP);
-      setState(() {
-        loadingState = LoadingState.error;
-      });
+      if (mounted) {
+        setState(() {
+          loadingState = LoadingState.error;
+        });
+      }
       return;
     }
 
-    setState(() {
-      loadingState = LoadingState.success;
-    });
+    if(mounted) {
+      setState(() {
+        loadingState = LoadingState.success;
+      });
+    }
   }
 
   bool _canAffordDownload({required bool isOriginal}) {
