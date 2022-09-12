@@ -50,6 +50,9 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
+      # Add secret
+      - name: Add Sentry DSN
+        run: echo "${{secrets.sentry_config}} > lib/src/config/sentry_config.dart"
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -143,7 +146,7 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Mkdir tmp dir
+      - name: Make tmp dir
         run: mkdir /tmp/artifacts
       - name: Download all Artifacts
         uses: actions/download-artifact@v3
