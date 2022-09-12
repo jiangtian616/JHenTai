@@ -53,8 +53,17 @@ jobs:
       # Add Sentry DSN
       - name: Add Sentry DSN
         env:
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
-        run: echo $SENTRY_DSN > lib/src/config/sentry_config.dart
+          SENTRY_CONFIG: ${{ secrets.SENTRY_CONFIG }}
+        run: echo $SENTRY_CONFIG > lib/src/config/sentry_config.dart
+      # Add Android keystore
+      - name: Setup Android keystore
+        if: matrix.target == 'Android'
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
+        run: |
+          echo $ENCODED_KEYSTORE | base64 -di > android/app/upload-keystore.jks
+          echo $KEY_PROPERTIES > android/key.properties
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -77,15 +86,6 @@ jobs:
           distribution: 'zulu'
           java-version: '11'
           cache: gradle
-      # Add Android keystore
-      - name: Setup Android keystore
-        if: matrix.target == 'Android'
-        env:
-          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
-          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
-        run: |
-          echo $ENCODED_KEYSTORE | base64 -di > android/app/upload-keystore.jks
-          echo $KEY_PROPERTIES > android/key.properties
       # Xcodebuild
       - name: Build Xcode
         if: matrix.os == 'macos-latest'
