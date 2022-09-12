@@ -80,9 +80,12 @@ jobs:
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
         run: |
-          echo ${{ secrets.ENCODED_KEYSTORE }} | base64 -di > android/app/upload-keystore.jks
-          echo ${{ secrets.KEY_PROPERTIES }} > android/key.properties
+          echo $ENCODED_KEYSTORE | base64 -di > android/app/upload-keystore.jks
+          echo $KEY_PROPERTIES > android/key.properties
       # Xcodebuild
       - name: Build Xcode
         if: matrix.os == 'macos-latest'
