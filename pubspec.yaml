@@ -47,9 +47,7 @@ dependencies:
   url_launcher: ^6.1.5
   like_button: ^2.0.4
   webview_flutter: ^3.0.4
-  photo_view:
-    git: https://gitee.com/jiangtian616/photo_view.git
-  #    git: https://github.com/bluefireteam/photo_view.git
+  photo_view: ^0.14.0
   package_info_plus: ^1.4.3+1
   file_picker:
     git: https://github.com/ishangavidusha/flutter_file_picker
