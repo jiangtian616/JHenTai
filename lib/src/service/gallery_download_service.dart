@@ -1044,7 +1044,7 @@ class GalleryDownloadService extends GetxController {
       try {
         await appDb.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
       } on SqliteException catch (e) {
-        Log.info(e);
+        Log.debug(e);
       }
       return await appDb.insertGallery(
             gallery.gid,

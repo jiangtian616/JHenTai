@@ -652,7 +652,7 @@ class ArchiveDownloadService extends GetxController {
       try {
         await appDb.insertArchiveGroup(archive.groupName ?? 'default'.tr);
       } on SqliteException catch (e) {
-        Log.info(e);
+        Log.debug(e);
       }
 
       return await appDb.insertArchive(
