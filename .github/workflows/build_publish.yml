@@ -167,7 +167,7 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           allowUpdates: true
-          bodyFile: changelog/${{ needs.Build.outputs.version }}.md
+          bodyFile: changelog/${{ github.ref_name }}.md
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.zip,/tmp/artifacts/release-Windows/*.zip
           artifactErrorsFailBuild: true
           replacesArtifacts: true
