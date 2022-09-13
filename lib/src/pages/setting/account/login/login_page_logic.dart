@@ -122,7 +122,7 @@ class LoginPageLogic extends GetxController {
       ipbPassHash = match.group(2)!;
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e);
-      Log.upload(e);
+      Log.upload(e, extraInfos: {'cookie': state.cookie!});
       toast('cookieFormatError'.tr);
       return;
     }
