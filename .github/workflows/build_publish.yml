@@ -7,8 +7,7 @@ on:
     tags:
       - v*
 
-# 1. If we push to master with a tag, we will trigger workflow twice, use [concurrency] to prevent this
-# 2. If last workflow is still running, we push again, we will cancel the previous workflow
+# If last workflow is still running, we push again, we will cancel the previous workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
