@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/jh_layout.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
@@ -63,7 +64,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     if (autoLoadForFirstTime) {
       if (autoLoadNeedLogin && !UserSetting.hasLoggedIn()) {
         state.loadingState = LoadingState.noData;
-        update([bodyId]);
+        updateSafely([bodyId]);
         Get.engine.addPostFrameCallback((_) => toast('needLoginToOperate'.tr));
         return;
       }
@@ -89,7 +90,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     state.refreshState = LoadingState.loading;
-    update([refreshStateId]);
+    updateSafely([refreshStateId]);
 
     List<dynamic> gallerysAndPageInfo;
     try {
@@ -98,7 +99,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.refreshState = LoadingState.error;
-      update([refreshStateId]);
+      updateSafely([refreshStateId]);
       return;
     }
 
@@ -121,9 +122,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     if (updateId != null) {
-      update([updateId]);
+      updateSafely([updateId]);
     } else {
-      update();
+      updateSafely();
     }
 
     CheckUtil.build(
@@ -147,7 +148,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     jump2Top();
 
-    update();
+    updateSafely();
 
     loadMore(checkLoadingState: false);
   }
@@ -169,7 +170,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = prevState;
-      update([loadingStateId]);
+      updateSafely([loadingStateId]);
       return;
     }
 
@@ -181,7 +182,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
 
     state.loadingState = prevState;
-    update();
+    updateSafely();
   }
 
   /// has scrolled to bottom, so need to load more data.
@@ -195,10 +196,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     if (state.gallerys.isEmpty) {
       /// for [CenterStatusIndicator]
-      update([bodyId]);
+      updateSafely([bodyId]);
     } else if (prevState == LoadingState.error || prevState == LoadingState.noData) {
       /// for [LoadMoreIndicator]
-      update([loadingStateId]);
+      updateSafely([loadingStateId]);
     }
 
     CheckUtil.build(
@@ -208,7 +209,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('getGallerysFailed'.tr);
       snack('getGallerysFailed'.tr, 'internalError'.tr, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      update([loadingStateId]);
+      updateSafely([loadingStateId]);
     }).check();
 
     List<dynamic> gallerysAndPageInfo;
@@ -218,7 +219,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      update([loadingStateId]);
+      updateSafely([loadingStateId]);
       return;
     }
 
@@ -238,7 +239,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.idle;
     }
 
-    update();
+    updateSafely();
 
     CheckUtil.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,
@@ -256,7 +257,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     state.gallerys.clear();
     state.loadingState = LoadingState.loading;
-    update();
+    updateSafely();
     state.scrollController.jumpTo(0);
 
     pageIndex = max(pageIndex, 0);
@@ -271,7 +272,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      update([loadingStateId]);
+      updateSafely([loadingStateId]);
       return;
     }
 
@@ -291,7 +292,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.idle;
     }
 
-    update();
+    updateSafely();
 
     CheckUtil.build(
       () => state.nextPageIndexToLoad != null || state.loadingState == LoadingState.noMore,

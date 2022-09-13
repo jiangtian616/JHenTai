@@ -564,6 +564,7 @@ class ArchiveDownloadService extends GetxController {
       Log.upload(Exception('Invalid archive!'), extraInfos: {
         'code': response.statusCode,
         'headers': response.headers,
+        'body': response.data,
       });
       await _deletePackingFileInDisk(archive);
       await Future.delayed(const Duration(milliseconds: 1000));

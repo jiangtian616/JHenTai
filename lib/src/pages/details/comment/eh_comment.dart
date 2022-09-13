@@ -4,10 +4,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/extension/state_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -23,7 +22,6 @@ import '../../../utils/check_util.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
 
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
@@ -334,7 +332,8 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       return _doVoteComment(commentId, isVotingUp);
     }
 
-    setState(() {
+
+    setStateIfMounted(() {
       score = newScore >= 0 ? '+' + newScore.toString() : newScore.toString();
     });
   }

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
@@ -103,8 +104,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     state.loadingState = LoadingState.loading;
-    if (!refresh && _stack.contains(this)) {
-      update([loadingStateId]);
+    if (!refresh) {
+      updateSafely([loadingStateId]);
     }
 
     Log.info('Get gallery details:${state.galleryUrl}');
@@ -116,8 +117,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      if (!refresh && _stack.contains(this)) {
-        update([loadingStateId]);
+      if (!refresh) {
+        updateSafely([loadingStateId]);
       }
       return;
     }
@@ -143,12 +144,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     state.loadingState = LoadingState.success;
 
-    /// Attention! If enter into detail page and exit very quickly, [update] will cause
-    /// an fatal exception because this [logic] has been destroyed, in order to avoid it,
-    /// I check if this [logic] has called [disposed]
-    if (_stack.contains(this)) {
-      update();
-    }
+    updateSafely();
   }
 
   Future<void> loadMoreThumbnails() async {
@@ -159,12 +155,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// no more thumbnails
     if (state.nextPageIndexToLoadThumbnails >= state.galleryDetails!.thumbnailsPageCount) {
       state.loadingThumbnailsState = LoadingState.noMore;
-      update([loadingThumbnailsStateId]);
+      updateSafely([loadingThumbnailsStateId]);
       return;
     }
 
     state.loadingThumbnailsState = LoadingState.loading;
-    update([loadingThumbnailsStateId]);
+    updateSafely([loadingThumbnailsStateId]);
 
     List<GalleryThumbnail> newThumbNails;
     try {
@@ -177,7 +173,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('failToGetThumbnails'.tr, e.message);
       snack('failToGetThumbnails'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingThumbnailsState = LoadingState.error;
-      update([loadingThumbnailsStateId]);
+      updateSafely([loadingThumbnailsStateId]);
       return;
     }
 
@@ -185,7 +181,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.nextPageIndexToLoadThumbnails++;
 
     state.loadingThumbnailsState = LoadingState.idle;
-    update([thumbnailsId]);
+    updateSafely([thumbnailsId]);
   }
 
   Future<void> handleRefresh() async {
@@ -259,7 +255,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Log.info('Favorite gallery: ${state.gallery!.gid}');
 
     state.favoriteState = LoadingState.loading;
-    update([addFavoriteStateId]);
+    updateSafely([addFavoriteStateId]);
 
     try {
       if (favIndex == state.gallery?.favoriteTagIndex) {
@@ -284,14 +280,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('favoriteGalleryFailed'.tr, e.message);
       snack('favoriteGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.favoriteState = LoadingState.error;
-      update([addFavoriteStateId]);
+      updateSafely([addFavoriteStateId]);
       return;
     }
 
     _removeCache();
 
     state.favoriteState = LoadingState.idle;
-    update([addFavoriteStateId]);
+    updateSafely([addFavoriteStateId]);
 
     updateGlobalGalleryStatus();
   }
@@ -314,7 +310,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Log.info('Rate gallery: ${state.gallery!.gid}, rating: $rating');
 
     state.ratingState = LoadingState.loading;
-    update([ratingStateId]);
+    updateSafely([ratingStateId]);
 
     Map<String, dynamic> ratingInfo;
     try {
@@ -330,7 +326,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
       state.ratingState = LoadingState.error;
-      update([ratingStateId]);
+      updateSafely([ratingStateId]);
       return;
     }
 
@@ -343,7 +339,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     _removeCache();
 
     state.ratingState = LoadingState.idle;
-    update();
+    updateSafely();
 
     updateGlobalGalleryStatus();
   }
@@ -438,7 +434,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     ).then((result) {
       int score = jsonDecode(result)['comment_score'];
       state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score = score >= 0 ? '+' + score.toString() : score.toString();
-      update();
+      updateSafely();
     }).catchError((error) {
       Log.error('voteCommentFailed'.tr, (error as DioError).message);
       snack('voteCommentFailed'.tr, error.message);

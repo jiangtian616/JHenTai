@@ -28,7 +28,6 @@ class TagSetsPage extends StatelessWidget {
             return LoadingStateIndicator(
               loadingState: state.loadingState,
               errorTapCallback: logic.getTagSet,
-              errorWidgetSameWithIdle: true,
             );
           }
 

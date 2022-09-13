@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -41,8 +42,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   Future<void> getTagSet() async {
     state.tagSets.clear();
     state.loadingState = LoadingState.loading;
-    update([bodyId]);
-
+    updateSafely([bodyId]);
     Map<String, dynamic> map;
     try {
       map = await EHRequest.requestMyTagsPage(
@@ -53,7 +53,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('getTagSetFailed'.tr, e.message);
       snack('getTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.loadingState = LoadingState.error;
-      update([bodyId]);
+      updateSafely([bodyId]);
       return;
     }
 
@@ -64,7 +64,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     await _translateTagSetNamesIfNeeded();
 
     state.loadingState = LoadingState.success;
-    update([titleId, bodyId]);
+    updateSafely([titleId, bodyId]);
   }
 
   Future<void> handleUpdateWeight(int tagSetIndex, String value) async {
@@ -165,7 +165,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     Log.info('Update tag:$tag');
 
     state.updateTagState = LoadingState.loading;
-    update(['$tagId::${tag.tagId}']);
+    updateSafely(['$tagId::${tag.tagId}']);
 
     try {
       await EHRequest.requestUpdateTagSet(
@@ -181,7 +181,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('updateTagSetFailed'.tr, e.message);
       snack('updateTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
       state.updateTagState = LoadingState.error;
-      update(['$tagId::${tag.tagId}']);
+      updateSafely(['$tagId::${tag.tagId}']);
       return;
     }
 
@@ -190,7 +190,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     state.updateTagState = LoadingState.idle;
 
     toast('success'.tr);
-    update(['$tagId::${tag.tagId}']);
+    updateSafely(['$tagId::${tag.tagId}']);
   }
 
   Future<void> deleteTagSet(int tagSetIndex) async {
@@ -198,7 +198,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     Log.info('Delete tag:$tag');
 
     state.updateTagState = LoadingState.loading;
-    update(['$tagId::${tag.tagId}']);
+    updateSafely(['$tagId::${tag.tagId}']);
 
     try {
       await EHRequest.requestDeleteTagSet(tagSetId: state.tagSets[tagSetIndex].tagId);
@@ -206,7 +206,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       Log.error('deleteTagSetFailed'.tr, e.message);
       snack('deleteTagSetFailed'.tr, e.message, longDuration: true);
       state.updateTagState = LoadingState.error;
-      update(['$tagId::${tag.tagId}']);
+      updateSafely(['$tagId::${tag.tagId}']);
       return;
     }
 
@@ -214,7 +214,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     state.tagSets.removeAt(tagSetIndex);
 
     state.updateTagState = LoadingState.idle;
-    update([bodyId]);
+    updateSafely([bodyId]);
   }
 
   Future<void> _translateTagSetNamesIfNeeded() async {
