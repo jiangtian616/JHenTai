@@ -152,6 +152,8 @@ jobs:
     needs: Build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Make tmp dir
         run: mkdir /tmp/artifacts
       - name: Download all Artifacts
