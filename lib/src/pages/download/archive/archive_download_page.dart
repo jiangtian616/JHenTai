@@ -1,17 +1,16 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:grouped_list/grouped_list.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/re_unlock_dialog.dart';
 
 import '../../../model/gallery_image.dart';
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
+import '../../../setting/style_setting.dart';
 import '../../../utils/byte_util.dart';
 import '../../../utils/date_util.dart';
 import '../../../utils/route_util.dart';
@@ -19,13 +18,15 @@ import '../../../widget/eh_gallery_category_tag.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
+import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../download_base_page.dart';
 import 'archive_download_page_logic.dart';
 import 'archive_download_page_state.dart';
 
 class ArchiveDownloadPage extends StatelessWidget {
-  ArchiveDownloadPage({Key? key}) : super(key: key);
+  ArchiveDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
 
+  final bool showMenuButton;
   final ArchiveDownloadPageLogic logic = Get.put<ArchiveDownloadPageLogic>(ArchiveDownloadPageLogic(), permanent: true);
   final ArchiveDownloadPageState state = Get.find<ArchiveDownloadPageLogic>().state;
 
@@ -45,6 +46,9 @@ class ArchiveDownloadPage extends StatelessWidget {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
+      leading: StyleSetting.isInV2Layout
+          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+          : null,
       titleSpacing: 0,
       title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
       actions: [
