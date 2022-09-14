@@ -133,7 +133,7 @@ jobs:
         if: matrix.target == 'Windows'
         run: |
           flutter build windows -t lib/src/main.dart --release
-          $DestDir = "build\windows\JHenTai"
+          $DestDir = "build\windows\JHenTai_${{ steps.get_version.outputs.version }}"
           $SrcDir = "build\windows\runner\Release"
           New-Item -Path $DestDir -ItemType Directory
           Copy-Item $SrcDir\* -Recurse $DestDir
