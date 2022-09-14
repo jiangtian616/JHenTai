@@ -29,8 +29,7 @@ Windows安装： 下载zip后解压即可。如果你使用了代理服务器，
 
 Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
 
-Linux安装（不维护更新）：下载[JHenTai_3.1.0+63_linux.zip](https://github.com/jiangtian616/JHenTai/releases/download/v3.1.0%2B63/JHenTai_3.1.0+63_linux.zip)后解压，
-运行jhentai文件即可（若有必要请添加可执行权限）。如果你使用了代理服务器，在网络设置里配置代理地址。若想要使用最新版本，需要自行编译打包，可尝试第三方pkg脚本[pkgbuild-scripts](https://github.com/Quackdoc/pkgbuild-scripts/blob/Master/jhentai-git/PKGBUILD)。
+Linux安装（不维护）：下载zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
 
 ## 开发动机
 

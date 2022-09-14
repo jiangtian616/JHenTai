@@ -31,8 +31,7 @@ Please trust it.
 Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting
 page.
 
-Install for Linux(No maintenance update): download [JHenTai_3.1.0+63_linux.zip](https://github.com/jiangtian616/JHenTai/releases/download/v3.1.0%2B63/JHenTai_3.1.0+63_linux.zip), then unpack it and execute jhentai(add execution permission possibly). If you use a proxy server, 
-proxy address at network setting page. If you want to use the latest version, you need to compile and build by yourself, and you can try a third-party pkg script [pkgbuild-scripts](https://github.com/Quackdoc/pkgbuild-scripts/blob/Master/jhentai-git/PKGBUILD)。
+Install for Linux(No maintenance): download windows.zip, then unpack it. If you use a proxy server, set proxy address at network setting page.
 
 ## Help With Translation
 
