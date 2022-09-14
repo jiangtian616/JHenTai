@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_logic_mixin.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 
 import '../../../model/search_config.dart';

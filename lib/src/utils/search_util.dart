@@ -20,6 +20,7 @@ void newSearch(String? keyword) {
     }
     toRoute(Routes.desktopSearch);
     desktopSearchPageLogic.state.searchConfig.keyword = keyword;
+    desktopSearchPageLogic.state.searchConfig.tags?.clear();
     desktopSearchPageLogic.clearAndRefresh();
     return;
   }

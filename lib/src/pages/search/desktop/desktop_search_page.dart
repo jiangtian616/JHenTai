@@ -2,7 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_mixin.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -11,7 +11,7 @@ import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
 import '../../../config/ui_config.dart';
 import '../../base/base_page.dart';
-import '../base/base_search_page_state_mixin.dart';
+import '../base/base_search_page_state.dart';
 
 class DesktopSearchPage extends BasePage<DesktopSearchPageLogic, DesktopSearchPageState>
     with BaseSearchPageMixin<DesktopSearchPageLogic, DesktopSearchPageState> {

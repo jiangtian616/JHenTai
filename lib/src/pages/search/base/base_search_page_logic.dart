@@ -6,7 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 import 'package:jhentai/src/utils/check_util.dart';
 import 'package:throttling/throttling.dart';
 
@@ -164,14 +164,15 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       return;
     }
 
-    if (state.searchConfig.keyword?.isEmpty ?? true) {
+    String searchPhrase = state.searchConfig.toTagKeywords(withTranslation: false, separator: ' ');
+    if (searchPhrase.isEmpty) {
       return;
     }
 
     List history = storageService.read('searchHistory') ?? <String>[];
 
-    history.remove(state.searchConfig.keyword);
-    history.insert(0, state.searchConfig.keyword);
+    history.remove(searchPhrase);
+    history.insert(0, searchPhrase);
 
     storageService.write('searchHistory', history);
   }

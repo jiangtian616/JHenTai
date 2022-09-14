@@ -1,4 +1,4 @@
-import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 
 import '../../base/base_page_state.dart';
 

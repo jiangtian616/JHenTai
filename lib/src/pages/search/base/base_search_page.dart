@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_logic_mixin.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state_mixin.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
+import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
