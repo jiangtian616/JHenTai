@@ -1,3 +1,4 @@
+import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
@@ -285,10 +286,14 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
           constraints: const BoxConstraints(minWidth: 32),
           child: Align(
             alignment: Alignment.centerRight,
-            child: Text(
-              score.isNotEmpty ? score : 'uploader'.tr,
-              style: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor),
-            ),
+            child: score.isEmpty
+                ? Text('uploader'.tr, style: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor))
+                : AnimatedFlipCounter(
+                    prefix: score.substring(0, 1),
+                    value: int.parse(score.substring(1)),
+                    duration: const Duration(milliseconds: 700),
+                    textStyle: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor),
+                  ),
           ),
         ),
       ],
