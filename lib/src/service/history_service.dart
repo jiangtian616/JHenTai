@@ -59,7 +59,8 @@ class HistoryService extends GetxController {
 
   Future<bool> delete(int gid) async {
     Log.info('Delete history: $gid');
-    return await appDb.deleteGallery(gid) > 0;
+    history.removeWhere((h) => h.gid == gid);
+    return await appDb.deleteHistory(gid) > 0;
   }
 
   Future<bool> deleteAll() async {

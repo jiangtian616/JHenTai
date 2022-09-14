@@ -25,14 +25,18 @@ import 'eh_image.dart';
 import 'eh_tag.dart';
 import 'eh_gallery_category_tag.dart';
 
-typedef TapCardCallback = FutureOr<void> Function(Gallery gallery);
+typedef CardCallback = FutureOr<void> Function(Gallery gallery);
 
 class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
-  final TapCardCallback handleTapCard;
+  final CardCallback handleTapCard;
+  final CardCallback? handleLongPressCard;
+  final CardCallback? handleSecondaryTapCard;
   final bool withTags;
 
-  const EHGalleryListCard({Key? key, required this.gallery, required this.handleTapCard, this.withTags = true}) : super(key: key);
+  const EHGalleryListCard(
+      {Key? key, required this.gallery, required this.handleTapCard, this.withTags = true, this.handleLongPressCard, this.handleSecondaryTapCard})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +62,13 @@ class EHGalleryListCard extends StatelessWidget {
 
         Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode.requestFocus();
       },
-      child: GalleryCard(gallery: gallery, withTags: withTags, handleTapCard: handleTapCard),
+      child: GalleryCard(
+        gallery: gallery,
+        withTags: withTags,
+        handleTapCard: handleTapCard,
+        handleLongPressCard: handleLongPressCard,
+        handleSecondaryTapCard: handleSecondaryTapCard,
+      ),
     );
   }
 }
@@ -66,15 +76,21 @@ class EHGalleryListCard extends StatelessWidget {
 class GalleryCard extends StatelessWidget {
   final Gallery gallery;
   final bool withTags;
-  final TapCardCallback handleTapCard;
+  final CardCallback handleTapCard;
+  final CardCallback? handleLongPressCard;
+  final CardCallback? handleSecondaryTapCard;
 
-  const GalleryCard({Key? key, required this.gallery, required this.withTags, required this.handleTapCard}) : super(key: key);
+  const GalleryCard(
+      {Key? key, required this.gallery, required this.withTags, required this.handleTapCard, this.handleLongPressCard, this.handleSecondaryTapCard})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => handleTapCard(gallery),
+      onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
+      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: SizedBox(

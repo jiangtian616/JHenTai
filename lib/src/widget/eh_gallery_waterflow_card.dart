@@ -14,7 +14,7 @@ import 'eh_image.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
-  final TapCardCallback handleTapCard;
+  final CardCallback handleTapCard;
   final bool keepAlive;
 
   const EHGalleryWaterFlowCard({

@@ -344,6 +344,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     );
   }
 
+  void handleLongPressCard(Gallery gallery) async {}
+
+  void handleSecondaryTapCard(Gallery gallery) async {}
+
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex);
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {

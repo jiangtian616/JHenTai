@@ -16,7 +16,9 @@ Widget EHGalleryCollection({
   required BuildContext context,
   required List<Gallery> gallerys,
   required LoadingState loadingState,
-  required TapCardCallback handleTapCard,
+  required CardCallback handleTapCard,
+  CardCallback? handleLongPressCard,
+  CardCallback? handleSecondaryTapCard,
   VoidCallback? handleLoadMore,
 }) {
   Widget _buildGalleryList() {
@@ -44,6 +46,8 @@ Widget EHGalleryCollection({
             child: EHGalleryListCard(
               gallery: gallerys[index],
               handleTapCard: (gallery) => handleTapCard(gallery),
+              handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
+              handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
               withTags: StyleSetting.listMode.value == ListMode.listWithTags || StyleSetting.listMode.value == ListMode.flat,
             ),
           );
@@ -74,6 +78,8 @@ Widget EHGalleryCollection({
             gallery: gallerys[index],
             handleTapCard: (gallery) => handleTapCard(gallery),
             withTags: StyleSetting.listMode.value == ListMode.listWithTags,
+            handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
+            handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
           ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
         },
         childCount: gallerys.length,
@@ -104,10 +110,7 @@ Widget EHGalleryCollection({
               });
             }
 
-            return EHGalleryWaterFlowCard(
-              gallery: gallerys[index],
-              handleTapCard: handleTapCard,
-            );
+            return EHGalleryWaterFlowCard(gallery: gallerys[index], handleTapCard: handleTapCard);
           },
           childCount: gallerys.length,
         ),
