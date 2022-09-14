@@ -98,6 +98,7 @@ class zh_CN {
       'getGalleryDetailFailed': '获取画廊详情失败',
       'invisible2User': '此画廊对您不可见',
       'invisibleHints': '画廊已被删除或对您进行了限制',
+      'copyRightHints': '该画廊因为版权已被删除，版权作者：',
       'refreshGalleryDetailsFailed': '刷新画廊详情失败',
       'failToGetThumbnails': "获取画廊缩略图数据失败",
       'favoriteGalleryFailed': "收藏画廊错误",

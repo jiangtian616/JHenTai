@@ -98,6 +98,7 @@ class zh_TW {
       'getGalleryDetailFailed': '獲取畫廊詳情失敗',
       'invisible2User': '此畫廊對您不可見',
       'invisibleHints': '畫廊已被刪除或對您進行了限制',
+      'copyRightHints': '該畫廊因爲版權已被刪除，版權作者：',
       'refreshGalleryDetailsFailed': '重整畫廊詳情失敗',
       'failToGetThumbnails': "獲取畫廊快取圖數據失敗",
       'favoriteGalleryFailed': "收藏畫廊錯誤",

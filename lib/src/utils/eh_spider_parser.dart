@@ -621,6 +621,19 @@ class EHSpiderParser {
     return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }
 
+  static String galleryDeletedPage2Hint(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    String hint = document.querySelector('.d > p')!.text;
+    if (hint.contains('removed')) {
+      return 'invisibleHints'.tr;
+    }
+
+    String copyRighter = hint.split(' ').last;
+    return 'copyRightHints'.tr + copyRighter;
+  }
+
   static String githubReleasePage2LatestVersion(Response response) {
     List releases = response.data!;
     Map latestRelease = releases[0];

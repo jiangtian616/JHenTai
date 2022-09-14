@@ -76,7 +76,8 @@ class EHRequest {
             handler.next(e);
             return;
           }
-          e.error = 'invisibleHints'.tr;
+
+          e.error = EHSpiderParser.galleryDeletedPage2Hint(e.response!);
           handler.next(e);
         },
       ),
