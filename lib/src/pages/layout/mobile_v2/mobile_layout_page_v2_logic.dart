@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -51,7 +52,7 @@ class MobileLayoutPageV2Logic extends GetxController {
   void handleTapNavigationBarButton(int index) {
     if (index != state.selectedNavigationIndex) {
       state.selectedNavigationIndex = index;
-      update([bodyId, bottomNavigationBarId]);
+      updateSafely([bodyId, bottomNavigationBarId]);
     }
   }
 }

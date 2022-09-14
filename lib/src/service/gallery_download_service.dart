@@ -1182,7 +1182,12 @@ class GalleryDownloadService extends GetxController {
   }
 
   void _ensureDownloadDirExists() {
-    io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+    try {
+      io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+    } on Exception catch (e) {
+      Log.error(e);
+      Log.upload(e);
+    }
   }
 }
 

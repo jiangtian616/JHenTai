@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/state_extension.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -60,8 +61,8 @@ class _WebviewPageState extends State<WebviewPage> {
         javascriptMode: JavascriptMode.unrestricted,
         initialCookies: initialCookies,
         onPageStarted: onPageStarted,
-        onPageFinished: (_) => setState(() => loadingState = LoadingState.success),
-        onWebResourceError: (_) => setState(() => loadingState = LoadingState.success),
+        onPageFinished: (_) => setStateIfMounted(() => loadingState = LoadingState.success),
+        onWebResourceError: (_) => setStateIfMounted(() => loadingState = LoadingState.success),
       ),
     );
   }

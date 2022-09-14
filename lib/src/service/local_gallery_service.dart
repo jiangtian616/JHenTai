@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 
 import '../model/gallery_image.dart';
@@ -133,10 +134,7 @@ class LocalGalleryService extends GetxController {
         continue;
       }
 
-      String ext = extension(image.path);
-      if (ext == '.jpg' || ext == '.png' || ext == '.gif' || ext == '.jpeg') {
-        return true;
-      }
+      return FileUtil.isImageExtension(image.path);
     }
 
     return false;
@@ -170,7 +168,7 @@ class LocalGalleryService extends GetxController {
     List<io.File> imageFiles = galleryDir
         .listSync()
         .whereType<io.File>()
-        .where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null)
+        .where((image) => FileUtil.isImageExtension(image.path))
         .toList()
       ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
@@ -180,7 +178,7 @@ class LocalGalleryService extends GetxController {
       try {
         size = ImageSizeGetter.getSize(FileInput(file));
       } on Exception catch (e) {
-        Log.error("Parse local images failed!", e);
+        Log.error('Parse local images failed! Path: ${file.path}', e);
         Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
         continue;
       }

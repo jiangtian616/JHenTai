@@ -22,6 +22,7 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../model/gallery_image.dart';
+import '../utils/file_util.dart';
 import '../utils/log.dart';
 import '../utils/snack_util.dart';
 import 'gallery_download_service.dart';
@@ -277,11 +278,7 @@ class ArchiveDownloadService extends GetxController {
 
     List<io.File> imageFiles;
     try {
-      imageFiles = directory
-          .listSync()
-          .whereType<io.File>()
-          .where((image) => RegExp('.jpg|.png|.gif|.jpeg').firstMatch(extension(image.path)) != null)
-          .toList();
+      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});
@@ -762,7 +759,12 @@ class ArchiveDownloadService extends GetxController {
   }
 
   void _ensureDownloadDirExists() {
-    io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+    try {
+      io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+    } on Exception catch (e) {
+      Log.error(e);
+      Log.upload(e);
+    }
   }
 }
 
