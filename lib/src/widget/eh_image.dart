@@ -95,11 +95,13 @@ class EHImage extends StatelessWidget {
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
 
+    /// Outer container for layout and background color
     return Container(
       height: containerHeight,
       width: containerWidth,
       decoration: BoxDecoration(color: containerColor, borderRadius: borderRadius),
       child: Center(
+        /// inner container for shadows, whose size is the same as image
         child: Container(
           height: fittedSizes.destination.height,
           width: fittedSizes.destination.width,

@@ -137,67 +137,6 @@ class _GroupOpenIndicatorState extends State<GroupOpenIndicator> with AnimationM
   }
 }
 
-class FadeShrinkWidget extends StatefulWidget {
-  final bool show;
-  final Widget child;
-  final VoidCallback? afterDisappear;
-
-  const FadeShrinkWidget({
-    Key? key,
-    required this.show,
-    required this.child,
-    this.afterDisappear,
-  }) : super(key: key);
-
-  @override
-  State<FadeShrinkWidget> createState() => _FadeShrinkWidgetState();
-}
-
-class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin {
-  bool show = false;
-
-  late Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.ease);
-
-  @override
-  void initState() {
-    super.initState();
-
-    show = widget.show;
-    if (show) {
-      controller.forward(from: 1);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant FadeShrinkWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget.show == widget.show) {
-      return;
-    }
-
-    show = widget.show;
-    if (show) {
-      controller.play(duration: const Duration(milliseconds: 150));
-    } else {
-      controller.playReverse(duration: const Duration(milliseconds: 150)).then((_) {
-        widget.afterDisappear?.call();
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: animation,
-      child: SizeTransition(
-        sizeFactor: animation,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
 class GroupList<E, G> extends StatefulWidget {
   final List<G> groups;
   final List<E> elements;

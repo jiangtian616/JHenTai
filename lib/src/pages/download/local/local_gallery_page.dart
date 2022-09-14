@@ -11,6 +11,7 @@ import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
+import '../../../widget/fade_shrink_widget.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../download_base_page.dart';

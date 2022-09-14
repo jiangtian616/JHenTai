@@ -4,10 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/model/jh_layout.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:path/path.dart';
-
 import '../../../database/database.dart';
 import '../../../model/gallery_image.dart';
 import '../../../routes/routes.dart';
@@ -16,6 +13,7 @@ import '../../../utils/date_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_category_tag.dart';
 import '../../../widget/eh_image.dart';
+import '../../../widget/fade_shrink_widget.dart';
 import '../../../widget/focus_widget.dart';
 import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
