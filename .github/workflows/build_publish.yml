@@ -1,5 +1,6 @@
 name: Build & Release
 
+# Trigger on push to master branch or with a tag
 on:
   push:
     branches:
@@ -7,7 +8,7 @@ on:
     tags:
       - v*
 
-# If last workflow is still running, we push again, we will cancel the previous workflow
+# If previous workflow is still running, we push again, we will cancel the previous workflow
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
@@ -26,6 +27,10 @@ jobs:
             os: windows-latest
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
+          - target: Linux
+            os: ubuntu-latest
+            artifact_name: release-Linux
+            artifact_path: build/linux/*.zip
           - target: iOS
             os: macos-latest
             cache_pod_key: ios-pods
@@ -138,7 +143,15 @@ jobs:
           New-Item -Path $DestDir -ItemType Directory
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
-          Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_windows.zip
+          Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
+      # Build Linux .zip
+      - name: Build Linux
+        if: matrix.target == 'Linux'
+        run: |
+          flutter build linux --release -t lib/src/main.dart
+          cp -a build/linux/x64/release/bundle/* ./build/linux/bundle
+          cd build/linux
+          zip -qroy JHenTai_${{ steps.get_version.outputs.version }}_Linux.zip bundle
       # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
