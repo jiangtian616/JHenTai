@@ -152,6 +152,7 @@ jobs:
           sudo apt-get install -y ninja-build libgtk-3-dev
           flutter config --enable-linux-desktop
           flutter build linux --release -t lib/src/main.dart
+          mkdir ./build/linux/bundle
           cp -a build/linux/x64/release/bundle/* ./build/linux/bundle
           cd build/linux
           zip -qroy JHenTai_${{ steps.get_version.outputs.version }}_Linux.zip bundle
