@@ -24,14 +24,13 @@ Install for Android: download .apk according to your device architecture and ins
 
 Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 
-Install for Windows: download windows.zip, then unpack it. If you use a proxy server, set proxy address at network setting
+Install for Windows: download Windows_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network setting
 page. If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode. If it's blocked by Windows Defender,
 Please trust it.
 
-Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting
-page.
+Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting page.
 
-Install for Linux(No maintenance): download windows.zip, then unpack it. If you use a proxy server, set proxy address at network setting page.
+Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network setting page.
 
 ## Help With Translation
 
