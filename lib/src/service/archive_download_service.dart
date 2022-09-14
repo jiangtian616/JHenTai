@@ -291,9 +291,15 @@ class ArchiveDownloadService extends GetxController {
     for (io.File file in imageFiles) {
       Size size;
       try {
+        /// For some reason i don't know, .gif image's footer is 0x00, which will cause `image_size` throw exception.
+        /// so i don't check .gif image's footer
         size = ImageSizeGetter.getSize(FileInput(file));
       } on Exception catch (e) {
-        Log.error("Parse archive images failed!", e);
+        Log.error("Parse archive images failed! Path: ${file.path}", e);
+        Log.upload(e, extraInfos: {'path': file.path, 'info': file.statSync()});
+        continue;
+      } on Error catch (e) {
+        Log.error("Parse archive images failed! Path: ${file.path}", e);
         Log.upload(e, extraInfos: {'path': file.path, 'info': file.statSync()});
         continue;
       }

@@ -59,7 +59,11 @@ dependencies:
   syncfusion_flutter_charts: ^20.2.36
   sentry_flutter: ^6.9.1
   archive: ^3.3.1
-  image_size_getter: ^2.1.1
+  image_size_getter:
+    git:
+#      url: https://gitee.com/jiangtian616/dart_image_size_getter
+      url: https://github.com/jiangtian616/dart_image_size_getter
+      path: library
   fluttertoast: ^8.0.9
   battery_plus: ^2.1.4
   throttling: ^1.0.0

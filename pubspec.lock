@@ -744,10 +744,12 @@ packages:
   image_size_getter:
     dependency: "direct main"
     description:
-      name: image_size_getter
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "2.1.1"
+      path: library
+      ref: HEAD
+      resolved-ref: be6833aa5c55ea5f4a8737cc97305ddc0a5c0be8
+      url: "https://github.com/jiangtian616/dart_image_size_getter"
+    source: git
+    version: "2.1.2"
   intl:
     dependency: "direct main"
     description:
