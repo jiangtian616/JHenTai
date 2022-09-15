@@ -4,16 +4,16 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 
-class WindowsApp extends StatefulWidget {
+class WindowWidget extends StatefulWidget {
   final Widget child;
 
-  const WindowsApp({Key? key, required this.child}) : super(key: key);
+  const WindowWidget({Key? key, required this.child}) : super(key: key);
 
   @override
-  State<WindowsApp> createState() => _WindowsAppState();
+  State<WindowWidget> createState() => _WindowWidgetState();
 }
 
-class _WindowsAppState extends State<WindowsApp> {
+class _WindowWidgetState extends State<WindowWidget> {
   bool _isMaximized = false;
 
   @override

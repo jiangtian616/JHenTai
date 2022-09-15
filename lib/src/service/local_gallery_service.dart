@@ -30,6 +30,8 @@ class LocalGallery {
 
 /// Load galleries in download directory but is not downloaded by JHenTai
 class LocalGalleryService extends GetxController {
+  static const String galleryCountChangedId = 'galleryCountChangedId';
+
   List<LocalGallery> allGallerys = [];
   Map<String, List<LocalGallery>> path2Gallerys = {};
   Map<String, List<String>> path2Directories = {};
@@ -58,6 +60,8 @@ class LocalGalleryService extends GetxController {
 
     allGallerys.removeWhere((g) => g.title == gallery.title);
     path2Gallerys[parentPath]?.removeWhere((g) => g.title == gallery.title);
+
+    update([galleryCountChangedId]);
   }
 
   Future<int> refreshLocalGallerys() async {

@@ -50,7 +50,11 @@ class LocalGalleryPage extends StatelessWidget {
           child: GetBuilder<LocalGalleryPageLogic>(
             id: LocalGalleryPageLogic.appBarId,
             builder: (_) => IconButton(
-              icon: Icon(Icons.merge, size: 26, color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline),
+              icon: Icon(
+                Icons.merge,
+                size: 26,
+                color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline,
+              ),
               onPressed: logic.toggleAggregateDirectory,
               visualDensity: const VisualDensity(horizontal: -4),
             ),
@@ -67,29 +71,32 @@ class LocalGalleryPage extends StatelessWidget {
   }
 
   Widget buildBody() {
-    return GetBuilder<LocalGalleryPageLogic>(
-      id: LocalGalleryPageLogic.bodyId,
-      builder: (_) => EHWheelSpeedController(
-        controller: state.scrollController,
-        child: ListView.builder(
+    return GetBuilder<LocalGalleryService>(
+      id: LocalGalleryService.galleryCountChangedId,
+      builder: (_) => GetBuilder<LocalGalleryPageLogic>(
+        id: LocalGalleryPageLogic.bodyId,
+        builder: (_) => EHWheelSpeedController(
           controller: state.scrollController,
-          padding: const EdgeInsets.only(bottom: 80),
-          itemCount: logic.computeItemCount(),
-          itemBuilder: (context, index) {
-            if (state.aggregateDirectories) {
-              return galleryItemBuilder(context, index);
-            }
+          child: ListView.builder(
+            controller: state.scrollController,
+            padding: const EdgeInsets.only(bottom: 80),
+            itemCount: logic.computeItemCount(),
+            itemBuilder: (context, index) {
+              if (state.aggregateDirectories) {
+                return galleryItemBuilder(context, index);
+              }
 
-            if (index == 0) {
-              return parentDirectoryItemBuilder(context);
-            }
+              if (index == 0) {
+                return parentDirectoryItemBuilder(context);
+              }
 
-            if (index <= logic.computeCurrentDirectoryCount()) {
-              return nestedDirectoryItemBuilder(context, index - 1);
-            }
+              if (index <= logic.computeCurrentDirectoryCount()) {
+                return nestedDirectoryItemBuilder(context, index - 1);
+              }
 
-            return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
-          },
+              return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+            },
+          ),
         ),
       ),
     );

@@ -11,7 +11,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
-import 'package:jhentai/src/widget/windows_app.dart';
+import 'package:jhentai/src/widget/window_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:retry/retry.dart';
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WindowsApp(
+    return WindowWidget(
       child: WillPopInterceptor(
         /// Use LayoutBuilder to listen to resize of window.
         child: LayoutBuilder(
