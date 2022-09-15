@@ -13,6 +13,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_la
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
+import 'package:jhentai/src/service/volume_service.dart';
 import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:throttling/throttling.dart';
@@ -23,7 +24,6 @@ import '../../network/eh_request.dart';
 import '../../utils/check_util.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
-import '../../setting/site_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
@@ -64,6 +64,8 @@ class ReadPageLogic extends GetxController {
   @override
   void onReady() {
     super.onReady();
+
+    Get.find<VolumeService>().disableVolume();
 
     toggleCurrentImmersiveMode();
 
