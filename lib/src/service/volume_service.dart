@@ -1,12 +1,12 @@
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../utils/log.dart';
 
 class VolumeService extends GetxService {
+  static const platform = MethodChannel('volume.event.intercept');
+
   static void init() {
-    if (!GetPlatform.isAndroid) {
-      return;
-    }
     Get.put(VolumeService());
     Log.debug('init VolumeService success', false);
   }
@@ -16,5 +16,16 @@ class VolumeService extends GetxService {
     super.onInit();
   }
 
-  void disableVolume() {}
+  Future<void> setInterceptVolumeEvent(bool value) async {
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+
+    try {
+      await platform.invokeMethod('set', value);
+    } on PlatformException catch (e) {
+      Log.error('Set intercept volume event error!', e);
+      Log.upload(e);
+    }
+  }
 }

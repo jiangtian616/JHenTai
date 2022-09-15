@@ -55,6 +55,7 @@ class ReadPageLogic extends GetxController {
               : Get.find<HorizontalPageLayoutLogic>();
 
   final StorageService storageService = Get.find();
+  final VolumeService volumeService = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
@@ -65,12 +66,15 @@ class ReadPageLogic extends GetxController {
   void onReady() {
     super.onReady();
 
-    Get.find<VolumeService>().disableVolume();
+    /// Why I unfocus and then request focus again: https://github.com/flutter/flutter/issues/71144
+    state.focusNode.unfocus();
+    state.focusNode.requestFocus();
+    volumeService.setInterceptVolumeEvent(true);
 
     toggleCurrentImmersiveMode();
 
     /// Listen to change
-    toggleCurrentImmersiveModeLister= ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
+    toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -98,6 +102,8 @@ class ReadPageLogic extends GetxController {
     state.focusNode.dispose();
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
+
+    volumeService.setInterceptVolumeEvent(false);
 
     restoreSystemBar();
 
@@ -248,7 +254,7 @@ class ReadPageLogic extends GetxController {
     update([topMenuId, bottomMenuId, rightBottomInfoId]);
   }
 
-  Future<void> toggleAutoMode() async{
+  Future<void> toggleAutoMode() async {
     if (state.autoMode) {
       return closeAutoMode();
     }
