@@ -33,7 +33,8 @@ class DesktopLayoutPage extends StatelessWidget {
             child: ResizableWidget(
               separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
               separatorSize: 7.5,
-              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
+              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) =>
+                  GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
               percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
               onResized: logic.windowService.handleResized,
               isDisabledSmartHide: true,
@@ -100,7 +101,7 @@ class DesktopLayoutPage extends StatelessWidget {
                               child: IconButton(
                                 onPressed: () => logic.handleTapTabBarButton(index),
                                 icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                              ) ,
+                              ),
                             ),
                           ),
                         ),

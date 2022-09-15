@@ -169,6 +169,7 @@ void _doForDesktop() {
 
   doWhenWindowReady(() {
     appWindow.title = 'JHenTai';
+    appWindow.size = const Size(1280, 720);
 
     if (Get.find<StorageService>().read('windowMaximize') == true) {
       appWindow.maximize();
