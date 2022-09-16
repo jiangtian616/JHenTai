@@ -58,8 +58,6 @@ class ReadPage extends StatelessWidget {
           handleArrowLeft: logic.toLeft,
           handleLCtrl: logic.toLeft,
           handleRCtrl: logic.toRight,
-          handleVolumeDown: logic.toNext,
-          handleVolumeUp: logic.toPrev,
           handleEnd: backRoute,
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(

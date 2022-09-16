@@ -17,7 +17,7 @@ class HistoryService extends GetxController {
   int get pageCount => history.isEmpty ? 0 : (history.length - 1) ~/ pageSize + 1;
 
   static void init() {
-    Get.put(HistoryService());
+    Get.put(HistoryService(), permanent: true);
   }
 
   @override

@@ -66,9 +66,14 @@ class ReadPageLogic extends GetxController {
   void onReady() {
     super.onReady();
 
-    /// Why I unfocus and then request focus again: https://github.com/flutter/flutter/issues/71144
-    state.focusNode.unfocus();
-    state.focusNode.requestFocus();
+    /// Turn page by volume keys. The reason for not use [KeyboardListener]: https://github.com/flutter/flutter/issues/71144
+    volumeService.listen((VolumeEventType type) {
+      if (type == VolumeEventType.volumeUp) {
+        layoutLogic.toPrev();
+      } else if (type == VolumeEventType.volumeDown) {
+        layoutLogic.toNext();
+      }
+    });
     volumeService.setInterceptVolumeEvent(true);
 
     toggleCurrentImmersiveMode();
@@ -103,6 +108,7 @@ class ReadPageLogic extends GetxController {
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
 
+    volumeService.cancelListen();
     volumeService.setInterceptVolumeEvent(false);
 
     restoreSystemBar();

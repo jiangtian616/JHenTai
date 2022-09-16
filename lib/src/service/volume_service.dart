@@ -1,19 +1,36 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../utils/log.dart';
 
+enum VolumeEventType { volumeUp, volumeDown }
+
 class VolumeService extends GetxService {
-  static const platform = MethodChannel('volume.event.intercept');
+  late final MethodChannel methodChannel;
+
+  static const int volumeUp = 1;
+  static const int volumeDown = -1;
 
   static void init() {
-    Get.put(VolumeService());
+    Get.put(VolumeService(), permanent: true);
     Log.debug('init VolumeService success', false);
   }
 
   @override
   Future<void> onInit() async {
     super.onInit();
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+    methodChannel = const MethodChannel('top.jtmonster.jhentai.volume.event.intercept');
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    cancelListen();
   }
 
   Future<void> setInterceptVolumeEvent(bool value) async {
@@ -22,10 +39,28 @@ class VolumeService extends GetxService {
     }
 
     try {
-      await platform.invokeMethod('set', value);
+      await methodChannel.invokeMethod('set', value);
     } on PlatformException catch (e) {
       Log.error('Set intercept volume event error!', e);
       Log.upload(e);
     }
+  }
+
+  void listen(Function(VolumeEventType)? onData) {
+    methodChannel.setMethodCallHandler((MethodCall call) {
+      if (call.method == 'event') {
+        final int eventType = call.arguments as int;
+        if (eventType == volumeUp) {
+          onData?.call(VolumeEventType.volumeUp);
+        } else if (eventType == volumeDown) {
+          onData?.call(VolumeEventType.volumeDown);
+        }
+      }
+      return Future.value();
+    });
+  }
+
+  void cancelListen() {
+    methodChannel.setMethodCallHandler(null);
   }
 }

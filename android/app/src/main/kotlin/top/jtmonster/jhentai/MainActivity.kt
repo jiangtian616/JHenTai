@@ -2,23 +2,30 @@ package top.jtmonster.jhentai
 
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.KeyEvent
 import androidx.core.view.WindowCompat
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-class MainActivity: FlutterFragmentActivity() {
-    private var interceptVolumeEvent = false;
+class MainActivity : FlutterFragmentActivity() {
+    private var interceptVolumeEvent = false
+    private lateinit var volumeMethodChannel: MethodChannel
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         GeneratedPluginRegistrant.registerWith(flutterEngine)
 
-        MethodChannel(
+        volumeMethodChannel = MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
-            "volume.event.intercept"
-        ).setMethodCallHandler { call, result ->
+            "top.jtmonster.jhentai.volume.event.intercept"
+        )
+
+        volumeMethodChannel.setMethodCallHandler { call, result ->
             if (call.method == "set") {
                 val value = call.arguments<Boolean>()
                 if (value != null) {
@@ -44,32 +51,25 @@ class MainActivity: FlutterFragmentActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (!interceptVolumeEvent) {
-            return super.onKeyDown(keyCode, event)
-        }
-
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+        if (interceptVolumeEvent && (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
+            volumeMethodChannel.invokeMethod(
+                "event",
+                if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) 1 else -1
+            )
             return true
         }
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            return true
-        }
-
         return super.onKeyDown(keyCode, event)
     }
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-        if (!interceptVolumeEvent) {
-            return super.onKeyUp(keyCode, event)
-        }
-
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+        if (interceptVolumeEvent && (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
             return true
         }
-        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            return true
-        }
-
         return super.onKeyUp(keyCode, event)
+    }
+
+    override fun onDestroy() {
+        volumeMethodChannel.setMethodCallHandler(null)
+        super.onDestroy()
     }
 }
