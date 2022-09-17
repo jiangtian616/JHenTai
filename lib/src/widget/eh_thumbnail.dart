@@ -23,11 +23,15 @@ class EHThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return image?.downloadStatus == DownloadStatus.downloaded
-        ? _buildThumbnailByLocalImage()
-        : thumbnail.isLarge
-            ? _buildLargeThumbnail()
-            : _buildSmallThumbnail();
+    return SizedBox(
+      height: containerHeight,
+      width: containerWidth,
+      child: image?.downloadStatus == DownloadStatus.downloaded
+          ? _buildThumbnailByLocalImage()
+          : thumbnail.isLarge
+              ? _buildLargeThumbnail()
+              : _buildSmallThumbnail(),
+    );
   }
 
   Widget _buildThumbnailByLocalImage() {
