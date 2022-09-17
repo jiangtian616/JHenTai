@@ -989,7 +989,7 @@ class EHSpiderParser {
             id: int.parse(element.querySelector('.c6')?.attributes['id']?.split('_')[1] ?? ''),
             username: element.querySelector('.c2 > .c3 > a')?.text,
             score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
-            content: element.querySelector('.c6')?.outerHtml ?? '',
+            content: element.querySelector('.c6')?.outerHtml.replaceAll('&amp;', '&') ?? '',
             time: _parsePostedLocalTime(element),
             lastEditTime: _parsePostedEditedTime(element),
             fromMe: element.querySelector('.c2 > .c4.nosel > a')?.text == 'Edit',

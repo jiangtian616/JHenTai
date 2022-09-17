@@ -12,7 +12,6 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import '../../../mixin/login_required_logic_mixin.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
-import '../../../utils/snack_util.dart';
 import '../../../widget/eh_comment_dialog.dart';
 
 class CommentPage extends StatefulWidget {
