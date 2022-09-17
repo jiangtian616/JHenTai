@@ -185,6 +185,10 @@ class LocalGalleryService extends GetxController {
         Log.error('Parse local images failed! Path: ${file.path}', e);
         Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
         continue;
+      } on Error catch (e) {
+        Log.error('Parse local images failed! Path: ${file.path}', e);
+        Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
+        continue;
       }
 
       images.add(GalleryImage(

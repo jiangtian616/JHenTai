@@ -8,6 +8,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -22,6 +23,9 @@ class SettingEHPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!UserSetting.hasLoggedIn()) {
+      return const SizedBox();
+    }
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('ehSetting'.tr)),
       body: Obx(
