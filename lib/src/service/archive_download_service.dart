@@ -223,7 +223,7 @@ class ArchiveDownloadService extends GetxController {
     allGroups.remove(group);
 
     try {
-      return (await appDb.deleteGalleryGroup(group) > 0);
+      return (await appDb.deleteArchiveGroup(group) > 0);
     } on SqliteException catch (e) {
       Log.info(e);
       return false;
