@@ -623,14 +623,14 @@ class GalleryDownloadService extends GetxController {
 
       GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
-      List<GalleryThumbnail> thumbnails;
+      Map<String, dynamic> rangeAndThumbnails;
       try {
-        thumbnails = await retry(
+        rangeAndThumbnails = await retry(
           () => EHRequest.requestDetailPage(
             galleryUrl: gallery.galleryUrl,
             thumbnailsPageIndex: serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage,
             cancelToken: galleryDownloadInfo.cancelToken,
-            parser: EHSpiderParser.detailPage2Thumbnails,
+            parser: EHSpiderParser.detailPage2RangeAndThumbnails,
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
           onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
@@ -655,23 +655,16 @@ class GalleryDownloadService extends GetxController {
         );
       }
 
+      int rangeFrom = rangeAndThumbnails['rangeIndexFrom'];
+      int rangeTo = rangeAndThumbnails['rangeIndexTo'];
+      List<GalleryThumbnail> thumbnails = rangeAndThumbnails['thumbnails'];
+
       /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
       /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
       galleryDownloadInfo.thumbnailsCountPerPage = (thumbnails.length / 20).ceil() * 20;
-      int from = serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage * galleryDownloadInfo.thumbnailsCountPerPage;
 
-      CheckUtil.build(
-        () => from + thumbnails.length <= galleryDownloadInfo.imageHrefs.length,
-        errorMsg: "Out of index of imageHrefs!",
-      ).withUploadParam({
-        'pageCount': gallery.pageCount,
-        'imageHrefsLength': galleryDownloadInfo.imageHrefs.length,
-        'from': from,
-        'thumbnailsLength': thumbnails.length,
-      }).check(throwExceptionWhenFailed: false);
-
-      for (int i = 0; i < thumbnails.length && from + i < galleryDownloadInfo.imageHrefs.length; i++) {
-        galleryDownloadInfo.imageHrefs[from + i] = thumbnails[i];
+      for (int i = rangeFrom; i <= rangeTo; i++) {
+        galleryDownloadInfo.imageHrefs[i] = thumbnails[i - rangeFrom];
       }
 
       /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn

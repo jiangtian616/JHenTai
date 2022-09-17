@@ -139,13 +139,13 @@ class ReadPageLogic extends GetxController {
     Log.verbose('Begin to load Thumbnail $index', false);
     update([parseImageHrefsStateId]);
 
-    List<GalleryThumbnail> newThumbnails;
+    Map<String, dynamic> rangeAndThumbnails;
     try {
-      newThumbnails = await retry(
+      rangeAndThumbnails = await retry(
         () => EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: index ~/ state.thumbnailsCountPerPage,
-          parser: EHSpiderParser.detailPage2Thumbnails,
+          parser: EHSpiderParser.detailPage2RangeAndThumbnails,
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioError && e.error is! EHException,
@@ -162,37 +162,24 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
+    int rangeFrom = rangeAndThumbnails['rangeIndexFrom'];
+    int rangeTo = rangeAndThumbnails['rangeIndexTo'];
+    List<GalleryThumbnail> newThumbnails = rangeAndThumbnails['thumbnails'];
+
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
     /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
     state.thumbnailsCountPerPage = (newThumbnails.length / 20).ceil() * 20;
-    int from = index ~/ state.thumbnailsCountPerPage * state.thumbnailsCountPerPage;
 
-    CheckUtil.build(
-      () => from + newThumbnails.length <= state.thumbnails.length,
-      errorMsg: "Out of index of imageHrefs!",
-    ).withUploadParam({
-      'index': index,
-      'pageCount': state.readPageInfo.pageCount,
-      'imageHrefsLength': state.thumbnails.length,
-      'from': from,
-      'thumbnailsLength': newThumbnails.length,
-    }).onFailed(() {
-      newThumbnails = newThumbnails.sublist(0, state.thumbnails.length - from);
-    }).check(throwExceptionWhenFailed: false);
-
-    for (int i = 0; i < newThumbnails.length; i++) {
-      state.thumbnails[from + i] = newThumbnails[i];
+    state.parseImageHrefsStates[index] = LoadingState.idle;
+    for (int i = rangeFrom; i <= rangeTo; i++) {
+      state.thumbnails[i] = newThumbnails[i - rangeFrom];
+      update(['$onlineImageId::$i']);
     }
 
     /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
     /// because the [thumbnailsPageIndex] we computed before is wrong, so we need to parse again
     if (state.thumbnails[index] == null) {
       return _parseImageHref(index);
-    }
-
-    state.parseImageHrefsStates[index] = LoadingState.idle;
-    for (int i = 0; i < newThumbnails.length; i++) {
-      update(['$onlineImageId::${index + i}']);
     }
   }
 

@@ -175,6 +175,21 @@ class EHSpiderParser {
     return tags;
   }
 
+  static Map<String, dynamic> detailPage2RangeAndThumbnails(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    /// eg. Showing 161 - 200 of 680 images
+    String desc = document.querySelector('.gtb > .gpc')!.text;
+    RegExpMatch match = RegExp(r'Showing (\d+) - (\d+) of').firstMatch(desc)!;
+
+    return {
+      'rangeIndexFrom': int.parse(match.group(1)!) - 1,
+      'rangeIndexTo': int.parse(match.group(2)!) - 1,
+      'thumbnails': detailPage2Thumbnails(response),
+    };
+  }
+
   static List<GalleryThumbnail> detailPage2Thumbnails(Response response) {
     String html = response.data! as String;
     Document document = parse(html);

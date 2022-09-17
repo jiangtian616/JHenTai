@@ -47,6 +47,10 @@ class VolumeService extends GetxService {
   }
 
   void listen(Function(VolumeEventType)? onData) {
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+
     methodChannel.setMethodCallHandler((MethodCall call) {
       if (call.method == 'event') {
         final int eventType = call.arguments as int;
@@ -61,6 +65,10 @@ class VolumeService extends GetxService {
   }
 
   void cancelListen() {
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+
     methodChannel.setMethodCallHandler(null);
   }
 }

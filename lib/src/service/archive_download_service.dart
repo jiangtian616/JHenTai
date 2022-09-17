@@ -567,10 +567,11 @@ class ArchiveDownloadService extends GetxController {
       Log.upload(Exception('Invalid archive!'), extraInfos: {
         'code': response.statusCode,
         'headers': response.headers,
-        'body': response.data,
+        'body': response.data.toString(),
+        'archive': archiveDownloadInfo.toString(),
       });
       await _deletePackingFileInDisk(archive);
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 5000));
       return _doDownloadArchive(archive);
     }
 
@@ -798,6 +799,11 @@ class ArchiveDownloadInfo {
     required this.downloadedBytesBeforeDownload,
     required this.group,
   });
+
+  @override
+  String toString() {
+    return 'ArchiveDownloadInfo{downloadPageUrl: $downloadPageUrl, downloadUrl: $downloadUrl, archiveStatus: $archiveStatus, cancelToken: $cancelToken, speedComputer: $speedComputer, downloadedBytesBeforeDownload: $downloadedBytesBeforeDownload, group: $group}';
+  }
 }
 
 enum ArchiveStatus {
