@@ -8,30 +8,22 @@ import 'eh_image.dart';
 
 class EHThumbnail extends StatelessWidget {
   final GalleryThumbnail thumbnail;
-  final double? containerHeight;
-  final double? containerWidth;
 
   final GalleryImage? image;
 
   const EHThumbnail({
     Key? key,
     required this.thumbnail,
-    this.containerHeight,
-    this.containerWidth,
     this.image,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: containerHeight,
-      width: containerWidth,
-      child: image?.downloadStatus == DownloadStatus.downloaded
-          ? _buildThumbnailByLocalImage()
-          : thumbnail.isLarge
-              ? _buildLargeThumbnail()
-              : _buildSmallThumbnail(),
-    );
+    return image?.downloadStatus == DownloadStatus.downloaded
+        ? _buildThumbnailByLocalImage()
+        : thumbnail.isLarge
+            ? _buildLargeThumbnail()
+            : _buildSmallThumbnail();
   }
 
   Widget _buildThumbnailByLocalImage() {

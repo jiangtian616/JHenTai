@@ -67,6 +67,7 @@ abstract class BaseLayout extends StatelessWidget {
           galleryImage: readPageState.images[index]!,
           containerWidth: fittedSizes.destination.width,
           containerHeight: fittedSizes.destination.height,
+          clearMemoryCacheWhenDispose: true,
           loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
           failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
         );
@@ -98,6 +99,7 @@ abstract class BaseLayout extends StatelessWidget {
             galleryImage: readPageState.images[index]!,
             containerWidth: fittedSizes.destination.width,
             containerHeight: fittedSizes.destination.height,
+            clearMemoryCacheWhenDispose: true,
             downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
             pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
           ),

@@ -393,11 +393,7 @@ class ReadPage extends StatelessWidget {
         }
 
         return Center(
-          child: EHThumbnail(
-            thumbnail: state.thumbnails[index]!,
-            containerHeight: UIConfig.readPageThumbnailHeight,
-            containerWidth: UIConfig.readPageThumbnailWidth,
-          ),
+          child: EHThumbnail(thumbnail: state.thumbnails[index]!),
         );
       },
     );

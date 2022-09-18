@@ -31,6 +31,7 @@ class EHImage extends StatelessWidget {
   final bool enableSlideOutPage;
   final BorderRadius? borderRadius;
   final Object? heroTag;
+  final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -50,6 +51,7 @@ class EHImage extends StatelessWidget {
     this.enableSlideOutPage = false,
     this.borderRadius,
     this.heroTag,
+    this.clearMemoryCacheWhenDispose = false,
     this.shadows,
     this.downloadingWidgetBuilder,
     this.pausedWidgetBuilder,
@@ -70,6 +72,7 @@ class EHImage extends StatelessWidget {
     this.enableSlideOutPage = false,
     this.borderRadius,
     this.heroTag,
+    this.clearMemoryCacheWhenDispose = false,
     this.shadows,
     this.loadingWidgetBuilder,
     this.failedWidgetBuilder,
@@ -126,6 +129,7 @@ class EHImage extends StatelessWidget {
       // headers: _cookieHeaders(galleryImage.url),
       borderRadius: borderRadius,
       shape: borderRadius != null ? BoxShape.rectangle : null,
+      clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
@@ -166,6 +170,7 @@ class EHImage extends StatelessWidget {
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,
       shape: borderRadius != null ? BoxShape.rectangle : null,
+      clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
         if (state.extendedImageLoadState == LoadState.completed) {
           return FadeIn(
