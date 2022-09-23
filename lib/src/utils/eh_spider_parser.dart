@@ -180,7 +180,7 @@ class EHSpiderParser {
     Document document = parse(html);
 
     /// eg. Showing 161 - 200 of 680 images
-    String desc = document.querySelector('.gtb > .gpc')!.text;
+    String desc = document.querySelector('.gtb > .gpc')!.text.replaceAll(',', '');
     RegExpMatch match = RegExp(r'Showing (\d+) - (\d+) of').firstMatch(desc)!;
 
     return {
