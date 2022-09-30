@@ -49,8 +49,7 @@ dependencies:
   webview_flutter: ^3.0.4
   photo_view: ^0.14.0
   package_info_plus: ^1.4.3+1
-  file_picker:
-    git: https://github.com/ishangavidusha/flutter_file_picker
+  file_picker: ^5.2.0+1
   local_auth: 1.1.11
   blur: ^3.1.0
   flutter_windowmanager: ^0.2.0
