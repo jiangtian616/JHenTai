@@ -24,7 +24,7 @@ class SettingReadPage extends StatelessWidget {
               _buildShowStatusInfo().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
-              _buildUseThirdPartyViewer().center(),
+              if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               _buildReadDirection().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
