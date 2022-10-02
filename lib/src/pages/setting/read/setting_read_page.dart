@@ -1,8 +1,10 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
+import '../../../utils/log.dart';
 import '../../../widget/auto_mode_interval_dialog.dart';
 
 class SettingReadPage extends StatelessWidget {
@@ -22,6 +24,8 @@ class SettingReadPage extends StatelessWidget {
               _buildShowStatusInfo().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
+              _buildUseThirdPartyViewer().center(),
+              if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               _buildReadDirection().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
                 _buildPreloadDistanceInOnlineMode().fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
@@ -100,6 +104,37 @@ class SettingReadPage extends StatelessWidget {
           DropdownMenuItem(child: Text('right2left'.tr), value: ReadDirection.right2left),
         ],
       ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildUseThirdPartyViewer() {
+    return SwitchListTile(
+      title: Text('useThirdPartyViewer'.tr),
+      value: ReadSetting.useThirdPartyViewer.value,
+      onChanged: ReadSetting.saveUseThirdPartyViewer,
+    );
+  }
+
+  Widget _buildThirdPartyViewerPath() {
+    return ListTile(
+      title: Text('thirdPartyViewerPath'.tr),
+      subtitle: Text(ReadSetting.thirdPartyViewerPath.value ?? ''),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () async {
+        FilePickerResult? result;
+        try {
+          result = await FilePicker.platform.pickFiles();
+        } on Exception catch (e) {
+          Log.error('Pick 3-rd party viewer failed', e);
+          Log.upload(e);
+        }
+
+        if (result == null || result.files.single.path == null) {
+          return;
+        }
+
+        ReadSetting.saveThirdPartyViewerPath(result.files.single.path!);
+      },
     );
   }
 

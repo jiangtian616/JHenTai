@@ -277,6 +277,8 @@ class zh_TW {
       'enableImmersiveMode': '開啟沉浸模式',
       'enableImmersiveHint': '隱藏系統狀態欄和底部導航列',
       'readDirection': '閱讀方向',
+      'useThirdPartyViewer': '使用第三方閱讀器',
+      'thirdPartyViewerPath': '第三方閱讀器路徑（可執行文件）',
       'showThumbnails': '顯示快取圖',
       'showStatusInfo': '底部顯示狀態信息',
       'autoModeInterval': '自動模式翻頁時間',

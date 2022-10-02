@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';

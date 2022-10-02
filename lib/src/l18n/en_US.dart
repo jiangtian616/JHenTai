@@ -278,6 +278,8 @@ class en_US {
       'enableImmersiveMode': 'Enable Immersive Mode',
       'enableImmersiveHint': 'Hide System Bar',
       'readDirection': 'Read Direction',
+      'useThirdPartyViewer': 'Use Custom Viewer',
+      'thirdPartyViewerPath': 'Custom Viewer Path(Executable file)',
       'showThumbnails': 'Show Thumbnails',
       'showStatusInfo': 'Show Status at Bottom',
       'autoModeInterval': 'Turn Page Interval',

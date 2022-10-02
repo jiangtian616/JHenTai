@@ -29,9 +29,11 @@ class ReadSetting {
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
+  static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
+  static RxBool useThirdPartyViewer = false.obs;
+  static RxnString thirdPartyViewerPath = RxnString();
   static RxDouble autoModeInterval = 2.0.obs;
   static Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
-  static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
@@ -82,6 +84,18 @@ class ReadSetting {
   static saveReadDirection(ReadDirection value) {
     Log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
+    _save();
+  }
+
+  static saveUseThirdPartyViewer(bool value) {
+    Log.debug('saveUseThirdPartyViewer:$value');
+    useThirdPartyViewer.value = value;
+    _save();
+  }
+
+  static saveThirdPartyViewerPath(String? value) {
+    Log.debug('saveThirdPartyViewerPath:$value');
+    thirdPartyViewerPath.value = value;
     _save();
   }
 
@@ -147,6 +161,8 @@ class ReadSetting {
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
       'readDirection': readDirection.value.index,
+      'useThirdPartyViewer': useThirdPartyViewer.value,
+      'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
@@ -165,6 +181,8 @@ class ReadSetting {
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
+    useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
+    thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];

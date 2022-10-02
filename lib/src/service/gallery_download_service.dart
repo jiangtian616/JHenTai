@@ -492,7 +492,7 @@ class GalleryDownloadService extends GetxController {
     return title;
   }
 
-  String _computeGalleryDownloadPath(String rawTitle, int gid) {
+  String computeGalleryDownloadPath(String rawTitle, int gid) {
     String title = _computeGalleryTitle(rawTitle);
     return path.join(DownloadSetting.downloadPath.value, '$gid - $title');
   }
@@ -502,7 +502,7 @@ class GalleryDownloadService extends GetxController {
     String? ext = imageUrl.contains('fullimg.php') ? 'jpg' : imageUrl.split('.').last;
 
     return path.join(
-      _computeGalleryDownloadPath(title, gid),
+      computeGalleryDownloadPath(title, gid),
       '$serialNo.$ext',
     );
   }
@@ -1146,7 +1146,7 @@ class GalleryDownloadService extends GetxController {
       'images': jsonEncode(galleryDownloadInfo.images),
     };
 
-    io.File file = io.File(path.join(_computeGalleryDownloadPath(gallery.title, gallery.gid), metadataFileName));
+    io.File file = io.File(path.join(computeGalleryDownloadPath(gallery.title, gallery.gid), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }
@@ -1154,7 +1154,7 @@ class GalleryDownloadService extends GetxController {
   }
 
   void _clearDownloadedImageInDisk(GalleryDownloadedData gallery) {
-    io.Directory directory = io.Directory(_computeGalleryDownloadPath(gallery.title, gallery.gid));
+    io.Directory directory = io.Directory(computeGalleryDownloadPath(gallery.title, gallery.gid));
     if (!directory.existsSync()) {
       return;
     }

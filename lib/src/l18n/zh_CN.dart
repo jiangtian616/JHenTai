@@ -277,6 +277,8 @@ class zh_CN {
       'enableImmersiveMode': '开启沉浸模式',
       'enableImmersiveHint': '隐藏系统状态栏和底部导航栏',
       'readDirection': '阅读方向',
+      'useThirdPartyViewer': '使用第三方阅读器',
+      'thirdPartyViewerPath': '第三方阅读器路径（可执行文件）',
       'showThumbnails': '显示缩略图',
       'showStatusInfo': '底部显示状态信息',
       'autoModeInterval': '自动模式翻页时间',
