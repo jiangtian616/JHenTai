@@ -274,7 +274,7 @@ class ArchiveDownloadService extends GetxController {
   }
 
   List<GalleryImage> getUnpackedImages(ArchiveDownloadedData archive) {
-    io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
+    io.Directory directory = io.Directory(computeArchiveUnpackingPath(archive));
 
     List<io.File> imageFiles;
     try {
@@ -332,7 +332,7 @@ class ArchiveDownloadService extends GetxController {
     return join(DownloadSetting.downloadPath.value, 'Archive - ${archive.gid} - $title.zip');
   }
 
-  String _computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
+  String computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
     String title = _computeArchiveTitle(archive.title);
 
     return join(DownloadSetting.downloadPath.value, 'Archive - ${archive.gid} - $title');
@@ -598,7 +598,7 @@ class ArchiveDownloadService extends GetxController {
     InputFileStream inputStream = InputFileStream(_computePackingFileDownloadPath(archive));
     try {
       Archive unpackedDir = ZipDecoder().decodeBuffer(inputStream);
-      extractArchiveToDisk(unpackedDir, _computeArchiveUnpackingPath(archive));
+      extractArchiveToDisk(unpackedDir, computeArchiveUnpackingPath(archive));
     } on Exception catch (e) {
       Log.error('Unpacking error!', e);
       Log.upload(e);
@@ -740,7 +740,7 @@ class ArchiveDownloadService extends GetxController {
   // DISK
 
   void _saveArchiveInfoInDisk(ArchiveDownloadedData archive) {
-    io.File file = io.File(join(_computeArchiveUnpackingPath(archive), metadataFileName));
+    io.File file = io.File(join(computeArchiveUnpackingPath(archive), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }
@@ -759,7 +759,7 @@ class ArchiveDownloadService extends GetxController {
   Future<void> _deleteArchiveInDisk(ArchiveDownloadedData archive) async {
     await _deletePackingFileInDisk(archive);
 
-    io.Directory directory = io.Directory(_computeArchiveUnpackingPath(archive));
+    io.Directory directory = io.Directory(computeArchiveUnpackingPath(archive));
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }

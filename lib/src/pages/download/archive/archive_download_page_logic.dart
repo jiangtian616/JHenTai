@@ -1,6 +1,5 @@
-import 'package:flutter/animation.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/widget/eh_download_dialog.dart';
 
@@ -11,7 +10,10 @@ import '../../../model/read_page_info.dart';
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
 import '../../../service/storage_service.dart';
+import '../../../setting/read_setting.dart';
+import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/toast_util.dart';
 import '../../../widget/eh_alert_dialog.dart';
 import 'archive_download_page_state.dart';
 
@@ -123,6 +125,32 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
+    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+      goToReadPageByThirdPartyViewer(archive);
+    } else {
+      goToReadPageByJHenTaiViewer(archive);
+    }
+  }
+
+  void goToReadPageByThirdPartyViewer(ArchiveDownloadedData archive) {
+    Process.run(
+      ReadSetting.thirdPartyViewerPath.value!,
+      [archiveDownloadService.computeArchiveUnpackingPath(archive)],
+      runInShell: true,
+    ).catchError((e) {
+      toast('internalError'.tr + e.toString());
+      Log.error(e);
+      Log.upload(
+        e,
+        extraInfos: {
+          'executablePath': ReadSetting.thirdPartyViewerPath.value!,
+          'dirPath': archiveDownloadService.computeArchiveUnpackingPath(archive),
+        },
+      );
+    });
+  }
+
+  void goToReadPageByJHenTaiViewer(ArchiveDownloadedData archive) {
     String storageKey = 'readIndexRecord::${archive.gid}';
     int readIndexRecord = storageService.read(storageKey) ?? 0;
     List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
