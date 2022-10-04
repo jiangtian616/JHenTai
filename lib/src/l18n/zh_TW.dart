@@ -270,9 +270,9 @@ class zh_TW {
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
 
       /// security setting page
-      'enableFingerPrintLock': '開啓指紋鎖（啓動時）',
-      'enableFingerPrintLockOnResume': '開啓指紋鎖（切換至前台時）',
-      'enableFingerPrintLockOnResumeHints': '需要切換至後台超過3s',
+      'enableBiometricLock': '開啓生物認證（啓動時）',
+      'enableBiometricLockOnResume': '開啓生物認證（切換至前台時）',
+      'enableBiometricLockOnResumeHints': '需要切換至後台超過3s',
       'enableBlurBackgroundApp': '在任務欄中模糊應用頁面',
 
       /// read setting page

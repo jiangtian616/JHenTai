@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
 
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndLock);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
-    if (SecuritySetting.enableFingerPrintLockOnResume.isTrue) {
+    if (SecuritySetting.enableBiometricLockOnResume.isTrue) {
       Get.engine.addPostFrameCallback((_) {
         toRoute(Routes.lock);
       });
@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (state == AppLifecycleState.resumed &&
-        SecuritySetting.enableFingerPrintLockOnResume.isTrue &&
+        SecuritySetting.enableBiometricLockOnResume.isTrue &&
         lastInactiveTime != null &&
         DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
       toRoute(Routes.lock);

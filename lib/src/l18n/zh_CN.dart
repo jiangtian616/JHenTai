@@ -270,9 +270,9 @@ class zh_CN {
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
 
       /// security setting page
-      'enableFingerPrintLock': '开启指纹锁（启动时）',
-      'enableFingerPrintLockOnResume': '开启指纹锁（切换至前台时）',
-      'enableFingerPrintLockOnResumeHints': '需要切换至后台超过3s',
+      'enableBiometricLock': '开启生物认证（启动时）',
+      'enableBiometricLockOnResume': '开启生物认证（切换至前台时）',
+      'enableBiometricLockOnResumeHints': '需要切换至后台超过3s',
       'enableBlurBackgroundApp': '在任务栏中模糊应用页面',
 
       /// read setting page
