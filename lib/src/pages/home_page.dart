@@ -66,7 +66,7 @@ class _HomePageState extends State<HomePage> {
 
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndLock);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
-    if (SecuritySetting.enableBiometricLockOnResume.isTrue) {
+    if (SecuritySetting.enableBiometricLock.isTrue) {
       Get.engine.addPostFrameCallback((_) {
         toRoute(Routes.lock);
       });
@@ -124,14 +124,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   void resumeAndLock(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      lastInactiveTime = DateTime.now();
+    if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
+      return;
     }
 
-    if (state == AppLifecycleState.resumed &&
-        SecuritySetting.enableBiometricLockOnResume.isTrue &&
-        lastInactiveTime != null &&
-        DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+    Log.debug("resumeAndLock:state: $state");
+
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      lastInactiveTime = DateTime.now();
+      Log.debug("lastInactiveTime: $lastInactiveTime");
+      return;
+    }
+
+    if (state == AppLifecycleState.resumed && lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
       toRoute(Routes.lock);
     }
   }
