@@ -75,7 +75,7 @@ class SecuritySetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    enableBlur.value = map['enableBlur'];
+    enableBlur.value = map['enableBlur'] ?? enableBlur.value;
     enableBiometricLock.value = map['enableBiometricLock'] ?? enableBiometricLock.value;
     enableBiometricLockOnResume.value = map['enableBiometricLockOnResume'] ?? enableBiometricLockOnResume.value;
   }

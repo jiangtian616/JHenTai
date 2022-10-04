@@ -56,5 +56,7 @@
   <string>Pick up image to search</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+    <string>Auth identity</string>
 </dict>
 </plist>

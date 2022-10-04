@@ -58,5 +58,7 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
   <string>Pick up image to search</string>
+  	<key>NSFaceIDUsageDescription</key>
+    <string>Auth identity</string>
 </dict>
 </plist>
