@@ -271,7 +271,9 @@ class en_US {
       'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
 
       /// security setting page
-      'enableFingerPrintLock': 'Enable FingerPrint Lock',
+      'enableFingerPrintLock': 'Enable FingerPrint Lock on Launch',
+      'enableFingerPrintLockOnResume': 'Enable FingerPrint Lock on Resume',
+      'enableFingerPrintLockOnResumeHints': '3 seconds delay',
       'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
 
       /// read setting page

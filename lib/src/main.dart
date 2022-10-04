@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: SecuritySetting.enableFingerPrintLock.isTrue ? Routes.lock : Routes.home,
+      initialRoute: Routes.home,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => AppStateListener(child: child!),
 

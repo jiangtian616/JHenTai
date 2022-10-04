@@ -14,6 +14,7 @@ class SettingSecurityPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             if (SecuritySetting.supportFingerPrintLock) _buildEnableFingerPrintLock(),
+            if (SecuritySetting.supportFingerPrintLock) _buildEnableFingerPrintLockOnResume(),
             _buildEnableBlurBackgroundApp(),
           ],
         ),
@@ -25,6 +26,15 @@ class SettingSecurityPage extends StatelessWidget {
     return ListTile(
       title: Text('enableFingerPrintLock'.tr),
       trailing: Switch(value: SecuritySetting.enableFingerPrintLock.value, onChanged: SecuritySetting.saveEnableFingerPrintLock),
+    );
+  }
+
+  Widget _buildEnableFingerPrintLockOnResume() {
+    return SwitchListTile(
+      title: Text('enableFingerPrintLockOnResume'.tr),
+      subtitle: Text('enableFingerPrintLockOnResumeHints'.tr),
+      value: SecuritySetting.enableFingerPrintLockOnResume.value,
+      onChanged: SecuritySetting.saveEnableFingerPrintLockOnResume,
     );
   }
 

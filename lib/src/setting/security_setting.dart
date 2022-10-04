@@ -9,6 +9,7 @@ import '../service/storage_service.dart';
 class SecuritySetting {
   static RxBool enableBlur = false.obs;
   static RxBool enableFingerPrintLock = false.obs;
+  static RxBool enableFingerPrintLockOnResume = false.obs;
 
   static bool supportFingerPrintLock = false;
 
@@ -53,6 +54,12 @@ class SecuritySetting {
     _save();
   }
 
+  static saveEnableFingerPrintLockOnResume(bool enableFingerPrintLockOnResume) {
+    Log.debug('saveEnableFingerPrintLockOnResume:$enableFingerPrintLockOnResume');
+    SecuritySetting.enableFingerPrintLockOnResume.value = enableFingerPrintLockOnResume;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('securitySetting', _toMap());
   }
@@ -61,11 +68,13 @@ class SecuritySetting {
     return {
       'enableBlur': enableBlur.value,
       'enableFingerPrintLock': enableFingerPrintLock.value,
+      'enableFingerPrintLockOnResume': enableFingerPrintLockOnResume.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableBlur.value = map['enableBlur'];
     enableFingerPrintLock.value = map['enableFingerPrintLock'];
+    enableFingerPrintLockOnResume.value = map['enableFingerPrintLockOnResume'] ?? enableFingerPrintLockOnResume.value;
   }
 }

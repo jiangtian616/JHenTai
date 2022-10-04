@@ -28,12 +28,9 @@ class _LockPageState extends State<LockPage> {
       behavior: HitTestBehavior.opaque,
       onTap: auth,
       child: ColoredBox(
-        color: Get.theme.backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         child: Center(
-          child: Text(
-            'tap2Auth'.tr,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          child: Text('tap2Auth'.tr, style: Theme.of(context).textTheme.titleLarge),
         ),
       ),
     );
@@ -56,7 +53,7 @@ class _LockPageState extends State<LockPage> {
     );
 
     if (success) {
-      offRoute(Routes.home);
+      backRoute();
     }
   }
 }

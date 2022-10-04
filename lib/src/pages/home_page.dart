@@ -7,6 +7,7 @@ import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet/tablet_layout_page.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
+import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -53,6 +54,8 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
+  DateTime? lastInactiveTime;
+
   @override
   void initState() {
     super.initState();
@@ -60,7 +63,14 @@ class _HomePageState extends State<HomePage> {
     _initSharingIntent();
     _checkUpdate();
     _handleUrlInClipBoard();
+
+    AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndLock);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+    if (SecuritySetting.enableFingerPrintLockOnResume.isTrue) {
+      Get.engine.addPostFrameCallback((_) {
+        toRoute(Routes.lock);
+      });
+    }
   }
 
   @override
@@ -111,6 +121,19 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void resumeAndLock(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      lastInactiveTime = DateTime.now();
+    }
+
+    if (state == AppLifecycleState.resumed &&
+        SecuritySetting.enableFingerPrintLockOnResume.isTrue &&
+        lastInactiveTime != null &&
+        DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+      toRoute(Routes.lock);
+    }
   }
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page

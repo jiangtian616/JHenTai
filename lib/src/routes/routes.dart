@@ -95,13 +95,13 @@ class Routes {
     EHPage(
       name: home,
       page: () => HomePage(),
-      transition: Transition.cupertino,
+      transition: Transition.fade,
       side: Side.fullScreen,
     ),
     EHPage(
       name: lock,
       page: () => LockPage(),
-      transition: Transition.cupertino,
+      transition: Transition.fade,
       side: Side.fullScreen,
     ),
     EHPage(
