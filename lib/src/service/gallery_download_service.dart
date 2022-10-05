@@ -13,12 +13,12 @@ import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
-import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart' as path;
+import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../exception/cancel_exception.dart';
@@ -512,6 +512,17 @@ class GalleryDownloadService extends GetxController {
       _computeImageDownloadAbsolutePath(title, gid, imageUrl, serialNo),
       from: PathSetting.getVisibleDir().path,
     );
+  }
+
+  static String computeImageDownloadAbsolutePathFromRelativePath(String imageRelativePath) {
+    String path = join(PathSetting.getVisibleDir().path, imageRelativePath);
+
+    /// I don't know why some images can't be loaded on Windows... If you knows, please inform me
+    if (!GetPlatform.isWindows) {
+      return path;
+    }
+
+    return join(rootPrefix(path), relative(path, from: rootPrefix(path)));
   }
 
   void _sortGalleryAndGroups() {

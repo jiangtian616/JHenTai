@@ -162,6 +162,8 @@ class zh_TW {
       'toPrev': '上一頁',
       'back': '返回',
       'toggleMenu': '展示/隱藏選單',
+      'share': '分享',
+      'save': '保存至圖庫',
 
       /// setting page
       'account': '帳戶',
@@ -355,7 +357,7 @@ class zh_TW {
       'watched': '關注',
       'history': '歷史',
       'keyword': '關鍵詞',
-      'backspace2DeleteTag':'雙擊退格來刪除標簽',
+      'backspace2DeleteTag': '雙擊退格來刪除標簽',
       'searchGalleryName': '搜尋畫廊名字',
       'searchGalleryTags': '搜尋畫廊標籤',
       'searchGalleryDescription': '搜尋畫廊描述',

@@ -739,6 +739,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.2.0"
+  image_gallery_saver:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "6676c04a858761736dc6b166ef14887578c6218f"
+      url: "https://github.com/hui-z/image_gallery_saver"
+    source: git
+    version: "1.7.1"
   image_size_getter:
     dependency: "direct main"
     description:

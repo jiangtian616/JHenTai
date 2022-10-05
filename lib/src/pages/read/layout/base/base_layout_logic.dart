@@ -1,11 +1,18 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../model/gallery_image.dart';
+import '../../../../setting/path_setting.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
@@ -112,20 +119,82 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     autoModeTimer?.cancel();
   }
 
-  void showBottomMenu(int index, BuildContext context) {
-    if (readPageState.readPageInfo.mode != ReadMode.downloaded) {
-      return;
-    }
+  void showBottomMenuInOnlineMode(int index, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (_) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          if (GetPlatform.isMobile)
+            CupertinoActionSheetAction(
+              child: Text('share'.tr),
+              onPressed: () async {
+                backRoute();
+                if (!await _shareOnlineImage(index)) {
+                  toast('failed'.tr);
+                }
+              },
+            ),
+          if (GetPlatform.isMobile)
+            CupertinoActionSheetAction(
+              child: Text('save'.tr),
+              onPressed: () async {
+                backRoute();
+                if (await _saveOnlineImage(index)) {
+                  toast('success'.tr);
+                } else {
+                  toast('failed'.tr);
+                }
+              },
+            ),
+          CupertinoActionSheetAction(
+            child: Text('reDownload'.tr),
+            onPressed: () {
+              backRoute();
+              galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+      ),
+    );
+  }
 
+  void showBottomMenuInLocalMode(int index, BuildContext context) {
     if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
-
 
     showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
+          if (GetPlatform.isMobile)
+            CupertinoActionSheetAction(
+              child: Text('share'.tr),
+              onPressed: () {
+                backRoute();
+                Share.shareFiles(
+                  [
+                    GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+                        galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+                  ],
+                  text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+                  sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+                );
+              },
+            ),
+          if (GetPlatform.isMobile)
+            CupertinoActionSheetAction(
+              child: Text('save'.tr),
+              onPressed: () {
+                backRoute();
+                ImageGallerySaver.saveFile(
+                  GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+                      galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+                );
+                toast('success'.tr);
+              },
+            ),
           CupertinoActionSheetAction(
             child: Text('reDownload'.tr),
             onPressed: () {
@@ -155,5 +224,43 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   Alignment _computeAlignmentByTapOffset(Offset offset) {
     return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
+  }
+
+  Future<bool> _saveOnlineImage(int index) async {
+    if (readPageState.images[index] == null) {
+      return false;
+    }
+
+    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    if (data == null) {
+      return false;
+    }
+
+    await ImageGallerySaver.saveImage(data, quality: 100);
+    return true;
+  }
+
+  Future<bool> _shareOnlineImage(int index) async {
+    if (readPageState.images[index] == null) {
+      return false;
+    }
+
+    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    if (data == null) {
+      return false;
+    }
+
+    String path = join(PathSetting.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
+    File file = File(path);
+
+    await file.create().then((file) => file.writeAsBytes(data));
+
+    Share.shareFiles(
+      [path],
+      text: '$index${extension(readPageState.images[index]!.url)}',
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+    ).then((_) => file.delete());
+
+    return true;
   }
 }

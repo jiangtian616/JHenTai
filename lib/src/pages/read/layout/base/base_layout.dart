@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../model/read_page_info.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
@@ -63,13 +64,16 @@ abstract class BaseLayout extends StatelessWidget {
 
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
-        return EHImage.network(
-          galleryImage: readPageState.images[index]!,
-          containerWidth: fittedSizes.destination.width,
-          containerHeight: fittedSizes.destination.height,
-          clearMemoryCacheWhenDispose: true,
-          loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-          failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+        return GestureDetector(
+          onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
+          child: EHImage.network(
+            galleryImage: readPageState.images[index]!,
+            containerWidth: fittedSizes.destination.width,
+            containerHeight: fittedSizes.destination.height,
+            clearMemoryCacheWhenDispose: true,
+            loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+            failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
+          ),
         );
       },
     );
@@ -94,7 +98,7 @@ abstract class BaseLayout extends StatelessWidget {
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return GestureDetector(
-          onLongPress: () => logic.showBottomMenu(index, context),
+          onLongPress: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
           child: EHImage.file(
             galleryImage: readPageState.images[index]!,
             containerWidth: fittedSizes.destination.width,

@@ -162,6 +162,8 @@ class zh_CN {
       'toPrev': '上一页',
       'back': '返回',
       'toggleMenu': '展示/隐藏菜单',
+      'share': '分享',
+      'save': '保存至图库',
 
       /// setting page
       'account': '账户',
@@ -355,7 +357,7 @@ class zh_CN {
       'watched': '关注',
       'history': '历史',
       'keyword': '关键词',
-      'backspace2DeleteTag':'双击退格来删除标签',
+      'backspace2DeleteTag': '双击退格来删除标签',
       'searchGalleryName': '搜索画廊名字',
       'searchGalleryTags': '搜索画廊标签',
       'searchGalleryDescription': '搜索画廊描述',

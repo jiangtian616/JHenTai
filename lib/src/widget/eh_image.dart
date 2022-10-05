@@ -161,7 +161,7 @@ class EHImage extends StatelessWidget {
     }
 
     return ExtendedImage.file(
-      io.File(_computeFilePath(galleryImage.path!)),
+      io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!)),
       fit: fit,
       mode: mode,
       height: containerHeight,
@@ -180,17 +180,6 @@ class EHImage extends StatelessWidget {
         return null;
       },
     );
-  }
-
-  String _computeFilePath(String imageRelativePath) {
-    String path = p.join(PathSetting.getVisibleDir().path, imageRelativePath);
-
-    /// I don't know why some images can't be loaded on Windows... If you knows, please inform me
-    if (!GetPlatform.isWindows) {
-      return path;
-    }
-
-    return p.join(p.rootPrefix(path), p.relative(path, from: p.rootPrefix(path)));
   }
 
   double _computeLoadingProgress(ImageChunkEvent? loadingProgress, ImageInfo? extendedImageInfo) {
