@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 
+import '../routes/routes.dart';
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
+import '../utils/log.dart';
+import '../utils/route_util.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
@@ -48,16 +51,17 @@ class AppStateListener extends StatefulWidget {
 }
 
 class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
-  AppLifecycleState _state = AppLifecycleState.resumed;
+  DateTime? lastInactiveTime;
+  bool inBackground = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
-    AppStateListener.registerDidChangeAppLifecycleStateCallback(_blurAppPage);
     AppStateListener.registerAppLaunchCallback(_addSecureFlagForAndroid);
+    AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
+    AppStateListener.registerDidChangeAppLifecycleStateCallback(_lockAfterResume);
 
     AppStateListener._appLaunchCallbacks.forEach((callback) => callback.call(context));
   }
@@ -86,7 +90,15 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return (GetPlatform.isAndroid || _state == AppLifecycleState.resumed) ? widget.child : Blur(blur: 100, child: widget.child);
+    return inBackground ? Blur(blur: 100, child: widget.child) : widget.child;
+  }
+
+  /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
+  /// so i choose to set FLAG_SECURE to do the same effect.
+  void _addSecureFlagForAndroid(BuildContext context) {
+    if (GetPlatform.isAndroid) {
+      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+    }
   }
 
   void _changeTheme() {
@@ -98,25 +110,27 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     );
   }
 
-  void _blurAppPage(AppLifecycleState state) {
-    if (SecuritySetting.enableBlur.isFalse) {
+  void _lockAfterResume(AppLifecycleState state) {
+    if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
       return;
     }
+    Log.debug("App state change: -> $state");
 
-    /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
-    /// so i choose to set FLAG_SECURE to do the same effect.
-    if (GetPlatform.isAndroid) {
-      return;
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      setState(() {
+        lastInactiveTime ??= DateTime.now();
+        inBackground = true;
+      });
     }
 
-    setState(() {
-      _state = state;
-    });
-  }
+    if (state == AppLifecycleState.resumed) {
+      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+        toRoute(Routes.lock)?.then((_) => setState(() => inBackground = false));
+      } else {
+        setState(() => inBackground = false);
+      }
 
-  void _addSecureFlagForAndroid(BuildContext context) {
-    if (SecuritySetting.enableBlur.isTrue && GetPlatform.isAndroid) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+      lastInactiveTime = null;
     }
   }
 }

@@ -15,7 +15,6 @@ class SettingSecurityPage extends StatelessWidget {
           children: [
             if (SecuritySetting.supportBiometricLock) _buildEnableBiometricLock(),
             if (SecuritySetting.supportBiometricLock) _buildEnableBiometricLockOnResume(),
-            _buildEnableBlurBackgroundApp(),
           ],
         ),
       ),
@@ -35,13 +34,6 @@ class SettingSecurityPage extends StatelessWidget {
       subtitle: Text('enableBiometricLockOnResumeHints'.tr),
       value: SecuritySetting.enableBiometricLockOnResume.value,
       onChanged: SecuritySetting.saveEnableBiometricLockOnResume,
-    );
-  }
-
-  Widget _buildEnableBlurBackgroundApp() {
-    return ListTile(
-      title: Text('enableBlurBackgroundApp'.tr),
-      trailing: Switch(value: SecuritySetting.enableBlur.value, onChanged: SecuritySetting.saveEnableBlur),
     );
   }
 }

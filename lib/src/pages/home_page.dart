@@ -54,8 +54,6 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
-  DateTime? lastInactiveTime;
-
   @override
   void initState() {
     super.initState();
@@ -64,13 +62,7 @@ class _HomePageState extends State<HomePage> {
     _checkUpdate();
     _handleUrlInClipBoard();
 
-    AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndLock);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
-    if (SecuritySetting.enableBiometricLock.isTrue) {
-      Get.engine.addPostFrameCallback((_) {
-        toRoute(Routes.lock);
-      });
-    }
   }
 
   @override
@@ -121,27 +113,6 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
-  }
-
-  void resumeAndLock(AppLifecycleState state) {
-    if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
-      return;
-    }
-
-    Log.debug("App state change: -> $state");
-
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      lastInactiveTime ??= DateTime.now();
-      Log.debug("inactiveTime: $lastInactiveTime");
-      return;
-    }
-
-    if (state == AppLifecycleState.resumed) {
-      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
-        toRoute(Routes.lock);
-      }
-      lastInactiveTime = null;
-    }
   }
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page

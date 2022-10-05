@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -52,7 +53,17 @@ class _LockPageState extends State<LockPage> {
       biometricOnly: true,
     );
 
-    if (success) {
+    if (!success) {
+      return;
+    }
+
+    /// on launch
+    if (isEmptyOrNull(Get.routing.previous)) {
+      offRoute(Routes.home);
+    }
+
+    /// on resume
+    else {
       backRoute();
     }
   }
