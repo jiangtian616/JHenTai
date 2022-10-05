@@ -40,6 +40,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildClearImageCache(),
             _buildClearNetworkCache(),
             _buildCheckUpdate(),
+            _buildCheckClipboard(),
           ],
         ),
       ),
@@ -112,6 +113,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
       trailing: Switch(value: AdvancedSetting.enableCheckUpdate.value, onChanged: AdvancedSetting.saveEnableCheckUpdate),
+    );
+  }
+
+  Widget _buildCheckClipboard() {
+    return ListTile(
+      title: Text('checkClipboard'.tr),
+      trailing: Switch(value: AdvancedSetting.enableCheckClipboard.value, onChanged: AdvancedSetting.saveEnableCheckClipboard),
     );
   }
 

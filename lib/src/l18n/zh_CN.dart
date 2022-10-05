@@ -266,6 +266,7 @@ class zh_CN {
       'clearImagesCache': '清除图片缓存',
       'longPress2Clear': '长按清除',
       'checkUpdateAfterLaunchingApp': '启动应用时检查更新',
+      'checkClipboard': '检测剪切板中的画廊链接',
       'clearPageCache': '清除页面缓存',
       'clearSuccess': '清除成功',
 

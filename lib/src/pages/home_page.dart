@@ -228,6 +228,10 @@ class _HomePageState extends State<HomePage> {
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
   void _handleUrlInClipBoard() async {
+    if (AdvancedSetting.enableCheckClipboard.isFalse) {
+      return;
+    }
+
     String text = await FlutterClipboard.paste();
     if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
       return;

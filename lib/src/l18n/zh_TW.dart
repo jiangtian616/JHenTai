@@ -266,6 +266,7 @@ class zh_TW {
       'clearImagesCache': '清除圖片快取',
       'longPress2Clear': '長按清除',
       'checkUpdateAfterLaunchingApp': '啟動應用時檢查更新',
+      'checkClipboard': '檢測剪切板中的畫廊鏈接',
       'clearPageCache': '清除頁面快取',
       'clearSuccess': '清除成功',
 

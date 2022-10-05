@@ -8,6 +8,7 @@ class AdvancedSetting {
   static RxBool enableLogging = true.obs;
   static RxBool enableVerboseLogging = kDebugMode.obs;
   static RxBool enableCheckUpdate = true.obs;
+  static RxBool enableCheckClipboard = true.obs;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
@@ -37,6 +38,12 @@ class AdvancedSetting {
     _save();
   }
 
+  static saveEnableCheckClipboard(bool enableCheckClipboard) {
+    Log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
+    AdvancedSetting.enableCheckClipboard.value = enableCheckClipboard;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('advancedSetting', _toMap());
   }
@@ -46,6 +53,7 @@ class AdvancedSetting {
       'enableLogging': enableLogging.value,
       'enableVerboseLogging': enableVerboseLogging.value,
       'enableCheckUpdate': enableCheckUpdate.value,
+      'enableCheckClipboard': enableCheckClipboard.value,
     };
   }
 
@@ -53,5 +61,6 @@ class AdvancedSetting {
     enableLogging.value = map['enableLogging'];
     enableVerboseLogging.value = map['enableVerboseLogging'] ?? enableVerboseLogging.value;
     enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
+    enableCheckClipboard.value = map['enableCheckClipboard'] ?? enableCheckClipboard.value;
   }
 }
