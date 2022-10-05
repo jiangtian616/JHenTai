@@ -14,11 +14,10 @@ import '../../base/base_page.dart';
 import '../base/base_search_page_state.dart';
 import '../quick_search/quick_search_page.dart';
 
-final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-
 class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMobileV2State>
     with BaseSearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
   final String tag = UniqueKey().toString();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
