@@ -230,6 +230,7 @@ class zh_CN {
       'listWithTags': '卡片',
       'waterfallFlowWithImageOnly': '瀑布流(仅图片)',
       'waterfallFlowWithImageAndInfo': '瀑布流',
+      'moveCover2RightSide': '移动封面图至右侧',
       'coverStyle': '封面图片样式',
       'cover': '覆盖',
       'adaptive': '自适应',

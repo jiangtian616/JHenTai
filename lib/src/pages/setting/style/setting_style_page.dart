@@ -26,9 +26,10 @@ class SettingStylePage extends StatelessWidget {
             _buildLanguage(),
             _buildBrightness(),
             _buildListMode(),
+            if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildTagTranslate(),
             _buildLayout(),
-            if (StyleSetting.isInV2Layout)  _buildShowBottomNavigation().fadeIn(),
+            if (StyleSetting.isInV2Layout) _buildShowBottomNavigation().fadeIn(),
             if (StyleSetting.isInV2Layout) _buildQuickSearch().fadeIn(),
           ],
         ),
@@ -89,6 +90,15 @@ class SettingStylePage extends StatelessWidget {
           DropdownMenuItem(child: Text('waterfallFlowWithImageAndInfo'.tr), value: ListMode.waterfallFlowWithImageAndInfo),
         ],
       ),
+    );
+  }
+
+  Widget _buildMoveCover2RightSide() {
+    return SwitchListTile(
+      title: Text('moveCover2RightSide'.tr),
+      subtitle: Text('needRestart'.tr),
+      value: StyleSetting.moveCover2RightSide.value,
+      onChanged: StyleSetting.saveMoveCover2RightSide,
     );
   }
 

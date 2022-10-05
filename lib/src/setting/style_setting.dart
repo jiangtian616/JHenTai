@@ -23,6 +23,7 @@ class StyleSetting {
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
+  static RxBool moveCover2RightSide = false.obs;
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
@@ -30,6 +31,8 @@ class StyleSetting {
           : LayoutMode.tabletV2.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
   static RxBool hideBottomBar = false.obs;
+
+  static bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;
@@ -77,6 +80,12 @@ class StyleSetting {
     _save();
   }
 
+  static saveMoveCover2RightSide(bool moveCover2RightSide) {
+    Log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
+    StyleSetting.moveCover2RightSide.value = moveCover2RightSide;
+    _save();
+  }
+
   static saveLayoutMode(LayoutMode layoutMode) {
     Log.debug('saveLayoutMode:${layoutMode.name}');
     StyleSetting.layout.value = layoutMode;
@@ -115,6 +124,7 @@ class StyleSetting {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
+      'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
       'hideBottomBar': hideBottomBar.value,
@@ -126,6 +136,7 @@ class StyleSetting {
     enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
+    moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
     actualLayout = layout.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;

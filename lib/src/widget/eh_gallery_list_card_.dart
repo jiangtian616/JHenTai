@@ -141,16 +141,20 @@ class _FlatGalleryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> children = [
+      _GalleryCardCover(image: gallery.cover, withTags: withTags),
+      Expanded(
+        child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
+      ),
+    ];
+
+    if (StyleSetting.moveCover2RightSide.isTrue) {
+      children = children.reversed.toList();
+    }
+
     return ColoredBox(
       color: Theme.of(context).colorScheme.background,
-      child: Row(
-        children: [
-          _GalleryCardCover(image: gallery.cover, withTags: withTags),
-          Expanded(
-            child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
-          ),
-        ],
-      ),
+      child: Row(children: children),
     );
   }
 }
