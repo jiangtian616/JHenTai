@@ -39,6 +39,8 @@ import '../../model/gallery_image.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
+import '../../setting/read_setting.dart';
+import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
@@ -466,24 +468,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     String storageKey = 'readIndexRecord::${state.gallery!.gid}';
     int readIndexRecord = storageService.read(storageKey) ?? 0;
 
-    /// downloading
-    if (galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.downloadProgress != null) {
-      toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.downloaded,
-          gid: state.gallery!.gid,
-          galleryUrl: state.galleryUrl,
-          initialIndex: forceIndex ?? readIndexRecord,
-          currentIndex: forceIndex ?? readIndexRecord,
-          readProgressRecordStorageKey: storageKey,
-          pageCount: state.gallery!.pageCount!,
-        ),
-      );
-    }
-
     /// online
-    else {
+    if (galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.downloadProgress == null) {
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
@@ -496,7 +482,28 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           pageCount: state.gallery!.pageCount!,
         ),
       );
+      return;
     }
+
+    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+      /// use GalleryDownloadedData's title, because it's more accurate. Title in [state.gallery] may be English title and the one we downloaded may be in Japanese
+      GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.gallery!.gid);
+      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
+      return;
+    }
+
+    toRoute(
+      Routes.read,
+      arguments: ReadPageInfo(
+        mode: ReadMode.downloaded,
+        gid: state.gallery!.gid,
+        galleryUrl: state.galleryUrl,
+        initialIndex: forceIndex ?? readIndexRecord,
+        currentIndex: forceIndex ?? readIndexRecord,
+        readProgressRecordStorageKey: storageKey,
+        pageCount: state.gallery!.pageCount!,
+      ),
+    );
   }
 
   int getReadIndexRecord() {

@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/utils/process_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
 import '../../../database/database.dart';
@@ -141,45 +138,23 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
 
   void goToReadPage(GalleryDownloadedData gallery) {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      goToReadPageByThirdPartyViewer(gallery);
+      openThirdPartyViewer(downloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
     } else {
-      goToReadPageByJHenTaiViewer(gallery);
-    }
-  }
+      String storageKey = 'readIndexRecord::${gallery.gid}';
+      int readIndexRecord = storageService.read(storageKey) ?? 0;
 
-  void goToReadPageByThirdPartyViewer(GalleryDownloadedData gallery) {
-    Process.run(
-      ReadSetting.thirdPartyViewerPath.value!,
-      [downloadService.computeGalleryDownloadPath(gallery.title, gallery.gid)],
-      runInShell: true,
-    ).catchError((e) {
-      toast('internalError'.tr + e.toString());
-      Log.error(e);
-      Log.upload(
-        e,
-        extraInfos: {
-          'executablePath': ReadSetting.thirdPartyViewerPath.value!,
-          'dirPath': downloadService.computeGalleryDownloadPath(gallery.title, gallery.gid),
-        },
+      toRoute(
+        Routes.read,
+        arguments: ReadPageInfo(
+          mode: ReadMode.downloaded,
+          gid: gallery.gid,
+          galleryUrl: gallery.galleryUrl,
+          initialIndex: readIndexRecord,
+          currentIndex: readIndexRecord,
+          readProgressRecordStorageKey: storageKey,
+          pageCount: gallery.pageCount,
+        ),
       );
-    });
-  }
-
-  void goToReadPageByJHenTaiViewer(GalleryDownloadedData gallery) {
-    String storageKey = 'readIndexRecord::${gallery.gid}';
-    int readIndexRecord = storageService.read(storageKey) ?? 0;
-
-    toRoute(
-      Routes.read,
-      arguments: ReadPageInfo(
-        mode: ReadMode.downloaded,
-        gid: gallery.gid,
-        galleryUrl: gallery.galleryUrl,
-        initialIndex: readIndexRecord,
-        currentIndex: readIndexRecord,
-        readProgressRecordStorageKey: storageKey,
-        pageCount: gallery.pageCount,
-      ),
-    );
+    }
   }
 }

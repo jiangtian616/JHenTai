@@ -11,9 +11,8 @@ import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
 import '../../../service/storage_service.dart';
 import '../../../setting/read_setting.dart';
-import '../../../utils/log.dart';
+import '../../../utils/process_util.dart';
 import '../../../utils/route_util.dart';
-import '../../../utils/toast_util.dart';
 import '../../../widget/eh_alert_dialog.dart';
 import 'archive_download_page_state.dart';
 
@@ -126,48 +125,26 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
     }
 
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      goToReadPageByThirdPartyViewer(archive);
+      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive));
     } else {
-      goToReadPageByJHenTaiViewer(archive);
-    }
-  }
+      String storageKey = 'readIndexRecord::${archive.gid}';
+      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
 
-  void goToReadPageByThirdPartyViewer(ArchiveDownloadedData archive) {
-    Process.run(
-      ReadSetting.thirdPartyViewerPath.value!,
-      [archiveDownloadService.computeArchiveUnpackingPath(archive)],
-      runInShell: true,
-    ).catchError((e) {
-      toast('internalError'.tr + e.toString());
-      Log.error(e);
-      Log.upload(
-        e,
-        extraInfos: {
-          'executablePath': ReadSetting.thirdPartyViewerPath.value!,
-          'dirPath': archiveDownloadService.computeArchiveUnpackingPath(archive),
-        },
+      toRoute(
+        Routes.read,
+        arguments: ReadPageInfo(
+          mode: ReadMode.archive,
+          gid: archive.gid,
+          galleryUrl: archive.galleryUrl,
+          initialIndex: readIndexRecord,
+          currentIndex: readIndexRecord,
+          pageCount: images.length,
+          isOriginal: archive.isOriginal,
+          readProgressRecordStorageKey: storageKey,
+          images: images,
+        ),
       );
-    });
-  }
-
-  void goToReadPageByJHenTaiViewer(ArchiveDownloadedData archive) {
-    String storageKey = 'readIndexRecord::${archive.gid}';
-    int readIndexRecord = storageService.read(storageKey) ?? 0;
-    List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
-
-    toRoute(
-      Routes.read,
-      arguments: ReadPageInfo(
-        mode: ReadMode.archive,
-        gid: archive.gid,
-        galleryUrl: archive.galleryUrl,
-        initialIndex: readIndexRecord,
-        currentIndex: readIndexRecord,
-        pageCount: images.length,
-        isOriginal: archive.isOriginal,
-        readProgressRecordStorageKey: storageKey,
-        images: images,
-      ),
-    );
+    }
   }
 }
