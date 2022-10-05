@@ -128,16 +128,19 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    Log.debug("resumeAndLock:state: $state");
+    Log.debug("App state change: -> $state");
 
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      lastInactiveTime = DateTime.now();
-      Log.debug("lastInactiveTime: $lastInactiveTime");
+      lastInactiveTime ??= DateTime.now();
+      Log.debug("inactiveTime: $lastInactiveTime");
       return;
     }
 
-    if (state == AppLifecycleState.resumed && lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
-      toRoute(Routes.lock);
+    if (state == AppLifecycleState.resumed) {
+      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+        toRoute(Routes.lock);
+      }
+      lastInactiveTime = null;
     }
   }
 
