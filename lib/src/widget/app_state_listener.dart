@@ -52,7 +52,7 @@ class AppStateListener extends StatefulWidget {
 
 class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
   DateTime? lastInactiveTime;
-  bool inBackground = false;
+  bool inBlur = false;
 
   @override
   void initState() {
@@ -90,7 +90,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return inBackground ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child;
+    return inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child;
   }
 
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
@@ -113,22 +113,32 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   void _lockAfterResume(AppLifecycleState state) {
     Log.debug("App state change: -> $state");
 
-    if ((state == AppLifecycleState.inactive || state == AppLifecycleState.paused) && !inBackground) {
-      setState(() {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+      if (SecuritySetting.enableBiometricLockOnResume.isTrue) {
         lastInactiveTime ??= DateTime.now();
-        inBackground = true;
-      });
+      }
+
+      if ((SecuritySetting.enableBiometricLockOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur) {
+        setState(() => inBlur = true);
+      }
     }
 
     if (state == AppLifecycleState.resumed) {
-      if (SecuritySetting.enableBiometricLockOnResume.isTrue &&
-          lastInactiveTime != null &&
-          DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
-        toRoute(Routes.lock)?.then((_) => setState(() => inBackground = false));
-      } else {
-        setState(() => inBackground = false);
+      if (!inBlur) {
+        return;
       }
 
+      /// only [enableBlur]
+      if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
+        setState(() => inBlur = false);
+        return;
+      }
+
+      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+        toRoute(Routes.lock)?.then((_) => setState(() => inBlur = false));
+      } else {
+        setState(() => inBlur = false);
+      }
       lastInactiveTime = null;
     }
   }

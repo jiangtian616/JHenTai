@@ -13,11 +13,19 @@ class SettingSecurityPage extends StatelessWidget {
         () => ListView(
           padding: const EdgeInsets.only(top: 16),
           children: [
+            _buildEnableBlurBackgroundApp(),
             if (SecuritySetting.supportBiometricLock) _buildEnableBiometricLock(),
             if (SecuritySetting.supportBiometricLock) _buildEnableBiometricLockOnResume(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildEnableBlurBackgroundApp() {
+    return ListTile(
+      title: Text('enableBlurBackgroundApp'.tr),
+      trailing: Switch(value: SecuritySetting.enableBlur.value, onChanged: SecuritySetting.saveEnableBlur),
     );
   }
 
