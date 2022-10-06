@@ -259,7 +259,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       [path],
       text: '$index${extension(readPageState.images[index]!.url)}',
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
-    ).then((_) => file.delete());
+    );
 
     return true;
   }
