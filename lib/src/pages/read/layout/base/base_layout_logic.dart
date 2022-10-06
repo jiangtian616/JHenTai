@@ -146,13 +146,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
                 }
               },
             ),
-          CupertinoActionSheetAction(
-            child: Text('reDownload'.tr),
-            onPressed: () {
-              backRoute();
-              galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
-            },
-          ),
         ],
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
