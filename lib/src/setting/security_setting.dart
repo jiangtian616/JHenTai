@@ -60,6 +60,19 @@ class SecuritySetting {
     Log.debug('saveEnableBiometricLockOnResume:$enableBiometricLockOnResume');
     SecuritySetting.enableBiometricLockOnResume.value = enableBiometricLockOnResume;
     _save();
+
+    if (!GetPlatform.isAndroid) {
+      return;
+    }
+    if (enableBiometricLockOnResume) {
+      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+    } else {
+      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+    }
+
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
+    );
   }
 
   static Future<void> _save() async {

@@ -96,7 +96,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
   /// so i choose to set FLAG_SECURE to do the same effect.
   void _addSecureFlagForAndroid(BuildContext context) {
-    if (GetPlatform.isAndroid) {
+    if (GetPlatform.isAndroid && (SecuritySetting.enableBiometricLockOnResume.isTrue || SecuritySetting.enableBlur.isTrue)) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     }
   }
