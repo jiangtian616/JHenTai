@@ -90,7 +90,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return inBackground ? Blur(blur: 100, child: widget.child) : widget.child;
+    return inBackground ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child;
   }
 
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
@@ -111,12 +111,9 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   }
 
   void _lockAfterResume(AppLifecycleState state) {
-    if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
-      return;
-    }
     Log.debug("App state change: -> $state");
 
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    if ((state == AppLifecycleState.inactive || state == AppLifecycleState.paused) && !inBackground) {
       setState(() {
         lastInactiveTime ??= DateTime.now();
         inBackground = true;
@@ -124,7 +121,9 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     }
 
     if (state == AppLifecycleState.resumed) {
-      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+      if (SecuritySetting.enableBiometricLockOnResume.isTrue &&
+          lastInactiveTime != null &&
+          DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
         toRoute(Routes.lock)?.then((_) => setState(() => inBackground = false));
       } else {
         setState(() => inBackground = false);
