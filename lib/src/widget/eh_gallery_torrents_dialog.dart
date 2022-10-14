@@ -118,7 +118,7 @@ class _TorrentList extends StatelessWidget {
                   (_) => toast('hasCopiedToClipboard'.tr),
                 ),
               ),
-            ) as Widget,
+            ),
           )
           .toList()
           .joinNewElement(const Divider(height: 1), joinAtFirst: true),

@@ -200,38 +200,38 @@ class SearchConfig {
   }
 
   int _computeFCats() {
-    int f_cats = 0;
+    int fCats = 0;
     if (!includeMisc) {
-      f_cats += 1;
+      fCats += 1;
     }
     if (!includeDoujinshi) {
-      f_cats += 2;
+      fCats += 2;
     }
     if (!includeManga) {
-      f_cats += 4;
+      fCats += 4;
     }
     if (!includeArtistCG) {
-      f_cats += 8;
+      fCats += 8;
     }
     if (!includeGameCg) {
-      f_cats += 16;
+      fCats += 16;
     }
     if (!includeImageSet) {
-      f_cats += 32;
+      fCats += 32;
     }
     if (!includeCosplay) {
-      f_cats += 64;
+      fCats += 64;
     }
     if (!includeAsianPorn) {
-      f_cats += 128;
+      fCats += 128;
     }
     if (!includeNonH) {
-      f_cats += 256;
+      fCats += 256;
     }
     if (!includeWestern) {
-      f_cats += 512;
+      fCats += 512;
     }
-    return f_cats;
+    return fCats;
   }
 
   factory SearchConfig.fromJson(Map<String, dynamic> json) {
@@ -271,36 +271,36 @@ class SearchConfig {
 
   Map<String, dynamic> toJson() {
     return {
-      "searchType": this.searchType.index,
-      "includeDoujinshi": this.includeDoujinshi,
-      "includeManga": this.includeManga,
-      "includeArtistCG": this.includeArtistCG,
-      "includeGameCg": this.includeGameCg,
-      "includeWestern": this.includeWestern,
-      "includeNonH": this.includeNonH,
-      "includeImageSet": this.includeImageSet,
-      "includeCosplay": this.includeCosplay,
-      "includeAsianPorn": this.includeAsianPorn,
-      "includeMisc": this.includeMisc,
-      "keyword": this.keyword,
-      "tags": this.tags,
-      "searchGalleryName": this.searchGalleryName,
-      "searchGalleryTags": this.searchGalleryTags,
-      "searchGalleryDescription": this.searchGalleryDescription,
-      "searchExpungedGalleries": this.searchExpungedGalleries,
-      "onlyShowGalleriesWithTorrents": this.onlyShowGalleriesWithTorrents,
-      "searchLowPowerTags": this.searchLowPowerTags,
-      "searchDownVotedTags": this.searchDownVotedTags,
-      "pageAtLeast": this.pageAtLeast,
-      "pageAtMost": this.pageAtMost,
-      "minimumRating": this.minimumRating,
-      "disableFilterForLanguage": this.disableFilterForLanguage,
-      "disableFilterForUploader": this.disableFilterForUploader,
-      "disableFilterForTags": this.disableFilterForTags,
-      "searchFavoriteCategoryIndex": this.searchFavoriteCategoryIndex,
-      "searchFavoriteName": this.searchFavoriteName,
-      "searchFavoriteTags": this.searchFavoriteTags,
-      "searchFavoriteNote": this.searchFavoriteNote,
+      "searchType": searchType.index,
+      "includeDoujinshi": includeDoujinshi,
+      "includeManga": includeManga,
+      "includeArtistCG": includeArtistCG,
+      "includeGameCg": includeGameCg,
+      "includeWestern": includeWestern,
+      "includeNonH": includeNonH,
+      "includeImageSet": includeImageSet,
+      "includeCosplay": includeCosplay,
+      "includeAsianPorn": includeAsianPorn,
+      "includeMisc": includeMisc,
+      "keyword": keyword,
+      "tags": tags,
+      "searchGalleryName": searchGalleryName,
+      "searchGalleryTags": searchGalleryTags,
+      "searchGalleryDescription": searchGalleryDescription,
+      "searchExpungedGalleries": searchExpungedGalleries,
+      "onlyShowGalleriesWithTorrents": onlyShowGalleriesWithTorrents,
+      "searchLowPowerTags": searchLowPowerTags,
+      "searchDownVotedTags": searchDownVotedTags,
+      "pageAtLeast": pageAtLeast,
+      "pageAtMost": pageAtMost,
+      "minimumRating": minimumRating,
+      "disableFilterForLanguage": disableFilterForLanguage,
+      "disableFilterForUploader": disableFilterForUploader,
+      "disableFilterForTags": disableFilterForTags,
+      "searchFavoriteCategoryIndex": searchFavoriteCategoryIndex,
+      "searchFavoriteName": searchFavoriteName,
+      "searchFavoriteTags": searchFavoriteTags,
+      "searchFavoriteNote": searchFavoriteNote,
     };
   }
 
@@ -362,7 +362,7 @@ class SearchConfig {
       disableFilterForLanguage: disableFilterForLanguage ?? this.disableFilterForLanguage,
       disableFilterForUploader: disableFilterForUploader ?? this.disableFilterForUploader,
       disableFilterForTags: disableFilterForTags ?? this.disableFilterForTags,
-      searchFavoriteCategoryIndex: searchFavoriteCategoryIndex ?? this.searchFavoriteCategoryIndex,
+      searchFavoriteCategoryIndex: searchFavoriteCategoryIndex ?? searchFavoriteCategoryIndex,
       searchFavoriteName: searchFavoriteName ?? this.searchFavoriteName,
       searchFavoriteTags: searchFavoriteTags ?? this.searchFavoriteTags,
       searchFavoriteNote: searchFavoriteNote ?? this.searchFavoriteNote,

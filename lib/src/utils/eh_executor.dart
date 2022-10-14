@@ -147,7 +147,7 @@ class _EHExecutor implements EHExecutor {
     final streamController = StreamController<R>();
     StreamSubscription<R>? streamSubscription;
     final resourceCompleter = Completer();
-    final complete = () {
+    complete() {
       if (streamSubscription != null) {
         streamSubscription?.cancel();
         streamSubscription = null;
@@ -158,13 +158,13 @@ class _EHExecutor implements EHExecutor {
       if (!streamController.isClosed) {
         streamController.close();
       }
-    };
-    final completeWithError = (e, st) {
+    }
+    completeWithError(e, st) {
       if (!streamController.isClosed) {
         streamController.addError(e as Object, st as StackTrace);
       }
       complete();
-    };
+    }
     streamController
       ..onCancel = complete
       ..onPause = (() => streamSubscription?.pause())

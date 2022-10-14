@@ -43,7 +43,7 @@ Locale computeDefaultLocale(Locale windowLocale) {
   for (String key in LocaleConsts.localeCode2Description.keys) {
     List<String> keyParts = key.split('_');
 
-    if (localeParts.length >= 1 && keyParts[0] == localeParts[0]) {
+    if (localeParts.isNotEmpty && keyParts[0] == localeParts[0]) {
       return localeCode2Locale(key);
     }
   }

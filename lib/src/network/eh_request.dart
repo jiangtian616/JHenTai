@@ -115,6 +115,7 @@ class EHRequest {
       if (GetPlatform.isDesktop) {
         client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
       }
+      return null;
     };
 
     /// domain fronting for ExtendedNetworkImage

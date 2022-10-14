@@ -21,7 +21,6 @@ import 'package:throttling/throttling.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../network/eh_request.dart';
-import '../../utils/check_util.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';

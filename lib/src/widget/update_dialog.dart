@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/route_util.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../service/storage_service.dart';
@@ -42,7 +41,7 @@ class UpdateDialog extends StatelessWidget {
         ),
         CupertinoDialogAction(
           child: Text('check'.tr),
-          textStyle: TextStyle(fontSize: 16),
+          textStyle: const TextStyle(fontSize: 16),
           onPressed: () {
             backRoute();
             launchUrlString('https://github.com/jiangtian616/JHenTai/releases', mode: LaunchMode.externalApplication);
