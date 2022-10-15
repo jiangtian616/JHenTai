@@ -73,6 +73,7 @@ class SettingEHPage extends StatelessWidget {
   Widget _buildSiteSetting() {
     return ListTile(
       title: Text('siteSetting'.tr),
+      subtitle: Text('editProfileHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () async {
         if (GetPlatform.isDesktop) {

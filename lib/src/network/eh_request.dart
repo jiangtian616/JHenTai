@@ -346,6 +346,20 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
+  static Future<T> createProfile<T>({EHHtmlParser<T>? parser}) async {
+    Response<String> response = await _dio.post(
+      EHConsts.EUconfig,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: {
+        'profile_action': 'create',
+        'profile_name': 'JHenTai',
+        'profile_set': '616',
+      },
+    );
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
   static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required EHHtmlParser<T> parser}) async {
     Response response = await _dio.get(
       EHConsts.EMyTags,

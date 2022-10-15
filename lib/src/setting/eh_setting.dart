@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -72,6 +72,7 @@ class EHSetting {
     Log.debug('saveSite:$site');
     EHSetting.site.value = site;
     _save();
+    SiteSetting.refresh();
   }
 
   static saveRedirect2Eh(bool redirect2Eh) {

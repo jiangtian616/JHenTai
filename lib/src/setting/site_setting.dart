@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -40,15 +43,11 @@ class SiteSetting {
     }
 
     Log.info('refresh SiteSetting', false);
+
+    Map<String, dynamic> result = {};
     try {
       await retry(
-        () async {
-          Map<String, dynamic> map = await EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting);
-          frontPageDisplayType.value = map['frontPageDisplayType'];
-          isLargeThumbnail.value = map['isLargeThumbnail'];
-          thumbnailRows.value = map['thumbnailRows'];
-          thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
-        },
+        () async => result = await EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
         retryIf: (e) => e is DioError,
         maxAttempts: 3,
       );
@@ -56,6 +55,22 @@ class SiteSetting {
       Log.error('refresh SiteSetting fail', e.message);
       return;
     }
+
+    frontPageDisplayType.value = result['frontPageDisplayType'];
+    isLargeThumbnail.value = result['isLargeThumbnail'];
+    thumbnailRows.value = result['thumbnailRows'];
+    thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
+
+    /// JHenTai's profile
+    String? jHenTaiProfileNo = result['jHenTaiProfileNo'];
+    if (jHenTaiProfileNo != null) {
+      Log.debug('Find JHenTai profile: $jHenTaiProfileNo');
+      Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp', jHenTaiProfileNo)]);
+    } else {
+      Log.debug('Create JHenTai profile');
+      retry(EHRequest.createProfile, retryIf: (e) => e is DioError, maxAttempts: 3);
+    }
+
     Log.info('refresh SiteSetting success', false);
     _save();
   }

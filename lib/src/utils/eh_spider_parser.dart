@@ -388,6 +388,9 @@ class EHSpiderParser {
     List<Element> items = document.querySelectorAll('.optouter');
     Map<String, dynamic> map = {};
 
+    List<Element> profiles = document.querySelectorAll('#profile_form > select > option');
+    map['jHenTaiProfileNo'] = profiles.singleWhereOrNull((profile) => profile.text == 'JHenTai')?.attributes['value'];
+
     Element frontPageSetting = items[6];
     String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
 

@@ -107,7 +107,10 @@ class EHCookieManager extends CookieManager {
 
     cookieJar.loadForRequest(Uri.parse(EHConsts.EXIndex)).then((v) {
       String newCookieStr = CookieUtil.parse2String(v);
-      userCookies = newCookieStr.isNotEmpty ? newCookieStr : userCookies;
+      if (newCookieStr.isNotEmpty && newCookieStr != userCookies) {
+        userCookies = newCookieStr;
+        Log.debug('New cookie: $userCookies');
+      }
     });
   }
 
