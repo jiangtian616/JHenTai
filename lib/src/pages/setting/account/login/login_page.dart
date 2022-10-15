@@ -44,18 +44,18 @@ class LoginPage extends StatelessWidget {
       width: 300,
       decoration: BoxDecoration(color: UIConfig.loginPageFormColor, borderRadius: BorderRadius.circular(20)),
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GetBuilder<LoginPageLogic>(
-            id: LoginPageLogic.formId,
-            builder: (_) => SizedBox(
+      child: GetBuilder<LoginPageLogic>(
+        id: LoginPageLogic.formId,
+        builder: (_) => Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
               height: 140,
               child: Center(child: state.loginType == LoginType.password ? _buildUserNameForm() : _buildCookieForm()),
             ),
-          ),
-          _buildButtons().marginOnly(top: 24),
-        ],
+            _buildButtons().marginOnly(top: 24),
+          ],
+        ),
       ),
     );
   }
@@ -146,6 +146,7 @@ class LoginPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
+          width: 56,
           icon: Icon(Icons.public, color: UIConfig.loginPageBackgroundColor),
           text: const Text('Web', style: TextStyle(fontSize: 10)),
           onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
@@ -172,8 +173,9 @@ class LoginPage extends StatelessWidget {
               errorWidgetSameWithIdle: true,
             ),
           ),
-        ).marginSymmetric(horizontal: 12),
+        ).marginSymmetric(horizontal: 18),
         IconTextButton(
+          width: 56,
           icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: UIConfig.loginPageBackgroundColor),
           text: Text(state.loginType == LoginType.password ? 'Cookie' : 'User', style: const TextStyle(fontSize: 10)),
           onPressed: logic.toggleLoginType,
