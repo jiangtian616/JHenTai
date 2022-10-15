@@ -34,6 +34,7 @@ class SettingEHPage extends StatelessWidget {
           children: [
             _buildSiteSegmentControl(),
             _buildRedirect2EH(),
+            _buildUseSeparateProfile(),
             _buildSiteSetting(),
             _buildImageLimit(),
             _buildMyTags(),
@@ -69,6 +70,14 @@ class SettingEHPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildUseSeparateProfile() {
+    return ListTile(
+      title: Text('useSeparateProfile'.tr),
+      trailing: Switch(value: SiteSetting.useSeparateProfile.value, onChanged: SiteSetting.saveUseSeparateProfile),
+    );
+  }
+
 
   Widget _buildSiteSetting() {
     return ListTile(

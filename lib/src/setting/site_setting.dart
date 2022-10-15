@@ -12,8 +12,10 @@ import '../service/storage_service.dart';
 import '../utils/log.dart';
 
 class SiteSetting {
+  /// unused now
   static Rx<FrontPageDisplayType> frontPageDisplayType = FrontPageDisplayType.compact.obs;
 
+  static RxBool useSeparateProfile = false.obs;
   static RxBool isLargeThumbnail = false.obs;
   static RxInt thumbnailRows = 4.obs;
   static RxInt thumbnailsCountPerPage = 40.obs;
@@ -44,10 +46,10 @@ class SiteSetting {
 
     Log.info('refresh SiteSetting', false);
 
-    Map<String, dynamic> result = {};
+    Map<String, dynamic> settings = {};
     try {
       await retry(
-        () async => result = await EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
+        () async => settings = await EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
         retryIf: (e) => e is DioError,
         maxAttempts: 3,
       );
@@ -56,13 +58,20 @@ class SiteSetting {
       return;
     }
 
-    frontPageDisplayType.value = result['frontPageDisplayType'];
-    isLargeThumbnail.value = result['isLargeThumbnail'];
-    thumbnailRows.value = result['thumbnailRows'];
+    frontPageDisplayType.value = settings['frontPageDisplayType'];
+    isLargeThumbnail.value = settings['isLargeThumbnail'];
+    thumbnailRows.value = settings['thumbnailRows'];
     thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
 
-    /// JHenTai's profile
-    String? jHenTaiProfileNo = result['jHenTaiProfileNo'];
+    Log.info('refresh SiteSetting success', false);
+    _save();
+
+    if (useSeparateProfile.isFalse) {
+      Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp', '1')]);
+      return;
+    }
+
+    String? jHenTaiProfileNo = settings['jHenTaiProfileNo'];
     if (jHenTaiProfileNo != null) {
       Log.debug('Find JHenTai profile: $jHenTaiProfileNo');
       Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp', jHenTaiProfileNo)]);
@@ -70,9 +79,18 @@ class SiteSetting {
       Log.debug('Create JHenTai profile');
       retry(EHRequest.createProfile, retryIf: (e) => e is DioError, maxAttempts: 3);
     }
+  }
 
-    Log.info('refresh SiteSetting success', false);
+  static saveUseSeparateProfile(bool value) {
+    Log.debug('saveUseSeparateProfile:$value');
+    useSeparateProfile.value = value;
     _save();
+
+    if (useSeparateProfile.isTrue) {
+      refresh();
+    } else {
+      Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp', '1')]);
+    }
   }
 
   static Future<void> _save() async {
@@ -80,6 +98,7 @@ class SiteSetting {
   }
 
   static Future<void> _clear() async {
+    useSeparateProfile.value = false;
     frontPageDisplayType.value = FrontPageDisplayType.compact;
     isLargeThumbnail.value = false;
     thumbnailRows.value = 4;
@@ -90,6 +109,7 @@ class SiteSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
+      'useSeparateProfile': useSeparateProfile.value,
       'frontPageDisplayType': frontPageDisplayType.value.index,
       'isLargeThumbnail': isLargeThumbnail.value,
       'thumbnailRows': thumbnailRows.value,
@@ -98,6 +118,7 @@ class SiteSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
+    useSeparateProfile.value = map['useSeparateProfile'] ?? useSeparateProfile.value;
     frontPageDisplayType.value = FrontPageDisplayType.values[map['frontPageDisplayType']];
     isLargeThumbnail.value = map['isLargeThumbnail'];
     thumbnailRows.value = map['thumbnailRows'];
