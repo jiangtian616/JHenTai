@@ -189,7 +189,7 @@ class zh_CN {
       'redirect2Eh': '优先重定向至表站',
       'siteSetting': '站点设置',
       'useSeparateProfile': '使用单独的Profile',
-      'editProfileHint': '選擇並編輯Profile',
+      'editProfileHint': '选择并编辑Profile',
       'redirect2EH': '画廊链接重定向至表站(如果可用)',
       'redirect2Hints': '会先尝试解析表站',
       'pleaseLogInToOperate': '请登陆后操作',

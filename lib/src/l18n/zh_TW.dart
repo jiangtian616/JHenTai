@@ -189,7 +189,7 @@ class zh_TW {
       'redirect2Eh': '優先重定向至表站',
       'siteSetting': '站點設定',
       'useSeparateProfile': '使用單獨的Profile',
-      'editProfileHint': '選擇JHenTai的Profile並編輯',
+      'editProfileHint': '選擇並編輯Profile',
       'redirect2EH': '畫廊鏈接重新導向至表站(如果可用)',
       'redirect2Hints': '會先嘗試解析表站',
       'pleaseLogInToOperate': '請登入後操作',
