@@ -189,6 +189,7 @@ class en_US {
       'site': 'Site',
       'redirect2Eh': 'Redirect to EH if available',
       'siteSetting': 'Site Setting',
+      'showCookie': 'Cookie',
       'useSeparateProfile': 'Use Separated Profile',
       'editProfileHint': 'Edit profile',
       'redirect2EH': 'Redirect to EH site if Available',

@@ -78,7 +78,6 @@ class SettingEHPage extends StatelessWidget {
     );
   }
 
-
   Widget _buildSiteSetting() {
     return ListTile(
       title: Text('siteSetting'.tr),

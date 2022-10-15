@@ -1,16 +1,11 @@
-import 'dart:io';
-
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/cookie_util.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
-
 import '../../../network/eh_cookie_manager.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/toast_util.dart';
 import '../../../widget/log_out_dialog.dart';
 
 class SettingAccountPage extends StatelessWidget {
@@ -27,9 +22,7 @@ class SettingAccountPage extends StatelessWidget {
             if (!UserSetting.hasLoggedIn()) _buildLogin(),
             if (UserSetting.hasLoggedIn()) ...[
               _buildLogout().marginOnly(bottom: 12),
-              _buildIpbMemberId(),
-              _buildIpbPassHash(),
-              _buildIgneous(),
+              _buildCookiePage(),
             ],
           ],
         ),
@@ -57,33 +50,17 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIpbMemberId() {
+  Widget _buildCookiePage() {
     return ListTile(
-      title: const Text('ipb_member_id'),
-      subtitle: Text(UserSetting.ipbMemberId.toString()),
-      onTap: _copyCookies,
-    );
-  }
-
-  Widget _buildIpbPassHash() {
-    return ListTile(
-      title: const Text('ipb_pass_hash'),
-      subtitle: Text(UserSetting.ipbPassHash.toString()),
-      onTap: _copyCookies,
-    );
-  }
-
-  Widget _buildIgneous() {
-    return ListTile(
-      title: const Text('igneous'),
-      subtitle: Text(RegExp(r'igneous=(\w+)').firstMatch(EHCookieManager.userCookies)?.group(1) ?? 'nope'.tr),
-      onTap: _copyCookies,
+      title: Text('showCookie'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.cookie),
+      onLongPress: _copyCookies,
     );
   }
 
   Future<void> _copyCookies() async {
-    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-    await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
+    await FlutterClipboard.copy(EHCookieManager.userCookies);
     toast('hasCopiedToClipboard'.tr);
   }
 }

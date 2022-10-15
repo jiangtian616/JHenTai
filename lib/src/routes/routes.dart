@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/read/read_page.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
 import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
+import 'package:jhentai/src/pages/setting/account/cookie/cookie_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
@@ -83,6 +84,7 @@ class Routes {
   static const String settingAbout = "/setting_about";
 
   static const String login = "/setting_account/login";
+  static const String cookie = "/setting_account/cookie";
 
   static const String tagSets = "/setting_EH/tagSets";
 
@@ -270,6 +272,12 @@ class Routes {
     EHPage(
       name: login,
       page: () => LoginPage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: cookie,
+      page: () => const CookiePage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),
