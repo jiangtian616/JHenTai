@@ -26,8 +26,10 @@ class SettingAccountPage extends StatelessWidget {
           children: [
             if (!UserSetting.hasLoggedIn()) _buildLogin(),
             if (UserSetting.hasLoggedIn()) ...[
-              _buildLogout(),
-              _buildCopyCookie(),
+              _buildLogout().marginOnly(bottom: 12),
+              _buildIpbMemberId(),
+              _buildIpbPassHash(),
+              _buildIgneous(),
             ],
           ],
         ),
@@ -55,15 +57,33 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Widget _buildCopyCookie() {
+  Widget _buildIpbMemberId() {
     return ListTile(
-      title: Text('copyCookies'.tr),
-      subtitle: Text('tap2Copy'.tr),
-      onTap: () async {
-        List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
-        await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
-        toast('hasCopiedToClipboard'.tr);
-      },
+      title: const Text('ipb_member_id'),
+      subtitle: Text(UserSetting.ipbMemberId.toString()),
+      onTap: _copyCookies,
     );
+  }
+
+  Widget _buildIpbPassHash() {
+    return ListTile(
+      title: const Text('ipb_pass_hash'),
+      subtitle: Text(UserSetting.ipbPassHash.toString()),
+      onTap: _copyCookies,
+    );
+  }
+
+  Widget _buildIgneous() {
+    return ListTile(
+      title: const Text('igneous'),
+      subtitle: Text(RegExp(r'igneous=(\w+)').firstMatch(EHCookieManager.userCookies)?.group(1) ?? 'nope'.tr),
+      onTap: _copyCookies,
+    );
+  }
+
+  Future<void> _copyCookies() async {
+    List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
+    await FlutterClipboard.copy(CookieUtil.parse2String(cookies));
+    toast('hasCopiedToClipboard'.tr);
   }
 }

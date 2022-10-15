@@ -109,17 +109,21 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    RegExpMatch? match = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(state.cookie!);
-    if (match == null) {
+    RegExpMatch? match1 = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(state.cookie!);
+    RegExpMatch? match2 = RegExp(r'igneous=(\w+)').firstMatch(state.cookie!);
+
+    if (match1 == null) {
       toast('cookieFormatError'.tr);
       return;
     }
 
     int ipbMemberId;
     String ipbPassHash;
+    String? igneous;
     try {
-      ipbMemberId = int.parse(match.group(1)!);
-      ipbPassHash = match.group(2)!;
+      ipbMemberId = int.parse(match1.group(1)!);
+      ipbPassHash = match1.group(2)!;
+      igneous = match2?.group(1);
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e);
       Log.upload(e, extraInfos: {'cookie': state.cookie!});
@@ -131,6 +135,11 @@ class LoginPageLogic extends GetxController {
       Cookie('ipb_member_id', ipbMemberId.toString()),
       Cookie('ipb_pass_hash', ipbPassHash),
     ]);
+    if (igneous != null) {
+      await cookieManager.storeEhCookiesForAllUri([
+        Cookie('igneous', igneous.toString()),
+      ]);
+    }
 
     /// control mobile keyboard
     Get.focusScope?.unfocus();

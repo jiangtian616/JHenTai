@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_logic.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -136,7 +137,7 @@ class LoginPage extends StatelessWidget {
             onFieldSubmitted: (_) => logic.handleLogin(),
           ),
         ),
-        Text('ipb_member_id=xxx; ipb_pass_hash=xxx;', style: TextStyle(color: Colors.grey.shade400)).marginOnly(top: 12),
+        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)).marginOnly(top: 12, left: 4, right: 4),
       ],
     );
   }
