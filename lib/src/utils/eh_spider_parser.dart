@@ -7,7 +7,6 @@ import 'package:dio/dio.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
@@ -167,7 +166,7 @@ class EHSpiderParser {
         /// some tag doesn't has a type
         List<String> list = pair.split(':').toList();
         String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
-        String key = list.length == 1 ? list[0].substring(3).replaceAll('\_', ' ') : list[1].replaceAll('\_', ' ');
+        String key = list.length == 1 ? list[0].substring(3).replaceAll('_', ' ') : list[1].replaceAll('_', ' ');
 
         tags.putIfAbsent(namespace, () => []).add(GalleryTag(tagData: TagData(namespace: namespace, key: key)));
       }

@@ -72,12 +72,12 @@ class GalleryThumbnail {
 
   Map<String, dynamic> toMap() {
     return {
-      'href': this.href,
-      'thumbUrl': this.thumbUrl,
-      'isLarge': this.isLarge,
-      'thumbHeight': this.thumbHeight,
-      'thumbWidth': this.thumbWidth,
-      'offSet': this.offSet,
+      'href': href,
+      'thumbUrl': thumbUrl,
+      'isLarge': isLarge,
+      'thumbHeight': thumbHeight,
+      'thumbWidth': thumbWidth,
+      'offSet': offSet,
     };
   }
 

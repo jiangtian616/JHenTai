@@ -96,19 +96,19 @@ class Routes {
   static List<EHPage> pages = <EHPage>[
     EHPage(
       name: home,
-      page: () => HomePage(),
+      page: () => const HomePage(),
       transition: Transition.fade,
       side: Side.fullScreen,
     ),
     EHPage(
       name: lock,
-      page: () => LockPage(),
+      page: () => const LockPage(),
       transition: Transition.fade,
       side: Side.fullScreen,
     ),
     EHPage(
       name: blank,
-      page: () => BlankPage(),
+      page: () => const BlankPage(),
       transition: Transition.cupertino,
       side: Side.right,
     ),
@@ -120,13 +120,13 @@ class Routes {
     ),
     EHPage(
       name: gallerys,
-      page: () => GallerysPage(),
+      page: () => const GallerysPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: dashboard,
-      page: () => DashboardPage(),
+      page: () => const DashboardPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -149,25 +149,25 @@ class Routes {
     ),
     EHPage(
       name: ranklist,
-      page: () => RanklistPage(),
+      page: () => const RanklistPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: favorite,
-      page: () => FavoritePage(),
+      page: () => const FavoritePage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: setting,
-      page: () => SettingPage(),
+      page: () => const SettingPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
     EHPage(
       name: watched,
-      page: () => WatchedPage(),
+      page: () => const WatchedPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -191,7 +191,7 @@ class Routes {
     ),
     EHPage(
       name: desktopSearch,
-      page: () => DesktopSearchPage(),
+      page: () => const DesktopSearchPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),
@@ -203,13 +203,13 @@ class Routes {
     ),
     EHPage(
       name: singleImagePage,
-      page: () => SingleImagePage(),
+      page: () => const SingleImagePage(),
       transition: Transition.noTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: webview,
-      page: () => WebviewPage(),
+      page: () => const WebviewPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),
@@ -221,7 +221,7 @@ class Routes {
     ),
     EHPage(
       name: settingAccount,
-      page: () => SettingAccountPage(),
+      page: () => const SettingAccountPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
@@ -236,7 +236,7 @@ class Routes {
     ),
     EHPage(
       name: settingRead,
-      page: () => SettingReadPage(),
+      page: () => const SettingReadPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
@@ -246,27 +246,27 @@ class Routes {
     ),
     EHPage(
       name: settingDownload,
-      page: () => SettingDownloadPage(),
+      page: () => const SettingDownloadPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingMouseWheel,
-      page: () => SettingMouseWheelPage(),
+      page: () => const SettingMouseWheelPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingAdvanced,
-      page: () => SettingAdvancedPage(),
+      page: () => const SettingAdvancedPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingSecurity,
-      page: () => SettingSecurityPage(),
+      page: () => const SettingSecurityPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
       name: settingAbout,
-      page: () => SettingAboutPage(),
+      page: () => const SettingAboutPage(),
       transition: Transition.cupertino,
     ),
     EHPage(
@@ -289,19 +289,19 @@ class Routes {
     ),
     EHPage(
       name: hostMapping,
-      page: () => HostMappingPage(),
+      page: () => const HostMappingPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),
     EHPage(
       name: logList,
-      page: () => LogListPage(),
+      page: () => const LogListPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),
     EHPage(
       name: log,
-      page: () => LogPage(),
+      page: () => const LogPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),
@@ -313,7 +313,7 @@ class Routes {
     ),
     EHPage(
       name: comment,
-      page: () => CommentPage(),
+      page: () => const CommentPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

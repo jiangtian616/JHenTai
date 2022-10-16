@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/widget/eh_download_dialog.dart';

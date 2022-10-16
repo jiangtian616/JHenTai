@@ -26,10 +26,10 @@ class TabBarConfig {
 
   Map<String, dynamic> toJson() {
     return {
-      "name": this.name,
-      "searchConfig": this.searchConfig.toJson(),
-      'isDeleteAble': this.isDeleteAble,
-      'isEditable': this.isEditable,
+      "name": name,
+      "searchConfig": searchConfig.toJson(),
+      'isDeleteAble': isDeleteAble,
+      'isEditable': isEditable,
     };
   }
 

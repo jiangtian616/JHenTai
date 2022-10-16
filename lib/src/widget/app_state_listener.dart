@@ -63,7 +63,9 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
     AppStateListener.registerDidChangeAppLifecycleStateCallback(_lockAfterResume);
 
-    AppStateListener._appLaunchCallbacks.forEach((callback) => callback.call(context));
+    for (var callback in AppStateListener._appLaunchCallbacks) {
+      callback.call(context);
+    }
   }
 
   @override

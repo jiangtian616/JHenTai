@@ -14,9 +14,9 @@ class GalleryTag {
 
   Map<String, dynamic> toJson() {
     return {
-      'color': this.color?.value,
-      'backgroundColor': this.backgroundColor?.value,
-      'tagData': this.tagData.toJson(),
+      'color': color?.value,
+      'backgroundColor': backgroundColor?.value,
+      'tagData': tagData.toJson(),
     };
   }
 

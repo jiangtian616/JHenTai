@@ -91,22 +91,22 @@ class Gallery {
 
   Map<String, dynamic> toJson() {
     return {
-      'gid': this.gid,
-      'token': this.token,
-      'title': this.title,
-      'category': this.category,
-      'cover': this.cover.toJson(),
-      'pageCount': this.pageCount,
-      'rating': this.rating,
-      'hasRated': this.hasRated,
-      'isFavorite': this.isFavorite,
-      'favoriteTagIndex': this.favoriteTagIndex,
-      'favoriteTagName': this.favoriteTagName,
-      'galleryUrl': this.galleryUrl,
-      'tags': this.tags,
-      'language': this.language,
-      'uploader': this.uploader,
-      'publishTime': this.publishTime,
+      'gid': gid,
+      'token': token,
+      'title': title,
+      'category': category,
+      'cover': cover.toJson(),
+      'pageCount': pageCount,
+      'rating': rating,
+      'hasRated': hasRated,
+      'isFavorite': isFavorite,
+      'favoriteTagIndex': favoriteTagIndex,
+      'favoriteTagName': favoriteTagName,
+      'galleryUrl': galleryUrl,
+      'tags': tags,
+      'language': language,
+      'uploader': uploader,
+      'publishTime': publishTime,
     };
   }
 

@@ -20,12 +20,12 @@ class GalleryImage {
 
   Map<String, dynamic> toJson() {
     return {
-      "url": this.url,
-      "height": this.height,
-      "width": this.width,
-      "imageHash": this.imageHash,
-      "path": this.path,
-      "downloadStatus": this.downloadStatus.index,
+      "url": url,
+      "height": height,
+      "width": width,
+      "imageHash": imageHash,
+      "path": path,
+      "downloadStatus": downloadStatus.index,
     };
   }
 

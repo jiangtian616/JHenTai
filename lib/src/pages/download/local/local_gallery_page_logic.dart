@@ -1,5 +1,4 @@
 import 'dart:io' as io;
-import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
