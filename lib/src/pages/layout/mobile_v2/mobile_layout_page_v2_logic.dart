@@ -38,6 +38,9 @@ class MobileLayoutPageV2Logic extends GetxController {
       return;
     }
 
+    // make sure we are at the home tab
+    handleTapNavigationBarButton(0);
+
     state.icons[index].shouldRender = true;
 
     int prevIndex = state.selectedDrawerTabIndex;
