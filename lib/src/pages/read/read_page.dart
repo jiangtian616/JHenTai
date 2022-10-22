@@ -10,7 +10,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_la
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 
 import '../../config/ui_config.dart';
 import '../../routes/routes.dart';
@@ -22,6 +22,7 @@ import '../../utils/toast_util.dart';
 import '../../widget/eh_image.dart';
 import '../../widget/eh_keyboard_listener.dart';
 import '../../widget/eh_thumbnail.dart';
+import '../../widget/eh_wheel_speed_controller_for_read_page.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
 import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
@@ -339,42 +340,45 @@ class ReadPage extends StatelessWidget {
       width: fullScreenWidth,
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
       child: Obx(
-        () => ScrollablePositionedList.separated(
-          scrollDirection: Axis.horizontal,
-          reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
-          physics: const ClampingScrollPhysics(),
-          minCacheExtent: 1 * fullScreenWidth,
-          initialScrollIndex: state.readPageInfo.initialIndex,
-          itemCount: state.readPageInfo.pageCount,
-          itemScrollController: state.thumbnailsScrollController,
-          itemPositionsListener: state.thumbnailPositionsListener,
-          itemBuilder: (_, index) => SizedBox(
-            width: UIConfig.readPageThumbnailWidth,
-            height: UIConfig.readPageThumbnailHeight,
-            child: GetBuilder<ReadPageLogic>(
-                id: logic.thumbnailNoId,
-                builder: (_) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => logic.jump2PageIndex(index),
-                          child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+        () => EHWheelSpeedControllerForReadPage(
+          scrollController: state.thumbnailsScrollController,
+          child: EHScrollablePositionedList.separated(
+            scrollDirection: Axis.horizontal,
+            reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+            physics: const ClampingScrollPhysics(),
+            minCacheExtent: 1 * fullScreenWidth,
+            initialScrollIndex: state.readPageInfo.initialIndex,
+            itemCount: state.readPageInfo.pageCount,
+            itemScrollController: state.thumbnailsScrollController,
+            itemPositionsListener: state.thumbnailPositionsListener,
+            itemBuilder: (_, index) => SizedBox(
+              width: UIConfig.readPageThumbnailWidth,
+              height: UIConfig.readPageThumbnailHeight,
+              child: GetBuilder<ReadPageLogic>(
+                  id: logic.thumbnailNoId,
+                  builder: (_) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => logic.jump2PageIndex(index),
+                            child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                          ),
                         ),
-                      ),
-                      GetBuilder<ReadPageLogic>(
-                        builder: (_) => Text(
-                          (index + 1).toString(),
-                          style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
-                        ),
-                      ).marginOnly(top: 4),
-                    ],
-                  );
-                }),
+                        GetBuilder<ReadPageLogic>(
+                          builder: (_) => Text(
+                            (index + 1).toString(),
+                            style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
+                          ),
+                        ).marginOnly(top: 4),
+                      ],
+                    );
+                  }),
+            ),
+            separatorBuilder: (_, __) => const VerticalDivider(width: 4),
           ),
-          separatorBuilder: (_, __) => const VerticalDivider(width: 4),
         ),
       ),
     );
