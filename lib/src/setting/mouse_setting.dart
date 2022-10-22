@@ -4,7 +4,7 @@ import '../service/storage_service.dart';
 import '../utils/log.dart';
 
 class MouseSetting {
-  static RxDouble wheelScrollSpeed = 1.0.obs;
+  static RxDouble wheelScrollSpeed = 5.0.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('mouseSetting');
