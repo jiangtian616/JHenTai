@@ -118,8 +118,8 @@ abstract class BaseLayout extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onSecondaryTap: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageHref(index)),
-      onLongPress: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageHref(index)),
+      onSecondaryTap: () => readPageLogic.beginToParseImageHref(index),
+      onLongPress: () => readPageLogic.beginToParseImageHref(index),
       child: SizedBox(
         height: placeHolderSize.height,
         width: placeHolderSize.width,
@@ -150,8 +150,8 @@ abstract class BaseLayout extends StatelessWidget {
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onSecondaryTap: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageUrl(index, true)),
-      onLongPress: () => _showReParseBottomSheet(context, () => readPageLogic.beginToParseImageUrl(index, true)),
+      onSecondaryTap: () => readPageLogic.beginToParseImageUrl(index, true),
+      onLongPress: () => readPageLogic.beginToParseImageUrl(index, true),
       child: SizedBox(
         height: placeHolderSize.height,
         width: placeHolderSize.width,
@@ -199,6 +199,7 @@ abstract class BaseLayout extends StatelessWidget {
           icon: const Icon(Icons.error),
           text: Text('networkError'.tr),
           onPressed: state.reLoadImage,
+          onLongPress: state.reLoadImage,
         ),
         Text(index.toString()),
       ],
