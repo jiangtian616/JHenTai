@@ -10,12 +10,13 @@ class RanklistPage extends BasePage {
     Key? key,
     bool showMenuButton = false,
     bool showTitle = false,
+    bool showScroll2TopButton = true,
   }) : super(
           key: key,
           showMenuButton: showMenuButton,
           showTitle: showTitle,
           showJumpButton: true,
-          showScroll2TopButton: true,
+          showScroll2TopButton: showScroll2TopButton,
         );
 
   @override

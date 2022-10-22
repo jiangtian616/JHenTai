@@ -48,6 +48,7 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
+    primaryColorLight: Colors.pink.shade300,
   );
 
   static ThemeData dark = ThemeData(
@@ -100,5 +101,6 @@ class ThemeConfig {
       indicatorSize: TabBarIndicatorSize.label,
       indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
     ),
+    primaryColorLight: Colors.pink.shade300,
   );
 }
