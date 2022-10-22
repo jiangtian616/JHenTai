@@ -19,6 +19,7 @@ class LocaleConsts {
     'zh_CN': '简体中文',
     'zh_TW': '繁體中文(台灣)',
     'en_US': 'English',
+    'pt_BR': 'Português brasileiro',
   };
 
   static const Map<String, String> tagNamespace = {
