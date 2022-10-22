@@ -142,7 +142,7 @@ class pt_BR {
       'newComment': 'Novo comentário',
       'commentTooShort': 'O comentário é muito curto',
       'sendCommentFailed': 'Falha ao enviar comentário',
-      'voteCommentFailed': 'Falha ao votar cometário', 
+      'voteCommentFailed': 'Falha ao votar cometário',
       'voteCommentFailedHint': 'Tente puxar para baixo para atualizar a página de detalhes primeiro',
       'unknownUser': 'Usuário desconhecido',
       'atLeast3Characters': 'Pelo menos 3 caracteres',
@@ -240,6 +240,7 @@ class pt_BR {
       'adaptive': 'Adaptativo',
       'hideBottomBar': 'Ocultar barra inferior',
       'enableQuickSearchDrawerGesture': 'Ativar pesquisa rápida com gesto de gaveta',
+      'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',

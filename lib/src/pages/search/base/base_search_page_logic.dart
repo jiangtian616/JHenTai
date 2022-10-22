@@ -164,7 +164,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       return;
     }
 
-    String searchPhrase = state.searchConfig.toTagKeywords(withTranslation: false, separator: ' ');
+    String searchPhrase = state.searchConfig.computeKeywords();
     if (searchPhrase.isEmpty) {
       return;
     }

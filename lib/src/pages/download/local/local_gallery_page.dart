@@ -7,6 +7,7 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../config/ui_config.dart';
+import '../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
@@ -18,10 +19,12 @@ import '../download_base_page.dart';
 import 'local_gallery_page_logic.dart';
 import 'local_gallery_page_state.dart';
 
-class LocalGalleryPage extends StatelessWidget {
+class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   LocalGalleryPage({Key? key}) : super(key: key);
 
+  @override
   final LocalGalleryPageLogic logic = Get.put<LocalGalleryPageLogic>(LocalGalleryPageLogic(), permanent: true);
+  @override
   final LocalGalleryPageState state = Get.find<LocalGalleryPageLogic>().state;
 
   @override
@@ -29,11 +32,7 @@ class LocalGalleryPage extends StatelessWidget {
     return Scaffold(
       appBar: buildAppBar(context),
       body: buildBody(),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward),
-        heroTag: null,
-        onPressed: logic.scroll2Top,
-      ),
+      floatingActionButton: buildFloatingActionButton(),
     );
   }
 
@@ -75,27 +74,30 @@ class LocalGalleryPage extends StatelessWidget {
       id: LocalGalleryService.galleryCountChangedId,
       builder: (_) => GetBuilder<LocalGalleryPageLogic>(
         id: LocalGalleryPageLogic.bodyId,
-        builder: (_) => EHWheelSpeedController(
-          controller: state.scrollController,
-          child: ListView.builder(
+        builder: (_) => NotificationListener<UserScrollNotification>(
+          onNotification: logic.onUserScroll,
+          child: EHWheelSpeedController(
             controller: state.scrollController,
-            padding: const EdgeInsets.only(bottom: 80),
-            itemCount: logic.computeItemCount(),
-            itemBuilder: (context, index) {
-              if (state.aggregateDirectories) {
-                return galleryItemBuilder(context, index);
-              }
+            child: ListView.builder(
+              controller: state.scrollController,
+              padding: const EdgeInsets.only(bottom: 80),
+              itemCount: logic.computeItemCount(),
+              itemBuilder: (context, index) {
+                if (state.aggregateDirectories) {
+                  return galleryItemBuilder(context, index);
+                }
 
-              if (index == 0) {
-                return parentDirectoryItemBuilder(context);
-              }
+                if (index == 0) {
+                  return parentDirectoryItemBuilder(context);
+                }
 
-              if (index <= logic.computeCurrentDirectoryCount()) {
-                return nestedDirectoryItemBuilder(context, index - 1);
-              }
+                if (index <= logic.computeCurrentDirectoryCount()) {
+                  return nestedDirectoryItemBuilder(context, index - 1);
+                }
 
-              return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
-            },
+                return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+              },
+            ),
           ),
         ),
       ),

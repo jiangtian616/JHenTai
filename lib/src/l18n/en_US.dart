@@ -240,6 +240,7 @@ class en_US {
       'adaptive': 'Adaptive',
       'hideBottomBar': 'Hide Bottom Bar',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
+      'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

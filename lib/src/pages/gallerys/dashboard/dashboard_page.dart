@@ -51,23 +51,26 @@ class DashboardPage extends BasePage {
   Widget buildBody(BuildContext context) {
     return GetBuilder<DashboardPageLogic>(
       id: logic.bodyId,
-      builder: (_) => EHWheelSpeedController(
-        controller: state.scrollController,
-        child: CustomScrollView(
-          key: state.pageStorageKey,
+      builder: (_) => NotificationListener<UserScrollNotification>(
+        onNotification: logic.onUserScroll,
+        child: EHWheelSpeedController(
           controller: state.scrollController,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          scrollBehavior: ScrollConfiguration.of(context),
-          slivers: [
-            buildPullDownIndicator(),
-            _buildRanklistDesc(),
-            _buildRanklist(),
-            _buildPopularListDesc(),
-            _buildPopular(),
-            _buildGalleryDesc(),
-            _buildGalleryBody(context),
-            super.buildLoadMoreIndicator(),
-          ],
+          child: CustomScrollView(
+            key: state.pageStorageKey,
+            controller: state.scrollController,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            scrollBehavior: ScrollConfiguration.of(context),
+            slivers: [
+              buildPullDownIndicator(),
+              _buildRanklistDesc(),
+              _buildRanklist(),
+              _buildPopularListDesc(),
+              _buildPopular(),
+              _buildGalleryDesc(),
+              _buildGalleryBody(context),
+              super.buildLoadMoreIndicator(),
+            ],
+          ),
         ),
       ),
     );

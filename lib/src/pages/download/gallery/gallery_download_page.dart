@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import '../../../database/database.dart';
+import '../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../model/gallery_image.dart';
 import '../../../routes/routes.dart';
 import '../../../service/gallery_download_service.dart';
@@ -21,11 +22,13 @@ import '../download_base_page.dart';
 import 'gallery_download_page_logic.dart';
 import 'gallery_download_page_state.dart';
 
-class GalleryDownloadPage extends StatelessWidget {
+class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin{
   GalleryDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
 
   final bool showMenuButton;
+  @override
   final GalleryDownloadPageLogic logic = Get.put<GalleryDownloadPageLogic>(GalleryDownloadPageLogic(), permanent: true);
+  @override
   final GalleryDownloadPageState state = Get.find<GalleryDownloadPageLogic>().state;
 
   @override
@@ -33,11 +36,7 @@ class GalleryDownloadPage extends StatelessWidget {
     return Scaffold(
       appBar: buildAppBar(context),
       body: buildBody(),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward),
-        heroTag: null,
-        onPressed: logic.scroll2Top,
-      ),
+      floatingActionButton: buildFloatingActionButton(),
     );
   }
 
@@ -72,13 +71,16 @@ class GalleryDownloadPage extends StatelessWidget {
       id: galleryCountOrOrderChangedId,
       builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
         id: GalleryDownloadPageLogic.bodyId,
-        builder: (_) => GroupList<GalleryDownloadedData, String>(
-          scrollController: state.scrollController,
-          groups: logic.downloadService.allGroups,
-          elements: logic.downloadService.gallerys,
-          groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
-          groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
-          itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
+        builder: (_) => NotificationListener<UserScrollNotification>(
+          onNotification: logic.onUserScroll,
+          child: GroupList<GalleryDownloadedData, String>(
+            scrollController: state.scrollController,
+            groups: logic.downloadService.allGroups,
+            elements: logic.downloadService.gallerys,
+            groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
+            groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
+          ),
         ),
       ),
     );

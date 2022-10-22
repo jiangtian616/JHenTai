@@ -31,6 +31,7 @@ class SettingStylePage extends StatelessWidget {
             _buildLayout(),
             if (StyleSetting.isInV2Layout) _buildShowBottomNavigation().fadeIn(),
             if (StyleSetting.isInV2Layout) _buildQuickSearch().fadeIn(),
+            if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton().fadeIn(),
           ],
         ),
       ),
@@ -177,6 +178,14 @@ class SettingStylePage extends StatelessWidget {
         value: StyleSetting.enableQuickSearchDrawerGesture.value,
         onChanged: StyleSetting.saveEnableQuickSearchDrawerGesture,
       ),
+    );
+  }
+
+  Widget _buildAlwaysShowScroll2TopButton() {
+    return SwitchListTile(
+      title: Text('alwaysShowScroll2TopButton'.tr),
+      value: StyleSetting.alwaysShowScroll2TopButton.value,
+      onChanged: StyleSetting.saveAlwaysShowScroll2TopButton,
     );
   }
 }

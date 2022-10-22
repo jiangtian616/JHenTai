@@ -239,6 +239,7 @@ class zh_TW {
       'adaptive': '自適應',
       'hideBottomBar': '隱藏底部導航欄',
       'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',
+      'alwaysShowScroll2TopButton': '總是展示快速回頂按鈕',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '滑鼠滾輪速度',

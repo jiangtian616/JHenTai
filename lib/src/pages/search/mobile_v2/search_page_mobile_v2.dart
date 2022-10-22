@@ -42,7 +42,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
           endDrawer: Drawer(width: 278, child: QuickSearchPage()),
           endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
-          floatingActionButton: buildFloatingActionButton(context),
+          floatingActionButton: buildFloatingActionButton(),
           resizeToAvoidBottomInset: false,
         ),
       ),

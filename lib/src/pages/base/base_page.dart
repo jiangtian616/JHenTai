@@ -7,12 +7,13 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
+import '../../mixin/scroll_to_top_page_mixin.dart';
 import '../../widget/eh_gallery_collection.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
 import 'base_page_state.dart';
 
-abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extends StatelessWidget {
+abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extends StatelessWidget with Scroll2TopPageMixin {
   /// For mobile layout v2
   final bool showMenuButton;
   final bool showJumpButton;
@@ -31,8 +32,10 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     this.name,
   }) : super(key: key);
 
+  @override
   L get logic;
 
+  @override
   S get state;
 
   @override
@@ -44,7 +47,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
         body: SafeArea(child: buildBody(context)),
-        floatingActionButton: buildFloatingActionButton(context),
+        floatingActionButton: showScroll2TopButton ? buildFloatingActionButton() : null,
       ),
     );
   }
@@ -62,25 +65,6 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     return IconButton(
       icon: const Icon(FontAwesomeIcons.bars, size: 20),
       onPressed: () => TapMenuButtonNotification().dispatch(context),
-    );
-  }
-
-  Widget buildFloatingActionButton(BuildContext context) {
-    return GetBuilder<L>(
-      id: logic.scroll2TopButtonId,
-      global: false,
-      init: logic,
-      builder: (_) {
-        if (!showScroll2TopButton || logic.state.gallerys.isEmpty) {
-          return const SizedBox();
-        }
-
-        return FloatingActionButton(
-          child: const Icon(Icons.arrow_upward),
-          heroTag: null,
-          onPressed: logic.scroll2Top,
-        );
-      },
     );
   }
 
@@ -114,18 +98,21 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
       init: logic,
       builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
           ? buildCenterStatusIndicator()
-          : EHWheelSpeedController(
-              controller: state.scrollController,
-              child: CustomScrollView(
-                key: state.pageStorageKey,
+          : NotificationListener<UserScrollNotification>(
+              onNotification: logic.onUserScroll,
+              child: EHWheelSpeedController(
                 controller: state.scrollController,
-                physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                scrollBehavior: ScrollConfiguration.of(context),
-                slivers: <Widget>[
-                  buildPullDownIndicator(),
-                  buildGalleryCollection(context),
-                  buildLoadMoreIndicator(),
-                ],
+                child: CustomScrollView(
+                  key: state.pageStorageKey,
+                  controller: state.scrollController,
+                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                  scrollBehavior: ScrollConfiguration.of(context),
+                  slivers: <Widget>[
+                    buildPullDownIndicator(),
+                    buildGalleryCollection(context),
+                    buildLoadMoreIndicator(),
+                  ],
+                ),
               ),
             ),
     );

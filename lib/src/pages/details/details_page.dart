@@ -12,6 +12,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
@@ -34,10 +35,12 @@ import '../../widget/eh_gallery_category_tag.dart';
 import 'details_page_logic.dart';
 import 'details_page_state.dart';
 
-class DetailsPage extends StatelessWidget {
+class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   final String tag = UniqueKey().toString();
 
+  @override
   late final DetailsPageLogic logic;
+  @override
   late final DetailsPageState state;
 
   DetailsPage({Key? key}) : super(key: key) {
@@ -53,7 +56,7 @@ class DetailsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: buildAppBar(),
         body: buildBody(),
-        floatingActionButton: buildFloatingButton(),
+        floatingActionButton: state.galleryDetails == null ? null : ExcludeFocus(child: buildFloatingActionButton()),
       ),
     );
   }
@@ -84,38 +87,28 @@ class DetailsPage extends StatelessWidget {
       node: Get.isRegistered<DesktopLayoutPageLogic>()
           ? (Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode..onKeyEvent = logic.onKeyEvent)
           : null,
-      child: EHWheelSpeedController(
-        controller: state.scrollController,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+      child: NotificationListener<UserScrollNotification>(
+        onNotification: logic.onUserScroll,
+        child: EHWheelSpeedController(
           controller: state.scrollController,
-          slivers: [
-            CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
-            _buildHeader(),
-            _buildDivider(),
-            _buildNewVersionHint(),
-            _buildActions(),
-            _buildTags(),
-            _buildLoadingDetailsIndicator(),
-            _buildCommentsIndicator(),
-            _buildComments(),
-            _buildThumbnails(),
-            if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-          ],
-        ).paddingOnly(left: 15, right: 15),
-      ),
-    );
-  }
-
-  Widget? buildFloatingButton() {
-    if (state.galleryDetails == null) {
-      return null;
-    }
-
-    return ExcludeFocus(
-      child: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward, size: 26),
-        onPressed: DetailsPageLogic.current?.scroll2Top,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            controller: state.scrollController,
+            slivers: [
+              CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
+              _buildHeader(),
+              _buildDivider(),
+              _buildNewVersionHint(),
+              _buildActions(),
+              _buildTags(),
+              _buildLoadingDetailsIndicator(),
+              _buildCommentsIndicator(),
+              _buildComments(),
+              _buildThumbnails(),
+              if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+            ],
+          ).paddingOnly(left: 15, right: 15),
+        ),
       ),
     );
   }
@@ -545,7 +538,7 @@ class _DetailsPageHeader extends StatelessWidget {
         EHGalleryCategoryTag(
           category: state.gallery!.category,
           padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
-          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: Colors.white,height: 1),
+          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: Colors.white, height: 1),
           borderRadius: 3,
         ),
       ],

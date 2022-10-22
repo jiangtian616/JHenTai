@@ -114,17 +114,13 @@ class DashboardPageLogic extends BasePageLogic {
     update([loadingStateId]);
 
     await Future.any([
-      super.handleRefresh(updateId: galleryListId).then((_){
+      super.handleRefresh(updateId: galleryListId).then((_) {
         state.loadingState = state.refreshState;
         update([loadingStateId]);
       }),
       loadRanklist(),
       loadPopular(),
     ]);
-  }
-
-  void updateGalleryList() {
-    update([galleryListId]);
   }
 
   @override
@@ -136,5 +132,9 @@ class DashboardPageLogic extends BasePageLogic {
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
     );
+  }
+
+  void updateGalleryList() {
+    update([galleryListId]);
   }
 }

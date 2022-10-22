@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/widget/re_unlock_dialog.dart';
 
 import '../../../model/gallery_image.dart';
@@ -24,11 +25,13 @@ import '../download_base_page.dart';
 import 'archive_download_page_logic.dart';
 import 'archive_download_page_state.dart';
 
-class ArchiveDownloadPage extends StatelessWidget {
+class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   ArchiveDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
 
   final bool showMenuButton;
+  @override
   final ArchiveDownloadPageLogic logic = Get.put<ArchiveDownloadPageLogic>(ArchiveDownloadPageLogic(), permanent: true);
+  @override
   final ArchiveDownloadPageState state = Get.find<ArchiveDownloadPageLogic>().state;
 
   @override
@@ -36,11 +39,7 @@ class ArchiveDownloadPage extends StatelessWidget {
     return Scaffold(
       appBar: buildAppBar(context),
       body: buildBody(context),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.arrow_upward),
-        heroTag: null,
-        onPressed: logic.scroll2Top,
-      ),
+      floatingActionButton: buildFloatingActionButton(),
     );
   }
 
@@ -75,13 +74,16 @@ class ArchiveDownloadPage extends StatelessWidget {
       id: ArchiveDownloadService.archiveCountChangedId,
       builder: (_) => GetBuilder<ArchiveDownloadPageLogic>(
         id: ArchiveDownloadPageLogic.bodyId,
-        builder: (_) => GroupList<ArchiveDownloadedData, String>(
-          scrollController: state.scrollController,
-          groups: logic.archiveDownloadService.allGroups,
-          elements: logic.archiveDownloadService.archives,
-          groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,
-          groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
-          itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
+        builder: (_) => NotificationListener<UserScrollNotification>(
+          onNotification: logic.onUserScroll,
+          child: GroupList<ArchiveDownloadedData, String>(
+            scrollController: state.scrollController,
+            groups: logic.archiveDownloadService.allGroups,
+            elements: logic.archiveDownloadService.archives,
+            groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,
+            groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+            itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
+          ),
         ),
       ),
     );

@@ -29,10 +29,12 @@ class StyleSetting {
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
-  static RxBool enableQuickSearchDrawerGesture = true.obs;
   static RxBool hideBottomBar = false.obs;
+  static RxBool alwaysShowScroll2TopButton = false.obs;
+  static RxBool enableQuickSearchDrawerGesture = true.obs;
 
-  static bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
+  static bool get isInWaterFlowListMode =>
+      listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;
@@ -92,15 +94,21 @@ class StyleSetting {
     _save();
   }
 
+  static saveHideBottomBar(bool hideBottomBar) {
+    Log.debug('saveHideBottomBar:$hideBottomBar');
+    StyleSetting.hideBottomBar.value = hideBottomBar;
+    _save();
+  }
+
   static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
     Log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
     StyleSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
     _save();
   }
 
-  static saveHideBottomBar(bool hideBottomBar) {
-    Log.debug('saveHideBottomBar:$hideBottomBar');
-    StyleSetting.hideBottomBar.value = hideBottomBar;
+  static saveAlwaysShowScroll2TopButton(bool alwaysShowScroll2TopButton) {
+    Log.debug('saveAlwaysShowScroll2TopButton:$alwaysShowScroll2TopButton');
+    StyleSetting.alwaysShowScroll2TopButton.value = alwaysShowScroll2TopButton;
     _save();
   }
 
@@ -128,6 +136,7 @@ class StyleSetting {
       'layout': layout.value.index,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
       'hideBottomBar': hideBottomBar.value,
+      'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
     };
   }
 
@@ -141,5 +150,6 @@ class StyleSetting {
     actualLayout = layout.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
+    alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
   }
 }
