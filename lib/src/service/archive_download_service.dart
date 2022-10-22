@@ -500,6 +500,16 @@ class ArchiveDownloadService extends GetxController {
       return await _getDownloadUrl(archive);
     }
 
+    /// sometimes the download url is invalid(the same as [downloadPageUrl]), retry
+    if (!downloadPath.endsWith('start=1')) {
+      Log.warning('Failed to parse download url, retry: $downloadPath');
+      Log.upload(Exception('Failed to parse download url!'), extraInfos: {
+        'downloadPath': downloadPath,
+        'archive': archiveDownloadInfo.toString(),
+      });
+      return _getDownloadUrl(archive);
+    }
+
     Log.download('Parse archive download url success: ${archive.title}, original: ${archive.isOriginal}');
 
     archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
