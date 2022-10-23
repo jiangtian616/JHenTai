@@ -124,28 +124,26 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       context: context,
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
-          if (GetPlatform.isMobile)
-            CupertinoActionSheetAction(
-              child: Text('share'.tr),
-              onPressed: () async {
-                backRoute();
-                if (!await _shareOnlineImage(index)) {
-                  toast('failed'.tr);
-                }
-              },
-            ),
-          if (GetPlatform.isMobile)
-            CupertinoActionSheetAction(
-              child: Text('save'.tr),
-              onPressed: () async {
-                backRoute();
-                if (await _saveOnlineImage(index)) {
-                  toast('success'.tr);
-                } else {
-                  toast('failed'.tr);
-                }
-              },
-            ),
+          CupertinoActionSheetAction(
+            child: Text('share'.tr),
+            onPressed: () async {
+              backRoute();
+              if (!await _shareOnlineImage(index)) {
+                toast('failed'.tr);
+              }
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('save'.tr),
+            onPressed: () async {
+              backRoute();
+              if (await _saveOnlineImage(index)) {
+                toast('success'.tr);
+              } else {
+                toast('failed'.tr);
+              }
+            },
+          ),
         ],
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),

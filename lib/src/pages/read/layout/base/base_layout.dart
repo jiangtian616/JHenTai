@@ -65,7 +65,7 @@ abstract class BaseLayout extends StatelessWidget {
         /// step 3: use url to load image
         FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
         return GestureDetector(
-          onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
+          onLongPress: GetPlatform.isMobile ? () => logic.showBottomMenuInOnlineMode(index, context) : null,
           child: EHImage.network(
             galleryImage: readPageState.images[index]!,
             containerWidth: fittedSizes.destination.width,
