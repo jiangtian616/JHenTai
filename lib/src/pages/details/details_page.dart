@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
@@ -63,9 +64,23 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   AppBar buildAppBar() {
     return AppBar(
-      title: Text(state.gallery?.title ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      title: Text(state.gallery?.title.breakWord ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
-        ExcludeFocus(child: IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery)),
+        ExcludeFocus(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: state.galleryDetails == null
+                ? const SizedBox(width: 40)
+                : IconButton(
+                    icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
+                    visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
+                    onPressed: logic.handleTapJumpButton,
+                  ),
+          ),
+        ),
+        ExcludeFocus(
+          child: IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery),
+        ),
       ],
     );
   }

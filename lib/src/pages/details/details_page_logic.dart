@@ -45,6 +45,7 @@ import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/eh_download_dialog.dart';
+import '../../widget/jump_page_dialog.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 import 'details_page_state.dart';
 
@@ -447,6 +448,23 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   Future<void> handleTapStatistic() async {
     Get.dialog(EHGalleryStatDialog(gid: state.gallery!.gid, token: state.gallery!.token));
+  }
+
+  Future<void> handleTapJumpButton() async {
+    if (state.galleryDetails == null) {
+      return;
+    }
+
+    int? pageIndex = await Get.dialog(
+      JumpPageDialog(
+        totalPageNo: state.galleryDetails!.thumbnailsPageCount,
+        currentNo: 1,
+      ),
+    );
+
+    if (pageIndex != null) {
+      toRoute(Routes.thumbnails, arguments: pageIndex);
+    }
   }
 
   Future<void> shareGallery() async {

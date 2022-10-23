@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
+import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
@@ -68,6 +69,7 @@ class Routes {
   /// right
   static const String details = "/details";
   static const String comment = "/comment";
+  static const String thumbnails = "/thumbnails";
   static const String webview = "/webview";
   static const String quickSearch = "/qucik_search";
 
@@ -314,6 +316,12 @@ class Routes {
     EHPage(
       name: comment,
       page: () => const CommentPage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: thumbnails,
+      page: () => ThumbnailsPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

@@ -53,7 +53,9 @@ Linux安装（不维护）：下载Linux_xxx.zip后解压即可。如果你使�
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
 App翻译：
+
 - [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+- [lucas-04](https://github.com/lucas-04) 葡萄牙语 Português brasileiro
 
 十分感谢以上项目与人员🙇‍
 

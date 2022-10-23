@@ -18,19 +18,23 @@ Still in beginning stage, welcome to submit issues.
 [Download](https://github.com/jiangtian616/JHenTai/releases)
 
 Install for Android: download .apk according to your device architecture and install.
+
 - arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
 - armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
 - x86_64：rare
 
 Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
 
-Install for Windows: download Windows_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network setting
-page. If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode. If it's blocked by Windows Defender,
+Install for Windows: download Windows_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network
+setting
+page. If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode. If it's blocked by
+Windows Defender,
 Please trust it.
 
 Install for MacOS: download .dmg. If you use a proxy server, set proxy address at network setting page.
 
-Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network setting page.
+Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it. If you use a proxy server, set proxy address
+at network setting page.
 
 ## Help With Translation
 
@@ -41,12 +45,16 @@ Please submit a PR if you want to help with translation.
 ## Develop Motivation
 
 My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android
-phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code because I have no development
+phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code
+because I have no development
 experience with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
-2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have completely refactored some codes for gallery page, reading page, download, etc. 
-which are written at the beginning stage. I tried my best to extract the commonality between different page and style to reduce coupling, 
-in order to benefit the development of new features. I would be very grateful if any kind of you could give me some advice on coding style, 
+2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have completely
+refactored some codes for gallery page, reading page, download, etc.
+which are written at the beginning stage. I tried my best to extract the commonality between different page and style to
+reduce coupling,
+in order to benefit the development of new features. I would be very grateful if any kind of you could give me some
+advice on coding style,
 design patterns and anything related to Flutter development or participate in the development of JHenTai.
 
 ## References & Thanks
@@ -62,7 +70,9 @@ Tag translation:
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
 App translation：
+
 - [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+- [lucas-04](https://github.com/lucas-04) Português brasileiro
 
 mush thanks to these projects and people🙇‍
 
@@ -137,20 +147,22 @@ mush thanks to these projects and people🙇‍
 3. Modify k-v pairs in method `keys` ,translate values to your language
 
 Now you can submit your PR, I'll do the remaining things. Or you can go on with:
+
 4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys`
    => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 5. Enter `/lib/src/consts/locale_consts.dart`, add a new k-v pair in
-   property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}` to describe your language.
+   property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}` to describe your
+   language.
 
 ## Bug
 
 1. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
 2. Change download path to SD card is not supported now.
 
-
 ## About compiling
 
-1. You need to manage your Android signing by yourself, check https://docs.flutter.dev/deployment/android#signing-the-app
+1. You need to manage your Android signing by yourself,
+   check https://docs.flutter.dev/deployment/android#signing-the-app
 
 ## Main Dart Dependencies
 

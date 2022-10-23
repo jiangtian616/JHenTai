@@ -1205,7 +1205,7 @@ enum DownloadStatus {
 }
 
 class GalleryDownloadInfo {
-  /// There are 2 kinds of thumbnails list in e-hentai: normal(40) and large(20).
+  /// 20, 40 and so on
   int thumbnailsCountPerPage;
 
   /// Tasks in Executor
