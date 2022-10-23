@@ -439,6 +439,7 @@ class en_US {
       'restoredCount': 'Restored task count',
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
+      'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
 
       /// quick search page
       'quickSearch': 'Quick Search',

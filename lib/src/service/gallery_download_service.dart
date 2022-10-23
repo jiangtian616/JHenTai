@@ -17,6 +17,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart' as path;
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
@@ -984,7 +985,7 @@ class GalleryDownloadService extends GetxController {
     try {
       return (await appDb.insertGalleryGroup(group) > 0);
     } on SqliteException catch (e) {
-      Log.info(e);
+      Log.debug(e);
       return false;
     }
   }
@@ -1189,8 +1190,16 @@ class GalleryDownloadService extends GetxController {
     try {
       io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
     } on Exception catch (e) {
+      toast('brokenDownloadPathHint'.tr);
       Log.error(e);
-      Log.upload(e);
+      Log.upload(
+        e,
+        extraInfos: {
+          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
+          'downloadPath': DownloadSetting.downloadPath.value,
+          'exists': PathSetting.getVisibleDir().existsSync(),
+        },
+      );
     }
   }
 }

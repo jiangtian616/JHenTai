@@ -123,7 +123,8 @@ class pt_BR {
       'score': 'Pontuação',
       'NotOnTheList': 'Não está na lista',
       'getGalleryArchiveFailed': 'Falha ao obter arquivo da galeria',
-      'parseGalleryArchiveFailed': 'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
+      'parseGalleryArchiveFailed':
+          'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
       'original': 'Original',
       'resample': 'Redimensionamento',
       'beginToDownloadArchive': 'Começar a baixar o arquivo',
@@ -333,7 +334,8 @@ class pt_BR {
       'needReUnlock': 'Precisa de novo desbloqueio',
       'reUnlock': 'Desbloquear novamente',
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
-      'downloadHelpInfo': 'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
+      'downloadHelpInfo':
+          'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
       'localGalleryHelpInfo':
           'Carregar galerias que não são baixadas pelo JHenTai. Tudo o que você precisa fazer é mover o diretório da galeria para o caminho de download do JHenTai e atualizar.',
       'priority': 'Prioridade',
@@ -439,6 +441,7 @@ class pt_BR {
       'restoredCount': 'Contagem de tarefas restaurada',
       'restoredGalleryCount': 'Contagem de galerias restaurada',
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
+      'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
 
       /// quick search page
       'quickSearch': 'Pesquisa rápida',

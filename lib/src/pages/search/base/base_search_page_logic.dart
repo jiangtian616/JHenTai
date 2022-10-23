@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 import 'package:jhentai/src/utils/check_util.dart';
@@ -130,7 +131,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     }
 
     if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
-      update([suggestionBodyId]);
+      updateSafely([suggestionBodyId]);
     }
   }
 

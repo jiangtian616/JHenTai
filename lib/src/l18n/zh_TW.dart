@@ -436,6 +436,7 @@ class zh_TW {
       'restoredCount': '恢復任務數',
       'restoredGalleryCount': '恢復畫廊數目',
       'restoredArchiveCount': '恢復歸檔數目',
+      'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
 
       /// quick search page
       'quickSearch': '快速搜尋',

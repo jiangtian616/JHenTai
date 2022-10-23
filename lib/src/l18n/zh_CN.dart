@@ -436,6 +436,7 @@ class zh_CN {
       'restoredCount': '恢复任务数',
       'restoredGalleryCount': '恢复画廊数目',
       'restoredArchiveCount': '恢复归档数目',
+      'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
 
       /// quick search page
       'quickSearch': '快速搜索',

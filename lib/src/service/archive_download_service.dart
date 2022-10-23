@@ -655,7 +655,7 @@ class ArchiveDownloadService extends GetxController {
     try {
       return (await appDb.insertGalleryGroup(group) > 0);
     } on SqliteException catch (e) {
-      Log.info(e);
+      Log.debug(e);
       return false;
     }
   }
