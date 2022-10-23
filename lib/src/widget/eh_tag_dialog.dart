@@ -68,7 +68,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
             _buildVoteDownButton(),
             _buildWatchTagButton(),
             _buildHideTagButton(),
-            _buildGoToTagSetsButton(),
+            if (UserSetting.hasLoggedIn()) _buildGoToTagSetsButton(),
           ],
         ).marginOnly(top: 12),
       ],
