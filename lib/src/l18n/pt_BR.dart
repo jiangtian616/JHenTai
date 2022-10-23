@@ -240,7 +240,7 @@ class pt_BR {
       'adaptive': 'Adaptativo',
       'hideBottomBar': 'Ocultar barra inferior',
       'enableQuickSearchDrawerGesture': 'Ativar pesquisa rápida com gesto de gaveta',
-      'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
+      'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',
