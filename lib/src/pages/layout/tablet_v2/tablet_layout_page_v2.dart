@@ -20,7 +20,7 @@ class TabletLayoutPageV2 extends StatefulWidget {
 class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
   final WindowService windowService = Get.find<WindowService>();
 
-  double leftColumnWidthRatio = 1 - 0.618;
+  double leftColumnWidthRatio = 0.5;
 
   @override
   void initState() {

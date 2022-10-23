@@ -984,7 +984,7 @@ class GalleryDownloadService extends GetxController {
     try {
       return (await appDb.insertGalleryGroup(group) > 0);
     } on SqliteException catch (e) {
-      Log.info(e);
+      Log.debug(e);
       return false;
     }
   }
@@ -1190,7 +1190,14 @@ class GalleryDownloadService extends GetxController {
       io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
     } on Exception catch (e) {
       Log.error(e);
-      Log.upload(e);
+      Log.upload(
+        e,
+        extraInfos: {
+          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
+          'downloadPath': DownloadSetting.downloadPath.value,
+          'exists': PathSetting.getVisibleDir().existsSync(),
+        },
+      );
     }
   }
 }
