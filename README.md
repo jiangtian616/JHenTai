@@ -49,13 +49,16 @@ phone, Ipad and Windows computer. E-hentai apps I used before have several bugs,
 because I have no development
 experience with Android or ios, so I choose JHenTai to become my first Flutter Project.
 
-2022.08.20. After five months of development, JHenTai has gradually become more and more strong, and I have completely
+2022.08.20 After five months of development, JHenTai has gradually become more and more strong, and I have completely
 refactored some codes for gallery page, reading page, download, etc.
 which are written at the beginning stage. I tried my best to extract the commonality between different page and style to
 reduce coupling,
 in order to benefit the development of new features. I would be very grateful if any kind of you could give me some
 advice on coding style,
 design patterns and anything related to Flutter development or participate in the development of JHenTai.
+
+2022.10.29 I have been more familiar with basic Flutter development, and I'll focus on another area from now on. 
+So updates for JHenTai will be less than previous, but I'll still handle bugs or issues in time。
 
 ## References & Thanks
 

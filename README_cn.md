@@ -40,6 +40,8 @@ Linux安装（不维护）：下载Linux_xxx.zip后解压即可。如果你使�
 2022.08.20 经过五个月的开发，现在JHenTai已经初具雏形，也逐渐对初期编写的不成熟的画廊页、阅读页、下载等代码进行了完全的重构，
 尽力增内聚降耦合，方便新功能的开发。如果有同学能够对代码风格、设计模式、代码目录等Flutter开发相关进行指点，或者参与到JHenTai的开发中，我都会十分感谢。
 
+2022.10.29 目前对于Flutter项目的基础开发已经较为熟悉，之后学习的主要精力会转向其他方向，JHenTai进入低频率更新时期，但仍会对bug或issue进行及时处理。
+
 ## 借鉴与感谢
 
 布局样式参考:
@@ -129,6 +131,7 @@ App翻译：
 3. 修改keys方法返回的所有键值对，将value翻译为你的语言
 
 你可以只做以上步骤然后提交PR，我会补充其他的步骤，或者你自己可以继续：
+
 4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 5. 在 `/lib/src/consts/locale_consts.dart` 的 `localeCode2Description`
    属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`，用于描述你的语言
