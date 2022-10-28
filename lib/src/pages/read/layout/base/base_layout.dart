@@ -124,7 +124,7 @@ abstract class BaseLayout extends StatelessWidget {
         height: placeHolderSize.height,
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
-          id: readPageLogic.parseImageHrefsStateId,
+          id: '${readPageLogic.parseImageHrefsStateId}::$index',
           builder: (_) => Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -203,27 +203,6 @@ abstract class BaseLayout extends StatelessWidget {
         ),
         Text(index.toString()),
       ],
-    );
-  }
-
-  void _showReParseBottomSheet(BuildContext context, ErrorTapCallback callback) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('reload'.tr),
-            onPressed: () {
-              callback();
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
-      ),
     );
   }
 

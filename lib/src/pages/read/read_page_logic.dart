@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:executor/executor.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -14,6 +15,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_la
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/service/volume_service.dart';
+import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:throttling/throttling.dart';
@@ -59,6 +61,10 @@ class ReadPageLogic extends GetxController {
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
 
+  final EHExecutor executor = EHExecutor(
+    concurrency: 10,
+    rate: const Rate(10, Duration(milliseconds: 1000)),
+  );
   final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
 
   @override
@@ -121,6 +127,8 @@ class ReadPageLogic extends GetxController {
     Get.delete<HorizontalListLayoutLogic>(force: true);
     Get.delete<HorizontalPageLayoutLogic>(force: true);
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
+
+    executor.close();
   }
 
   void beginToParseImageHref(int index) {
@@ -129,14 +137,16 @@ class ReadPageLogic extends GetxController {
     }
 
     state.parseImageHrefsStates[index] = LoadingState.loading;
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      _parseImageHref(index);
+
+    /// limit the rate of parsing to decrease the lagging of build
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      executor.scheduleTask(0, () => _parseImageHref(index));
     });
   }
 
   Future<void> _parseImageHref(int index) async {
     Log.verbose('Begin to load Thumbnail $index', false);
-    update([parseImageHrefsStateId]);
+    update(['$parseImageHrefsStateId::$index']);
 
     Map<String, dynamic> rangeAndThumbnails;
     try {
@@ -157,7 +167,7 @@ class ReadPageLogic extends GetxController {
         state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
       }
       state.parseImageHrefsStates[index] = LoadingState.error;
-      update([parseImageHrefsStateId]);
+      update(['$parseImageHrefsStateId::$index']);
       return;
     }
 
@@ -172,23 +182,19 @@ class ReadPageLogic extends GetxController {
     state.parseImageHrefsStates[index] = LoadingState.idle;
     for (int i = rangeFrom; i <= rangeTo; i++) {
       state.thumbnails[i] = newThumbnails[i - rangeFrom];
-      update(['$onlineImageId::$i']);
     }
 
-    /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
-    /// because the [thumbnailsPageIndex] we computed before is wrong, so we need to parse again
-    if (state.thumbnails[index] == null) {
-      return _parseImageHref(index);
-    }
+    update(['$onlineImageId::$index']);
   }
 
   void beginToParseImageUrl(int index, bool reParse) {
     if (state.parseImageUrlStates[index] == LoadingState.loading) {
       return;
     }
+
     state.parseImageUrlStates[index] = LoadingState.loading;
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      _parseImageUrl(index, reParse);
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      executor.scheduleTask(0, () => _parseImageUrl(index, reParse));
     });
   }
 

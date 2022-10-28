@@ -60,7 +60,7 @@ abstract class EHExecutor {
   /// ensure [Executor] is running on full capacity.
   Stream get onChange;
 
-  /// Closes the executor and reject  tasks.
+  /// Closes the executor and reject tasks.
   Future close();
 }
 
