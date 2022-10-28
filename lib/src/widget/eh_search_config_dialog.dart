@@ -45,7 +45,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
 
   String? quickSearchName;
-  late final SearchConfig searchConfig;
+  late SearchConfig searchConfig;
 
   final ScrollController _bodyScrollController = ScrollController();
   final ScrollController _suggestionScrollController = ScrollController();
@@ -116,7 +116,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (widget.type == EHSearchConfigDialogType.update) IconButton(icon: const Icon(Icons.delete), onPressed: _handleDeleteConfig),
-        if (widget.type != EHSearchConfigDialogType.update) const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
+        if (widget.type == EHSearchConfigDialogType.filter) IconButton(icon: const Icon(Icons.refresh), onPressed: _resetAllConfig),
+        if (widget.type == EHSearchConfigDialogType.add) const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
         Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         IconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
       ],
@@ -640,6 +641,14 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       textStyle: const TextStyle(height: 1, fontSize: 16, color: Colors.white),
       onTap: onTap,
     );
+  }
+
+  void _resetAllConfig() {
+    setState(() {
+      searchConfig = SearchConfig();
+      suggestions.clear();
+      isDoubleBackspace = false;
+    });
   }
 
   Future<void> _handleDeleteConfig() async {
