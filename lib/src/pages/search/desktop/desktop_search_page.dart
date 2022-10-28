@@ -52,7 +52,7 @@ class DesktopSearchPage extends BasePage<DesktopSearchPageLogic, DesktopSearchPa
   Widget buildHeader(BuildContext context) {
     return Container(
       height: UIConfig.searchBarHeight,
-      margin: const EdgeInsets.only(top: 8, bottom: 8, left: 2, right: 2),
+      margin: const EdgeInsets.only(left: 2, right: 2),
       child: Row(
         children: [
           Expanded(child: buildSearchField().marginSymmetric(horizontal: 16)),

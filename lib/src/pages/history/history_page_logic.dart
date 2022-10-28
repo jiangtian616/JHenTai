@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
 import '../../model/gallery.dart';
 import '../../service/history_service.dart';
@@ -28,6 +29,15 @@ class HistoryPageLogic extends BasePageLogic {
       pageIndex >= 1 ? pageIndex - 1 : null,
       pageIndex < historyService.pageCount - 1 ? pageIndex + 1 : null,
     ];
+  }
+
+  Future<void> handleTapDeleteButton() async {
+    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+
+    if (result == true) {
+      await historyService.deleteAll();
+      clearAndRefresh();
+    }
   }
 
   @override
@@ -61,10 +71,5 @@ class HistoryPageLogic extends BasePageLogic {
     await historyService.delete(gid);
     state.gallerys.removeWhere((g) => g.gid == gid);
     updateSafely([bodyId]);
-  }
-
-  Future<void> deleteAll() async {
-    await historyService.deleteAll();
-    clearAndRefresh();
   }
 }

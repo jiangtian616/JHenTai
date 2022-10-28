@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 import 'package:jhentai/src/utils/check_util.dart';
 import 'package:throttling/throttling.dart';
 
+import '../../../model/gallery.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
 import '../../../setting/style_setting.dart';
@@ -181,6 +182,13 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   Future<void> clearHistory() async {
     await storageService.remove('searchHistory');
     update([suggestionBodyId]);
+  }
+
+  /// click the card and enter details page
+  @override
+  void handleTapCard(Gallery gallery) async {
+    state.searchFieldFocusNode.unfocus();
+    super.handleTapCard(gallery);
   }
 
   void toggleBodyType() {

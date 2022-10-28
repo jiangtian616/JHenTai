@@ -33,7 +33,7 @@ class HistoryPage extends BasePage {
   List<Widget> buildAppBarActions() {
     return [
       ExcludeFocus(
-        child: IconButton(icon: const Icon(Icons.delete_outline_outlined, size: 27), onPressed: logic.deleteAll),
+        child: IconButton(icon: const Icon(Icons.delete_outline_outlined, size: 27), onPressed: logic.handleTapDeleteButton),
       ),
       ...super.buildAppBarActions(),
     ];

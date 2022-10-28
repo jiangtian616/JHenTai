@@ -15,6 +15,7 @@ class EHAlertDialog extends StatelessWidget {
         TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
         TextButton(child: Text('OK'.tr), onPressed: () => backRoute(result: true)),
       ],
+      actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
     );
   }
 }

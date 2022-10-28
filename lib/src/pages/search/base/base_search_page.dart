@@ -34,7 +34,9 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
           ),
         ),
         decoration: InputDecoration(
-          hintText: state.searchConfig.tags?.isEmpty ?? true ? 'search'.tr : state.searchConfig.toTagKeywords(withTranslation: true, separator: ' '),
+          hintText: 'search'.tr,
+          labelStyle: const TextStyle(fontSize: 12),
+          labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.toTagKeywords(withTranslation: true, separator: ' / '),
           contentPadding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
           suffixIcon: MouseRegion(
             cursor: SystemMouseCursors.click,
