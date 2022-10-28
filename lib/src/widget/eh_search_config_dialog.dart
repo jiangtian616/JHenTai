@@ -645,7 +645,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   void _resetAllConfig() {
     setState(() {
-      searchConfig = SearchConfig();
+      searchConfig = SearchConfig(searchType: searchConfig.searchType);
       suggestions.clear();
       isDoubleBackspace = false;
     });

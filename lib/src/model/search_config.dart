@@ -153,8 +153,8 @@ class SearchConfig {
     }
 
     if (searchType == SearchType.favorite) {
-      if (keyword != null) {
-        params['f_search'] = keyword;
+      if (keyword != null || (tags?.isNotEmpty ?? false)) {
+        params['f_search'] = computeKeywords();
       }
 
       if (searchFavoriteCategoryIndex != null) {
@@ -175,7 +175,7 @@ class SearchConfig {
   }
 
   String computeKeywords() {
-    return (keyword ?? '') + toTagKeywords(withTranslation: false, separator: ' ');
+    return '${keyword ?? ''} ${toTagKeywords(withTranslation: false, separator: ' ')}'.trim();
   }
 
   String toTagKeywords({required bool withTranslation, required String separator}) {

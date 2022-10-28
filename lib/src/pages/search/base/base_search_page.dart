@@ -27,14 +27,14 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
         focusNode: state.searchFieldFocusNode,
         controller: TextEditingController.fromValue(
           TextEditingValue(
-            text: state.searchConfig.computeKeywords(),
+            text: state.searchConfig.keyword ?? '',
 
             /// make cursor stay at last letter
             selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
           ),
         ),
         decoration: InputDecoration(
-          hintText: 'search'.tr,
+          hintText: state.searchConfig.tags?.isEmpty ?? true ? 'search'.tr : state.searchConfig.toTagKeywords(withTranslation: true, separator: ' '),
           contentPadding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
           suffixIcon: MouseRegion(
             cursor: SystemMouseCursors.click,
