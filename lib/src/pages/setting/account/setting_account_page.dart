@@ -6,7 +6,7 @@ import '../../../network/eh_cookie_manager.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
-import '../../../widget/log_out_dialog.dart';
+import '../../../widget/eh_log_out_dialog.dart';
 
 class SettingAccountPage extends StatelessWidget {
   const SettingAccountPage({Key? key}) : super(key: key);

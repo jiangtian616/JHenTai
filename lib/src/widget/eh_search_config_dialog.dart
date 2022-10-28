@@ -9,10 +9,12 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:throttling/throttling.dart';
 
@@ -39,6 +41,7 @@ class EHSearchConfigDialog extends StatefulWidget {
 }
 
 class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
+  final QuickSearchService quickSearchService = Get.find<QuickSearchService>();
   final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
 
   String? quickSearchName;
@@ -112,7 +115,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
+        if (widget.type == EHSearchConfigDialogType.update) IconButton(icon: const Icon(Icons.delete), onPressed: _handleDeleteConfig),
+        if (widget.type != EHSearchConfigDialogType.update) const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
         Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         IconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
       ],
@@ -636,6 +640,15 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       textStyle: const TextStyle(height: 1, fontSize: 16, color: Colors.white),
       onTap: onTap,
     );
+  }
+
+  Future<void> _handleDeleteConfig() async {
+    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+
+    if (result == true) {
+      quickSearchService.removeQuickSearch(quickSearchName!);
+      backRoute();
+    }
   }
 
   /// double backspace to delete last selected tag

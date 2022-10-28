@@ -13,7 +13,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
-import '../../../widget/log_out_dialog.dart';
+import '../../../widget/eh_log_out_dialog.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
   final MobileLayoutPageV2Logic logic = Get.put(MobileLayoutPageV2Logic(), permanent: true);

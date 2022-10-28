@@ -29,6 +29,7 @@ class QuickSearchPage extends StatelessWidget {
           return ReorderableListView.builder(
             itemCount: quickSearchService.quickSearchConfigs.length,
             onReorder: quickSearchService.reOrderQuickSearch,
+            padding: const EdgeInsets.only(bottom: 120),
             itemBuilder: (_, int index) => Column(
               key: Key(entries[index].key),
               mainAxisSize: MainAxisSize.min,
@@ -36,19 +37,8 @@ class QuickSearchPage extends StatelessWidget {
                 ListTile(
                   dense: true,
                   title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.delete,  color: Get.theme.colorScheme.error),
-                        onPressed: () => quickSearchService.removeQuickSearch(entries[index].key),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.settings),
-                        onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]),
-                      ),
-                    ],
-                  ).marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
+                  trailing: IconButton(icon: const Icon(Icons.settings), onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]))
+                      .marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
                   onTap: () => newSearchWithConfig(entries[index].value),
                 ),
                 const Divider(thickness: 0.7, height: 2),
