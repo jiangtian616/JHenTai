@@ -101,7 +101,9 @@ class DownloadSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    downloadPath.value = map['downloadPath'] ?? downloadPath.value;
+    if (!GetPlatform.isIOS) {
+      downloadPath.value = map['downloadPath'] ?? downloadPath.value;
+    }
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];

@@ -13,6 +13,9 @@ class CookieUtil {
         }
         return cookiesString.split(';').map((pair) {
           List<String> nameAndValue = pair.trim().split('=');
+          if (nameAndValue.length < 2) {
+            Log.error('parse2Cookies error: $cookiesString');
+          }
           return Cookie(nameAndValue[0], nameAndValue[1]);
         }).toList();
       },

@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -56,7 +57,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildDownloadPath() {
     return ListTile(
       title: Text('downloadPath'.tr),
-      subtitle: Text(DownloadSetting.downloadPath.value),
+      subtitle: Text(DownloadSetting.downloadPath.value.breakWord),
       trailing: changeDownloadPathState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
       onTap: () {
         if (!GetPlatform.isIOS) {

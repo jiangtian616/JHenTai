@@ -56,8 +56,7 @@ class FavoriteSetting {
     try {
       await retry(
         () async {
-          Map<String, List> map =
-              await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTagsAndCounts);
+          Map<String, List> map = await EHRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTagsAndCounts);
           favoriteTagNames.value = map['favoriteTagNames'] as List<String>;
           favoriteCounts = map['favoriteCounts'] as List<int>;
           save();

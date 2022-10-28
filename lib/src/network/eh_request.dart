@@ -270,7 +270,7 @@ class EHRequest {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response<String> response = await _dio.get(EHConsts.EFavorite);
 
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response.data);
   }
 
   /// favcat: the favorite tag index
