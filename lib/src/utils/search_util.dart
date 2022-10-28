@@ -98,7 +98,7 @@ Future<void> handleAddQuickSearch() async {
   }
 
   Map<String, dynamic>? result = await Get.dialog(
-    EHSearchConfigDialog(quickSearchName: originalConfig?.keyword, searchConfig: originalConfig, type: EHSearchConfigDialogType.add),
+    EHSearchConfigDialog(quickSearchName: originalConfig?.computeKeywords(), searchConfig: originalConfig, type: EHSearchConfigDialogType.add),
   );
 
   if (result == null) {
