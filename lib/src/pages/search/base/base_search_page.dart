@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
@@ -51,6 +52,11 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
           ),
           suffixIconConstraints: const BoxConstraints.tightFor(width: 24, height: 24),
         ),
+        onTap: () {
+          if (state.bodyType == SearchPageBodyType.gallerys) {
+            logic.toggleBodyType();
+          }
+        },
         onChanged: (value) {
           state.searchConfig.keyword = value;
           logic.waitAndSearchTags();
@@ -65,17 +71,20 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
 
   Widget buildSuggestionAndHistoryBody() {
     return SuggestionAndHistoryBody(
-      currentKeyword: state.searchConfig.keyword ?? '',
+      currentKeyword: state.searchConfig.keyword?.split(' ').last ?? '',
       suggestions: state.suggestions,
       history: logic.getSearchHistory(),
       scrollController: state.scrollController,
       onTapChip: (String keyword) {
-        state.searchConfig.keyword = keyword;
+        state.searchConfig.keyword = keyword + ' ';
         logic.clearAndRefresh();
       },
       onTapSuggestion: (TagData tagData) {
-        state.searchConfig.keyword = '${tagData.namespace}:${tagData.key}';
-        logic.clearAndRefresh();
+        List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
+        segments.removeLast();
+        segments.add('${tagData.namespace}:${tagData.key}');
+        state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
+        logic.update([logic.searchFieldId]);
       },
       onDeleteHistory: logic.clearHistory,
     );
@@ -133,10 +142,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ExcludeFocus(
-            child: IconButton(
-              onPressed: onDeleteHistory,
-              icon: const Icon(Icons.delete, size: 20, color: Colors.red),
-            ),
+            child: IconButton(onPressed: onDeleteHistory, icon: const Icon(Icons.delete, size: 20, color: Colors.red)),
           )
         ],
       ),
@@ -241,9 +247,7 @@ class HistoryChips extends StatelessWidget {
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
                       onTap: () => onTapChip(keyword),
-                      child: EHTag(
-                        tag: GalleryTag(tagData: TagData(namespace: '', key: keyword)),
-                      ),
+                      child: EHTag(tag: GalleryTag(tagData: TagData(namespace: '', key: keyword))),
                     ),
                   ),
                 )
