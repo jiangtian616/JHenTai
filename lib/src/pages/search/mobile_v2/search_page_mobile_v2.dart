@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
@@ -53,8 +54,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
-      title: buildSearchField(),
-      titleSpacing: 0,
+      bottom: PreferredSize(child: buildSearchField(), preferredSize: const Size(double.infinity, UIConfig.mobileV2SearchBarHeight)),
       actions: _buildHeaderActions(),
     );
   }
@@ -87,10 +87,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
 
   List<Widget> _buildHeaderActions() {
     return [
-      InkResponse(
-        child: const Icon(Icons.attach_file, size: 22),
-        onTap: logic.handleFileSearch,
-      ).marginOnly(right: 12, left: 8, top: 1),
+      InkResponse(child: const Icon(Icons.attach_file, size: 22), onTap: logic.handleFileSearch).marginOnly(right: 12, left: 8, top: 1),
       if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
         FadeIn(
           child: InkResponse(

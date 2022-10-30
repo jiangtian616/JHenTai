@@ -95,6 +95,10 @@ Future<void> init() async {
   ));
 
   FlutterError.onError = (FlutterErrorDetails details) {
+    if (details.exception is NotUploadException) {
+      return;
+    }
+
     Log.error(details.exception, null, details.stack);
     Log.upload(details.exception, stackTrace: details.stack);
   };

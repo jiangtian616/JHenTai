@@ -51,7 +51,7 @@ class DesktopSearchPage extends BasePage<DesktopSearchPageLogic, DesktopSearchPa
 
   Widget buildHeader(BuildContext context) {
     return Container(
-      height: UIConfig.searchBarHeight,
+      height: UIConfig.desktopSearchBarHeight,
       margin: const EdgeInsets.only(left: 2, right: 2),
       child: Row(
         children: [

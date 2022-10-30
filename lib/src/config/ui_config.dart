@@ -37,7 +37,7 @@ class UIConfig {
   /// layout
   static const double appBarHeight = 40;
   static const double tabBarHeight = 36;
-  static const double searchBarHeight = 60;
+  static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
   static const double desktopLeftTabBarWidth = 56;
@@ -152,6 +152,9 @@ class UIConfig {
   static Color get downloadPageProgressIndicatorPausedColor => Get.theme.colorScheme.surfaceVariant;
 
   /// Search page
+  static const double desktopSearchBarHeight = 32;
+  static const double mobileV2SearchBarHeight = 28;
+
   static Color get searchPageSuggestionHighlightColor => Colors.red;
 
   static Color get searchPageSuggestionTitleColor => Get.theme.colorScheme.secondary.withOpacity(0.8);

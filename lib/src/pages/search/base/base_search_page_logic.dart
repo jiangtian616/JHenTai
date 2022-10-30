@@ -9,6 +9,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 import 'package:jhentai/src/utils/check_util.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:throttling/throttling.dart';
 
 import '../../../model/gallery.dart';
@@ -40,6 +41,8 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
   @override
   Future<void> clearAndRefresh() async {
+    state.searchFieldFocusNode.unfocus();
+
     state.hasSearched = true;
 
     if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
@@ -190,6 +193,16 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   void handleTapCard(Gallery gallery) async {
     state.searchFieldFocusNode.unfocus();
     super.handleTapCard(gallery);
+  }
+
+  /// double tap to clear tags
+  void handleTapClearButton() {
+    if (isEmptyOrNull(state.searchConfig.keyword)) {
+      state.searchConfig.tags?.clear();
+    } else {
+      state.searchConfig.keyword = '';
+    }
+    update([searchFieldId]);
   }
 
   void toggleBodyType() {

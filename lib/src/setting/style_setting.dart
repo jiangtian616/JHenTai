@@ -45,6 +45,8 @@ class StyleSetting {
 
   static bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
 
+  static bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
+
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
     if (map != null) {

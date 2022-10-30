@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
@@ -24,47 +25,56 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
       global: false,
       init: logic,
       id: logic.searchFieldId,
-      builder: (_) => TextField(
-        focusNode: state.searchFieldFocusNode,
-        controller: TextEditingController.fromValue(
-          TextEditingValue(
-            text: state.searchConfig.keyword ?? '',
+      builder: (_) => SizedBox(
+        height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+        child: TextField(
+          focusNode: state.searchFieldFocusNode,
+          textInputAction: TextInputAction.search,
+          controller: TextEditingController.fromValue(
+            TextEditingValue(
+              text: state.searchConfig.keyword ?? '',
 
-            /// make cursor stay at last letter
-            selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
-          ),
-        ),
-        decoration: InputDecoration(
-          hintText: 'search'.tr,
-          labelStyle: const TextStyle(fontSize: 12),
-          labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.toTagKeywords(withTranslation: true, separator: ' / '),
-          contentPadding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
-          suffixIcon: MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              child: const Icon(Icons.cancel, size: 18),
-              onTap: () {
-                state.searchConfig.keyword = '';
-                state.searchConfig.tags?.clear();
-                logic.update([logic.searchFieldId]);
-              },
+              /// make cursor stay at last letter
+              selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
             ),
           ),
-          suffixIconConstraints: const BoxConstraints.tightFor(width: 24, height: 24),
+          style: const TextStyle(fontSize: 15),
+          textAlignVertical: TextAlignVertical.center,
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: 'search'.tr,
+            contentPadding: EdgeInsets.zero,
+            labelStyle: const TextStyle(fontSize: 15),
+            floatingLabelStyle: const TextStyle(fontSize: 10),
+            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.toTagKeywords(withTranslation: false, separator: ' / '),
+            prefixIcon: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.clearAndRefresh),
+            ),
+            prefixIconConstraints: BoxConstraints(
+              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: 48,
+            ),
+            suffixIcon: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
+            ),
+            suffixIconConstraints: BoxConstraints(
+              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: 48,
+            ),
+          ),
+          onTap: () {
+            if (state.bodyType == SearchPageBodyType.gallerys) {
+              logic.toggleBodyType();
+            }
+          },
+          onChanged: (value) {
+            state.searchConfig.keyword = value;
+            logic.waitAndSearchTags();
+          },
+          onSubmitted: (_) => logic.clearAndRefresh(),
         ),
-        onTap: () {
-          if (state.bodyType == SearchPageBodyType.gallerys) {
-            logic.toggleBodyType();
-          }
-        },
-        onChanged: (value) {
-          state.searchConfig.keyword = value;
-          logic.waitAndSearchTags();
-        },
-        onSubmitted: (_) {
-          logic.clearAndRefresh();
-          state.searchFieldFocusNode.unfocus();
-        },
       ),
     );
   }
@@ -77,12 +87,13 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
       scrollController: state.scrollController,
       onTapChip: (String keyword) {
         state.searchConfig.keyword = keyword + ' ';
+        state.searchConfig.tags?.clear();
         logic.clearAndRefresh();
       },
       onTapSuggestion: (TagData tagData) {
         List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
         segments.removeLast();
-        segments.add('${tagData.namespace}:${tagData.key}');
+        segments.add('${tagData.namespace}:"${tagData.key}\$"');
         state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
         logic.update([logic.searchFieldId]);
       },
@@ -151,7 +162,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
 
   Widget buildSuggestions() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: 16, bottom: 600),
       sliver: SliverList(
         delegate: SliverChildListDelegate(
           suggestions

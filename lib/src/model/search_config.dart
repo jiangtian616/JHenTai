@@ -193,7 +193,7 @@ class SearchConfig {
         return;
       }
 
-      strs.add('${tag.namespace}:${tag.key}');
+      strs.add('${tag.namespace}:"${tag.key}\$"');
     });
 
     return strs.join(separator);
