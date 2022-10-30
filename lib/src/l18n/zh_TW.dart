@@ -407,7 +407,7 @@ class zh_TW {
 
       /// download setting page
       'downloadPath': '下載路徑',
-      'changeDownloadPathHint': '長按來改變下載路徑。會自動複製已下載的畫廊到新路徑，並保留原文件。如果改變後出現畫廊圖片載入失敗的情況，請嘗試重置路徑',
+      'changeDownloadPathHint': '長按來改變下載路徑(請不要使用SD卡或系統路徑)。會自動複制已下載的畫廊到新路徑，並保留原文件。如果妳遇到相關錯誤，請嘗試重置路徑',
       'resetDownloadPath': '重置下載路徑',
       'longPress2Reset': '長按以重置',
       'needPermissionToChangeDownloadPath': '需要權限來改變下載路徑',

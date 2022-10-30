@@ -410,7 +410,7 @@ class en_US {
       /// download setting page
       'downloadPath': 'Download Path',
       'changeDownloadPathHint':
-          'Long press to change. Change download path will copy downloaded gallerys automatically and keep old files. If you find it fails to load image, try to reset path.',
+          'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
       'resetDownloadPath': 'Reset Download Path',
       'downloadOriginalImage': 'Original Image',
       'downloadOriginalImageByDefault': 'Choose Original Image By Default',
@@ -421,7 +421,7 @@ class en_US {
       'always': 'Always',
       'longPress2Reset': 'Long Press to Reset',
       'needPermissionToChangeDownloadPath': 'Need permission to change download path',
-      'invalidPath': 'Invalid Path. Avoid using system path, root path or sd card path.',
+      'invalidPath': 'Invalid Path. Avoid using SD-Card, system path or root path.',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need restart',
       'speedLimit': 'Speed Limit',
