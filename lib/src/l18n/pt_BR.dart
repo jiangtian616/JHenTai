@@ -441,7 +441,7 @@ class pt_BR {
       'restoredCount': 'Contagem de tarefas restaurada',
       'restoredGalleryCount': 'Contagem de galerias restaurada',
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
-      'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
+      'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
 
       /// quick search page
       'quickSearch': 'Pesquisa rápida',
@@ -459,10 +459,10 @@ class pt_BR {
       'parody': 'Paródia',
       'group': 'Grupo',
       'mixed': 'Misturado',
-      'Coser': 'Coser [?]',
+      'Coser': 'Coser', //[?]
       'cosplayer': 'Cosplayer',
       'reclass': 'Reclassificar',
-      'temp': 'Temp [?]',
+      'temp': 'Temporário',
       'other': 'Outro',
     };
   }
