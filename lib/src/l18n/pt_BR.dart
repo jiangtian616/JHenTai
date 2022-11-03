@@ -459,7 +459,7 @@ class pt_BR {
       'parody': 'Paródia',
       'group': 'Grupo',
       'mixed': 'Misturado',
-      'Coser': 'Coser', //[?]
+      'Coser': 'Cosplayer',
       'cosplayer': 'Cosplayer',
       'reclass': 'Reclassificar',
       'temp': 'Temporário',
