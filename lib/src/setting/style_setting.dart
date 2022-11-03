@@ -43,6 +43,8 @@ class StyleSetting {
 
   static bool get isInTabletLayout => actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
 
+  static bool get isInV1Layout => actualLayout == LayoutMode.mobile || actualLayout == LayoutMode.tablet;
+
   static bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
 
   static bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
@@ -149,6 +151,15 @@ class StyleSetting {
     listMode.value = ListMode.values[map['listMode']];
     moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
+
+    /// old layout has been removed in v5.0.0
+    if (isInV1Layout) {
+      layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
+          ? LayoutMode.mobileV2.obs
+          : GetPlatform.isDesktop
+              ? LayoutMode.desktop.obs
+              : LayoutMode.tabletV2.obs;
+    }
     actualLayout = layout.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;

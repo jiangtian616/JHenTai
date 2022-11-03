@@ -7,13 +7,10 @@ import '../../model/gallery.dart';
 import '../../service/history_service.dart';
 import '../../utils/log.dart';
 import '../../utils/route_util.dart';
-import '../base/base_page_logic.dart';
+import '../base/old_base_page_logic.dart';
 import 'history_page_state.dart';
 
-class HistoryPageLogic extends BasePageLogic {
-  @override
-  int get tabIndex => 6;
-
+class HistoryPageLogic extends OldBasePageLogic {
   @override
   final HistoryPageState state = HistoryPageState();
 
@@ -36,7 +33,7 @@ class HistoryPageLogic extends BasePageLogic {
 
     if (result == true) {
       await historyService.deleteAll();
-      clearAndRefresh();
+      handleClearAndRefresh();
     }
   }
 

@@ -6,13 +6,17 @@ import '../../model/gallery.dart';
 import '../../widget/loading_state_indicator.dart';
 
 class BasePageState with Scroll2TopStateMixin {
-  List<Gallery> gallerys = List.empty(growable: true);
-
   SearchConfig searchConfig = SearchConfig();
 
-  int pageCount = -1;
-  int? prevPageIndexToLoad;
-  int? nextPageIndexToLoad = 0;
+  List<Gallery> gallerys = List.empty(growable: true);
+
+  /// The first gallery's id in current page
+  int? prevGid;
+
+  /// The last gallery's id in current page
+  int? nextGid;
+
+  String? totalCount;
 
   LoadingState refreshState = LoadingState.idle;
   LoadingState loadingState = LoadingState.idle;
@@ -28,6 +32,6 @@ class BasePageState with Scroll2TopStateMixin {
 
   @override
   String toString() {
-    return 'BasePageState{gallerys: $gallerys, searchConfig: $searchConfig, pageCount: $pageCount, prevPageIndexToLoad: $prevPageIndexToLoad, nextPageIndexToLoad: $nextPageIndexToLoad, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, scrollController: $scrollController, pageStorageKey: $pageStorageKey}';
+    return 'BasePageState{searchConfig: $searchConfig, gallerys: $gallerys, prevGid: $prevGid, nextGid: $nextGid, totalCount: $totalCount, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, pageStorageKey: $pageStorageKey}';
   }
 }

@@ -31,10 +31,8 @@ import 'package:jhentai/src/pages/webview/webview_page.dart';
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
 import '../pages/favorite/favorite_page.dart';
-import '../pages/layout/mobile/mobile_layout_page.dart';
 import '../pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import '../pages/search/desktop/desktop_search_page.dart';
-import '../pages/search/mobile/search_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
@@ -51,7 +49,6 @@ class Routes {
   static const String singleImagePage = "/single_image_page";
 
   /// left
-  static const String mobileLayout = "/mobile_layout";
   static const String mobileLayoutV2 = "/mobile_layout_v2";
   static const String gallerys = "/gallerys";
   static const String dashboard = "/dashboard";
@@ -115,12 +112,6 @@ class Routes {
       side: Side.right,
     ),
     EHPage(
-      name: mobileLayout,
-      page: () => MobileLayoutPage(),
-      transition: Transition.cupertino,
-      side: Side.left,
-    ),
-    EHPage(
       name: gallerys,
       page: () => const GallerysPage(),
       transition: Transition.cupertino,
@@ -182,12 +173,6 @@ class Routes {
     EHPage(
       name: download,
       page: () => const DownloadPage(),
-      transition: Transition.cupertino,
-      side: Side.left,
-    ),
-    EHPage(
-      name: search,
-      page: () => SearchPage(),
       transition: Transition.cupertino,
       side: Side.left,
     ),

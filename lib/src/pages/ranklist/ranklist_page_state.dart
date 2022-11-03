@@ -1,4 +1,4 @@
-import '../base/base_page_state.dart';
+import '../base/old_base_page_state.dart';
 
 enum RanklistType {
   allTime,
@@ -7,6 +7,6 @@ enum RanklistType {
   day,
 }
 
-class RanklistPageState extends BasePageState {
+class RanklistPageState extends OldBasePageState {
   RanklistType ranklistType = RanklistType.day;
 }

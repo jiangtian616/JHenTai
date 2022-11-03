@@ -15,7 +15,7 @@ class WatchedPage extends BasePage {
   }) : super(
           key: key,
           showMenuButton: showMenuButton,
-          showJumpButton: true,
+          showJumpButton: false,
           showFilterButton: true,
           showTitle: showTitle,
           showScroll2TopButton: true,

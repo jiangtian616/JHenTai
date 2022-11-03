@@ -13,6 +13,7 @@ import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:throttling/throttling.dart';
 
 import '../../../model/gallery.dart';
+import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
 import '../../../setting/style_setting.dart';
@@ -40,7 +41,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<void> clearAndRefresh() async {
+  Future<void> handleClearAndRefresh() async {
     state.searchFieldFocusNode.unfocus();
 
     state.hasSearched = true;
@@ -55,7 +56,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     /// reset scroll offset
     state.pageStorageKey = PageStorageKey('$runtimeType::${Random().nextInt(9999999)}');
 
-    return super.clearAndRefresh();
+    return super.handleClearAndRefresh();
   }
 
   Future<void> handleFileSearch() async {
@@ -79,9 +80,9 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     }
 
     state.gallerys.clear();
-    state.prevPageIndexToLoad = null;
-    state.nextPageIndexToLoad = 0;
-    state.pageCount = -1;
+    state.prevGid = null;
+    state.nextGid = null;
+    state.totalCount = null;
 
     state.loadingState = LoadingState.loading;
     state.searchConfig.keyword = null;
@@ -146,21 +147,17 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.debug('Get gallerys info at page: $pageIndex');
-
+  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid}){
     if (state.redirectUrl == null) {
-      return await EHRequest.requestGalleryPage(
-        pageNo: pageIndex,
-        searchConfig: state.searchConfig,
-        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
-      );
+      return super.getGalleryPage(prevGid: prevGid,nextGid: nextGid);
     }
 
-    return await EHRequest.requestGalleryPage(
+    Log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
+    return EHRequest.requestGalleryPage(
+      prevGid: prevGid,
+      nextGid: nextGid,
       url: state.redirectUrl,
-      pageNo: pageIndex,
-      parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+      parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
   }
 
@@ -188,11 +185,10 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     update([suggestionBodyId]);
   }
 
-  /// click the card and enter details page
   @override
-  void handleTapCard(Gallery gallery) async {
+  void handleTapGalleryCard(Gallery gallery) async {
     state.searchFieldFocusNode.unfocus();
-    super.handleTapCard(gallery);
+    super.handleTapGalleryCard(gallery);
   }
 
   /// double tap to clear tags
@@ -208,9 +204,5 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
     update();
-  }
-
-  void updateGalleryBody() {
-    update([galleryBodyId]);
   }
 }

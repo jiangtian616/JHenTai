@@ -33,12 +33,12 @@ class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixi
   void onReady() {
     if (Get.arguments is String) {
       state.searchConfig.keyword = Get.arguments;
-      clearAndRefresh();
+      handleClearAndRefresh();
     }
 
     if (Get.arguments is SearchConfig) {
       state.searchConfig = (Get.arguments as SearchConfig).copyWith();
-      clearAndRefresh();
+      handleClearAndRefresh();
     }
 
     super.onReady();

@@ -161,7 +161,7 @@ class DashboardPage extends BasePage {
             ),
             IconButton(
               icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.onSurfaceVariant),
-              onPressed: logic.clearAndRefresh,
+              onPressed: logic.handleClearAndRefresh,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
             ),
           ],

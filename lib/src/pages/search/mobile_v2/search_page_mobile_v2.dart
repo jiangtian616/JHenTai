@@ -20,7 +20,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
   final String tag = UniqueKey().toString();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-  SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
+  SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: false, showScroll2TopButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
     state = logic.state;
   }

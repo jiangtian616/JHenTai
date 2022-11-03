@@ -33,21 +33,9 @@ class JHLayout {
           isSupported: () => true,
         ),
         JHLayout(
-          mode: LayoutMode.mobile,
-          name: 'mobileLayoutName'.tr,
-          desc: 'mobileLayoutDesc'.tr,
-          isSupported: () => true,
-        ),
-        JHLayout(
           mode: LayoutMode.tabletV2,
           name: 'tabletLayoutV2Name'.tr,
           desc: 'tabletLayoutV2Desc'.tr,
-          isSupported: () => WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio >= 600,
-        ),
-        JHLayout(
-          mode: LayoutMode.tablet,
-          name: 'tabletLayoutName'.tr,
-          desc: 'tabletLayoutDesc'.tr,
           isSupported: () => WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio >= 600,
         ),
         JHLayout(

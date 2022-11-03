@@ -5,6 +5,7 @@ import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
 import '../../../consts/eh_consts.dart';
+import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
@@ -21,9 +22,6 @@ class DashboardPageLogic extends BasePageLogic {
 
   @override
   bool get useSearchConfig => true;
-
-  @override
-  int get tabIndex => 0;
 
   @override
   DashboardPageState state = DashboardPageState();
@@ -54,7 +52,7 @@ class DashboardPageLogic extends BasePageLogic {
       gallerysAndPageInfo = await EHRequest.requestRanklistPage(
         ranklistType: RanklistType.day,
         pageNo: 0,
-        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+        parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
       );
     } on DioError catch (e) {
       Log.error('getRanklistFailed'.tr, e.message);
@@ -76,22 +74,17 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    LoadingState prevState = state.popularLoadingState;
     state.popularLoadingState = LoadingState.loading;
-    if (prevState == LoadingState.error || prevState == LoadingState.noData) {
-      update([popularListId]);
-    }
+    update([popularListId]);
 
     Log.info('Get popular list data', false);
 
-    List<dynamic> gallerysAndPageInfo;
+    GalleryPageInfo gallerysPage;
     try {
-      gallerysAndPageInfo = await EHRequest.requestGalleryPage(
-        pageNo: 0,
+      gallerysPage = await EHRequest.requestGalleryPage(
         url: EHConsts.EPopular,
-        parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
+        parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
-      gallerysAndPageInfo[1] = 1;
     } on DioError catch (e) {
       Log.error('getPopularListFailed'.tr, e.message);
       snack('getPopularListFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
@@ -100,8 +93,9 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    state.popularGallerys = gallerysAndPageInfo[0];
+    await translateGalleryTagsIfNeeded(gallerysPage.gallerys);
+
+    state.popularGallerys = gallerysPage.gallerys;
 
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);
@@ -121,20 +115,5 @@ class DashboardPageLogic extends BasePageLogic {
       loadRanklist(),
       loadPopular(),
     ]);
-  }
-
-  @override
-  Future<List> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('Get gallery data, pageIndex:$pageIndex', false);
-
-    return await EHRequest.requestGalleryPage(
-      pageNo: pageIndex,
-      searchConfig: state.searchConfig,
-      parser: EHSpiderParser.galleryPage2GalleryListAndPageInfo,
-    );
-  }
-
-  void updateGalleryList() {
-    update([galleryListId]);
   }
 }

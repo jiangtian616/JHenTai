@@ -17,6 +17,7 @@ import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -53,26 +54,43 @@ class EHSpiderParser {
   }
 
   /// [gallerys, pageCount, prevPageIndex, nextPageIndex]
-  static List<dynamic> galleryPage2GalleryListAndPageInfo(Response response) {
+  static GalleryPageInfo galleryPage2GalleryPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
-    String inlineType = document.querySelector('#dms > div > select > option[selected=selected]')?.text ?? '';
+    String inlineType = document.querySelector('select > option[selected=selected]')?.text ?? '';
 
     switch (inlineType) {
       case 'Minimal':
-        return _minimalGalleryPage2GalleryListAndPageInfo(response);
+        return _minimalGalleryPage2GalleryPageInfo(response);
       case 'Minimal+':
-        return _compactGalleryPage2GalleryListAndPageInfo(response);
+        return _compactGalleryPage2GalleryPageInfo(response);
       case 'Compact':
-        return _compactGalleryPage2GalleryListAndPageInfo(response);
+        return _compactGalleryPage2GalleryPageInfo(response);
       case 'Extended':
         return _extendedGalleryPage2GalleryListAndPageInfo(response);
       case 'Thumbnail':
         return _thumbnailGalleryPage2GalleryListAndPageInfo(response);
       default:
-        return _compactGalleryPage2GalleryListAndPageInfo(response);
+        return _compactGalleryPage2GalleryPageInfo(response);
     }
+  }
+
+  static List<dynamic> ranklistPage2GalleryPageInfo(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
+
+    /// remove table header and ad
+    galleryListElements.removeWhere((element) => element.children.length == 1 || element.querySelector('th') != null);
+    List<Gallery> gallerys = galleryListElements.map((e) => _parseCompactGallery(e)).toList();
+
+    int pageCount = ranklistPage2TotalPageCount(document);
+    int? prevPageIndex = ranklistPage2PrevPageIndex(document);
+    int? nextPageIndex = ranklistPage2NextPageIndex(document);
+
+    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
   }
 
   static Gallery detailPage2Gallery(Response response) {
@@ -538,7 +556,7 @@ class EHSpiderParser {
     return 'userNameOrPasswordMismatch'.tr;
   }
 
-  static List<dynamic> _minimalGalleryPage2GalleryListAndPageInfo(Response response) {
+  static GalleryPageInfo _minimalGalleryPage2GalleryPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -546,16 +564,15 @@ class EHSpiderParser {
 
     /// remove table header and ad
     galleryListElements.removeWhere((element) => element.children.length == 1 || element.querySelector('th') != null);
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseMinimalGallery(e)).toList();
 
-    int pageCount = galleryPage2TotalPageCount(document);
-    int? prevPageIndex = galleryPage2PrevPageIndex(document);
-    int? nextPageIndex = galleryPage2NextPageIndex(document);
-
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return GalleryPageInfo(
+      gallerys: galleryListElements.map((e) => _parseMinimalGallery(e)).toList(),
+      prevGid: galleryPage2PrevGid(document),
+      nextGid: galleryPage2NextGid(document),
+    );
   }
 
-  static List<dynamic> _compactGalleryPage2GalleryListAndPageInfo(Response response) {
+  static GalleryPageInfo _compactGalleryPage2GalleryPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -563,16 +580,15 @@ class EHSpiderParser {
 
     /// remove table header and ad
     galleryListElements.removeWhere((element) => element.children.length == 1 || element.querySelector('th') != null);
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseCompactGallery(e)).toList();
 
-    int pageCount = galleryPage2TotalPageCount(document);
-    int? prevPageIndex = galleryPage2PrevPageIndex(document);
-    int? nextPageIndex = galleryPage2NextPageIndex(document);
-
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return GalleryPageInfo(
+      gallerys: galleryListElements.map((e) => _parseCompactGallery(e)).toList(),
+      prevGid: galleryPage2PrevGid(document),
+      nextGid: galleryPage2NextGid(document),
+    );
   }
 
-  static List<dynamic> _extendedGalleryPage2GalleryListAndPageInfo(Response response) {
+  static GalleryPageInfo _extendedGalleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
@@ -580,30 +596,52 @@ class EHSpiderParser {
 
     /// remove ad
     galleryListElements.removeWhere((element) => element.children.length == 1);
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseExtendedGallery(e)).toList();
 
-    int pageCount = galleryPage2TotalPageCount(document);
-    int? prevPageIndex = galleryPage2PrevPageIndex(document);
-    int? nextPageIndex = galleryPage2NextPageIndex(document);
-
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return GalleryPageInfo(
+      gallerys: galleryListElements.map((e) => _parseExtendedGallery(e)).toList(),
+      prevGid: galleryPage2PrevGid(document),
+      nextGid: galleryPage2NextGid(document),
+    );
   }
 
-  static List<dynamic> _thumbnailGalleryPage2GalleryListAndPageInfo(Response response) {
+  static GalleryPageInfo _thumbnailGalleryPage2GalleryListAndPageInfo(Response response) {
     String html = response.data! as String;
     Document document = parse(html);
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.gld > div');
-    List<Gallery> gallerys = galleryListElements.map((e) => _parseThumbnailGallery(e)).toList();
 
-    int pageCount = galleryPage2TotalPageCount(document);
-    int? prevPageIndex = galleryPage2PrevPageIndex(document);
-    int? nextPageIndex = galleryPage2NextPageIndex(document);
-
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return GalleryPageInfo(
+      gallerys: galleryListElements.map((e) => _parseThumbnailGallery(e)).toList(),
+      prevGid: galleryPage2PrevGid(document),
+      nextGid: galleryPage2NextGid(document),
+    );
   }
 
-  static int galleryPage2TotalPageCount(Document document) {
+  static int? galleryPage2NextGid(Document document) {
+    Element? element = document.querySelector('.searchnav');
+    if (element == null) {
+      return null;
+    }
+
+    /// https://exhentai.org/?next=2367467
+    String? href = element.children[3].querySelector('a')?.attributes['href'];
+
+    return int.tryParse(RegExp(r'next=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
+  }
+
+  static int? galleryPage2PrevGid(Document document) {
+    Element? element = document.querySelector('.searchnav');
+    if (element == null) {
+      return null;
+    }
+
+    /// https://exhentai.org/?prev=2367467
+    String? href = element.children[2].querySelector('a')?.attributes['href'];
+
+    return int.tryParse(RegExp(r'prev=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
+  }
+
+  static int ranklistPage2TotalPageCount(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     if (tr == null || tr.children.isEmpty) {
       return 0;
@@ -612,13 +650,13 @@ class EHSpiderParser {
     return int.parse(td.querySelector('a')!.text);
   }
 
-  static int? galleryPage2NextPageIndex(Document document) {
+  static int? ranklistPage2NextPageIndex(Document document) {
     Element? tr = document.querySelector('.ptt > tbody > tr');
     Element? td = tr?.children[tr.children.length - 1];
     return int.tryParse(RegExp(r'p(age)?=(\d+)').firstMatch(td?.querySelector('a')?.attributes['href'] ?? '')?.group(2) ?? '');
   }
 
-  static int? galleryPage2PrevPageIndex(Document document) {
+  static int? ranklistPage2PrevPageIndex(Document document) {
     Element? a = document.querySelector('.ptt > tbody > tr')?.children[0].querySelector('a');
     if (a == null) {
       return null;

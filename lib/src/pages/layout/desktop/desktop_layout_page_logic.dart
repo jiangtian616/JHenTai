@@ -44,7 +44,7 @@ class DesktopLayoutPageLogic extends GetxController {
       return;
     }
 
-    ScrollController? scrollController = state.scrollControllers[index];
+    ScrollController? scrollController = state.icons[index].scrollController?.call();
 
     /// no popular_page.dart data
     if ((scrollController?.hasClients ?? false) == false) {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
@@ -9,12 +12,17 @@ import 'package:jhentai/src/routes/routes.dart';
 
 import '../../../model/tab_bar_icon.dart';
 import '../../favorite/favorite_page.dart';
+import '../../favorite/favorite_page_logic.dart';
+import '../../history/history_page_logic.dart';
+import '../../popular/popular_page_logic.dart';
 import '../../ranklist/ranklist_page.dart';
+import '../../ranklist/ranklist_page_logic.dart';
 import '../../search/desktop/desktop_search_page.dart';
+import '../../search/desktop/desktop_search_page_logic.dart';
+import '../../watched/watched_page_logic.dart';
 
 class DesktopLayoutPageState {
   late final List<TabBarIcon> icons;
-  late final List<ScrollController?> scrollControllers;
 
   double leftColumnWidthRatio = 1 - 0.618;
 
@@ -39,6 +47,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.home),
         unselectedIcon: const Icon(Icons.home_outlined),
         page: () => const GallerysPage(),
+        scrollController: () => Get.find<GallerysPageLogic>().state.scrollController,
         shouldRender: true,
       ),
       TabBarIcon(
@@ -47,6 +56,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.search, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.search),
         page: () => const DesktopSearchPage(),
+        scrollController: () => Get.find<DesktopSearchPageLogic>().state.scrollController,
         shouldRender: true,
       ),
       TabBarIcon(
@@ -55,6 +65,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.whatshot),
         unselectedIcon: const Icon(Icons.whatshot_outlined),
         page: () => const PopularPage(),
+        scrollController: () => Get.find<PopularPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -63,6 +74,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.bar_chart_rounded, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.bar_chart_outlined),
         page: () => const RanklistPage(),
+        scrollController: () => Get.find<RanklistPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -71,6 +83,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.favorite),
         unselectedIcon: const Icon(Icons.favorite_outline),
         page: () => const FavoritePage(),
+        scrollController: () => Get.find<FavoritePageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -79,6 +92,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.visibility),
         unselectedIcon: const Icon(Icons.visibility_outlined),
         page: () => const WatchedPage(),
+        scrollController: () => Get.find<WatchedPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -87,6 +101,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.history, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.history_outlined),
         page: () => HistoryPage(),
+        scrollController: () => Get.find<HistoryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -95,6 +110,7 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.download),
         unselectedIcon: const Icon(Icons.download_outlined),
         page: () => const DownloadPage(),
+        scrollController: () => Get.find<HistoryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
@@ -106,7 +122,5 @@ class DesktopLayoutPageState {
         shouldRender: true,
       ),
     ];
-
-    scrollControllers = List.filled(icons.length, null);
   }
 }

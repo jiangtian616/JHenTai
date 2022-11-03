@@ -6,7 +6,6 @@ import 'package:jhentai/src/utils/route_util.dart';
 import '../model/jh_layout.dart';
 import '../model/search_config.dart';
 import '../pages/search/desktop/desktop_search_page_logic.dart';
-import '../pages/search/mobile/search_page_logic.dart';
 import '../pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import '../routes/routes.dart';
 import '../setting/style_setting.dart';
@@ -21,37 +20,26 @@ void newSearch(String? keyword) {
     toRoute(Routes.desktopSearch);
     desktopSearchPageLogic.state.searchConfig.keyword = keyword;
     desktopSearchPageLogic.state.searchConfig.tags?.clear();
-    desktopSearchPageLogic.clearAndRefresh();
+    desktopSearchPageLogic.handleClearAndRefresh();
     return;
   }
 
-  if (StyleSetting.isInV2Layout) {
-    if (SearchPageMobileV2Logic.current == null) {
-      toRoute(Routes.mobileV2Search, arguments: keyword);
-      return;
-    }
-    if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
-      return;
-    }
-
-    if (isRouteAtTop(Routes.mobileV2Search)) {
-      SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
-      SearchPageMobileV2Logic.current!.clearAndRefresh();
-      return;
-    }
-
+  if (SearchPageMobileV2Logic.current == null) {
     toRoute(Routes.mobileV2Search, arguments: keyword);
     return;
   }
 
-  if (isRouteAtTop(Routes.search)) {
-    SearchPageLogic searchPageLogic = SearchPageLogic.current!;
-    searchPageLogic.state.tabBarConfig.searchConfig.keyword = keyword;
-    searchPageLogic.searchMore();
+  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
     return;
   }
 
-  toRoute(Routes.search, arguments: keyword);
+  if (isRouteAtTop(Routes.mobileV2Search)) {
+    SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
+    SearchPageMobileV2Logic.current!.handleClearAndRefresh();
+    return;
+  }
+
+  toRoute(Routes.mobileV2Search, arguments: keyword);
 }
 
 void newSearchWithConfig(SearchConfig searchConfig) {
@@ -62,7 +50,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     }
     toRoute(Routes.desktopSearch);
     desktopSearchPageLogic.state.searchConfig = searchConfig.copyWith();
-    desktopSearchPageLogic.clearAndRefresh();
+    desktopSearchPageLogic.handleClearAndRefresh();
   }
 
   if (StyleSetting.isInV2Layout) {
@@ -80,7 +68,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
 
     if (isRouteAtTop(Routes.mobileV2Search)) {
       SearchPageMobileV2Logic.current!.state.searchConfig = searchConfig.copyWith();
-      SearchPageMobileV2Logic.current!.clearAndRefresh();
+      SearchPageMobileV2Logic.current!.handleClearAndRefresh();
       return;
     }
 

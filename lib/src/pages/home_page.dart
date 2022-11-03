@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
-import 'package:jhentai/src/pages/layout/tablet/tablet_layout_page.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -28,7 +27,6 @@ import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
 import '../widget/app_state_listener.dart';
 import '../widget/update_dialog.dart';
-import 'layout/mobile/mobile_layout_page.dart';
 
 const int left = 1;
 const int right = 2;
@@ -78,29 +76,19 @@ class _HomePageState extends State<HomePage> {
         child: LayoutBuilder(
           builder: (_, __) => Obx(
             () {
-              if (StyleSetting.layout.value == LayoutMode.mobileV2) {
+              if (StyleSetting.layout.value == LayoutMode.mobileV2 || StyleSetting.layout.value == LayoutMode.mobile) {
                 StyleSetting.actualLayout = LayoutMode.mobileV2;
                 return MobileLayoutPageV2();
               }
 
-              if (StyleSetting.layout.value == LayoutMode.mobile) {
-                StyleSetting.actualLayout = LayoutMode.mobile;
-                return MobileLayoutPage();
-              }
-
-              /// Device width is under 600, degrade to mobile layout.
+              /// Device width is under 600, degrade to mobileV2 layout.
               if (fullScreenWidth < 600) {
-                StyleSetting.actualLayout = StyleSetting.layout.value == LayoutMode.tablet ? LayoutMode.mobile : LayoutMode.mobileV2;
+                StyleSetting.actualLayout = LayoutMode.mobileV2;
                 untilRoute2BlankPage();
-                return StyleSetting.layout.value == LayoutMode.tablet ? MobileLayoutPage() : MobileLayoutPageV2();
+                return MobileLayoutPageV2();
               }
 
-              if (StyleSetting.layout.value == LayoutMode.tablet) {
-                StyleSetting.actualLayout = LayoutMode.tablet;
-                return const TabletLayoutPage();
-              }
-
-              if (StyleSetting.layout.value == LayoutMode.tabletV2) {
+              if (StyleSetting.layout.value == LayoutMode.tabletV2 || StyleSetting.layout.value == LayoutMode.tablet) {
                 StyleSetting.actualLayout = LayoutMode.tabletV2;
                 return const TabletLayoutPageV2();
               }

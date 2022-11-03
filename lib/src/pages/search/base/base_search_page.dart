@@ -49,7 +49,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
             labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.toTagKeywords(withTranslation: false, separator: ' / '),
             prefixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
-              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.clearAndRefresh),
+              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
             ),
             prefixIconConstraints: BoxConstraints(
               minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
@@ -73,7 +73,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
             state.searchConfig.keyword = value;
             logic.waitAndSearchTags();
           },
-          onSubmitted: (_) => logic.clearAndRefresh(),
+          onSubmitted: (_) => logic.handleClearAndRefresh(),
         ),
       ),
     );
@@ -88,7 +88,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
       onTapChip: (String keyword) {
         state.searchConfig.keyword = keyword + ' ';
         state.searchConfig.tags?.clear();
-        logic.clearAndRefresh();
+        logic.handleClearAndRefresh();
       },
       onTapSuggestion: (TagData tagData) {
         List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];

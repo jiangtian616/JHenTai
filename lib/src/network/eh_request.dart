@@ -179,14 +179,16 @@ class EHRequest {
   /// [url]: used for file search
   static Future<T> requestGalleryPage<T>({
     String? url,
-    required int pageNo,
+    int? prevGid,
+    int? nextGid,
     SearchConfig? searchConfig,
     required EHHtmlParser<T> parser,
   }) async {
     Response<String> response = await _dio.get(
       url ?? searchConfig!.toPath(),
       queryParameters: {
-        'page': pageNo,
+        'prev': prevGid,
+        'next': nextGid,
         ...?searchConfig?.toQueryParameters(),
       },
     );

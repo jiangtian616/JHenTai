@@ -6,6 +6,7 @@ class TabBarIcon {
   final Icon selectedIcon;
   final Icon unselectedIcon;
   final ValueGetter<Widget> page;
+  final ValueGetter<ScrollController>? scrollController;
   bool shouldRender;
   bool enterNewRoute;
 
@@ -15,6 +16,7 @@ class TabBarIcon {
     required this.selectedIcon,
     required this.unselectedIcon,
     required this.page,
+    this.scrollController,
     required this.shouldRender,
     this.enterNewRoute = false,
   });
