@@ -204,7 +204,12 @@ class EHRequest {
   }) async {
     Response response = await _dio.get(
       galleryUrl,
-      queryParameters: {'p': thumbnailsPageIndex},
+      queryParameters: {
+        'p': thumbnailsPageIndex,
+
+        /// show all comments
+        'hc': 1,
+      },
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
