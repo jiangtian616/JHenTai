@@ -371,7 +371,7 @@ class pt_BR {
       'searchGalleryName': 'Pesquisar nome da galeria',
       'searchGalleryTags': 'Pesquisar tags da galeria',
       'searchGalleryDescription': 'Pesquisar descrição da galeria',
-      'searchExpungedGalleries': 'Pesquisar galerias eliminadas',
+      'onlySearchExpungedGalleries': 'Pesquisar galerias eliminadas',
       'onlyShowGalleriesWithTorrents': 'Mostrar apenas galerias com torrents',
       'searchLowPowerTags': 'Pesquisar tags de baixo consumo',
       'searchDownVotedTags': 'Pesquisar tags pouco votadas',

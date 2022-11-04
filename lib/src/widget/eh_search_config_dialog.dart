@@ -86,7 +86,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        height: 500,
+        height: searchConfig.searchType == SearchType.favorite ? 400 : 500,
         width: 200,
         padding: const EdgeInsets.only(top: 24, bottom: 24, left: 12, right: 12),
         child: Column(
@@ -139,10 +139,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildFavoriteTags().marginOnly(top: 20),
-                _buildKeywordTextField().marginOnly(top: 12),
-                _buildSearchNameForFavoriteSwitch().marginOnly(top: 20),
-                _buildSearchTagsForFavoriteSwitch(),
-                _buildSearchNoteForFavoriteSwitch(),
+                _buildKeywordTextField().marginOnly(top: 20, bottom: 180),
               ],
             )
           else
@@ -151,13 +148,9 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               children: [
                 _buildCategoryTags().marginOnly(top: 20),
                 _buildKeywordTextField().marginOnly(top: 12),
-                _buildSearchNameSwitch().marginOnly(top: 20),
-                _buildSearchTagsSwitch(),
-                _buildSearchDescriptionSwitch(),
-                _buildSearchExpungedGalleriesSwitch(),
+                _buildSearchExpungedGalleriesSwitch().marginOnly(top: 20),
                 _buildOnlySearchGallerysWithTorrentsSwitch(),
                 _buildSearchLowerTagsSwitch(),
-                _buildDownVotedTagsSwitch(),
                 _buildPageRangeSelector(),
                 _buildRatingSelector(),
                 _buildDisableFilterForLanguageSwitch(),
@@ -318,51 +311,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
-  Widget _buildSearchNameForFavoriteSwitch() {
-    return ListTile(
-      key: const Key('searchName'),
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: KeepAliveWrapper(
-        child: Switch(
-          value: searchConfig.searchFavoriteName,
-          onChanged: (bool value) => setState(() => searchConfig.searchFavoriteName = value),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchTagsForFavoriteSwitch() {
-    return ListTile(
-      key: const Key('searchTags'),
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: KeepAliveWrapper(
-        child: Switch(
-          value: searchConfig.searchFavoriteTags,
-          onChanged: (bool value) => setState(() => searchConfig.searchFavoriteTags = value),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSearchNoteForFavoriteSwitch() {
-    return ListTile(
-      key: const Key('searchNote'),
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchNote'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: KeepAliveWrapper(
-        child: Switch(
-          value: searchConfig.searchFavoriteNote,
-          onChanged: (bool value) => setState(() => searchConfig.searchFavoriteNote = value),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCategoryTags() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -446,51 +394,14 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
-  Widget _buildSearchNameSwitch() {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchName'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
-        value: searchConfig.searchGalleryName,
-        onChanged: (bool value) => setState(() => searchConfig.searchGalleryName = value),
-      ),
-    );
-  }
-
-  Widget _buildSearchTagsSwitch() {
-    return ListTile(
-      key: const Key('searchTags'),
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchTags'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
-        value: searchConfig.searchFavoriteTags,
-        onChanged: (bool value) => setState(() => searchConfig.searchFavoriteTags = value),
-      ),
-    );
-  }
-
-  Widget _buildSearchDescriptionSwitch() {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchGalleryDescription'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
-        value: searchConfig.searchGalleryDescription,
-        onChanged: (bool value) => setState(() => searchConfig.searchGalleryDescription = value),
-      ),
-    );
-  }
-
   Widget _buildSearchExpungedGalleriesSwitch() {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text('searchExpungedGalleries'.tr, style: const TextStyle(fontSize: 15)),
+      title: Text('onlySearchExpungedGalleries'.tr, style: const TextStyle(fontSize: 15)),
       trailing: Switch(
-        value: searchConfig.searchExpungedGalleries,
-        onChanged: (bool value) => setState(() => searchConfig.searchExpungedGalleries = value),
+        value: searchConfig.onlySearchExpungedGalleries,
+        onChanged: (bool value) => setState(() => searchConfig.onlySearchExpungedGalleries = value),
       ),
     );
   }
@@ -515,18 +426,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       trailing: Switch(
         value: searchConfig.searchLowPowerTags,
         onChanged: (bool value) => setState(() => searchConfig.searchLowPowerTags = value),
-      ),
-    );
-  }
-
-  Widget _buildDownVotedTagsSwitch() {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchDownVotedTags'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
-        value: searchConfig.searchDownVotedTags,
-        onChanged: (bool value) => setState(() => searchConfig.searchDownVotedTags = value),
       ),
     );
   }

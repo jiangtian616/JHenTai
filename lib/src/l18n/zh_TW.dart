@@ -367,7 +367,7 @@ class zh_TW {
       'searchGalleryName': '搜尋畫廊名字',
       'searchGalleryTags': '搜尋畫廊標籤',
       'searchGalleryDescription': '搜尋畫廊描述',
-      'searchExpungedGalleries': '搜尋移除了的畫廊',
+      'onlySearchExpungedGalleries': '只搜索移除了的畫廊',
       'onlyShowGalleriesWithTorrents': '只顯示有種子的畫廊',
       'searchLowPowerTags': '搜尋可信度較低的標籤',
       'searchDownVotedTags': '搜尋差評標簽',

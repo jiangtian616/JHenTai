@@ -367,7 +367,7 @@ class zh_CN {
       'searchGalleryName': '搜索画廊名字',
       'searchGalleryTags': '搜索画廊标签',
       'searchGalleryDescription': '搜索画廊描述',
-      'searchExpungedGalleries': '搜索移除了的画廊',
+      'onlySearchExpungedGalleries': '仅搜索移除了的画廊',
       'onlyShowGalleriesWithTorrents': '只显示有种子的画廊',
       'searchLowPowerTags': '搜索可信度较低的标签',
       'searchDownVotedTags': '搜索差评标签',

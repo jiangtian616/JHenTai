@@ -369,7 +369,7 @@ class en_US {
       'searchGalleryName': 'Search Gallery Name',
       'searchGalleryTags': 'Search Gallery Tags',
       'searchGalleryDescription': 'Search Gallery Description',
-      'searchExpungedGalleries': 'Search Expunged Galleries',
+      'onlySearchExpungedGalleries': "Only Search Expunged Galleries",
       'onlyShowGalleriesWithTorrents': 'Only Show Galleries With Torrents',
       'searchLowPowerTags': 'Search LowPower Tags',
       'searchDownVotedTags': 'Search DownVoted Tags',
