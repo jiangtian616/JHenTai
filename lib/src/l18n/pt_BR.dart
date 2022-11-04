@@ -378,6 +378,7 @@ class pt_BR {
       'pageAtLeast': 'Página no mínimo',
       'pageAtMost': 'Página no máximo',
       'pagesBetween': 'Páginas entre',
+      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': 'para',
       'minimumRating': 'Classificação mínima',
       'disableFilterForLanguage': 'Desativar filtro para idioma',

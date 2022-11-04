@@ -434,7 +434,16 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text('pagesBetween'.tr, style: const TextStyle(fontSize: 15)),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('pagesBetween'.tr, style: const TextStyle(fontSize: 15)),
+          GestureDetector(
+            child: const Icon(Icons.help, size: 15).marginOnly(left: 4),
+            onTap: () => toast('pageRangeSelectHint'.tr, isShort: false),
+          ),
+        ],
+      ),
       trailing: SizedBox(
         width: 110,
         child: Row(

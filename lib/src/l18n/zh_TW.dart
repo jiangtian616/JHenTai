@@ -374,6 +374,7 @@ class zh_TW {
       'pageAtLeast': '頁數至少',
       'pageAtMost': '頁數最多',
       'pagesBetween': '頁數範圍',
+      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低評分',
       'disableFilterForLanguage': '禁用語言過濾',

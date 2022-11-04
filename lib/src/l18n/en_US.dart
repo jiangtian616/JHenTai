@@ -376,6 +376,7 @@ class en_US {
       'pageAtLeast': 'Page At Least',
       'pageAtMost': 'Page At Most',
       'pagesBetween': 'Pages Between',
+      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': 'to',
       'minimumRating': 'Minimum Rating',
       'disableFilterForLanguage': 'Disable Filter For Language',

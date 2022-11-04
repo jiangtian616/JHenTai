@@ -374,6 +374,7 @@ class zh_CN {
       'pageAtLeast': '页数至少',
       'pageAtMost': '页数最多',
       'pagesBetween': '页数范围',
+      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低评分',
       'disableFilterForLanguage': '禁用语言过滤',
