@@ -124,6 +124,7 @@ class EHSpiderParser {
       language: tags['language']?[0].tagData.key,
       uploader: document.querySelector('#gdn > a')?.text ?? '',
       publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
+      isExpunged: (document.querySelector('#gdd > table > tbody > tr:nth-child(2) > .gdt2')?.text ?? '').contains('Expunged'),
     );
 
     return gallery;
@@ -733,6 +734,7 @@ class EHSpiderParser {
       tags: LinkedHashMap<String, List<GalleryTag>>(),
       uploader: tr.querySelector('.gl5m.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2m > div:nth-child(2)')?.text ?? '',
+      isExpunged: tr.querySelector('.gl2m > div:nth-child(2) > s') != null,
     );
 
     return gallery;
@@ -761,6 +763,7 @@ class EHSpiderParser {
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl4c.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2c > div:nth-child(2) > [id]')?.text ?? '',
+      isExpunged: tr.querySelector('.gl2c > div:nth-child(2) > [id] > s') != null,
     );
 
     return gallery;
@@ -789,6 +792,7 @@ class EHSpiderParser {
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl3e > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl3e > div[id]')?.text ?? '',
+      isExpunged: tr.querySelector('.gl3e > div[id] > s') != null,
     );
 
     return gallery;
@@ -814,6 +818,7 @@ class EHSpiderParser {
       galleryUrl: galleryUrl,
       tags: LinkedHashMap(),
       publishTime: div.querySelector('.gl5t > div > div[id]')?.text ?? '',
+      isExpunged: div.querySelector('.gl5t > div > div[id] > s') != null,
     );
 
     return gallery;

@@ -24,6 +24,7 @@ class Gallery {
   String? language;
   String? uploader;
   String publishTime;
+  bool isExpunged;
 
   GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(
@@ -87,6 +88,7 @@ class Gallery {
     this.language,
     this.uploader,
     required this.publishTime,
+    required this.isExpunged,
   });
 
   Map<String, dynamic> toJson() {
@@ -107,6 +109,7 @@ class Gallery {
       'language': language,
       'uploader': uploader,
       'publishTime': publishTime,
+      'isExpunged': isExpunged,
     };
   }
 
@@ -135,12 +138,14 @@ class Gallery {
       language: map['language'],
       uploader: map['uploader'],
       publishTime: map['publishTime'],
+      isExpunged: map['isExpunged'] ?? false,
     );
   }
 
+
   @override
   String toString() {
-    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime}';
+    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged}';
   }
 
   Gallery copyWith({
@@ -160,6 +165,7 @@ class Gallery {
     String? language,
     String? uploader,
     String? publishTime,
+    bool? isExpunged,
   }) {
     return Gallery(
       gid: gid ?? this.gid,
@@ -178,6 +184,7 @@ class Gallery {
       language: language ?? this.language,
       uploader: uploader ?? this.uploader,
       publishTime: publishTime ?? this.publishTime,
+      isExpunged: isExpunged ?? this.isExpunged,
     );
   }
 }
