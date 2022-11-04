@@ -11,7 +11,7 @@
 
 E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux系统。
 
-仍在起步阶段，欢迎提交issue。
+仍在发展阶段，十分欢迎提交各种bug反馈或Feature Request。
 
 ## 下载&安装
 
@@ -63,21 +63,13 @@ App翻译：
 
 ## 截图
 
-### 手机模式V2
+### 手机模式
 
 <img width="250" style="margin-right:10px" src="screenshot/mobileV2_zh.jpg"/>
 
-### 手机模式旧 (已停止维护)
-
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
-
-### 平板模式V2
+### 平板模式
 
 <img width="770" src="screenshot/tabletV2_zh.png"/>
-
-### 平板模式旧 (已停止维护)
-
-<img width="770" src="screenshot/0.png"/>
 
 ### 桌面模式
 
@@ -103,7 +95,7 @@ App翻译：
 
 ## 主要功能
 
-- [x] 支持手机、平板、桌面三端共五种基础布局
+- [x] 支持手机、平板、桌面三端布局
 - [x] 支持上下、左右、双列等共四种阅读布局
 - [x] 主页、热门、收藏、关注、历史，支持多种画廊样式
 - [x] 搜索、搜索Tag提示、点击Tag快捷搜索、以图搜图、跳页

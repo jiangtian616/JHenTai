@@ -11,7 +11,7 @@ English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/REA
 
 An E-Hentai app for Android & iOS & Windows & MacOS & Linux.
 
-Still in beginning stage, welcome to submit issues.
+Still in development stage, welcome to submit issues or feature requests.
 
 ## Download & Install
 
@@ -81,21 +81,13 @@ mush thanks to these projects and people🙇‍
 
 ## Screenshots
 
-### Mobile Layout V2
+### Mobile Layout 
 
 <img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/>
 
-### Mobile Layout (Maintenance stopped)
-
-<img width="250" style="margin-right:10px" src="screenshot/1.jpg"/>
-
-### Tablet Layout V2
+### Tablet Layout 
 
 <img width="770" src="screenshot/tabletV2_en.png"/>
-
-### Tablet Layout (Maintenance stopped)
-
-<img width="770" src="screenshot/0.png"/>
 
 ### Desktop Layout
 
@@ -121,7 +113,7 @@ mush thanks to these projects and people🙇‍
 
 ## Main Features
 
-- [x] Mobile, tablet, desktop layout(5 kinds)
+- [x] Mobile, tablet, desktop layout(3 kinds)
 - [x] Vertical, horizontal, double column read page layout(4 kinds)
 - [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 - [x] search, search suggestion, tap tag to search, file search, jump to a certain page
