@@ -122,7 +122,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               _buildThumbnails(),
               if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
             ],
-          ).paddingOnly(left: 15, right: 15),
+          ),
         ),
       ),
     );
@@ -130,7 +130,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildHeader() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: 12, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: _DetailsPageHeader(logic: logic, state: state)),
     );
   }
@@ -149,12 +149,15 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildDivider() {
-    return const SliverPadding(padding: EdgeInsets.only(top: 24), sliver: SliverToBoxAdapter(child: Divider(height: 1)));
+    return const SliverPadding(
+      padding: EdgeInsets.only(top: 24, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+      sliver: SliverToBoxAdapter(child: Divider(height: 1)),
+    );
   }
 
   Widget _buildActions() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: _ActionButtons()),
     );
   }
@@ -166,7 +169,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: 16, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(
         child: _GalleryTags(
           tagList: tagList!,
@@ -200,20 +203,23 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       return const SliverToBoxAdapter();
     }
 
-    return SliverToBoxAdapter(
-      child: FadeIn(
-        child: SizedBox(
-          height: UIConfig.detailsPageCommentIndicatorHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ExcludeFocus(
-                child: TextButton(
-                  onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
-                  child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
-                ),
-              )
-            ],
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+      sliver: SliverToBoxAdapter(
+        child: FadeIn(
+          child: SizedBox(
+            height: UIConfig.detailsPageCommentIndicatorHeight,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ExcludeFocus(
+                  child: TextButton(
+                    onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
+                    child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -225,8 +231,11 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       return const SliverToBoxAdapter();
     }
 
-    return SliverToBoxAdapter(
-      child: _Comments(comments: state.galleryDetails!.comments),
+    return SliverPadding(
+      padding: const EdgeInsets.only(left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+      sliver: SliverToBoxAdapter(
+        child: _Comments(comments: state.galleryDetails!.comments),
+      ),
     );
   }
 
@@ -252,7 +261,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     }
 
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 36),
+      padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: _Thumbnails(logic: logic, state: state),
     );
   }

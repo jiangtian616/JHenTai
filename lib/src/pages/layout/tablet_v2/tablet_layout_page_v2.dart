@@ -30,23 +30,20 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: UIConfig.behaviorWithoutScrollBar,
-      child: ResizableWidget(
-        separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-        separatorSize: 1.5,
-        percentages: [leftColumnWidthRatio, 1 - leftColumnWidthRatio],
-        onResized: windowService.handleResized,
-        isDisabledSmartHide: true,
-        children: [
-          _leftColumn(),
-          DecoratedBox(
-            position: DecorationPosition.foreground,
-            decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-            child: _rightColumn(),
-          ),
-        ],
-      ),
+    return ResizableWidget(
+      separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+      separatorSize: 1.5,
+      percentages: [leftColumnWidthRatio, 1 - leftColumnWidthRatio],
+      onResized: windowService.handleResized,
+      isDisabledSmartHide: true,
+      children: [
+        _leftColumn(),
+        DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
+          child: _rightColumn(),
+        ),
+      ],
     );
   }
 

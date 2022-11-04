@@ -45,36 +45,33 @@ class ReadPage extends StatelessWidget {
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: ScrollConfiguration(
-        behavior: GetPlatform.isDesktop ? UIConfig.behaviorWithScrollBar : UIConfig.behaviorWithoutScrollBar,
-        child: EHKeyboardListener(
-          focusNode: state.focusNode,
-          handleEsc: backRoute,
-          handleSpace: logic.toggleMenu,
-          handlePageDown: logic.toNext,
-          handlePageUp: logic.toPrev,
-          handleArrowDown: logic.toNext,
-          handleArrowUp: logic.toPrev,
-          handleArrowRight: logic.toRight,
-          handleArrowLeft: logic.toLeft,
-          handleLCtrl: logic.toLeft,
-          handleRCtrl: logic.toRight,
-          handleEnd: backRoute,
-          child: DefaultTextStyle(
-            style: DefaultTextStyle.of(context).style.copyWith(
-                  color: Colors.white,
-                  fontSize: 12,
-                  decoration: TextDecoration.none,
-                ),
-            child: Stack(
-              children: [
-                buildLayout(),
-                buildRightBottomInfo(context),
-                buildGestureRegion(),
-                buildTopMenu(context),
-                buildBottomMenu(context),
-              ],
-            ),
+      child: EHKeyboardListener(
+        focusNode: state.focusNode,
+        handleEsc: backRoute,
+        handleSpace: logic.toggleMenu,
+        handlePageDown: logic.toNext,
+        handlePageUp: logic.toPrev,
+        handleArrowDown: logic.toNext,
+        handleArrowUp: logic.toPrev,
+        handleArrowRight: logic.toRight,
+        handleArrowLeft: logic.toLeft,
+        handleLCtrl: logic.toLeft,
+        handleRCtrl: logic.toRight,
+        handleEnd: backRoute,
+        child: DefaultTextStyle(
+          style: DefaultTextStyle.of(context).style.copyWith(
+            color: Colors.white,
+            fontSize: 12,
+            decoration: TextDecoration.none,
+          ),
+          child: Stack(
+            children: [
+              buildLayout(),
+              buildRightBottomInfo(context),
+              buildGestureRegion(),
+              buildTopMenu(context),
+              buildBottomMenu(context),
+            ],
           ),
         ),
       ),

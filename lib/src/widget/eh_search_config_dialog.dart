@@ -84,17 +84,20 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
-        height: searchConfig.searchType == SearchType.favorite ? 400 : 500,
-        width: 200,
-        padding: const EdgeInsets.only(top: 24, bottom: 24, left: 12, right: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            buildHeader(),
-            Expanded(child: buildBody()),
-          ],
+    return ScrollConfiguration(
+      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+      child: Dialog(
+        child: Container(
+          height: searchConfig.searchType == SearchType.favorite ? 400 : 500,
+          width: 200,
+          padding: const EdgeInsets.only(top: 24, bottom: 24, left: 12, right: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              buildHeader(),
+              Expanded(child: buildBody()),
+            ],
+          ),
         ),
       ),
     );

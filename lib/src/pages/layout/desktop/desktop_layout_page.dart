@@ -23,28 +23,25 @@ class DesktopLayoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: UIConfig.behaviorWithScrollBar,
-      child: Row(
-        children: [
-          _leftTabBar(context),
-          Expanded(
-            child: ResizableWidget(
-              separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-              separatorSize: GetPlatform.isWindows ? 7.5 : 1.5,
-              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) =>
-                  GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
-              percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
-              onResized: logic.windowService.handleResized,
-              isDisabledSmartHide: true,
-              children: [
-                _leftColumn(),
-                _rightColumn(),
-              ],
-            ),
+    return Row(
+      children: [
+        _leftTabBar(context),
+        Expanded(
+          child: ResizableWidget(
+            separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
+            separatorSize: GetPlatform.isWindows ? 7.5 : 1.5,
+            separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) =>
+            GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
+            percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
+            onResized: logic.windowService.handleResized,
+            isDisabledSmartHide: true,
+            children: [
+              _leftColumn(),
+              _rightColumn(),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

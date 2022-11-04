@@ -23,17 +23,14 @@ class MobileLayoutPageV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: UIConfig.behaviorWithScrollBar,
-      child: Obx(
-        () => Scaffold(
-          key: MobileLayoutPageV2State.scaffoldKey,
-          drawer: buildLeftDrawer(),
-          endDrawer: buildRightDrawer(),
-          endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
-          body: buildBody(),
-          bottomNavigationBar: StyleSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
-        ),
+    return Obx(
+      () => Scaffold(
+        key: MobileLayoutPageV2State.scaffoldKey,
+        drawer: buildLeftDrawer(),
+        endDrawer: buildRightDrawer(),
+        endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+        body: buildBody(),
+        bottomNavigationBar: StyleSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
       ),
     );
   }

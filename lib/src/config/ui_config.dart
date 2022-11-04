@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,7 @@ import '../utils/screen_size_util.dart';
 
 class UIConfig {
   /// common
-  static ScrollBehavior behaviorWithScrollBar = const MaterialScrollBehavior().copyWith(
+  static ScrollBehavior scrollBehaviourWithScrollBar = EHScrollBehaviourWithScrollBar().copyWith(
     dragDevices: {
       PointerDeviceKind.mouse,
       PointerDeviceKind.touch,
@@ -20,7 +21,7 @@ class UIConfig {
     scrollbars: true,
   );
 
-  static ScrollBehavior behaviorWithoutScrollBar = const MaterialScrollBehavior().copyWith(
+  static ScrollBehavior scrollBehaviourWithoutScrollBar = const MaterialScrollBehavior().copyWith(
     dragDevices: {
       PointerDeviceKind.mouse,
       PointerDeviceKind.touch,
@@ -261,4 +262,19 @@ class UIConfig {
 
   /// Tag sets page
   static Color get tagSetsPageIconColor => Get.theme.colorScheme.primary;
+
+  /// detail page
+  static const double detailPagePadding = 15;
+}
+
+class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
+  @override
+  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+    switch (axisDirectionToAxis(details.direction)) {
+      case Axis.horizontal:
+        return child;
+      case Axis.vertical:
+        return CupertinoScrollbar(controller: details.controller, child: child);
+    }
+  }
 }
