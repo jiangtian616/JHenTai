@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
@@ -10,6 +9,7 @@ import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 
+import '../../../mixin/double_tap_to_refresh_state_mixin.dart';
 import '../../../model/tab_bar_icon.dart';
 import '../../favorite/favorite_page.dart';
 import '../../favorite/favorite_page_logic.dart';
@@ -21,7 +21,7 @@ import '../../search/desktop/desktop_search_page.dart';
 import '../../search/desktop/desktop_search_page_logic.dart';
 import '../../watched/watched_page_logic.dart';
 
-class DesktopLayoutPageState {
+class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
   late final List<TabBarIcon> icons;
 
   double leftColumnWidthRatio = 1 - 0.618;
@@ -35,9 +35,6 @@ class DesktopLayoutPageState {
   final FocusScopeNode leftTabBarFocusScopeNode = FocusScopeNode();
   final FocusScopeNode leftColumnFocusScopeNode = FocusScopeNode();
   final FocusScopeNode rightColumnFocusScopeNode = FocusScopeNode();
-
-  /// record tap time to implement 'double tap to refresh'
-  DateTime? lastTapTime;
 
   DesktopLayoutPageState() {
     icons = [
@@ -110,7 +107,6 @@ class DesktopLayoutPageState {
         selectedIcon: const Icon(Icons.download),
         unselectedIcon: const Icon(Icons.download_outlined),
         page: () => const DownloadPage(),
-        scrollController: () => Get.find<HistoryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(

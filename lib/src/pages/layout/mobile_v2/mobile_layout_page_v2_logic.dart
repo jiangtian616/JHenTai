@@ -1,10 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
-class MobileLayoutPageV2Logic extends GetxController {
+import '../../../mixin/double_tap_to_refresh_logic_mixin.dart';
+
+class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogicMixin {
   final String bodyId = 'bodyId';
   final String tabBarId = 'tabBarId';
   final String bottomNavigationBarId = 'bottomNavigationBarId';
@@ -56,6 +59,12 @@ class MobileLayoutPageV2Logic extends GetxController {
     if (index != state.selectedNavigationIndex) {
       state.selectedNavigationIndex = index;
       updateSafely([bodyId, bottomNavigationBarId]);
+      return;
+    }
+
+    if (index == 0) {
+      ScrollController? scrollController = state.icons[state.selectedDrawerTabIndex].scrollController?.call();
+      handleTap(scrollController);
     }
   }
 }

@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
