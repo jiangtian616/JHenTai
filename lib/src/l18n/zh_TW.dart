@@ -446,9 +446,6 @@ class zh_TW {
       'seeAll': '查看全部',
       'newest': '最新',
 
-      /// jump page dialog
-      'jumpPageDialogHelpText': '搜索指定日期之前的畫廊(UTC時間)',
-
       /// tag namespace
       'language': '語言',
       'artist': '作者',

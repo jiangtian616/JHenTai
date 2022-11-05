@@ -264,7 +264,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       firstDate: DateTime(2007),
       lastDate: DateTime.now(),
       initialEntryMode: DatePickerEntryMode.calendarOnly,
-      helpText: 'jumpPageDialogHelpText'.tr,
     );
 
     if (dateTime != null) {

@@ -449,9 +449,6 @@ class en_US {
       'seeAll': 'All',
       'newest': 'Newest',
 
-      /// jump page dialog
-      'jumpPageDialogHelpText': 'Search gallerys before the selected date (UTC time)',
-
       /// tag namespace
       'language': 'Language',
       'artist': 'Artist',

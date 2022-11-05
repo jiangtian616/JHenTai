@@ -451,9 +451,6 @@ class pt_BR {
       'seeAll': 'Tudo',
       'newest': 'Mias novo',
 
-      /// jump page dialog
-      'jumpPageDialogHelpText': 'Search gallerys before the selected date (UTC time)',
-
       /// tag namespace
       'language': 'Idioma',
       'artist': 'Artista',
