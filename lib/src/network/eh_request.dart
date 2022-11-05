@@ -8,6 +8,7 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
+import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
@@ -181,6 +182,7 @@ class EHRequest {
     String? url,
     int? prevGid,
     int? nextGid,
+    DateTime? seek,
     SearchConfig? searchConfig,
     required EHHtmlParser<T> parser,
   }) async {
@@ -189,6 +191,7 @@ class EHRequest {
       queryParameters: {
         'prev': prevGid,
         'next': nextGid,
+        'seek': seek == null ? null : DateFormat('yyyy-MM-dd').format(seek),
         ...?searchConfig?.toQueryParameters(),
       },
     );

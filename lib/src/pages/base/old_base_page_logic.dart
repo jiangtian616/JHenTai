@@ -12,6 +12,7 @@ import '../../widget/jump_page_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'old_base_page_state.dart';
 
+/// load pages by page index, not by nextGid or prevGid, to deal with EHentai's old search rule
 abstract class OldBasePageLogic extends BasePageLogic {
   @override
   OldBasePageState get state;
@@ -175,8 +176,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     updateSafely();
   }
 
-  @override
-  Future<void> jumpPage(int pageIndex) async {
+  Future<void> jumpPageByIndex(int pageIndex) async {
     if (state.loadingState == LoadingState.loading) {
       return;
     }
@@ -231,7 +231,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     );
 
     if (pageIndex != null) {
-      jumpPage(pageIndex);
+      jumpPageByIndex(pageIndex);
     }
   }
 

@@ -15,7 +15,7 @@ class FavoritePage extends BasePage {
   }) : super(
           key: key,
           showMenuButton: showMenuButton,
-          showJumpButton: false,
+          showJumpButton: true,
           showFilterButton: true,
           showScroll2TopButton: true,
           showTitle: showTitle,

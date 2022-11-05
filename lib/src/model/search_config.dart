@@ -95,8 +95,6 @@ class SearchConfig {
     }
 
     if (searchType == SearchType.gallery) {
-      params['advsearch'] = 1;
-
       params['f_cats'] = _computeFCats();
 
       if (onlySearchExpungedGalleries) {

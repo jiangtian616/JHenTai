@@ -16,6 +16,9 @@ class BasePageState with Scroll2TopStateMixin {
   /// The last gallery's id in current page
   int? nextGid;
 
+  /// used for jump page
+  DateTime seek = DateTime.now();
+
   String? totalCount;
 
   LoadingState refreshState = LoadingState.idle;
@@ -32,6 +35,6 @@ class BasePageState with Scroll2TopStateMixin {
 
   @override
   String toString() {
-    return 'BasePageState{searchConfig: $searchConfig, gallerys: $gallerys, prevGid: $prevGid, nextGid: $nextGid, totalCount: $totalCount, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, pageStorageKey: $pageStorageKey}';
+    return 'BasePageState{searchConfig: $searchConfig, gallerys: $gallerys, prevGid: $prevGid, nextGid: $nextGid, seek: $seek, totalCount: $totalCount, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, pageStorageKey: $pageStorageKey}';
   }
 }

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
@@ -128,6 +128,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.gallerys.clear();
     state.prevGid = null;
     state.nextGid = null;
+    state.seek = DateTime.now();
     state.totalCount = null;
 
     jump2Top();
@@ -210,9 +211,66 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely();
   }
 
-  Future<void> jumpPage(int pageIndex) async {}
+  Future<void> jumpPage(DateTime dateTime) async {
+    if (state.loadingState == LoadingState.loading) {
+      return;
+    }
 
-  Future<void> handleTapJumpButton() async {}
+    Log.info('Jump page to $dateTime');
+
+    state.gallerys.clear();
+    state.loadingState = LoadingState.loading;
+    updateSafely();
+
+    state.scrollController.jumpTo(0);
+
+    GalleryPageInfo galleryPage;
+    try {
+      galleryPage = await getGalleryPage(nextGid: state.nextGid, prevGid: state.prevGid, seek: dateTime);
+    } on DioError catch (e) {
+      Log.error('getGallerysFailed'.tr, e.message);
+      snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      state.loadingState = LoadingState.error;
+      updateSafely([loadingStateId]);
+      return;
+    }
+
+    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+
+    state.gallerys = galleryPage.gallerys;
+    state.totalCount = galleryPage.totalCount;
+    state.prevGid = galleryPage.prevGid;
+    state.nextGid = galleryPage.nextGid;
+    state.galleryCollectionKey = UniqueKey();
+
+    state.seek = dateTime;
+
+    if (state.nextGid == null && state.prevGid == null && state.gallerys.isEmpty) {
+      state.loadingState = LoadingState.noData;
+    } else if (state.nextGid == null) {
+      state.loadingState = LoadingState.noMore;
+    } else {
+      state.loadingState = LoadingState.idle;
+    }
+
+    updateSafely();
+  }
+
+  Future<void> handleTapJumpButton() async {
+    DateTime? dateTime = await showDatePicker(
+      context: Get.context!,
+      initialDate: state.seek,
+      currentDate: DateTime.now(),
+      firstDate: DateTime(2007),
+      lastDate: DateTime.now(),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: 'jumpPageDialogHelpText'.tr,
+    );
+
+    if (dateTime != null) {
+      jumpPage(dateTime);
+    }
+  }
 
   Future<void> handleTapFilterButton([EHSearchConfigDialogType searchConfigDialogType = EHSearchConfigDialogType.filter]) async {
     Map<String, dynamic>? result = await Get.dialog(
@@ -248,12 +306,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   void handleSecondaryTapCard(Gallery gallery) async {}
 
-  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid}) {
+  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid, DateTime? seek}) {
     Log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
 
     return EHRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,
+      seek: seek,
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );

@@ -619,25 +619,15 @@ class EHSpiderParser {
   }
 
   static int? galleryPage2NextGid(Document document) {
-    Element? element = document.querySelector('.searchnav');
-    if (element == null) {
-      return null;
-    }
-
     /// https://exhentai.org/?next=2367467
-    String? href = element.children[3].querySelector('a')?.attributes['href'];
+    String? href = document.querySelector('#unext')?.attributes['href'];
 
     return int.tryParse(RegExp(r'next=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
   }
 
   static int? galleryPage2PrevGid(Document document) {
-    Element? element = document.querySelector('.searchnav');
-    if (element == null) {
-      return null;
-    }
-
     /// https://exhentai.org/?prev=2367467
-    String? href = element.children[2].querySelector('a')?.attributes['href'];
+    String? href = document.querySelector('#uprev')?.attributes['href'];
 
     return int.tryParse(RegExp(r'prev=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
   }

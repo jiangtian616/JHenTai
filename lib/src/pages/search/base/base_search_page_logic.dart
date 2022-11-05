@@ -156,15 +156,16 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid}) {
+  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid, DateTime? seek}) {
     if (state.redirectUrl == null) {
-      return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid);
+      return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek);
     }
 
     Log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
     return EHRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,
+      seek: seek,
       url: state.redirectUrl,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
