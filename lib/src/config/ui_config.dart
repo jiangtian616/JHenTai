@@ -168,6 +168,8 @@ class UIConfig {
   static const double searchDialogSuggestionTitleTextSize = 13;
   static const double searchDialogSuggestionSubTitleTextSize = 11;
 
+  static const int searchPageAnimationDuration = 250;
+
   /// Read page
   static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
 

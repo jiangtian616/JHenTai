@@ -66,6 +66,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
           ),
           onTap: () {
             if (state.bodyType == SearchPageBodyType.gallerys) {
+              state.hideSearchHistory = false;
               logic.toggleBodyType();
             }
           },
@@ -83,6 +84,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
     return SuggestionAndHistoryBody(
       currentKeyword: state.searchConfig.keyword?.split(' ').last ?? '',
       suggestions: state.suggestions,
+      hideSearchHistory: state.hideSearchHistory,
       history: logic.getSearchHistory(),
       scrollController: state.scrollController,
       onTapChip: (String keyword) {
@@ -98,28 +100,33 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
         logic.update([logic.searchFieldId]);
       },
       onDeleteHistory: logic.clearHistory,
+      toggleHideSearchHistory: logic.toggleHideSearchHistory,
     );
   }
 }
 
 class SuggestionAndHistoryBody extends StatelessWidget {
   final String currentKeyword;
+  final bool hideSearchHistory;
   final List<String> history;
   final List<TagData> suggestions;
   final ScrollController scrollController;
   final ValueChanged<String> onTapChip;
   final ValueChanged<TagData> onTapSuggestion;
   final VoidCallback onDeleteHistory;
+  final VoidCallback toggleHideSearchHistory;
 
   const SuggestionAndHistoryBody({
     Key? key,
     required this.currentKeyword,
+    required this.hideSearchHistory,
     required this.history,
     required this.suggestions,
     required this.scrollController,
     required this.onTapChip,
     required this.onTapSuggestion,
     required this.onDeleteHistory,
+    required this.toggleHideSearchHistory,
   }) : super(key: key);
 
   @override
@@ -130,30 +137,42 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         key: const PageStorageKey('suggestionBody'),
         controller: scrollController,
         slivers: [
-          if (history.isNotEmpty) buildHistorySearchTags(),
-          if (history.isNotEmpty) buildHistoryDeleteButton(),
+          if (history.isNotEmpty) buildSearchHistory(),
+          if (history.isNotEmpty) buildHistoryButton(),
           buildSuggestions(),
         ],
       ),
     );
   }
 
-  Widget buildHistorySearchTags() {
+  Widget buildSearchHistory() {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       sliver: SliverToBoxAdapter(
-        child: HistoryChips(history: history, onTapChip: onTapChip),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
+          child: hideSearchHistory ? const SizedBox() : HistoryChips(history: history, onTapChip: onTapChip),
+        ),
       ),
     );
   }
 
-  Widget buildHistoryDeleteButton() {
+  Widget buildHistoryButton() {
     return SliverToBoxAdapter(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ExcludeFocus(
-            child: IconButton(onPressed: onDeleteHistory, icon: const Icon(Icons.delete, size: 20, color: Colors.red)),
+            child: IconButton(
+              onPressed: hideSearchHistory ? toggleHideSearchHistory : onDeleteHistory,
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+                child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : const Icon(Icons.delete, size: 20, color: Colors.red),
+              ),
+            ),
           )
         ],
       ),

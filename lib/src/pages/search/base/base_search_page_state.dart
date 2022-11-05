@@ -14,6 +14,8 @@ mixin BaseSearchPageStateMixin on BasePageState {
 
   SearchPageBodyType bodyType = SearchPageBodyType.suggestionAndHistory;
 
+  bool hideSearchHistory = false;
+
   List<TagData> suggestions = <TagData>[];
 
   ScrollController suggestionBodyController = ScrollController();

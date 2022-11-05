@@ -112,7 +112,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
   /// search only if there's no timer active (300ms)
   Future<void> waitAndSearchTags() async {
-    if (state.searchConfig.keyword?.isEmpty ?? true) {
+    if (state.searchConfig.keyword?.trim().isEmpty ?? true) {
       return;
     }
 
@@ -122,7 +122,11 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
   Future<void> searchTags() async {
     Log.info('search for ${state.searchConfig.keyword}');
-    String keyword = state.searchConfig.keyword!.split(' ').last;
+
+    String keyword = state.searchConfig.keyword!.split(' ').last.trim();
+    if (keyword.isEmpty) {
+      return;
+    }
 
     /// chinese => database
     /// other => EH api
@@ -139,6 +143,11 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
       updateSafely([suggestionBodyId]);
     }
+
+    if (state.suggestions.isNotEmpty && !state.hideSearchHistory) {
+      state.hideSearchHistory = true;
+      updateSafely([suggestionBodyId]);
+    }
   }
 
   List<String> getSearchHistory() {
@@ -147,9 +156,9 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid}){
+  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid}) {
     if (state.redirectUrl == null) {
-      return super.getGalleryPage(prevGid: prevGid,nextGid: nextGid);
+      return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid);
     }
 
     Log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
@@ -204,5 +213,10 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
     update();
+  }
+
+  void toggleHideSearchHistory() {
+    state.hideSearchHistory = !state.hideSearchHistory;
+    update([suggestionBodyId]);
   }
 }
