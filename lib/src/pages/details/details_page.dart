@@ -509,19 +509,6 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                    child: Text(
-                      state.galleryDetails?.favoriteCount.toString() ?? '...',
-                      key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
-                    ),
-                  ).marginOnly(left: 2),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
                   Icon(Icons.archive, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
@@ -530,6 +517,19 @@ class _DetailsPageHeader extends StatelessWidget {
                       key: Key(state.galleryDetails?.size ?? '...'),
                     ),
                   ),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+                    child: Text(
+                      state.galleryDetails?.favoriteCount.toString() ?? '...',
+                      key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
+                    ),
+                  ).marginOnly(left: 2),
                 ],
               ).marginOnly(top: 2),
               Row(
@@ -643,7 +643,7 @@ class _ActionButtons extends StatelessWidget {
           builder: (_, BoxConstraints constraints) => ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 8),
+            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
             padding: EdgeInsets.zero,
             children: [
               _buildReadButton(),
@@ -651,6 +651,7 @@ class _ActionButtons extends StatelessWidget {
               _buildFavoriteButton(),
               _buildRatingButton(),
               _buildArchiveButton(),
+              _buildHHButton(),
               _buildSimilarButton(),
               _buildTorrentButton(),
               _buildStatisticButton(),
@@ -828,6 +829,23 @@ class _ActionButtons extends StatelessWidget {
           onLongPress: () => toRoute(Routes.download),
         );
       },
+    );
+  }
+
+  Widget _buildHHButton() {
+    bool disabled = state.galleryDetails == null;
+
+    return IconTextButton(
+      icon: Icon(Icons.cloud_download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      text: Text(
+        'H@H',
+        style: TextStyle(
+          fontSize: UIConfig.detailsPageActionTextSize,
+          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          height: 1,
+        ),
+      ),
+      onPressed: disabled ? null : logic.searchSimilar,
     );
   }
 
