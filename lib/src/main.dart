@@ -7,12 +7,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/sentry_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
+import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
@@ -123,6 +125,8 @@ Future<void> init() async {
   await PathSetting.init();
   await StorageService.init();
 
+  AppUpdateService.init();
+
   NetworkSetting.init();
   await AdvancedSetting.init();
   await SecuritySetting.init();
@@ -151,6 +155,7 @@ Future<void> init() async {
   QuickSearchService.init();
 
   HistoryService.init();
+  SearchHistoryService.init();
   GalleryDownloadService.init();
 }
 

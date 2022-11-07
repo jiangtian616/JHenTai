@@ -9,6 +9,8 @@ mixin BaseSearchPageStateMixin on BasePageState {
   /// used to init body
   bool hasSearched = false;
 
+  bool enableSearchHistoryTranslation = true;
+
   /// used for file search
   String? redirectUrl;
 

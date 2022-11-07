@@ -10,6 +10,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
+import '../../../model/search_history.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
@@ -85,7 +86,9 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
       currentKeyword: state.searchConfig.keyword?.split(' ').last ?? '',
       suggestions: state.suggestions,
       hideSearchHistory: state.hideSearchHistory,
-      history: logic.getSearchHistory(),
+      showTranslateButton: logic.tagTranslationService.isReady,
+      enableSearchHistoryTranslation: state.enableSearchHistoryTranslation,
+      histories: logic.searchHistoryService.histories,
       scrollController: state.scrollController,
       onTapChip: (String keyword) {
         state.searchConfig.keyword = keyword + ' ';
@@ -99,7 +102,8 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
         state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
         logic.update([logic.searchFieldId]);
       },
-      onDeleteHistory: logic.clearHistory,
+      toggleEnableSearchHistoryTranslation: logic.toggleEnableSearchHistoryTranslation,
+      onTapClearSearchHistory: logic.handleTapClearSearchHistoryButton,
       toggleHideSearchHistory: logic.toggleHideSearchHistory,
     );
   }
@@ -108,24 +112,30 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
 class SuggestionAndHistoryBody extends StatelessWidget {
   final String currentKeyword;
   final bool hideSearchHistory;
-  final List<String> history;
+  final bool showTranslateButton;
+  final bool enableSearchHistoryTranslation;
+  final List<SearchHistory> histories;
   final List<TagData> suggestions;
   final ScrollController scrollController;
   final ValueChanged<String> onTapChip;
   final ValueChanged<TagData> onTapSuggestion;
-  final VoidCallback onDeleteHistory;
+  final VoidCallback toggleEnableSearchHistoryTranslation;
+  final VoidCallback onTapClearSearchHistory;
   final VoidCallback toggleHideSearchHistory;
 
   const SuggestionAndHistoryBody({
     Key? key,
     required this.currentKeyword,
     required this.hideSearchHistory,
-    required this.history,
+    required this.showTranslateButton,
+    required this.enableSearchHistoryTranslation,
+    required this.histories,
     required this.suggestions,
     required this.scrollController,
     required this.onTapChip,
     required this.onTapSuggestion,
-    required this.onDeleteHistory,
+    required this.toggleEnableSearchHistoryTranslation,
+    required this.onTapClearSearchHistory,
     required this.toggleHideSearchHistory,
   }) : super(key: key);
 
@@ -137,8 +147,8 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         key: const PageStorageKey('suggestionBody'),
         controller: scrollController,
         slivers: [
-          if (history.isNotEmpty) buildSearchHistory(),
-          if (history.isNotEmpty) buildHistoryButton(),
+          if (histories.isNotEmpty) buildSearchHistory(),
+          if (histories.isNotEmpty) buildButtons(),
           buildSuggestions(),
         ],
       ),
@@ -154,20 +164,35 @@ class SuggestionAndHistoryBody extends StatelessWidget {
           switchInCurve: Curves.easeIn,
           switchOutCurve: Curves.easeOut,
           transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
-          child: hideSearchHistory ? const SizedBox() : HistoryChips(history: history, onTapChip: onTapChip),
+          child: hideSearchHistory
+              ? const SizedBox()
+              : HistoryChips(
+                  histories: histories,
+                  onTapChip: onTapChip,
+                  enableSearchHistoryTranslation: enableSearchHistoryTranslation,
+                ),
         ),
       ),
     );
   }
 
-  Widget buildHistoryButton() {
+  Widget buildButtons() {
     return SliverToBoxAdapter(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ExcludeFocus(
             child: IconButton(
-              onPressed: hideSearchHistory ? toggleHideSearchHistory : onDeleteHistory,
+              onPressed: toggleEnableSearchHistoryTranslation,
+              icon: AnimatedSwitcher(
+                duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+                child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: Get.theme.colorScheme.primary),
+              ),
+            ),
+          ),
+          ExcludeFocus(
+            child: IconButton(
+              onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
               icon: AnimatedSwitcher(
                 duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
                 child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : const Icon(Icons.delete, size: 20, color: Colors.red),
@@ -257,10 +282,16 @@ class SuggestionAndHistoryBody extends StatelessWidget {
 }
 
 class HistoryChips extends StatelessWidget {
-  final List<String> history;
+  final List<SearchHistory> histories;
   final ValueChanged<String> onTapChip;
+  final bool enableSearchHistoryTranslation;
 
-  const HistoryChips({Key? key, required this.history, required this.onTapChip}) : super(key: key);
+  const HistoryChips({
+    Key? key,
+    required this.histories,
+    required this.onTapChip,
+    required this.enableSearchHistoryTranslation,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -271,20 +302,52 @@ class HistoryChips extends StatelessWidget {
           child: Wrap(
             spacing: 8,
             runSpacing: 7,
-            children: history
+            children: histories
                 .map(
-                  (keyword) => MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () => onTapChip(keyword),
-                      child: EHTag(tag: GalleryTag(tagData: TagData(namespace: '', key: keyword))),
-                    ),
+                  (history) => HistoryChip(
+                    history: history,
+                    onTapChip: onTapChip,
+                    enableSearchHistoryTranslation: enableSearchHistoryTranslation,
                   ),
                 )
                 .toList(),
           ),
         ),
       ],
+    );
+  }
+}
+
+class HistoryChip extends StatelessWidget {
+  final SearchHistory history;
+  final ValueChanged<String> onTapChip;
+  final bool enableSearchHistoryTranslation;
+
+  const HistoryChip({
+    Key? key,
+    required this.history,
+    required this.onTapChip,
+    required this.enableSearchHistoryTranslation,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => onTapChip(history.rawKeyword),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+          child: EHTag(
+            tag: GalleryTag(
+              tagData: TagData(
+                namespace: '',
+                key: enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

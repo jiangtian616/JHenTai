@@ -7,9 +7,6 @@ import '../../base/base_page_logic.dart';
 
 class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixin {
   @override
-  int get tabIndex => 1;
-
-  @override
   bool get useSearchConfig => false;
 
   @override

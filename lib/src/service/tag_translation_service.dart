@@ -28,6 +28,8 @@ class TagTranslationService extends GetxService {
   RxnString timeStamp = RxnString(null);
   RxString downloadProgress = RxString('0 MB');
 
+  bool get isReady => StyleSetting.enableTagZHTranslation.isTrue && loadingState.value == LoadingState.success;
+
   static void init() {
     Get.put(TagTranslationService());
     Log.debug('init TagTranslationService success', false);

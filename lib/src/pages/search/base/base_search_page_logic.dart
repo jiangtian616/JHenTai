@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:throttling/throttling.dart';
@@ -20,6 +21,7 @@ import '../../../setting/style_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 import '../../../utils/snack_util.dart';
+import '../../../widget/eh_alert_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 mixin BaseSearchPageLogicMixin on BasePageLogic {
@@ -31,8 +33,15 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   final String searchFieldId = 'searchFieldId';
 
   final QuickSearchService quickSearchService = Get.find();
+  final SearchHistoryService searchHistoryService = Get.find();
 
   Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
+
+  @override
+  void onInit() {
+    super.onInit();
+    state.enableSearchHistoryTranslation = storageService.read('enableSearchHistoryTranslation') ?? state.enableSearchHistoryTranslation;
+  }
 
   @override
   void onClose() {
@@ -150,11 +159,6 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     }
   }
 
-  List<String> getSearchHistory() {
-    List history = storageService.read('searchHistory') ?? <String>[];
-    return history.cast<String>();
-  }
-
   @override
   Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid, DateTime? seek}) {
     if (state.redirectUrl == null) {
@@ -169,30 +173,6 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       url: state.redirectUrl,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
-  }
-
-  void writeHistory() {
-    /// do not record file search
-    if (state.redirectUrl != null) {
-      return;
-    }
-
-    String searchPhrase = state.searchConfig.computeKeywords();
-    if (searchPhrase.isEmpty) {
-      return;
-    }
-
-    List history = storageService.read('searchHistory') ?? <String>[];
-
-    history.remove(searchPhrase);
-    history.insert(0, searchPhrase);
-
-    storageService.write('searchHistory', history);
-  }
-
-  Future<void> clearHistory() async {
-    await storageService.remove('searchHistory');
-    update([suggestionBodyId]);
   }
 
   @override
@@ -211,6 +191,29 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     update([searchFieldId]);
   }
 
+  Future<void> handleTapClearSearchHistoryButton() async {
+    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+
+    if (result == true) {
+      await searchHistoryService.clearHistory();
+      update([suggestionBodyId]);
+    }
+  }
+
+  void writeHistory() {
+    /// do not record file search
+    if (state.redirectUrl != null) {
+      return;
+    }
+
+    String searchPhrase = state.searchConfig.computeKeywords();
+    if (searchPhrase.isEmpty) {
+      return;
+    }
+
+    searchHistoryService.writeHistory(searchPhrase);
+  }
+
   void toggleBodyType() {
     state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
     update();
@@ -218,6 +221,12 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
   void toggleHideSearchHistory() {
     state.hideSearchHistory = !state.hideSearchHistory;
+    update([suggestionBodyId]);
+  }
+
+  void toggleEnableSearchHistoryTranslation() {
+    state.enableSearchHistoryTranslation = !state.enableSearchHistoryTranslation;
+    storageService.write('enableSearchHistoryTranslation', state.enableSearchHistoryTranslation);
     update([suggestionBodyId]);
   }
 }

@@ -48,32 +48,32 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     if (desktopSearchPageLogic.state.loadingState == LoadState.loading) {
       return;
     }
+
     toRoute(Routes.desktopSearch);
     desktopSearchPageLogic.state.searchConfig = searchConfig.copyWith();
     desktopSearchPageLogic.handleClearAndRefresh();
+    return;
   }
 
-  if (StyleSetting.isInV2Layout) {
-    /// close drawer
-    backRoute(currentRoute: Routes.mobileV2Search);
+  /// close drawer
+  backRoute(currentRoute: Routes.mobileV2Search);
 
-    if (SearchPageMobileV2Logic.current == null) {
-      toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
-      return;
-    }
-
-    if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
-      return;
-    }
-
-    if (isRouteAtTop(Routes.mobileV2Search)) {
-      SearchPageMobileV2Logic.current!.state.searchConfig = searchConfig.copyWith();
-      SearchPageMobileV2Logic.current!.handleClearAndRefresh();
-      return;
-    }
-
+  if (SearchPageMobileV2Logic.current == null) {
     toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
+    return;
   }
+
+  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
+    return;
+  }
+
+  if (isRouteAtTop(Routes.mobileV2Search)) {
+    SearchPageMobileV2Logic.current!.state.searchConfig = searchConfig.copyWith();
+    SearchPageMobileV2Logic.current!.handleClearAndRefresh();
+    return;
+  }
+
+  toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
 }
 
 Future<void> handleAddQuickSearch() async {
