@@ -35,6 +35,7 @@ void newSearch(String? keyword) {
 
   if (isRouteAtTop(Routes.mobileV2Search)) {
     SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
+    SearchPageMobileV2Logic.current!.state.searchConfig.tags?.clear();
     SearchPageMobileV2Logic.current!.handleClearAndRefresh();
     return;
   }

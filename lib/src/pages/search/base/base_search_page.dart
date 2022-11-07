@@ -7,6 +7,7 @@ import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/search_util.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
@@ -90,10 +91,10 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
       enableSearchHistoryTranslation: state.enableSearchHistoryTranslation,
       histories: logic.searchHistoryService.histories,
       scrollController: state.scrollController,
-      onTapChip: (String keyword) {
-        state.searchConfig.keyword = keyword + ' ';
-        state.searchConfig.tags?.clear();
-        logic.handleClearAndRefresh();
+      onTapChip: (String keyword) => newSearch(keyword + ' '),
+      onLongPressChip: (String keyword) {
+        state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + keyword;
+        logic.update([logic.searchFieldId]);
       },
       onTapSuggestion: (TagData tagData) {
         List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
@@ -118,6 +119,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
   final List<TagData> suggestions;
   final ScrollController scrollController;
   final ValueChanged<String> onTapChip;
+  final ValueChanged<String> onLongPressChip;
   final ValueChanged<TagData> onTapSuggestion;
   final VoidCallback toggleEnableSearchHistoryTranslation;
   final VoidCallback onTapClearSearchHistory;
@@ -133,6 +135,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     required this.suggestions,
     required this.scrollController,
     required this.onTapChip,
+    required this.onLongPressChip,
     required this.onTapSuggestion,
     required this.toggleEnableSearchHistoryTranslation,
     required this.onTapClearSearchHistory,
@@ -169,6 +172,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
               : HistoryChips(
                   histories: histories,
                   onTapChip: onTapChip,
+                  onLongPressChip: onLongPressChip,
                   enableSearchHistoryTranslation: enableSearchHistoryTranslation,
                 ),
         ),
@@ -284,12 +288,14 @@ class SuggestionAndHistoryBody extends StatelessWidget {
 class HistoryChips extends StatelessWidget {
   final List<SearchHistory> histories;
   final ValueChanged<String> onTapChip;
+  final ValueChanged<String> onLongPressChip;
   final bool enableSearchHistoryTranslation;
 
   const HistoryChips({
     Key? key,
     required this.histories,
     required this.onTapChip,
+    required this.onLongPressChip,
     required this.enableSearchHistoryTranslation,
   }) : super(key: key);
 
@@ -307,6 +313,7 @@ class HistoryChips extends StatelessWidget {
                   (history) => HistoryChip(
                     history: history,
                     onTapChip: onTapChip,
+                    onLongPressChip: onLongPressChip,
                     enableSearchHistoryTranslation: enableSearchHistoryTranslation,
                   ),
                 )
@@ -321,12 +328,14 @@ class HistoryChips extends StatelessWidget {
 class HistoryChip extends StatelessWidget {
   final SearchHistory history;
   final ValueChanged<String> onTapChip;
+  final ValueChanged<String> onLongPressChip;
   final bool enableSearchHistoryTranslation;
 
   const HistoryChip({
     Key? key,
     required this.history,
     required this.onTapChip,
+    required this.onLongPressChip,
     required this.enableSearchHistoryTranslation,
   }) : super(key: key);
 
@@ -336,6 +345,7 @@ class HistoryChip extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () => onTapChip(history.rawKeyword),
+        onLongPress: () => onLongPressChip(history.rawKeyword),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
           child: EHTag(
