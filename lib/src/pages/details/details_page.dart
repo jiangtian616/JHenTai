@@ -845,7 +845,7 @@ class _ActionButtons extends StatelessWidget {
           height: 1,
         ),
       ),
-      onPressed: disabled ? null : logic.searchSimilar,
+      onPressed: disabled ? null : logic.handleTapHH,
     );
   }
 

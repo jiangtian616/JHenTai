@@ -45,6 +45,7 @@ import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/eh_download_dialog.dart';
+import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
 import '../layout/desktop/desktop_layout_page_logic.dart';
 import 'details_page_state.dart';
@@ -405,6 +406,35 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         ),
       );
     }
+  }
+
+  Future<void> handleTapHH() async {
+    if (!UserSetting.hasLoggedIn()) {
+      showLoginToast();
+      return;
+    }
+
+    String? resolution = await Get.dialog(EHDownloadHHDialog(archivePageUrl: state.galleryDetails!.archivePageUrl));
+    if (resolution == null) {
+      return;
+    }
+
+    Log.info('HH Download: ${state.gallery!.gid}, resolution: $resolution');
+
+    String result;
+    try {
+      result = await EHRequest.requestHHDownload(
+        url: state.galleryDetails!.archivePageUrl,
+        resolution: resolution,
+        parser: EHSpiderParser.downloadHHPage2Result,
+      );
+    } on DioError catch (e) {
+      Log.error('H@H download error', e.message);
+      snack('failed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      return;
+    }
+
+    toast(result, isShort: false);
   }
 
   void searchSimilar() {

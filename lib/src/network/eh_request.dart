@@ -644,6 +644,20 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
+  static Future<T> requestHHDownload<T>({
+    required String url,
+    required String resolution,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response response = await _dio.post(
+      url,
+      data: FormData.fromMap({'hathdl_xres': resolution}),
+    );
+
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
   static Future<T> request<T>({
     required String url,
     bool useCacheIfAvailable = true,

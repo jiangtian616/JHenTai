@@ -230,6 +230,13 @@ class UIConfig {
 
   static Color get archiveDialogCostTextColor => Get.theme.colorScheme.outline;
 
+  /// HH download dialog
+  static const double hhDialogBodyHeight = 220;
+  static const double hhDialogTextSize = 9;
+  static const double hhDialogTextButtonWidth = 60;
+
+  static Color get hhDialogCostTextColor => Get.theme.colorScheme.outline;
+
   /// Download original image dialog
   static Color get downloadOriginalImageDialogColor => Get.theme.colorScheme.surfaceVariant;
 

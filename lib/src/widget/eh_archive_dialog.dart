@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
+import 'package:jhentai/src/widget/eh_asset.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -63,20 +64,9 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGroupNameSelector(candidates: widget.candidates, currentGroup: 'default'.tr, listener: (g) => group = g),
-        if (archive.creditCount != null && archive.gpCount != null) _buildAssets().marginOnly(top: 20),
+        if (archive.creditCount != null && archive.gpCount != null)
+          EHAsset(gpCount: archive.creditCount!, creditCount: archive.gpCount!).marginOnly(top: 20),
         _buildButtons().marginOnly(top: 12),
-      ],
-    );
-  }
-
-  Widget _buildAssets() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const _CircleAssetChip(str: 'C'),
-        Text(archive.creditCount.toString(), style: const TextStyle(fontSize: 12)).marginOnly(left: 2),
-        const _CircleAssetChip(str: 'G').marginOnly(left: 16),
-        Text(archive.gpCount.toString(), style: const TextStyle(fontSize: 12)).marginOnly(left: 2),
       ],
     );
   }
@@ -110,9 +100,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
   }
 
   Future<void> _getArchiveInfo() async {
-    setState(() {
-      loadingState = LoadingState.loading;
-    });
+    setState(() => loadingState = LoadingState.loading);
 
     try {
       archive = await EHRequest.request(
@@ -132,17 +120,13 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     } on NotUploadException catch (_) {
       snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.TOP);
       if (mounted) {
-        setState(() {
-          loadingState = LoadingState.error;
-        });
+        setState(() => loadingState = LoadingState.error);
       }
       return;
     }
 
-    if(mounted) {
-      setState(() {
-        loadingState = LoadingState.success;
-      });
+    if (mounted) {
+      setState(() => loadingState = LoadingState.success);
     }
   }
 
@@ -193,31 +177,6 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       return (number * 1024 * 1024).toInt();
     }
     return (number * 1024 * 1024 * 1024).toInt();
-  }
-}
-
-class _CircleAssetChip extends StatelessWidget {
-  final String str;
-
-  const _CircleAssetChip({Key? key, required this.str}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: Get.theme.colorScheme.primary, shape: BoxShape.circle),
-      child: Center(
-        child: Text(
-          str,
-          style: TextStyle(
-            color: Get.theme.colorScheme.onPrimary,
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            height: 1,
-          ),
-        ),
-      ),
-    );
   }
 }
 

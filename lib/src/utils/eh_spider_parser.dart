@@ -16,6 +16,8 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
+import 'package:jhentai/src/model/gallery_hh_archive.dart';
+import 'package:jhentai/src/model/gallery_hh_info.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
@@ -673,6 +675,41 @@ class EHSpiderParser {
       resampleSize: document.querySelector('#db > div > div:nth-child(3) > p > strong')?.text,
       downloadResampleHint: document.querySelector('#db > div > div:nth-child(3) > form > div > input')!.attributes['value']!,
     );
+  }
+
+  static GalleryHHInfo archivePage2HHInfo(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    List<Element> tds = document.querySelectorAll('table > tbody > tr > td');
+
+    List<GalleryHHArchive> archives = tds
+        .map(
+          (td) => GalleryHHArchive(
+            resolutionDesc: td.querySelector('p:nth-child(1)')!.text,
+            resolution: RegExp(r"'(\w+)'").firstMatch(td.querySelector('p:nth-child(1) > a')?.attributes['onclick'] ?? '')?.group(1),
+            size: td.querySelector('p:nth-child(3)')!.text,
+            cost: td.querySelector('p:nth-child(5)')!.text,
+          ),
+        )
+        .toList();
+
+    return GalleryHHInfo(
+      gpCount: int.tryParse(
+        RegExp(r'([\d,]+) GP').firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')?.group(1)?.replaceAll(',', '') ?? '',
+      ),
+      creditCount: int.tryParse(
+        RegExp(r'([\d,]+) Credits').firstMatch(document.querySelector('#db > p:nth-child(4)')?.text ?? '')?.group(1)?.replaceAll(',', '') ?? '',
+      ),
+      archives: archives,
+    );
+  }
+
+  static String downloadHHPage2Result(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    return document.querySelector('#db > p')?.text ?? '';
   }
 
   static List<TagData> tagSuggestion2TagList(Response response) {

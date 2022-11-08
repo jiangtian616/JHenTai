@@ -55,15 +55,17 @@ class ReadPage extends StatelessWidget {
         handleArrowUp: logic.toPrev,
         handleArrowRight: logic.toRight,
         handleArrowLeft: logic.toLeft,
+        handleA: logic.toLeft,
+        handleD: logic.toRight,
         handleLCtrl: logic.toLeft,
         handleRCtrl: logic.toRight,
         handleEnd: backRoute,
         child: DefaultTextStyle(
           style: DefaultTextStyle.of(context).style.copyWith(
-            color: Colors.white,
-            fontSize: 12,
-            decoration: TextDecoration.none,
-          ),
+                color: Colors.white,
+                fontSize: 12,
+                decoration: TextDecoration.none,
+              ),
           child: Stack(
             children: [
               buildLayout(),
@@ -273,9 +275,9 @@ class ReadPage extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
-                  'PageDown、RCtrl、→、↓  :  ${'toNext'.tr}'
+                  'PageDown、RCtrl、→、↓ 、D :  ${'toNext'.tr}'
                   '\n'
-                  'PageUp、LCtrl、 ←、↑  :  ${'toPrev'.tr}'
+                  'PageUp、LCtrl、←、↑、A  :  ${'toPrev'.tr}'
                   '\n'
                   'Esc、End  :  ${'back'.tr}'
                   '\n'
@@ -361,7 +363,8 @@ class ReadPage extends StatelessWidget {
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => logic.jump2PageIndex(index),
-                            child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                            child:
+                                state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
                           ),
                         ),
                         GetBuilder<ReadPageLogic>(

@@ -12,6 +12,7 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
   final String tabBarId = 'tabBarId';
   final String bottomNavigationBarId = 'bottomNavigationBarId';
 
+  @override
   final MobileLayoutPageV2State state = MobileLayoutPageV2State();
 
   Worker? hideBottomBarLister;
@@ -64,7 +65,7 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
 
     if (index == 0) {
       ScrollController? scrollController = state.icons[state.selectedDrawerTabIndex].scrollController?.call();
-      handleTap(scrollController);
+      handleTap2Scroll2Top(scrollController);
     }
   }
 }

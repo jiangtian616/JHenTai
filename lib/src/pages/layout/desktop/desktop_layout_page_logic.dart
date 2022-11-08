@@ -46,6 +46,6 @@ class DesktopLayoutPageLogic extends GetxController with DoubleTapToRefreshLogic
     }
 
     ScrollController? scrollController = state.icons[index].scrollController?.call();
-    handleTap(scrollController);
+    handleTap2Scroll2Top(scrollController);
   }
 }

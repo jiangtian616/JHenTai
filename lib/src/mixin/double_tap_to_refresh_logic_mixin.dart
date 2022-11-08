@@ -7,7 +7,7 @@ import 'double_tap_to_refresh_state_mixin.dart';
 mixin DoubleTapToRefreshLogicMixin on GetxController {
   DoubleTapToRefreshStateMixin get state;
 
-  void handleTap(ScrollController? scrollController) {
+  void handleTap2Scroll2Top(ScrollController? scrollController) {
     if ((scrollController?.hasClients ?? false) == false) {
       return;
     }
