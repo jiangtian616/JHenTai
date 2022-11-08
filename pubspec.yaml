@@ -39,8 +39,8 @@ dependencies:
   executor: ^2.2.2
   retry: ^3.1.0
   path: ^1.8.0
-  drift: ^1.5.0
-  sqlite3_flutter_libs: ^0.5.0
+  drift: 1.7.1
+  sqlite3_flutter_libs: 0.5.8
   path_provider: ^2.0.9
   flutter_slidable: ^2.0.0
   flutter_widget_from_html: ^0.8.5
@@ -93,7 +93,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.0
   test: ^1.19.5
-  drift_dev: ^1.5.2
+  drift_dev: 1.7.0
   build_runner: ^2.1.8
   flutter_launcher_icons:
     git: https://github.com/fluttercommunity/flutter_launcher_icons
