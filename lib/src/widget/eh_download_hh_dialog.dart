@@ -50,7 +50,7 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
 
   Widget _buildBody() {
     return Column(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         if (hhInfo.creditCount != null && hhInfo.gpCount != null) EHAsset(gpCount: hhInfo.creditCount!, creditCount: hhInfo.gpCount!),
         Row(
