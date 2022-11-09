@@ -45,7 +45,7 @@ class DashboardPageLogic extends BasePageLogic {
       update([ranklistId]);
     }
 
-    Log.info('Get ranklist data', false);
+    Log.info('Get ranklist data');
 
     List<dynamic> gallerysAndPageInfo;
     try {
@@ -77,7 +77,7 @@ class DashboardPageLogic extends BasePageLogic {
     state.popularLoadingState = LoadingState.loading;
     update([popularListId]);
 
-    Log.info('Get popular list data', false);
+    Log.info('Get popular list data');
 
     GalleryPageInfo gallerysPage;
     try {

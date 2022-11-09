@@ -44,7 +44,7 @@ class SiteSetting {
       return;
     }
 
-    Log.info('refresh SiteSetting', false);
+    Log.info('refresh SiteSetting');
 
     Map<String, dynamic> settings = {};
     try {
@@ -63,7 +63,7 @@ class SiteSetting {
     thumbnailRows.value = settings['thumbnailRows'];
     thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
 
-    Log.info('refresh SiteSetting success', false);
+    Log.info('refresh SiteSetting success');
     _save();
 
     if (useSeparateProfile.isFalse) {
@@ -104,7 +104,7 @@ class SiteSetting {
     thumbnailRows.value = 4;
     thumbnailsCountPerPage.value = 40;
     Get.find<StorageService>().remove('siteSetting');
-    Log.info('clear SiteSetting success', false);
+    Log.info('clear SiteSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

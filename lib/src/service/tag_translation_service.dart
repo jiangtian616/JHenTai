@@ -88,7 +88,7 @@ class TagTranslationService extends GetxService {
     storageService.write('TagTranslationServiceTimestamp', timeStamp.value);
 
     loadingState.value = LoadingState.success;
-    Log.info('Update tagTranslation database success', false);
+    Log.info('Update tagTranslation database success');
 
     io.File(savePath).delete();
   }

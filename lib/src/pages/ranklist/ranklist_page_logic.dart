@@ -26,7 +26,7 @@ class RanklistPageLogic extends OldBasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('Get ranklist data, type:${state.ranklistType.name}, pageIndex:$pageIndex', false);
+    Log.info('Get ranklist data, type:${state.ranklistType.name}, pageIndex:$pageIndex');
 
     return await EHRequest.requestRanklistPage(
       ranklistType: state.ranklistType,

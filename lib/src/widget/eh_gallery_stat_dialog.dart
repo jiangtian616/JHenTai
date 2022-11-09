@@ -86,7 +86,7 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
       );
     } on DioError catch (e) {
       if (e.response?.statusCode == 404) {
-        Log.info('invisible2UserWithoutDonation'.tr, false);
+        Log.info('invisible2UserWithoutDonation'.tr);
         if (mounted) {
           setState(() => loadingState = LoadingState.noData);
         }

@@ -43,7 +43,7 @@ class EHSetting {
       return;
     }
 
-    Log.info('refresh EHSetting', false);
+    Log.info('refresh EHSetting');
     refreshState.value = LoadingState.loading;
     Map<String, int> map = {};
     try {
@@ -65,7 +65,7 @@ class EHSetting {
     resetCost.value = map['resetCost']!;
     refreshState.value = LoadingState.idle;
     _save();
-    Log.info('refresh EHSetting success', false);
+    Log.info('refresh EHSetting success');
   }
 
   static saveSite(String site) {
@@ -95,7 +95,7 @@ class EHSetting {
     site.value = 'EH';
     currentConsumption.value = -1;
     Get.find<StorageService>().remove('EHSetting');
-    Log.info('clear EHSetting success', false);
+    Log.info('clear EHSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

@@ -55,7 +55,7 @@ class QuickSearchService extends GetxController {
   }
 
   void reOrderQuickSearch(int oldIndex, int newIndex) {
-    Log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex', false);
+    Log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex');
 
     List<MapEntry<String, SearchConfig>> entries = quickSearchConfigs.entries.toList();
 

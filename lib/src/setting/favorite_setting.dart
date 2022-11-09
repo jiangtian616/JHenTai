@@ -52,7 +52,7 @@ class FavoriteSetting {
       return;
     }
 
-    Log.info('refresh FavoriteSetting', false);
+    Log.info('refresh FavoriteSetting');
     try {
       await retry(
         () async {
@@ -69,7 +69,7 @@ class FavoriteSetting {
       return;
     }
 
-    Log.info('refresh FavoriteSetting success', false);
+    Log.info('refresh FavoriteSetting success');
   }
 
   static void incrementFavByIndex(int? index) async {
@@ -105,7 +105,7 @@ class FavoriteSetting {
     ];
     favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     Get.find<StorageService>().remove('favoriteSetting');
-    Log.info('clear FavoriteSetting success', false);
+    Log.info('clear FavoriteSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

@@ -28,14 +28,14 @@ class ReLoginService extends GetxService {
 
     String? lastVersion = storageService.read<String>('lastVersion');
 
-    Log.info('last version:$lastVersion, current version:$currentVersion', false);
+    Log.info('last version:$lastVersion, current version:$currentVersion');
     if (lastVersion == currentVersion) {
       return;
     }
 
     storageService.write('lastVersion', currentVersion);
 
-    Log.info('Logout due to app update', false);
+    Log.info('Logout due to app update');
     await EHRequest.requestLogout();
   }
 }
