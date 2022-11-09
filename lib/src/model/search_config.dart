@@ -26,6 +26,8 @@ class SearchConfig {
   bool includeMisc = true;
 
   String? keyword;
+
+  /// i have to admit this field is an awful design
   List<TagData>? tags;
 
   bool onlySearchExpungedGalleries = false;

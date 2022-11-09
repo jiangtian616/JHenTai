@@ -136,7 +136,7 @@ abstract class BaseLayout extends StatelessWidget {
               Text(
                 readPageState.parseImageHrefsStates[index] == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
               ).marginOnly(top: 8),
-              Text(index.toString()).marginOnly(top: 4),
+              Text((index + 1).toString()).marginOnly(top: 4),
             ],
           ),
         ),
@@ -168,7 +168,7 @@ abstract class BaseLayout extends StatelessWidget {
               Text(
                 readPageState.parseImageUrlStates[index] == LoadingState.error ? readPageState.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
               ).marginOnly(top: 8),
-              Text(index.toString()).marginOnly(top: 4),
+              Text((index + 1).toString()).marginOnly(top: 4),
             ],
           ),
         ),
@@ -183,7 +183,7 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         CircularProgressIndicator(value: progress),
         Text('loading'.tr).marginOnly(top: 8),
-        Text(index.toString()).marginOnly(top: 4),
+        Text((index + 1).toString()).marginOnly(top: 4),
       ],
     );
   }
@@ -201,7 +201,7 @@ abstract class BaseLayout extends StatelessWidget {
           onPressed: state.reLoadImage,
           onLongPress: state.reLoadImage,
         ),
-        Text(index.toString()),
+        Text((index + 1).toString()),
       ],
     );
   }
@@ -220,7 +220,7 @@ abstract class BaseLayout extends StatelessWidget {
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
           Text(downloadStatus == DownloadStatus.downloading ? 'parsingPage'.tr : 'paused'.tr).marginOnly(top: 8),
-          Text(index.toString()).marginOnly(top: 4),
+          Text((index + 1).toString()).marginOnly(top: 4),
         ],
       ),
     );
@@ -239,7 +239,7 @@ abstract class BaseLayout extends StatelessWidget {
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
           Text(downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr).marginOnly(top: 8),
-          Text(index.toString()).marginOnly(top: 4),
+          Text((index + 1).toString()).marginOnly(top: 4),
         ],
       ),
     );
@@ -259,7 +259,7 @@ abstract class BaseLayout extends StatelessWidget {
           children: [
             CircularProgressIndicator(value: max(downloadedBytes / totalBytes, 0.01)),
             Text('downloading'.tr).marginOnly(top: 8),
-            Text(index.toString()),
+            Text((index + 1).toString()),
           ],
         );
       },
@@ -273,7 +273,7 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         const Icon(Icons.pause_circle_outline, color: Colors.white),
         Text('paused'.tr).marginOnly(top: 8),
-        Text(index.toString()),
+        Text((index + 1).toString()),
       ],
     );
   }
