@@ -475,7 +475,7 @@ class EHSpiderParser {
           tagData: tagData,
           watched: div.querySelector('div:nth-child(3) > label > input[checked=checked]') != null,
           hidden: div.querySelector('div:nth-child(5) > label > input[checked=checked]') != null,
-          color: aRGBString2Color(div.querySelector('div:nth-child(9) > input')?.attributes['value']),
+          backgroundColor: aRGBString2Color(div.querySelector('div:nth-child(9) > input')?.attributes['value']),
           weight: int.parse(div.querySelector('div:nth-child(11) > input')!.attributes['value']!),
         );
       },

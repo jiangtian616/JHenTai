@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:clipboard/clipboard.dart';
@@ -10,10 +11,12 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
@@ -36,6 +39,7 @@ import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
+import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
@@ -144,10 +148,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.gallery?.rating = newGallery.rating;
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
+
     historyService.record(state.gallery);
 
-    state.loadingState = LoadingState.success;
+    _addColor2WatchedTags(state.galleryDetails!.fullTags);
 
+    state.loadingState = LoadingState.success;
     updateSafely();
   }
 
@@ -622,6 +628,28 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
       useCacheIfAvailable: useCache,
     );
+  }
+
+  void _addColor2WatchedTags(LinkedHashMap<String, List<GalleryTag>> fullTags) {
+    for (List<GalleryTag> tags in fullTags.values) {
+      for (GalleryTag tag in tags) {
+        if (tag.color != null || tag.backgroundColor != null) {
+          continue;
+        }
+
+        TagSet? tagSet = MyTagsSetting.getTagSetByTagData(tag.tagData);
+        if (tagSet == null) {
+          continue;
+        }
+
+        tag.backgroundColor = tagSet.backgroundColor ?? const Color(0xFF3377FF);
+        tag.color = tagSet.backgroundColor == null
+            ? const Color(0xFFF1F1F1)
+            : ThemeData.estimateBrightnessForColor(tagSet.backgroundColor!) == Brightness.light
+                ? const Color.fromARGB(1, 9, 9, 9)
+                : const Color(0xFFF1F1F1);
+      }
+    }
   }
 
   void _removeCache() {

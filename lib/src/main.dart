@@ -18,6 +18,7 @@ import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
+import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/widget/app_state_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -139,7 +140,7 @@ Future<void> init() async {
 
   SiteSetting.init();
   FavoriteSetting.init();
-
+  MyTagsSetting.init();
   EHSetting.init();
 
   await EHCookieManager.init();
@@ -163,6 +164,7 @@ Future<void> onReady() async {
   FavoriteSetting.refresh();
   SiteSetting.refresh();
   EHSetting.refresh();
+  MyTagsSetting.refresh();
 
   ReadSetting.init();
 

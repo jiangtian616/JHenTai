@@ -6,7 +6,7 @@ class TagSet {
   TagData tagData;
   bool watched;
   bool hidden;
-  Color? color;
+  Color? backgroundColor;
   int weight;
 
   TagSet({
@@ -14,7 +14,7 @@ class TagSet {
     required this.tagData,
     required this.watched,
     required this.hidden,
-    this.color,
+    this.backgroundColor,
     required this.weight,
   });
 
@@ -23,7 +23,7 @@ class TagSet {
     TagData? tagData,
     bool? watched,
     bool? hidden,
-    Color? color,
+    Color? backgroundColor,
     int? weight,
   }) {
     return TagSet(
@@ -31,13 +31,13 @@ class TagSet {
       tagData: tagData ?? this.tagData.copyWith(),
       watched: watched ?? this.watched,
       hidden: hidden ?? this.hidden,
-      color: color ?? this.color,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
       weight: weight ?? this.weight,
     );
   }
 
   @override
   String toString() {
-    return 'TagSet{tagId: $tagId, tagData: $tagData, watched: $watched, hidden: $hidden, color: $color, weight: $weight}';
+    return 'TagSet{tagId: $tagId, tagData: $tagData, watched: $watched, hidden: $hidden, backgroundColor: $backgroundColor, weight: $weight}';
   }
 }

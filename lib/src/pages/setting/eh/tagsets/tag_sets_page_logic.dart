@@ -172,7 +172,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         apiuid: UserSetting.ipbMemberId.value!,
         apikey: state.apikey,
         tagId: tag.tagId,
-        tagColor: color2aRGBString(tag.color),
+        tagColor: color2aRGBString(tag.backgroundColor),
         tagWeight: tag.weight,
         watch: tag.watched,
         hidden: tag.hidden,
