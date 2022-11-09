@@ -29,7 +29,7 @@ class ReadSetting {
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
-  static Rx<ReadDirection> readDirection = ReadDirection.top2bottom.obs;
+  static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottom.obs : ReadDirection.left2right.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
   static RxDouble autoModeInterval = 2.0.obs;
@@ -37,7 +37,7 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
-  static RxBool enableContinuousHorizontalScroll = false.obs;
+  static RxBool enableContinuousHorizontalScroll = true.obs;
   static RxBool enableAutoScaleUp = false.obs;
   static RxBool enableDoubleColumn = false.obs;
 
