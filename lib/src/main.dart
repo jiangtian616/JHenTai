@@ -59,34 +59,36 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'JHenTai',
-      theme: ThemeConfig.light,
-      darkTheme: ThemeConfig.dark,
-      themeMode: StyleSetting.themeMode.value,
+    return SentryScreenshotWidget(
+      child: GetMaterialApp(
+        title: 'JHenTai',
+        theme: ThemeConfig.light,
+        darkTheme: ThemeConfig.dark,
+        themeMode: StyleSetting.themeMode.value,
 
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en', 'US'),
-        Locale('zh', 'CN'),
-        Locale('zh', 'TW'),
-      ],
-      locale: StyleSetting.locale.value,
-      fallbackLocale: const Locale('en', 'US'),
-      translations: LocaleText(),
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('en', 'US'),
+          Locale('zh', 'CN'),
+          Locale('zh', 'TW'),
+        ],
+        locale: StyleSetting.locale.value,
+        fallbackLocale: const Locale('en', 'US'),
+        translations: LocaleText(),
 
-      getPages: Routes.pages,
-      initialRoute: SecuritySetting.enableBiometricLock.isTrue ? Routes.lock : Routes.home,
-      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
-      builder: (context, child) => ScrollConfiguration(behavior: UIConfig.scrollBehaviourWithScrollBar, child: AppStateListener(child: child!)),
+        getPages: Routes.pages,
+        initialRoute: SecuritySetting.enableBiometricLock.isTrue ? Routes.lock : Routes.home,
+        navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
+        builder: (context, child) => ScrollConfiguration(behavior: UIConfig.scrollBehaviourWithScrollBar, child: AppStateListener(child: child!)),
 
-      /// enable swipe back feature
-      popGesture: true,
-      onReady: onReady,
+        /// enable swipe back feature
+        popGesture: true,
+        onReady: onReady,
+      ),
     );
   }
 }
@@ -119,7 +121,7 @@ Future<void> init() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
+  if (SentryConfig.dsn.isNotEmpty) {
     await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
   }
 

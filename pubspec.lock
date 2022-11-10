@@ -1157,14 +1157,14 @@ packages:
       name: sentry
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.9.1"
+    version: "6.15.1"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.9.1"
+    version: "6.15.1"
   share_plus:
     dependency: "direct main"
     description:
