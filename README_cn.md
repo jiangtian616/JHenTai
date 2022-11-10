@@ -2,6 +2,8 @@
 ![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
+[![issue](https://img.shields.io/badge/chat-issue-brightgreen)](https://github.com/jiangtian616/JHenTai/issues/new)
+[![mail](https://img.shields.io/badge/chat-mail-brightgreen)](mailto:jiangtian616@qq.com)
 
 # JHenTai
 
@@ -18,6 +20,7 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 [下载](https://github.com/jiangtian616/JHenTai/releases)
 
 安卓安装:  下载对应自己设置架构的apk文件，直接安装即可。
+
 - arm64-v8a：适用于较新的第8代ARM处理器安卓手机(常见选择)
 - armeabiv-v7a：适用于较老的第7代ARM处理器安卓手机
 - x86_64：少见
@@ -85,7 +88,7 @@ App翻译：
 <img width="250" src="screenshot/detail_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_zh.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_zh.jpg"/>
 
-### 设置 & 下载 
+### 设置 & 下载
 
 <img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" />
 
