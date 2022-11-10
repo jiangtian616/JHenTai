@@ -142,7 +142,7 @@ class _EHCommentTextBody extends StatelessWidget {
           ),
           children: element.nodes.map((tag) => buildTag(tag)).toList(),
         ),
-        maxLines: 5,
+        maxLines: inDetailPage ? 5 : null,
         overflow: TextOverflow.ellipsis,
       ),
     );
