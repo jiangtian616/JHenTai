@@ -290,8 +290,8 @@ class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
         return child;
       case Axis.vertical:
         return GetPlatform.isMobile
-            ? Scrollbar(controller: details.controller, child: child)
-            : CupertinoScrollbar(controller: details.controller, child: child);
+            ? CupertinoScrollbar(controller: details.controller, child: child)
+            : Scrollbar(controller: details.controller, child: child);
     }
   }
 }
