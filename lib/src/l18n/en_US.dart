@@ -140,6 +140,7 @@ class en_US {
 
       /// comment page
       'newComment': 'New Comment',
+      'updateComment': 'Update Comment',
       'commentTooShort': 'Comment is Too Short',
       'sendCommentFailed': 'Send Comment Failed',
       'voteCommentFailed': 'Vote Comment Failed',

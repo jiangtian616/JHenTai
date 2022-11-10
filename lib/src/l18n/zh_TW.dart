@@ -139,6 +139,7 @@ class zh_TW {
 
       /// comment page
       'newComment': '新評論',
+      'updateComment': '更新評論',
       'commentTooShort': '評論過短',
       'sendCommentFailed': '發送評論失敗',
       'voteCommentFailed': '投票評論失敗',

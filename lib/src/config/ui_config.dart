@@ -100,9 +100,8 @@ class UIConfig {
   static Color get detailsPageActionTextColor => Get.theme.colorScheme.secondary;
   static const double detailsPageActionTextSize = 11;
   static const double detailsPageCommentIndicatorHeight = 50;
-  static const double detailsPageCommentsHeight = 154;
+  static const double detailsPageCommentsRegionHeight = 160;
   static const double detailsPageCommentsWidth = 300;
-  static const double detailsPageCommentBodyHeight = 74;
 
   static Color get detailsPageThumbnailIndexColor => Get.theme.colorScheme.outline;
   static const double detailsPageThumbnailHeight = 200;
@@ -181,22 +180,29 @@ class UIConfig {
   static const double readPageBottomSpacingHeight = 36;
 
   /// Comment
-  static const double commentAuthorTextSize = 13;
+  static const double commentAuthorTextSizeInDetailPage = 12;
+  static const double commentAuthorTextSizeInCommentPage = 13;
 
   static Color get commentUnknownAuthorTextColor => Get.theme.colorScheme.outline;
 
   static Color get commentOtherAuthorTextColor => Get.theme.colorScheme.onSecondaryContainer;
 
   static Color get commentOwnAuthorTextColor => Get.theme.colorScheme.error;
-  static const double commentTimeTextSize = 10;
+  static const double commentTimeTextSizeInDetailPage = 9;
+  static const double commentTimeTextSizeInCommentPage = 10;
 
   static Color get commentTimeTextColor => Get.theme.colorScheme.outline;
-  static const double commentBodyTextSize = 12;
+  static const double commentBodyTextSizeInDetailPage = 12;
+  static const double commentBodyTextSizeInCommentPage = 12;
+
+  static Color get commentBodyTextColor => Get.theme.colorScheme.onBackground;
   static const double commentLastEditTimeTextSize = 9;
-  static const double commentButtonSize = 14;
+  static const double commentButtonSizeInDetailPage = 12;
+  static const double commentButtonSizeInCommentPage = 14;
 
   static Color get commentButtonColor => Get.theme.colorScheme.outline;
-  static const double commentScoreSize = 12;
+  static const double commentScoreSizeInDetailPage = 10;
+  static const double commentScoreSizeInCommentPage = 10;
 
   static Color get commentFooterTextColor => Get.theme.colorScheme.outline;
 

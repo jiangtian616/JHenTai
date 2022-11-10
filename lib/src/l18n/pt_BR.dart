@@ -141,6 +141,7 @@ class pt_BR {
 
       /// comment page
       'newComment': 'Novo comentário',
+      'updateComment': 'Update Comment',
       'commentTooShort': 'O comentário é muito curto',
       'sendCommentFailed': 'Falha ao enviar comentário',
       'voteCommentFailed': 'Falha ao votar cometário',

@@ -140,6 +140,7 @@ class zh_CN {
 
       /// comment page
       'newComment': '新评论',
+      'updateComment': '更新评论',
       'commentTooShort': '评论过短',
       'sendCommentFailed': '发送评论失败',
       'voteCommentFailed': '投票评论失败',

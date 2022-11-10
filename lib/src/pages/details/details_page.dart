@@ -322,7 +322,7 @@ class _DetailsPageHeader extends StatelessWidget {
 
   Widget _buildTitle() {
     return SelectableText(
-      state.gallery!.title.breakWord,
+      state.gallery!.title,
       minLines: 1,
       maxLines: 5,
       style: const TextStyle(
@@ -342,7 +342,7 @@ class _DetailsPageHeader extends StatelessWidget {
       state.gallery!.uploader!,
       style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor),
       onTap: logic.searchUploader,
-    ).marginOnly(top: 10);
+    ).marginOnly(top: 4);
   }
 
   Widget _buildInfoInTwoRows() {
@@ -972,26 +972,20 @@ class _Comments extends StatelessWidget {
     bool disableButtons = comments.any((comment) => comment.fromMe);
 
     return FadeIn(
-      child: SizedBox(
-        height: UIConfig.detailsPageCommentsHeight,
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.zero,
-          itemExtent: UIConfig.detailsPageCommentsWidth,
-          children: comments
-              .map(
-                (comment) => GestureDetector(
-                  onTap: () => toRoute(Routes.comment, arguments: comments),
-                  child: EHComment(
-                    comment: comment,
-                    maxLines: 4,
-                    bodyHeight: UIConfig.detailsPageCommentBodyHeight,
-                    disableButtons: disableButtons,
-                  ),
-                ).marginOnly(right: 10),
-              )
-              .toList(),
+      child: GestureDetector(
+        onTap: () => toRoute(Routes.comment, arguments: comments),
+        child: SizedBox(
+          height: UIConfig.detailsPageCommentsRegionHeight,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemExtent: UIConfig.detailsPageCommentsWidth,
+            children: comments
+                .map(
+                  (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
+                )
+                .toList(),
+          ),
         ),
       ),
     );

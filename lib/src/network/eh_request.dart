@@ -580,6 +580,23 @@ class EHRequest {
     return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
   }
 
+  static Future<T> requestUpdateComment<T>({
+    required String galleryUrl,
+    required String content,
+    required int commentId,
+    required EHHtmlParser<T> parser,
+  }) async {
+    Response<String> response = await _dio.post(
+      galleryUrl,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: {
+        'edit_comment': commentId,
+        'commenttext_edit': content,
+      },
+    );
+    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+  }
+
   static Future<T> requestLookup<T>({
     required String imagePath,
     required String imageName,

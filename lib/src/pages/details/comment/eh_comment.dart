@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:html/dom.dart' as dom;
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -14,6 +14,7 @@ import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -26,16 +27,16 @@ import '../../../utils/route_util.dart';
 
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
-  final int? maxLines;
-  final double? bodyHeight;
+  final bool inDetailPage;
   final bool disableButtons;
+  final Function(int commentId)? handleTapUpdateCommentButton;
 
   const EHComment({
     Key? key,
     required this.comment,
-    this.maxLines,
-    this.bodyHeight,
+    required this.inDetailPage,
     this.disableButtons = false,
+    this.handleTapUpdateCommentButton,
   }) : super(key: key);
 
   @override
@@ -47,40 +48,43 @@ class _EHCommentState extends State<EHComment> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.only(bottom: 2),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           _EHCommentHeader(
+            inDetailPage: widget.inDetailPage,
             username: widget.comment.username,
             commentTime: widget.comment.time,
             fromMe: widget.comment.fromMe,
           ),
-          _EHCommentTextBody(
-            html: widget.comment.content,
-            maxLines: widget.maxLines,
-            bodyHeight: widget.bodyHeight,
-          ).marginOnly(top: 2, bottom: 12),
-          if (widget.maxLines != null) const Expanded(child: SizedBox()),
+          Flexible(
+            child: _EHCommentTextBody(inDetailPage: widget.inDetailPage, element: widget.comment.content).paddingOnly(top: 4, bottom: 8),
+          ),
           _EHCommentFooter(
+            inDetailPage: widget.inDetailPage,
             commentId: widget.comment.id,
             score: widget.comment.score,
+            scoreDetails: widget.comment.scoreDetails,
             lastEditTime: widget.comment.lastEditTime,
             fromMe: widget.comment.fromMe,
             disableButtons: widget.disableButtons,
+            handleTapUpdateCommentButton: widget.handleTapUpdateCommentButton,
           ),
         ],
-      ).marginOnly(top: 12, bottom: 7, left: 12, right: 12),
+      ).paddingOnly(left: 8, right: 8, top: 8, bottom: 6),
     );
   }
 }
 
 class _EHCommentHeader extends StatelessWidget {
+  final bool inDetailPage;
   final String? username;
   final String commentTime;
   final bool fromMe;
 
   const _EHCommentHeader({
     Key? key,
+    required this.inDetailPage,
     required this.username,
     required this.commentTime,
     required this.fromMe,
@@ -94,7 +98,7 @@ class _EHCommentHeader extends StatelessWidget {
         Text(
           (username ?? 'unknownUser'.tr) + (fromMe ? ' (${'you'.tr})' : ''),
           style: TextStyle(
-            fontSize: UIConfig.commentAuthorTextSize,
+            fontSize: inDetailPage ? UIConfig.commentAuthorTextSizeInDetailPage : UIConfig.commentAuthorTextSizeInCommentPage,
             fontWeight: FontWeight.bold,
             color: username == null
                 ? UIConfig.commentUnknownAuthorTextColor
@@ -105,7 +109,10 @@ class _EHCommentHeader extends StatelessWidget {
         ),
         Text(
           commentTime,
-          style: TextStyle(fontSize: UIConfig.commentTimeTextSize, color: UIConfig.commentTimeTextColor),
+          style: TextStyle(
+            fontSize: inDetailPage ? UIConfig.commentTimeTextSizeInDetailPage : UIConfig.commentTimeTextSizeInCommentPage,
+            color: UIConfig.commentTimeTextColor,
+          ),
         ),
       ],
     );
@@ -113,48 +120,150 @@ class _EHCommentHeader extends StatelessWidget {
 }
 
 class _EHCommentTextBody extends StatelessWidget {
-  final String html;
-  final int? maxLines;
-  final double? bodyHeight;
+  final bool inDetailPage;
+  final dom.Element element;
 
   const _EHCommentTextBody({
     Key? key,
-    required this.html,
-    this.maxLines,
-    this.bodyHeight,
+    required this.inDetailPage,
+    required this.element,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: bodyHeight,
-      child: HtmlWidget(
-        maxLines == null ? _wrapUrlInATag(html) : _wrapUrlInATag(html).replaceAll('<br>', ' '),
-        textStyle: TextStyle(fontSize: UIConfig.commentBodyTextSize, color: Get.theme.colorScheme.onSecondaryContainer),
-        onTapUrl: maxLines == null ? _handleTapUrl : null,
-        isSelectable: maxLines == null,
-        customWidgetBuilder: (element) {
-          /// only show text in details page
-          if (maxLines != null &&
-              (element.localName != 'div' && element.localName != 'p' && element.localName != 'strong' && element.localName != 'a')) {
-            return const SizedBox();
-          }
-
-          return null;
-        },
-        factoryBuilder: () => _WidgetFactory(maxLines: maxLines),
+    Widget widget = Container(
+      alignment: Alignment.topLeft,
+      child: Text.rich(
+        TextSpan(
+          style: TextStyle(
+            fontSize: inDetailPage ? UIConfig.commentBodyTextSizeInDetailPage : UIConfig.commentBodyTextSizeInCommentPage,
+            color: UIConfig.commentBodyTextColor,
+            height: 1.5,
+          ),
+          children: element.nodes.map((tag) => buildTag(tag)).toList(),
+        ),
+        maxLines: 5,
+        overflow: TextOverflow.ellipsis,
       ),
+    );
+
+    if (!inDetailPage) {
+      widget = SelectionArea(child: widget);
+    }
+
+    return widget;
+  }
+
+  InlineSpan buildTag(dom.Node node) {
+    /// plain text
+    if (node is dom.Text) {
+      return _buildText(node.text);
+    }
+
+    /// unknown node
+    if (node is! dom.Element) {
+      Log.error('Can not parse html node: $node');
+      Log.upload(Exception('Can not parse html node'), extraInfos: {'node': node});
+      return TextSpan(text: node.text);
+    }
+
+    if (node.localName == 'br') {
+      return const TextSpan(text: '\n');
+    }
+
+    if (node.localName == 'img') {
+      /// not show image in detail page
+      if (inDetailPage) {
+        return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: Colors.blue));
+      }
+
+      return WidgetSpan(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: _computeImageMaxWidth(constraints, node)),
+              child: ExtendedImage.network(node.attributes['src']!),
+            );
+          },
+        ),
+      );
+    }
+
+    /// link
+    if (node.localName == 'a') {
+      return TextSpan(
+        text: node.text,
+        style: const TextStyle(color: Colors.blue),
+        recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(node.attributes['href'] ?? node.text)),
+        children: node.children.map((childTag) => buildTag(childTag)).toList(),
+      );
+    }
+
+    Log.error('Can not parse html tag: $node');
+    Log.upload(Exception('Can not parse html tag'), extraInfos: {'node': node});
+    return TextSpan(text: node.text);
+  }
+
+  InlineSpan _buildText(String text) {
+    RegExp reg = RegExp(r'(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@|~)+))');
+    Match? match = reg.firstMatch(text);
+
+    if (match == null) {
+      return TextSpan(text: text, style: TextStyle(color: UIConfig.commentBodyTextColor));
+    }
+
+    /// some url link doesn't be wrapped in <a href='xxx'></a>, we manually render it as a url.
+    if (match.start == 0) {
+      return TextSpan(
+        text: match.group(0),
+        style: const TextStyle(color: Colors.blue),
+        recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
+        children: [_buildText(text.substring(match.end))],
+      );
+    }
+
+    return TextSpan(
+      text: text.substring(0, match.start),
+      style: TextStyle(color: UIConfig.commentBodyTextColor),
+      children: [_buildText(text.substring(match.start))],
     );
   }
 
-  /// some url link doesn't be wrapped in <a href='xxx'></a>, to help html parse, we manually add it.
-  String _wrapUrlInATag(String html) {
-    RegExp reg = RegExp(r'(<[^a][^>]*>[^<>]*)(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@)+))');
-    reg.allMatches(html).map((e) => e.group(0)).toList();
-    return html.replaceAllMapped(reg, (Match match) {
-      String url = match.group(2)!;
-      return match.group(1)! + '''<a href = "$url">$url</a>''';
-    });
+  /// make sure align several images into one line
+  double _computeImageMaxWidth(BoxConstraints constraints, dom.Element element) {
+    /// wrapped in a <a>
+    if (element.parent?.localName == 'a') {
+      element = element.parent!;
+    }
+
+    int previousImageCount = 0;
+    int followingImageCount = 0;
+    dom.Element? previousElement = element.previousElementSibling;
+    dom.Element? nextElement = element.nextElementSibling;
+
+    while (previousElement != null && _containsImage(previousElement)) {
+      previousImageCount++;
+      previousElement = previousElement.previousElementSibling;
+    }
+    while (nextElement != null && _containsImage(nextElement)) {
+      followingImageCount++;
+      nextElement = nextElement.nextElementSibling;
+    }
+
+    /// tolerance = 1
+    return constraints.maxWidth / (1 + previousImageCount + followingImageCount) - 1;
+  }
+
+  bool _containsImage(dom.Element element) {
+    if (element.localName == 'img') {
+      return true;
+    }
+
+    if (element.children.isEmpty) {
+      return false;
+    }
+
+    return element.children.any((child) => _containsImage(child));
   }
 
   Future<bool> _handleTapUrl(String url) async {
@@ -167,80 +276,26 @@ class _EHCommentTextBody extends StatelessWidget {
   }
 }
 
-class _WidgetFactory extends WidgetFactory {
-  int? maxLines;
-
-  _WidgetFactory({this.maxLines});
-
-  /// set maxLines and overflow
-  @override
-  Widget? buildText(BuildMetadata meta, TextStyleHtml tsh, InlineSpan text) {
-    if (selectableText) {
-      return super.buildText(meta, tsh, text);
-    }
-
-    return RichText(
-      maxLines: maxLines ?? (meta.maxLines > 0 ? meta.maxLines : null),
-      overflow: TextOverflow.ellipsis,
-      text: text,
-      textAlign: tsh.textAlign ?? TextAlign.start,
-      textDirection: tsh.textDirection,
-    );
-  }
-
-  /// if we are at details page, cancel the GestureRecognizer
-  @override
-  InlineSpan? buildTextSpan({
-    List<InlineSpan>? children,
-    GestureRecognizer? recognizer,
-    TextStyle? style,
-    String? text,
-  }) {
-    if (text?.isEmpty == true) {
-      if (children?.isEmpty == true) {
-        return null;
-      }
-      if (children?.length == 1) {
-        return children!.first;
-      }
-    }
-
-    return TextSpan(
-      children: children,
-      mouseCursor: maxLines == null && recognizer != null ? SystemMouseCursors.click : null,
-      recognizer: maxLines == null ? recognizer : null,
-      style: style?.copyWith(overflow: TextOverflow.ellipsis),
-      text: text,
-    );
-  }
-
-  @override
-  Widget? buildImage(BuildMetadata meta, ImageMetadata data) {
-    final src = data.sources.isNotEmpty ? data.sources.first : null;
-    if (src == null) {
-      return null;
-    }
-
-    return Center(
-      child: ExtendedImage.network(src.url).marginSymmetric(vertical: 20),
-    );
-  }
-}
-
 class _EHCommentFooter extends StatefulWidget {
+  final bool inDetailPage;
   final int commentId;
   final String? lastEditTime;
   final String score;
+  final List<String> scoreDetails;
   final bool fromMe;
   final bool disableButtons;
+  final Function(int commentId)? handleTapUpdateCommentButton;
 
   const _EHCommentFooter({
     Key? key,
+    required this.inDetailPage,
     required this.commentId,
     this.lastEditTime,
     required this.score,
+    required this.scoreDetails,
     required this.fromMe,
     required this.disableButtons,
+    this.handleTapUpdateCommentButton,
   }) : super(key: key);
 
   @override
@@ -270,49 +325,68 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         /// can't vote for uploader or ourselves, and if we have commented, we can't vote for all of the comments
         if (score.isNotEmpty && !widget.fromMe && !widget.disableButtons) ...[
           LikeButton(
-            size: UIConfig.commentButtonSize,
-            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSize, color: UIConfig.commentButtonColor),
-            onTap: (isLiked) => _handleVotingComment(widget.commentId, true),
+            size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
+            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor),
+            onTap: (_) => _handleVotingComment(true),
           ).marginOnly(right: 18),
           LikeButton(
-            size: UIConfig.commentButtonSize,
-            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSize, color: UIConfig.commentButtonColor),
-            onTap: (isLiked) => _handleVotingComment(widget.commentId, false),
+            size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
+            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor),
+            onTap: (_) => _handleVotingComment(false),
           ),
         ],
 
-        /// fix width to align buttons
-        ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 32),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: score.isEmpty
-                ? Text('uploader'.tr, style: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor))
-                : AnimatedFlipCounter(
-                    prefix: score.substring(0, 1),
-                    value: int.parse(score.substring(1)),
-                    duration: const Duration(milliseconds: 700),
-                    textStyle: TextStyle(fontSize: UIConfig.commentScoreSize, color: UIConfig.commentFooterTextColor),
-                  ),
+        if (!widget.inDetailPage && widget.fromMe)
+          GestureDetector(
+            onTap: () => widget.handleTapUpdateCommentButton?.call(widget.commentId),
+            child: const Icon(Icons.edit_note, size: UIConfig.commentButtonSizeInCommentPage),
+          ),
+
+        GestureDetector(
+          onTap: () => score.isEmpty ? null : Get.dialog(EHCommentScoreDetailsDialog(scoreDetails: widget.scoreDetails)),
+
+          /// fix width to align buttons
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 36),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: score.isEmpty
+                  ? Text(
+                      'uploader'.tr,
+                      style: TextStyle(
+                        fontSize: widget.inDetailPage ? UIConfig.commentScoreSizeInDetailPage : UIConfig.commentScoreSizeInCommentPage,
+                        color: UIConfig.commentFooterTextColor,
+                      ),
+                    )
+                  : AnimatedFlipCounter(
+                      prefix: score.substring(0, 1),
+                      value: int.parse(score.substring(1)),
+                      duration: const Duration(milliseconds: 700),
+                      textStyle: TextStyle(
+                        fontSize: widget.inDetailPage ? UIConfig.commentScoreSizeInDetailPage : UIConfig.commentScoreSizeInCommentPage,
+                        color: UIConfig.commentFooterTextColor,
+                      ),
+                    ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Future<bool?> _handleVotingComment(int commentId, bool isVotingUp) async {
+  Future<bool?> _handleVotingComment(bool isVotingUp) async {
     if (!UserSetting.hasLoggedIn()) {
       showLoginToast();
       return null;
     }
 
-    _doVoteComment(commentId, isVotingUp);
+    _doVoteComment(isVotingUp);
 
     return true;
   }
 
-  Future<void> _doVoteComment(int commentId, bool isVotingUp) async {
-    Log.info('Voting comment: $commentId, isVotingUp: $isVotingUp');
+  Future<void> _doVoteComment(bool isVotingUp) async {
+    Log.info('Voting comment: ${widget.commentId}, isVotingUp: $isVotingUp');
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     int newScore;
@@ -323,7 +397,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         detailsPageState.gallery!.token,
         UserSetting.ipbMemberId.value!,
         detailsPageState.apikey,
-        commentId,
+        widget.commentId,
         isVotingUp,
         parser: EHSpiderParser.votingCommentResponse2Score,
       );
@@ -334,9 +408,8 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
     } on CheckException catch (_) {
       /// expired apikey
       await DetailsPageLogic.current!.handleRefresh();
-      return _doVoteComment(commentId, isVotingUp);
+      return _doVoteComment(isVotingUp);
     }
-
 
     setStateIfMounted(() {
       score = newScore >= 0 ? '+' + newScore.toString() : newScore.toString();
