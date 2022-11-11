@@ -40,7 +40,7 @@ class MyTagsSetting {
       return;
     }
 
-    tagSets = map['tagSets'];
+    tagSets = map['tagSets'] ?? tagSets;
 
     Log.info('refresh MyTagsSetting success, length: ${tagSets.length}');
   }

@@ -94,11 +94,28 @@ class MyApp extends StatelessWidget {
 }
 
 Future<void> init() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarDividerColor: Colors.transparent,
     statusBarColor: Colors.transparent,
   ));
+
+  if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
+    await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
+  }
+
+  ErrorCallback? defaultOnError = PlatformDispatcher.instance.onError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (error is NotUploadException) {
+      return true;
+    }
+
+    Log.error('Global Error', error, stack);
+    defaultOnError?.call(error, stack);
+    return false;
+  };
 
   FlutterError.onError = (FlutterErrorDetails details) {
     if (details.exception is NotUploadException) {
@@ -108,22 +125,6 @@ Future<void> init() async {
     Log.error(details.exception, null, details.stack);
     Log.upload(details.exception, stackTrace: details.stack);
   };
-
-  PlatformDispatcher.instance.onError = (error, stack) {
-    if (error is NotUploadException) {
-      return true;
-    }
-
-    Log.error('Global Error', error, stack);
-    Log.upload(error, stackTrace: stack);
-    return false;
-  };
-
-  WidgetsFlutterBinding.ensureInitialized();
-
-  if (SentryConfig.dsn.isNotEmpty) {
-    await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
-  }
 
   await PathSetting.init();
   await StorageService.init();
