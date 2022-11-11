@@ -30,11 +30,13 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
 
   /// selectedTabIndex in [shouldRender] icons
   int get selectedTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
-  int? hoveredTabIndex;
+  int? hoveringTabIndex;
 
   final FocusScopeNode leftTabBarFocusScopeNode = FocusScopeNode();
   final FocusScopeNode leftColumnFocusScopeNode = FocusScopeNode();
   final FocusScopeNode rightColumnFocusScopeNode = FocusScopeNode();
+
+  final ScrollController leftTabBarScrollController = ScrollController();
 
   DesktopLayoutPageState() {
     icons = [

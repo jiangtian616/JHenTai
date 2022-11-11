@@ -1,5 +1,3 @@
-
-import 'package:animate_do/animate_do.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,12 +24,13 @@ class DesktopLayoutPage extends StatelessWidget {
     return Row(
       children: [
         _leftTabBar(context),
+        VerticalDivider(width: 1, color: Get.theme.colorScheme.onBackground),
         Expanded(
           child: ResizableWidget(
             separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
             separatorSize: GetPlatform.isWindows ? 7.5 : 1.5,
             separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) =>
-            GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
+                GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
             percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
             onResized: logic.windowService.handleResized,
             isDisabledSmartHide: true,
@@ -49,75 +48,79 @@ class DesktopLayoutPage extends StatelessWidget {
     return Material(
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.background,
-          border: Border(right: BorderSide(color: Get.theme.colorScheme.onBackground, width: 0.3)),
-        ),
+        color: Theme.of(context).colorScheme.background,
         child: FocusScope(
           autofocus: true,
           node: state.leftTabBarFocusScopeNode,
           child: GetBuilder<DesktopLayoutPageLogic>(
             id: logic.tabBarId,
-            builder: (_) => ListView.builder(
-              itemCount: state.icons.length,
-              itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-              itemBuilder: (_, int index) => MouseRegion(
-                onEnter: (_) {
-                  state.hoveredTabIndex = index;
-                  logic.update([logic.tabBarId]);
-                },
-                onExit: (_) {
-                  state.hoveredTabIndex = null;
-                  logic.update([logic.tabBarId]);
-                },
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: FocusWidget(
-                        enableFocus: state.icons[index].routeName != Routes.setting,
-                        focusedDecoration: const BoxDecoration(color: Colors.grey),
-                        handleTapEnter: () => logic.handleTapTabBarButton(index),
-                        handleTapArrowRight: () {
-                          if (state.selectedTabIndex != index) {
-                            logic.handleTapTabBarButton(index);
-                          } else {
-                            state.leftColumnFocusScopeNode.requestFocus();
-                          }
-                        },
-                        child: ExcludeFocus(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: state.selectedTabIndex == index
-                                    ? Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground))
-                                    : null,
-                              ),
-                              child: IconButton(
-                                onPressed: () => logic.handleTapTabBarButton(index),
-                                icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: UIConfig.desktopLeftTabBarTextHeight,
-                      child: state.hoveredTabIndex != index
-                          ? null
-                          : FadeIn(
-                              child: Text(state.icons[index].name.tr, style: const TextStyle(fontSize: 12)),
-                              duration: const Duration(milliseconds: 200),
-                            ),
-                    ),
-                  ],
-                ),
+            builder: (_) => ScrollConfiguration(
+              behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+              child: ListView.builder(
+                controller: state.leftTabBarScrollController,
+                itemCount: state.icons.length,
+                itemExtent: UIConfig.desktopLeftTabBarItemHeight,
+                itemBuilder: (_, int index) => _tabBarIcon(index),
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _tabBarIcon(int index) {
+    return MouseRegion(
+      onEnter: (_) => logic.updateHoveringTabIndex(index),
+      onExit: (_) => logic.updateHoveringTabIndex(null),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: Center(
+              child: FocusWidget(
+                enableFocus: state.icons[index].routeName != Routes.setting,
+                focusedDecoration: const BoxDecoration(color: Colors.grey),
+                handleTapEnter: () => logic.handleTapTabBarButton(index),
+                handleTapArrowRight: () {
+                  if (state.selectedTabIndex != index) {
+                    logic.handleTapTabBarButton(index);
+                  } else {
+                    state.leftColumnFocusScopeNode.requestFocus();
+                  }
+                },
+                child: ExcludeFocus(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)) : null,
+                    ),
+                    child: IconButton(
+                      onPressed: () => logic.handleTapTabBarButton(index),
+                      icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            height: UIConfig.desktopLeftTabBarTextHeight,
+            child: Center(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                child: state.hoveringTabIndex != index
+                    ? null
+                    : Text(
+                        state.icons[index].name.tr,
+                        style: const TextStyle(fontSize: 12),
+                        maxLines: 2,
+                        overflow: TextOverflow.visible,
+                      ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

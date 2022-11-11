@@ -29,6 +29,11 @@ class DesktopLayoutPageLogic extends GetxController with DoubleTapToRefreshLogic
     super.onClose();
   }
 
+  void updateHoveringTabIndex(int? index) {
+    state.hoveringTabIndex = index;
+    update([tabBarId]);
+  }
+
   /// tap another bar -> change index
   /// at gallery bar and tap gallery bar again -> scroll to top
   /// at gallery bar and tap gallery bar twice -> scroll to top and refresh
