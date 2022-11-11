@@ -431,8 +431,8 @@ class EHSpiderParser {
 
     Element thumbnailSetting = items[19];
     map['isLargeThumbnail'] =
-        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')!.parent!.text == ' Large' ? true : false;
-    map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')!.parent!.text);
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
     return map;
   }
 

@@ -30,7 +30,7 @@ class UserSetting {
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
-    _save();
+    save();
   }
 
   static Future<void> saveUserNameAndAvatar({
@@ -40,7 +40,7 @@ class UserSetting {
     Log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl');
     UserSetting.userName.value = userName;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
-    _save();
+    save();
   }
 
   static bool hasLoggedIn() {
@@ -55,7 +55,7 @@ class UserSetting {
     avatarImgUrl.value = null;
   }
 
-  static Future<void> _save() async {
+  static Future<void> save() async {
     await Get.find<StorageService>().write('userSetting', _toMap());
   }
 

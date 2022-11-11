@@ -94,7 +94,10 @@ class LoginPageLogic extends GetxController {
     EHRequest.requestForum(
       userInfoOrErrorMsg['ipbMemberId'],
       EHSpiderParser.forumPage2UserInfo,
-    ).then((userInfo) => UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl']);
+    ).then((userInfo) {
+      UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl'];
+      UserSetting.save();
+    });
 
     state.loginState = LoadingState.success;
     update([loadingStateId]);
