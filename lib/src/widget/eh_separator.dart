@@ -18,8 +18,8 @@ class _EHSeparatorState extends State<EHSeparator> {
   @override
   void initState() {
     super.initState();
-    dividerWidth = widget.info.isHorizontalSeparator ? double.infinity : widget.info.size / 5;
-    dividerHeight = widget.info.isHorizontalSeparator ? widget.info.size / 5 : double.infinity;
+    dividerWidth = widget.info.isHorizontalSeparator ? double.infinity : 1;
+    dividerHeight = widget.info.isHorizontalSeparator ? 1 : double.infinity;
   }
 
   @override
@@ -44,11 +44,7 @@ class _EHSeparatorState extends State<EHSeparator> {
           width: widget.info.isHorizontalSeparator ? double.infinity : widget.info.size,
           height: widget.info.isHorizontalSeparator ? widget.info.size : double.infinity,
           child: Center(
-            child: Container(
-              height: dividerHeight,
-              width: dividerWidth,
-              color: widget.info.color,
-            ),
+            child: Container(height: dividerHeight, width: dividerWidth, color: widget.info.color),
           ),
         ),
       ),

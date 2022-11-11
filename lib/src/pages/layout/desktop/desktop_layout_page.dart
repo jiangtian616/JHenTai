@@ -3,17 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
-import 'package:jhentai/src/widget/eh_separator.dart';
-import 'package:resizable_widget/resizable_widget.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/ui_config.dart';
+import '../../../mixin/double_column_widget_mixin.dart';
 import '../../../routes/routes.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
-class DesktopLayoutPage extends StatelessWidget {
+class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
   final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic(), permanent: true);
   final DesktopLayoutPageState state = Get.find<DesktopLayoutPageLogic>().state;
 
@@ -25,21 +24,7 @@ class DesktopLayoutPage extends StatelessWidget {
       children: [
         _leftTabBar(context),
         VerticalDivider(width: 1, color: Get.theme.colorScheme.onBackground),
-        Expanded(
-          child: ResizableWidget(
-            separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-            separatorSize: GetPlatform.isWindows ? 7.5 : 1.5,
-            separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) =>
-                GetPlatform.isWindows ? EHSeparator(info: info, controller: controller) : DefaultSeparator(info: info, controller: controller),
-            percentages: [state.leftColumnWidthRatio, 1 - state.leftColumnWidthRatio],
-            onResized: logic.windowService.handleResized,
-            isDisabledSmartHide: true,
-            children: [
-              _leftColumn(),
-              _rightColumn(),
-            ],
-          ),
-        ),
+        Expanded(child: buildDoubleColumnWidget(_leftColumn(), _rightColumn())),
       ],
     );
   }

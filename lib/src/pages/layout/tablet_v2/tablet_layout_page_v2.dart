@@ -1,49 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
-import 'package:resizable_widget/resizable_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import '../../../mixin/double_column_widget_mixin.dart';
 import '../../../routes/routes.dart';
-import '../../../service/windows_service.dart';
 import '../../blank_page.dart';
 import '../../home_page.dart';
 
-class TabletLayoutPageV2 extends StatefulWidget {
-  const TabletLayoutPageV2({Key? key}) : super(key: key);
-
-  @override
-  State<TabletLayoutPageV2> createState() => _TabletLayoutPageV2State();
-}
-
-class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
-  final WindowService windowService = Get.find<WindowService>();
-
-  double leftColumnWidthRatio = 0.5;
-
-  @override
-  void initState() {
-    super.initState();
-    leftColumnWidthRatio = windowService.leftColumnWidthRatio;
-  }
+class TabletLayoutPageV2 extends StatelessWidget with DoubleColumnWidgetMixin {
+  TabletLayoutPageV2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ResizableWidget(
-      separatorColor: Theme.of(context).colorScheme.onBackground.withOpacity(0.5),
-      separatorSize: 1.5,
-      percentages: [leftColumnWidthRatio, 1 - leftColumnWidthRatio],
-      onResized: windowService.handleResized,
-      isDisabledSmartHide: true,
-      children: [
-        _leftColumn(),
-        DecoratedBox(
-          position: DecorationPosition.foreground,
-          decoration: const BoxDecoration(border: Border(left: BorderSide(color: Colors.black, width: 0.3))),
-          child: _rightColumn(),
-        ),
-      ],
-    );
+    return buildDoubleColumnWidget(_leftColumn(), _rightColumn());
   }
 
   Widget _leftColumn() {

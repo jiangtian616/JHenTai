@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import '../../../mixin/double_tap_to_refresh_logic_mixin.dart';
-import '../../../service/windows_service.dart';
 import '../../home_page.dart';
 import 'desktop_layout_page_state.dart';
 
@@ -13,20 +12,12 @@ class DesktopLayoutPageLogic extends GetxController with DoubleTapToRefreshLogic
   @override
   DesktopLayoutPageState state = DesktopLayoutPageState();
 
-  final WindowService windowService = Get.find<WindowService>();
-
-  @override
-  void onInit() {
-    super.onInit();
-    state.leftColumnWidthRatio = windowService.leftColumnWidthRatio;
-  }
-
   @override
   void onClose() {
+    super.onClose();
     state.leftTabBarFocusScopeNode.dispose();
     state.leftColumnFocusScopeNode.dispose();
     state.rightColumnFocusScopeNode.dispose();
-    super.onClose();
   }
 
   void updateHoveringTabIndex(int? index) {

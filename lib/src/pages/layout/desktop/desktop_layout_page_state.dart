@@ -24,8 +24,6 @@ import '../../watched/watched_page_logic.dart';
 class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
   late final List<TabBarIcon> icons;
 
-  double leftColumnWidthRatio = 1 - 0.618;
-
   int selectedTabIndex = 0;
 
   /// selectedTabIndex in [shouldRender] icons

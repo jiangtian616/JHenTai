@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
 
               if (StyleSetting.layout.value == LayoutMode.tabletV2 || StyleSetting.layout.value == LayoutMode.tablet) {
                 StyleSetting.actualLayout = LayoutMode.tabletV2;
-                return const TabletLayoutPageV2();
+                return TabletLayoutPageV2();
               }
 
               StyleSetting.actualLayout = LayoutMode.desktop;
