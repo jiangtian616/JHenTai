@@ -16,6 +16,7 @@ enum ListMode {
   waterfallFlowWithImageOnly,
   waterfallFlowWithImageAndInfo,
   flat,
+  flatWithoutTags,
 }
 
 class StyleSetting {

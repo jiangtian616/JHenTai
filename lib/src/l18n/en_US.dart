@@ -231,6 +231,7 @@ class en_US {
       'followSystem': 'Follow System',
       'listStyle': 'Gallery List Style',
       'flat': 'Flat',
+      'flatWithoutTags': 'Flat(Without Tags)',
       'listWithoutTags': 'Card(Without Tags)',
       'listWithTags': 'Card',
       'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',

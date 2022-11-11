@@ -96,7 +96,9 @@ class GalleryCard extends StatelessWidget {
         child: SizedBox(
           height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
           child: Obx(() {
-            if (StyleSetting.listMode.value == ListMode.flat) return _FlatGalleryCard(gallery: gallery, withTags: withTags);
+            if (StyleSetting.listMode.value == ListMode.flat || StyleSetting.listMode.value == ListMode.flatWithoutTags) {
+              return _FlatGalleryCard(gallery: gallery, withTags: withTags);
+            }
             return _RoundGalleryCard(gallery: gallery, withTags: withTags);
           }),
         ),

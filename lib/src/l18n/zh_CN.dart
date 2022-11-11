@@ -230,6 +230,7 @@ class zh_CN {
       'followSystem': '跟随系统',
       'listStyle': '画廊列表样式',
       'flat': '平坦',
+      'flatWithoutTags': '平坦 - 无标签',
       'listWithoutTags': '卡片 - 无标签',
       'listWithTags': '卡片',
       'waterfallFlowWithImageOnly': '瀑布流(仅图片)',

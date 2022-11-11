@@ -230,6 +230,7 @@ class zh_TW {
       'followSystem': '跟隨系統',
       'listStyle': '畫廊列表樣式',
       'flat': '平坦',
+      'flatWithoutTags': '平坦 - 無標籤',
       'listWithoutTags': '卡片 - 無標籤',
       'listWithTags': '卡片',
       'waterfallFlowWithImageOnly': '瀑布流(僅圖片)',

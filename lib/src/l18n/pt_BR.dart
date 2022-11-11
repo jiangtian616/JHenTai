@@ -232,6 +232,7 @@ class pt_BR {
       'followSystem': 'Seguir o sistema',
       'listStyle': 'Estilo da lista da galeria',
       'flat': 'Reto',
+      'flatWithoutTags': 'Reto(Sem tags)',
       'listWithoutTags': 'Cartão(Sem tags)',
       'listWithTags': 'Cartão',
       'waterfallFlowWithImageOnly': 'Cachoeira(Apenas imagens)',

@@ -36,7 +36,7 @@ Widget EHGalleryCollection({
             SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
           }
           return Container(
-            decoration: StyleSetting.listMode.value == ListMode.flat
+            decoration: StyleSetting.listMode.value == ListMode.flat || StyleSetting.listMode.value == ListMode.flatWithoutTags
                 ? BoxDecoration(
                     color: Theme.of(context).colorScheme.background,
                     border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
@@ -120,6 +120,7 @@ Widget EHGalleryCollection({
 
   return Obx(() {
     if (StyleSetting.listMode.value == ListMode.flat ||
+        StyleSetting.listMode.value == ListMode.flatWithoutTags ||
         StyleSetting.listMode.value == ListMode.listWithoutTags ||
         StyleSetting.listMode.value == ListMode.listWithTags) {
       return _buildGalleryList();
