@@ -7,6 +7,7 @@ import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
@@ -16,6 +17,7 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:retry/retry.dart';
 
 import '../consts/eh_consts.dart';
+import '../mixin/login_required_logic_mixin.dart';
 import '../model/jh_layout.dart';
 import '../network/eh_request.dart';
 import '../routes/routes.dart';
@@ -45,7 +47,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with LoginRequiredMixin {
   final StorageService storageService = Get.find();
 
   StreamSubscription? _intentDataStreamSubscription;
@@ -206,6 +208,10 @@ class _HomePageState extends State<HomePage> {
       'galleryUrlDetected'.tr,
       '${'galleryUrlDetectedHint'.tr}: $text',
       onTap: (_) {
+        if (text.startsWith('${EHConsts.EXIndex}/g') && !UserSetting.hasLoggedIn()) {
+          showLoginToast();
+          return;
+        }
         toRoute(
           Routes.details,
           arguments: {'galleryUrl': text},
