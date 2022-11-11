@@ -249,9 +249,6 @@ class EHSpiderParser {
 
     String userName = document.querySelector('.home > b > a')!.text;
     String? avatarImgUrl = document.querySelector('#profilename')?.nextElementSibling?.nextElementSibling?.querySelector('img')?.attributes['src'];
-    if (avatarImgUrl != null) {
-      avatarImgUrl = EHConsts.EForums + avatarImgUrl;
-    }
 
     return {'userName': userName, 'avatarImgUrl': avatarImgUrl};
   }
