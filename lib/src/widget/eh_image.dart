@@ -14,7 +14,7 @@ import '../setting/network_setting.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
-typedef CompletedWidgetBuilder = Widget Function(ExtendedImageState state);
+typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 typedef DownloadingWidgetBuilder = Widget Function();
 typedef PausedWidgetBuilder = Widget Function();
 
