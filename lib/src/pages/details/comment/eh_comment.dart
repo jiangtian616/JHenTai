@@ -143,7 +143,7 @@ class _EHCommentTextBody extends StatelessWidget {
           children: element.nodes.map((tag) => buildTag(tag)).toList(),
         ),
         maxLines: inDetailPage ? 5 : null,
-        overflow: TextOverflow.ellipsis,
+        overflow: inDetailPage ? TextOverflow.ellipsis : null,
       ),
     );
 
@@ -154,6 +154,7 @@ class _EHCommentTextBody extends StatelessWidget {
     return widget;
   }
 
+  /// Maybe i can rewrite it by `Chain of Responsibility Pattern`
   InlineSpan buildTag(dom.Node node) {
     /// plain text
     if (node is dom.Text) {
@@ -167,10 +168,40 @@ class _EHCommentTextBody extends StatelessWidget {
       return TextSpan(text: node.text);
     }
 
+    /// advertisement
+    if (node.localName == 'div' && node.attributes['id'] == 'spa') {
+      return const TextSpan();
+    }
+
     if (node.localName == 'br') {
       return const TextSpan(text: '\n');
     }
 
+    /// span
+    if (node.localName == 'span') {
+      return TextSpan(
+        style: _parseTextStyle(node),
+        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+      );
+    }
+
+    /// strong
+    if (node.localName == 'strong') {
+      return TextSpan(
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+      );
+    }
+
+    /// em
+    if (node.localName == 'em') {
+      return TextSpan(
+        style: const TextStyle(fontStyle: FontStyle.italic),
+        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+      );
+    }
+
+    /// image
     if (node.localName == 'img') {
       /// not show image in detail page
       if (inDetailPage) {
@@ -226,6 +257,24 @@ class _EHCommentTextBody extends StatelessWidget {
       text: text.substring(0, match.start),
       style: TextStyle(color: UIConfig.commentBodyTextColor),
       children: [_buildText(text.substring(match.start))],
+    );
+  }
+
+  TextStyle? _parseTextStyle(dom.Element node) {
+    final style = node.attributes['style'];
+    if (style == null) {
+      return null;
+    }
+
+    final Map<String, String> styleMap = Map.fromEntries(
+      style.split(';').map((e) => e.split(':')).where((e) => e.length == 2).map((e) => MapEntry(e[0].trim(), e[1].trim())),
+    );
+
+    return TextStyle(
+      color: styleMap['color'] == null ? null : Color(int.parse(styleMap['color']!.substring(1), radix: 16) + 0xFF000000),
+      fontWeight: styleMap['font-weight'] == 'bold' ? FontWeight.bold : null,
+      fontStyle: styleMap['font-style'] == 'italic' ? FontStyle.italic : null,
+      decoration: styleMap['text-decoration'] == 'underline' ? TextDecoration.underline : null,
     );
   }
 
