@@ -70,9 +70,7 @@ Widget EHGalleryCollection({
             /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
             /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
             /// the callback is added only once.
-            SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-              handleLoadMore();
-            });
+            SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
           }
           return EHGalleryListCard(
             gallery: gallerys[index],
@@ -80,7 +78,7 @@ Widget EHGalleryCollection({
             withTags: StyleSetting.listMode.value == ListMode.listWithTags,
             handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
             handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
-          ).marginOnly(top: 5, bottom: 5, left: 10, right: 10);
+          ).marginSymmetric(horizontal: 10, vertical: 5);
         },
         childCount: gallerys.length,
       ),
@@ -90,13 +88,19 @@ Widget EHGalleryCollection({
   Widget _buildGalleryWaterfallFlow() {
     return SliverPadding(
       key: key,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       sliver: SliverWaterfallFlow(
-        gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-        ),
+        gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
+            ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 225 : 150,
+                mainAxisSpacing: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                crossAxisSpacing: 5,
+              )
+            : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+                crossAxisCount: StyleSetting.crossAxisCountInWaterFallFlow.value!,
+                mainAxisSpacing: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                crossAxisSpacing: 5,
+              ),
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
             if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
@@ -105,9 +109,7 @@ Widget EHGalleryCollection({
               /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
               /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
               /// the callback is added only once.
-              SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-                handleLoadMore();
-              });
+              SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
             }
 
             return EHGalleryWaterFlowCard(gallery: gallerys[index], handleTapCard: handleTapCard);

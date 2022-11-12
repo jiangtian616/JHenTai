@@ -237,6 +237,8 @@ class pt_BR {
       'listWithTags': 'Cartão',
       'waterfallFlowWithImageOnly': 'Cachoeira(Apenas imagens)',
       'waterfallFlowWithImageAndInfo': 'Cachoeira',
+      'crossAxisCountInWaterFallFlow': 'Waterfall Flow Column count',
+      'auto': 'Auto',
       'moveCover2RightSide': 'Mover a tampa para o lado direito',
       'coverStyle': 'Estilo da tampa',
       'cover': 'Tampa',

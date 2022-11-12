@@ -58,6 +58,9 @@ class UIConfig {
 
   static const double dashboardCardSize = 210;
 
+  static const double waterFallFlowCardInfoHeight = 68;
+  static const double waterFallFlowCardTitleSize = 12;
+
   /// Login page
   static Color get loginPageForegroundColor => Get.theme.colorScheme.background;
 

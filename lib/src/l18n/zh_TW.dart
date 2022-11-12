@@ -235,6 +235,8 @@ class zh_TW {
       'listWithTags': '卡片',
       'waterfallFlowWithImageOnly': '瀑布流(僅圖片)',
       'waterfallFlowWithImageAndInfo': '瀑布流',
+      'crossAxisCountInWaterFallFlow': '瀑布流列數',
+      'auto': '自動',
       'moveCover2RightSide': '移動封面圖至右側',
       'coverStyle': '封面圖片樣式',
       'cover': '覆蓋',

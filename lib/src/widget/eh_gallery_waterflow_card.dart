@@ -1,106 +1,142 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
 
+import '../config/ui_config.dart';
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
 import '../model/gallery.dart';
-import '../model/gallery_image.dart';
+import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
   final CardCallback handleTapCard;
-  final bool keepAlive;
 
   const EHGalleryWaterFlowCard({
     Key? key,
     required this.gallery,
     required this.handleTapCard,
-    this.keepAlive = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return KeepAliveWrapper(
-      keepAlive: keepAlive,
-      child: FocusWidget(
-        focusedDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(width: 3, color: Get.theme.colorScheme.onBackground),
-        ),
-        handleTapEnter: () => handleTapCard(gallery),
-        child: GestureDetector(
-          onTap: () => handleTapCard(gallery),
-          child: FadeIn(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: ColoredBox(
-                color: Get.theme.brightness == Brightness.light ? Colors.grey.shade300 : Colors.grey.shade700,
-                child: Obx(() {
-                  return Column(
-                    children: [
-                      _buildCover(gallery.cover),
-                      if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(gallery),
-                    ],
-                  );
-                }),
-              ),
-            ),
+    return FocusWidget(
+      focusedDecoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(width: 3, color: Get.theme.colorScheme.onBackground),
+      ),
+      handleTapEnter: () => handleTapCard(gallery),
+      child: GestureDetector(
+        onTap: () => handleTapCard(gallery),
+        child: FadeIn(
+          child: Card(
+            child: _buildGallery(),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCover(GalleryImage image) {
+  Widget _buildGallery() {
+    return Column(
+      children: [
+        StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo
+            ? _buildCover()
+            : Stack(
+                children: [
+                  _buildCover(),
+                  Positioned(child: _buildLanguageChip(), bottom: 4, right: 4),
+                ],
+              ),
+        if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
+      ],
+    );
+  }
+
+  Widget _buildCover() {
     return LayoutBuilder(
-      builder: (context, constraints) {
+      builder: (_, constraints) {
         FittedSizes fittedSizes = applyBoxFit(
           BoxFit.contain,
-          Size(image.width, image.height),
+          Size(gallery.cover.width, gallery.cover.height),
           Size(constraints.maxWidth, constraints.maxHeight),
         );
 
-        return EHImage.network(galleryImage: image);
+        return EHImage.network(
+          galleryImage: gallery.cover,
+          containerHeight: fittedSizes.destination.height,
+          containerWidth: fittedSizes.destination.width,
+          containerColor: Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.05),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
+            topRight: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
+            bottomLeft: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
+            bottomRight: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
+          ),
+        );
       },
     );
   }
 
-  Widget _buildInfo(Gallery gallery) {
+  Widget _buildLanguageChip() {
     return Container(
-      height: 15,
-      color: ColorConsts.galleryCategoryColor[gallery.category]!,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            gallery.category,
-            style: const TextStyle(fontSize: 10, color: Colors.white),
-          ).marginOnly(left: 4),
-          const Expanded(child: SizedBox()),
-          if (gallery.language != null)
-            Text(
-              LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-              style: const TextStyle(fontSize: 10, color: Colors.white70),
-            ).marginOnly(right: 4),
-          if (gallery.pageCount != null)
-            const Icon(
-              Icons.panorama,
-              size: 10,
-              color: Colors.white70,
-            ).marginOnly(right: 2),
-          if (gallery.pageCount != null)
-            Text(
-              gallery.pageCount.toString(),
-              style: const TextStyle(fontSize: 10, color: Colors.white70),
-            ).marginOnly(right: 2),
-        ],
+      decoration: BoxDecoration(color: ColorConsts.galleryCategoryColor[gallery.category]!, borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      constraints: const BoxConstraints(minWidth: 12),
+      child: Center(
+        child: Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9, color: Colors.white)),
       ),
+    );
+  }
+
+  Widget _buildInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            _buildRatingBar(),
+            const Expanded(child: SizedBox()),
+            EHGalleryCategoryTag(
+              category: gallery.category,
+              textStyle: const TextStyle(height: 1, fontSize: 9, color: Colors.white),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            ).marginOnly(right: 4),
+            if (gallery.language != null)
+              Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
+            if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
+          ],
+        ),
+        _buildTitle().marginOnly(top: 4, left: 2),
+      ],
+    ).paddingOnly(top: 6, bottom: 6, left: 6, right: 6);
+  }
+
+  Widget _buildRatingBar() {
+    return RatingBar.builder(
+      unratedColor: Colors.grey.shade300,
+      initialRating: gallery.rating,
+      itemCount: 5,
+      allowHalfRating: true,
+      itemSize: 12,
+      ignoreGestures: true,
+      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.resumeButtonColor : Colors.amber.shade800),
+      onRatingUpdate: (_) {},
+    );
+  }
+
+  Widget _buildTitle() {
+    return Text(
+      gallery.title.breakWord,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: UIConfig.waterFallFlowCardTitleSize, height: 1.2),
     );
   }
 }

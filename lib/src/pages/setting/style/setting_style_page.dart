@@ -26,6 +26,9 @@ class SettingStylePage extends StatelessWidget {
             _buildLanguage(),
             _buildBrightness(),
             _buildListMode(),
+            if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ||
+                StyleSetting.listMode.value == ListMode.waterfallFlowWithImageOnly)
+              _buildCrossAxisCountInWaterFallFlow().fadeIn(),
             if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildTagTranslate(),
             _buildLayout(),
@@ -90,6 +93,26 @@ class SettingStylePage extends StatelessWidget {
           DropdownMenuItem(child: Text('listWithTags'.tr), value: ListMode.listWithTags),
           DropdownMenuItem(child: Text('waterfallFlowWithImageOnly'.tr), value: ListMode.waterfallFlowWithImageOnly),
           DropdownMenuItem(child: Text('waterfallFlowWithImageAndInfo'.tr), value: ListMode.waterfallFlowWithImageAndInfo),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCrossAxisCountInWaterFallFlow() {
+    return ListTile(
+      title: Text('crossAxisCountInWaterFallFlow'.tr),
+      trailing: DropdownButton<int?>(
+        value: StyleSetting.crossAxisCountInWaterFallFlow.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: StyleSetting.saveCrossAxisCountInWaterFallFlow,
+        items: [
+          DropdownMenuItem(child: Text('auto'.tr), value: null),
+          DropdownMenuItem(child: Text('2'.tr), value: 2),
+          DropdownMenuItem(child: Text('3'.tr), value: 3),
+          DropdownMenuItem(child: Text('4'.tr), value: 4),
+          DropdownMenuItem(child: Text('5'.tr), value: 5),
+          DropdownMenuItem(child: Text('6'.tr), value: 6),
         ],
       ),
     );

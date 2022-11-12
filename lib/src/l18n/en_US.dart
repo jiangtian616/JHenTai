@@ -236,6 +236,8 @@ class en_US {
       'listWithTags': 'Card',
       'waterfallFlowWithImageOnly': 'Waterfall Flow(Image Only)',
       'waterfallFlowWithImageAndInfo': 'Waterfall Flow',
+      'crossAxisCountInWaterFallFlow': 'Waterfall Flow Column count',
+      'auto': 'Auto',
       'moveCover2RightSide': 'Move Cover to Right Side',
       'coverStyle': 'Cover Style',
       'cover': 'Cover',
