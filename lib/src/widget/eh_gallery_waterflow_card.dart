@@ -50,12 +50,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       children: [
         listMode == ListMode.waterfallFlowWithImageAndInfo
             ? _buildCover()
-            : Stack(
-                children: [
-                  _buildCover(),
-                  Positioned(child: _buildLanguageChip(), bottom: 4, right: 4),
-                ],
-              ),
+            : Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
         if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
       ],
     );
@@ -105,10 +100,11 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           children: [
             _buildRatingBar(),
             const Expanded(child: SizedBox()),
+            if (listMode == ListMode.waterfallFlowWithImageAndInfo && gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             EHGalleryCategoryTag(
               category: gallery.category,
-              textStyle: const TextStyle(height: 1, fontSize: 9, color: Colors.white),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              textStyle: const TextStyle(fontSize: 8, color: Colors.white),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             ).marginOnly(right: 4),
             if (gallery.language != null)
               Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
@@ -130,6 +126,14 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       ignoreGestures: true,
       itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.resumeButtonColor : Colors.amber.shade800),
       onRatingUpdate: (_) {},
+    );
+  }
+
+  Widget _buildFavoriteIcon() {
+    return Icon(
+      Icons.favorite,
+      size: 11,
+      color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
     );
   }
 
