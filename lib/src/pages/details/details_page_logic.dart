@@ -388,6 +388,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == state.gallery?.gid);
+
+    if (archiveStatus == ArchiveStatus.paused) {
+      return archiveDownloadService.resumeDownloadArchive(archive);
+    }
+
     if (ArchiveStatus.unlocking.index <= archiveStatus.index && archiveStatus.index < ArchiveStatus.downloaded.index) {
       return archiveDownloadService.pauseDownloadArchive(archive);
     }
