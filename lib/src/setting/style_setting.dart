@@ -25,6 +25,7 @@ class StyleSetting {
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
+  static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
@@ -94,6 +95,16 @@ class StyleSetting {
     _save();
   }
 
+  static savePageListMode(String routeName, ListMode? listMode) {
+    Log.debug('savePageListMode:$routeName, $listMode');
+    if (listMode == null) {
+      StyleSetting.pageListMode.remove(routeName);
+    } else {
+      StyleSetting.pageListMode[routeName] = listMode;
+    }
+    _save();
+  }
+
   static saveMoveCover2RightSide(bool moveCover2RightSide) {
     Log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
     StyleSetting.moveCover2RightSide.value = moveCover2RightSide;
@@ -145,6 +156,7 @@ class StyleSetting {
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
+      'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
@@ -159,6 +171,7 @@ class StyleSetting {
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
+    pageListMode.value = Map.from(map['pageListMode']?.map((route, listModeIndex) => MapEntry(route, ListMode.values[listModeIndex])) ?? {});
     moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
 

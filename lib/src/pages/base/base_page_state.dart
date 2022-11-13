@@ -5,7 +5,9 @@ import 'package:jhentai/src/model/search_config.dart';
 import '../../model/gallery.dart';
 import '../../widget/loading_state_indicator.dart';
 
-class BasePageState with Scroll2TopStateMixin {
+abstract class BasePageState with Scroll2TopStateMixin {
+  String get route;
+
   SearchConfig searchConfig = SearchConfig();
 
   List<Gallery> gallerys = List.empty(growable: true);

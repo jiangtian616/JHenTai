@@ -16,11 +16,13 @@ import 'eh_image.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
+  final ListMode listMode;
   final CardCallback handleTapCard;
 
   const EHGalleryWaterFlowCard({
     Key? key,
     required this.gallery,
+    required this.listMode,
     required this.handleTapCard,
   }) : super(key: key);
 
@@ -46,7 +48,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget _buildGallery() {
     return Column(
       children: [
-        StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo
+        listMode == ListMode.waterfallFlowWithImageAndInfo
             ? _buildCover()
             : Stack(
                 children: [
@@ -54,7 +56,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
                   Positioned(child: _buildLanguageChip(), bottom: 4, right: 4),
                 ],
               ),
-        if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
+        if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
       ],
     );
   }
@@ -74,10 +76,10 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           containerWidth: fittedSizes.destination.width,
           containerColor: Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.05),
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
-            topRight: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
-            bottomLeft: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
-            bottomRight: Radius.circular(StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
+            topLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
+            topRight: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
+            bottomLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
+            bottomRight: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
           ),
         );
       },

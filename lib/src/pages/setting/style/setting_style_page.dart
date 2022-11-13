@@ -9,6 +9,8 @@ import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../model/jh_layout.dart';
+import '../../../routes/routes.dart';
+import '../../../utils/route_util.dart';
 
 class SettingStylePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
@@ -29,6 +31,7 @@ class SettingStylePage extends StatelessWidget {
             if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ||
                 StyleSetting.listMode.value == ListMode.waterfallFlowWithImageOnly)
               _buildCrossAxisCountInWaterFallFlow().fadeIn(),
+            _buildPageListMode(),
             if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildTagTranslate(),
             _buildLayout(),
@@ -115,6 +118,14 @@ class SettingStylePage extends StatelessWidget {
           DropdownMenuItem(child: Text('6'.tr), value: 6),
         ],
       ),
+    );
+  }
+
+  Widget _buildPageListMode() {
+    return ListTile(
+      title: Text('pageListStyle'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.pageListStyle),
     );
   }
 

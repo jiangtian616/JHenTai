@@ -37,6 +37,7 @@ import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/setting/network/host_mapping/host_mapping_page.dart';
+import '../pages/setting/style/page_list_style/page_list_style_page.dart';
 import '../pages/single_image/single_image.dart';
 import 'eh_page.dart';
 
@@ -84,6 +85,8 @@ class Routes {
 
   static const String login = "/setting_account/login";
   static const String cookie = "/setting_account/cookie";
+
+  static const String pageListStyle = "/setting_style/pageListStyle";
 
   static const String tagSets = "/setting_EH/tagSets";
 
@@ -265,6 +268,12 @@ class Routes {
     EHPage(
       name: cookie,
       page: () => const CookiePage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: pageListStyle,
+      page: () => PageListStylePage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

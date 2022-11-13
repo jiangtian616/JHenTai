@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
@@ -167,15 +168,18 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
   }
 
   Widget buildGalleryCollection(BuildContext context) {
-    return EHGalleryCollection(
-      key: state.galleryCollectionKey,
-      context: context,
-      gallerys: state.gallerys,
-      loadingState: state.loadingState,
-      handleTapCard: logic.handleTapGalleryCard,
-      handleLongPressCard: logic.handleLongPressCard,
-      handleSecondaryTapCard: logic.handleSecondaryTapCard,
-      handleLoadMore: logic.loadMore,
+    return Obx(
+      () => EHGalleryCollection(
+        key: state.galleryCollectionKey,
+        context: context,
+        gallerys: state.gallerys,
+        listMode: StyleSetting.pageListMode[state.route] ?? StyleSetting.listMode.value,
+        loadingState: state.loadingState,
+        handleTapCard: logic.handleTapGalleryCard,
+        handleLongPressCard: logic.handleLongPressCard,
+        handleSecondaryTapCard: logic.handleSecondaryTapCard,
+        handleLoadMore: logic.loadMore,
+      ),
     );
   }
 }

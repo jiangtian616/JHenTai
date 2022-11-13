@@ -238,6 +238,8 @@ class pt_BR {
       'waterfallFlowWithImageOnly': 'Cachoeira(Apenas imagens)',
       'waterfallFlowWithImageAndInfo': 'Cachoeira',
       'crossAxisCountInWaterFallFlow': 'Waterfall Flow Column count',
+      'pageListStyle': 'Gallery List Style (Page)',
+      'global': 'Global',
       'auto': 'Auto',
       'moveCover2RightSide': 'Mover a tampa para o lado direito',
       'coverStyle': 'Estilo da tampa',

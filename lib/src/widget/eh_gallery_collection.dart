@@ -15,6 +15,7 @@ Widget EHGalleryCollection({
   Key? key,
   required BuildContext context,
   required List<Gallery> gallerys,
+  required ListMode listMode,
   required LoadingState loadingState,
   required CardCallback handleTapCard,
   CardCallback? handleLongPressCard,
@@ -36,7 +37,7 @@ Widget EHGalleryCollection({
             SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
           }
           return Container(
-            decoration: StyleSetting.listMode.value == ListMode.flat || StyleSetting.listMode.value == ListMode.flatWithoutTags
+            decoration: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags
                 ? BoxDecoration(
                     color: Theme.of(context).colorScheme.background,
                     border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
@@ -45,42 +46,18 @@ Widget EHGalleryCollection({
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: EHGalleryListCard(
               gallery: gallerys[index],
+              listMode: listMode,
               handleTapCard: (gallery) => handleTapCard(gallery),
               handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
               handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
-              withTags: StyleSetting.listMode.value == ListMode.listWithTags || StyleSetting.listMode.value == ListMode.flat,
+              withTags: listMode == ListMode.listWithTags || listMode == ListMode.flat,
             ),
           );
         },
         childCount: gallerys.length,
         keepPosition: true,
         onItemKey: (index) => gallerys[index].galleryUrl,
-        preferItemHeight: StyleSetting.listMode.value == ListMode.listWithTags ? 200 : 125,
-      ),
-    );
-  }
-
-  Widget _buildGalleryListWithNative() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (_, index) {
-          if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
-            /// 1. shouldn't call directly, because SliverList is building, if we call [setState] here will cause a exception
-            /// that hints circular build.
-            /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all sliver child by index, it means
-            /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-            /// the callback is added only once.
-            SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
-          }
-          return EHGalleryListCard(
-            gallery: gallerys[index],
-            handleTapCard: (gallery) => handleTapCard(gallery),
-            withTags: StyleSetting.listMode.value == ListMode.listWithTags,
-            handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
-            handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
-          ).marginSymmetric(horizontal: 10, vertical: 5);
-        },
-        childCount: gallerys.length,
+        preferItemHeight: listMode == ListMode.listWithTags ? 200 : 125,
       ),
     );
   }
@@ -92,13 +69,13 @@ Widget EHGalleryCollection({
       sliver: SliverWaterfallFlow(
         gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 225 : 150,
-                mainAxisSpacing: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                maxCrossAxisExtent: listMode == ListMode.waterfallFlowWithImageAndInfo ? 225 : 150,
+                mainAxisSpacing: listMode == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
                 crossAxisSpacing: 5,
               )
             : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                 crossAxisCount: StyleSetting.crossAxisCountInWaterFallFlow.value!,
-                mainAxisSpacing: StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                mainAxisSpacing: listMode == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
                 crossAxisSpacing: 5,
               ),
         delegate: SliverChildBuilderDelegate(
@@ -112,7 +89,11 @@ Widget EHGalleryCollection({
               SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
             }
 
-            return EHGalleryWaterFlowCard(gallery: gallerys[index], handleTapCard: handleTapCard);
+            return EHGalleryWaterFlowCard(
+              gallery: gallerys[index],
+              listMode: listMode,
+              handleTapCard: handleTapCard,
+            );
           },
           childCount: gallerys.length,
         ),
@@ -120,14 +101,12 @@ Widget EHGalleryCollection({
     );
   }
 
-  return Obx(() {
-    if (StyleSetting.listMode.value == ListMode.flat ||
-        StyleSetting.listMode.value == ListMode.flatWithoutTags ||
-        StyleSetting.listMode.value == ListMode.listWithoutTags ||
-        StyleSetting.listMode.value == ListMode.listWithTags) {
-      return _buildGalleryList();
-    }
+  if (listMode == ListMode.flat ||
+      listMode == ListMode.flatWithoutTags ||
+      listMode == ListMode.listWithoutTags ||
+      listMode == ListMode.listWithTags) {
+    return _buildGalleryList();
+  }
 
-    return _buildGalleryWaterfallFlow();
-  });
+  return _buildGalleryWaterfallFlow();
 }

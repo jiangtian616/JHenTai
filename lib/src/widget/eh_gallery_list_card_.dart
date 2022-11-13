@@ -29,19 +29,26 @@ typedef CardCallback = FutureOr<void> Function(Gallery gallery);
 
 class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
+  final ListMode listMode;
   final CardCallback handleTapCard;
   final CardCallback? handleLongPressCard;
   final CardCallback? handleSecondaryTapCard;
   final bool withTags;
 
-  const EHGalleryListCard(
-      {Key? key, required this.gallery, required this.handleTapCard, this.withTags = true, this.handleLongPressCard, this.handleSecondaryTapCard})
-      : super(key: key);
+  const EHGalleryListCard({
+    Key? key,
+    required this.gallery,
+    required this.listMode,
+    required this.handleTapCard,
+    this.withTags = true,
+    this.handleLongPressCard,
+    this.handleSecondaryTapCard,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return FocusWidget(
-      focusedDecoration: StyleSetting.listMode.value == ListMode.flat
+      focusedDecoration: listMode == ListMode.flat
           ? BoxDecoration(
               color: Get.theme.cardColor,
               border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground)),
@@ -64,6 +71,7 @@ class EHGalleryListCard extends StatelessWidget {
       },
       child: GalleryCard(
         gallery: gallery,
+        flat: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags,
         withTags: withTags,
         handleTapCard: handleTapCard,
         handleLongPressCard: handleLongPressCard,
@@ -75,14 +83,21 @@ class EHGalleryListCard extends StatelessWidget {
 
 class GalleryCard extends StatelessWidget {
   final Gallery gallery;
+  final bool flat;
   final bool withTags;
   final CardCallback handleTapCard;
   final CardCallback? handleLongPressCard;
   final CardCallback? handleSecondaryTapCard;
 
-  const GalleryCard(
-      {Key? key, required this.gallery, required this.withTags, required this.handleTapCard, this.handleLongPressCard, this.handleSecondaryTapCard})
-      : super(key: key);
+  const GalleryCard({
+    Key? key,
+    required this.gallery,
+    required this.flat,
+    required this.withTags,
+    required this.handleTapCard,
+    this.handleLongPressCard,
+    this.handleSecondaryTapCard,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -95,12 +110,7 @@ class GalleryCard extends StatelessWidget {
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
           height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
-          child: Obx(() {
-            if (StyleSetting.listMode.value == ListMode.flat || StyleSetting.listMode.value == ListMode.flatWithoutTags) {
-              return _FlatGalleryCard(gallery: gallery, withTags: withTags);
-            }
-            return _RoundGalleryCard(gallery: gallery, withTags: withTags);
-          }),
+          child: flat ? _FlatGalleryCard(gallery: gallery, withTags: withTags) : _RoundGalleryCard(gallery: gallery, withTags: withTags),
         ),
       ),
     );
