@@ -44,16 +44,18 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
-  <array>
-    <string>https</string>
-    <string>http</string>
-  </array>
-  <key>LSSupportsOpeningDocumentsInPlace</key>
+    <array>
+      <string>https</string>
+      <string>http</string>
+    </array>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-  <string>Pick up image to search</string>
+    <string>Pick up image to search</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Pick up image to search</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>NSFaceIDUsageDescription</key>

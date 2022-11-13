@@ -57,7 +57,9 @@
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-  <string>Pick up image to search</string>
+    <string>Pick up image to search</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Pick up image to search</string>
   	<key>NSFaceIDUsageDescription</key>
     <string>Auth identity</string>
 </dict>
