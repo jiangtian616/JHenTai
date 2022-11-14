@@ -180,8 +180,8 @@ class EHRequest {
   /// [url]: used for file search
   static Future<T> requestGalleryPage<T>({
     String? url,
-    int? prevGid,
-    int? nextGid,
+    String? prevGid,
+    String? nextGid,
     DateTime? seek,
     SearchConfig? searchConfig,
     required EHHtmlParser<T> parser,
@@ -189,9 +189,9 @@ class EHRequest {
     Response<String> response = await _dio.get(
       url ?? searchConfig!.toPath(),
       queryParameters: {
-        'prev': prevGid,
-        'next': nextGid,
-        'seek': seek == null ? null : DateFormat('yyyy-MM-dd').format(seek),
+        if (prevGid != null) 'prev': prevGid,
+        if (nextGid != null) 'next': nextGid,
+        if (seek != null) 'seek': DateFormat('yyyy-MM-dd').format(seek),
         ...?searchConfig?.toQueryParameters(),
       },
     );

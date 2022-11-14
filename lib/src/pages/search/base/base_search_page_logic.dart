@@ -160,7 +160,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<GalleryPageInfo> getGalleryPage({int? prevGid, int? nextGid, DateTime? seek}) {
+  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) {
     if (state.redirectUrl == null) {
       return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek);
     }

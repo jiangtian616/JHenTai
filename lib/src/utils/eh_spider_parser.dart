@@ -617,18 +617,18 @@ class EHSpiderParser {
     );
   }
 
-  static int? galleryPage2NextGid(Document document) {
+  static String? galleryPage2NextGid(Document document) {
     /// https://exhentai.org/?next=2367467
     String? href = document.querySelector('#unext')?.attributes['href'];
 
-    return int.tryParse(RegExp(r'next=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
+    return RegExp(r'next=([\d-]+)').firstMatch(href ?? '')?.group(1);
   }
 
-  static int? galleryPage2PrevGid(Document document) {
+  static String? galleryPage2PrevGid(Document document) {
     /// https://exhentai.org/?prev=2367467
     String? href = document.querySelector('#uprev')?.attributes['href'];
 
-    return int.tryParse(RegExp(r'prev=(\d+)').firstMatch(href ?? '')?.group(1) ?? '');
+    return RegExp(r'prev=([\d-]+)').firstMatch(href ?? '')?.group(1);
   }
 
   static int ranklistPage2TotalPageCount(Document document) {

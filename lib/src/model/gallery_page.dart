@@ -5,9 +5,9 @@ class GalleryPageInfo {
 
   final List<Gallery> gallerys;
 
-  final int? prevGid;
+  final String? prevGid;
 
-  final int? nextGid;
+  final String? nextGid;
 
   GalleryPageInfo({
     required this.gallerys,

@@ -13,10 +13,10 @@ abstract class BasePageState with Scroll2TopStateMixin {
   List<Gallery> gallerys = List.empty(growable: true);
 
   /// The first gallery's id in current page
-  int? prevGid;
+  String? prevGid;
 
   /// The last gallery's id in current page
-  int? nextGid;
+  String? nextGid;
 
   /// used for jump page
   DateTime seek = DateTime.now();

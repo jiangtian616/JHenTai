@@ -5,9 +5,6 @@ import '../../base/base_page_logic.dart';
 
 class DesktopSearchPageLogic extends BasePageLogic with BaseSearchPageLogicMixin {
   @override
-  int get tabIndex => 1;
-
-  @override
   bool get useSearchConfig => false;
 
   @override

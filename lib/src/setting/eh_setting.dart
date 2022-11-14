@@ -22,9 +22,9 @@ class EHSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('EHSetting');
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init EHSetting success', false);
+      Log.debug('init EHSetting success, site: $site');
     } else {
-      Log.debug('init EHSetting success: default', false);
+      Log.debug('init EHSetting success: default');
     }
 
     /// listen to logout
