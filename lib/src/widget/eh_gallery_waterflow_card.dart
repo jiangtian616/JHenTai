@@ -70,6 +70,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
           containerColor: Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.05),
+          heroTag: gallery.cover,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
             topRight: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
