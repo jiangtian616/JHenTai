@@ -60,22 +60,22 @@ class EHSpiderParser {
     String html = response.data! as String;
     Document document = parse(html);
 
-    String inlineType = document.querySelector('select > option[selected=selected]')?.text ?? '';
-
-    switch (inlineType) {
-      case 'Minimal':
-        return _minimalGalleryPage2GalleryPageInfo(response);
-      case 'Minimal+':
-        return _compactGalleryPage2GalleryPageInfo(response);
-      case 'Compact':
-        return _compactGalleryPage2GalleryPageInfo(response);
-      case 'Extended':
-        return _extendedGalleryPage2GalleryListAndPageInfo(response);
-      case 'Thumbnail':
-        return _thumbnailGalleryPage2GalleryListAndPageInfo(response);
-      default:
-        return _compactGalleryPage2GalleryPageInfo(response);
+    if (document.querySelector('.itg.gltm') != null) {
+      return _minimalGalleryPage2GalleryPageInfo(response);
     }
+    if (document.querySelector('.itg.gltc') != null) {
+      return _compactGalleryPage2GalleryPageInfo(response);
+    }
+    if (document.querySelector('.itg.glte') != null) {
+      return _extendedGalleryPage2GalleryListAndPageInfo(response);
+    }
+    if (document.querySelector('.itg.gld') != null) {
+      return _thumbnailGalleryPage2GalleryListAndPageInfo(response);
+    }
+
+    Log.error('Parse gallery inline type failed');
+    Log.upload(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
+    return _compactGalleryPage2GalleryPageInfo(response);
   }
 
   static List<dynamic> ranklistPage2GalleryPageInfo(Response response) {
