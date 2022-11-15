@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'package:get/get.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
@@ -18,6 +19,7 @@ class LocalGallery {
   int pageCount;
   List<GalleryImage> images;
   DateTime time;
+  String? galleryUrl;
 
   LocalGallery({
     required this.title,
@@ -25,6 +27,7 @@ class LocalGallery {
     required this.pageCount,
     required this.images,
     required this.time,
+    this.galleryUrl,
   });
 }
 
@@ -134,11 +137,11 @@ class LocalGalleryService extends GetxController {
 
     /// has at least one image
     for (io.FileSystemEntity image in entities) {
-      if (image is! io.File) {
+      if (image is! io.File || !FileUtil.isImageExtension(image.path)) {
         continue;
       }
 
-      return FileUtil.isImageExtension(image.path);
+      return true;
     }
 
     return false;
@@ -169,11 +172,13 @@ class LocalGalleryService extends GetxController {
   }
 
   void _initGalleryInfoInMemory(io.Directory galleryDir, String parentPath) {
-    List<io.File> imageFiles = galleryDir
-        .listSync()
-        .whereType<io.File>()
-        .where((image) => FileUtil.isImageExtension(image.path))
-        .toList()
+    io.File ehvMetadata = io.File(join(galleryDir.path, '.ehviewer'));
+    String? galleryUrl;
+    if (ehvMetadata.existsSync()) {
+      galleryUrl = _parseGalleryUrlFromEHVMetadata(ehvMetadata);
+    }
+
+    List<io.File> imageFiles = galleryDir.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
       ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
     List<GalleryImage> images = [];
@@ -206,9 +211,23 @@ class LocalGalleryService extends GetxController {
       pageCount: images.length,
       images: images,
       time: galleryDir.statSync().modified,
+      galleryUrl: galleryUrl,
     );
 
     allGallerys.add(gallery);
     (path2Gallerys[parentPath] ??= []).add(gallery);
+  }
+
+  String? _parseGalleryUrlFromEHVMetadata(io.File ehvMetadata) {
+    try {
+      List<String> lines = ehvMetadata.readAsLinesSync();
+      String gid = lines[2];
+      String token = lines[3];
+      return '${EHConsts.EXIndex}/g/$gid/$token';
+    } on Exception catch (e) {
+      Log.error('Parse gallery url from ehv metadata failed!', e);
+      Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
+      return null;
+    }
   }
 }

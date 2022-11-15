@@ -8,6 +8,7 @@ import 'package:path/path.dart' as p;
 
 import '../../../config/ui_config.dart';
 import '../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
@@ -215,7 +216,10 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
           borderRadius: BorderRadius.circular(15),
           child: Row(
             children: [
-              _buildCover(gallery, context),
+              GestureDetector(
+                onTap: gallery.galleryUrl == null ? null : () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
+                child: _buildCover(gallery, context),
+              ),
               Expanded(child: _buildInfo(gallery)),
             ],
           ),
@@ -253,8 +257,13 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            if (gallery.galleryUrl != null)
+              Text(
+                'EHViewer',
+                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+              ).marginOnly(right: 8),
             Text(
-              '${gallery.pageCount} P',
+              '${gallery.pageCount}P',
               style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
             ),
           ],
