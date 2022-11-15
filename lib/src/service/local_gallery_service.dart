@@ -5,6 +5,7 @@ import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 
@@ -223,7 +224,7 @@ class LocalGalleryService extends GetxController {
       List<String> lines = ehvMetadata.readAsLinesSync();
       String gid = lines[2];
       String token = lines[3];
-      return '${EHConsts.EXIndex}/g/$gid/$token';
+      return '${UserSetting.hasLoggedIn() ? EHConsts.EXIndex : EHConsts.EHIndex}/g/$gid/$token';
     } on Exception catch (e) {
       Log.error('Parse gallery url from ehv metadata failed!', e);
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
