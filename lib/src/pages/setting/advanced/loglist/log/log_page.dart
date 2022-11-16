@@ -1,10 +1,13 @@
 import 'dart:io' as io;
 
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:path/path.dart';
 import 'package:share_plus/share_plus.dart';
+
+import '../../../../../utils/toast_util.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({Key? key}) : super(key: key);
@@ -31,11 +34,8 @@ class _LogPageState extends State<LogPage> {
         elevation: 1,
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         actions: [
-          if (!GetPlatform.isDesktop)
-            IconButton(
-              onPressed: () => _shareLog(log as io.File),
-              icon: const Icon(Icons.share),
-            ),
+          if (!GetPlatform.isDesktop) IconButton(onPressed: () => _shareLog(log as io.File), icon: const Icon(Icons.share)),
+          IconButton(onPressed: () => _copyLog(log as io.File), icon: const Icon(Icons.copy)),
         ],
       ),
       body: SingleChildScrollView(
@@ -62,5 +62,10 @@ class _LogPageState extends State<LogPage> {
       text: basename(file.path),
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
+  }
+
+  Future<void> _copyLog(io.File file) async{
+    await FlutterClipboard.copy(file.readAsStringSync());
+    toast('hasCopiedToClipboard'.tr);
   }
 }
