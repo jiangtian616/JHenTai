@@ -1,5 +1,6 @@
-
 import 'package:get/get.dart';
+import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_download_dialog.dart';
 
 import '../../../database/database.dart';
@@ -129,6 +130,13 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
+
+      if (images.isEmpty) {
+        toast('Your archive is broken!');
+        Log.error('Your archive is broken!');
+        Log.upload('Your archive is broken!',extraInfos: {'archive':archive});
+        return;
+      }
 
       toRoute(
         Routes.read,

@@ -5,6 +5,7 @@ import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:get/state_manager.dart';
 import 'package:image_size_getter/file_input.dart';
@@ -558,6 +559,11 @@ class ArchiveDownloadService extends GetxController {
           snack('error'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
 
           return await pauseDownloadArchive(archive, needReUnlock: true);
+        } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
+          Log.download('IP quota exhausted! Archive: ${archive.title}');
+          snack('error'.tr, 'IP quota exhausted!', longDuration: true, snackPosition: SnackPosition.BOTTOM);
+
+          return await pauseDownloadArchive(archive, needReUnlock: true);
         } else {
           Log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
           return await _reParseDownloadUrlAndDownload(archive);
@@ -611,8 +617,9 @@ class ArchiveDownloadService extends GetxController {
       extractArchiveToDisk(unpackedDir, computeArchiveUnpackingPath(archive));
     } on Exception catch (e) {
       Log.error('Unpacking error!', e);
-      Log.upload(e);
+      Log.upload(e, extraInfos: {'archive': archive});
       snack('error'.tr, '${'failedToDealWith'.tr}:${archive.title}', longDuration: true);
+      archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
       await _deletePackingFileInDisk(archive);
       return pauseDownloadArchive(archive);
     } finally {
