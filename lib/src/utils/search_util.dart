@@ -11,7 +11,7 @@ import '../routes/routes.dart';
 import '../setting/style_setting.dart';
 import '../widget/eh_search_config_dialog.dart';
 
-void newSearch(String? keyword) {
+void newSearch(String? keyword, [bool forceNewRoute = false]) {
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
     DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
     if (desktopSearchPageLogic.state.loadingState == LoadState.loading) {
@@ -33,7 +33,7 @@ void newSearch(String? keyword) {
     return;
   }
 
-  if (isRouteAtTop(Routes.mobileV2Search)) {
+  if (!forceNewRoute && isRouteAtTop(Routes.mobileV2Search)) {
     SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
     SearchPageMobileV2Logic.current!.state.searchConfig.tags?.clear();
     SearchPageMobileV2Logic.current!.handleClearAndRefresh();

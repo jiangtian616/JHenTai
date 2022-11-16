@@ -957,6 +957,7 @@ class _GalleryTags extends StatelessWidget {
               gid: gid,
               token: token,
               apikey: apikey,
+              forceNewRoute: true,
             ))
         .toList();
   }

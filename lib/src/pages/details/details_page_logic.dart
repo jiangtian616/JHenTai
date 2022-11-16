@@ -449,11 +449,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void searchSimilar() {
-    newSearch('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
+    newSearch('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"', true);
   }
 
   void searchUploader() {
-    newSearch('uploader:"${state.gallery!.uploader!}"');
+    newSearch('uploader:"${state.gallery!.uploader!}"', true);
   }
 
   Future<void> handleTapTorrent() async {

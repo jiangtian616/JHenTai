@@ -73,8 +73,10 @@ class EHSpiderParser {
       return _thumbnailGalleryPage2GalleryListAndPageInfo(response);
     }
 
-    Log.error('Parse gallery inline type failed');
-    Log.upload(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
+    if (!html.contains('No hits found')) {
+      Log.error('Parse gallery inline type failed');
+      Log.upload(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
+    }
     return _compactGalleryPage2GalleryPageInfo(response);
   }
 

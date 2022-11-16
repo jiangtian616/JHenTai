@@ -10,6 +10,7 @@ class EHTag extends StatefulWidget {
   final GalleryTag tag;
   final bool addNameSpaceColor;
   final bool enableTapping;
+  final bool forceNewRoute;
 
   final int? gid;
   final String? token;
@@ -20,6 +21,7 @@ class EHTag extends StatefulWidget {
     required this.tag,
     this.addNameSpaceColor = false,
     this.enableTapping = false,
+    this.forceNewRoute = false,
     this.gid,
     this.token,
     this.apikey,
@@ -77,7 +79,7 @@ class _EHTagState extends State<EHTag> {
   }
 
   void _searchTag() {
-    newSearch('${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"');
+    newSearch('${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"', widget.forceNewRoute);
   }
 
   void _showDialog() {
