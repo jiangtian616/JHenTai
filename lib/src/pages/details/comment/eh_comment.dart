@@ -201,6 +201,14 @@ class _EHCommentTextBody extends StatelessWidget {
       );
     }
 
+    /// del
+    if (node.localName == 'del') {
+      return TextSpan(
+        style: const TextStyle(decoration: TextDecoration.lineThrough),
+        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+      );
+    }
+
     /// image
     if (node.localName == 'img') {
       /// not show image in detail page
