@@ -100,7 +100,7 @@ class SearchConfig {
     }
 
     if (language != null) {
-      params['f_search'] += ' language:"$language"';
+      params['f_search'] = (params['f_search'] ?? '') + ' language:"$language"';
     }
 
     if (searchType == SearchType.gallery) {
