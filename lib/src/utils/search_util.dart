@@ -68,12 +68,6 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     return;
   }
 
-  if (isRouteAtTop(Routes.mobileV2Search)) {
-    SearchPageMobileV2Logic.current!.state.searchConfig = searchConfig.copyWith();
-    SearchPageMobileV2Logic.current!.handleClearAndRefresh();
-    return;
-  }
-
   toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
 }
 
