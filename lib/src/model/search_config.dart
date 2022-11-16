@@ -30,6 +30,8 @@ class SearchConfig {
   /// i have to admit this field is an awful design
   List<TagData>? tags;
 
+  String? language;
+
   bool onlySearchExpungedGalleries = false;
   bool onlyShowGalleriesWithTorrents = false;
   bool searchLowPowerTags = false;
@@ -60,6 +62,7 @@ class SearchConfig {
     this.includeMisc = true,
     this.keyword,
     this.tags,
+    this.language,
     this.onlySearchExpungedGalleries = false,
     this.onlyShowGalleriesWithTorrents = false,
     this.searchLowPowerTags = false,
@@ -93,7 +96,11 @@ class SearchConfig {
     Map<String, dynamic> params = {};
 
     if (keyword != null || (tags?.isNotEmpty ?? false)) {
-      params['f_search'] = computeKeywords();
+      params['f_search'] = computeFullKeywords();
+    }
+
+    if (language != null) {
+      params['f_search'] += ' language:"$language"';
     }
 
     if (searchType == SearchType.gallery) {
@@ -140,11 +147,11 @@ class SearchConfig {
     return params;
   }
 
-  String computeKeywords() {
-    return '${keyword ?? ''} ${toTagKeywords(withTranslation: false, separator: ' ')}'.trim();
+  String computeFullKeywords() {
+    return '${keyword ?? ''} ${computeTagKeywords(withTranslation: false, separator: ' ')}'.trim();
   }
 
-  String toTagKeywords({required bool withTranslation, required String separator}) {
+  String computeTagKeywords({required bool withTranslation, required String separator}) {
     List<String> strs = [];
 
     tags?.forEach((tag) {
@@ -215,6 +222,7 @@ class SearchConfig {
       includeMisc: json["includeMisc"],
       keyword: json["keyword"],
       tags: (json["tags"] as List?)?.map((e) => TagData.fromJson(e)).toList(),
+      language: json["language"],
       onlySearchExpungedGalleries: json["searchExpungedGalleries"],
       onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
       searchLowPowerTags: json["searchLowPowerTags"],
@@ -243,6 +251,7 @@ class SearchConfig {
       "includeMisc": includeMisc,
       "keyword": keyword,
       "tags": tags,
+      "language": language,
       "searchExpungedGalleries": onlySearchExpungedGalleries,
       "onlyShowGalleriesWithTorrents": onlyShowGalleriesWithTorrents,
       "searchLowPowerTags": searchLowPowerTags,
@@ -270,6 +279,7 @@ class SearchConfig {
     bool? includeMisc,
     String? keyword,
     List<TagData>? tags,
+    String? language,
     bool? searchExpungedGalleries,
     bool? onlyShowGalleriesWithTorrents,
     bool? searchLowPowerTags,
@@ -294,6 +304,7 @@ class SearchConfig {
       includeMisc: includeMisc ?? this.includeMisc,
       keyword: keyword ?? this.keyword,
       tags: tags ?? this.tags?.map((tag) => tag.copyWith()).toList(),
+      language: language ?? this.language,
       onlySearchExpungedGalleries: searchExpungedGalleries ?? this.onlySearchExpungedGalleries,
       onlyShowGalleriesWithTorrents: onlyShowGalleriesWithTorrents ?? this.onlyShowGalleriesWithTorrents,
       searchLowPowerTags: searchLowPowerTags ?? this.searchLowPowerTags,
@@ -309,6 +320,6 @@ class SearchConfig {
 
   @override
   String toString() {
-    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex}';
+    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, language: $language, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex}';
   }
 }

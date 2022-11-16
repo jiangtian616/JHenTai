@@ -7,7 +7,7 @@ import '../../base/base_page_logic.dart';
 
 class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixin {
   @override
-  bool get useSearchConfig => false;
+  bool get useSearchConfig => true;
 
   @override
   bool get autoLoadForFirstTime => false;
@@ -45,5 +45,10 @@ class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixi
   void onClose() {
     super.onClose();
     stack.remove(this);
+  }
+
+  @override
+  void saveSearchConfig(SearchConfig searchConfig) {
+    storageService.write('searchConfig: $runtimeType', searchConfig.copyWith(keyword: '', tags: []).toJson());
   }
 }

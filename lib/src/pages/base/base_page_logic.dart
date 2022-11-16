@@ -285,7 +285,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     /// No need to save at search page
     if (useSearchConfig) {
-      storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
+      saveSearchConfig(searchConfig);
     }
 
     handleClearAndRefresh();
@@ -315,6 +315,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       searchConfig: state.searchConfig,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
+  }
+
+  void saveSearchConfig(SearchConfig searchConfig){
+    storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
   }
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {

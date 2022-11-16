@@ -206,7 +206,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       return;
     }
 
-    String searchPhrase = state.searchConfig.computeKeywords();
+    String searchPhrase = state.searchConfig.computeFullKeywords();
     if (searchPhrase.isEmpty) {
       return;
     }

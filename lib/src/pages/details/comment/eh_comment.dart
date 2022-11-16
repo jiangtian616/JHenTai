@@ -244,7 +244,7 @@ class _EHCommentTextBody extends StatelessWidget {
   }
 
   InlineSpan _buildText(String text) {
-    RegExp reg = RegExp(r'(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@|~)+))');
+    RegExp reg = RegExp(r'(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@|~|\+)+))');
     Match? match = reg.firstMatch(text);
 
     if (match == null) {

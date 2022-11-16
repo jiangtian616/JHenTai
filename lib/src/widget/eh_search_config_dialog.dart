@@ -19,6 +19,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:throttling/throttling.dart';
 
 import '../config/ui_config.dart';
+import '../consts/locale_consts.dart';
 import '../database/database.dart';
 import '../network/eh_request.dart';
 import '../setting/style_setting.dart';
@@ -151,7 +152,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               children: [
                 _buildCategoryTags().marginOnly(top: 20),
                 _buildKeywordTextField().marginOnly(top: 12),
-                _buildSearchExpungedGalleriesSwitch().marginOnly(top: 20),
+                _buildLanguageSelector().marginOnly(top: 20),
+                _buildSearchExpungedGalleriesSwitch(),
                 _buildOnlySearchGallerysWithTorrentsSwitch(),
                 _buildSearchLowerTagsSwitch(),
                 _buildPageRangeSelector(),
@@ -243,7 +245,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             alignLabelWithHint: true,
             labelText: 'keyword'.tr,
             labelStyle: const TextStyle(fontSize: 12),
-            helperText: searchConfig.toTagKeywords(withTranslation: true, separator: '  /  '),
+            helperText: searchConfig.computeTagKeywords(withTranslation: true, separator: '  /  '),
             helperMaxLines: 99,
             hintText: searchConfig.tags?.isEmpty ?? true ? null : 'backspace2DeleteTag'.tr,
             hintStyle: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline.withOpacity(0.5)),
@@ -394,6 +396,28 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           ],
         ).marginOnly(top: 4),
       ],
+    );
+  }
+
+  Widget _buildLanguageSelector() {
+    return ListTile(
+      dense: true,
+      contentPadding: EdgeInsets.zero,
+      title: Text('language'.tr, style: const TextStyle(fontSize: 15)),
+      trailing: DropdownButton<String?>(
+        value: searchConfig.language,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (String? newValue) => setState(() => searchConfig.language = newValue),
+        menuMaxHeight: 200,
+        items: [
+          DropdownMenuItem(child: Text('nope'.tr), value: null),
+          ...LocaleConsts.language2Abbreviation.keys
+              .where((language) => language != 'japanese')
+              .map((language) => DropdownMenuItem(child: Text(language.capitalizeFirst!), value: language))
+              .toList(),
+        ],
+      ),
     );
   }
 
