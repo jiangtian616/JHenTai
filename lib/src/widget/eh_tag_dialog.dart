@@ -159,6 +159,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         color: UIConfig.tagDialogButtonColor,
       ),
       onTap: (_) async {
+        backRoute();
         toRoute(Routes.tagSets);
         return null;
       },

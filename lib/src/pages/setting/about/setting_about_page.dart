@@ -15,7 +15,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
   String packageName = '';
   String version = '';
   String buildNumber = '';
-  String author = 'JT <jiangtian616@qq.com>';
+  String author = 'JTMonster <jiangtian616@qq.com>';
   String gitRepo = 'https://github.com/jiangtian616/JHenTai';
 
   @override
