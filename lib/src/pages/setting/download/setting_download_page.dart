@@ -238,26 +238,13 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         archiveDownloadService.pauseAllDownloadArchive(),
       ]);
 
-      io.Directory oldDownloadDir = io.Directory(oldDownloadPath);
-      List<io.FileSystemEntity> oldEntities = oldDownloadDir.listSync(recursive: true);
-      List<io.Directory> oldDirs = oldEntities.whereType<io.Directory>().toList();
-      List<io.File> oldFiles = oldEntities.whereType<io.File>().toList();
-
-      List<Future> futures = [];
-
-      /// copy directories first
-      for (io.Directory oldDir in oldDirs) {
-        io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
-        futures.add(newDir.create(recursive: true));
+      try {
+        await _copyOldFiles(oldDownloadPath, newDownloadPath);
+      } on Exception catch (e) {
+        Log.error('Copy files failed!', e);
+        Log.upload(e, extraInfos: {'oldDownloadPath': oldDownloadPath, 'newDownloadPath': newDownloadPath});
+        toast('internalError'.tr);
       }
-      await Future.wait(futures);
-      futures.clear();
-
-      /// then copy files
-      for (io.File oldFile in oldFiles) {
-        futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
-      }
-      await Future.wait(futures);
 
       DownloadSetting.saveDownloadPath(newDownloadPath);
 
@@ -276,6 +263,29 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   Future<void> _handleResetDownloadPath() {
     return _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
+  }
+
+  Future<void> _copyOldFiles(String oldDownloadPath, String newDownloadPath) async {
+    io.Directory oldDownloadDir = io.Directory(oldDownloadPath);
+    List<io.FileSystemEntity> oldEntities = oldDownloadDir.listSync(recursive: true);
+    List<io.Directory> oldDirs = oldEntities.whereType<io.Directory>().toList();
+    List<io.File> oldFiles = oldEntities.whereType<io.File>().toList();
+
+    List<Future> futures = [];
+
+    /// copy directories first
+    for (io.Directory oldDir in oldDirs) {
+      io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
+      futures.add(newDir.create(recursive: true));
+    }
+    await Future.wait(futures);
+    futures.clear();
+
+    /// then copy files
+    for (io.File oldFile in oldFiles) {
+      futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
+    }
+    await Future.wait(futures);
   }
 
   Future<void> _restore() async {
