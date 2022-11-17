@@ -4,6 +4,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -64,7 +65,11 @@ class _LogPageState extends State<LogPage> {
     );
   }
 
-  Future<void> _copyLog(io.File file) async{
+  Future<void> _copyLog(io.File file) async {
+    String content = file.readAsStringSync();
+    if (isEmptyOrNull(content)) {
+      return;
+    }
     await FlutterClipboard.copy(file.readAsStringSync());
     toast('hasCopiedToClipboard'.tr);
   }
