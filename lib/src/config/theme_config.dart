@@ -41,13 +41,6 @@ class ThemeConfig {
     scaffoldBackgroundColor: const Color(0xFFFFFBFE),
 
     /// for mobile layout v1
-    tabBarTheme: TabBarTheme(
-      labelColor: Colors.pink.shade300,
-      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-      unselectedLabelColor: Colors.grey.shade600,
-      indicatorSize: TabBarIndicatorSize.label,
-      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
-    ),
     primaryColorLight: Colors.pink.shade300,
   );
 
@@ -94,13 +87,6 @@ class ThemeConfig {
     scaffoldBackgroundColor: const Color(0xFF1C1B1F),
 
     /// for mobile layout v1
-    tabBarTheme: TabBarTheme(
-      labelColor: Colors.pink.shade300,
-      labelStyle: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-      unselectedLabelColor: Colors.grey.shade600,
-      indicatorSize: TabBarIndicatorSize.label,
-      indicator: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.pink.shade300, width: 3))),
-    ),
     primaryColorLight: Colors.pink.shade300,
   );
 }

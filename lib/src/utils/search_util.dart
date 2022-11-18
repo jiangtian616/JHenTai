@@ -68,7 +68,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     return;
   }
 
-  toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
+  toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith(), preventDuplicates: false);
 }
 
 Future<void> handleAddQuickSearch() async {
