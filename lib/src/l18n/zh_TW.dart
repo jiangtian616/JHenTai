@@ -283,6 +283,16 @@ class zh_TW {
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
 
+      /// proxy page
+      'proxySetting': '代理设置',
+      'proxyType': '代理類型',
+      'systemProxy': '系統代理',
+      'httpProxy': 'HTTP',
+      'socks5Proxy': 'SOCKS5',
+      'socks4Proxy': 'SOCKS4',
+      'directProxy': 'DIRECT',
+      'address': '地址',
+
       /// security setting page
       'enableBiometricLock': '開啓生物認證（啓動時）',
       'enableBiometricLockOnResume': '開啓生物認證（切換至前台時）',

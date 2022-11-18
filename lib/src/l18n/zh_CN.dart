@@ -283,6 +283,16 @@ class zh_CN {
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
 
+      /// proxy page
+      'proxySetting': '代理设置',
+      'proxyType': '代理类型',
+      'systemProxy': '系统代理',
+      'httpProxy': 'HTTP',
+      'socks5Proxy': 'SOCKS5',
+      'socks4Proxy': 'SOCKS4',
+      'directProxy': 'DIRECT',
+      'address': '地址',
+
       /// security setting page
       'enableBiometricLock': '开启生物认证（启动时）',
       'enableBiometricLockOnResume': '开启生物认证（切换至前台时）',

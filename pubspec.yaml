@@ -77,6 +77,7 @@ dependencies:
   animated_flip_counter: ^0.2.5
   image_gallery_saver:
     git: https://github.com/hui-z/image_gallery_saver
+  system_network_proxy: 1.0.2
 
 dependency_overrides:
   dio:

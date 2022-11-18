@@ -285,6 +285,16 @@ class pt_BR {
       /// host mapping page
       'hostDataSource': 'Não há necessidade de alterar por padrão.\nFonte de dados: https://dns.google/',
 
+      /// proxy page
+      'proxySetting': 'Proxy Setting',
+      'proxyType': 'Proxy Type',
+      'systemProxy': 'System',
+      'httpProxy': 'HTTP',
+      'socks5Proxy': 'SOCKS5',
+      'socks4Proxy': 'SOCKS4',
+      'directProxy': 'DIRECT',
+      'address': 'Address',
+
       /// security setting page
       'enableBiometricLock': 'Ativar autenticação biométrica no lançamento',
       'enableBiometricLockOnResume': 'Ativar autenticação biométrica ao retomar',

@@ -1359,6 +1359,48 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.0+2"
+  system_network_proxy:
+    dependency: "direct main"
+    description:
+      name: system_network_proxy
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  system_network_proxy_linux:
+    dependency: transitive
+    description:
+      name: system_network_proxy_linux
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  system_network_proxy_macos:
+    dependency: transitive
+    description:
+      name: system_network_proxy_macos
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  system_network_proxy_platform_interface:
+    dependency: transitive
+    description:
+      name: system_network_proxy_platform_interface
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  system_network_proxy_web:
+    dependency: transitive
+    description:
+      name: system_network_proxy_web
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
+  system_network_proxy_windows:
+    dependency: transitive
+    description:
+      name: system_network_proxy_windows
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.2"
   term_glyph:
     dependency: transitive
     description:

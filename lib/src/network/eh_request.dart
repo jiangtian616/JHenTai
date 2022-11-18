@@ -19,6 +19,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:system_network_proxy/system_network_proxy.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import '../setting/network_setting.dart';
@@ -106,25 +107,38 @@ class EHRequest {
       },
     ));
 
+    /// proxy setting
+    String proxyServer = await SystemNetworkProxy.getProxyServer();
+    findProxy(_) {
+      switch (NetworkSetting.proxyType.value) {
+        case ProxyType.system:
+          return 'PROXY $proxyServer; DIRECT';
+        case ProxyType.http:
+          return 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
+        case ProxyType.socks5:
+          return 'SOCKS5 ${NetworkSetting.proxyAddress.value}; DIRECT';
+        case ProxyType.socks4:
+          return 'SOCKS4 ${NetworkSetting.proxyAddress.value}; DIRECT';
+        case ProxyType.direct:
+          return 'DIRECT';
+      }
+    }
+
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
       /// certificate for domain fronting
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+      client.badCertificateCallback = (_, String host, __) {
         return NetworkSetting.allIPs.contains(host);
       };
 
-      /// https://stackoverflow.com/questions/72913239/flutter-network-proxy-is-ineffective-on-windows
-      if (GetPlatform.isDesktop) {
-        client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
-      }
+      client.findProxy = findProxy;
+
       return null;
     };
 
     /// domain fronting for ExtendedNetworkImage
     HttpClient client = ExtendedNetworkImageProvider.httpClient as HttpClient;
     client.badCertificateCallback = (_, __, ___) => true;
-    if (GetPlatform.isDesktop) {
-      client.findProxy = (_) => 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
-    }
+    client.findProxy = findProxy;
 
     /// cookies
     cookieManager = Get.find<EHCookieManager>();

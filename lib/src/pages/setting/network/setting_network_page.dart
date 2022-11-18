@@ -58,30 +58,8 @@ class SettingNetworkPage extends StatelessWidget {
     return ListTile(
       title: Text('proxyAddress'.tr),
       subtitle: Text('proxyAddressHint'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 150,
-            child: TextField(
-              controller: proxyAddressController,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          IconButton(
-            onPressed: () {
-              if (proxyAddressController.value.text.isEmpty) {
-                toast('invalid'.tr);
-                return;
-              }
-              NetworkSetting.saveProxyAddress(proxyAddressController.value.text);
-              toast('saveSuccess'.tr);
-            },
-            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
-          ),
-        ],
-      ),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.proxy),
     );
   }
 

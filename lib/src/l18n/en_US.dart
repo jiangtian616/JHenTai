@@ -284,6 +284,16 @@ class en_US {
       /// host mapping page
       'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
 
+      /// proxy page
+      'proxySetting': 'Proxy Setting',
+      'proxyType': 'Proxy Type',
+      'systemProxy': 'System',
+      'httpProxy': 'HTTP',
+      'socks5Proxy': 'SOCKS5',
+      'socks4Proxy': 'SOCKS4',
+      'directProxy': 'DIRECT',
+      'address': 'Address',
+
       /// security setting page
       'enableBiometricLock': 'Enable Biometric Auth on Launch',
       'enableBiometricLockOnResume': 'Enable Biometric Auth on Resume',
