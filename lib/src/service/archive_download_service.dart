@@ -16,6 +16,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/utils/byte_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -607,11 +608,11 @@ class ArchiveDownloadService extends GetxController {
   }
 
   Future<void> _unpackingArchive(ArchiveDownloadedData archive) async {
-    Log.download('Unpacking archive: ${archive.title} original: ${archive.isOriginal}');
-
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-
     InputFileStream inputStream = InputFileStream(_computePackingFileDownloadPath(archive));
+
+    Log.download('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}, length: ${byte2String(inputStream.length.toDouble())}');
+
     try {
       Archive unpackedDir = ZipDecoder().decodeBuffer(inputStream);
       extractArchiveToDisk(unpackedDir, computeArchiveUnpackingPath(archive));
