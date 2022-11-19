@@ -15,6 +15,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/utils/recorder_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -60,13 +61,18 @@ class GalleryDownloadService extends GetxController {
 
   @override
   onInit() async {
-    _ensureDownloadDirExists();
+    await recordTimeCost(
+      'init GalleryDownloadService',
+      () async {
+        _ensureDownloadDirExists();
 
-    await _instantiateFromDB();
+        await _instantiateFromDB();
 
-    Log.debug('init DownloadService success, download task count: ${gallerys.length}');
+        Log.debug('init DownloadService success, download task count: ${gallerys.length}');
 
-    _startExecutor();
+        _startExecutor();
+      },
+    );
 
     super.onInit();
   }

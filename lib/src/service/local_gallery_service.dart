@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import '../model/gallery_image.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';
+import '../utils/recorder_util.dart';
 import 'archive_download_service.dart';
 
 class LocalGallery {
@@ -46,11 +47,16 @@ class LocalGalleryService extends GetxController {
 
   @override
   onInit() async {
-    int count = await _loadGalleriesFromDisk();
+    await recordTimeCost(
+      'init LocalGalleryService',
+      () async {
+        int count = await _loadGalleriesFromDisk();
 
-    Log.debug('Init LocalGalleryService success. Galleries count: $count');
+        Log.debug('Init LocalGalleryService success. Galleries count: $count');
 
-    super.onInit();
+        super.onInit();
+      },
+    );
   }
 
   void deleteGallery(LocalGallery gallery, String parentPath) {

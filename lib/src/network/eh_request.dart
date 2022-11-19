@@ -49,7 +49,7 @@ class EHRequest {
 
     _dio.interceptors.add(Get.find<EHCacheInterceptor>());
 
-    Log.debug('init EHRequest success', false);
+    Log.debug('init EHRequest success');
   }
 
   /// error handler

@@ -17,6 +17,7 @@ import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
+import 'package:jhentai/src/utils/recorder_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -48,15 +49,20 @@ class ArchiveDownloadService extends GetxController {
 
   @override
   onInit() async {
-    await _instantiateFromDB();
+    await recordTimeCost(
+      'init ArchiveDownloadService',
+      () async {
+        await _instantiateFromDB();
 
-    Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
+        Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
 
-    for (ArchiveDownloadedData archive in archives) {
-      if (archive.archiveStatusIndex > ArchiveStatus.paused.index && archive.archiveStatusIndex < ArchiveStatus.completed.index) {
-        downloadArchive(archive, resume: true);
-      }
-    }
+        for (ArchiveDownloadedData archive in archives) {
+          if (archive.archiveStatusIndex > ArchiveStatus.paused.index && archive.archiveStatusIndex < ArchiveStatus.completed.index) {
+            downloadArchive(archive, resume: true);
+          }
+        }
+      },
+    );
 
     super.onInit();
   }
@@ -611,7 +617,7 @@ class ArchiveDownloadService extends GetxController {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     InputFileStream inputStream = InputFileStream(_computePackingFileDownloadPath(archive));
 
-    Log.download('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}, length: ${byte2String(inputStream.length.toDouble())}');
+    Log.info('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}, length: ${byte2String(inputStream.length.toDouble())}');
 
     try {
       Archive unpackedDir = ZipDecoder().decodeBuffer(inputStream);
