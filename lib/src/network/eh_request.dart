@@ -29,21 +29,6 @@ import 'eh_cookie_manager.dart';
 
 typedef EHHtmlParser<T> = T Function(Response response);
 
-class EHHttpOverrides extends HttpOverrides {
-  String Function(Uri url) findProxy;
-
-  EHHttpOverrides(this.findProxy);
-
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return createProxyHttpClient(context: context)
-      ..badCertificateCallback = (_, String host, __) {
-        return NetworkSetting.allIPs.contains(host);
-      }
-      ..findProxy = findProxy;
-  }
-}
-
 class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
@@ -169,22 +154,25 @@ class EHRequest {
       return configAddress;
     }
 
-    String findProxy(_) {
-      switch (NetworkSetting.proxyType.value) {
-        case ProxyType.system:
-          return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
-        case ProxyType.http:
-          return 'PROXY ${getConfigAddress()}; DIRECT';
-        case ProxyType.socks5:
-          return 'SOCKS5 ${getConfigAddress()}; DIRECT';
-        case ProxyType.socks4:
-          return 'SOCKS4 ${getConfigAddress()}; DIRECT';
-        case ProxyType.direct:
-          return 'DIRECT';
-      }
-    }
-
-    HttpOverrides.global = EHHttpOverrides(findProxy);
+    SocksProxy.initProxy(
+      onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
+        return NetworkSetting.allIPs.contains(host);
+      },
+      findProxy: (_) {
+        switch (NetworkSetting.proxyType.value) {
+          case ProxyType.system:
+            return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
+          case ProxyType.http:
+            return 'PROXY ${getConfigAddress()}; DIRECT';
+          case ProxyType.socks5:
+            return 'SOCKS5 ${getConfigAddress()}; DIRECT';
+          case ProxyType.socks4:
+            return 'SOCKS4 ${getConfigAddress()}; DIRECT';
+          case ProxyType.direct:
+            return 'DIRECT';
+        }
+      },
+    );
   }
 
   /// cookies
