@@ -134,7 +134,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       if (images.isEmpty) {
         toast('Your archive is broken!');
         Log.error('Your archive is broken!');
-        Log.upload('Your archive is broken!',extraInfos: {'archive':archive});
+        Log.upload(Exception('Your archive is broken!'), extraInfos: {'archive': archive});
         return;
       }
 
