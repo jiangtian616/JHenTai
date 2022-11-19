@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 
 import '../../../../model/read_page_info.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -61,18 +62,7 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         /// step 3: use url to load image
-        FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
-        return GestureDetector(
-          onLongPress: GetPlatform.isMobile ? () => logic.showBottomMenuInOnlineMode(index, context) : null,
-          child: EHImage.network(
-            galleryImage: readPageState.images[index]!,
-            containerWidth: fittedSizes.destination.width,
-            containerHeight: fittedSizes.destination.height,
-            clearMemoryCacheWhenDispose: true,
-            loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
-            failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
-          ),
-        );
+        return _buildOnlineImage(context, index);
       },
     );
   }
@@ -94,18 +84,7 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         /// step 3: use url to load image
-        FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
-        return GestureDetector(
-          onLongPress: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
-          child: EHImage.file(
-            galleryImage: readPageState.images[index]!,
-            containerWidth: fittedSizes.destination.width,
-            containerHeight: fittedSizes.destination.height,
-            clearMemoryCacheWhenDispose: true,
-            downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
-            pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
-          ),
-        );
+        return _buildLocalImage(context, index);
       },
     );
   }
@@ -170,6 +149,21 @@ abstract class BaseLayout extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOnlineImage(BuildContext context, int index) {
+    FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
+    return GestureDetector(
+      onLongPress: GetPlatform.isMobile ? () => logic.showBottomMenuInOnlineMode(index, context) : null,
+      child: EHImage.network(
+        galleryImage: readPageState.images[index]!,
+        containerWidth: fittedSizes.destination.width,
+        containerHeight: fittedSizes.destination.height,
+        clearMemoryCacheWhenDispose: true,
+        loadingWidgetBuilder: (double progress) => _loadingWidgetBuilder(context, index, progress),
+        failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(context, index, state),
       ),
     );
   }
@@ -239,6 +233,30 @@ abstract class BaseLayout extends StatelessWidget {
           Text(downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr).marginOnly(top: 8),
           Text((index + 1).toString()).marginOnly(top: 4),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLocalImage(BuildContext context, int index) {
+    return GestureDetector(
+      onLongPress: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
+      child: Container(
+        constraints: readPageState.loadComplete[index]
+            ? null
+            : BoxConstraints(minHeight: logic.getPlaceHolderSize().height, minWidth: logic.getPlaceHolderSize().width),
+        child: EHImage.file(
+          galleryImage: readPageState.images[index]!,
+          clearMemoryCacheWhenDispose: true,
+          downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
+          pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
+          completedWidgetBuilder: (_) {
+            Get.engine.addPostFrameCallback((_) {
+              readPageState.loadComplete[index] = true;
+              logic.galleryDownloadService.updateSafely(['$downloadImageId::${readPageState.readPageInfo.gid}']);
+            });
+            return null;
+          },
+        ),
       ),
     );
   }

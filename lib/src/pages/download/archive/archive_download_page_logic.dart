@@ -131,13 +131,6 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
 
-      if (images.isEmpty) {
-        toast('Your archive is broken!');
-        Log.error('Your archive is broken!');
-        Log.upload(Exception('Your archive is broken!'), extraInfos: {'archive': archive});
-        return;
-      }
-
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(

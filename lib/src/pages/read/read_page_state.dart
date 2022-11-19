@@ -22,6 +22,7 @@ class ReadPageState {
 
   late List<LoadingState> parseImageHrefsStates;
   late List<LoadingState> parseImageUrlStates;
+  late List<bool> loadComplete;
   String? parseImageHrefErrorMsg;
   late List<String?> parseImageUrlErrorMsg;
 
@@ -51,6 +52,7 @@ class ReadPageState {
 
     parseImageHrefsStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
     parseImageUrlStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
+    loadComplete = List.generate(readPageInfo.pageCount, (_) => false);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
   }
