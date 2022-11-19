@@ -1,14 +1,12 @@
 import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../model/read_page_info.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../utils/log.dart';
-import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/icon_text_button.dart';
 import '../../../../widget/loading_state_indicator.dart';

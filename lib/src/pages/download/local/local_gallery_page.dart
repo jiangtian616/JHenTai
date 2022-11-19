@@ -248,15 +248,6 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm:ss').format(gallery.time),
-              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
             if (gallery.galleryUrl != null)
               Text(
                 'EHViewer',
@@ -264,6 +255,15 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
               ).marginOnly(right: 8),
             Text(
               '${gallery.pageCount}P',
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              DateFormat('yyyy-MM-dd HH:mm:ss').format(gallery.time),
               style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
             ),
           ],
