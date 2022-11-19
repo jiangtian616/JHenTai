@@ -78,6 +78,8 @@ dependencies:
   image_gallery_saver:
     git: https://github.com/hui-z/image_gallery_saver
   system_network_proxy: 1.0.2
+  http_proxy: 1.2.1
+  flutter_socks_proxy: 0.0.2
 
 dependency_overrides:
   dio:

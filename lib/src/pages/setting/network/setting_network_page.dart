@@ -27,7 +27,7 @@ class SettingNetworkPage extends StatelessWidget {
           children: [
             _buildEnableDomainFronting(),
             if (NetworkSetting.enableDomainFronting.isTrue) _buildHostMapping().fadeIn(),
-            if (GetPlatform.isDesktop) _buildProxyAddress(),
+            _buildProxyAddress(),
             _buildPageCacheMaxAge(),
             _buildConnectTimeout(),
             _buildReceiveTimeout(),
@@ -57,8 +57,7 @@ class SettingNetworkPage extends StatelessWidget {
   Widget _buildProxyAddress() {
     return ListTile(
       title: Text('proxyAddress'.tr),
-      subtitle: Text('proxyAddressHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
       onTap: () => toRoute(Routes.proxy),
     );
   }

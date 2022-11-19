@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:extended_image/extended_image.dart' show ExtendedNetworkImageProvider;
+import 'package:flutter_socks_proxy/socks_proxy.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
+import 'package:http_proxy/http_proxy.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
@@ -18,6 +18,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:system_network_proxy/system_network_proxy.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -27,6 +28,21 @@ import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
 
 typedef EHHtmlParser<T> = T Function(Response response);
+
+class EHHttpOverrides extends HttpOverrides {
+  String Function(Uri url) findProxy;
+
+  EHHttpOverrides(this.findProxy);
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return createProxyHttpClient(context: context)
+      ..badCertificateCallback = (_, String host, __) {
+        return NetworkSetting.allIPs.contains(host);
+      }
+      ..findProxy = findProxy;
+  }
+}
 
 class EHRequest {
   static late final Dio _dio;
@@ -38,7 +54,21 @@ class EHRequest {
       receiveTimeout: NetworkSetting.receiveTimeout.value,
     ));
 
-    /// error handler
+    _initErrorHandler();
+
+    _initDomainFronting();
+
+    await _initProxy();
+
+    _initCookies();
+
+    _dio.interceptors.add(Get.find<EHCacheInterceptor>());
+
+    Log.debug('init EHRequest success', false);
+  }
+
+  /// error handler
+  static void _initErrorHandler() {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onResponse: (response, handler) {
@@ -84,8 +114,11 @@ class EHRequest {
         },
       ),
     );
+  }
 
-    /// domain fronting for dio
+  /// domain fronting for dio and proxy
+  static Future<void> _initDomainFronting() async {
+    /// domain fronting interceptor
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
         if (NetworkSetting.enableDomainFronting.isFalse) {
@@ -106,48 +139,58 @@ class EHRequest {
         ));
       },
     ));
+  }
 
+  /// proxy
+  static Future<void> _initProxy() async {
     /// proxy setting
-    String proxyServer = await SystemNetworkProxy.getProxyServer();
-    findProxy(_) {
+    String systemProxyAddress = '';
+
+    if (GetPlatform.isDesktop) {
+      SystemNetworkProxy.init();
+      systemProxyAddress = await SystemNetworkProxy.getProxyServer();
+    }
+    if (GetPlatform.isMobile) {
+      HttpProxy httpProxy = await HttpProxy.createHttpProxy();
+      if (!isEmptyOrNull(httpProxy.host) && !isEmptyOrNull(httpProxy.port)) {
+        systemProxyAddress = '${httpProxy.host}:${httpProxy.port}';
+      }
+    }
+    Log.info('System Proxy Address: $systemProxyAddress');
+
+    String getConfigAddress() {
+      String configAddress;
+      if (isEmptyOrNull(NetworkSetting.proxyUsername.value) && isEmptyOrNull(NetworkSetting.proxyPassword.value)) {
+        configAddress = NetworkSetting.proxyAddress.value;
+      } else {
+        configAddress =
+            '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
+      }
+      return configAddress;
+    }
+
+    String findProxy(_) {
       switch (NetworkSetting.proxyType.value) {
         case ProxyType.system:
-          return 'PROXY $proxyServer; DIRECT';
+          return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
         case ProxyType.http:
-          return 'PROXY ${NetworkSetting.proxyAddress.value}; DIRECT';
+          return 'PROXY ${getConfigAddress()}; DIRECT';
         case ProxyType.socks5:
-          return 'SOCKS5 ${NetworkSetting.proxyAddress.value}; DIRECT';
+          return 'SOCKS5 ${getConfigAddress()}; DIRECT';
         case ProxyType.socks4:
-          return 'SOCKS4 ${NetworkSetting.proxyAddress.value}; DIRECT';
+          return 'SOCKS4 ${getConfigAddress()}; DIRECT';
         case ProxyType.direct:
           return 'DIRECT';
       }
     }
 
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      /// certificate for domain fronting
-      client.badCertificateCallback = (_, String host, __) {
-        return NetworkSetting.allIPs.contains(host);
-      };
+    HttpOverrides.global = EHHttpOverrides(findProxy);
+  }
 
-      client.findProxy = findProxy;
-
-      return null;
-    };
-
-    /// domain fronting for ExtendedNetworkImage
-    HttpClient client = ExtendedNetworkImageProvider.httpClient as HttpClient;
-    client.badCertificateCallback = (_, __, ___) => true;
-    client.findProxy = findProxy;
-
-    /// cookies
+  /// cookies
+  static void _initCookies() {
     cookieManager = Get.find<EHCookieManager>();
     _dio.interceptors.add(cookieManager);
-
-    /// cache
-    _dio.interceptors.add(Get.find<EHCacheInterceptor>());
-
-    Log.debug('init EHRequest success', false);
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {

@@ -540,6 +540,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.0"
+  flutter_socks_proxy:
+    dependency: "direct main"
+    description:
+      name: flutter_socks_proxy
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.0.2"
   flutter_svg:
     dependency: transitive
     description:
@@ -732,6 +739,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.0.1"
+  http_proxy:
+    dependency: "direct main"
+    description:
+      name: http_proxy
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.1"
   image:
     dependency: transitive
     description:

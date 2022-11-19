@@ -51,6 +51,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       trailing: Obx(
         () => DropdownButton<ProxyType>(
           value: NetworkSetting.proxyType.value,
+          alignment: Alignment.center,
           items: [
             DropdownMenuItem(child: Text('systemProxy'.tr), value: ProxyType.system),
             DropdownMenuItem(child: Text('httpProxy'.tr), value: ProxyType.http),
