@@ -17,7 +17,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '../exception/upload_exception.dart';
 
 class Log {
-  static Logger? _logger;
+  static Logger? _consoleLogger;
   static Logger? _verboseFileLogger;
   static Logger? _warningFileLogger;
   static Logger? _downloadFileLogger;
@@ -35,69 +35,69 @@ class Log {
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
     LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
     LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
-    _logger = Logger(printer: devPrinter);
+
+    _consoleLogger = Logger(printer: devPrinter);
 
     _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'));
-    await _verboseLogFile.create(recursive: true);
     _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: EHLogFilter(),
-      output: FileOutput(file: _verboseLogFile),
+      output: FileOutput(file: io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
     );
-
-    _waringLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'));
-    await _waringLogFile.create(recursive: true);
-    _warningFileLogger = Logger(
-      level: Level.warning,
-      printer: prodPrinterWithBox,
-      filter: ProductionFilter(),
-      output: FileOutput(file: _waringLogFile),
-    );
-
-    _downloadLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'));
-    await _downloadLogFile.create(recursive: true);
-    _downloadFileLogger = Logger(
-      printer: prodPrinterWithoutBox,
-      filter: ProductionFilter(),
-      output: FileOutput(file: _downloadLogFile),
-    );
-
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
+
+    if (AdvancedSetting.enableVerboseLogging.isTrue) {
+      _waringLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'));
+      _warningFileLogger = Logger(
+        level: Level.warning,
+        printer: prodPrinterWithBox,
+        filter: ProductionFilter(),
+        output: FileOutput(file: _waringLogFile),
+      );
+
+      _downloadLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'));
+      _downloadFileLogger = Logger(
+        printer: prodPrinterWithoutBox,
+        filter: ProductionFilter(),
+        output: FileOutput(file: _downloadLogFile),
+      );
+    }
+
     debug('init LogUtil success', false);
   }
 
   /// For actions that print params
   static void verbose(Object? msg, [bool withStack = false]) {
-    _logger?.v(msg, null, withStack ? null : StackTrace.empty);
+    _consoleLogger?.v(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.v(msg, null, withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is invisible to user
   static void debug(Object? msg, [bool withStack = false]) {
-    _logger?.d(msg, null, withStack ? null : StackTrace.empty);
+    _consoleLogger?.d(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.d(msg, null, withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is visible to user
   static void info(Object? msg, [bool withStack = false]) {
-    _logger?.i(msg, null, withStack ? null : StackTrace.empty);
+    _consoleLogger?.i(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.i(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void warning(Object? msg, [bool withStack = false]) {
-    _logger?.w(msg, null, withStack ? null : StackTrace.empty);
+    _consoleLogger?.w(msg, null, withStack ? null : StackTrace.empty);
     _verboseFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
     _warningFileLogger?.w(msg, null, withStack ? null : StackTrace.empty);
   }
 
   static void error(Object? msg, [Object? error, StackTrace? stackTrace]) {
-    _logger?.e(msg, error, stackTrace);
+    _consoleLogger?.e(msg, error, stackTrace);
     _verboseFileLogger?.e(msg, error, stackTrace);
     _warningFileLogger?.e(msg, error, stackTrace);
   }
 
   static void download(Object? msg) {
-    _logger?.v(msg, null, StackTrace.empty);
+    _consoleLogger?.v(msg, null, StackTrace.empty);
     _downloadFileLogger?.v(msg, null, StackTrace.empty);
   }
 
@@ -105,7 +105,6 @@ class Log {
     dynamic throwable, {
     dynamic stackTrace,
     Map<String, dynamic>? extraInfos,
-    bool attachDownloadLogs = false,
   }) async {
     if (_shouldDismissUpload(throwable)) {
       return;
@@ -140,13 +139,6 @@ class Log {
             Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
             if (verboseAttachment.isNotEmpty) {
               scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
-            }
-          }
-
-          if (attachDownloadLogs) {
-            Uint8List downloadAttachment = _downloadLogFile.readAsBytesSync();
-            if (downloadAttachment.isNotEmpty) {
-              scope.addAttachment(SentryAttachment.fromUint8List(downloadAttachment, path.basename(_downloadLogFile.path)));
             }
           }
         },

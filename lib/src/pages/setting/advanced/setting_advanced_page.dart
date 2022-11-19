@@ -50,14 +50,15 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildEnableLogging() {
     return ListTile(
       title: Text('enableLogging'.tr),
-      trailing: Switch(value: AdvancedSetting.enableLogging.value, onChanged: AdvancedSetting.saveEnableLogging),
       subtitle: Text('needRestart'.tr),
+      trailing: Switch(value: AdvancedSetting.enableLogging.value, onChanged: AdvancedSetting.saveEnableLogging),
     );
   }
 
   Widget _buildRecordAllLogs() {
     return ListTile(
       title: Text('enableVerboseLogging'.tr),
+      subtitle: Text('needRestart'.tr),
       trailing: Switch(value: AdvancedSetting.enableVerboseLogging.value, onChanged: AdvancedSetting.saveEnableVerboseLogging),
     );
   }
