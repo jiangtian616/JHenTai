@@ -181,11 +181,16 @@ void _doForDesktop() {
   }
 
   doWhenWindowReady(() {
-    appWindow.title = 'JHenTai';
-    appWindow.size = const Size(1280, 720);
+    WindowService windowService = Get.find();
 
-    if (Get.find<StorageService>().read('windowMaximize') == true) {
+    appWindow.title = 'JHenTai';
+    appWindow.size = Size(windowService.windowWidth, windowService.windowHeight);
+    if (windowService.isMaximized) {
       appWindow.maximize();
+    }
+    // https://github.com/bitsdojo/bitsdojo_window/issues/193
+    else if (GetPlatform.isWindows && kDebugMode) {
+      WidgetsBinding.instance.scheduleFrameCallback((_) => appWindow.size += const Offset(1, 0));
     }
 
     appWindow.show();

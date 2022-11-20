@@ -16,7 +16,7 @@ mixin DoubleColumnWidgetMixin on StatelessWidget {
         separatorColor: Get.theme.colorScheme.onBackground.withOpacity(0.5),
         separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
         percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
-        onResized: windowService.handleResized,
+        onResized: windowService.handleColumnResized,
         isDisabledSmartHide: true,
         children: [leftColumn, rightColumn],
       ),
