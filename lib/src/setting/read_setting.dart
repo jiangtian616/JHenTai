@@ -37,7 +37,7 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
-  static RxBool enableContinuousHorizontalScroll = true.obs;
+  static RxBool enableContinuousHorizontalScroll = GetPlatform.isMobile ? false.obs : true.obs;
   static RxBool enableAutoScaleUp = false.obs;
   static RxBool enableDoubleColumn = false.obs;
 
