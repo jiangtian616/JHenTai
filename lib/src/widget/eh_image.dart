@@ -82,6 +82,7 @@ class EHImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget child = galleryImage.path == null ? buildNetworkImage() : buildFileImage();
+
     if (heroTag != null && StyleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);
     }
@@ -92,7 +93,7 @@ class EHImage extends StatelessWidget {
 
     FittedSizes fittedSizes = applyBoxFit(
       fit,
-      Size(galleryImage.width, galleryImage.height),
+      Size(galleryImage.width ?? 0, galleryImage.height ?? 0),
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
 
@@ -104,8 +105,8 @@ class EHImage extends StatelessWidget {
       child: Center(
         /// inner container for shadows, whose size is the same as image
         child: Container(
-          height: fittedSizes.destination.height,
-          width: fittedSizes.destination.width,
+          height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
+          width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
           decoration: BoxDecoration(boxShadow: shadows),
           child: child,
         ),

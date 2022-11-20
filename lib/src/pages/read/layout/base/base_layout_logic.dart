@@ -208,7 +208,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   FittedSizes getImageFittedSize(GalleryImage image) {
     return applyBoxFit(
       BoxFit.contain,
-      Size(image.width, image.height),
+      Size(image.width!, image.height!),
       Size(fullScreenWidth, double.infinity),
     );
   }

@@ -2,8 +2,8 @@ import '../service/gallery_download_service.dart';
 
 class GalleryImage {
   String url;
-  double height;
-  double width;
+  double? height;
+  double? width;
 
   String? path;
   String? imageHash;
@@ -11,8 +11,8 @@ class GalleryImage {
 
   GalleryImage({
     required this.url,
-    required this.height,
-    required this.width,
+    this.height,
+    this.width,
     this.imageHash,
     this.path,
     this.downloadStatus = DownloadStatus.none,

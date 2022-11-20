@@ -123,7 +123,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     /// 6 is the width of divider
     return applyBoxFit(
       BoxFit.contain,
-      Size(image.width, image.height),
+      Size(image.width!, image.height!),
       Size((fullScreenWidth - 6) / 2, screenHeight),
     );
   }

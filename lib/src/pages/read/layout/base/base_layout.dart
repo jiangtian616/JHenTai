@@ -238,12 +238,12 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   Widget _buildLocalImage(BuildContext context, int index) {
+    Size placeHolderSize = logic.getPlaceHolderSize();
+
     return GestureDetector(
       onLongPress: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
       child: Container(
-        constraints: readPageState.loadComplete[index]
-            ? null
-            : BoxConstraints(minHeight: logic.getPlaceHolderSize().height, minWidth: logic.getPlaceHolderSize().width),
+        constraints: readPageState.loadComplete[index] ? null : BoxConstraints(minHeight: placeHolderSize.height, minWidth: placeHolderSize.width),
         child: EHImage.file(
           galleryImage: readPageState.images[index]!,
           clearMemoryCacheWhenDispose: true,

@@ -110,8 +110,8 @@ class LocalGalleryService extends GetxController {
       return;
     }
 
-    List<io.Directory> gallerysInCurrentPath = directories.where((dir) => _checkLegalGalleryDir(dir)).toList();
-    List<io.Directory> nestedDirectoriesInCurrentPath = directories.where((dir) => _checkLegalNestedDirectories(dir)).toList();
+    List<io.Directory> gallerysInCurrentPath = directories.where((dir) => _isLegalGalleryDir(dir)).toList();
+    List<io.Directory> nestedDirectoriesInCurrentPath = directories.where((dir) => _isLegalNestedDirectories(dir)).toList();
 
     for (io.Directory galleryDir in gallerysInCurrentPath) {
       _initGalleryInfoInMemory(galleryDir, parentPath);
@@ -124,7 +124,7 @@ class LocalGalleryService extends GetxController {
   }
 
   /// has images
-  bool _checkLegalGalleryDir(io.Directory galleryDir) {
+  bool _isLegalGalleryDir(io.Directory galleryDir) {
     /// has metadata => downloaded by JHenTai, continue
     if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
       return false;
@@ -155,7 +155,7 @@ class LocalGalleryService extends GetxController {
   }
 
   /// has valid child directories
-  bool _checkLegalNestedDirectories(io.Directory galleryDir) {
+  bool _isLegalNestedDirectories(io.Directory galleryDir) {
     /// has metadata => downloaded by JHenTai, continue
     if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
       return false;
@@ -170,7 +170,7 @@ class LocalGalleryService extends GetxController {
     }
 
     for (io.Directory childDir in childDirs) {
-      if (_checkLegalGalleryDir(childDir) || _checkLegalNestedDirectories(childDir)) {
+      if (_isLegalGalleryDir(childDir) || _isLegalNestedDirectories(childDir)) {
         return true;
       }
     }
@@ -188,29 +188,15 @@ class LocalGalleryService extends GetxController {
     List<io.File> imageFiles = galleryDir.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
       ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
 
-    List<GalleryImage> images = [];
-    for (io.File file in imageFiles) {
-      Size size;
-      try {
-        size = ImageSizeGetter.getSize(FileInput(file));
-      } on Exception catch (e) {
-        Log.error('Parse local images failed! Path: ${file.path}', e);
-        Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
-        continue;
-      } on Error catch (e) {
-        Log.error('Parse local images failed! Path: ${file.path}', e);
-        Log.upload(e, extraInfos: {'path': file.path, 'stat': file.statSync()});
-        continue;
-      }
-
-      images.add(GalleryImage(
-        url: 'localImage',
-        path: file.path,
-        height: size.height.toDouble(),
-        width: size.width.toDouble(),
-        downloadStatus: DownloadStatus.downloaded,
-      ));
-    }
+    List<GalleryImage> images = imageFiles
+        .map(
+          (file) => GalleryImage(
+            url: 'localImage',
+            path: file.path,
+            downloadStatus: DownloadStatus.downloaded,
+          ),
+        )
+        .toList();
 
     LocalGallery gallery = LocalGallery(
       title: basename(galleryDir.path),

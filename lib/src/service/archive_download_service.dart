@@ -286,42 +286,23 @@ class ArchiveDownloadService extends GetxController {
 
     List<io.File> imageFiles;
     try {
-      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
+      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
+        ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});
       throw NotUploadException(e);
     }
 
-    imageFiles.sort((a, b) => basename(a.path).compareTo(basename(b.path)));
-
-    List<GalleryImage> images = [];
-    for (io.File file in imageFiles) {
-      Size size;
-      try {
-        /// For some reason i don't know, .gif image's footer is 0x00, which will cause `image_size` throw exception.
-        /// so i don't check .gif image's footer
-        size = ImageSizeGetter.getSize(FileInput(file));
-      } on Exception catch (e) {
-        Log.error("Parse archive images failed! Path: ${file.path}", e);
-        Log.upload(e, extraInfos: {'path': file.path, 'info': file.statSync()});
-        continue;
-      } on Error catch (e) {
-        Log.error("Parse archive images failed! Path: ${file.path}", e);
-        Log.upload(e, extraInfos: {'path': file.path, 'info': file.statSync()});
-        continue;
-      }
-
-      images.add(GalleryImage(
-        url: 'archive',
-        path: file.path,
-        height: size.height.toDouble(),
-        width: size.width.toDouble(),
-        downloadStatus: DownloadStatus.downloaded,
-      ));
-    }
-
-    return images;
+    return imageFiles
+        .map(
+          (file) => GalleryImage(
+            url: 'archive',
+            path: file.path,
+            downloadStatus: DownloadStatus.downloaded,
+          ),
+        )
+        .toList();
   }
 
   String _computeArchiveTitle(String rawTitle) {

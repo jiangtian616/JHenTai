@@ -350,34 +350,37 @@ class ReadPage extends StatelessWidget {
             itemCount: state.readPageInfo.pageCount,
             itemScrollController: state.thumbnailsScrollController,
             itemPositionsListener: state.thumbnailPositionsListener,
-            itemBuilder: (_, index) => SizedBox(
-              width: UIConfig.readPageThumbnailWidth,
-              height: UIConfig.readPageThumbnailHeight,
-              child: GetBuilder<ReadPageLogic>(
-                  id: logic.thumbnailNoId,
-                  builder: (_) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
+            itemBuilder: (_, index) => GetBuilder<ReadPageLogic>(
+              id: logic.thumbnailNoId,
+              builder: (_) => SizedBox(
+                width: UIConfig.readPageThumbnailWidth,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxHeight: UIConfig.readPageThumbnailHeight),
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
                             onTap: () => logic.jump2PageIndex(index),
                             child:
                                 state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
-                          ),
+                          ).marginOnly(top: 2),
                         ),
-                        GetBuilder<ReadPageLogic>(
-                          builder: (_) => Text(
-                            (index + 1).toString(),
-                            style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
-                          ),
-                        ).marginOnly(top: 4),
-                      ],
-                    );
-                  }),
+                      ),
+                    ),
+                    GetBuilder<ReadPageLogic>(
+                      builder: (_) => Text(
+                        (index + 1).toString(),
+                        style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
+                      ),
+                    ).marginOnly(top: 4),
+                  ],
+                ),
+              ),
             ),
-            separatorBuilder: (_, __) => const VerticalDivider(width: 4),
+            separatorBuilder: (_, __) => const SizedBox(width: 6),
           ),
         ),
       ),
@@ -413,8 +416,6 @@ class ReadPage extends StatelessWidget {
 
         return EHImage.file(
           borderRadius: BorderRadius.circular(8),
-          containerHeight: UIConfig.readPageThumbnailHeight,
-          containerWidth: UIConfig.readPageThumbnailWidth,
           galleryImage: state.images[index]!,
         );
       },
