@@ -11,6 +11,7 @@ class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
   static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
+  static RxList<String> extraGalleryScanPath = <String>[].obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -39,6 +40,12 @@ class DownloadSetting {
   static saveDownloadPath(String downloadPath) {
     Log.debug('saveDownloadPath:$downloadPath');
     DownloadSetting.downloadPath.value = downloadPath;
+    _save();
+  }
+
+  static saveExtraGalleryScanPath(List<String> extraGalleryScanPath) {
+    Log.debug('saveExtraGalleryScanPath:$extraGalleryScanPath');
+    DownloadSetting.extraGalleryScanPath.value = extraGalleryScanPath;
     _save();
   }
 
@@ -91,6 +98,7 @@ class DownloadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'downloadPath': downloadPath.value,
+      'extraGalleryScanPath': extraGalleryScanPath.value,
       'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
@@ -104,6 +112,7 @@ class DownloadSetting {
     if (!GetPlatform.isIOS) {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
     }
+    extraGalleryScanPath.value = map['extraGalleryScanPath']?.cast<String>() ?? extraGalleryScanPath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];

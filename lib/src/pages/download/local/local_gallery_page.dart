@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart' as p;
 
@@ -114,7 +115,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: logic.backRoute,
-        child: _buildNestedDirectory('/..', context).marginAll(5),
+        child: _buildNestedDirectory('/..').marginAll(5),
       ),
     );
   }
@@ -130,12 +131,12 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => logic.pushRoute(childPath),
-        child: _buildNestedDirectory(p.relative(childPath, from: state.currentPath), context).marginAll(5),
+        child: _buildNestedDirectory(logic.isAtRootPath() ? childPath : p.relative(childPath, from: state.currentPath)).marginAll(5),
       ),
     );
   }
 
-  Widget _buildNestedDirectory(String displayPath, BuildContext context) {
+  Widget _buildNestedDirectory(String displayPath) {
     return Container(
       height: UIConfig.downloadPageGroupHeight,
       decoration: BoxDecoration(
@@ -143,12 +144,13 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         boxShadow: [UIConfig.downloadPageGroupShadow],
         borderRadius: BorderRadius.circular(15),
       ),
+      padding: const EdgeInsets.only(right: 40),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
           children: [
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
-            Expanded(child: Text(displayPath, maxLines: 1, overflow: TextOverflow.ellipsis))
+            Expanded(child: Text(_transformDisplayPath(displayPath), maxLines: 1, overflow: TextOverflow.ellipsis))
           ],
         ),
       ),
@@ -158,7 +160,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget galleryItemBuilder(BuildContext context, int index) {
     LocalGallery gallery = state.aggregateDirectories
         ? logic.localGalleryService.allGallerys[index]
-        : logic.localGalleryService.path2Gallerys[state.currentPath]![index];
+        : logic.localGalleryService.path2GalleryDir[state.currentPath]![index];
 
     return FocusWidget(
       focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
@@ -233,7 +235,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
       containerWidth: UIConfig.downloadPageCoverWidth,
       containerHeight: UIConfig.downloadPageCoverHeight,
       fit: BoxFit.fitWidth,
-      galleryImage: gallery.images[0],
+      galleryImage: gallery.cover,
     );
   }
 
@@ -270,6 +272,15 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         ),
       ],
     ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5);
+  }
+
+  String _transformDisplayPath(String path) {
+    List<String> parts = path.split(p.separator);
+    if (parts.length > 2) {
+      return '.../${parts[parts.length - 2]}/${parts[parts.length - 1]}'.breakWord;
+    } else {
+      return path.breakWord;
+    }
   }
 
   void showBottomSheet(LocalGallery gallery, BuildContext context) {

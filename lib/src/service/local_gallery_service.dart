@@ -18,19 +18,29 @@ import 'archive_download_service.dart';
 class LocalGallery {
   String title;
   String path;
+  GalleryImage cover;
   int pageCount;
-  List<GalleryImage> images;
   DateTime time;
   String? galleryUrl;
 
   LocalGallery({
     required this.title,
     required this.path,
+    required this.cover,
     required this.pageCount,
-    required this.images,
     required this.time,
     this.galleryUrl,
   });
+}
+
+class LocalGalleryParseResult {
+  /// has images
+  bool isLegalGalleryDir = false;
+
+  /// has subDirectory that has images
+  bool isLegalNestedGalleryDir = false;
+
+  int imageCount = 0;
 }
 
 /// Load galleries in download directory but is not downloaded by JHenTai
@@ -38,8 +48,9 @@ class LocalGalleryService extends GetxController {
   static const String galleryCountChangedId = 'galleryCountChangedId';
 
   List<LocalGallery> allGallerys = [];
-  Map<String, List<LocalGallery>> path2Gallerys = {};
-  Map<String, List<String>> path2Directories = {};
+  List<String> rootDirectories = [];
+  Map<String, List<LocalGallery>> path2GalleryDir = {};
+  Map<String, List<String>> path2SubDir = {};
 
   static Future<void> init() async {
     Get.put(LocalGalleryService(), permanent: true);
@@ -59,6 +70,39 @@ class LocalGalleryService extends GetxController {
     );
   }
 
+  Future<int> refreshLocalGallerys() async {
+    int preCount = allGallerys.length;
+
+    allGallerys.clear();
+    rootDirectories.clear();
+    path2GalleryDir.clear();
+    path2SubDir.clear();
+    int newCount = await _loadGalleriesFromDisk();
+
+    Log.info('Refresh local gallerys, preCount:$preCount, newCount: $newCount');
+
+    return newCount - preCount;
+  }
+
+  List<GalleryImage> getGalleryImages(LocalGallery gallery) {
+    List<io.File> imageFiles = io.Directory(gallery.path)
+        .listSync()
+        .whereType<io.File>()
+        .where((image) => FileUtil.isImageExtension(image.path))
+        .toList()
+      ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+
+    return imageFiles
+        .map(
+          (file) => GalleryImage(
+            url: 'localImage',
+            path: file.path,
+            downloadStatus: DownloadStatus.downloaded,
+          ),
+        )
+        .toList();
+  }
+
   void deleteGallery(LocalGallery gallery, String parentPath) {
     Log.info('Delete local gallery: ${gallery.title}');
 
@@ -69,146 +113,102 @@ class LocalGalleryService extends GetxController {
     });
 
     allGallerys.removeWhere((g) => g.title == gallery.title);
-    path2Gallerys[parentPath]?.removeWhere((g) => g.title == gallery.title);
+    path2GalleryDir[parentPath]?.removeWhere((g) => g.title == gallery.title);
 
     update([galleryCountChangedId]);
   }
 
-  Future<int> refreshLocalGallerys() async {
-    int preCount = allGallerys.length;
-
-    allGallerys.clear();
-    path2Gallerys.clear();
-    path2Directories.clear();
-    int newCount = await _loadGalleriesFromDisk();
-
-    Log.info('Refresh local gallerys, preCount:$preCount, newCount: $newCount');
-
-    return newCount - preCount;
-  }
-
   Future<int> _loadGalleriesFromDisk() async {
-    io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
-    if (!downloadDir.existsSync()) {
-      return 0;
+    LocalGalleryParseResult result = _parseDirectory(io.Directory(DownloadSetting.downloadPath.value));
+    if (result.isLegalGalleryDir) {
+      rootDirectories.add(io.Directory(DownloadSetting.downloadPath.value).parent.path);
+    } else if (result.isLegalNestedGalleryDir) {
+      rootDirectories.add(DownloadSetting.downloadPath.value);
     }
 
-    _parseDirectory(downloadDir);
+    for (String path in DownloadSetting.extraGalleryScanPath) {
+      LocalGalleryParseResult extraPathResult = _parseDirectory(io.Directory(path));
+      if (extraPathResult.isLegalGalleryDir) {
+        rootDirectories.add(io.Directory(path).parent.path);
+      } else if (extraPathResult.isLegalNestedGalleryDir) {
+        rootDirectories.add(path);
+      }
+    }
 
     return allGallerys.length;
   }
 
-  void _parseDirectory(io.Directory directory) {
-    String parentPath = directory.path;
-
-    List<io.Directory> directories;
-    try {
-      directories = directory.listSync().whereType<io.Directory>().toList();
-    } on Exception catch (e) {
-      Log.error('List directory error!', e);
-      Log.upload(e, extraInfos: {'path': directory.path});
-      return;
+  LocalGalleryParseResult _parseDirectory(io.Directory directory) {
+    LocalGalleryParseResult result = LocalGalleryParseResult();
+    if (!directory.existsSync()) {
+      return result;
     }
 
-    List<io.Directory> gallerysInCurrentPath = directories.where((dir) => _isLegalGalleryDir(dir)).toList();
-    List<io.Directory> nestedDirectoriesInCurrentPath = directories.where((dir) => _isLegalNestedDirectories(dir)).toList();
-
-    for (io.Directory galleryDir in gallerysInCurrentPath) {
-      _initGalleryInfoInMemory(galleryDir, parentPath);
-    }
-
-    for (io.Directory childDir in nestedDirectoriesInCurrentPath) {
-      (path2Directories[parentPath] ??= []).add(childDir.path);
-      _parseDirectory(childDir);
-    }
-  }
-
-  /// has images
-  bool _isLegalGalleryDir(io.Directory galleryDir) {
     /// has metadata => downloaded by JHenTai, continue
-    if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
-      return false;
+    if (io.File(join(directory.path, GalleryDownloadService.metadataFileName)).existsSync()) {
+      return result;
     }
-    if (io.File(join(galleryDir.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
-      return false;
+    if (io.File(join(directory.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
+      return result;
     }
 
+    /// list all files
     List<io.FileSystemEntity> entities;
     try {
-      entities = galleryDir.listSync();
+      entities = directory.listSync();
     } on Exception catch (e) {
-      Log.error('Check legal gallery directory error!', e);
-      Log.upload(Exception('Check legal gallery directory error!'), extraInfos: {'path': galleryDir.path});
-      return false;
+      Log.error('List directory error!', e);
+      Log.upload(Exception('List directory error!'), extraInfos: {'path': directory.path});
+      return result;
     }
 
-    /// has at least one image
-    for (io.FileSystemEntity image in entities) {
-      if (image is! io.File || !FileUtil.isImageExtension(image.path)) {
-        continue;
-      }
+    String parentPath = directory.parent.path;
 
-      return true;
+    /// load images
+    List<io.File> imageFiles = entities.whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
+    result.isLegalGalleryDir = imageFiles.isNotEmpty;
+    result.imageCount = imageFiles.length;
+    if (result.isLegalGalleryDir) {
+      _initGalleryInfoInMemory(directory, imageFiles, parentPath);
     }
 
-    return false;
-  }
-
-  /// has valid child directories
-  bool _isLegalNestedDirectories(io.Directory galleryDir) {
-    /// has metadata => downloaded by JHenTai, continue
-    if (io.File(join(galleryDir.path, GalleryDownloadService.metadataFileName)).existsSync()) {
-      return false;
-    }
-    if (io.File(join(galleryDir.path, ArchiveDownloadService.metadataFileName)).existsSync()) {
-      return false;
-    }
-
-    List<io.Directory> childDirs = galleryDir.listSync().whereType<io.Directory>().toList();
-    if (childDirs.isEmpty) {
-      return false;
-    }
-
-    for (io.Directory childDir in childDirs) {
-      if (_isLegalGalleryDir(childDir) || _isLegalNestedDirectories(childDir)) {
-        return true;
+    /// parse sub directories
+    List<io.Directory> subDirectories = entities.whereType<io.Directory>().toList();
+    for (io.Directory subDir in subDirectories) {
+      LocalGalleryParseResult subResult = _parseDirectory(subDir);
+      if (subResult.isLegalGalleryDir || subResult.isLegalNestedGalleryDir) {
+        result.isLegalNestedGalleryDir = true;
       }
     }
+    if (result.isLegalNestedGalleryDir) {
+      (path2SubDir[parentPath] ??= []).add(directory.path);
+    }
 
-    return false;
+    return result;
   }
 
-  void _initGalleryInfoInMemory(io.Directory galleryDir, String parentPath) {
+  void _initGalleryInfoInMemory(io.Directory galleryDir, List<io.File> imageFiles, String parentPath) {
     io.File ehvMetadata = io.File(join(galleryDir.path, '.ehviewer'));
     String? galleryUrl;
     if (ehvMetadata.existsSync()) {
       galleryUrl = _parseGalleryUrlFromEHVMetadata(ehvMetadata);
     }
 
-    List<io.File> imageFiles = galleryDir.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-      ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
-
-    List<GalleryImage> images = imageFiles
-        .map(
-          (file) => GalleryImage(
-            url: 'localImage',
-            path: file.path,
-            downloadStatus: DownloadStatus.downloaded,
-          ),
-        )
-        .toList();
-
     LocalGallery gallery = LocalGallery(
       title: basename(galleryDir.path),
       path: galleryDir.path,
-      pageCount: images.length,
-      images: images,
+      cover: GalleryImage(
+        url: 'localImage',
+        path: imageFiles.first.path,
+        downloadStatus: DownloadStatus.downloaded,
+      ),
+      pageCount: imageFiles.length,
       time: galleryDir.statSync().modified,
       galleryUrl: galleryUrl,
     );
 
     allGallerys.add(gallery);
-    (path2Gallerys[parentPath] ??= []).add(gallery);
+    (path2GalleryDir[parentPath] ??= []).add(gallery);
   }
 
   String? _parseGalleryUrlFromEHVMetadata(io.File ehvMetadata) {

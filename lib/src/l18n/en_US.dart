@@ -351,7 +351,7 @@ class en_US {
       'reUnlockHint': 'Attention! Re-unlock need to buy this archive again.',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
       'localGalleryHelpInfo':
-          'Load gallerys which is not downloaded by JHenTai. All you need is to move gallery directory to JHenTai download path and refresh.',
+          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'priority': 'Priority',
       'highest': 'Highest',
       'default': 'Default',
@@ -429,6 +429,8 @@ class en_US {
       'changeDownloadPathHint':
           'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
       'resetDownloadPath': 'Reset Download Path',
+      'extraGalleryScanPath': 'Extra Gallery Scan Path',
+      'extraGalleryScanPathHint': 'To scan and load local gallerys',
       'downloadOriginalImage': 'Original Image',
       'downloadOriginalImageByDefault': 'Choose Original Image By Default',
       'originalImage': 'Original',

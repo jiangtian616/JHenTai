@@ -353,7 +353,7 @@ class pt_BR {
       'downloadHelpInfo':
           'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
       'localGalleryHelpInfo':
-          'Carregar galerias que não são baixadas pelo JHenTai. Tudo o que você precisa fazer é mover o diretório da galeria para o caminho de download do JHenTai e atualizar.',
+          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'priority': 'Prioridade',
       'highest': 'Alta',
       'default': 'Padrão',
@@ -431,6 +431,8 @@ class pt_BR {
       'changeDownloadPathHint':
           'Pressione e segure para mudar. Alterar o caminho de download copiará as galerias baixadas automaticamente e manterá os arquivos antigos. Se você achar que não consegue carregar a imagem, tente redefinir o caminho.',
       'resetDownloadPath': 'Redefinir caminho de download',
+      'extraGalleryScanPath': 'Extra Gallery Scan Path',
+      'extraGalleryScanPathHint': 'To scan and load local gallerys',
       'downloadOriginalImage': 'Imagem original',
       'downloadOriginalImageByDefault': 'Escolher imagem original por padrão',
       'originalImage': 'Original',

@@ -43,17 +43,27 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   int computeItemCount() {
     return state.aggregateDirectories
         ? localGalleryService.allGallerys.length
-        : (localGalleryService.path2Gallerys[state.currentPath]?.length ?? 0) +
-            (localGalleryService.path2Directories[state.currentPath]?.length ?? 0) +
-            1;
+        : isAtRootPath()
+            ? 1 + localGalleryService.rootDirectories.length
+            : (localGalleryService.path2GalleryDir[state.currentPath]?.length ?? 0) +
+                (localGalleryService.path2SubDir[state.currentPath]?.length ?? 0) +
+                1;
   }
 
   int computeCurrentDirectoryCount() {
-    return localGalleryService.path2Directories[state.currentPath]?.length ?? 0;
+    if (isAtRootPath()) {
+      return 1 + localGalleryService.rootDirectories.length;
+    }
+
+    return localGalleryService.path2SubDir[state.currentPath]?.length ?? 0;
   }
 
   String computeChildPath(int index) {
-    return localGalleryService.path2Directories[state.currentPath]![index];
+    if (isAtRootPath()) {
+      return localGalleryService.rootDirectories[index];
+    }
+
+    return localGalleryService.path2SubDir[state.currentPath]![index];
   }
 
   void handleRemoveItem(LocalGallery gallery) {
@@ -67,10 +77,16 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   }
 
   void backRoute() {
-    if (state.currentPath == DownloadSetting.downloadPath.value) {
+    if (isAtRootPath()) {
       return;
     }
-    state.currentPath = io.Directory(state.currentPath).parent.path;
+
+    if (localGalleryService.rootDirectories.contains(state.currentPath)) {
+      state.currentPath = '';
+    } else {
+      state.currentPath = io.Directory(state.currentPath).parent.path;
+    }
+
     update([bodyId]);
   }
 
@@ -89,7 +105,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
           currentIndex: readIndexRecord,
           pageCount: gallery.pageCount,
           readProgressRecordStorageKey: storageKey,
-          images: localGalleryService.allGallerys.firstWhere((g) => g.title == gallery.title).images,
+          images: localGalleryService.getGalleryImages(gallery),
         ),
       );
     }
@@ -104,9 +120,13 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     update([appBarId, bodyId]);
   }
 
+  bool isAtRootPath() {
+    return state.currentPath == '';
+  }
+
   Future<void> handleRefreshLocalGallery() async {
     int addCount = await Get.find<LocalGalleryService>().refreshLocalGallerys();
-    state.currentPath = DownloadSetting.downloadPath.value;
+    state.currentPath = '';
 
     update([bodyId]);
 

@@ -15,6 +15,7 @@ import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/cookie/cookie_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
+import 'package:jhentai/src/pages/setting/download/extra_gallery_scan_path/extra_gallery_scan_path_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
@@ -93,6 +94,8 @@ class Routes {
 
   static const String hostMapping = "/setting_network/hostMapping";
   static const String proxy = "/setting_network/proxy";
+
+  static const String extraGalleryScanPath = "/setting_download/extraGalleryScanPath";
 
   static const String logList = "/setting_advanced/logList";
   static const String log = "/setting_advanced/logList/log";
@@ -294,6 +297,12 @@ class Routes {
     EHPage(
       name: proxy,
       page: () => const SettingProxyPage(),
+      transition: Transition.cupertino,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: extraGalleryScanPath,
+      page: () => const ExtraGalleryScanPathPage(),
       transition: Transition.cupertino,
       offAllBefore: false,
     ),

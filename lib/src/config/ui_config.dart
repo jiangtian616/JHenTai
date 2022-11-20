@@ -130,7 +130,7 @@ class UIConfig {
         offset: const Offset(0.3, 1),
       );
 
-  static const double downloadPageGroupHeaderWidth = 110;
+  static const double downloadPageGroupHeaderWidth = 100;
   static const double downloadPageCardHeight = 130;
 
   static Color get downloadPageCardColor => Get.theme.colorScheme.surface;

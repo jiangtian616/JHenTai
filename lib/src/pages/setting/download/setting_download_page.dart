@@ -12,11 +12,13 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
-import 'package:permission_handler/permission_handler.dart';
 
+import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
 import '../../../service/gallery_download_service.dart';
 import '../../../utils/log.dart';
+import '../../../utils/permission_util.dart';
+import '../../../utils/route_util.dart';
 
 class SettingDownloadPage extends StatefulWidget {
   const SettingDownloadPage({Key? key}) : super(key: key);
@@ -42,6 +44,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
           children: [
             _buildDownloadPath(),
             if (!GetPlatform.isIOS) _buildResetDownloadPath(),
+            if (!GetPlatform.isIOS) _buildExtraGalleryScanPath(),
             _buildDownloadOriginalImage(),
             _buildDownloadConcurrency(),
             _buildSpeedLimit(),
@@ -73,6 +76,15 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       title: Text('resetDownloadPath'.tr),
       subtitle: Text('longPress2Reset'.tr),
       onLongPress: _handleResetDownloadPath,
+    );
+  }
+
+  Widget _buildExtraGalleryScanPath() {
+    return ListTile(
+      title: Text('extraGalleryScanPath'.tr),
+      subtitle: Text('extraGalleryScanPathHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.extraGalleryScanPath),
     );
   }
 
@@ -195,21 +207,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
-    if (!GetPlatform.isMacOS) {
-      try {
-        await Permission.manageExternalStorage.request().isGranted;
-        Log.info(await Permission.manageExternalStorage.status);
-      } on Exception catch (e) {
-        Log.error('Request manageExternalStorage permission failed!', e);
-      }
-
-      try {
-        await Permission.storage.request().isGranted;
-        Log.info(await Permission.storage.status);
-      } on Exception catch (e) {
-        Log.error('Request storage permission failed!', e);
-      }
-    }
+    await requestPermission();
 
     String oldDownloadPath = DownloadSetting.downloadPath.value;
 
@@ -225,7 +223,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     }
 
     /// check permission
-    if (!_checkPermissionForNewPath(newDownloadPath)) {
+    if (!checkPermissionForPath(newDownloadPath)) {
       toast('invalidPath'.tr, isShort: false);
       return;
     }
@@ -298,19 +296,5 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount\n${'restoredArchiveCount'.tr}: $restoredArchiveCount',
       isShort: false,
     );
-  }
-
-  bool _checkPermissionForNewPath(String newDownloadPath) {
-    try {
-      io.File file = io.File(join(newDownloadPath, 'JHenTaiTest'));
-      file.createSync(recursive: true);
-      file.deleteSync();
-    } on FileSystemException catch (e) {
-      Log.error('${'invalidPath'.tr}:$newDownloadPath', e);
-      Log.upload(e, extraInfos: {'path': newDownloadPath});
-      return false;
-    }
-
-    return true;
   }
 }
