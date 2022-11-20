@@ -107,10 +107,21 @@ class LocalGalleryService extends GetxController {
     Log.info('Delete local gallery: ${gallery.title}');
 
     io.Directory dir = io.Directory(gallery.path);
-    dir.delete(recursive: true).catchError((e) {
-      Log.error('Delete local gallery error!', e);
-      Log.upload(e);
-    });
+
+    List<io.File> otherFiles = dir.listSync().whereType<io.File>().where((image) => !FileUtil.isImageExtension(image.path)).toList();
+    if (otherFiles.isEmpty) {
+      dir.delete(recursive: true).catchError((e) {
+        Log.error('Delete local gallery error!', e);
+        Log.upload(e);
+      });
+    } else {
+      for (io.File file in otherFiles) {
+        file.delete().catchError((e) {
+          Log.error('Delete local gallery error!', e);
+          Log.upload(e);
+        });
+      }
+    }
 
     allGallerys.removeWhere((g) => g.title == gallery.title);
     path2GalleryDir[parentPath]?.removeWhere((g) => g.title == gallery.title);

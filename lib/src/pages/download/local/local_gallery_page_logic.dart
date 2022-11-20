@@ -2,13 +2,13 @@ import 'dart:io' as io;
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:path/path.dart';
 
 import '../../../model/read_page_info.dart';
 import '../../../routes/routes.dart';
 import '../../../service/local_gallery_service.dart';
 import '../../../service/storage_service.dart';
-import '../../../setting/download_setting.dart';
 import '../../../setting/read_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/process_util.dart';
@@ -66,9 +66,12 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     return localGalleryService.path2SubDir[state.currentPath]![index];
   }
 
-  void handleRemoveItem(LocalGallery gallery) {
-    state.removedGalleryTitles.add(gallery.title);
-    update([bodyId]);
+  Future<void> handleRemoveItem(LocalGallery gallery) async {
+    bool? result = await Get.dialog(EHAlertDialog(title: 'deleteLocalGalleryHint'.tr + '?'));
+    if (result == true) {
+      state.removedGalleryTitles.add(gallery.title);
+      update([bodyId]);
+    }
   }
 
   void pushRoute(String dirName) {

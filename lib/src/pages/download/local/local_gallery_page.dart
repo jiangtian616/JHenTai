@@ -291,8 +291,8 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
           CupertinoActionSheetAction(
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              logic.handleRemoveItem(gallery);
               backRoute();
+              logic.handleRemoveItem(gallery);
             },
           ),
         ],
