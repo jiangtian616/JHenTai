@@ -11,7 +11,7 @@ class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
   static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
-  static RxList<String> extraGalleryScanPath = <String>[].obs;
+  static RxList<String> extraGalleryScanPath = <String>[downloadPath.value].obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -43,9 +43,12 @@ class DownloadSetting {
     _save();
   }
 
-  static saveExtraGalleryScanPath(List<String> extraGalleryScanPath) {
-    Log.debug('saveExtraGalleryScanPath:$extraGalleryScanPath');
-    DownloadSetting.extraGalleryScanPath.value = extraGalleryScanPath;
+  static addExtraGalleryScanPath(String newPath) {
+    Log.debug('addExtraGalleryScanPath:$newPath');
+    if (extraGalleryScanPath.contains(newPath)) {
+      return;
+    }
+    extraGalleryScanPath.add(newPath);
     _save();
   }
 

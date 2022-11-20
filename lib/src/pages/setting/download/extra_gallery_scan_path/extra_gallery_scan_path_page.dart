@@ -54,11 +54,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
       return;
     }
 
-    if (DownloadSetting.extraGalleryScanPath.contains(newPath)) {
-      return;
-    }
-
-    DownloadSetting.saveExtraGalleryScanPath(DownloadSetting.extraGalleryScanPath.value..add(newPath));
+    DownloadSetting.addExtraGalleryScanPath(newPath);
   }
 
   Future<void> _handleDelete(String path) async {

@@ -130,13 +130,6 @@ class LocalGalleryService extends GetxController {
   }
 
   Future<int> _loadGalleriesFromDisk() async {
-    LocalGalleryParseResult result = _parseDirectory(io.Directory(DownloadSetting.downloadPath.value));
-    if (result.isLegalGalleryDir) {
-      rootDirectories.add(io.Directory(DownloadSetting.downloadPath.value).parent.path);
-    } else if (result.isLegalNestedGalleryDir) {
-      rootDirectories.add(DownloadSetting.downloadPath.value);
-    }
-
     for (String path in DownloadSetting.extraGalleryScanPath) {
       LocalGalleryParseResult extraPathResult = _parseDirectory(io.Directory(path));
       if (extraPathResult.isLegalGalleryDir) {
