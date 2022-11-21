@@ -50,6 +50,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             _buildSpeedLimit(),
             _buildTimeout(),
             _buildDownloadInOrder(),
+            _buildDeleteArchiveFileAfterDownload(),
             _buildRestore(),
           ],
         ),
@@ -187,6 +188,13 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
       title: Text('downloadInOrder'.tr),
       trailing: Switch(value: DownloadSetting.downloadInOrderOfInsertTime.value, onChanged: DownloadSetting.saveDownloadInOrderOfInsertTime),
+    );
+  }
+
+  Widget _buildDeleteArchiveFileAfterDownload() {
+    return ListTile(
+      title: Text('deleteArchiveFileAfterDownload'.tr),
+      trailing: Switch(value: DownloadSetting.deleteArchiveFileAfterDownload.value, onChanged: DownloadSetting.saveDeleteArchiveFileAfterDownload),
     );
   }
 

@@ -520,6 +520,8 @@ class ArchiveDownloadService extends GetxController {
       ..downloadedBytes = latestDownloadedBytes
       ..start();
 
+    Log.download('${archive.title} downloaded bytes: $latestDownloadedBytes');
+
     Response response;
     try {
       response = await EHRequest.download(
@@ -579,6 +581,8 @@ class ArchiveDownloadService extends GetxController {
       return _doDownloadArchive(archive);
     }
 
+    Log.download('${archive.title} size: ${response.headers.value('content-length')}');
+
     speedComputer.dispose();
     archiveDownloadInfo.archiveStatus = ArchiveStatus.downloaded;
     await _updateArchiveInDatabase(archive);
@@ -614,7 +618,9 @@ class ArchiveDownloadService extends GetxController {
       inputStream.close();
     }
 
-    _deletePackingFileInDisk(archive);
+    if (DownloadSetting.deleteArchiveFileAfterDownload.isTrue) {
+      _deletePackingFileInDisk(archive);
+    }
 
     archiveDownloadInfo.archiveStatus = ArchiveStatus.completed;
     await _updateArchiveInDatabase(archive);

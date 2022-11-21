@@ -17,6 +17,7 @@ class DownloadSetting {
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxInt timeout = 20.obs;
   static RxBool downloadInOrderOfInsertTime = true.obs;
+  static RxBool deleteArchiveFileAfterDownload = true.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
@@ -94,6 +95,12 @@ class DownloadSetting {
     _save();
   }
 
+  static saveDeleteArchiveFileAfterDownload(bool value) {
+    Log.debug('saveDeleteArchiveFileAfterDownload:$value');
+    deleteArchiveFileAfterDownload.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('downloadSetting', _toMap());
   }
@@ -108,6 +115,7 @@ class DownloadSetting {
       'period': period.value.inMilliseconds,
       'timeout': timeout.value,
       'downloadInOrderOfInsertTime': downloadInOrderOfInsertTime.value,
+      'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
     };
   }
 
@@ -122,5 +130,6 @@ class DownloadSetting {
     period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
     downloadInOrderOfInsertTime.value = map['downloadInOrderOfInsertTime'] ?? downloadInOrderOfInsertTime.value;
+    deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
   }
 }

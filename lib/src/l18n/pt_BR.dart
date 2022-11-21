@@ -456,6 +456,7 @@ class pt_BR {
       'alwaysUseDefaultGroup': 'Sempre usar o grupo padrão',
       'enableStoreMetadataForRestore': 'Ativar metadados da loja para restauração',
       'enableStoreMetadataForRestoreHint': 'Se desabilitar isso, você não poderá restaurar as tarefas de download',
+      'deleteArchiveFileAfterDownload': 'Delete Archive .zip File After Download',
       'restoreDownloadTasks': 'Restaurar tarefas de download',
       'restoreDownloadTasksHint': 'Restaurar tarefas de download por metadados',
       'restoreDownloadTasksSuccess': 'Tarefas de download restauradas com sucesso',
