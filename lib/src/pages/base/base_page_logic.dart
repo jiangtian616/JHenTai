@@ -317,7 +317,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     );
   }
 
-  void saveSearchConfig(SearchConfig searchConfig){
+  void saveSearchConfig(SearchConfig searchConfig) {
     storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
   }
 

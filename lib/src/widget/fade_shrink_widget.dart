@@ -12,6 +12,7 @@ class FadeShrinkWidget extends StatefulWidget {
   final double opacityTo;
   final double sizeFrom;
   final double sizeTo;
+  final Axis sizeAxis;
 
   final VoidCallback? afterDisappear;
 
@@ -25,6 +26,7 @@ class FadeShrinkWidget extends StatefulWidget {
     this.opacityTo = 1,
     this.sizeFrom = 0,
     this.sizeTo = 1,
+    this.sizeAxis = Axis.vertical,
     this.afterDisappear,
   }) : super(key: key);
 
@@ -45,8 +47,14 @@ class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin
     super.initState();
 
     show = widget.show;
-    if (show) {
-      controller.forward(from: widget.animateWhenInitialization ? 0 : 1);
+    if (!show) {
+      return;
+    }
+
+    if (widget.animateWhenInitialization) {
+      controller.play(duration: widget.duration);
+    } else {
+      controller.forward(from: 1);
     }
   }
 
@@ -74,6 +82,7 @@ class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin
       opacity: fadeAnimation,
       child: SizeTransition(
         sizeFactor: sizeAnimation,
+        axis: widget.sizeAxis,
         child: widget.child,
       ),
     );

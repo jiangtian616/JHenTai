@@ -1,32 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/pages/search/desktop/desktop_search_page_tab_logic.dart';
 
-import '../../../routes/routes.dart';
-import '../../base/base_page_state.dart';
-import '../../layout/desktop/desktop_layout_page_logic.dart';
+import '../../../mixin/scroll_to_top_state_mixin.dart';
+import 'desktop_search_page_tab_view.dart';
 
-class DesktopSearchPageState extends BasePageState with BaseSearchPageStateMixin {
+class DesktopSearchPageState with Scroll2TopStateMixin {
+  List<DesktopSearchPageTabView> tabs = [];
+  List<DesktopSearchPageTabLogic> tabLogics = [];
+
+  int currentTabIndex = 0;
+  PageController pageController = PageController();
+  Key tabViewKey = UniqueKey();
+
+  ScrollController tabController = ScrollController();
+
   @override
-  String get route => Routes.desktopSearch;
+  ScrollController get scrollController => tabLogics[currentTabIndex].state.scrollController;
 
   DesktopSearchPageState() {
-    searchFieldFocusNode.onKeyEvent = (_, KeyEvent event) {
-      if (event is! KeyDownEvent) {
-        return KeyEventResult.ignored;
-      }
-
-      if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus();
-        return KeyEventResult.handled;
-      }
-      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.nextFocus();
-        return KeyEventResult.handled;
-      }
-
-      return KeyEventResult.ignored;
-    };
+    DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic();
+    tabLogics.add(newTabLogic);
+    tabs.add(DesktopSearchPageTabView(key: ValueKey(newTabLogic.hashCode.toString()), logic: newTabLogic));
   }
 }

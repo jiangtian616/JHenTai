@@ -38,7 +38,6 @@ Future<T?>? toRoute<T>(
       return Future.value(null);
     }
 
-
     /// left [Route]
     return Get.toNamed(
       routeName,
@@ -69,6 +68,9 @@ Future<T?>? toRoute<T>(
   }
 
   /// right [Route]
+  if (preventDuplicates && isRouteAtTop(routeName)) {
+    return null;
+  }
   return Get.toNamed(
     routeName,
     arguments: arguments,

@@ -419,6 +419,7 @@ class zh_TW {
       'search': '搜尋',
       'searchFailed': '搜尋失敗',
       'fileSearchFailed': '以圖搜圖失敗',
+      'tab': '標簽頁',
 
       /// about page
       'author': '創作者',

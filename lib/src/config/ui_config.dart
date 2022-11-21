@@ -158,6 +158,15 @@ class UIConfig {
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;
 
+  static const double desktopSearchTabHeight = 32;
+  static const double desktopSearchTabWidth = 130;
+  static const double desktopSearchTabRemainingWidth = 42;
+  static const double desktopSearchTabDividerWidth = 16;
+  static const double desktopSearchTabDividerBorderRadius = 8;
+  static const double desktopSearchTabIconSize = 16;
+
+  static Duration desktopSearchTabAnimationDuration = const Duration(milliseconds: 200);
+
   static Color get searchPageSuggestionHighlightColor => Colors.red;
 
   static Color get searchPageSuggestionTitleColor => Get.theme.colorScheme.secondary.withOpacity(0.8);

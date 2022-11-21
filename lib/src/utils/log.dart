@@ -32,6 +32,10 @@ class Log {
       return;
     }
 
+    if (!io.Directory(logDirPath).existsSync()) {
+      io.Directory(logDirPath).createSync();
+    }
+
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
     LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
     LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);

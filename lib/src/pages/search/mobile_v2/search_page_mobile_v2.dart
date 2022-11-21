@@ -55,7 +55,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
     return AppBar(
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
       bottom: PreferredSize(child: buildSearchField(), preferredSize: const Size(double.infinity, UIConfig.mobileV2SearchBarHeight)),
-      actions: _buildHeaderActions(),
+      actions: buildActionButtons(visualDensity:const VisualDensity(horizontal: -4)),
     );
   }
 
@@ -83,39 +83,5 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
           ),
       ],
     );
-  }
-
-  List<Widget> _buildHeaderActions() {
-    return [
-      InkResponse(child: const Icon(Icons.attach_file, size: 22), onTap: logic.handleFileSearch).marginOnly(right: 12, left: 8, top: 1),
-      if (state.gallerys.isNotEmpty && state.bodyType == SearchPageBodyType.gallerys)
-        FadeIn(
-          child: InkResponse(
-            child: const Icon(FontAwesomeIcons.paperPlane, size: 18),
-            onTap: () {
-              state.searchFieldFocusNode.unfocus();
-              logic.handleTapJumpButton();
-            },
-          ).marginOnly(right: 16),
-        ),
-      InkResponse(
-        child: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.switch_left : Icons.switch_right, size: 28),
-        onTap: logic.toggleBodyType,
-      ).marginOnly(right: 12),
-      InkResponse(
-        child: const Icon(Icons.filter_alt),
-        onTap: () {
-          state.searchFieldFocusNode.unfocus();
-          logic.handleTapFilterButton(EHSearchConfigDialogType.filter);
-        },
-      ).marginOnly(right: 12),
-      InkResponse(
-        child: const Icon(Icons.more_vert),
-        onTap: () {
-          state.searchFieldFocusNode.unfocus();
-          scaffoldKey.currentState?.openEndDrawer();
-        },
-      ).marginOnly(right: 12, top: 1),
-    ];
   }
 }

@@ -12,6 +12,9 @@ import 'package:jhentai/src/utils/search_util.dart';
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
 import '../../../model/search_history.dart';
+import '../../../routes/routes.dart';
+import '../../../utils/route_util.dart';
+import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
@@ -21,6 +24,36 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
 
   @override
   S get state;
+
+  List<Widget> buildActionButtons({VisualDensity? visualDensity}) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.attach_file),
+        onPressed: logic.handleFileSearch,
+        visualDensity: visualDensity,
+      ),
+      IconButton(
+        icon: const Icon(Icons.calendar_today, size: 20),
+        onPressed: logic.handleTapJumpButton,
+        visualDensity: visualDensity,
+      ),
+      IconButton(
+        icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.search : Icons.image),
+        onPressed: logic.toggleBodyType,
+        visualDensity: visualDensity,
+      ),
+      IconButton(
+        icon: const Icon(Icons.filter_alt),
+        onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter),
+        visualDensity: visualDensity,
+      ),
+      IconButton(
+        icon: const Icon(Icons.more_vert),
+        onPressed: () => toRoute(Routes.quickSearch),
+        visualDensity: visualDensity,
+      ),
+    ];
+  }
 
   Widget buildSearchField() {
     return GetBuilder<L>(
@@ -48,14 +81,15 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
             contentPadding: EdgeInsets.zero,
             labelStyle: const TextStyle(fontSize: 15),
             floatingLabelStyle: const TextStyle(fontSize: 10),
-            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+            labelText:
+                state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
             prefixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
             ),
             prefixIconConstraints: BoxConstraints(
               minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: 48,
+              minWidth: 52,
             ),
             suffixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
@@ -63,7 +97,7 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
             ),
             suffixIconConstraints: BoxConstraints(
               minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: 48,
+              minWidth: 40,
             ),
           ),
           onTap: () {

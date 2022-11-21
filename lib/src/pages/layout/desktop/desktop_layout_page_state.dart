@@ -53,7 +53,8 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
         selectedIcon: const Icon(Icons.search, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.search),
         page: () => const DesktopSearchPage(),
-        scrollController: () => Get.find<DesktopSearchPageLogic>().state.scrollController,
+        scrollController: () =>
+            Get.find<DesktopSearchPageLogic>().state.tabLogics[Get.find<DesktopSearchPageLogic>().state.currentTabIndex].state.scrollController,
         shouldRender: true,
       ),
       TabBarIcon(

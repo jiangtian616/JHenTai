@@ -13,14 +13,18 @@ import '../widget/eh_search_config_dialog.dart';
 
 void newSearch(String? keyword, [bool forceNewRoute = false]) {
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
-    DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
-    if (desktopSearchPageLogic.state.loadingState == LoadState.loading) {
-      return;
+    if (!isRouteAtTop(Routes.desktopSearch)) {
+      toRoute(Routes.desktopSearch);
     }
-    toRoute(Routes.desktopSearch);
-    desktopSearchPageLogic.state.searchConfig.keyword = keyword;
-    desktopSearchPageLogic.state.searchConfig.tags?.clear();
-    desktopSearchPageLogic.handleClearAndRefresh();
+
+    DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
+    if (forceNewRoute) {
+      desktopSearchPageLogic.addNewTab(keyword: keyword, loadImmediately: true);
+    } else {
+      desktopSearchPageLogic.currentTabLogic.state.searchConfig.keyword = keyword;
+      desktopSearchPageLogic.currentTabLogic.state.searchConfig.tags?.clear();
+      desktopSearchPageLogic.handleClearAndRefresh();
+    }
     return;
   }
 
@@ -45,14 +49,12 @@ void newSearch(String? keyword, [bool forceNewRoute = false]) {
 
 void newSearchWithConfig(SearchConfig searchConfig) {
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
-    DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
-    if (desktopSearchPageLogic.state.loadingState == LoadState.loading) {
-      return;
+    if (!isRouteAtTop(Routes.desktopSearch)) {
+      toRoute(Routes.desktopSearch);
     }
 
-    toRoute(Routes.desktopSearch);
-    desktopSearchPageLogic.state.searchConfig = searchConfig.copyWith();
-    desktopSearchPageLogic.handleClearAndRefresh();
+    DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
+    desktopSearchPageLogic.addNewTab(searchConfig: searchConfig, loadImmediately: true);
     return;
   }
 
@@ -74,7 +76,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
 Future<void> handleAddQuickSearch() async {
   SearchConfig? originalConfig;
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
-    originalConfig = Get.find<DesktopSearchPageLogic>().state.searchConfig;
+    originalConfig = Get.find<DesktopSearchPageLogic>().currentTabLogic.state.searchConfig;
   }
   if (StyleSetting.isInV2Layout) {
     originalConfig = SearchPageMobileV2Logic.current?.state.searchConfig;

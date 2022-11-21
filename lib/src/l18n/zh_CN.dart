@@ -422,6 +422,7 @@ class zh_CN {
 
       /// about page
       'author': '创作者',
+      'tab': '标签页',
 
       /// download setting page
       'downloadPath': '下载路径',

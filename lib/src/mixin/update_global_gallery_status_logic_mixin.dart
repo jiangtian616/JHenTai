@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../pages/gallerys/dashboard/dashboard_page_logic.dart';
 import '../pages/gallerys/simple/gallerys_page_logic.dart';
 import '../pages/search/desktop/desktop_search_page_logic.dart';
+import '../pages/search/desktop/desktop_search_page_tab_logic.dart';
 import '../pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 
 mixin UpdateGlobalGalleryStatusLogicMixin on GetxController {
@@ -20,7 +21,9 @@ mixin UpdateGlobalGalleryStatusLogicMixin on GetxController {
     /// update searchPage status
     if (Get.isRegistered<DesktopSearchPageLogic>()) {
       DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
-      desktopSearchPageLogic.update([desktopSearchPageLogic.galleryBodyId]);
+      for (DesktopSearchPageTabLogic tabLogic in desktopSearchPageLogic.state.tabLogics) {
+        tabLogic.update([tabLogic.galleryBodyId]);
+      }
     }
     if (Get.isRegistered<SearchPageMobileV2Logic>()) {
       SearchPageMobileV2Logic searchPageMobileV2Logic = Get.find<SearchPageMobileV2Logic>();

@@ -14,8 +14,8 @@ mixin Scroll2TopLogicMixin on GetxController {
 
   @override
   void onClose() {
-    state.scrollController.dispose();
     super.dispose();
+    state.scrollController.dispose();
   }
 
   void jump2Top() {

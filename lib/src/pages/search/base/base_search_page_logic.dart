@@ -45,7 +45,6 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
   @override
   void onClose() {
-    super.dispose();
     state.searchFieldFocusNode.dispose();
   }
 
@@ -157,6 +156,15 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       state.hideSearchHistory = true;
       updateSafely([suggestionBodyId]);
     }
+  }
+
+  @override
+  Future<void> jumpPage(DateTime dateTime) async {
+    if (state.bodyType == SearchPageBodyType.suggestionAndHistory) {
+      toggleBodyType();
+    }
+    state.hasSearched = true;
+    super.jumpPage(dateTime);
   }
 
   @override

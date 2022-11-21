@@ -421,6 +421,7 @@ class en_US {
       'search': 'Search',
       'searchFailed': 'Search Failed',
       'fileSearchFailed': 'File Search Failed',
+      'tab': 'Tab',
 
       /// about page
       'author': 'Author',

@@ -423,6 +423,7 @@ class pt_BR {
       'search': 'Pesquisar',
       'searchFailed': 'Falha ao pesquisar',
       'fileSearchFailed': 'Falha ao pesquisr arquivo',
+      'tab': 'Tab',
 
       /// about page
       'author': 'Autor',
