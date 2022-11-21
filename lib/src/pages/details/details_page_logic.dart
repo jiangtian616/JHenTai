@@ -651,7 +651,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         tag.color = tagSet.backgroundColor == null
             ? const Color(0xFFF1F1F1)
             : ThemeData.estimateBrightnessForColor(tagSet.backgroundColor!) == Brightness.light
-                ? const Color.fromARGB(1, 9, 9, 9)
+                ? const Color.fromRGBO(9, 9, 9, 1)
                 : const Color(0xFFF1F1F1);
       }
     }

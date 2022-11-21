@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:retry/retry.dart';
 
 import '../model/tag_set.dart';
 import '../network/eh_request.dart';
@@ -31,9 +32,13 @@ class MyTagsSetting {
 
     Map<String, dynamic> map;
     try {
-      map = await EHRequest.requestMyTagsPage(
-        tagSetNo: 1,
-        parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
+      map = await retry(
+        () => EHRequest.requestMyTagsPage(
+          tagSetNo: 1,
+          parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
+        ),
+        retryIf: (e) => e is DioError,
+        maxAttempts: 3,
       );
     } on DioError catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
