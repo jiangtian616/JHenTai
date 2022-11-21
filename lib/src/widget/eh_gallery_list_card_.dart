@@ -203,7 +203,7 @@ class _GalleryCardInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _GalleryCardInfoHeader(title: gallery.title, uploader: gallery.uploader),
-        if (withTags && gallery.tags.isNotEmpty) _GalleryCardTagWaterFlow(tags: gallery.tags),
+        if (withTags && gallery.tags.isNotEmpty) GalleryCardTagWaterFlow(tags: gallery.tags),
         _GalleryInfoFooter(gallery: gallery),
       ],
     );
@@ -238,10 +238,10 @@ class _GalleryCardInfoHeader extends StatelessWidget {
   }
 }
 
-class _GalleryCardTagWaterFlow extends StatelessWidget {
+class GalleryCardTagWaterFlow extends StatelessWidget {
   final LinkedHashMap<String, List<GalleryTag>> tags;
 
-  const _GalleryCardTagWaterFlow({Key? key, required this.tags}) : super(key: key);
+  const GalleryCardTagWaterFlow({Key? key, required this.tags}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -60,6 +60,8 @@ class UIConfig {
 
   static const double waterFallFlowCardInfoHeight = 68;
   static const double waterFallFlowCardTitleSize = 12;
+  static const double waterFallFlowCardTagsMaxHeight = 18;
+  static const double waterFallFlowCardTagTextSize = 10;
 
   /// Login page
   static Color get loginPageForegroundColor => Get.theme.colorScheme.background;

@@ -1,3 +1,6 @@
+import 'dart:collection';
+import 'dart:math';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -5,11 +8,13 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/focus_widget.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../config/ui_config.dart';
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
 import '../model/gallery.dart';
+import '../model/gallery_tag.dart';
 import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
@@ -113,6 +118,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           ],
         ),
         _buildTitle().marginOnly(top: 4, left: 2),
+        if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
       ],
     ).paddingOnly(top: 6, bottom: 6, left: 6, right: 6);
   }
@@ -144,6 +150,77 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(fontSize: UIConfig.waterFallFlowCardTitleSize, height: 1.2),
+    );
+  }
+
+  Widget _buildTags() {
+    return WaterFallFlowCardTagWaterFlow(tags: gallery.tags);
+  }
+}
+
+class WaterFallFlowCardTagWaterFlow extends StatelessWidget {
+  final LinkedHashMap<String, List<GalleryTag>> tags;
+
+  const WaterFallFlowCardTagWaterFlow({Key? key, required this.tags}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<GalleryTag> mergedList = [];
+    tags.forEach((_, galleryTags) {
+      mergedList.addAll(galleryTags);
+    });
+
+    return LayoutBuilder(builder: (_, constraints) {
+      int computeRows = _computeRows(mergedList, constraints.maxWidth);
+      return SizedBox(
+        height: UIConfig.waterFallFlowCardTagsMaxHeight * computeRows,
+        child: WaterfallFlow.builder(
+          scrollDirection: Axis.horizontal,
+          shrinkWrap: true,
+
+          /// disable keepScrollOffset because we used [PageStorageKey], which leads to a conflict with this WaterfallFlow
+          controller: ScrollController(keepScrollOffset: false),
+          gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+            crossAxisCount: computeRows,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+          ),
+          itemCount: mergedList.length,
+          itemBuilder: (_, int index) => WaterFallFlowTag(galleryTag: mergedList[index]),
+        ),
+      );
+    });
+  }
+
+  int _computeRows(List<GalleryTag> mergedList, double maxWidth) {
+    return min((mergedList.length / (maxWidth / 32)).ceil(), 3);
+  }
+}
+
+class WaterFallFlowTag extends StatelessWidget {
+  const WaterFallFlowTag({Key? key, required this.galleryTag}) : super(key: key);
+
+  final GalleryTag galleryTag;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: galleryTag.backgroundColor ?? (Get.isDarkMode ? Get.theme.colorScheme.secondaryContainer : Colors.grey.shade300.withOpacity(0.7)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Text(
+        galleryTag.tagData.tagName ?? galleryTag.tagData.key,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: UIConfig.waterFallFlowCardTagTextSize,
+          height: 1,
+          color: galleryTag.color ?? Get.theme.colorScheme.onSecondaryContainer,
+        ),
+      ),
     );
   }
 }
