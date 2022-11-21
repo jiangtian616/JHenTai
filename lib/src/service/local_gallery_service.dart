@@ -1,8 +1,6 @@
 import 'dart:io' as io;
 
 import 'package:get/get.dart';
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';

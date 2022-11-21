@@ -13,6 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  # rewrite file mode
   dio:
     git:
       url: https://gitee.com/jiangtian616/dio
@@ -57,12 +58,9 @@ dependencies:
   share_plus: ^4.0.10
   syncfusion_flutter_charts: ^20.2.36
   sentry_flutter: 6.15.1
-  archive: ^3.3.1
-  image_size_getter:
-    git:
-#      url: https://gitee.com/jiangtian616/dart_image_size_getter
-      url: https://github.com/jiangtian616/dart_image_size_getter
-      path: library
+  # bug exists in v3.3.4
+  archive:
+    git: https://github.com/brendan-duncan/archive
   fluttertoast: ^8.0.9
   battery_plus: ^2.1.4
   throttling: ^1.0.0
@@ -90,6 +88,8 @@ dependency_overrides:
   cached_network_image: ^3.2.1
   fwfh_webview: ^0.6.2+3
   fwfh_text_style: ^2.22.8+1
+  archive:
+    git: https://github.com/brendan-duncan/archive
 
 dev_dependencies:
   flutter_test:
@@ -98,8 +98,7 @@ dev_dependencies:
   test: ^1.19.5
   drift_dev: 1.7.0
   build_runner: ^2.1.8
-  flutter_launcher_icons:
-    git: https://github.com/fluttercommunity/flutter_launcher_icons
+  flutter_launcher_icons: 0.11.0
 
 flutter:
   uses-material-design: true
