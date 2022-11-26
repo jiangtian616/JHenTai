@@ -114,6 +114,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
         key: state.tabViewKey,
         child: PageView(
           controller: state.pageController,
+          physics: GetPlatform.isDesktop? const NeverScrollableScrollPhysics() : null,
           onPageChanged: logic.onPageChanged,
           children: state.tabs,
         ),
