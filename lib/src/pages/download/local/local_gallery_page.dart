@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../config/ui_config.dart';
@@ -76,29 +76,32 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
       id: LocalGalleryService.galleryCountChangedId,
       builder: (_) => GetBuilder<LocalGalleryPageLogic>(
         id: LocalGalleryPageLogic.bodyId,
-        builder: (_) => NotificationListener<UserScrollNotification>(
-          onNotification: logic.onUserScroll,
-          child: EHWheelSpeedController(
-            controller: state.scrollController,
-            child: ListView.builder(
+        builder: (_) => LoadingStateIndicator(
+          loadingState: state.loadingState,
+          successWidgetBuilder: () => NotificationListener<UserScrollNotification>(
+            onNotification: logic.onUserScroll,
+            child: EHWheelSpeedController(
               controller: state.scrollController,
-              padding: const EdgeInsets.only(bottom: 80),
-              itemCount: logic.computeItemCount(),
-              itemBuilder: (context, index) {
-                if (state.aggregateDirectories) {
-                  return galleryItemBuilder(context, index);
-                }
+              child: ListView.builder(
+                controller: state.scrollController,
+                padding: const EdgeInsets.only(bottom: 80),
+                itemCount: logic.computeItemCount(),
+                itemBuilder: (context, index) {
+                  if (state.aggregateDirectories) {
+                    return galleryItemBuilder(context, index);
+                  }
 
-                if (index == 0) {
-                  return parentDirectoryItemBuilder(context);
-                }
+                  if (index == 0) {
+                    return parentDirectoryItemBuilder(context);
+                  }
 
-                if (index <= logic.computeCurrentDirectoryCount()) {
-                  return nestedDirectoryItemBuilder(context, index - 1);
-                }
+                  if (index <= logic.computeCurrentDirectoryCount()) {
+                    return nestedDirectoryItemBuilder(context, index - 1);
+                  }
 
-                return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
-              },
+                  return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+                },
+              ),
             ),
           ),
         ),
@@ -255,19 +258,6 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
                 'EHViewer',
                 style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
               ).marginOnly(right: 8),
-            Text(
-              '${gallery.pageCount}P',
-              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text(
-              DateFormat('yyyy-MM-dd HH:mm:ss').format(gallery.time),
-              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
-            ),
           ],
         ),
       ],

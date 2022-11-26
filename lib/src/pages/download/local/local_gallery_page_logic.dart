@@ -1,8 +1,11 @@
 import 'dart:io' as io;
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
 import '../../../model/read_page_info.dart';
@@ -31,6 +34,10 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     super.onInit();
 
     state.aggregateDirectories = storageService.read('LocalGalleryBody_AggregateDirectories') ?? state.aggregateDirectories;
+    localGalleryService.refreshLocalGallerys().then((_) {
+      state.loadingState = LoadingState.success;
+      updateSafely([bodyId]);
+    });
   }
 
   @override
@@ -85,7 +92,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
     }
 
     if (localGalleryService.rootDirectories.contains(state.currentPath)) {
-      state.currentPath = '';
+      state.currentPath = LocalGalleryService.rootPath;
     } else {
       state.currentPath = io.Directory(state.currentPath).parent.path;
     }
@@ -100,13 +107,15 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
       String storageKey = 'readIndexRecord::${gallery.title}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
+      List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
           mode: ReadMode.local,
           initialIndex: readIndexRecord,
           currentIndex: readIndexRecord,
-          pageCount: gallery.pageCount,
+          pageCount: images.length,
           readProgressRecordStorageKey: storageKey,
           images: localGalleryService.getGalleryImages(gallery),
         ),
@@ -124,15 +133,22 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
   }
 
   bool isAtRootPath() {
-    return state.currentPath == '';
+    return state.currentPath == LocalGalleryService.rootPath;
   }
 
   Future<void> handleRefreshLocalGallery() async {
-    int addCount = await Get.find<LocalGalleryService>().refreshLocalGallerys();
-    state.currentPath = '';
+    if (state.loadingState == LoadingState.loading) {
+      return;
+    }
 
-    update([bodyId]);
+    state.loadingState = LoadingState.loading;
+    updateSafely([bodyId]);
 
-    toast('${'newGalleryCount'.tr}: $addCount');
+    localGalleryService.refreshLocalGallerys().then((int addCount) {
+      state.loadingState = LoadingState.success;
+      state.currentPath = LocalGalleryService.rootPath;
+      update([bodyId]);
+      toast('${'newGalleryCount'.tr}: $addCount');
+    });
   }
 }

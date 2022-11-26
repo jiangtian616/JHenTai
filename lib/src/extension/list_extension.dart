@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 extension ListExtension<E> on List<E> {
   List<E> joinNewElement(E newElement, {bool joinAtFirst = false, bool joinAtLast = false}) {
     if (length == 0) {
@@ -47,5 +45,11 @@ extension ListExtension<E> on List<E> {
     }
 
     return newList;
+  }
+
+  void addIfNotExists(E element) {
+    if (!contains(element)) {
+      add(element);
+    }
   }
 }
