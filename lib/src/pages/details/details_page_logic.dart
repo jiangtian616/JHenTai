@@ -569,44 +569,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0;
   }
 
-  KeyEventResult onKeyEvent(FocusNode node, KeyEvent event) {
-    if (!Get.isRegistered<DesktopLayoutPageLogic>()) {
-      return KeyEventResult.ignored;
-    }
-    if (event is! KeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-      Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.arrowUp && state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        state.scrollController.offset - 300,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeInOut,
-      );
-      return KeyEventResult.handled;
-    }
-    if (event.logicalKey == LogicalKeyboardKey.arrowDown && state.scrollController.hasClients) {
-      state.scrollController.animateTo(
-        state.scrollController.offset + 300,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeInOut,
-      );
-      return KeyEventResult.handled;
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.enter) {
-      goToReadPage();
-      return KeyEventResult.handled;
-    }
-
-    return KeyEventResult.ignored;
-  }
-
   Future<Map<String, dynamic>> _getDetailsWithRedirect({bool useCache = true}) async {
     /// try EH site
     if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {

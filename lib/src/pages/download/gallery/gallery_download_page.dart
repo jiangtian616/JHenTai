@@ -15,14 +15,12 @@ import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_category_tag.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/fade_shrink_widget.dart';
-import '../../../widget/focus_widget.dart';
-import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../download_base_page.dart';
 import 'gallery_download_page_logic.dart';
 import 'gallery_download_page_state.dart';
 
-class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin{
+class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   GalleryDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
 
   final bool showMenuButton;
@@ -49,18 +47,14 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin{
       titleSpacing: 0,
       title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.download),
       actions: [
-        ExcludeFocus(
-          child: IconButton(
-            icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
-            onPressed: logic.downloadService.resumeAllDownloadGallery,
-            visualDensity: const VisualDensity(horizontal: -4),
-          ),
+        IconButton(
+          icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
+          onPressed: logic.downloadService.resumeAllDownloadGallery,
+          visualDensity: const VisualDensity(horizontal: -4),
         ),
-        ExcludeFocus(
-          child: IconButton(
-            icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
-            onPressed: logic.downloadService.pauseAllDownloadGallery,
-          ),
+        IconButton(
+          icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
+          onPressed: logic.downloadService.pauseAllDownloadGallery,
         ),
       ],
     );
@@ -118,30 +112,24 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin{
 
     return GetBuilder<GalleryDownloadPageLogic>(
       id: '${GalleryDownloadPageLogic.groupId}::$group',
-      builder: (_) => FocusWidget(
-        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).colorScheme.onBackground))),
-        handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-        handleTapEnter: () => logic.goToReadPage(gallery),
-        handleTapArrowRight: () => logic.goToReadPage(gallery),
-        child: Slidable(
-          key: Key(gallery.gid.toString()),
-          endActionPane: _buildEndActionPane(gallery),
-          child: GestureDetector(
-            onSecondaryTap: () => showBottomSheet(gallery, context),
-            onLongPress: () => showBottomSheet(gallery, context),
+      builder: (_) => Slidable(
+        key: Key(gallery.gid.toString()),
+        endActionPane: _buildEndActionPane(gallery),
+        child: GestureDetector(
+          onSecondaryTap: () => showBottomSheet(gallery, context),
+          onLongPress: () => showBottomSheet(gallery, context),
+          child: FadeShrinkWidget(
+            show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
-              show: state.displayGroups.contains(group),
-              child: FadeShrinkWidget(
-                show: !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
-                child: _buildCard(gallery, context).marginAll(5),
-                afterDisappear: () {
-                  Get.engine.addPostFrameCallback(
-                    (_) => logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid)),
-                  );
-                  state.removedGids.remove(gallery.gid);
-                  state.removedGidsWithoutImages.remove(gallery.gid);
-                },
-              ),
+              show: !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
+              child: _buildCard(gallery, context).marginAll(5),
+              afterDisappear: () {
+                Get.engine.addPostFrameCallback(
+                  (_) => logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid)),
+                );
+                state.removedGids.remove(gallery.gid);
+                state.removedGidsWithoutImages.remove(gallery.gid);
+              },
             ),
           ),
         ),

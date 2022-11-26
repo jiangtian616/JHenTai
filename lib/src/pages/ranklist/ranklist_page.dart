@@ -33,18 +33,16 @@ class RanklistPage extends BasePage {
       leading: showMenuButton ? super.buildAppBarMenuButton(context) : null,
       actions: [
         ...super.buildAppBarActions(),
-        ExcludeFocus(
-          child: PopupMenuButton(
-            tooltip: '',
-            initialValue: state.ranklistType,
-            onSelected: logic.handleChangeRanklist,
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
-              PopupMenuItem<RanklistType>(value: RanklistType.allTime, child: Center(child: Text('allTime'.tr))),
-              PopupMenuItem<RanklistType>(value: RanklistType.year, child: Center(child: Text('year'.tr))),
-              PopupMenuItem<RanklistType>(value: RanklistType.month, child: Center(child: Text('month'.tr))),
-              PopupMenuItem<RanklistType>(value: RanklistType.day, child: Center(child: Text('day'.tr))),
-            ],
-          ),
+        PopupMenuButton(
+          tooltip: '',
+          initialValue: state.ranklistType,
+          onSelected: logic.handleChangeRanklist,
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
+            PopupMenuItem<RanklistType>(value: RanklistType.allTime, child: Center(child: Text('allTime'.tr))),
+            PopupMenuItem<RanklistType>(value: RanklistType.year, child: Center(child: Text('year'.tr))),
+            PopupMenuItem<RanklistType>(value: RanklistType.month, child: Center(child: Text('month'.tr))),
+            PopupMenuItem<RanklistType>(value: RanklistType.day, child: Center(child: Text('day'.tr))),
+          ],
         ),
       ],
     );

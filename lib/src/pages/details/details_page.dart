@@ -57,7 +57,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         backgroundColor: Theme.of(context).colorScheme.background,
         appBar: buildAppBar(),
         body: buildBody(),
-        floatingActionButton: state.galleryDetails == null ? null : ExcludeFocus(child: buildFloatingActionButton()),
+        floatingActionButton: state.galleryDetails == null ? null : buildFloatingActionButton(),
       ),
     );
   }
@@ -66,21 +66,17 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     return AppBar(
       title: Text(state.gallery?.title.breakWord ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
-        ExcludeFocus(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-            child: state.galleryDetails == null
-                ? const SizedBox(width: 40)
-                : IconButton(
-                    icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
-                    visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
-                    onPressed: logic.handleTapJumpButton,
-                  ),
-          ),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+          child: state.galleryDetails == null
+              ? const SizedBox(width: 40)
+              : IconButton(
+                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
+                  visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
+                  onPressed: logic.handleTapJumpButton,
+                ),
         ),
-        ExcludeFocus(
-          child: IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery),
-        ),
+        IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery),
       ],
     );
   }
@@ -98,31 +94,26 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       );
     }
 
-    return FocusScope(
-      node: Get.isRegistered<DesktopLayoutPageLogic>()
-          ? (Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode..onKeyEvent = logic.onKeyEvent)
-          : null,
-      child: NotificationListener<UserScrollNotification>(
-        onNotification: logic.onUserScroll,
-        child: EHWheelSpeedController(
+    return NotificationListener<UserScrollNotification>(
+      onNotification: logic.onUserScroll,
+      child: EHWheelSpeedController(
+        controller: state.scrollController,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           controller: state.scrollController,
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            controller: state.scrollController,
-            slivers: [
-              CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
-              _buildHeader(),
-              _buildDivider(),
-              _buildNewVersionHint(),
-              _buildActions(),
-              _buildTags(),
-              _buildLoadingDetailsIndicator(),
-              _buildCommentsIndicator(),
-              _buildComments(),
-              _buildThumbnails(),
-              if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
-            ],
-          ),
+          slivers: [
+            CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
+            _buildHeader(),
+            _buildDivider(),
+            _buildNewVersionHint(),
+            _buildActions(),
+            _buildTags(),
+            _buildLoadingDetailsIndicator(),
+            _buildCommentsIndicator(),
+            _buildComments(),
+            _buildThumbnails(),
+            if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+          ],
         ),
       ),
     );
@@ -212,11 +203,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ExcludeFocus(
-                  child: TextButton(
-                    onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
-                    child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
-                  ),
+                TextButton(
+                  onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
+                  child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
                 )
               ],
             ),
@@ -636,27 +625,25 @@ class _ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExcludeFocus(
-      child: SizedBox(
-        height: UIConfig.detailsPageActionsHeight,
-        child: LayoutBuilder(
-          builder: (_, BoxConstraints constraints) => ListView(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
-            padding: EdgeInsets.zero,
-            children: [
-              _buildReadButton(),
-              _buildDownloadButton(),
-              _buildFavoriteButton(),
-              _buildRatingButton(),
-              _buildArchiveButton(),
-              _buildHHButton(),
-              _buildSimilarButton(),
-              _buildTorrentButton(),
-              _buildStatisticButton(),
-            ],
-          ),
+    return SizedBox(
+      height: UIConfig.detailsPageActionsHeight,
+      child: LayoutBuilder(
+        builder: (_, BoxConstraints constraints) => ListView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
+          padding: EdgeInsets.zero,
+          children: [
+            _buildReadButton(),
+            _buildDownloadButton(),
+            _buildFavoriteButton(),
+            _buildRatingButton(),
+            _buildArchiveButton(),
+            _buildHHButton(),
+            _buildSimilarButton(),
+            _buildTorrentButton(),
+            _buildStatisticButton(),
+          ],
         ),
       ),
     );

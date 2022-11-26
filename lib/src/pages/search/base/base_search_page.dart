@@ -219,24 +219,20 @@ class SuggestionAndHistoryBody extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ExcludeFocus(
-            child: IconButton(
-              onPressed: toggleEnableSearchHistoryTranslation,
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-                child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: Get.theme.colorScheme.primary),
-              ),
+          IconButton(
+            onPressed: toggleEnableSearchHistoryTranslation,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: Get.theme.colorScheme.primary),
             ),
           ),
-          ExcludeFocus(
-            child: IconButton(
-              onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
-              icon: AnimatedSwitcher(
-                duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-                child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : const Icon(Icons.delete, size: 20, color: Colors.red),
-              ),
+          IconButton(
+            onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
+            icon: AnimatedSwitcher(
+              duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : const Icon(Icons.delete, size: 20, color: Colors.red),
             ),
-          )
+          ),
         ],
       ),
     );

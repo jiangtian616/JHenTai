@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
-import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/ui_config.dart';
@@ -34,19 +33,15 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
         color: Theme.of(context).colorScheme.background,
-        child: FocusScope(
-          autofocus: true,
-          node: state.leftTabBarFocusScopeNode,
-          child: GetBuilder<DesktopLayoutPageLogic>(
-            id: logic.tabBarId,
-            builder: (_) => ScrollConfiguration(
-              behavior: UIConfig.scrollBehaviourWithoutScrollBar,
-              child: ListView.builder(
-                controller: state.leftTabBarScrollController,
-                itemCount: state.icons.length,
-                itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-                itemBuilder: (_, int index) => _tabBarIcon(index),
-              ),
+        child: GetBuilder<DesktopLayoutPageLogic>(
+          id: logic.tabBarId,
+          builder: (_) => ScrollConfiguration(
+            behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+            child: ListView.builder(
+              controller: state.leftTabBarScrollController,
+              itemCount: state.icons.length,
+              itemExtent: UIConfig.desktopLeftTabBarItemHeight,
+              itemBuilder: (_, int index) => _tabBarIcon(index),
             ),
           ),
         ),
@@ -63,27 +58,13 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
         children: [
           Expanded(
             child: Center(
-              child: FocusWidget(
-                enableFocus: state.icons[index].routeName != Routes.setting,
-                focusedDecoration: const BoxDecoration(color: Colors.grey),
-                handleTapEnter: () => logic.handleTapTabBarButton(index),
-                handleTapArrowRight: () {
-                  if (state.selectedTabIndex != index) {
-                    logic.handleTapTabBarButton(index);
-                  } else {
-                    state.leftColumnFocusScopeNode.requestFocus();
-                  }
-                },
-                child: ExcludeFocus(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)) : null,
-                    ),
-                    child: IconButton(
-                      onPressed: () => logic.handleTapTabBarButton(index),
-                      icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                    ),
-                  ),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)) : null,
+                ),
+                child: IconButton(
+                  onPressed: () => logic.handleTapTabBarButton(index),
+                  icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
                 ),
               ),
             ),
@@ -111,19 +92,16 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
   }
 
   Widget _leftColumn() {
-    return FocusScope(
-      node: state.leftColumnFocusScopeNode,
-      child: GetBuilder<DesktopLayoutPageLogic>(
-        id: logic.leftColumnId,
-        builder: (_) => Stack(
-          children: state.icons
-              .where((icon) => icon.shouldRender)
-              .mapIndexed((index, icon) => Offstage(
-                    offstage: state.selectedTabOrder != index,
-                    child: icon.page.call(),
-                  ))
-              .toList(),
-        ),
+    return GetBuilder<DesktopLayoutPageLogic>(
+      id: logic.leftColumnId,
+      builder: (_) => Stack(
+        children: state.icons
+            .where((icon) => icon.shouldRender)
+            .mapIndexed((index, icon) => Offstage(
+                  offstage: state.selectedTabOrder != index,
+                  child: icon.page.call(),
+                ))
+            .toList(),
       ),
     );
   }
@@ -131,8 +109,7 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(right),
-      requestFocus: false,
-      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver(), _FocusObserver()],
+      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -159,13 +136,5 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
         );
       },
     );
-  }
-}
-
-class _FocusObserver extends NavigatorObserver {
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.requestFocus();
-    super.didPush(route, previousRoute);
   }
 }

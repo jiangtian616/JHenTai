@@ -8,13 +8,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
-import 'package:jhentai/src/pages/home_page.dart';
-import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
-import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_gallery_favorite_tag.dart';
-import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/color_consts.dart';
@@ -47,36 +42,13 @@ class EHGalleryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FocusWidget(
-      focusedDecoration: listMode == ListMode.flat
-          ? BoxDecoration(
-              color: Get.theme.cardColor,
-              border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground)),
-            )
-          : const BoxDecoration(color: Colors.grey),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-      handleTapEnter: () => handleTapCard(gallery),
-      handleTapArrowRight: () {
-        if (!isRouteAtTop(Routes.details)) {
-          handleTapCard(gallery);
-          return;
-        }
-
-        if (rightRouting.args is Gallery && rightRouting.args.galleryUrl != gallery.galleryUrl) {
-          handleTapCard(gallery);
-          return;
-        }
-
-        Get.find<DesktopLayoutPageLogic>().state.rightColumnFocusScopeNode.requestFocus();
-      },
-      child: GalleryCard(
-        gallery: gallery,
-        flat: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags,
-        withTags: withTags,
-        handleTapCard: handleTapCard,
-        handleLongPressCard: handleLongPressCard,
-        handleSecondaryTapCard: handleSecondaryTapCard,
-      ),
+    return GalleryCard(
+      gallery: gallery,
+      flat: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags,
+      withTags: withTags,
+      handleTapCard: handleTapCard,
+      handleLongPressCard: handleLongPressCard,
+      handleSecondaryTapCard: handleSecondaryTapCard,
     );
   }
 }

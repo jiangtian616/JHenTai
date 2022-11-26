@@ -10,23 +10,4 @@ import '../../layout/desktop/desktop_layout_page_logic.dart';
 class DesktopSearchPageTabState extends BasePageState with BaseSearchPageStateMixin {
   @override
   String get route => Routes.desktopSearch;
-
-  DesktopSearchPageTabState() {
-    searchFieldFocusNode.onKeyEvent = (_, KeyEvent event) {
-      if (event is! KeyDownEvent) {
-        return KeyEventResult.ignored;
-      }
-
-      if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus();
-        return KeyEventResult.handled;
-      }
-      if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        Get.find<DesktopLayoutPageLogic>().state.leftColumnFocusScopeNode.nextFocus();
-        return KeyEventResult.handled;
-      }
-
-      return KeyEventResult.ignored;
-    };
-  }
 }

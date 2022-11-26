@@ -15,8 +15,6 @@ import '../../../utils/toast_util.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/fade_shrink_widget.dart';
-import '../../../widget/focus_widget.dart';
-import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../download_base_page.dart';
 import 'local_gallery_page_logic.dart';
 import 'local_gallery_page_state.dart';
@@ -43,29 +41,23 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
       centerTitle: true,
       titleSpacing: 0,
       title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
-      leading: ExcludeFocus(
-        child: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
-      ),
+      leading: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
       actions: [
-        ExcludeFocus(
-          child: GetBuilder<LocalGalleryPageLogic>(
-            id: LocalGalleryPageLogic.appBarId,
-            builder: (_) => IconButton(
-              icon: Icon(
-                Icons.merge,
-                size: 26,
-                color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline,
-              ),
-              onPressed: logic.toggleAggregateDirectory,
-              visualDensity: const VisualDensity(horizontal: -4),
+        GetBuilder<LocalGalleryPageLogic>(
+          id: LocalGalleryPageLogic.appBarId,
+          builder: (_) => IconButton(
+            icon: Icon(
+              Icons.merge,
+              size: 26,
+              color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline,
             ),
+            onPressed: logic.toggleAggregateDirectory,
+            visualDensity: const VisualDensity(horizontal: -4),
           ),
         ),
-        ExcludeFocus(
-          child: IconButton(
-            icon: Icon(Icons.refresh, size: 26, color: Get.theme.colorScheme.primary),
-            onPressed: logic.handleRefreshLocalGallery,
-          ),
+        IconButton(
+          icon: Icon(Icons.refresh, size: 26, color: Get.theme.colorScheme.primary),
+          onPressed: logic.handleRefreshLocalGallery,
         ),
       ],
     );
@@ -110,32 +102,20 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget parentDirectoryItemBuilder(BuildContext context) {
-    return FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-      handleTapEnter: logic.backRoute,
-      handleTapArrowRight: logic.backRoute,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: logic.backRoute,
-        child: _buildNestedDirectory('/..').marginAll(5),
-      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: logic.backRoute,
+      child: _buildNestedDirectory('/..').marginAll(5),
     );
   }
 
   Widget nestedDirectoryItemBuilder(BuildContext context, int index) {
     String childPath = logic.computeChildPath(index);
 
-    return FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-      handleTapEnter: () => logic.pushRoute(childPath),
-      handleTapArrowRight: () => logic.pushRoute(childPath),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => logic.pushRoute(childPath),
-        child: _buildNestedDirectory(logic.isAtRootPath() ? childPath : p.relative(childPath, from: state.currentPath)).marginAll(5),
-      ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => logic.pushRoute(childPath),
+      child: _buildNestedDirectory(logic.isAtRootPath() ? childPath : p.relative(childPath, from: state.currentPath)).marginAll(5),
     );
   }
 
@@ -165,27 +145,21 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         ? logic.localGalleryService.allGallerys[index]
         : logic.localGalleryService.path2GalleryDir[state.currentPath]![index];
 
-    return FocusWidget(
-      focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Get.theme.colorScheme.onBackground))),
-      handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-      handleTapEnter: () => logic.goToReadPage(gallery),
-      handleTapArrowRight: () => logic.goToReadPage(gallery),
-      child: Slidable(
-        key: Key(gallery.title),
-        endActionPane: _buildEndActionPane(gallery),
-        child: GestureDetector(
-          onSecondaryTap: () => showBottomSheet(gallery, context),
-          onLongPress: () => showBottomSheet(gallery, context),
-          child: FadeShrinkWidget(
-            show: !state.removedGalleryTitles.contains(gallery.title),
-            child: _buildGallery(gallery, context).marginAll(5),
-            afterDisappear: () {
-              Get.engine.addPostFrameCallback(
-                (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
-              );
-              state.removedGalleryTitles.remove(gallery.title);
-            },
-          ),
+    return Slidable(
+      key: Key(gallery.title),
+      endActionPane: _buildEndActionPane(gallery),
+      child: GestureDetector(
+        onSecondaryTap: () => showBottomSheet(gallery, context),
+        onLongPress: () => showBottomSheet(gallery, context),
+        child: FadeShrinkWidget(
+          show: !state.removedGalleryTitles.contains(gallery.title),
+          child: _buildGallery(gallery, context).marginAll(5),
+          afterDisappear: () {
+            Get.engine.addPostFrameCallback(
+                  (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
+            );
+            state.removedGalleryTitles.remove(gallery.title);
+          },
         ),
       ),
     );

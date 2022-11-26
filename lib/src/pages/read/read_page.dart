@@ -86,14 +86,12 @@ class ReadPage extends StatelessWidget {
       if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
         return VerticalListLayout();
       }
-
       if (ReadSetting.enableContinuousHorizontalScroll.isTrue) {
         return HorizontalListLayout();
       }
       if (ReadSetting.enableDoubleColumn.isTrue) {
         return HorizontalDoubleColumnLayout();
       }
-
       return HorizontalPageLayout();
     });
   }

@@ -1,13 +1,12 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/widget/focus_widget.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../config/ui_config.dart';
@@ -33,20 +32,9 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FocusWidget(
-      focusedDecoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(width: 3, color: Get.theme.colorScheme.onBackground),
-      ),
-      handleTapEnter: () => handleTapCard(gallery),
-      child: GestureDetector(
-        onTap: () => handleTapCard(gallery),
-        child: FadeIn(
-          child: Card(
-            child: _buildGallery(),
-          ),
-        ),
-      ),
+    return GestureDetector(
+      onTap: () => handleTapCard(gallery),
+      child: Card(child: _buildGallery()).fadeIn(),
     );
   }
 

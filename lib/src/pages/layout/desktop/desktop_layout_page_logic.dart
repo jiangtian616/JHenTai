@@ -12,14 +12,6 @@ class DesktopLayoutPageLogic extends GetxController with DoubleTapToRefreshLogic
   @override
   DesktopLayoutPageState state = DesktopLayoutPageState();
 
-  @override
-  void onClose() {
-    super.onClose();
-    state.leftTabBarFocusScopeNode.dispose();
-    state.leftColumnFocusScopeNode.dispose();
-    state.rightColumnFocusScopeNode.dispose();
-  }
-
   void updateHoveringTabIndex(int? index) {
     state.hoveringTabIndex = index;
     update([tabBarId]);

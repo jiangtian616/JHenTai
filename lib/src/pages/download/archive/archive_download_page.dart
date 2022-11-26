@@ -18,8 +18,6 @@ import '../../../utils/route_util.dart';
 import '../../../widget/eh_gallery_category_tag.dart';
 import '../../../widget/eh_image.dart';
 import '../../../widget/fade_shrink_widget.dart';
-import '../../../widget/focus_widget.dart';
-import '../../layout/desktop/desktop_layout_page_logic.dart';
 import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../download_base_page.dart';
 import 'archive_download_page_logic.dart';
@@ -52,18 +50,14 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       titleSpacing: 0,
       title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
       actions: [
-        ExcludeFocus(
-          child: IconButton(
-            icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
-            onPressed: logic.archiveDownloadService.resumeAllDownloadArchive,
-            visualDensity: const VisualDensity(horizontal: -4),
-          ),
+        IconButton(
+          icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
+          onPressed: logic.archiveDownloadService.resumeAllDownloadArchive,
+          visualDensity: const VisualDensity(horizontal: -4),
         ),
-        ExcludeFocus(
-          child: IconButton(
-            icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
-            onPressed: logic.archiveDownloadService.pauseAllDownloadArchive,
-          ),
+        IconButton(
+          icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
+          onPressed: logic.archiveDownloadService.pauseAllDownloadArchive,
         ),
       ],
     );
@@ -121,29 +115,23 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
     return GetBuilder<ArchiveDownloadPageLogic>(
       id: '${ArchiveDownloadPageLogic.groupId}::$group',
-      builder: (_) => FocusWidget(
-        focusedDecoration: BoxDecoration(border: Border(right: BorderSide(width: 3, color: Theme.of(context).colorScheme.onBackground))),
-        handleTapArrowLeft: () => Get.find<DesktopLayoutPageLogic>().state.leftTabBarFocusScopeNode.requestFocus(),
-        handleTapEnter: () => logic.goToReadPage(archive),
-        handleTapArrowRight: () => logic.goToReadPage(archive),
-        child: Slidable(
-          key: Key(archive.gid.toString()),
-          endActionPane: _buildEndActionPane(archive),
-          child: GestureDetector(
-            onSecondaryTap: () => showArchiveBottomSheet(archive, context),
-            onLongPress: () => showArchiveBottomSheet(archive, context),
+      builder: (_) => Slidable(
+        key: Key(archive.gid.toString()),
+        endActionPane: _buildEndActionPane(archive),
+        child: GestureDetector(
+          onSecondaryTap: () => showArchiveBottomSheet(archive, context),
+          onLongPress: () => showArchiveBottomSheet(archive, context),
+          child: FadeShrinkWidget(
+            show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
-              show: state.displayGroups.contains(group),
-              child: FadeShrinkWidget(
-                show: !state.removedGids.contains(archive.gid),
-                child: _buildCard(archive, context).marginAll(5),
-                afterDisappear: () {
-                  Get.engine.addPostFrameCallback(
-                    (_) => logic.archiveDownloadService.deleteArchive(archive),
-                  );
-                  state.removedGids.remove(archive.gid);
-                },
-              ),
+              show: !state.removedGids.contains(archive.gid),
+              child: _buildCard(archive, context).marginAll(5),
+              afterDisappear: () {
+                Get.engine.addPostFrameCallback(
+                      (_) => logic.archiveDownloadService.deleteArchive(archive),
+                );
+                state.removedGids.remove(archive.gid);
+              },
             ),
           ),
         ),
