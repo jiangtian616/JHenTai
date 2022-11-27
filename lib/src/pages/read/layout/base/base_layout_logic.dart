@@ -5,7 +5,8 @@ import 'dart:typed_data';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:image_save/image_save.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
@@ -137,7 +138,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             child: Text('save'.tr),
             onPressed: () async {
               backRoute();
-              if (await _saveOnlineImage(index)) {
+              if (await saveOnlineImage(index)) {
                 toast('success'.tr);
               } else {
                 toast('failed'.tr);
@@ -179,11 +180,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
               child: Text('save'.tr),
               onPressed: () {
                 backRoute();
-                ImageGallerySaver.saveFile(
+                File image = File(
                   GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-                      galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+                    galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
+                  ),
                 );
-                toast('success'.tr);
+                image.readAsBytes().then((bytes) => _saveImage2Album(bytes, basename(image.path))).then((_) => toast('success'.tr));
               },
             ),
           CupertinoActionSheetAction(
@@ -197,6 +199,19 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
     );
+  }
+
+  Future<bool> saveOnlineImage(int index) async {
+    if (readPageState.images[index] == null) {
+      return false;
+    }
+
+    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    if (data == null) {
+      return false;
+    }
+
+    return _saveImage2Album(data, basename(readPageState.images[index]!.url));
   }
 
   /// Compute image container size when we haven't parsed image's size
@@ -217,18 +232,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
   }
 
-  Future<bool> _saveOnlineImage(int index) async {
-    if (readPageState.images[index] == null) {
-      return false;
+  Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
+    if (readPageState.readPageInfo.gid != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
     }
 
-    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
-    if (data == null) {
-      return false;
-    }
-
-    await ImageGallerySaver.saveImage(data, quality: 100);
-    return true;
+    return await ImageSave.saveImage(imageData, fileName, albumName: EHConsts.appName) == true;
   }
 
   Future<bool> _shareOnlineImage(int index) async {

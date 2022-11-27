@@ -192,7 +192,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
       return;
     }
 
-    String text = await FlutterClipboard.paste();
+    String text = (await FlutterClipboard.paste()).trim();
     if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
       return;
     }

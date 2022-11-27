@@ -1,6 +1,8 @@
 import 'package:jhentai/src/setting/eh_setting.dart';
 
 class EHConsts {
+  static const String appName = "JHenTai";
+
   static String get EIndex => EHSetting.site.value == 'EH' ? EHIndex : EXIndex;
 
   static String get EHIndex => 'https://e-hentai.org';
@@ -31,12 +33,9 @@ class EHConsts {
 
   static String get EForums => 'https://forums.e-hentai.org/index.php';
 
-  static String get EPopup => EHSetting.site.value == 'EH'
-      ? 'https://e-hentai.org/gallerypopups.php'
-      : 'https://exhentai.org/gallerypopups.php';
+  static String get EPopup => EHSetting.site.value == 'EH' ? 'https://e-hentai.org/gallerypopups.php' : 'https://exhentai.org/gallerypopups.php';
 
-  static String get EFavorite =>
-      EHSetting.site.value == 'EH' ? 'https://e-hentai.org/favorites.php' : 'https://exhentai.org/favorites.php';
+  static String get EFavorite => EHSetting.site.value == 'EH' ? 'https://e-hentai.org/favorites.php' : 'https://exhentai.org/favorites.php';
 
   static String get ETorrent => EHSetting.site.value == 'EH' ? EHTorrent : EXTorrent;
 

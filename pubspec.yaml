@@ -73,8 +73,7 @@ dependencies:
   loading_animation_widget: ^1.2.0+3
   simple_animations: ^5.0.0+2
   animated_flip_counter: ^0.2.5
-  image_gallery_saver:
-    git: https://github.com/hui-z/image_gallery_saver
+  image_save: 5.0.0
   system_network_proxy: 1.0.2
   http_proxy: 1.2.1
   flutter_socks_proxy: 0.0.2
