@@ -159,6 +159,7 @@ Future<void> init() async {
   HistoryService.init();
   SearchHistoryService.init();
   GalleryDownloadService.init();
+  LocalGalleryService.init();
 }
 
 Future<void> onReady() async {
@@ -170,7 +171,6 @@ Future<void> onReady() async {
   ReadSetting.init();
 
   ArchiveDownloadService.init();
-  LocalGalleryService.init();
 
   VolumeService.init();
 }

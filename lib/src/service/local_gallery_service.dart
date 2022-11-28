@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/pages/download/local/local_gallery_page_logic.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
@@ -58,6 +59,7 @@ class LocalGalleryService extends GetxController {
 
   static void init() {
     Get.put(LocalGalleryService(), permanent: true);
+    Get.put(LocalGalleryPageLogic(), permanent: true);
   }
 
   Future<int> refreshLocalGallerys() {

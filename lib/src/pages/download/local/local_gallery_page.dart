@@ -23,7 +23,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   LocalGalleryPage({Key? key}) : super(key: key);
 
   @override
-  final LocalGalleryPageLogic logic = Get.put<LocalGalleryPageLogic>(LocalGalleryPageLogic(), permanent: true);
+  final LocalGalleryPageLogic logic = Get.find<LocalGalleryPageLogic>();
   @override
   final LocalGalleryPageState state = Get.find<LocalGalleryPageLogic>().state;
 
