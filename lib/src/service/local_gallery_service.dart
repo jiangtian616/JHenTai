@@ -174,6 +174,7 @@ class LocalGalleryService extends GetxController {
                   if (subResult.isLegalGalleryDir || subResult.isLegalNestedGalleryDir) {
                     result.isLegalNestedGalleryDir = true;
                     (path2SubDir[parentPath] ??= []).addIfNotExists(directory.path);
+                    path2SubDir[parentPath]!.sort((a, b) => basename(a).compareTo(basename(b)));
                   }
                 }),
               );
@@ -213,7 +214,7 @@ class LocalGalleryService extends GetxController {
       }
     }).then((_) {
       LocalGallery gallery = LocalGallery(
-        title: basename(galleryDir.path.split('-').sublist(1).join('-')),
+        title: basename(galleryDir.path),
         path: galleryDir.path,
         cover: GalleryImage(
           url: 'localImage',
@@ -226,10 +227,13 @@ class LocalGalleryService extends GetxController {
       );
 
       allGallerys.add(gallery);
+      allGallerys.sort((a, b) => a.title.compareTo(b.title));
       (path2GalleryDir[parentPath] ??= []).add(gallery);
+      path2GalleryDir[parentPath]!.sort((a, b) => a.title.compareTo(b.title));
       if (gallery.isFromEHViewer) {
         gid2EHViewerGallery[gid!] = gallery;
       }
+
     }).catchError((e) {
       Log.error('Parse gallery url from ehv metadata failed!', e);
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
