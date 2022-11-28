@@ -18,13 +18,20 @@ class LocalGallery {
   String title;
   String path;
   GalleryImage cover;
-  String? galleryUrl;
+
+  bool isFromEHViewer;
+  int? gid;
+  String? token;
+
+  String? get galleryUrl => isFromEHViewer ? '${UserSetting.hasLoggedIn() ? EHConsts.EXIndex : EHConsts.EHIndex}/g/$gid/$token' : null;
 
   LocalGallery({
     required this.title,
     required this.path,
     required this.cover,
-    this.galleryUrl,
+    required this.isFromEHViewer,
+    this.gid,
+    this.token,
   });
 }
 
@@ -44,6 +51,8 @@ class LocalGalleryService extends GetxController {
   List<LocalGallery> allGallerys = [];
   Map<String, List<LocalGallery>> path2GalleryDir = {};
   Map<String, List<String>> path2SubDir = {};
+
+  Map<int, LocalGallery> gid2EHViewerGallery = {};
 
   List<String> get rootDirectories => path2SubDir[rootPath] ?? [];
 
@@ -190,28 +199,35 @@ class LocalGalleryService extends GetxController {
   Future<void> _initGalleryInfoInMemory(Directory galleryDir, File coverImage, String parentPath) {
     /// if the gallery is downloaded by ehviewer, read its metadata file to gain gallery url
     File ehvMetadata = File(join(galleryDir.path, '.ehviewer'));
-    String? galleryUrl;
+    int? gid;
+    String? token;
 
     return ehvMetadata.exists().then((success) {
       if (success) {
         return ehvMetadata.readAsLines().then((lines) {
-          galleryUrl = '${UserSetting.hasLoggedIn() ? EHConsts.EXIndex : EHConsts.EHIndex}/g/${lines[2]}/${lines[3]}';
+          gid = int.tryParse(lines[2]);
+          token = lines[3];
         });
       }
     }).then((_) {
       LocalGallery gallery = LocalGallery(
-        title: basename(galleryDir.path),
+        title: basename(galleryDir.path.split('-').sublist(1).join('-')),
         path: galleryDir.path,
         cover: GalleryImage(
           url: 'localImage',
           path: coverImage.path,
           downloadStatus: DownloadStatus.downloaded,
         ),
-        galleryUrl: galleryUrl,
+        isFromEHViewer: gid != null && token != null,
+        gid: gid,
+        token: token,
       );
 
       allGallerys.add(gallery);
       (path2GalleryDir[parentPath] ??= []).add(gallery);
+      if (gallery.isFromEHViewer) {
+        gid2EHViewerGallery[gid!] = gallery;
+      }
     }).catchError((e) {
       Log.error('Parse gallery url from ehv metadata failed!', e);
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});

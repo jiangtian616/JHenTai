@@ -156,7 +156,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
           child: _buildGallery(gallery, context).marginAll(5),
           afterDisappear: () {
             Get.engine.addPostFrameCallback(
-                  (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
+              (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
             );
             state.removedGalleryTitles.remove(gallery.title);
           },
@@ -196,7 +196,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
           child: Row(
             children: [
               GestureDetector(
-                onTap: gallery.galleryUrl == null ? null : () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
+                onTap: gallery.isFromEHViewer ? () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}) : null,
                 child: _buildCover(gallery, context),
               ),
               Expanded(child: _buildInfo(gallery)),
@@ -227,11 +227,9 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (gallery.galleryUrl != null)
-              Text(
-                'EHViewer',
-                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
-              ).marginOnly(right: 8),
+            if (gallery.isFromEHViewer)
+              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor))
+                  .marginOnly(right: 8),
           ],
         ),
       ],

@@ -16,6 +16,8 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/download/local/local_gallery_page_logic.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
@@ -74,6 +76,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
+  final LocalGalleryService localGalleryService = Get.find();
+  final LocalGalleryPageLogic localGalleryPageLogic = Get.find();
   final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
@@ -203,6 +207,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     GalleryDownloadedData? galleryDownloadedData = downloadService.gallerys.singleWhereOrNull((g) => g.gid == gallery.gid);
     GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
+    LocalGallery? localGallery = localGalleryService.gid2EHViewerGallery[state.gallery!.gid];
+
+    /// local ehviewer gallery
+    if (localGallery != null) {
+      localGalleryPageLogic.goToReadPage(localGallery);
+      return;
+    }
 
     /// new download
     if (galleryDownloadedData == null || downloadProgress == null) {
@@ -566,7 +577,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   int getReadIndexRecord() {
-    return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0;
+    return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? storageService.read('readIndexRecord::${state.gallery!.title}') ?? 0;
   }
 
   Future<Map<String, dynamic>> _getDetailsWithRedirect({bool useCache = true}) async {

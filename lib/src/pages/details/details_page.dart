@@ -29,6 +29,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../database/database.dart';
 import '../../model/gallery_comment.dart';
 import '../../service/gallery_download_service.dart';
+import '../../service/local_gallery_service.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
@@ -620,6 +621,7 @@ class _NewVersionHint extends StatelessWidget {
 class _ActionButtons extends StatelessWidget {
   final DetailsPageLogic logic = DetailsPageLogic.current!;
   final DetailsPageState state = DetailsPageLogic.current!.state;
+  final LocalGalleryService localGalleryService = Get.find();
 
   _ActionButtons({Key? key}) : super(key: key);
 
@@ -676,26 +678,31 @@ class _ActionButtons extends StatelessWidget {
         bool disabled = state.gallery?.pageCount == null;
 
         GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.downloadProgress;
+        LocalGallery? localGallery = localGalleryService.gid2EHViewerGallery[state.gallery!.gid];
 
-        String text = downloadProgress == null
-            ? 'download'.tr
-            : downloadProgress.downloadStatus == DownloadStatus.paused
-                ? 'resume'.tr
-                : downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? 'pause'.tr
-                    : state.galleryDetails?.newVersionGalleryUrl == null
-                        ? 'finished'.tr
-                        : 'update'.tr;
+        String text = localGallery != null
+            ? 'finished'.tr
+            : downloadProgress == null
+                ? 'download'.tr
+                : downloadProgress.downloadStatus == DownloadStatus.paused
+                    ? 'resume'.tr
+                    : downloadProgress.downloadStatus == DownloadStatus.downloading
+                        ? 'pause'.tr
+                        : state.galleryDetails?.newVersionGalleryUrl == null
+                            ? 'finished'.tr
+                            : 'update'.tr;
 
-        Icon icon = downloadProgress == null
-            ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
-            : downloadProgress.downloadStatus == DownloadStatus.paused
-                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
-                : downloadProgress.downloadStatus == DownloadStatus.downloading
-                    ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
-                    : state.galleryDetails?.newVersionGalleryUrl == null
-                        ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
-                        : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
+        Icon icon = localGallery != null
+            ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
+            : downloadProgress == null
+                ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
+                : downloadProgress.downloadStatus == DownloadStatus.paused
+                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
+                    : downloadProgress.downloadStatus == DownloadStatus.downloading
+                        ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
+                        : state.galleryDetails?.newVersionGalleryUrl == null
+                            ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
+                            : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
 
         return IconTextButton(
           icon: icon,
