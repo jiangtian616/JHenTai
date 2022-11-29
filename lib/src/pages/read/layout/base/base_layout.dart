@@ -156,7 +156,8 @@ abstract class BaseLayout extends StatelessWidget {
   Widget _buildOnlineImage(BuildContext context, int index) {
     FittedSizes fittedSizes = logic.getImageFittedSize(readPageState.images[index]!);
     return GestureDetector(
-      onLongPress: GetPlatform.isMobile ? () => logic.showBottomMenuInOnlineMode(index, context) : null,
+      onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
+      onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
       child: EHImage.network(
         galleryImage: readPageState.images[index]!,
         containerWidth: fittedSizes.destination.width,
@@ -242,6 +243,7 @@ abstract class BaseLayout extends StatelessWidget {
 
     return GestureDetector(
       onLongPress: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
+      onSecondaryTap: readPageState.readPageInfo.mode == ReadMode.downloaded ? () => logic.showBottomMenuInLocalMode(index, context) : null,
       child: Container(
         constraints: readPageState.loadComplete[index] ? null : BoxConstraints(minHeight: placeHolderSize.height, minWidth: placeHolderSize.width),
         child: EHImage.file(

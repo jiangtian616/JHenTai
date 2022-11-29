@@ -433,6 +433,7 @@ class pt_BR {
       'changeDownloadPathHint':
           'Pressione e segure para mudar. Alterar o caminho de download copiará as galerias baixadas automaticamente e manterá os arquivos antigos. Se você achar que não consegue carregar a imagem, tente redefinir o caminho.',
       'resetDownloadPath': 'Redefinir caminho de download',
+      'singleImageSavePath': 'Single Image Save Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
       'extraGalleryScanPathHint': 'To scan and load local gallerys',
       'downloadOriginalImage': 'Imagem original',

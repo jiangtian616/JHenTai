@@ -113,6 +113,7 @@ class LocalGalleryPageLogic extends GetxController with GetTickerProviderStateMi
         Routes.read,
         arguments: ReadPageInfo(
           mode: ReadMode.local,
+          galleryTitle: gallery.title,
           initialIndex: readIndexRecord,
           currentIndex: readIndexRecord,
           pageCount: images.length,

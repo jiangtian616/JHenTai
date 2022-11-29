@@ -136,6 +136,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
         arguments: ReadPageInfo(
           mode: ReadMode.archive,
           gid: archive.gid,
+          galleryTitle: archive.title,
           galleryUrl: archive.galleryUrl,
           initialIndex: readIndexRecord,
           currentIndex: readIndexRecord,

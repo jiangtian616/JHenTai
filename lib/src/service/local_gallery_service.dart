@@ -123,7 +123,12 @@ class LocalGalleryService extends GetxController {
   Future<void> _loadGalleriesFromDisk() {
     List<Future> futures = DownloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
 
-    return Future.wait(futures);
+    return Future.wait(futures).then((_) {
+      allGallerys.sort((a, b) => a.title.compareTo(b.title));
+      for (List<LocalGallery> dirs in path2GalleryDir.values) {
+        dirs.sort((a, b) => a.title.compareTo(b.title));
+      }
+    });
   }
 
   Future<LocalGalleryParseResult> _parseDirectory(Directory directory, bool isRootDir) {
@@ -227,13 +232,10 @@ class LocalGalleryService extends GetxController {
       );
 
       allGallerys.add(gallery);
-      allGallerys.sort((a, b) => a.title.compareTo(b.title));
       (path2GalleryDir[parentPath] ??= []).add(gallery);
-      path2GalleryDir[parentPath]!.sort((a, b) => a.title.compareTo(b.title));
       if (gallery.isFromEHViewer) {
         gid2EHViewerGallery[gid!] = gallery;
       }
-
     }).catchError((e) {
       Log.error('Parse gallery url from ehv metadata failed!', e);
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});

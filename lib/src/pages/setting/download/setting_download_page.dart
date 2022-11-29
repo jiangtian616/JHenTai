@@ -45,6 +45,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             _buildDownloadPath(),
             if (!GetPlatform.isIOS) _buildResetDownloadPath(),
             if (!GetPlatform.isIOS) _buildExtraGalleryScanPath(),
+            if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
             _buildDownloadOriginalImage(),
             _buildDownloadConcurrency(),
             _buildSpeedLimit(),
@@ -86,6 +87,15 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       subtitle: Text('extraGalleryScanPathHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.extraGalleryScanPath),
+    );
+  }
+
+  Widget _buildSingleImageSavePath() {
+    return ListTile(
+      title: Text('singleImageSavePath'.tr),
+      subtitle: Text(DownloadSetting.singleImageSavePath.value.breakWord),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: _handleChangeSingleImageSavePath,
     );
   }
 
@@ -292,6 +302,30 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
     }
     await Future.wait(futures);
+  }
+
+  Future<void> _handleChangeSingleImageSavePath() async {
+    String oldPath = DownloadSetting.singleImageSavePath.value;
+    String? newPath;
+
+    /// choose new path
+    try {
+      newPath = await FilePicker.platform.getDirectoryPath();
+    } on Exception catch (e) {
+      Log.error('Pick single image save path failed', e);
+    }
+
+    if (newPath == null || newPath == oldPath) {
+      return;
+    }
+
+    /// check permission
+    if (!checkPermissionForPath(newPath)) {
+      toast('invalidPath'.tr, isShort: false);
+      return;
+    }
+
+    DownloadSetting.saveSingleImageSavePath(newPath);
   }
 
   Future<void> _restore() async {

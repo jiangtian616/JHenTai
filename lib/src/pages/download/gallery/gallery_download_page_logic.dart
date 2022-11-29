@@ -148,6 +148,7 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
         arguments: ReadPageInfo(
           mode: ReadMode.downloaded,
           gid: gallery.gid,
+          galleryTitle: gallery.title,
           galleryUrl: gallery.galleryUrl,
           initialIndex: readIndexRecord,
           currentIndex: readIndexRecord,

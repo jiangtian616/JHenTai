@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_save/image_save.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
@@ -129,20 +131,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             child: Text('share'.tr),
             onPressed: () async {
               backRoute();
-              if (!await _shareOnlineImage(index)) {
-                toast('failed'.tr);
-              }
+              shareOnlineImage(index);
             },
           ),
           CupertinoActionSheetAction(
             child: Text('save'.tr),
             onPressed: () async {
               backRoute();
-              if (await saveOnlineImage(index)) {
-                toast('success'.tr);
-              } else {
-                toast('failed'.tr);
-              }
+              saveOnlineImage(index);
             },
           ),
         ],
@@ -160,38 +156,25 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       context: context,
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
-          if (GetPlatform.isMobile)
-            CupertinoActionSheetAction(
-              child: Text('share'.tr),
-              onPressed: () {
-                backRoute();
-                Share.shareFiles(
-                  [
-                    GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-                        galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
-                  ],
-                  text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
-                  sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
-                );
-              },
-            ),
-          if (GetPlatform.isMobile)
-            CupertinoActionSheetAction(
-              child: Text('save'.tr),
-              onPressed: () {
-                backRoute();
-                File image = File(
-                  GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-                    galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
-                  ),
-                );
-                image.readAsBytes().then((bytes) => _saveImage2Album(bytes, basename(image.path))).then((_) => toast('success'.tr));
-              },
-            ),
+          CupertinoActionSheetAction(
+            child: Text('share'.tr),
+            onPressed: () {
+              backRoute();
+              shareLocalImage(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('save'.tr),
+            onPressed: () {
+              backRoute();
+              saveLocalImage(index);
+            },
+          ),
           CupertinoActionSheetAction(
             child: Text('reDownload'.tr),
             onPressed: () {
               backRoute();
+              readPageState.loadComplete[index] = false;
               galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
             },
           ),
@@ -201,17 +184,81 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
   }
 
-  Future<bool> saveOnlineImage(int index) async {
+  void shareOnlineImage(int index) async {
     if (readPageState.images[index] == null) {
-      return false;
+      return;
+    }
+
+    if (GetPlatform.isDesktop) {
+      await FlutterClipboard.copy(readPageState.images[index]!.url);
+      toast('hasCopiedToClipboard'.tr);
+      return;
     }
 
     Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
     if (data == null) {
-      return false;
+      return;
     }
 
-    return _saveImage2Album(data, basename(readPageState.images[index]!.url));
+    String path = join(PathSetting.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
+    File file = File(path);
+
+    file.create().then((file) => file.writeAsBytes(data)).then(
+          (_) => Share.shareFiles(
+            [path],
+            text: '$index${extension(readPageState.images[index]!.url)}',
+            sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+          ),
+        );
+  }
+
+  void shareLocalImage(int index) {
+    if (GetPlatform.isDesktop) {
+      FlutterClipboard.copy(readPageState.images[index]!.url).then((_) => toast('hasCopiedToClipboard'.tr));
+      return;
+    }
+
+    Share.shareFiles(
+      [
+        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+            galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+      ],
+      text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+    );
+  }
+
+  Future<void> saveOnlineImage(int index) async {
+    if (readPageState.images[index] == null) {
+      return;
+    }
+
+    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    if (data == null) {
+      return;
+    }
+
+    if (GetPlatform.isDesktop) {
+      File file = File(join(DownloadSetting.singleImageSavePath.value, basename(readPageState.images[index]!.url)));
+      file.create(recursive: true).then((_) => file.writeAsBytesSync(data)).then((_) => toast('success'.tr));
+      return;
+    }
+
+    _saveImage2Album(data, basename(readPageState.images[index]!.url)).then((_) => toast('success'.tr));
+  }
+
+  void saveLocalImage(int index) {
+    File image = File(
+      GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+        galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
+      ),
+    );
+
+    if (GetPlatform.isDesktop) {
+      image.copy(join(DownloadSetting.singleImageSavePath.value, basename(image.path))).then((_) => toast('success'.tr));
+    } else {
+      image.readAsBytes().then((bytes) => _saveImage2Album(bytes, basename(image.path))).then((_) => toast('success'.tr));
+    }
   }
 
   /// Compute image container size when we haven't parsed image's size
@@ -238,29 +285,5 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     return await ImageSave.saveImage(imageData, fileName, albumName: EHConsts.appName) == true;
-  }
-
-  Future<bool> _shareOnlineImage(int index) async {
-    if (readPageState.images[index] == null) {
-      return false;
-    }
-
-    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
-    if (data == null) {
-      return false;
-    }
-
-    String path = join(PathSetting.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
-    File file = File(path);
-
-    await file.create().then((file) => file.writeAsBytes(data));
-
-    Share.shareFiles(
-      [path],
-      text: '$index${extension(readPageState.images[index]!.url)}',
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
-    );
-
-    return true;
   }
 }

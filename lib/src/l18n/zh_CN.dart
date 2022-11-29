@@ -428,6 +428,7 @@ class zh_CN {
       'downloadPath': '下载路径',
       'changeDownloadPathHint': '长按来改变下载路径(请不要使用SD卡或系统路径)。会自动复制已下载的画廊到新路径，并保留原文件。如果你遇到相关错误，请尝试重置路径',
       'resetDownloadPath': '重置下载路径',
+      'singleImageSavePath': '单张图片保存路径',
       'extraGalleryScanPath': '额外的画廊扫描路径',
       'extraGalleryScanPathHint': '扫描并加载本地画廊的路径。请不要使用SD卡或系统路径',
       'longPress2Reset': '长按以重置',

@@ -12,6 +12,7 @@ class DownloadSetting {
   static RxString downloadPath = defaultDownloadPath.obs;
   static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
   static RxList<String> extraGalleryScanPath = <String>[downloadPath.value].obs;
+  static RxString singleImageSavePath = join(PathSetting.getVisibleDir().path, 'save').obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -50,6 +51,12 @@ class DownloadSetting {
       return;
     }
     extraGalleryScanPath.add(newPath);
+    _save();
+  }
+
+  static saveSingleImageSavePath(String singleImageSavePath) {
+    Log.debug('saveSingleImageSavePath:$singleImageSavePath');
+    DownloadSetting.singleImageSavePath.value = singleImageSavePath;
     _save();
   }
 
@@ -109,6 +116,7 @@ class DownloadSetting {
     return {
       'downloadPath': downloadPath.value,
       'extraGalleryScanPath': extraGalleryScanPath.value,
+      'singleImageSavePath': singleImageSavePath.value,
       'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
@@ -124,6 +132,7 @@ class DownloadSetting {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
     }
     extraGalleryScanPath.value = map['extraGalleryScanPath']?.cast<String>() ?? extraGalleryScanPath.value;
+    singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];

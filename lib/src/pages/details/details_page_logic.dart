@@ -418,6 +418,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         arguments: ReadPageInfo(
           mode: ReadMode.archive,
           gid: archive.gid,
+          galleryTitle: archive.title,
           galleryUrl: archive.galleryUrl,
           initialIndex: readIndexRecord,
           currentIndex: readIndexRecord,
@@ -545,6 +546,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         arguments: ReadPageInfo(
           mode: ReadMode.online,
           gid: state.gallery!.gid,
+          galleryTitle: state.gallery!.title,
           galleryUrl: state.galleryUrl,
           initialIndex: forceIndex ?? readIndexRecord,
           currentIndex: forceIndex ?? readIndexRecord,
@@ -567,6 +569,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       arguments: ReadPageInfo(
         mode: ReadMode.downloaded,
         gid: state.gallery!.gid,
+        galleryTitle: state.gallery!.title,
         galleryUrl: state.galleryUrl,
         initialIndex: forceIndex ?? readIndexRecord,
         currentIndex: forceIndex ?? readIndexRecord,

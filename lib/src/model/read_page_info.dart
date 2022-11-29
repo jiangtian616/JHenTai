@@ -7,6 +7,8 @@ class ReadPageInfo {
 
   int? gid;
 
+  String galleryTitle;
+
   String? galleryUrl;
 
   int initialIndex;
@@ -26,6 +28,7 @@ class ReadPageInfo {
   ReadPageInfo({
     required this.mode,
     this.gid,
+    required this.galleryTitle,
     this.galleryUrl,
     required this.initialIndex,
     required this.currentIndex,

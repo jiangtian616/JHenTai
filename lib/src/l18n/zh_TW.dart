@@ -428,6 +428,7 @@ class zh_TW {
       'downloadPath': '下載路徑',
       'changeDownloadPathHint': '長按來改變下載路徑(請不要使用SD卡或系統路徑)。會自動複制已下載的畫廊到新路徑，並保留原文件。如果妳遇到相關錯誤，請嘗試重置路徑',
       'resetDownloadPath': '重置下載路徑',
+      'singleImageSavePath': '單張圖片保存路徑',
       'extraGalleryScanPath': '額外的畫廊掃描路徑',
       'extraGalleryScanPathHint': '掃描並加載本地畫廊的路徑。請不要使用SD卡或系統路徑',
       'longPress2Reset': '長按以重置',

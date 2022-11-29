@@ -433,6 +433,7 @@ class en_US {
       'resetDownloadPath': 'Reset Download Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
       'extraGalleryScanPathHint': 'To scan and load local gallerys',
+      'singleImageSavePath': 'Single Image Save Path',
       'downloadOriginalImage': 'Original Image',
       'downloadOriginalImageByDefault': 'Choose Original Image By Default',
       'originalImage': 'Original',
