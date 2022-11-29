@@ -1,16 +1,13 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
-import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
 
 import '../service/gallery_download_service.dart';
-import '../setting/network_setting.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
@@ -125,7 +122,6 @@ class EHImage extends StatelessWidget {
       handleLoadingProgress: loadingWidgetBuilder != null,
       printError: false,
       enableSlideOutPage: enableSlideOutPage,
-      // headers: _cookieHeaders(galleryImage.url),
       borderRadius: borderRadius,
       shape: borderRadius != null ? BoxShape.rectangle : null,
       clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
@@ -202,29 +198,6 @@ class EHImage extends StatelessWidget {
 
     Uri newUri = rawUri.replace(host: 'ehgt.org');
     return newUri.toString();
-  }
-
-  /// replace image host: exhentai.org -> ${exHentaiIP}
-  String _replaceEXUrlIfEnableDomainFronting(String url) {
-    if (NetworkSetting.enableDomainFronting.isFalse) {
-      return url;
-    }
-
-    Uri rawUri = Uri.parse(url);
-    String host = rawUri.host;
-    if (host != 'exhentai.org') {
-      return url;
-    }
-
-    Uri newUri = rawUri.replace(host: NetworkSetting.exHentaiIP.value);
-    return newUri.toString();
-  }
-
-  Map<String, String>? _cookieHeaders(String url) {
-    Uri rawUri = Uri.parse(url);
-    String host = rawUri.host;
-
-    return {'Cookie': EHCookieManager.userCookies, 'host': host};
   }
 
   /// copied from ExtendedImage
