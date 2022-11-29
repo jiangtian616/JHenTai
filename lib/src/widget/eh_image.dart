@@ -6,7 +6,6 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
-
 import '../service/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
@@ -16,20 +15,23 @@ typedef DownloadingWidgetBuilder = Widget Function();
 typedef PausedWidgetBuilder = Widget Function();
 
 class EHImage extends StatelessWidget {
+  /// common
   final GalleryImage galleryImage;
   final double? containerHeight;
   final double? containerWidth;
   final Color? containerColor;
   final BoxFit fit;
-  final ExtendedImageMode mode;
-  final InitGestureConfigHandler? initGestureConfigHandler;
   final bool enableSlideOutPage;
   final BorderRadius? borderRadius;
   final Object? heroTag;
   final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
+
+  /// online image
   final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
+
+  /// local image
   final DownloadingWidgetBuilder? downloadingWidgetBuilder;
   final PausedWidgetBuilder? pausedWidgetBuilder;
   final CompletedWidgetBuilder? completedWidgetBuilder;
@@ -41,8 +43,6 @@ class EHImage extends StatelessWidget {
     this.containerWidth,
     this.containerColor,
     this.fit = BoxFit.contain,
-    this.mode = ExtendedImageMode.none,
-    this.initGestureConfigHandler,
     this.enableSlideOutPage = false,
     this.borderRadius,
     this.heroTag,
@@ -62,8 +62,6 @@ class EHImage extends StatelessWidget {
     this.containerWidth,
     this.containerColor,
     this.fit = BoxFit.contain,
-    this.mode = ExtendedImageMode.none,
-    this.initGestureConfigHandler,
     this.enableSlideOutPage = false,
     this.borderRadius,
     this.heroTag,
@@ -115,10 +113,8 @@ class EHImage extends StatelessWidget {
     return ExtendedImage.network(
       _replaceEXUrl(galleryImage.url),
       fit: fit,
-      mode: mode,
       height: containerHeight,
       width: containerWidth,
-      initGestureConfigHandler: initGestureConfigHandler,
       handleLoadingProgress: loadingWidgetBuilder != null,
       printError: false,
       enableSlideOutPage: enableSlideOutPage,
@@ -129,18 +125,20 @@ class EHImage extends StatelessWidget {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
             return loadingWidgetBuilder != null
-                ? loadingWidgetBuilder!.call(
-                    _computeLoadingProgress(state.loadingProgress, state.extendedImageInfo),
-                  )
+                ? loadingWidgetBuilder!.call(_computeLoadingProgress(state.loadingProgress, state.extendedImageInfo))
                 : Center(child: UIConfig.loadingAnimation);
           case LoadState.failed:
-            return failedWidgetBuilder?.call(state);
+            return failedWidgetBuilder?.call(state) ??
+                Center(
+                  child: GestureDetector(
+                    child: const Icon(Icons.sentiment_very_dissatisfied),
+                    onTap: state.reLoadImage,
+                  ),
+                );
           case LoadState.completed:
             return state.wasSynchronouslyLoaded
-                ? completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state)
-                : FadeIn(
-                    child: completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state),
-                  );
+                ? completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state)
+                : FadeIn(child: completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state));
         }
       },
     );
@@ -158,7 +156,6 @@ class EHImage extends StatelessWidget {
     return ExtendedImage.file(
       io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!)),
       fit: fit,
-      mode: mode,
       height: containerHeight,
       width: containerWidth,
       enableLoadState: true,
@@ -169,7 +166,7 @@ class EHImage extends StatelessWidget {
       loadStateChanged: (ExtendedImageState state) {
         if (state.extendedImageLoadState == LoadState.completed) {
           return FadeIn(
-            child: completedWidgetBuilder?.call(state) ?? _getCompletedWidget(state),
+            child: completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state),
           );
         }
         return null;
@@ -198,17 +195,6 @@ class EHImage extends StatelessWidget {
 
     Uri newUri = rawUri.replace(host: 'ehgt.org');
     return newUri.toString();
-  }
-
-  /// copied from ExtendedImage
-  Widget _getCompletedWidget(ExtendedImageState state) {
-    if (mode == ExtendedImageMode.gesture) {
-      return ExtendedImageGesture(state);
-    }
-    if (mode == ExtendedImageMode.editor) {
-      return ExtendedImageEditor(extendedImageState: state);
-    }
-    return _buildExtendedRawImage(state);
   }
 
   /// copied from ExtendedImage

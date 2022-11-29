@@ -524,7 +524,7 @@ class GalleryDownloadService extends GetxController {
   static String computeImageDownloadAbsolutePathFromRelativePath(String imageRelativePath) {
     String path = join(PathSetting.getVisibleDir().path, imageRelativePath);
 
-    /// I don't know why some images can't be loaded on Windows... If you knows, please inform me
+    /// I don't know why some images can't be loaded on Windows... If you knows, please tell me
     if (!GetPlatform.isWindows) {
       return path;
     }
