@@ -33,7 +33,11 @@ class VerticalListLayout extends BaseLayout {
           scrollController: state.itemScrollController,
           child: EHScrollablePositionedList.separated(
             physics: const ClampingScrollPhysics(),
-            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online ? ReadSetting.preloadDistance * screenHeight * 1 : 8 * screenHeight,
+            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                ? ReadSetting.preloadDistance * screenHeight * 1
+                : GetPlatform.isIOS
+                    ? 3 * screenHeight
+                    : 8 * screenHeight,
             initialScrollIndex: readPageState.readPageInfo.initialIndex,
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,
