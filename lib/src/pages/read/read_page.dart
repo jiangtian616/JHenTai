@@ -57,8 +57,6 @@ class ReadPage extends StatelessWidget {
         handleArrowLeft: logic.toLeft,
         handleA: logic.toLeft,
         handleD: logic.toRight,
-        handleLCtrl: logic.toLeft,
-        handleRCtrl: logic.toRight,
         handleEnd: backRoute,
         child: DefaultTextStyle(
           style: DefaultTextStyle.of(context).style.copyWith(
@@ -273,9 +271,9 @@ class ReadPage extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
-                  'PageDown、RCtrl、→、↓ 、D :  ${'toNext'.tr}'
+                  'PageDown、→、↓ 、D :  ${'toNext'.tr}'
                   '\n'
-                  'PageUp、LCtrl、←、↑、A  :  ${'toPrev'.tr}'
+                  'PageUp、←、↑、A  :  ${'toPrev'.tr}'
                   '\n'
                   'Esc、End  :  ${'back'.tr}'
                   '\n'
