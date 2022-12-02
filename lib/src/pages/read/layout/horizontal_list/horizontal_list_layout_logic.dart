@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../model/gallery_image.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../base/base_layout_logic.dart';
@@ -79,9 +78,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   /// jump to a certain image
   @override
   void jump2PageIndex(int imageIndex) {
+    super.jump2PageIndex(imageIndex);
+
     /// Method [jumpTo] leads to redrawing, so wo use scrollTo
     state.itemScrollController.scrollTo(index: imageIndex, duration: const Duration(milliseconds: 1));
-    super.jump2PageIndex(imageIndex);
   }
 
   /// scroll to a certain image
@@ -229,10 +229,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  FittedSizes getImageFittedSize(GalleryImage image) {
+  FittedSizes getImageFittedSize(Size imageSize) {
     return applyBoxFit(
       BoxFit.contain,
-      Size(image.width!, image.height!),
+      Size(imageSize.width, imageSize.height),
       Size(double.infinity, screenHeight),
     );
   }

@@ -119,11 +119,11 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  FittedSizes getImageFittedSize(GalleryImage image) {
+  FittedSizes getImageFittedSize(Size imageSize) {
     /// 6 is the width of divider
     return applyBoxFit(
       BoxFit.contain,
-      Size(image.width!, image.height!),
+      Size(imageSize.width, imageSize.height),
       Size((fullScreenWidth - 6) / 2, screenHeight),
     );
   }

@@ -10,9 +10,10 @@ import '../service/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
-typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 typedef DownloadingWidgetBuilder = Widget Function();
 typedef PausedWidgetBuilder = Widget Function();
+typedef LoadingWidgetBuilder = Widget Function();
+typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 
 class EHImage extends StatelessWidget {
   /// common
@@ -28,12 +29,13 @@ class EHImage extends StatelessWidget {
   final List<BoxShadow>? shadows;
 
   /// online image
-  final LoadingProgressWidgetBuilder? loadingWidgetBuilder;
+  final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
 
   /// local image
   final DownloadingWidgetBuilder? downloadingWidgetBuilder;
   final PausedWidgetBuilder? pausedWidgetBuilder;
+  final LoadingWidgetBuilder? loadingWidgetBuilder;
   final CompletedWidgetBuilder? completedWidgetBuilder;
 
   const EHImage.file({
@@ -52,6 +54,7 @@ class EHImage extends StatelessWidget {
     this.pausedWidgetBuilder,
     this.completedWidgetBuilder,
     this.loadingWidgetBuilder,
+    this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
   }) : super(key: key);
 
@@ -67,11 +70,12 @@ class EHImage extends StatelessWidget {
     this.heroTag,
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,
-    this.loadingWidgetBuilder,
+    this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.completedWidgetBuilder,
     this.downloadingWidgetBuilder,
     this.pausedWidgetBuilder,
+    this.loadingWidgetBuilder,
   }) : super(key: key);
 
   @override
@@ -115,7 +119,7 @@ class EHImage extends StatelessWidget {
       fit: fit,
       height: containerHeight,
       width: containerWidth,
-      handleLoadingProgress: loadingWidgetBuilder != null,
+      handleLoadingProgress: loadingProgressWidgetBuilder != null,
       printError: false,
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,
@@ -124,21 +128,18 @@ class EHImage extends StatelessWidget {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return loadingWidgetBuilder != null
-                ? loadingWidgetBuilder!.call(_computeLoadingProgress(state.loadingProgress, state.extendedImageInfo))
+            return loadingProgressWidgetBuilder != null
+                ? loadingProgressWidgetBuilder!.call(_computeLoadingProgress(state.loadingProgress, state.extendedImageInfo))
                 : Center(child: UIConfig.loadingAnimation);
           case LoadState.failed:
             return failedWidgetBuilder?.call(state) ??
                 Center(
-                  child: GestureDetector(
-                    child: const Icon(Icons.sentiment_very_dissatisfied),
-                    onTap: state.reLoadImage,
-                  ),
+                  child: GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
                 );
           case LoadState.completed:
             return state.wasSynchronouslyLoaded
-                ? completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state)
-                : FadeIn(child: completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state));
+                ? completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state)
+                : FadeIn(child: completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state));
         }
       },
     );
@@ -164,12 +165,19 @@ class EHImage extends StatelessWidget {
       shape: borderRadius != null ? BoxShape.rectangle : null,
       clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
-        if (state.extendedImageLoadState == LoadState.completed) {
-          return FadeIn(
-            child: completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state),
-          );
+        switch (state.extendedImageLoadState) {
+          case LoadState.loading:
+            return loadingWidgetBuilder != null ? loadingWidgetBuilder!.call() : Center(child: UIConfig.loadingAnimation);
+          case LoadState.failed:
+            return failedWidgetBuilder?.call(state) ??
+                Center(
+                  child: GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
+                );
+          case LoadState.completed:
+            return FadeIn(
+              child: completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state),
+            );
         }
-        return null;
       },
     );
   }
@@ -198,7 +206,7 @@ class EHImage extends StatelessWidget {
   }
 
   /// copied from ExtendedImage
-  Widget _buildExtendedRawImage(ExtendedImageState state) {
+  Widget _buildDefaultCompletedWidget(ExtendedImageState state) {
     return ExtendedRawImage(
       image: state.extendedImageInfo?.image,
       scale: state.extendedImageInfo?.scale ?? 1.0,

@@ -14,7 +14,6 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../../model/gallery_image.dart';
 import '../../../../setting/path_setting.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
@@ -79,6 +78,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   @mustCallSuper
   void jump2PageIndex(int pageIndex) {
+    readPageLogic.syncThumbnails(pageIndex);
     readPageLogic.update([readPageLogic.sliderId]);
   }
 
@@ -174,7 +174,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             child: Text('reDownload'.tr),
             onPressed: () {
               backRoute();
-              readPageState.loadComplete[index] = false;
               galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
             },
           ),
@@ -267,10 +266,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   /// Compute image container size
-  FittedSizes getImageFittedSize(GalleryImage image) {
+  FittedSizes getImageFittedSize(Size imageSize) {
     return applyBoxFit(
       BoxFit.contain,
-      Size(image.width!, image.height!),
+      Size(imageSize.width, imageSize.height),
       Size(fullScreenWidth, double.infinity),
     );
   }
