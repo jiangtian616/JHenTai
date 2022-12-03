@@ -26,11 +26,7 @@ class EHThumbnail extends StatelessWidget {
 
   Widget _buildLargeThumbnail() {
     return EHImage(
-      galleryImage: GalleryImage(
-        url: thumbnail.thumbUrl,
-        height: thumbnail.thumbHeight!,
-        width: thumbnail.thumbWidth!,
-      ),
+      galleryImage: GalleryImage(url: thumbnail.thumbUrl),
       containerHeight: containerHeight,
       containerWidth: containerWidth,
       borderRadius: borderRadius,
@@ -39,7 +35,7 @@ class EHThumbnail extends StatelessWidget {
 
   Widget _buildSmallThumbnail() {
     return EHImage(
-      galleryImage: GalleryImage(url: thumbnail.thumbUrl, height: thumbnail.thumbWidth!, width: thumbnail.thumbHeight!),
+      galleryImage: GalleryImage(url: thumbnail.thumbUrl),
       containerHeight: containerHeight,
       containerWidth: containerWidth,
       borderRadius: borderRadius,

@@ -21,8 +21,6 @@ CREATE TABLE image
     url                 TEXT NOT NULL,
     serialNo            INT  NOT NULL,
     gid                 INT  NOT NULL REFERENCES gallery_downloaded (gid),
-    height              REAL NOT NULL,
-    width               REAL NOT NULL,
     path                TEXT NOT NULL,
     imageHash           TEXT NOT NULL,
     downloadStatusIndex INT  NOT NULL,
@@ -51,8 +49,6 @@ SELECT g.gid,
        g.groupName,
        i.url,
        i.serialNo,
-       i.height,
-       i.width,
        i.path,
        i.imageHash,
        i.downloadStatusIndex as imageDownloadStatusIndex
@@ -98,7 +94,7 @@ where gid = :gid;
 
 insertImage:
 insert into image
-values (:url, :serialNo, :gid, :height, :width, :path, :imageHash, :downloadStatusIndex);
+values (:url, :serialNo, :gid, :path, :imageHash, :downloadStatusIndex);
 
 updateImageStatus:
 update image

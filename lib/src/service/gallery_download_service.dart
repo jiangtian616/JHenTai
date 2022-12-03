@@ -933,8 +933,6 @@ class GalleryDownloadService extends GetxController {
       /// Instantiate [GalleryImage]
       GalleryImage image = GalleryImage(
         url: record.url!,
-        height: record.height!,
-        width: record.width!,
         path: record.path!,
         imageHash: record.imageHash!,
         downloadStatus: DownloadStatus.values[record.imageDownloadStatusIndex!],
@@ -1082,8 +1080,6 @@ class GalleryDownloadService extends GetxController {
           image.url,
           serialNo,
           gid,
-          image.height!,
-          image.width!,
           image.path!,
           image.imageHash!,
           image.downloadStatus.index,

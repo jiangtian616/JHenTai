@@ -23,7 +23,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
@@ -61,6 +61,9 @@ class AppDb extends _$AppDb {
           }
           if (from < 9) {
             await _updateConfigFileLocation();
+          }
+          if (from < 10) {
+            await _deleteImageSizeColumn(m);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -137,6 +140,11 @@ class AppDb extends _$AppDb {
   /// copy files
   Future<void> _updateConfigFileLocation() async {
     await PathSetting.appSupportDir.copy(PathSetting.getVisibleDir().path);
+  }
+
+  Future<void> _deleteImageSizeColumn(Migrator m) async {
+    await m.alterTable(TableMigration(archiveDownloaded));
+    await m.alterTable(TableMigration(image));
   }
 }
 

@@ -60,8 +60,6 @@ class Gallery {
       uploader: uploader,
       size: size,
       coverUrl: cover.url,
-      coverHeight: cover.height!,
-      coverWidth: cover.width!,
       publishTime: publishTime,
       archiveStatusIndex: ArchiveStatus.unlocking.index,
       archivePageUrl: archivePageUrl,

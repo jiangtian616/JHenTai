@@ -616,8 +616,6 @@ class ArchiveDownloadedData extends DataClass
   final int pageCount;
   final String galleryUrl;
   final String coverUrl;
-  final double coverHeight;
-  final double coverWidth;
   final String? uploader;
   final int size;
   final String publishTime;
@@ -636,8 +634,6 @@ class ArchiveDownloadedData extends DataClass
       required this.pageCount,
       required this.galleryUrl,
       required this.coverUrl,
-      required this.coverHeight,
-      required this.coverWidth,
       this.uploader,
       required this.size,
       required this.publishTime,
@@ -666,10 +662,6 @@ class ArchiveDownloadedData extends DataClass
           .mapFromDatabaseResponse(data['${effectivePrefix}galleryUrl'])!,
       coverUrl: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}coverUrl'])!,
-      coverHeight: const RealType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}coverHeight'])!,
-      coverWidth: const RealType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}coverWidth'])!,
       uploader: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}uploader']),
       size: const IntType()
@@ -702,8 +694,6 @@ class ArchiveDownloadedData extends DataClass
     map['pageCount'] = Variable<int>(pageCount);
     map['galleryUrl'] = Variable<String>(galleryUrl);
     map['coverUrl'] = Variable<String>(coverUrl);
-    map['coverHeight'] = Variable<double>(coverHeight);
-    map['coverWidth'] = Variable<double>(coverWidth);
     if (!nullToAbsent || uploader != null) {
       map['uploader'] = Variable<String?>(uploader);
     }
@@ -736,8 +726,6 @@ class ArchiveDownloadedData extends DataClass
       pageCount: Value(pageCount),
       galleryUrl: Value(galleryUrl),
       coverUrl: Value(coverUrl),
-      coverHeight: Value(coverHeight),
-      coverWidth: Value(coverWidth),
       uploader: uploader == null && nullToAbsent
           ? const Value.absent()
           : Value(uploader),
@@ -772,8 +760,6 @@ class ArchiveDownloadedData extends DataClass
       pageCount: serializer.fromJson<int>(json['pageCount']),
       galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
       coverUrl: serializer.fromJson<String>(json['coverUrl']),
-      coverHeight: serializer.fromJson<double>(json['coverHeight']),
-      coverWidth: serializer.fromJson<double>(json['coverWidth']),
       uploader: serializer.fromJson<String?>(json['uploader']),
       size: serializer.fromJson<int>(json['size']),
       publishTime: serializer.fromJson<String>(json['publishTime']),
@@ -797,8 +783,6 @@ class ArchiveDownloadedData extends DataClass
       'pageCount': serializer.toJson<int>(pageCount),
       'galleryUrl': serializer.toJson<String>(galleryUrl),
       'coverUrl': serializer.toJson<String>(coverUrl),
-      'coverHeight': serializer.toJson<double>(coverHeight),
-      'coverWidth': serializer.toJson<double>(coverWidth),
       'uploader': serializer.toJson<String?>(uploader),
       'size': serializer.toJson<int>(size),
       'publishTime': serializer.toJson<String>(publishTime),
@@ -820,8 +804,6 @@ class ArchiveDownloadedData extends DataClass
           int? pageCount,
           String? galleryUrl,
           String? coverUrl,
-          double? coverHeight,
-          double? coverWidth,
           String? uploader,
           int? size,
           String? publishTime,
@@ -840,8 +822,6 @@ class ArchiveDownloadedData extends DataClass
         pageCount: pageCount ?? this.pageCount,
         galleryUrl: galleryUrl ?? this.galleryUrl,
         coverUrl: coverUrl ?? this.coverUrl,
-        coverHeight: coverHeight ?? this.coverHeight,
-        coverWidth: coverWidth ?? this.coverWidth,
         uploader: uploader ?? this.uploader,
         size: size ?? this.size,
         publishTime: publishTime ?? this.publishTime,
@@ -863,8 +843,6 @@ class ArchiveDownloadedData extends DataClass
           ..write('pageCount: $pageCount, ')
           ..write('galleryUrl: $galleryUrl, ')
           ..write('coverUrl: $coverUrl, ')
-          ..write('coverHeight: $coverHeight, ')
-          ..write('coverWidth: $coverWidth, ')
           ..write('uploader: $uploader, ')
           ..write('size: $size, ')
           ..write('publishTime: $publishTime, ')
@@ -888,8 +866,6 @@ class ArchiveDownloadedData extends DataClass
       pageCount,
       galleryUrl,
       coverUrl,
-      coverHeight,
-      coverWidth,
       uploader,
       size,
       publishTime,
@@ -911,8 +887,6 @@ class ArchiveDownloadedData extends DataClass
           other.pageCount == this.pageCount &&
           other.galleryUrl == this.galleryUrl &&
           other.coverUrl == this.coverUrl &&
-          other.coverHeight == this.coverHeight &&
-          other.coverWidth == this.coverWidth &&
           other.uploader == this.uploader &&
           other.size == this.size &&
           other.publishTime == this.publishTime &&
@@ -934,8 +908,6 @@ class ArchiveDownloadedCompanion
   final Value<int> pageCount;
   final Value<String> galleryUrl;
   final Value<String> coverUrl;
-  final Value<double> coverHeight;
-  final Value<double> coverWidth;
   final Value<String?> uploader;
   final Value<int> size;
   final Value<String> publishTime;
@@ -954,8 +926,6 @@ class ArchiveDownloadedCompanion
     this.pageCount = const Value.absent(),
     this.galleryUrl = const Value.absent(),
     this.coverUrl = const Value.absent(),
-    this.coverHeight = const Value.absent(),
-    this.coverWidth = const Value.absent(),
     this.uploader = const Value.absent(),
     this.size = const Value.absent(),
     this.publishTime = const Value.absent(),
@@ -975,8 +945,6 @@ class ArchiveDownloadedCompanion
     required int pageCount,
     required String galleryUrl,
     required String coverUrl,
-    required double coverHeight,
-    required double coverWidth,
     this.uploader = const Value.absent(),
     required int size,
     required String publishTime,
@@ -994,8 +962,6 @@ class ArchiveDownloadedCompanion
         pageCount = Value(pageCount),
         galleryUrl = Value(galleryUrl),
         coverUrl = Value(coverUrl),
-        coverHeight = Value(coverHeight),
-        coverWidth = Value(coverWidth),
         size = Value(size),
         publishTime = Value(publishTime),
         archiveStatusIndex = Value(archiveStatusIndex),
@@ -1009,8 +975,6 @@ class ArchiveDownloadedCompanion
     Expression<int>? pageCount,
     Expression<String>? galleryUrl,
     Expression<String>? coverUrl,
-    Expression<double>? coverHeight,
-    Expression<double>? coverWidth,
     Expression<String?>? uploader,
     Expression<int>? size,
     Expression<String>? publishTime,
@@ -1030,8 +994,6 @@ class ArchiveDownloadedCompanion
       if (pageCount != null) 'pageCount': pageCount,
       if (galleryUrl != null) 'galleryUrl': galleryUrl,
       if (coverUrl != null) 'coverUrl': coverUrl,
-      if (coverHeight != null) 'coverHeight': coverHeight,
-      if (coverWidth != null) 'coverWidth': coverWidth,
       if (uploader != null) 'uploader': uploader,
       if (size != null) 'size': size,
       if (publishTime != null) 'publishTime': publishTime,
@@ -1053,8 +1015,6 @@ class ArchiveDownloadedCompanion
       Value<int>? pageCount,
       Value<String>? galleryUrl,
       Value<String>? coverUrl,
-      Value<double>? coverHeight,
-      Value<double>? coverWidth,
       Value<String?>? uploader,
       Value<int>? size,
       Value<String>? publishTime,
@@ -1073,8 +1033,6 @@ class ArchiveDownloadedCompanion
       pageCount: pageCount ?? this.pageCount,
       galleryUrl: galleryUrl ?? this.galleryUrl,
       coverUrl: coverUrl ?? this.coverUrl,
-      coverHeight: coverHeight ?? this.coverHeight,
-      coverWidth: coverWidth ?? this.coverWidth,
       uploader: uploader ?? this.uploader,
       size: size ?? this.size,
       publishTime: publishTime ?? this.publishTime,
@@ -1111,12 +1069,6 @@ class ArchiveDownloadedCompanion
     }
     if (coverUrl.present) {
       map['coverUrl'] = Variable<String>(coverUrl.value);
-    }
-    if (coverHeight.present) {
-      map['coverHeight'] = Variable<double>(coverHeight.value);
-    }
-    if (coverWidth.present) {
-      map['coverWidth'] = Variable<double>(coverWidth.value);
     }
     if (uploader.present) {
       map['uploader'] = Variable<String?>(uploader.value);
@@ -1161,8 +1113,6 @@ class ArchiveDownloadedCompanion
           ..write('pageCount: $pageCount, ')
           ..write('galleryUrl: $galleryUrl, ')
           ..write('coverUrl: $coverUrl, ')
-          ..write('coverHeight: $coverHeight, ')
-          ..write('coverWidth: $coverWidth, ')
           ..write('uploader: $uploader, ')
           ..write('size: $size, ')
           ..write('publishTime: $publishTime, ')
@@ -1224,19 +1174,6 @@ class ArchiveDownloaded extends Table
   late final GeneratedColumn<String?> coverUrl = GeneratedColumn<String?>(
       'coverUrl', aliasedName, false,
       type: const StringType(),
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  final VerificationMeta _coverHeightMeta =
-      const VerificationMeta('coverHeight');
-  late final GeneratedColumn<double?> coverHeight = GeneratedColumn<double?>(
-      'coverHeight', aliasedName, false,
-      type: const RealType(),
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  final VerificationMeta _coverWidthMeta = const VerificationMeta('coverWidth');
-  late final GeneratedColumn<double?> coverWidth = GeneratedColumn<double?>(
-      'coverWidth', aliasedName, false,
-      type: const RealType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL');
   final VerificationMeta _uploaderMeta = const VerificationMeta('uploader');
@@ -1313,8 +1250,6 @@ class ArchiveDownloaded extends Table
         pageCount,
         galleryUrl,
         coverUrl,
-        coverHeight,
-        coverWidth,
         uploader,
         size,
         publishTime,
@@ -1379,22 +1314,6 @@ class ArchiveDownloaded extends Table
           coverUrl.isAcceptableOrUnknown(data['coverUrl']!, _coverUrlMeta));
     } else if (isInserting) {
       context.missing(_coverUrlMeta);
-    }
-    if (data.containsKey('coverHeight')) {
-      context.handle(
-          _coverHeightMeta,
-          coverHeight.isAcceptableOrUnknown(
-              data['coverHeight']!, _coverHeightMeta));
-    } else if (isInserting) {
-      context.missing(_coverHeightMeta);
-    }
-    if (data.containsKey('coverWidth')) {
-      context.handle(
-          _coverWidthMeta,
-          coverWidth.isAcceptableOrUnknown(
-              data['coverWidth']!, _coverWidthMeta));
-    } else if (isInserting) {
-      context.missing(_coverWidthMeta);
     }
     if (data.containsKey('uploader')) {
       context.handle(_uploaderMeta,
@@ -2312,8 +2231,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   final String url;
   final int serialNo;
   final int gid;
-  final double height;
-  final double width;
   final String path;
   final String imageHash;
   final int downloadStatusIndex;
@@ -2321,8 +2238,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       {required this.url,
       required this.serialNo,
       required this.gid,
-      required this.height,
-      required this.width,
       required this.path,
       required this.imageHash,
       required this.downloadStatusIndex});
@@ -2335,10 +2250,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           .mapFromDatabaseResponse(data['${effectivePrefix}serialNo'])!,
       gid: const IntType()
           .mapFromDatabaseResponse(data['${effectivePrefix}gid'])!,
-      height: const RealType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}height'])!,
-      width: const RealType()
-          .mapFromDatabaseResponse(data['${effectivePrefix}width'])!,
       path: const StringType()
           .mapFromDatabaseResponse(data['${effectivePrefix}path'])!,
       imageHash: const StringType()
@@ -2353,8 +2264,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     map['url'] = Variable<String>(url);
     map['serialNo'] = Variable<int>(serialNo);
     map['gid'] = Variable<int>(gid);
-    map['height'] = Variable<double>(height);
-    map['width'] = Variable<double>(width);
     map['path'] = Variable<String>(path);
     map['imageHash'] = Variable<String>(imageHash);
     map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
@@ -2366,8 +2275,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       url: Value(url),
       serialNo: Value(serialNo),
       gid: Value(gid),
-      height: Value(height),
-      width: Value(width),
       path: Value(path),
       imageHash: Value(imageHash),
       downloadStatusIndex: Value(downloadStatusIndex),
@@ -2381,8 +2288,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       url: serializer.fromJson<String>(json['url']),
       serialNo: serializer.fromJson<int>(json['serialNo']),
       gid: serializer.fromJson<int>(json['gid']),
-      height: serializer.fromJson<double>(json['height']),
-      width: serializer.fromJson<double>(json['width']),
       path: serializer.fromJson<String>(json['path']),
       imageHash: serializer.fromJson<String>(json['imageHash']),
       downloadStatusIndex:
@@ -2396,8 +2301,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       'url': serializer.toJson<String>(url),
       'serialNo': serializer.toJson<int>(serialNo),
       'gid': serializer.toJson<int>(gid),
-      'height': serializer.toJson<double>(height),
-      'width': serializer.toJson<double>(width),
       'path': serializer.toJson<String>(path),
       'imageHash': serializer.toJson<String>(imageHash),
       'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
@@ -2408,8 +2311,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           {String? url,
           int? serialNo,
           int? gid,
-          double? height,
-          double? width,
           String? path,
           String? imageHash,
           int? downloadStatusIndex}) =>
@@ -2417,8 +2318,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
         url: url ?? this.url,
         serialNo: serialNo ?? this.serialNo,
         gid: gid ?? this.gid,
-        height: height ?? this.height,
-        width: width ?? this.width,
         path: path ?? this.path,
         imageHash: imageHash ?? this.imageHash,
         downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
@@ -2429,8 +2328,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           ..write('url: $url, ')
           ..write('serialNo: $serialNo, ')
           ..write('gid: $gid, ')
-          ..write('height: $height, ')
-          ..write('width: $width, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
           ..write('downloadStatusIndex: $downloadStatusIndex')
@@ -2439,8 +2336,8 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      url, serialNo, gid, height, width, path, imageHash, downloadStatusIndex);
+  int get hashCode =>
+      Object.hash(url, serialNo, gid, path, imageHash, downloadStatusIndex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2448,8 +2345,6 @@ class ImageData extends DataClass implements Insertable<ImageData> {
           other.url == this.url &&
           other.serialNo == this.serialNo &&
           other.gid == this.gid &&
-          other.height == this.height &&
-          other.width == this.width &&
           other.path == this.path &&
           other.imageHash == this.imageHash &&
           other.downloadStatusIndex == this.downloadStatusIndex);
@@ -2459,8 +2354,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   final Value<String> url;
   final Value<int> serialNo;
   final Value<int> gid;
-  final Value<double> height;
-  final Value<double> width;
   final Value<String> path;
   final Value<String> imageHash;
   final Value<int> downloadStatusIndex;
@@ -2468,8 +2361,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     this.url = const Value.absent(),
     this.serialNo = const Value.absent(),
     this.gid = const Value.absent(),
-    this.height = const Value.absent(),
-    this.width = const Value.absent(),
     this.path = const Value.absent(),
     this.imageHash = const Value.absent(),
     this.downloadStatusIndex = const Value.absent(),
@@ -2478,16 +2369,12 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     required String url,
     required int serialNo,
     required int gid,
-    required double height,
-    required double width,
     required String path,
     required String imageHash,
     required int downloadStatusIndex,
   })  : url = Value(url),
         serialNo = Value(serialNo),
         gid = Value(gid),
-        height = Value(height),
-        width = Value(width),
         path = Value(path),
         imageHash = Value(imageHash),
         downloadStatusIndex = Value(downloadStatusIndex);
@@ -2495,8 +2382,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     Expression<String>? url,
     Expression<int>? serialNo,
     Expression<int>? gid,
-    Expression<double>? height,
-    Expression<double>? width,
     Expression<String>? path,
     Expression<String>? imageHash,
     Expression<int>? downloadStatusIndex,
@@ -2505,8 +2390,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       if (url != null) 'url': url,
       if (serialNo != null) 'serialNo': serialNo,
       if (gid != null) 'gid': gid,
-      if (height != null) 'height': height,
-      if (width != null) 'width': width,
       if (path != null) 'path': path,
       if (imageHash != null) 'imageHash': imageHash,
       if (downloadStatusIndex != null)
@@ -2518,8 +2401,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       {Value<String>? url,
       Value<int>? serialNo,
       Value<int>? gid,
-      Value<double>? height,
-      Value<double>? width,
       Value<String>? path,
       Value<String>? imageHash,
       Value<int>? downloadStatusIndex}) {
@@ -2527,8 +2408,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
       url: url ?? this.url,
       serialNo: serialNo ?? this.serialNo,
       gid: gid ?? this.gid,
-      height: height ?? this.height,
-      width: width ?? this.width,
       path: path ?? this.path,
       imageHash: imageHash ?? this.imageHash,
       downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
@@ -2546,12 +2425,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     }
     if (gid.present) {
       map['gid'] = Variable<int>(gid.value);
-    }
-    if (height.present) {
-      map['height'] = Variable<double>(height.value);
-    }
-    if (width.present) {
-      map['width'] = Variable<double>(width.value);
     }
     if (path.present) {
       map['path'] = Variable<String>(path.value);
@@ -2571,8 +2444,6 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
           ..write('url: $url, ')
           ..write('serialNo: $serialNo, ')
           ..write('gid: $gid, ')
-          ..write('height: $height, ')
-          ..write('width: $width, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
           ..write('downloadStatusIndex: $downloadStatusIndex')
@@ -2604,18 +2475,6 @@ class Image extends Table with TableInfo<Image, ImageData> {
       type: const IntType(),
       requiredDuringInsert: true,
       $customConstraints: 'NOT NULL REFERENCES gallery_downloaded (gid)');
-  final VerificationMeta _heightMeta = const VerificationMeta('height');
-  late final GeneratedColumn<double?> height = GeneratedColumn<double?>(
-      'height', aliasedName, false,
-      type: const RealType(),
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  final VerificationMeta _widthMeta = const VerificationMeta('width');
-  late final GeneratedColumn<double?> width = GeneratedColumn<double?>(
-      'width', aliasedName, false,
-      type: const RealType(),
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
   final VerificationMeta _pathMeta = const VerificationMeta('path');
   late final GeneratedColumn<String?> path = GeneratedColumn<String?>(
       'path', aliasedName, false,
@@ -2637,7 +2496,7 @@ class Image extends Table with TableInfo<Image, ImageData> {
       $customConstraints: 'NOT NULL');
   @override
   List<GeneratedColumn> get $columns =>
-      [url, serialNo, gid, height, width, path, imageHash, downloadStatusIndex];
+      [url, serialNo, gid, path, imageHash, downloadStatusIndex];
   @override
   String get aliasedName => _alias ?? 'image';
   @override
@@ -2664,18 +2523,6 @@ class Image extends Table with TableInfo<Image, ImageData> {
           _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
     } else if (isInserting) {
       context.missing(_gidMeta);
-    }
-    if (data.containsKey('height')) {
-      context.handle(_heightMeta,
-          height.isAcceptableOrUnknown(data['height']!, _heightMeta));
-    } else if (isInserting) {
-      context.missing(_heightMeta);
-    }
-    if (data.containsKey('width')) {
-      context.handle(
-          _widthMeta, width.isAcceptableOrUnknown(data['width']!, _widthMeta));
-    } else if (isInserting) {
-      context.missing(_widthMeta);
     }
     if (data.containsKey('path')) {
       context.handle(
@@ -3012,8 +2859,6 @@ abstract class _$AppDb extends GeneratedDatabase {
       int pageCount,
       String galleryUrl,
       String coverUrl,
-      double coverHeight,
-      double coverWidth,
       String? uploader,
       int size,
       String publishTime,
@@ -3025,7 +2870,7 @@ abstract class _$AppDb extends GeneratedDatabase {
       String? insertTime,
       String? groupName) {
     return customInsert(
-      'insert into archive_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :coverHeight, :coverWidth, :uploader,\r\n        :size, :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal,\r\n        :insertTime, :groupName)',
+      'insert into archive_downloaded\r\nvalues (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :uploader,\r\n        :size, :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal,\r\n        :insertTime, :groupName)',
       variables: [
         Variable<int>(gid),
         Variable<String>(token),
@@ -3034,8 +2879,6 @@ abstract class _$AppDb extends GeneratedDatabase {
         Variable<int>(pageCount),
         Variable<String>(galleryUrl),
         Variable<String>(coverUrl),
-        Variable<double>(coverHeight),
-        Variable<double>(coverWidth),
         Variable<String?>(uploader),
         Variable<int>(size),
         Variable<String>(publishTime),
@@ -3128,7 +2971,7 @@ abstract class _$AppDb extends GeneratedDatabase {
 
   Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
     return customSelect(
-        'SELECT g.gid,\r\n       g.token,\r\n       g.title,\r\n       g.category,\r\n       g.pageCount,\r\n       g.galleryUrl,\r\n       g.oldVersionGalleryUrl,\r\n       g.uploader,\r\n       g.publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       g.insertTime,\r\n       g.downloadOriginalImage,\r\n       g.priority,\r\n       g.groupName,\r\n       i.url,\r\n       i.serialNo,\r\n       i.height,\r\n       i.width,\r\n       i.path,\r\n       i.imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC, serialNo',
+        'SELECT g.gid,\r\n       g.token,\r\n       g.title,\r\n       g.category,\r\n       g.pageCount,\r\n       g.galleryUrl,\r\n       g.oldVersionGalleryUrl,\r\n       g.uploader,\r\n       g.publishTime,\r\n       g.downloadStatusIndex as galleryDownloadStatusIndex,\r\n       g.insertTime,\r\n       g.downloadOriginalImage,\r\n       g.priority,\r\n       g.groupName,\r\n       i.url,\r\n       i.serialNo,\r\n       i.path,\r\n       i.imageHash,\r\n       i.downloadStatusIndex as imageDownloadStatusIndex\r\nFROM gallery_downloaded g\r\n         left join image i on g.gid = i.gid\r\nORDER BY insertTime DESC, serialNo',
         variables: [],
         readsFrom: {
           galleryDownloaded,
@@ -3151,8 +2994,6 @@ abstract class _$AppDb extends GeneratedDatabase {
         groupName: row.read<String?>('groupName'),
         url: row.read<String?>('url'),
         serialNo: row.read<int?>('serialNo'),
-        height: row.read<double?>('height'),
-        width: row.read<double?>('width'),
         path: row.read<String?>('path'),
         imageHash: row.read<String?>('imageHash'),
         imageDownloadStatusIndex: row.read<int?>('imageDownloadStatusIndex'),
@@ -3253,16 +3094,14 @@ abstract class _$AppDb extends GeneratedDatabase {
         }).map(galleryDownloaded.mapFromRow);
   }
 
-  Future<int> insertImage(String url, int serialNo, int gid, double height,
-      double width, String path, String imageHash, int downloadStatusIndex) {
+  Future<int> insertImage(String url, int serialNo, int gid, String path,
+      String imageHash, int downloadStatusIndex) {
     return customInsert(
-      'insert into image\r\nvalues (:url, :serialNo, :gid, :height, :width, :path, :imageHash, :downloadStatusIndex)',
+      'insert into image\r\nvalues (:url, :serialNo, :gid, :path, :imageHash, :downloadStatusIndex)',
       variables: [
         Variable<String>(url),
         Variable<int>(serialNo),
         Variable<int>(gid),
-        Variable<double>(height),
-        Variable<double>(width),
         Variable<String>(path),
         Variable<String>(imageHash),
         Variable<int>(downloadStatusIndex)
@@ -3408,8 +3247,6 @@ class SelectGallerysWithImagesResult {
   final String? groupName;
   final String? url;
   final int? serialNo;
-  final double? height;
-  final double? width;
   final String? path;
   final String? imageHash;
   final int? imageDownloadStatusIndex;
@@ -3430,8 +3267,6 @@ class SelectGallerysWithImagesResult {
     this.groupName,
     this.url,
     this.serialNo,
-    this.height,
-    this.width,
     this.path,
     this.imageHash,
     this.imageDownloadStatusIndex,

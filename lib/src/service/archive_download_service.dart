@@ -677,8 +677,6 @@ class ArchiveDownloadService extends GetxController {
             archive.pageCount,
             archive.galleryUrl,
             archive.coverUrl,
-            archive.coverHeight,
-            archive.coverWidth,
             archive.uploader,
             archive.size,
             archive.publishTime,

@@ -128,7 +128,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
               child: _buildCard(archive, context).marginAll(5),
               afterDisappear: () {
                 Get.engine.addPostFrameCallback(
-                      (_) => logic.archiveDownloadService.deleteArchive(archive),
+                  (_) => logic.archiveDownloadService.deleteArchive(archive),
                 );
                 state.removedGids.remove(archive.gid);
               },
@@ -184,11 +184,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl}),
       child: EHImage(
-        galleryImage: GalleryImage(
-          url: archive.coverUrl,
-          width: archive.coverWidth,
-          height: archive.coverHeight,
-        ),
+        galleryImage: GalleryImage(url: archive.coverUrl),
         containerWidth: UIConfig.downloadPageCoverWidth,
         containerHeight: UIConfig.downloadPageCoverHeight,
         fit: BoxFit.fitWidth,

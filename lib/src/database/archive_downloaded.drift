@@ -7,8 +7,6 @@ CREATE TABLE archive_downloaded
     pageCount          INT  NOT NULL,
     galleryUrl         TEXT NOT NULL,
     coverUrl           TEXT NOT NULL,
-    coverHeight        REAL NOT NULL,
-    coverWidth         REAL NOT NULL,
     uploader           TEXT,
     size               INT  NOT NULL,
     publishTime        TEXT NOT NULL,
@@ -34,7 +32,7 @@ ORDER BY insertTime DESC;
 
 insertArchive:
 insert into archive_downloaded
-values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :coverHeight, :coverWidth, :uploader,
+values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :coverUrl, :uploader,
         :size, :publishTime, :archiveStatusIndex, :archivePageUrl, :downloadPageUrl, :downloadUrl, :isOriginal,
         :insertTime, :groupName);
 

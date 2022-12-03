@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -34,18 +34,18 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => handleTapCard(gallery),
-      child: Card(child: _buildGallery()).fadeIn(),
-    );
-  }
-
-  Widget _buildGallery() {
-    return Column(
-      children: [
-        listMode == ListMode.waterfallFlowWithImageAndInfo
-            ? _buildCover()
-            : Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
-        if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
-      ],
+      child: FadeIn(
+        child: Card(
+          child: Column(
+            children: [
+              listMode == ListMode.waterfallFlowWithImageAndInfo
+                  ? _buildCover()
+                  : Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
+              if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
