@@ -17,13 +17,10 @@ class SingleImagePage extends StatelessWidget {
       child: ExtendedImageSlidePage(
         resetPageDuration: const Duration(milliseconds: 200),
         slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints.expand(),
-          child: EHImage(
-            galleryImage: Get.arguments,
-            enableSlideOutPage: true,
-            heroTag: Get.arguments,
-          ),
+        child: EHImage(
+          galleryImage: Get.arguments,
+          enableSlideOutPage: true,
+          heroTag: Get.arguments,
         ),
       ),
     );

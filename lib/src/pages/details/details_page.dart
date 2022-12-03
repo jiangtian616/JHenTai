@@ -14,6 +14,7 @@ import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
+import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -1006,10 +1007,12 @@ class _Thumbnails extends StatelessWidget {
               /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
               /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
               /// the callback is added once.
-              SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
                 logic.loadMoreThumbnails();
               });
             }
+
+            GalleryImage? downloadedImage = logic.galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.images[index];
 
             return KeepAliveWrapper(
               child: Column(
@@ -1018,9 +1021,20 @@ class _Thumbnails extends StatelessWidget {
                     child: Center(
                       child: GestureDetector(
                         onTap: () => logic.goToReadPage(index),
-                        child: EHThumbnail(
-                          thumbnail: state.galleryDetails!.thumbnails[index],
-                          image: logic.galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.images[index],
+                        child: LayoutBuilder(
+                          builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
+                              ? EHImage(
+                                  galleryImage: downloadedImage!,
+                                  containerHeight: constraints.maxHeight,
+                                  containerWidth: constraints.maxWidth,
+                                  borderRadius: BorderRadius.circular(8),
+                                )
+                              : EHThumbnail(
+                                  thumbnail: state.galleryDetails!.thumbnails[index],
+                                  containerHeight: constraints.maxHeight,
+                                  containerWidth: constraints.maxWidth,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                         ),
                       ),
                     ),

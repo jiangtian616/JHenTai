@@ -331,9 +331,10 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _buildThumbnails() {
-    return SizedBox(
+    return Container(
       width: fullScreenWidth,
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
+      padding: const EdgeInsets.only(top: 10),
       child: Obx(
         () => EHWheelSpeedControllerForReadPage(
           scrollController: state.thumbnailsScrollController,
@@ -354,22 +355,29 @@ class ReadPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Expanded(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: UIConfig.readPageThumbnailHeight),
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () => logic.jump2PageIndex(index),
-                            child:
-                                state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
-                          ).marginOnly(top: 2),
-                        ),
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => logic.jump2PageIndex(index),
+                        child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
                       ),
                     ),
                     GetBuilder<ReadPageLogic>(
-                      builder: (_) => Text(
-                        (index + 1).toString(),
-                        style: TextStyle(fontSize: 9, color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : null),
+                      builder: (_) => Center(
+                        child: Container(
+                          width: 24,
+                          decoration: BoxDecoration(
+                            color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : Colors.transparent,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            (index + 1).toString(),
+                            style: TextStyle(
+                              fontSize: 9,
+                              color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.onPrimary : null,
+                            ),
+                          ),
+                        ),
                       ),
                     ).marginOnly(top: 4),
                   ],
@@ -395,8 +403,13 @@ class ReadPage extends StatelessWidget {
           return Center(child: UIConfig.loadingAnimation);
         }
 
-        return Center(
-          child: EHThumbnail(thumbnail: state.thumbnails[index]!),
+        return LayoutBuilder(
+          builder: (_, constraints) => EHThumbnail(
+            thumbnail: state.thumbnails[index]!,
+            containerHeight: constraints.maxHeight,
+            containerWidth: constraints.maxWidth,
+            borderRadius: BorderRadius.circular(8),
+          ),
         );
       },
     );
@@ -409,10 +422,13 @@ class ReadPage extends StatelessWidget {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
           return Center(child: UIConfig.loadingAnimation);
         }
-
-        return EHImage(
-          galleryImage: state.images[index]!,
-          borderRadius: BorderRadius.circular(8),
+        return LayoutBuilder(
+          builder: (_, constraints) => EHImage(
+            galleryImage: state.images[index]!,
+            containerHeight: constraints.maxHeight,
+            containerWidth: constraints.maxWidth,
+            borderRadius: BorderRadius.circular(8),
+          ),
         );
       },
     );

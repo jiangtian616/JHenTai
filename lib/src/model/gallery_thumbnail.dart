@@ -32,13 +32,7 @@ class GalleryThumbnail {
           offSet == other.offSet);
 
   @override
-  int get hashCode =>
-      href.hashCode ^
-      thumbUrl.hashCode ^
-      isLarge.hashCode ^
-      thumbHeight.hashCode ^
-      thumbWidth.hashCode ^
-      offSet.hashCode;
+  int get hashCode => href.hashCode ^ thumbUrl.hashCode ^ isLarge.hashCode ^ thumbHeight.hashCode ^ thumbWidth.hashCode ^ offSet.hashCode;
 
   @override
   String toString() {

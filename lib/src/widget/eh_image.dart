@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
@@ -62,30 +63,11 @@ class EHImage extends StatelessWidget {
       child = Hero(tag: heroTag!, child: child);
     }
 
-    if (containerHeight == null && containerWidth == null && containerColor == null && shadows == null) {
-      return child;
-    }
-
-    FittedSizes fittedSizes = applyBoxFit(
-      fit,
-      Size(galleryImage.width ?? 0, galleryImage.height ?? 0),
-      Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
-    );
-
-    /// Outer container for layout and background color
     return Container(
       height: containerHeight,
       width: containerWidth,
       decoration: BoxDecoration(color: containerColor, borderRadius: borderRadius),
-      child: Center(
-        /// inner container for shadows, whose size is the same as image
-        child: Container(
-          height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
-          width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
-          decoration: BoxDecoration(boxShadow: shadows),
-          child: child,
-        ),
-      ),
+      child: child,
     );
   }
 
@@ -98,8 +80,6 @@ class EHImage extends StatelessWidget {
       handleLoadingProgress: loadingProgressWidgetBuilder != null,
       printError: false,
       enableSlideOutPage: enableSlideOutPage,
-      borderRadius: borderRadius,
-      shape: borderRadius != null ? BoxShape.rectangle : null,
       clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
@@ -113,9 +93,26 @@ class EHImage extends StatelessWidget {
                   child: GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
                 );
           case LoadState.completed:
-            return state.wasSynchronouslyLoaded
-                ? completedWidgetBuilder?.call(state) ?? state.completedWidget
-                : FadeIn(child: completedWidgetBuilder?.call(state) ?? state.completedWidget);
+            state.returnLoadStateChangedWidget = true;
+
+            Widget child = completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state);
+
+            if (borderRadius != null) {
+              child = ClipRRect(child: child, borderRadius: borderRadius);
+            }
+
+            if (state.slidePageState != null) {
+              child = ExtendedImageSlidePageHandler(child: child, extendedImageSlidePageState: state.slidePageState);
+            }
+
+            child = Center(
+              child: Container(
+                decoration: BoxDecoration(boxShadow: shadows, borderRadius: borderRadius),
+                child: child,
+              ),
+            );
+
+            return state.wasSynchronouslyLoaded ? child : child.fadeIn();
         }
       },
     );
@@ -150,8 +147,25 @@ class EHImage extends StatelessWidget {
                   child: GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
                 );
           case LoadState.completed:
+            state.returnLoadStateChangedWidget = true;
+
+            Widget child = completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state);
+
+            if (borderRadius != null) {
+              child = ClipRRect(child: child, borderRadius: borderRadius);
+            }
+
+            if (state.slidePageState != null) {
+              child = ExtendedImageSlidePageHandler(child: child, extendedImageSlidePageState: state.slidePageState);
+            }
+
             return FadeIn(
-              child: completedWidgetBuilder?.call(state) ?? state.completedWidget,
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(boxShadow: shadows, borderRadius: borderRadius),
+                  child: child,
+                ),
+              ),
             );
         }
       },
@@ -179,5 +193,21 @@ class EHImage extends StatelessWidget {
 
     Uri newUri = rawUri.replace(host: 'ehgt.org');
     return newUri.toString();
+  }
+
+  Widget _buildExtendedRawImage(ExtendedImageState state) {
+    FittedSizes fittedSizes = applyBoxFit(
+      fit,
+      Size(state.extendedImageInfo!.image.width.toDouble() ?? 0, state.extendedImageInfo!.image.height.toDouble() ?? 0),
+      Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
+    );
+
+    return ExtendedRawImage(
+      image: state.extendedImageInfo?.image,
+      height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
+      width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
+      scale: state.extendedImageInfo?.scale ?? 1.0,
+      fit: fit,
+    );
   }
 }

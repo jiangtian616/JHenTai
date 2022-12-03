@@ -190,6 +190,8 @@ class UIConfig {
   static const double readPageBottomThumbnailsRegionHeight = 134;
   static const double readPageThumbnailHeight = 102;
   static const double readPageThumbnailWidth = 80;
+
+  static Color get readPageThumbnailShadowColor => Colors.white.withOpacity(0.8);
   static const double readPageBottomSliderHeight = 56;
   static const double readPageBottomSpacingHeight = 36;
 
