@@ -208,11 +208,11 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildCover(LocalGallery gallery, BuildContext context) {
-    return EHImage.file(
+    return EHImage(
+      galleryImage: gallery.cover,
       containerWidth: UIConfig.downloadPageCoverWidth,
       containerHeight: UIConfig.downloadPageCoverHeight,
       fit: BoxFit.fitWidth,
-      galleryImage: gallery.cover,
     );
   }
 

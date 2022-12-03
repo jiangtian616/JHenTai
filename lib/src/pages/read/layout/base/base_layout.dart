@@ -135,7 +135,7 @@ abstract class BaseLayout extends StatelessWidget {
     return GestureDetector(
       onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
       onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
-      child: EHImage.network(
+      child: EHImage(
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
         containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,
@@ -262,7 +262,7 @@ abstract class BaseLayout extends StatelessWidget {
     return GestureDetector(
       onLongPress: () => logic.showBottomMenuInLocalMode(index, context),
       onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
-      child: EHImage.file(
+      child: EHImage(
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
         containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,

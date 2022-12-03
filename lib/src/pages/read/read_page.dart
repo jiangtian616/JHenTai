@@ -410,9 +410,9 @@ class ReadPage extends StatelessWidget {
           return Center(child: UIConfig.loadingAnimation);
         }
 
-        return EHImage.file(
-          borderRadius: BorderRadius.circular(8),
+        return EHImage(
           galleryImage: state.images[index]!,
+          borderRadius: BorderRadius.circular(8),
         );
       },
     );

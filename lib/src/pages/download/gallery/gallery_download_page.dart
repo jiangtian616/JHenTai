@@ -200,11 +200,11 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             );
           }
 
-          return EHImage.file(
+          return EHImage(
+            galleryImage: image!,
             containerWidth: UIConfig.downloadPageCoverWidth,
             containerHeight: UIConfig.downloadPageCoverHeight,
             fit: BoxFit.fitWidth,
-            galleryImage: image!,
           );
         },
       ),

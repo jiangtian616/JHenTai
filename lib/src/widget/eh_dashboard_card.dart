@@ -50,7 +50,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
   }
 
   Widget _buildCover(GalleryImage image) {
-    return EHImage.network(
+    return EHImage(
       containerHeight: UIConfig.dashboardCardSize,
       containerWidth: UIConfig.dashboardCardSize,
       galleryImage: image,

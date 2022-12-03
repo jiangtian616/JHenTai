@@ -16,7 +16,6 @@ typedef LoadingWidgetBuilder = Widget Function();
 typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 
 class EHImage extends StatelessWidget {
-  /// common
   final GalleryImage galleryImage;
   final double? containerHeight;
   final double? containerWidth;
@@ -28,37 +27,14 @@ class EHImage extends StatelessWidget {
   final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
 
-  /// online image
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
-
-  /// local image
   final DownloadingWidgetBuilder? downloadingWidgetBuilder;
   final PausedWidgetBuilder? pausedWidgetBuilder;
   final LoadingWidgetBuilder? loadingWidgetBuilder;
   final CompletedWidgetBuilder? completedWidgetBuilder;
 
-  const EHImage.file({
-    Key? key,
-    required this.galleryImage,
-    this.containerHeight,
-    this.containerWidth,
-    this.containerColor,
-    this.fit = BoxFit.contain,
-    this.enableSlideOutPage = false,
-    this.borderRadius,
-    this.heroTag,
-    this.clearMemoryCacheWhenDispose = false,
-    this.shadows,
-    this.downloadingWidgetBuilder,
-    this.pausedWidgetBuilder,
-    this.completedWidgetBuilder,
-    this.loadingWidgetBuilder,
-    this.loadingProgressWidgetBuilder,
-    this.failedWidgetBuilder,
-  }) : super(key: key);
-
-  const EHImage.network({
+  const EHImage({
     Key? key,
     required this.galleryImage,
     this.containerHeight,
@@ -72,10 +48,10 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
-    this.completedWidgetBuilder,
     this.downloadingWidgetBuilder,
     this.pausedWidgetBuilder,
     this.loadingWidgetBuilder,
+    this.completedWidgetBuilder,
   }) : super(key: key);
 
   @override
@@ -138,8 +114,8 @@ class EHImage extends StatelessWidget {
                 );
           case LoadState.completed:
             return state.wasSynchronouslyLoaded
-                ? completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state)
-                : FadeIn(child: completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state));
+                ? completedWidgetBuilder?.call(state) ?? state.completedWidget
+                : FadeIn(child: completedWidgetBuilder?.call(state) ?? state.completedWidget);
         }
       },
     );
@@ -159,7 +135,7 @@ class EHImage extends StatelessWidget {
       fit: fit,
       height: containerHeight,
       width: containerWidth,
-      enableLoadState: true,
+      enableLoadState: loadingWidgetBuilder != null || failedWidgetBuilder != null || completedWidgetBuilder != null,
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,
       shape: borderRadius != null ? BoxShape.rectangle : null,
@@ -175,7 +151,7 @@ class EHImage extends StatelessWidget {
                 );
           case LoadState.completed:
             return FadeIn(
-              child: completedWidgetBuilder?.call(state) ?? _buildDefaultCompletedWidget(state),
+              child: completedWidgetBuilder?.call(state) ?? state.completedWidget,
             );
         }
       },
@@ -203,19 +179,5 @@ class EHImage extends StatelessWidget {
 
     Uri newUri = rawUri.replace(host: 'ehgt.org');
     return newUri.toString();
-  }
-
-  /// copied from ExtendedImage
-  Widget _buildDefaultCompletedWidget(ExtendedImageState state) {
-    return ExtendedRawImage(
-      image: state.extendedImageInfo?.image,
-      scale: state.extendedImageInfo?.scale ?? 1.0,
-      fit: fit,
-      alignment: Alignment.center,
-      repeat: ImageRepeat.noRepeat,
-      matchTextDirection: false,
-      isAntiAlias: false,
-      filterQuality: FilterQuality.low,
-    );
   }
 }

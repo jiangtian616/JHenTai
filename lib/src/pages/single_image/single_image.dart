@@ -19,7 +19,7 @@ class SingleImagePage extends StatelessWidget {
         slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
         child: ConstrainedBox(
           constraints: const BoxConstraints.expand(),
-          child: EHImage.network(
+          child: EHImage(
             galleryImage: Get.arguments,
             enableSlideOutPage: true,
             heroTag: Get.arguments,

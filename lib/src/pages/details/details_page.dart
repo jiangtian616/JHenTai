@@ -16,7 +16,6 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
-import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
@@ -280,10 +279,10 @@ class _DetailsPageHeader extends StatelessWidget {
   Widget _buildCover() {
     return GestureDetector(
       onTap: () => toRoute(Routes.singleImagePage, arguments: state.gallery!.cover),
-      child: EHImage.network(
+      child: EHImage(
+        galleryImage: state.gallery!.cover,
         containerHeight: UIConfig.detailsPageCoverHeight,
         containerWidth: UIConfig.detailsPageCoverWidth,
-        galleryImage: state.gallery!.cover,
         borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
         heroTag: state.gallery!.cover,
         shadows: [

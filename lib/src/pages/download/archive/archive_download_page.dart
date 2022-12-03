@@ -183,15 +183,15 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl}),
-      child: EHImage.network(
-        containerWidth: UIConfig.downloadPageCoverWidth,
-        containerHeight: UIConfig.downloadPageCoverHeight,
-        fit: BoxFit.fitWidth,
+      child: EHImage(
         galleryImage: GalleryImage(
           url: archive.coverUrl,
           width: archive.coverWidth,
           height: archive.coverHeight,
         ),
+        containerWidth: UIConfig.downloadPageCoverWidth,
+        containerHeight: UIConfig.downloadPageCoverHeight,
+        fit: BoxFit.fitWidth,
       ),
     );
   }

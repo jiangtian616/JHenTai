@@ -27,20 +27,20 @@ class EHThumbnail extends StatelessWidget {
   }
 
   Widget _buildThumbnailByLocalImage() {
-    return EHImage.file(
-      borderRadius: BorderRadius.circular(8),
+    return EHImage(
       galleryImage: image!,
+      borderRadius: BorderRadius.circular(8),
     );
   }
 
   Widget _buildLargeThumbnail() {
-    return EHImage.network(
-      borderRadius: BorderRadius.circular(8),
+    return EHImage(
       galleryImage: GalleryImage(
         url: thumbnail.thumbUrl,
         height: thumbnail.thumbHeight!,
         width: thumbnail.thumbWidth!,
       ),
+      borderRadius: BorderRadius.circular(8),
     );
   }
 
@@ -51,7 +51,7 @@ class EHThumbnail extends StatelessWidget {
         Size size = Size(constraints.maxWidth, constraints.maxHeight);
         FittedSizes fittedSizes = applyBoxFit(BoxFit.contain, imageSize, size);
 
-        return EHImage.network(
+        return EHImage(
           galleryImage: GalleryImage(url: thumbnail.thumbUrl, height: thumbnail.thumbWidth!, width: thumbnail.thumbHeight!),
           borderRadius: BorderRadius.circular(8),
           completedWidgetBuilder: (ExtendedImageState state) {

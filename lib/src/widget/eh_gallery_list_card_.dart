@@ -151,13 +151,13 @@ class _GalleryCardCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EHImage.network(
+    return EHImage(
+      galleryImage: image,
       containerColor: Get.theme.colorScheme.surfaceVariant,
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
       heroTag: image,
       fit: BoxFit.fitWidth,
-      galleryImage: image,
     );
   }
 }
