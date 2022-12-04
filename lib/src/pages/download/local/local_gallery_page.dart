@@ -40,7 +40,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
     return AppBar(
       centerTitle: true,
       titleSpacing: 0,
-      title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
+      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
       leading: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
       actions: [
         GetBuilder<LocalGalleryPageLogic>(

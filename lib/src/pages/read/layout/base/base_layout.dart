@@ -327,7 +327,12 @@ abstract class BaseLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
+        IconTextButton(
+          icon: const Icon(Icons.sentiment_very_dissatisfied),
+          text: Text('error'.tr),
+          onPressed: state.reLoadImage,
+          onLongPress: state.reLoadImage,
+        ),
         Text((index + 1).toString()),
       ],
     );

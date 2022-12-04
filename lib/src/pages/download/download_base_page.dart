@@ -9,13 +9,6 @@ import '../../config/ui_config.dart';
 import 'archive/archive_download_page.dart';
 import 'gallery/gallery_download_page.dart';
 
-class DownloadPage extends StatefulWidget {
-  const DownloadPage({Key? key}) : super(key: key);
-
-  @override
-  State<DownloadPage> createState() => _DownloadPageState();
-}
-
 class _DownloadPageState extends State<DownloadPage> {
   DownloadPageBodyType bodyType = DownloadPageBodyType.download;
 
@@ -27,17 +20,13 @@ class _DownloadPageState extends State<DownloadPage> {
           setState(() => bodyType = notification.bodyType);
           return true;
         },
-        child: _buildChild(),
+        child: bodyType == DownloadPageBodyType.download
+            ? GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody'))
+            : bodyType == DownloadPageBodyType.archive
+                ? ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody'))
+                : LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody')),
       ),
     );
-  }
-
-  Widget _buildChild() {
-    return bodyType == DownloadPageBodyType.download
-        ? GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody'))
-        : bodyType == DownloadPageBodyType.archive
-            ? ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody'))
-            : LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody'));
   }
 }
 
@@ -49,10 +38,17 @@ class DownloadPageBodyTypeChangeNotification extends Notification {
   DownloadPageBodyTypeChangeNotification(this.bodyType);
 }
 
-class EHDownloadPageSegmentControl extends StatelessWidget {
+class DownloadPage extends StatefulWidget {
+  const DownloadPage({Key? key}) : super(key: key);
+
+  @override
+  State<DownloadPage> createState() => _DownloadPageState();
+}
+
+class DownloadPageSegmentControl extends StatelessWidget {
   final DownloadPageBodyType bodyType;
 
-  const EHDownloadPageSegmentControl({Key? key, required this.bodyType}) : super(key: key);
+  const DownloadPageSegmentControl({Key? key, required this.bodyType}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

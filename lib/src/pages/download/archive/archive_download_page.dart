@@ -48,7 +48,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,
-      title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
+      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
       actions: [
         IconButton(
           icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),

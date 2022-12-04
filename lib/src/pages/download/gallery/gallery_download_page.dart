@@ -45,7 +45,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,
-      title: const EHDownloadPageSegmentControl(bodyType: DownloadPageBodyType.download),
+      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.download),
       actions: [
         IconButton(
           icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
@@ -125,10 +125,12 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
               child: _buildCard(gallery, context).marginAll(5),
               afterDisappear: () {
                 Get.engine.addPostFrameCallback(
-                  (_) => logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid)),
+                  (_) {
+                    logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid));
+                    state.removedGids.remove(gallery.gid);
+                    state.removedGidsWithoutImages.remove(gallery.gid);
+                  },
                 );
-                state.removedGids.remove(gallery.gid);
-                state.removedGidsWithoutImages.remove(gallery.gid);
               },
             ),
           ),
