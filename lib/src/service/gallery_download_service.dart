@@ -451,6 +451,7 @@ class GalleryDownloadService extends GetxController {
       insertTime: record.insertTime,
       downloadOriginalImage: record.downloadOriginalImage,
       priority: record.priority,
+      sortOrder: record.sortOrder,
       groupName: record.groupName,
     );
   }

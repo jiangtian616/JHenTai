@@ -40,6 +40,7 @@ class Gallery {
       insertTime: DateTime.now().toString(),
       downloadOriginalImage: downloadOriginalImage,
       priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      sortOrder: 0,
       groupName: group,
     );
   }
@@ -65,6 +66,7 @@ class Gallery {
       archivePageUrl: archivePageUrl,
       isOriginal: isOriginal,
       insertTime: DateTime.now().toString(),
+      sortOrder: 0,
       groupName: group,
     );
   }

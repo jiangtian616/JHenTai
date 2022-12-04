@@ -23,7 +23,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -43,6 +43,12 @@ class AppDb extends _$AppDb {
           }
           if (from < 4) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.priority);
+          }
+          if (from < 11) {
+            await m.addColumn(galleryDownloaded, galleryDownloaded.sortOrder);
+            await m.addColumn(galleryGroup, galleryGroup.sortOrder);
+            await m.addColumn(archiveDownloaded, archiveDownloaded.sortOrder);
+            await m.addColumn(archiveGroup, archiveGroup.sortOrder);
           }
           if (from < 5) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.groupName);
@@ -80,7 +86,7 @@ class AppDb extends _$AppDb {
 
       await appDb.transaction(() async {
         for (ArchiveDownloadedData a in archives) {
-          await appDb.updateArchive(a.archiveStatusIndex + 1, a.downloadPageUrl, a.downloadUrl, a.groupName, a.gid, a.isOriginal);
+          await appDb.updateArchive(a.archiveStatusIndex + 1, a.downloadPageUrl, a.downloadUrl, a.sortOrder, a.groupName, a.gid, a.isOriginal);
         }
       });
     } on Exception catch (e) {

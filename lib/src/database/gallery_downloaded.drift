@@ -13,6 +13,7 @@ CREATE TABLE gallery_downloaded
     insertTime            TEXT,
     downloadOriginalImage BOOL NOT NULL DEFAULT FALSE,
     priority              INT,
+    sortOrder             INT  NOT NULL DEFAULT 0,
     groupName             TEXT
 );
 
@@ -29,7 +30,8 @@ CREATE TABLE image
 
 CREATE TABLE gallery_group
 (
-    groupName TEXT NOT NULL PRIMARY KEY
+    groupName TEXT NOT NULL PRIMARY KEY,
+    sortOrder INT  NOT NULL DEFAULT 0
 );
 
 selectGallerysWithImages:
@@ -46,6 +48,7 @@ SELECT g.gid,
        g.insertTime,
        g.downloadOriginalImage,
        g.priority,
+       g.sortOrder,
        g.groupName,
        i.url,
        i.serialNo,
@@ -62,7 +65,8 @@ FROM gallery_downloaded
 ORDER BY insertTime DESC;
 
 insertGallery:
-insert into gallery_downloaded
+insert into gallery_downloaded(gid, token, title, category, pageCount, galleryUrl, oldVersionGalleryUrl, uploader,
+                               publishTime, downloadStatusIndex, insertTime, downloadOriginalImage, priority, groupName)
 values (:gid, :token, :title, :category, :pageCount, :galleryUrl, :oldVersionGalleryUrl, :uploader, :publishTime,
         :downloadStatusIndex, :insertTime, :downloadOriginalImage, :priority, :groupName);
 
@@ -79,6 +83,11 @@ where gid = :gid;
 updateGalleryPriority:
 update gallery_downloaded
 set priority = :priority
+where gid = :gid;
+
+updateGalleryOrder:
+update gallery_downloaded
+set sortOrder = :sortOrder
 where gid = :gid;
 
 updateGalleryGroup:
@@ -131,13 +140,18 @@ SELECT *
 FROM gallery_group;
 
 insertGalleryGroup:
-insert into gallery_group
+insert into gallery_group(groupName)
 values (:groupName);
 
 renameGalleryGroup:
 update gallery_group
 set groupName = :newGroupName
 where groupName = :oldGroupName;
+
+updateGalleryGroupOrder:
+update gallery_group
+set sortOrder = :sortOrder
+where groupName = :groupName;
 
 reGroupGallery:
 update gallery_downloaded

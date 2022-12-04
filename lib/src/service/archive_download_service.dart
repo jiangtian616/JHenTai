@@ -699,6 +699,7 @@ class ArchiveDownloadService extends GetxController {
           archiveDownloadInfo.archiveStatus.index,
           archiveDownloadInfo.downloadPageUrl,
           archiveDownloadInfo.downloadUrl,
+          archiveDownloadInfo.sortOrder,
           archiveDownloadInfo.group,
           archive.gid,
           archive.isOriginal,
@@ -727,6 +728,7 @@ class ArchiveDownloadService extends GetxController {
         updateCallback: () => update(['$archiveSpeedComputerId::${archive.gid}::${archive.isOriginal}']),
       )..downloadedBytes = _computeDownloadedPackingFileBytes(archive) ?? 0,
       downloadedBytesBeforeDownload: _computeDownloadedPackingFileBytes(archive) ?? 0,
+      sortOrder: archive.sortOrder,
       group: archive.groupName ?? 'default'.tr,
     );
 
@@ -797,6 +799,8 @@ class ArchiveDownloadInfo {
 
   String group;
 
+  int sortOrder;
+
   ArchiveDownloadInfo({
     this.downloadPageUrl,
     this.downloadUrl,
@@ -805,6 +809,7 @@ class ArchiveDownloadInfo {
     required this.speedComputer,
     required this.downloadedBytesBeforeDownload,
     required this.group,
+    required this.sortOrder,
   });
 
   @override
