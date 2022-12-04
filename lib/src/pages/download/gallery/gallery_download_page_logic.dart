@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/process_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
@@ -130,6 +131,7 @@ class GalleryDownloadPageLogic extends GetxController with GetTickerProviderStat
 
   void handleAssignPriority(GalleryDownloadedData gallery, int? priority) {
     downloadService.assignPriority(gallery, priority);
+    updateSafely([bodyId]);
   }
 
   void handleReDownloadItem(BuildContext context, GalleryDownloadedData gallery) {

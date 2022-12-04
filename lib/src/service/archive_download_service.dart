@@ -368,6 +368,12 @@ class ArchiveDownloadService extends GetxController {
         return gResult;
       }
 
+      int aOrder = aInfo.sortOrder;
+      int bOrder = bInfo.sortOrder;
+      if (aOrder - bOrder != 0) {
+        return aOrder - bOrder;
+      }
+
       DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
       DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime!);
 
@@ -797,9 +803,9 @@ class ArchiveDownloadInfo {
 
   int downloadedBytesBeforeDownload;
 
-  String group;
-
   int sortOrder;
+
+  String group;
 
   ArchiveDownloadInfo({
     this.downloadPageUrl,
@@ -808,8 +814,8 @@ class ArchiveDownloadInfo {
     required this.cancelToken,
     required this.speedComputer,
     required this.downloadedBytesBeforeDownload,
-    required this.group,
     required this.sortOrder,
+    required this.group,
   });
 
   @override

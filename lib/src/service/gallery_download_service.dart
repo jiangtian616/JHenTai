@@ -261,14 +261,13 @@ class GalleryDownloadService extends GetxController {
       return;
     }
 
+    Log.info('Assign priority, gid: ${gallery.gid}, priority: $priority');
+
     if (!await _updateGalleryPriorityInDatabase(gallery.gid, priority)) {
       return;
     }
 
     galleryDownloadInfos[gallery.gid]!.priority = priority;
-
-    _sortGalleryAndGroups();
-    update([galleryCountOrOrderChangedId]);
 
     if (galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloading) {
       await pauseDownloadGallery(gallery);
@@ -565,10 +564,10 @@ class GalleryDownloadService extends GetxController {
         return gResult;
       }
 
-      int aPriority = galleryDownloadInfos[a.gid]!.priority ?? a.priority ?? defaultDownloadGalleryPriority;
-      int bPriority = galleryDownloadInfos[b.gid]!.priority ?? b.priority ?? defaultDownloadGalleryPriority;
-      if (aPriority - bPriority != 0) {
-        return aPriority - bPriority;
+      int aOrder = galleryDownloadInfos[a.gid]!.sortOrder;
+      int bOrder = galleryDownloadInfos[b.gid]!.sortOrder;
+      if (aOrder - bOrder != 0) {
+        return aOrder - bOrder;
       }
 
       DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
@@ -914,7 +913,7 @@ class GalleryDownloadService extends GetxController {
   Future<void> _instantiateFromDB() async {
     allGroups = (await appDb.selectGalleryGroups().get()).map((e) => e.groupName).toList();
 
-    /// Get download info from database, order by insertTime DESC, serialNo
+    /// Get download info from database
     List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
 
     /// Instantiate from db
@@ -1031,6 +1030,7 @@ class GalleryDownloadService extends GetxController {
         () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
       priority: gallery.priority ?? defaultDownloadGalleryPriority,
+      sortOrder: gallery.sortOrder,
       group: gallery.groupName ?? 'default'.tr,
     );
 
@@ -1237,6 +1237,8 @@ class GalleryDownloadInfo {
 
   int? priority;
 
+  int sortOrder;
+
   String group;
 
   GalleryDownloadInfo({
@@ -1248,6 +1250,7 @@ class GalleryDownloadInfo {
     required this.images,
     required this.speedComputer,
     this.priority,
+    required this.sortOrder,
     required this.group,
   });
 }
