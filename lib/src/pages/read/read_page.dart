@@ -186,7 +186,7 @@ class ReadPage extends StatelessWidget {
 
         /// center region
         Expanded(
-          flex: 4,
+          flex: 3,
           child: Column(
             children: [
               /// top center
