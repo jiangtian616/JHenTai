@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../service/storage_service.dart';
 import '../utils/log.dart';
@@ -7,7 +8,8 @@ enum ProxyType { system, http, socks5, socks4, direct }
 
 class NetworkSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
-  static RxBool enableDomainFronting = false.obs;
+  static RxBool enableDomainFronting =
+      StyleSetting.locale.value.languageCode == 'zh' && StyleSetting.locale.value.countryCode == 'CN' ? true.obs : false.obs;
   static Rx<ProxyType> proxyType = ProxyType.system.obs;
   static RxString proxyAddress = 'localhost:1080'.obs;
   static RxnString proxyUsername = RxnString();

@@ -127,15 +127,14 @@ Future<void> init() async {
   await PathSetting.init();
   await StorageService.init();
 
-  AppUpdateService.init();
-
+  StyleSetting.init();
   NetworkSetting.init();
   await AdvancedSetting.init();
   await SecuritySetting.init();
   await Log.init();
   UserSetting.init();
   TagTranslationService.init();
-  StyleSetting.init();
+
   TabBarSetting.init();
   WindowService.init();
 
@@ -173,6 +172,8 @@ Future<void> onReady() async {
   ArchiveDownloadService.init();
 
   VolumeService.init();
+
+  AppUpdateService.init();
 }
 
 void _doForDesktop() {
