@@ -1,42 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/download/local/local_gallery_page.dart';
+import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import '../../config/ui_config.dart';
-import 'archive/archive_download_page.dart';
-import 'gallery/gallery_download_page.dart';
-
-class _DownloadPageState extends State<DownloadPage> {
-  DownloadPageBodyType bodyType = DownloadPageBodyType.download;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      child: NotificationListener<DownloadPageBodyTypeChangeNotification>(
-        onNotification: (DownloadPageBodyTypeChangeNotification notification) {
-          setState(() => bodyType = notification.bodyType);
-          return true;
-        },
-        child: bodyType == DownloadPageBodyType.download
-            ? GalleryDownloadPage(key: const PageStorageKey('GalleryDownloadBody'))
-            : bodyType == DownloadPageBodyType.archive
-                ? ArchiveDownloadPage(key: const PageStorageKey('ArchiveDownloadBody'))
-                : LocalGalleryPage(key: const PageStorageKey('LocalGalleryBody')),
-      ),
-    );
-  }
-}
-
-enum DownloadPageBodyType { download, archive, local }
-
-class DownloadPageBodyTypeChangeNotification extends Notification {
-  final DownloadPageBodyType bodyType;
-
-  DownloadPageBodyTypeChangeNotification(this.bodyType);
-}
+import 'grid/archive/archive_grid_download_page.dart';
+import 'grid/gallery/gallery_grid_download_page.dart';
+import 'list/archive/archive_list_download_page.dart';
+import 'list/gallery/gallery_list_download_page.dart';
+import 'list/local/local_gallery_list_page.dart';
 
 class DownloadPage extends StatefulWidget {
   const DownloadPage({Key? key}) : super(key: key);
@@ -45,18 +20,69 @@ class DownloadPage extends StatefulWidget {
   State<DownloadPage> createState() => _DownloadPageState();
 }
 
-class DownloadPageSegmentControl extends StatelessWidget {
-  final DownloadPageBodyType bodyType;
+class _DownloadPageState extends State<DownloadPage> {
+  final StorageService storageService = Get.find<StorageService>();
 
-  const DownloadPageSegmentControl({Key? key, required this.bodyType}) : super(key: key);
+  DownloadPageGalleryType galleryType = DownloadPageGalleryType.download;
+  DownloadPageBodyType bodyType = GetPlatform.isMobile ? DownloadPageBodyType.list : DownloadPageBodyType.grid;
+
+  @override
+  void initState() {
+    super.initState();
+    bodyType = DownloadPageBodyType.values[storageService.read('downloadPageGalleryType') ?? 0];
+  }
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoSlidingSegmentedControl<DownloadPageBodyType>(
-      groupValue: bodyType,
+    return Material(
+      child: NotificationListener<DownloadPageBodyTypeChangeNotification>(
+        onNotification: (DownloadPageBodyTypeChangeNotification notification) {
+          setState(() {
+            galleryType = notification.galleryType ?? galleryType;
+            bodyType = notification.bodyType ?? bodyType;
+          });
+          storageService.write('downloadPageGalleryType', (notification.bodyType ?? bodyType).index);
+          return true;
+        },
+        child: galleryType == DownloadPageGalleryType.download
+            ? bodyType == DownloadPageBodyType.list
+                ? GalleryListDownloadPage(key: const PageStorageKey('GalleryListDownloadBody'))
+                : GalleryGridDownloadPage(key: const PageStorageKey('GalleryGridDownloadBody'))
+            : galleryType == DownloadPageGalleryType.archive
+                ? bodyType == DownloadPageBodyType.list
+                    ? ArchiveListDownloadPage(key: const PageStorageKey('ArchiveListDownloadBody'))
+                    : ArchiveGridDownloadPage(key: const PageStorageKey('ArchiveGridDownloadBody'))
+                : bodyType == DownloadPageBodyType.list
+                    ? LocalGalleryListPage(key: const PageStorageKey('LocalGalleryListBody'))
+                    : LocalGalleryGridPage(key: const PageStorageKey('LocalGalleryGridBody')),
+      ),
+    );
+  }
+}
+
+enum DownloadPageGalleryType { download, archive, local }
+
+enum DownloadPageBodyType { list, grid }
+
+class DownloadPageBodyTypeChangeNotification extends Notification {
+  DownloadPageGalleryType? galleryType;
+  DownloadPageBodyType? bodyType;
+
+  DownloadPageBodyTypeChangeNotification({this.galleryType, this.bodyType});
+}
+
+class DownloadPageSegmentControl extends StatelessWidget {
+  final DownloadPageGalleryType galleryType;
+
+  const DownloadPageSegmentControl({Key? key, required this.galleryType}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoSlidingSegmentedControl<DownloadPageGalleryType>(
+      groupValue: galleryType,
       padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 3),
       children: {
-        DownloadPageBodyType.download: SizedBox(
+        DownloadPageGalleryType.download: SizedBox(
           width: UIConfig.downloadPageSegmentedControlWidth,
           child: Center(
             child: Text(
@@ -67,20 +93,20 @@ class DownloadPageSegmentControl extends StatelessWidget {
             ),
           ),
         ),
-        DownloadPageBodyType.archive: Text(
+        DownloadPageGalleryType.archive: Text(
           'archive'.tr,
           style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        DownloadPageBodyType.local: Text(
+        DownloadPageGalleryType.local: Text(
           'local'.tr,
           style: const TextStyle(fontSize: UIConfig.downloadPageSegmentedTextSize, fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
       },
-      onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(value!).dispatch(context),
+      onValueChanged: (value) => DownloadPageBodyTypeChangeNotification(galleryType: value!).dispatch(context),
     );
   }
 }
@@ -140,7 +166,7 @@ class GroupList<E, G> extends StatefulWidget {
   /// Defines which elements are grouped together.
   final G Function(E element) groupBy;
 
-  final Widget Function(G group) groupBuilder;
+  final Widget Function(BuildContext context, G group) groupBuilder;
   final Widget Function(BuildContext context, E element) itemBuilder;
 
   final ScrollController? scrollController;
@@ -200,7 +226,7 @@ class _GroupListState<E, G> extends State<GroupList<E, G>> {
             List<E> itemsWithGroup = widget.elements.where((E element) => widget.groupBy.call(element) == group).toList();
 
             if (remainingCount == 0) {
-              return widget.groupBuilder(group);
+              return widget.groupBuilder(context, group);
             }
 
             if (remainingCount - itemsWithGroup.length <= 0) {

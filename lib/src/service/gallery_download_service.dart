@@ -29,19 +29,19 @@ import '../model/gallery.dart';
 import '../model/gallery_image.dart';
 import '../network/eh_cookie_manager.dart';
 import '../network/eh_request.dart';
+import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
 import '../setting/path_setting.dart';
 import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/snack_util.dart';
 
-const String galleryCountOrOrderChangedId = 'galleryCountOrOrderChangedId';
-const String downloadImageId = 'downloadImageId';
-const String downloadImageUrlId = 'downloadImageUrlId';
-const String galleryDownloadProgressId = 'galleryDownloadProgressId';
-const String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
-
 /// Responsible for local images meta-data and download all images of a gallery
-class GalleryDownloadService extends GetxController {
+class GalleryDownloadService extends GetxController with GridBasePageServiceMixin {
+  final String downloadImageId = 'downloadImageId';
+  final String downloadImageUrlId = 'downloadImageUrlId';
+  final String galleryDownloadProgressId = 'galleryDownloadProgressId';
+  final String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
+
   late EHExecutor executor;
 
   List<String> allGroups = [];
@@ -282,7 +282,6 @@ class GalleryDownloadService extends GetxController {
       return false;
     }
     _sortGalleryAndGroups();
-
     return _updateGalleryGroupInDatabase(gallery.gid, group);
   }
 
@@ -330,6 +329,7 @@ class GalleryDownloadService extends GetxController {
 
       /// compatible with new field
       (metadata['gallery'] as Map).putIfAbsent('downloadOriginalImage', () => false);
+      (metadata['gallery'] as Map).putIfAbsent('sortOrder', () => 0);
 
       GalleryDownloadedData gallery = GalleryDownloadedData.fromJson(metadata['gallery']);
       List<GalleryImage?> images = (jsonDecode(metadata['images']) as List).map((_map) => _map == null ? null : GalleryImage.fromJson(_map)).toList();

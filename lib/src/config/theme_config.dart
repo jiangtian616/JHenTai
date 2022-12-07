@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ThemeConfig {
   static ThemeData light = ThemeData(
@@ -7,6 +8,7 @@ class ThemeConfig {
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+    appBarTheme: GetPlatform.isDesktop ? const AppBarTheme(scrolledUnderElevation: 0) : null,
     colorScheme: ColorScheme.light(
       primary: const Color(0xFF6750A4),
       onPrimary: const Color(0xFFFFFFFF),
@@ -50,6 +52,7 @@ class ThemeConfig {
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+    appBarTheme: GetPlatform.isDesktop ? const AppBarTheme(scrolledUnderElevation: 0) : null,
     cardTheme: CardTheme(
       color: Colors.grey.shade900,
     ),

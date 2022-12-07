@@ -8,29 +8,28 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/widget/re_unlock_dialog.dart';
 
-import '../../../model/gallery_image.dart';
-import '../../../routes/routes.dart';
-import '../../../service/archive_download_service.dart';
-import '../../../setting/style_setting.dart';
-import '../../../utils/byte_util.dart';
-import '../../../utils/date_util.dart';
-import '../../../utils/route_util.dart';
-import '../../../widget/eh_gallery_category_tag.dart';
-import '../../../widget/eh_image.dart';
-import '../../../widget/fade_shrink_widget.dart';
-import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
-import '../download_base_page.dart';
-import 'archive_download_page_logic.dart';
-import 'archive_download_page_state.dart';
+import '../../../../model/gallery_image.dart';
+import '../../../../routes/routes.dart';
+import '../../../../service/archive_download_service.dart';
+import '../../../../setting/style_setting.dart';
+import '../../../../utils/byte_util.dart';
+import '../../../../utils/date_util.dart';
+import '../../../../utils/route_util.dart';
+import '../../../../widget/eh_gallery_category_tag.dart';
+import '../../../../widget/eh_image.dart';
+import '../../../../widget/fade_shrink_widget.dart';
+import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
+import '../../download_base_page.dart';
+import 'archive_list_download_page_logic.dart';
+import 'archive_list_download_page_state.dart';
 
-class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
-  ArchiveDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
+class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
+  ArchiveListDownloadPage({Key? key}) : super(key: key);
 
-  final bool showMenuButton;
   @override
-  final ArchiveDownloadPageLogic logic = Get.put<ArchiveDownloadPageLogic>(ArchiveDownloadPageLogic(), permanent: true);
+  final ArchiveListDownloadPageLogic logic = Get.put<ArchiveListDownloadPageLogic>(ArchiveListDownloadPageLogic(), permanent: true);
   @override
-  final ArchiveDownloadPageState state = Get.find<ArchiveDownloadPageLogic>().state;
+  final ArchiveListDownloadPageState state = Get.find<ArchiveListDownloadPageLogic>().state;
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +47,11 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,
-      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.archive),
+      title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.archive),
       actions: [
         IconButton(
-          icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
-          onPressed: logic.archiveDownloadService.resumeAllDownloadArchive,
-          visualDensity: const VisualDensity(horizontal: -4),
-        ),
-        IconButton(
-          icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
-          onPressed: logic.archiveDownloadService.pauseAllDownloadArchive,
+          icon: const Icon(Icons.view_list),
+          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context),
         ),
       ],
     );
@@ -65,9 +59,9 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
-      id: ArchiveDownloadService.archiveCountChangedId,
-      builder: (_) => GetBuilder<ArchiveDownloadPageLogic>(
-        id: ArchiveDownloadPageLogic.bodyId,
+      id: logic.archiveDownloadService.galleryCountOrOrderChangedId,
+      builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
+        id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
           child: GroupList<ArchiveDownloadedData, String>(
@@ -75,7 +69,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             groups: logic.archiveDownloadService.allGroups,
             elements: logic.archiveDownloadService.archives,
             groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,
-            groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+            groupBuilder: (context, groupName) => _groupBuilder(context, groupName).marginAll(5),
             itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
           ),
         ),
@@ -83,7 +77,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _groupBuilder(String groupName) {
+  Widget _groupBuilder(BuildContext context, String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
       onLongPress: () => logic.handleLongPressGroup(groupName),
@@ -91,7 +85,7 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       child: Container(
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
-          color: UIConfig.downloadPageGroupColor,
+          color: UIConfig.downloadPageGroupColor(context),
           boxShadow: [UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
@@ -100,8 +94,8 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GetBuilder<ArchiveDownloadPageLogic>(
-              id: '${ArchiveDownloadPageLogic.groupId}::$groupName',
+            GetBuilder<ArchiveListDownloadPageLogic>(
+              id: '${logic.groupId}::$groupName',
               builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
             ),
           ],
@@ -113,14 +107,14 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget _itemBuilder(BuildContext context, ArchiveDownloadedData archive) {
     String? group = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group;
 
-    return GetBuilder<ArchiveDownloadPageLogic>(
-      id: '${ArchiveDownloadPageLogic.groupId}::$group',
+    return GetBuilder<ArchiveListDownloadPageLogic>(
+      id: '${logic.groupId}::$group',
       builder: (_) => Slidable(
         key: Key(archive.gid.toString()),
         endActionPane: _buildEndActionPane(archive),
         child: GestureDetector(
-          onSecondaryTap: () => showArchiveBottomSheet(archive, context),
-          onLongPress: () => showArchiveBottomSheet(archive, context),
+          onSecondaryTap: () => logic.showArchiveBottomSheet(archive, context),
+          onLongPress: () => logic.showArchiveBottomSheet(archive, context),
           child: FadeShrinkWidget(
             show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
@@ -370,34 +364,6 @@ class ArchiveDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ],
         );
       },
-    );
-  }
-
-  void showArchiveBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              logic.handleChangeArchiveGroup(archive);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              logic.handleRemoveItem(archive);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
-      ),
     );
   }
 }

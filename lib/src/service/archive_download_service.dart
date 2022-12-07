@@ -23,13 +23,13 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../model/gallery_image.dart';
+import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
 import '../utils/file_util.dart';
 import '../utils/log.dart';
 import '../utils/snack_util.dart';
 import 'gallery_download_service.dart';
 
-class ArchiveDownloadService extends GetxController {
-  static const String archiveCountChangedId = 'archiveCountChangedId';
+class ArchiveDownloadService extends GetxController with GridBasePageServiceMixin {
   static const String archiveStatusId = 'archiveStatusId';
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
@@ -254,6 +254,9 @@ class ArchiveDownloadService extends GetxController {
       }
 
       Map metadata = jsonDecode(metadataFile.readAsStringSync());
+      /// compatible with new field
+      metadata.putIfAbsent('sortOrder', () => 0);
+
       ArchiveDownloadedData archive = ArchiveDownloadedData.fromJson(metadata as Map<String, dynamic>);
 
       /// skip if exists
@@ -739,7 +742,7 @@ class ArchiveDownloadService extends GetxController {
     );
 
     _sortArchivesAndGroups();
-    update([archiveCountChangedId, '$archiveStatusId::::${archive.gid}']);
+    update([galleryCountOrOrderChangedId, '$archiveStatusId::::${archive.gid}']);
   }
 
   void _deleteArchiveInMemory(int gid, bool isOriginal) {
@@ -749,7 +752,7 @@ class ArchiveDownloadService extends GetxController {
     archiveDownloadInfo?.cancelToken.cancel();
     archiveDownloadInfo?.speedComputer.dispose();
 
-    update([archiveCountChangedId]);
+    update([galleryCountOrOrderChangedId]);
   }
 
   // DISK

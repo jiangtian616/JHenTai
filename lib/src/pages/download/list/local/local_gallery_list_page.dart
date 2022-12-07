@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -7,25 +6,23 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
 
-import '../../../config/ui_config.dart';
-import '../../../mixin/scroll_to_top_page_mixin.dart';
-import '../../../routes/routes.dart';
-import '../../../utils/route_util.dart';
-import '../../../utils/toast_util.dart';
-import '../../../widget/eh_image.dart';
-import '../../../widget/eh_wheel_speed_controller.dart';
-import '../../../widget/fade_shrink_widget.dart';
-import '../download_base_page.dart';
-import 'local_gallery_page_logic.dart';
-import 'local_gallery_page_state.dart';
+import '../../../../config/ui_config.dart';
+import '../../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../../utils/toast_util.dart';
+import '../../../../widget/eh_image.dart';
+import '../../../../widget/eh_wheel_speed_controller.dart';
+import '../../../../widget/fade_shrink_widget.dart';
+import '../../download_base_page.dart';
+import 'local_gallery_list_page_logic.dart';
+import 'local_gallery_list_page_state.dart';
 
-class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
-  LocalGalleryPage({Key? key}) : super(key: key);
+class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
+  LocalGalleryListPage({Key? key}) : super(key: key);
 
   @override
-  final LocalGalleryPageLogic logic = Get.find<LocalGalleryPageLogic>();
+  final LocalGalleryListPageLogic logic = Get.find<LocalGalleryListPageLogic>();
   @override
-  final LocalGalleryPageState state = Get.find<LocalGalleryPageLogic>().state;
+  final LocalGalleryListPageState state = Get.find<LocalGalleryListPageLogic>().state;
 
   @override
   Widget build(BuildContext context) {
@@ -40,24 +37,16 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
     return AppBar(
       centerTitle: true,
       titleSpacing: 0,
-      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.local),
+      title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.local),
       leading: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
       actions: [
-        GetBuilder<LocalGalleryPageLogic>(
-          id: LocalGalleryPageLogic.appBarId,
-          builder: (_) => IconButton(
-            icon: Icon(
-              Icons.merge,
-              size: 26,
-              color: state.aggregateDirectories ? Get.theme.colorScheme.primary : Get.theme.colorScheme.outline,
-            ),
-            onPressed: logic.toggleAggregateDirectory,
-            visualDensity: const VisualDensity(horizontal: -4),
-          ),
+        IconButton(
+          icon: const Icon(Icons.refresh, size: 26),
+          onPressed: logic.handleRefreshLocalGallery,
         ),
         IconButton(
-          icon: Icon(Icons.refresh, size: 26, color: Get.theme.colorScheme.primary),
-          onPressed: logic.handleRefreshLocalGallery,
+          icon: const Icon(Icons.grid_view),
+          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context),
         ),
       ],
     );
@@ -65,11 +54,11 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody() {
     return GetBuilder<LocalGalleryService>(
-      id: LocalGalleryService.galleryCountChangedId,
-      builder: (_) => GetBuilder<LocalGalleryPageLogic>(
-        id: LocalGalleryPageLogic.bodyId,
+      id: logic.localGalleryService.galleryCountOrOrderChangedId,
+      builder: (_) => GetBuilder<LocalGalleryListPageLogic>(
+        id: logic.bodyId,
         builder: (_) => LoadingStateIndicator(
-          loadingState: state.loadingState,
+          loadingState: logic.localGalleryService.loadingState,
           successWidgetBuilder: () => NotificationListener<UserScrollNotification>(
             onNotification: logic.onUserScroll,
             child: EHWheelSpeedController(
@@ -79,19 +68,21 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
                 padding: const EdgeInsets.only(bottom: 80),
                 itemCount: logic.computeItemCount(),
                 itemBuilder: (context, index) {
-                  if (state.aggregateDirectories) {
-                    return galleryItemBuilder(context, index);
+                  if (logic.isAtRootPath) {
+                    return rootDirectoryItemBuilder(context, index);
                   }
 
                   if (index == 0) {
                     return parentDirectoryItemBuilder(context);
                   }
 
-                  if (index <= logic.computeCurrentDirectoryCount()) {
-                    return nestedDirectoryItemBuilder(context, index - 1);
+                  index--;
+
+                  if (index < logic.computeCurrentDirectoryCount()) {
+                    return childDirectoryItemBuilder(context, index);
                   }
 
-                  return galleryItemBuilder(context, index - 1 - logic.computeCurrentDirectoryCount());
+                  return galleryItemBuilder(context, index - logic.computeCurrentDirectoryCount());
                 },
               ),
             ),
@@ -101,29 +92,47 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget parentDirectoryItemBuilder(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: logic.backRoute,
-      child: _buildNestedDirectory('/..').marginAll(5),
-    );
-  }
-
-  Widget nestedDirectoryItemBuilder(BuildContext context, int index) {
+  Widget rootDirectoryItemBuilder(BuildContext context, int index) {
     String childPath = logic.computeChildPath(index);
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => logic.pushRoute(childPath),
-      child: _buildNestedDirectory(logic.isAtRootPath() ? childPath : p.relative(childPath, from: state.currentPath)).marginAll(5),
+      child: _buildDirectory(
+        context,
+        logic.isAtRootPath ? childPath : p.relative(childPath, from: state.currentPath),
+        Icons.folder_special,
+      ).marginAll(5),
     );
   }
 
-  Widget _buildNestedDirectory(String displayPath) {
+  Widget parentDirectoryItemBuilder(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: logic.backRoute,
+      child: _buildDirectory(context, '/..', Icons.keyboard_return).marginAll(5),
+    );
+  }
+
+  Widget childDirectoryItemBuilder(BuildContext context, int index) {
+    String childPath = logic.computeChildPath(index);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => logic.pushRoute(childPath),
+      child: _buildDirectory(
+        context,
+        logic.isAtRootPath ? childPath : p.relative(childPath, from: state.currentPath),
+        Icons.folder_open,
+      ).marginAll(5),
+    );
+  }
+
+  Widget _buildDirectory(BuildContext context, String displayPath, IconData iconData) {
     return Container(
       height: UIConfig.downloadPageGroupHeight,
       decoration: BoxDecoration(
-        color: UIConfig.downloadPageGroupColor,
+        color: UIConfig.downloadPageGroupColor(context),
         boxShadow: [UIConfig.downloadPageGroupShadow],
         borderRadius: BorderRadius.circular(15),
       ),
@@ -132,8 +141,8 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         borderRadius: BorderRadius.circular(15),
         child: Row(
           children: [
-            const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
-            Expanded(child: Text(_transformDisplayPath(displayPath), maxLines: 1, overflow: TextOverflow.ellipsis))
+            SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(iconData))),
+            Expanded(child: Text(logic.transformDisplayPath(displayPath), maxLines: 1, overflow: TextOverflow.ellipsis))
           ],
         ),
       ),
@@ -141,16 +150,14 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget galleryItemBuilder(BuildContext context, int index) {
-    LocalGallery gallery = state.aggregateDirectories
-        ? logic.localGalleryService.allGallerys[index]
-        : logic.localGalleryService.path2GalleryDir[state.currentPath]![index];
+    LocalGallery gallery = logic.localGalleryService.path2GalleryDir[state.currentPath]![index];
 
     return Slidable(
       key: Key(gallery.title),
       endActionPane: _buildEndActionPane(gallery),
       child: GestureDetector(
-        onSecondaryTap: () => showBottomSheet(gallery, context),
-        onLongPress: () => showBottomSheet(gallery, context),
+        onSecondaryTap: () => logic.showBottomSheet(gallery, context),
+        onLongPress: () => logic.showBottomSheet(gallery, context),
         child: FadeShrinkWidget(
           show: !state.removedGalleryTitles.contains(gallery.title),
           child: _buildGallery(gallery, context).marginAll(5),
@@ -196,7 +203,7 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
           child: Row(
             children: [
               GestureDetector(
-                onTap: gallery.isFromEHViewer ? () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}) : null,
+                onTap: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : null,
                 child: _buildCover(gallery, context),
               ),
               Expanded(child: _buildInfo(gallery)),
@@ -234,35 +241,5 @@ class LocalGalleryPage extends StatelessWidget with Scroll2TopPageMixin {
         ),
       ],
     ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5);
-  }
-
-  String _transformDisplayPath(String path) {
-    List<String> parts = path.split(p.separator);
-    if (parts.length > 2) {
-      return '.../${parts[parts.length - 2]}/${parts[parts.length - 1]}'.breakWord;
-    } else {
-      return path.breakWord;
-    }
-  }
-
-  void showBottomSheet(LocalGallery gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              backRoute();
-              logic.handleRemoveItem(gallery);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
-    );
   }
 }

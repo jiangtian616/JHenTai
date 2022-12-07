@@ -18,6 +18,7 @@ typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 
 class EHImage extends StatelessWidget {
   final GalleryImage galleryImage;
+  final bool autoLayout;
   final double? containerHeight;
   final double? containerWidth;
   final Color? containerColor;
@@ -27,6 +28,7 @@ class EHImage extends StatelessWidget {
   final Object? heroTag;
   final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
+  final bool forceFadeIn;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -38,6 +40,7 @@ class EHImage extends StatelessWidget {
   const EHImage({
     Key? key,
     required this.galleryImage,
+    this.autoLayout = false,
     this.containerHeight,
     this.containerWidth,
     this.containerColor,
@@ -47,6 +50,29 @@ class EHImage extends StatelessWidget {
     this.heroTag,
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,
+    this.forceFadeIn = false,
+    this.loadingProgressWidgetBuilder,
+    this.failedWidgetBuilder,
+    this.downloadingWidgetBuilder,
+    this.pausedWidgetBuilder,
+    this.loadingWidgetBuilder,
+    this.completedWidgetBuilder,
+  }) : super(key: key);
+
+  const EHImage.autoLayout({
+    Key? key,
+    required this.galleryImage,
+    this.autoLayout = true,
+    this.containerHeight,
+    this.containerWidth,
+    this.containerColor,
+    this.fit = BoxFit.contain,
+    this.enableSlideOutPage = false,
+    this.borderRadius,
+    this.heroTag,
+    this.clearMemoryCacheWhenDispose = false,
+    this.shadows,
+    this.forceFadeIn = false,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -61,6 +87,17 @@ class EHImage extends StatelessWidget {
 
     if (heroTag != null && StyleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);
+    }
+
+    if (autoLayout) {
+      return LayoutBuilder(
+        builder: (_, constraints) => Container(
+          height: constraints.maxHeight,
+          width: constraints.maxWidth,
+          decoration: BoxDecoration(color: containerColor, borderRadius: borderRadius),
+          child: child,
+        ),
+      );
     }
 
     return Container(
@@ -112,7 +149,7 @@ class EHImage extends StatelessWidget {
               ),
             );
 
-            return state.wasSynchronouslyLoaded ? child : child.fadeIn();
+            return forceFadeIn || !state.wasSynchronouslyLoaded ? child.fadeIn() : child;
         }
       },
     );

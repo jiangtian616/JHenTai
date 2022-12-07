@@ -673,7 +673,7 @@ class _ActionButtons extends StatelessWidget {
 
   Widget _buildDownloadButton() {
     return GetBuilder<GalleryDownloadService>(
-      id: '$galleryDownloadProgressId::${state.gallery!.gid}',
+      id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gallery!.gid}',
       builder: (_) {
         bool disabled = state.gallery?.pageCount == null;
 

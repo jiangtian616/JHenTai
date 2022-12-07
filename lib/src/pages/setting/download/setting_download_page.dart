@@ -10,6 +10,7 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
@@ -34,26 +35,38 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   LoadingState changeDownloadPathState = LoadingState.idle;
 
+  final ScrollController scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('downloadSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildDownloadPath(),
-            if (!GetPlatform.isIOS) _buildResetDownloadPath(),
-            if (!GetPlatform.isIOS) _buildExtraGalleryScanPath(),
-            if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
-            _buildDownloadOriginalImage(),
-            _buildDownloadConcurrency(),
-            _buildSpeedLimit(),
-            _buildTimeout(),
-            _buildDownloadInOrder(),
-            _buildDeleteArchiveFileAfterDownload(),
-            _buildRestore(),
-          ],
+        () => EHWheelSpeedController(
+          controller: scrollController,
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.only(top: 16),
+            children: [
+              _buildDownloadPath(),
+              if (!GetPlatform.isIOS) _buildResetDownloadPath(),
+              if (!GetPlatform.isIOS) _buildExtraGalleryScanPath(),
+              if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
+              _buildDownloadOriginalImage(),
+              _buildDownloadConcurrency(),
+              _buildSpeedLimit(),
+              _buildTimeout(),
+              _buildDownloadInOrder(),
+              _buildDeleteArchiveFileAfterDownload(),
+              _buildRestore(),
+            ],
+          ),
         ),
       ),
     );

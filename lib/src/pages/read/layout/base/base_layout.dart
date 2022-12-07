@@ -200,7 +200,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$downloadImageId::${readPageState.readPageInfo.gid}',
+      id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
@@ -279,7 +279,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// downloading for local mode
   Widget _downloadingWidgetBuilder(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$galleryDownloadSpeedComputerId::${readPageState.readPageInfo.gid}',
+      id: '${logic.galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
       builder: (_) {
         GalleryDownloadSpeedComputer speedComputer = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
@@ -352,7 +352,7 @@ abstract class BaseLayout extends StatelessWidget {
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
       logic.readPageState.imageSizes[index] = fittedSizes.destination;
-      logic.galleryDownloadService.updateSafely(['$downloadImageId::${readPageState.readPageInfo.gid}']);
+      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}']);
     });
 
     return null;

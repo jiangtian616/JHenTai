@@ -4,15 +4,17 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
-import 'package:jhentai/src/pages/download/local/local_gallery_page_logic.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 
 import '../model/gallery_image.dart';
+import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
+import '../pages/download/list/local/local_gallery_list_page_logic.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';
+import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
 class LocalGallery {
@@ -45,9 +47,10 @@ class LocalGalleryParseResult {
 }
 
 /// Load galleries in download directory but is not downloaded by JHenTai
-class LocalGalleryService extends GetxController {
-  static const String galleryCountChangedId = 'galleryCountChangedId';
+class LocalGalleryService extends GetxController with GridBasePageServiceMixin{
   static const String rootPath = '';
+
+  LoadingState loadingState = LoadingState.idle;
 
   List<LocalGallery> allGallerys = [];
   Map<String, List<LocalGallery>> path2GalleryDir = {};
@@ -59,23 +62,35 @@ class LocalGalleryService extends GetxController {
 
   static void init() {
     Get.put(LocalGalleryService(), permanent: true);
-    Get.put(LocalGalleryPageLogic(), permanent: true);
+    Get.put(LocalGalleryListPageLogic(), permanent: true);
   }
 
-  Future<int> refreshLocalGallerys() {
+  @override
+  void onInit() {
+    super.onInit();
+    refreshLocalGallerys();
+  }
+
+  Future<void> refreshLocalGallerys() {
+    if (loadingState == LoadingState.loading) {
+      return Future.value();
+    }
+    loadingState = LoadingState.loading;
+
     int preCount = allGallerys.length;
 
     allGallerys.clear();
     path2GalleryDir.clear();
     path2SubDir.clear();
+    update([galleryCountOrOrderChangedId]);
 
     DateTime start = DateTime.now();
-
     return _loadGalleriesFromDisk().then((_) {
       Log.info(
         'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
-      return allGallerys.length - preCount;
+      loadingState = LoadingState.success;
+      update([galleryCountOrOrderChangedId]);
     });
   }
 
@@ -117,7 +132,7 @@ class LocalGalleryService extends GetxController {
     allGallerys.removeWhere((g) => g.title == gallery.title);
     path2GalleryDir[parentPath]?.removeWhere((g) => g.title == gallery.title);
 
-    update([galleryCountChangedId]);
+    update([galleryCountOrOrderChangedId]);
   }
 
   Future<void> _loadGalleriesFromDisk() {

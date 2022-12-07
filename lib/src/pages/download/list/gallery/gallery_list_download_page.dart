@@ -5,29 +5,28 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import '../../../database/database.dart';
-import '../../../mixin/scroll_to_top_page_mixin.dart';
-import '../../../model/gallery_image.dart';
-import '../../../routes/routes.dart';
-import '../../../service/gallery_download_service.dart';
-import '../../../utils/date_util.dart';
-import '../../../utils/route_util.dart';
-import '../../../widget/eh_gallery_category_tag.dart';
-import '../../../widget/eh_image.dart';
-import '../../../widget/fade_shrink_widget.dart';
-import '../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
-import '../download_base_page.dart';
-import 'gallery_download_page_logic.dart';
-import 'gallery_download_page_state.dart';
+import '../../../../database/database.dart';
+import '../../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../../model/gallery_image.dart';
+import '../../../../routes/routes.dart';
+import '../../../../service/gallery_download_service.dart';
+import '../../../../utils/date_util.dart';
+import '../../../../utils/route_util.dart';
+import '../../../../widget/eh_gallery_category_tag.dart';
+import '../../../../widget/eh_image.dart';
+import '../../../../widget/fade_shrink_widget.dart';
+import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
+import '../../download_base_page.dart';
+import 'gallery_list_download_page_logic.dart';
+import 'gallery_list_download_page_state.dart';
 
-class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
-  GalleryDownloadPage({Key? key, this.showMenuButton = false}) : super(key: key);
+class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
+  GalleryListDownloadPage({Key? key}) : super(key: key);
 
-  final bool showMenuButton;
   @override
-  final GalleryDownloadPageLogic logic = Get.put<GalleryDownloadPageLogic>(GalleryDownloadPageLogic(), permanent: true);
+  final GalleryListDownloadPageLogic logic = Get.put<GalleryListDownloadPageLogic>(GalleryListDownloadPageLogic(), permanent: true);
   @override
-  final GalleryDownloadPageState state = Get.find<GalleryDownloadPageLogic>().state;
+  final GalleryListDownloadPageState state = Get.find<GalleryListDownloadPageLogic>().state;
 
   @override
   Widget build(BuildContext context) {
@@ -45,16 +44,11 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,
-      title: const DownloadPageSegmentControl(bodyType: DownloadPageBodyType.download),
+      title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.download),
       actions: [
         IconButton(
-          icon: Icon(Icons.play_arrow, size: 26, color: UIConfig.resumeButtonColor),
-          onPressed: logic.downloadService.resumeAllDownloadGallery,
-          visualDensity: const VisualDensity(horizontal: -4),
-        ),
-        IconButton(
-          icon: Icon(Icons.pause, size: 26, color: UIConfig.pauseButtonColor),
-          onPressed: logic.downloadService.pauseAllDownloadGallery,
+          icon: const Icon(Icons.view_list),
+          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context),
         ),
       ],
     );
@@ -62,9 +56,9 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody() {
     return GetBuilder<GalleryDownloadService>(
-      id: galleryCountOrOrderChangedId,
-      builder: (_) => GetBuilder<GalleryDownloadPageLogic>(
-        id: GalleryDownloadPageLogic.bodyId,
+      id: logic.downloadService.galleryCountOrOrderChangedId,
+      builder: (_) => GetBuilder<GalleryListDownloadPageLogic>(
+        id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
           child: GroupList<GalleryDownloadedData, String>(
@@ -72,7 +66,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             groups: logic.downloadService.allGroups,
             elements: logic.downloadService.gallerys,
             groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
-            groupBuilder: (groupName) => _groupBuilder(groupName).marginAll(5),
+            groupBuilder: (context, groupName) => _groupBuilder(context, groupName).marginAll(5),
             itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
           ),
         ),
@@ -80,7 +74,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _groupBuilder(String groupName) {
+  Widget _groupBuilder(BuildContext context, String groupName) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
       onLongPress: () => logic.handleLongPressGroup(groupName),
@@ -88,7 +82,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       child: Container(
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
-          color: UIConfig.downloadPageGroupColor,
+          color: UIConfig.downloadPageGroupColor(context),
           boxShadow: [UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
@@ -97,8 +91,8 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GetBuilder<GalleryDownloadPageLogic>(
-              id: '${GalleryDownloadPageLogic.groupId}::$groupName',
+            GetBuilder<GalleryListDownloadPageLogic>(
+              id: '${logic.groupId}::$groupName',
               builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
             ),
           ],
@@ -110,14 +104,14 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget _itemBuilder(GalleryDownloadedData gallery, BuildContext context) {
     String? group = logic.downloadService.galleryDownloadInfos[gallery.gid]?.group;
 
-    return GetBuilder<GalleryDownloadPageLogic>(
-      id: '${GalleryDownloadPageLogic.groupId}::$group',
+    return GetBuilder<GalleryListDownloadPageLogic>(
+      id: '${logic.groupId}::$group',
       builder: (_) => Slidable(
         key: Key(gallery.gid.toString()),
         endActionPane: _buildEndActionPane(gallery),
         child: GestureDetector(
-          onSecondaryTap: () => showBottomSheet(gallery, context),
-          onLongPress: () => showBottomSheet(gallery, context),
+          onSecondaryTap: () => logic.showBottomSheet(gallery, context),
+          onLongPress: () => logic.showBottomSheet(gallery, context),
           child: FadeShrinkWidget(
             show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
@@ -152,7 +146,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         SlidableAction(
           icon: FontAwesomeIcons.sort,
           backgroundColor: Get.theme.scaffoldBackgroundColor,
-          onPressed: (BuildContext context) => showPrioritySheet(gallery, context),
+          onPressed: (BuildContext context) => logic.showPrioritySheet(gallery, context),
         ),
         SlidableAction(
           icon: Icons.delete,
@@ -189,7 +183,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
       child: GetBuilder<GalleryDownloadService>(
-        id: '$downloadImageUrlId::${gallery.gid}::0',
+        id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
           GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
@@ -317,7 +311,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildButton(GalleryDownloadedData gallery) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$galleryDownloadProgressId::${gallery.gid}',
+      id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
       builder: (_) {
         DownloadStatus downloadStatus = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
         return GestureDetector(
@@ -342,7 +336,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildInfoFooter(GalleryDownloadedData gallery) {
     return GetBuilder<GalleryDownloadService>(
-      id: '$galleryDownloadProgressId::${gallery.gid}',
+      id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
       builder: (_) {
         GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
         GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
@@ -352,7 +346,7 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
               children: [
                 if (downloadProgress.downloadStatus == DownloadStatus.downloading)
                   GetBuilder<GalleryDownloadService>(
-                    id: '$galleryDownloadSpeedComputerId::${gallery.gid}',
+                    id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
                     builder: (_) => Text(
                       speedComputer.speed,
                       style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
@@ -378,103 +372,6 @@ class GalleryDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           ],
         );
       },
-    );
-  }
-
-  void showBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              logic.handleChangeGroup(gallery);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('changePriority'.tr),
-            onPressed: () {
-              backRoute();
-              showPrioritySheet(gallery, context);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('reDownload'.tr),
-            onPressed: () {
-              logic.handleReDownloadItem(context, gallery);
-              backRoute();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('deleteTask'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              logic.handleRemoveItem(gallery, false);
-              backRoute();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: Colors.red.shade400)),
-            onPressed: () {
-              logic.handleRemoveItem(gallery, true);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
-    );
-  }
-
-  void showPrioritySheet(GalleryDownloadedData gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 1 (${'highest'.tr})'),
-            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
-            onPressed: () {
-              logic.handleAssignPriority(gallery, 1);
-              backRoute();
-            },
-          ),
-          ...[2, 3]
-              .map((i) => CupertinoActionSheetAction(
-                    child: Text('${'priority'.tr} : $i'),
-                    isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
-                    onPressed: () {
-                      logic.handleAssignPriority(gallery, i);
-                      backRoute();
-                    },
-                  ))
-              .toList(),
-          CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 4 (${'default'.tr})'),
-            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
-            onPressed: () {
-              logic.handleAssignPriority(gallery, 4);
-              backRoute();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 5'),
-            isDefaultAction: logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
-            onPressed: () {
-              logic.handleAssignPriority(gallery, 5);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: () => backRoute(),
-        ),
-      ),
     );
   }
 }

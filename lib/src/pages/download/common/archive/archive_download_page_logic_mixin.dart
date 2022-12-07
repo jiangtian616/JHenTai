@@ -1,54 +1,25 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/utils/log.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:jhentai/src/widget/eh_download_dialog.dart';
 
-import '../../../database/database.dart';
-import '../../../mixin/scroll_to_top_logic_mixin.dart';
-import '../../../model/gallery_image.dart';
-import '../../../model/read_page_info.dart';
-import '../../../routes/routes.dart';
-import '../../../service/archive_download_service.dart';
-import '../../../service/storage_service.dart';
-import '../../../setting/read_setting.dart';
-import '../../../utils/process_util.dart';
-import '../../../utils/route_util.dart';
-import '../../../widget/eh_alert_dialog.dart';
-import 'archive_download_page_state.dart';
+import '../../../../database/database.dart';
+import '../../../../model/gallery_image.dart';
+import '../../../../model/read_page_info.dart';
+import '../../../../routes/routes.dart';
+import '../../../../service/archive_download_service.dart';
+import '../../../../service/storage_service.dart';
+import '../../../../setting/read_setting.dart';
+import '../../../../utils/process_util.dart';
+import '../../../../utils/route_util.dart';
+import '../../../../widget/eh_alert_dialog.dart';
+import '../../../../widget/eh_download_dialog.dart';
 
-class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStateMixin, Scroll2TopLogicMixin {
-  static const String bodyId = 'pageId';
-  static const String groupId = 'groupId';
-
-  @override
-  ArchiveDownloadPageState state = ArchiveDownloadPageState();
+mixin ArchiveDownloadPageLogicMixin on GetxController {
+  final String bodyId = 'bodyId';
+  final String groupId = 'groupId';
 
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final StorageService storageService = Get.find();
-
-  @override
-  void onInit() {
-    state.displayGroups = Set.from(storageService.read('displayArchiveGroups') ?? ['default'.tr]);
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-
-    state.scrollController.dispose();
-  }
-
-  void toggleDisplayGroups(String groupName) {
-    if (state.displayGroups.contains(groupName)) {
-      state.displayGroups.remove(groupName);
-    } else {
-      state.displayGroups.add(groupName);
-    }
-
-    storageService.write('displayArchiveGroups', state.displayGroups.toList());
-    update(['$groupId::$groupName']);
-  }
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
@@ -99,6 +70,10 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
+    return doRenameGroup(oldGroup, newGroup);
+  }
+
+  Future<void> doRenameGroup(String oldGroup, String newGroup) async {
     await archiveDownloadService.renameGroup(oldGroup, newGroup);
     update([bodyId]);
   }
@@ -115,8 +90,7 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
   }
 
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    state.removedGids.add(archive.gid);
-    archiveDownloadService.update([ArchiveDownloadService.archiveCountChangedId]);
+    archiveDownloadService.update([archiveDownloadService.galleryCountOrOrderChangedId]);
   }
 
   void goToReadPage(ArchiveDownloadedData archive) {
@@ -147,5 +121,33 @@ class ArchiveDownloadPageLogic extends GetxController with GetTickerProviderStat
         ),
       );
     }
+  }
+
+  void showArchiveBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('changeGroup'.tr),
+            onPressed: () {
+              backRoute();
+              handleChangeArchiveGroup(archive);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            onPressed: () {
+              handleRemoveItem(archive);
+              backRoute();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: backRoute,
+        ),
+      ),
+    );
   }
 }

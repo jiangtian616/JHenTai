@@ -10,6 +10,7 @@ import '../../../widget/auto_mode_interval_dialog.dart';
 class SettingReadPage extends StatelessWidget {
   const SettingReadPage({Key? key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
