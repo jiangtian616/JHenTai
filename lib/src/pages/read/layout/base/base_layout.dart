@@ -179,12 +179,12 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for online mode
   Widget? _completedWidgetBuilder(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
@@ -200,7 +200,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}',
+      id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
@@ -340,19 +340,19 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for local mode
   Widget? _completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
       logic.readPageState.imageSizes[index] = fittedSizes.destination;
-      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}']);
+      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
     });
 
     return null;

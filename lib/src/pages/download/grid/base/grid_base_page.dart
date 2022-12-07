@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../setting/style_setting.dart';
@@ -240,7 +241,9 @@ class GridGroup extends StatelessWidget {
     }
 
     if (images[index] == null) {
-      return UIConfig.loadingAnimation;
+      return Center(
+        child: LoadingAnimationWidget.horizontalRotatingDots(color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800, size: 16),
+      );
     }
 
     return EHImage.autoLayout(

@@ -386,7 +386,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           }
           images[serialNo]!.path = newPath;
 
-          update(['$downloadImageId::${gallery.gid}', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
+          update(['$downloadImageId::${gallery.gid}::$serialNo', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
         }
       }
     });
@@ -974,7 +974,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     image.downloadStatus = downloadStatus;
 
-    update(['$downloadImageId::${gallery.gid}', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
+    update(['$downloadImageId::${gallery.gid}::$serialNo', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
 
     _saveGalleryInfoInDisk(gallery);
 

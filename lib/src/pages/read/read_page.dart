@@ -417,7 +417,7 @@ class ReadPage extends StatelessWidget {
 
   Widget _buildThumbnailInLocalMode(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${Get.find<GalleryDownloadService>().downloadImageId}::${state.readPageInfo.gid}',
+      id: '${Get.find<GalleryDownloadService>().downloadImageId}::${state.readPageInfo.gid}::$index',
       builder: (_) {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
           return Center(child: UIConfig.loadingAnimation);
