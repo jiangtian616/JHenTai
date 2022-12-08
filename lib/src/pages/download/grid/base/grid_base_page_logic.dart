@@ -15,7 +15,7 @@ abstract class GridBasePageLogic extends GetxController with Scroll2TopLogicMixi
 
   final StorageService storageService = Get.find<StorageService>();
 
-  void enterGroup(String? group) {
+  void enterGroup(String group) {
     state.currentGroup = group;
     update([bodyId]);
   }

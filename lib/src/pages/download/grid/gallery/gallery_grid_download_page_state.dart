@@ -9,7 +9,7 @@ class GalleryGridDownloadPageState extends GridBasePageState {
   List<String> get allRootGroups => Get.find<GalleryDownloadService>().allGroups;
 
   @override
-  List<GalleryDownloadedData> galleryObjectsWithGroup(String? groupName) => Get.find<GalleryDownloadService>()
+  List<GalleryDownloadedData> galleryObjectsWithGroup(String groupName) => Get.find<GalleryDownloadService>()
       .gallerys
       .where((gallery) => Get.find<GalleryDownloadService>().galleryDownloadInfos[gallery.gid]?.group == groupName)
       .toList();

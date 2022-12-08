@@ -12,7 +12,7 @@ class LocalGalleryGridPageLogic extends GridBasePageLogic with LocalGalleryDownl
   GridBasePageServiceMixin get galleryService => localGalleryService;
 
   @override
-  String get currentPath => state.currentGroup ?? LocalGalleryService.rootPath;
+  String get currentPath => state.currentGroup;
 
   @override
   set currentPath(String value) => state.currentGroup = value;

@@ -19,6 +19,7 @@ import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
@@ -304,7 +305,13 @@ class _DetailsPageHeader extends StatelessWidget {
         _buildTitle(),
         _buildUploader(),
         const Expanded(child: SizedBox()),
-        StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
+        GestureDetector(
+          onTap: state.loadingState == LoadingState.success
+              ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!))
+              : null,
+          behavior: HitTestBehavior.opaque,
+          child: StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
+        ),
         _buildRatingAndCategory(),
       ],
     );

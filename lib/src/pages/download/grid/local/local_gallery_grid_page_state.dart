@@ -9,7 +9,7 @@ class LocalGalleryGridPageState extends GridBasePageState with Scroll2TopStateMi
   List<String> get allRootGroups => Get.find<LocalGalleryService>().rootDirectories;
 
   @override
-  List<LocalGallery> galleryObjectsWithGroup(String? groupName) {
+  List<LocalGallery> galleryObjectsWithGroup(String groupName) {
     return Get.find<LocalGalleryService>().path2GalleryDir[groupName] ?? [];
   }
 }

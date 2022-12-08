@@ -6,7 +6,6 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart';
 
 import '../../../../config/ui_config.dart';
-import '../../../../model/gallery_image.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../../widget/eh_wheel_speed_controller.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
@@ -78,7 +77,7 @@ class LocalGalleryGridPage extends GridBasePage {
                 }
 
                 if (index == 0) {
-                  return ReturnWidget(onTap: () => logic.enterGroup(null));
+                  return ReturnWidget(onTap: logic.backRoute);
                 }
 
                 index--;

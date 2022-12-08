@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -83,7 +84,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
                 }
 
                 if (index == 0) {
-                  return ReturnWidget(onTap: () => logic.enterGroup(null));
+                  return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
                 }
 
                 return galleryBuilder(context, state.currentGalleryObjects, index - 1);
