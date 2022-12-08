@@ -139,6 +139,16 @@ class pt_BR {
       'getGalleryTorrentsFailed': 'Falha ao obter torrents',
       'chooseArchive': 'Escolher Arquivo',
 
+      /// detail dialog
+      'galleryUrl': 'Gallery Url',
+      'title': 'Title',
+      'japaneseTitle': 'Japanese Title',
+      'category': 'Category',
+      'publishTime': 'Publish Time',
+      'pageCount': 'Page Count',
+      'favoriteCount': 'Favorite Count',
+      'ratingCount': 'Rating Count',
+
       /// comment page
       'newComment': 'Novo comentário',
       'updateComment': 'Update Comment',

@@ -138,6 +138,16 @@ class en_US {
       'getGalleryTorrentsFailed': 'Get torrents failed',
       'chooseArchive': 'Choose Archive',
 
+      /// detail dialog
+      'galleryUrl': 'Gallery Url',
+      'title': 'Title',
+      'japaneseTitle': 'Japanese Title',
+      'category': 'Category',
+      'publishTime': 'Publish Time',
+      'pageCount': 'Page Count',
+      'favoriteCount': 'Favorite Count',
+      'ratingCount': 'Rating Count',
+
       /// comment page
       'newComment': 'New Comment',
       'updateComment': 'Update Comment',

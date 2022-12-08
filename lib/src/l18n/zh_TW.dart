@@ -137,6 +137,16 @@ class zh_TW {
       'getGalleryTorrentsFailed': '獲取種子失敗',
       'chooseArchive': '選擇歸檔',
 
+      /// detail dialog
+      'galleryUrl': '畫廊鏈接',
+      'title': '標題',
+      'japaneseTitle': '日文標題',
+      'category': '類別',
+      'publishTime': '發布時間',
+      'pageCount': '頁數',
+      'favoriteCount': '收藏次數',
+      'ratingCount': '評分次數',
+
       /// comment page
       'newComment': '新評論',
       'updateComment': '更新評論',

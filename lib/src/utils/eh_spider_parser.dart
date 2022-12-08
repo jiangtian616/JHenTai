@@ -139,6 +139,7 @@ class EHSpiderParser {
 
     return GalleryDetail(
       rawTitle: document.querySelector('#gn')!.text,
+      japaneseTitle: document.querySelector('#gj')!.text,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       realRating: _parseGalleryDetailsRealRating(document),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',

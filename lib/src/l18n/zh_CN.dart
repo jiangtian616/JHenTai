@@ -138,6 +138,16 @@ class zh_CN {
       'getGalleryTorrentsFailed': '获取种子失败',
       'chooseArchive': '选择归档',
 
+      /// detail dialog
+      'galleryUrl': '画廊链接',
+      'title': '标题',
+      'japaneseTitle': '日文标题',
+      'category': '类别',
+      'publishTime': '发布时间',
+      'pageCount': '页数',
+      'favoriteCount': '收藏次数',
+      'ratingCount': '评分次数',
+
       /// comment page
       'newComment': '新评论',
       'updateComment': '更新评论',
