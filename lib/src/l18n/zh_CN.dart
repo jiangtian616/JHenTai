@@ -247,6 +247,7 @@ class zh_CN {
       'waterfallFlowWithImageAndInfo': '瀑布流',
       'crossAxisCountInWaterFallFlow': '瀑布流列数',
       'pageListStyle': '画廊列表样式(页面)',
+      'crossAxisCountInGridDownloadPage': '下载页网格布局列数',
       'global': '全局',
       'auto': '自动',
       'moveCover2RightSide': '移动封面图至右侧',

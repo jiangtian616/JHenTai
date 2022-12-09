@@ -67,28 +67,37 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
           onNotification: logic.onUserScroll,
           child: EHWheelSpeedController(
             controller: state.scrollController,
-            child: GridView.builder(
-              key: PageStorageKey(state.currentGroup),
-              controller: state.scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
-                mainAxisSpacing: 24,
-                crossAxisSpacing: 12,
-                childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+            child: Obx(
+              () => GridView.builder(
+                key: PageStorageKey(state.currentGroup),
+                controller: state.scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                gridDelegate: StyleSetting.crossAxisCountInGridDownloadPage.value == null
+                    ? const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
+                        mainAxisSpacing: 24,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                      )
+                    : SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPage.value!,
+                        mainAxisSpacing: 24,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                      ),
+                itemCount: state.isAtRoot ? state.allRootGroups.length : state.currentGalleryObjects.length + 1,
+                itemBuilder: (context, index) {
+                  if (state.isAtRoot) {
+                    return groupBuilder(context, index);
+                  }
+
+                  if (index == 0) {
+                    return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
+                  }
+
+                  return galleryBuilder(context, state.currentGalleryObjects, index - 1);
+                },
               ),
-              itemCount: state.isAtRoot ? state.allRootGroups.length : state.currentGalleryObjects.length + 1,
-              itemBuilder: (context, index) {
-                if (state.isAtRoot) {
-                  return groupBuilder(context, index);
-                }
-
-                if (index == 0) {
-                  return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
-                }
-
-                return galleryBuilder(context, state.currentGalleryObjects, index - 1);
-              },
             ),
           ),
         ),

@@ -25,6 +25,7 @@ class StyleSetting {
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
+  static RxnInt crossAxisCountInGridDownloadPage = RxnInt(null);
   static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
   static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
@@ -95,6 +96,12 @@ class StyleSetting {
     _save();
   }
 
+  static saveCrossAxisCountInGridDownloadPage(int? crossAxisCountInGridDownloadPage) {
+    Log.debug('saveCrossAxisCountInGridDownloadPage:$crossAxisCountInGridDownloadPage');
+    StyleSetting.crossAxisCountInGridDownloadPage.value = crossAxisCountInGridDownloadPage;
+    _save();
+  }
+
   static savePageListMode(String routeName, ListMode? listMode) {
     Log.debug('savePageListMode:$routeName, $listMode');
     if (listMode == null) {
@@ -156,6 +163,7 @@ class StyleSetting {
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
+      'crossAxisCountInGridDownloadPage': crossAxisCountInGridDownloadPage.value,
       'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
@@ -171,6 +179,7 @@ class StyleSetting {
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
+    crossAxisCountInGridDownloadPage.value = map['crossAxisCountInGridDownloadPage'];
     pageListMode.value = Map.from(map['pageListMode']?.map((route, listModeIndex) => MapEntry(route, ListMode.values[listModeIndex])) ?? {});
     moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
