@@ -50,7 +50,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                     blurColor: Colors.black,
                     colorOpacity: 0.6,
                     child: cover,
-                    overlay: const Icon(Icons.download),
+                    overlay: const Icon(Icons.download, color: Colors.white),
                   ),
                 );
               },
@@ -105,7 +105,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
                   builder: (_) => Text(
                     '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(galleryObjects[index].size.toDouble())}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize),
+                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
                   ),
                 ).marginOnly(top: 60),
               ),
@@ -122,7 +122,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                             id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
                             builder: (_) => Text(
                               archiveDownloadInfo.speedComputer.speed,
-                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize),
+                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
                             ),
                           )
                         : Icon(

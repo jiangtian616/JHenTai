@@ -62,7 +62,7 @@ class GalleryGridDownloadPage extends GridBasePage {
                       blurColor: Colors.black,
                       colorOpacity: 0.6,
                       child: cover,
-                      overlay: const Icon(Icons.download),
+                      overlay: const Icon(Icons.download, color: Colors.white),
                     ),
                   );
                 },
@@ -89,7 +89,7 @@ class GalleryGridDownloadPage extends GridBasePage {
               GalleryImage? image = logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]?.images[0];
 
               if (image?.downloadStatus != DownloadStatus.downloaded) {
-                return const SizedBox();
+                return const Center();
               }
 
               return buildGalleryImage(image!);
@@ -129,7 +129,7 @@ class GalleryGridDownloadPage extends GridBasePage {
                   id: '${logic.downloadService.galleryDownloadProgressId}::${galleryObjects[index].gid}',
                   builder: (_) => Text(
                     '${downloadProgress.curCount} / ${downloadProgress.totalCount}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize),
+                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
                   ),
                 ).marginOnly(top: 60),
               ),
@@ -145,7 +145,10 @@ class GalleryGridDownloadPage extends GridBasePage {
                     builder: (_) => downloadProgress.downloadStatus == DownloadStatus.downloading
                         ? GetBuilder<GalleryDownloadService>(
                             id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${galleryObjects[index].gid}',
-                            builder: (_) => Text(speedComputer.speed, style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize)),
+                            builder: (_) => Text(
+                              speedComputer.speed,
+                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
+                            ),
                           )
                         : Icon(
                             downloadProgress.downloadStatus == DownloadStatus.paused ? Icons.play_arrow : Icons.done,
