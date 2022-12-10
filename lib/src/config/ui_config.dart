@@ -162,7 +162,9 @@ class UIConfig {
   static const double downloadPageGridViewCardHeight = 180 / 0.8;
 
   static const double downloadPageGridViewGroupPadding = 6;
-
+  static const double downloadPageGridViewInfoTextSize = 12;
+  static const double downloadPageGridViewSpeedTextSize = 8;
+  static const double downloadPageGridViewCircularProgressSize = 40;
   /// Search page
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;

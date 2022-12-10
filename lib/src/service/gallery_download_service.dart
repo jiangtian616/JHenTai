@@ -41,6 +41,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   final String downloadImageUrlId = 'downloadImageUrlId';
   final String galleryDownloadProgressId = 'galleryDownloadProgressId';
   final String galleryDownloadSpeedComputerId = 'galleryDownloadSpeedComputerId';
+  final String galleryDownloadSuccessId = 'galleryDownloadSuccessId';
 
   late EHExecutor executor;
 
@@ -895,6 +896,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
       await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloaded);
       galleryDownloadInfos[gallery.gid]!.speedComputer.dispose();
+      update(['$galleryDownloadSuccessId::${gallery.gid}']);
     }
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);

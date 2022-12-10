@@ -149,8 +149,8 @@ class ReturnWidget extends StatelessWidget {
 
 class GridGallery extends StatelessWidget {
   final String title;
-  final Widget cover;
-  final VoidCallback onTapCover;
+  final Widget widget;
+  final VoidCallback onTapWidget;
   final VoidCallback onTapTitle;
   final VoidCallback onLongPress;
   final VoidCallback onSecondTap;
@@ -159,8 +159,8 @@ class GridGallery extends StatelessWidget {
   const GridGallery({
     Key? key,
     required this.title,
-    required this.cover,
-    required this.onTapCover,
+    required this.widget,
+    required this.onTapWidget,
     required this.onTapTitle,
     required this.onLongPress,
     required this.onSecondTap,
@@ -171,13 +171,14 @@ class GridGallery extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
+      onTap: onTapWidget,
       onLongPress: onLongPress,
       onSecondaryTap: onSecondTap,
       onTertiaryTapDown: (_) => onTertiaryTap(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: GestureDetector(onTap: onTapCover, child: cover)),
+          Expanded(child: widget),
           GestureDetector(
             onTap: onTapTitle,
             child: Center(
@@ -191,8 +192,10 @@ class GridGallery extends StatelessWidget {
 }
 
 class GridGroup extends StatelessWidget {
+  static const int maxWidgetCount = 4;
+
   final String groupName;
-  final List<Widget> images;
+  final List<Widget> widgets;
   final VoidCallback onTap;
   final IconData? emptyIcon;
   final VoidCallback? onLongPress;
@@ -201,7 +204,7 @@ class GridGroup extends StatelessWidget {
   const GridGroup({
     Key? key,
     required this.groupName,
-    required this.images,
+    required this.widgets,
     required this.onTap,
     this.emptyIcon,
     this.onLongPress,
@@ -221,7 +224,7 @@ class GridGroup extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceVariant, borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.all(UIConfig.downloadPageGridViewGroupPadding),
-              child: images.isEmpty
+              child: widgets.isEmpty
                   ? Center(child: Icon(emptyIcon ?? Icons.folder, size: 32))
                   : Column(
                       children: [
@@ -253,9 +256,9 @@ class GridGroup extends StatelessWidget {
   }
 
   Widget _buildInnerImage(int index) {
-    if (images.length <= index) {
+    if (widgets.length <= index) {
       return const SizedBox();
     }
-    return images[index];
+    return widgets[index];
   }
 }

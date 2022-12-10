@@ -38,27 +38,27 @@ class SpeedComputer {
     }
 
     if (difference < 1024) {
-      speed = '${difference.toStringAsFixed(2)} B/s';
+      speed = '${difference.toInt()} B/s';
       updateCallback?.call();
       return;
     }
 
     difference /= 1024;
     if (difference < 1024) {
-      speed = '${difference.toStringAsFixed(2)} KB/s';
+      speed = '${difference.toInt()} KB/s';
       updateCallback?.call();
       return;
     }
 
     difference /= 1024;
     if (difference < 1024) {
-      speed = '${difference.toStringAsFixed(2)} MB/s';
+      speed = '${difference.toInt()} MB/s';
       updateCallback?.call();
       return;
     }
 
     difference /= 1024;
-    speed = '${difference.toStringAsFixed(2)} GB/s';
+    speed = '${difference.toInt()} GB/s';
     updateCallback?.call();
   }
 

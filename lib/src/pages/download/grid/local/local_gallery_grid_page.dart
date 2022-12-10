@@ -72,7 +72,7 @@ class LocalGalleryGridPage extends GridBasePage {
 
     return GridGroup(
       groupName: logic.transformDisplayPath(logic.isAtRootPath ? groupName : relative(groupName, from: state.currentGroup)),
-      images: [],
+      widgets: [],
       emptyIcon: state.isAtRoot ? Icons.folder_special : null,
       onTap: () => logic.enterGroup(groupName),
     );
@@ -82,8 +82,8 @@ class LocalGalleryGridPage extends GridBasePage {
   Widget galleryBuilder(BuildContext context, List galleryObjects, int index) {
     return GridGallery(
       title: galleryObjects[index].title,
-      cover: buildGalleryImage(galleryObjects[index].cover),
-      onTapCover: () => logic.goToReadPage(galleryObjects[index]),
+      widget: buildGalleryImage(galleryObjects[index].cover),
+      onTapWidget: () => logic.goToReadPage(galleryObjects[index]),
       onTapTitle:
           galleryObjects[index].isFromEHViewer ? () => logic.goToDetailPage(galleryObjects[index]) : () => logic.goToReadPage(galleryObjects[index]),
       onLongPress: () => logic.showBottomSheet(galleryObjects[index], context),
