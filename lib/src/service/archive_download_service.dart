@@ -35,7 +35,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   static const int _retryTimes = 3;
   static const String metadataFileName = '.archive.metadata';
-  static const int _maxTitleLength = 100;
+  static const int _maxTitleLength = 85;
 
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];

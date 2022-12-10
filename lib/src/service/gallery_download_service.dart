@@ -51,7 +51,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   static const int _retryTimes = 3;
   static const String metadataFileName = '.metadata';
-  static const int _maxTitleLength = 100;
+  static const int _maxTitleLength = 85;
 
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
