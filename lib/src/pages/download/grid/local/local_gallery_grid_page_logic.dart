@@ -18,6 +18,11 @@ class LocalGalleryGridPageLogic extends GridBasePageLogic with LocalGalleryDownl
   set currentPath(String value) => state.currentGroup = value;
 
   @override
+  void backGroup() {
+    backRoute();
+  }
+
+  @override
   Future<void> doRemoveItem(LocalGallery gallery) async {
     localGalleryService.deleteGallery(gallery, currentPath);
     super.doRemoveItem(gallery);

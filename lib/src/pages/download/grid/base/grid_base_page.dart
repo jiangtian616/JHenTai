@@ -118,7 +118,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
     }
 
     if (index == 0) {
-      return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
+      return ReturnWidget(onTap: logic.backGroup);
     }
 
     return galleryBuilder(context, state.currentGalleryObjects, index - 1);
