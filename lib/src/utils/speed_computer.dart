@@ -52,13 +52,13 @@ class SpeedComputer {
 
     difference /= 1024;
     if (difference < 1024) {
-      speed = '${difference.toInt()} MB/s';
+      speed = '${difference.toStringAsFixed(1)} MB/s';
       updateCallback?.call();
       return;
     }
 
     difference /= 1024;
-    speed = '${difference.toInt()} GB/s';
+    speed = '${difference.toStringAsFixed(2)} GB/s';
     updateCallback?.call();
   }
 
