@@ -254,6 +254,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       Map metadata = jsonDecode(metadataFile.readAsStringSync());
+
       /// compatible with new field
       metadata.putIfAbsent('sortOrder', () => 0);
 
@@ -264,9 +265,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         continue;
       }
 
-      if (archive.archiveStatusIndex == ArchiveStatus.downloading.index) {
-        archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.paused.index);
-      }
+      archive = archive.copyWith(archiveStatusIndex: ArchiveStatus.completed.index);
 
       if (!await _saveArchiveAndGroupInDatabase(archive)) {
         Log.error('Restore archive failed: $archive');
