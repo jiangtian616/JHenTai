@@ -7,7 +7,6 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../setting/style_setting.dart';
@@ -85,18 +84,8 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
                         crossAxisSpacing: 12,
                         childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
                       ),
-                itemCount: state.isAtRoot ? state.allRootGroups.length : state.currentGalleryObjects.length + 1,
-                itemBuilder: (context, index) {
-                  if (state.isAtRoot) {
-                    return groupBuilder(context, index);
-                  }
-
-                  if (index == 0) {
-                    return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
-                  }
-
-                  return galleryBuilder(context, state.currentGalleryObjects, index - 1);
-                },
+                itemCount: itemCount(),
+                itemBuilder: itemBuilder,
               ),
             ),
           ),
@@ -105,9 +94,42 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
+  int itemCount() {
+    return state.isAtRoot ? state.allRootGroups.length : state.currentGalleryObjects.length + 1;
+  }
+
+  Widget itemBuilder(context, index) {
+    if (state.isAtRoot) {
+      return groupBuilder(context, index);
+    }
+
+    if (index == 0) {
+      return ReturnWidget(onTap: () => logic.enterGroup(LocalGalleryService.rootPath));
+    }
+
+    return galleryBuilder(context, state.currentGalleryObjects, index - 1);
+  }
+
   Widget groupBuilder(BuildContext context, int index);
 
+  Widget buildGroupInnerImage(GalleryImage image) {
+    return EHImage.autoLayout(
+      galleryImage: image,
+      fit: BoxFit.cover,
+      borderRadius: BorderRadius.circular(8),
+    );
+  }
+
   Widget galleryBuilder(BuildContext context, List galleryObjects, int index);
+
+  Widget buildGalleryImage(GalleryImage image) {
+    return EHImage.autoLayout(
+      galleryImage: image,
+      fit: BoxFit.cover,
+      forceFadeIn: true,
+      borderRadius: BorderRadius.circular(12),
+    );
+  }
 }
 
 class ReturnWidget extends StatelessWidget {
@@ -127,7 +149,7 @@ class ReturnWidget extends StatelessWidget {
 
 class GridGallery extends StatelessWidget {
   final String title;
-  final GalleryImage? cover;
+  final Widget cover;
   final VoidCallback onTapCover;
   final VoidCallback onTapTitle;
   final VoidCallback onLongPress;
@@ -136,7 +158,7 @@ class GridGallery extends StatelessWidget {
   const GridGallery({
     Key? key,
     required this.title,
-    this.cover,
+    required this.cover,
     required this.onTapCover,
     required this.onTapTitle,
     required this.onLongPress,
@@ -151,23 +173,7 @@ class GridGallery extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: onTapCover,
-              child: cover == null
-                  ? UIConfig.loadingAnimation
-                  : LayoutBuilder(
-                      builder: (_, constraints) => EHImage(
-                        galleryImage: cover!,
-                        containerWidth: constraints.maxWidth,
-                        containerHeight: constraints.maxHeight,
-                        fit: BoxFit.cover,
-                        forceFadeIn: true,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-            ),
-          ),
+          Expanded(child: GestureDetector(onTap: onTapCover, child: cover)),
           GestureDetector(
             onTap: onTapTitle,
             child: Center(
@@ -182,7 +188,7 @@ class GridGallery extends StatelessWidget {
 
 class GridGroup extends StatelessWidget {
   final String groupName;
-  final List<GalleryImage?> images;
+  final List<Widget> images;
   final VoidCallback onTap;
   final IconData? emptyIcon;
   final VoidCallback? onLongPress;
@@ -209,10 +215,7 @@ class GridGroup extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(8),
-              ),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceVariant, borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.all(UIConfig.downloadPageGridViewGroupPadding),
               child: images.isEmpty
                   ? Center(child: Icon(emptyIcon ?? Icons.folder, size: 32))
@@ -249,17 +252,6 @@ class GridGroup extends StatelessWidget {
     if (images.length <= index) {
       return const SizedBox();
     }
-
-    if (images[index] == null) {
-      return Center(
-        child: LoadingAnimationWidget.horizontalRotatingDots(color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800, size: 16),
-      );
-    }
-
-    return EHImage.autoLayout(
-      galleryImage: images[index]!,
-      fit: BoxFit.cover,
-      borderRadius: BorderRadius.circular(8),
-    );
+    return images[index];
   }
 }

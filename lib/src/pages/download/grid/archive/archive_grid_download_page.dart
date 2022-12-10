@@ -12,7 +12,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
   ArchiveGridDownloadPage({Key? key}) : super(key: key);
 
   @override
-  DownloadPageGalleryType galleryType = DownloadPageGalleryType.archive;
+  final DownloadPageGalleryType galleryType = DownloadPageGalleryType.archive;
   @override
   final ArchiveGridDownloadPageLogic logic = Get.put<ArchiveGridDownloadPageLogic>(ArchiveGridDownloadPageLogic(), permanent: true);
   @override
@@ -25,7 +25,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
 
     return GridGroup(
       groupName: groupName,
-      images: archives.map((archive) => GalleryImage(url: archive.coverUrl)).toList(),
+      images: archives.map((archive) => buildGroupInnerImage(GalleryImage(url: archive.coverUrl))).toList(),
       onTap: () => logic.enterGroup(groupName),
       onLongPress: () => logic.handleLongPressGroup(groupName),
       onSecondTap: () => logic.handleLongPressGroup(groupName),
@@ -36,7 +36,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
   Widget galleryBuilder(BuildContext context, List galleryObjects, int index) {
     return GridGallery(
       title: galleryObjects[index].title,
-      cover: GalleryImage(url: galleryObjects[index].coverUrl),
+      cover: buildGalleryImage(GalleryImage(url: galleryObjects[index].coverUrl)),
       onTapCover: () => logic.goToReadPage(galleryObjects[index]),
       onTapTitle: () => logic.goToDetailPage(index),
       onLongPress: () => logic.showArchiveBottomSheet(galleryObjects[index], context),
