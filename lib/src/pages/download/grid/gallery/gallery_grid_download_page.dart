@@ -55,12 +55,15 @@ class GalleryGridDownloadPage extends GridBasePage {
                     return cover;
                   }
 
-                  return Blur(
-                    blur: 1,
-                    blurColor: Colors.black,
-                    colorOpacity: 0.6,
-                    child: cover,
-                    overlay: const Icon(Icons.download),
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Blur(
+                      blur: 1,
+                      blurColor: Colors.black,
+                      colorOpacity: 0.6,
+                      child: cover,
+                      overlay: const Icon(Icons.download),
+                    ),
                   );
                 },
               ),
@@ -101,7 +104,10 @@ class GalleryGridDownloadPage extends GridBasePage {
           GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]!.speedComputer;
           return Stack(
             children: [
-              Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+              ),
               Center(
                 child: GetBuilder<GalleryDownloadService>(
                   id: '${logic.downloadService.galleryDownloadProgressId}::${galleryObjects[index].gid}',

@@ -43,12 +43,15 @@ class ArchiveGridDownloadPage extends GridBasePage {
                   return cover;
                 }
 
-                return Blur(
-                  blur: 1,
-                  blurColor: Colors.black,
-                  colorOpacity: 0.6,
-                  child: cover,
-                  overlay: const Icon(Icons.download),
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Blur(
+                    blur: 1,
+                    blurColor: Colors.black,
+                    colorOpacity: 0.6,
+                    child: cover,
+                    overlay: const Icon(Icons.download),
+                  ),
                 );
               },
             ),
@@ -77,7 +80,10 @@ class ArchiveGridDownloadPage extends GridBasePage {
 
           return Stack(
             children: [
-              Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+              ),
               Center(
                 child: GetBuilder<ArchiveDownloadService>(
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
