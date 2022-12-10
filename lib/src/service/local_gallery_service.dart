@@ -47,7 +47,7 @@ class LocalGalleryParseResult {
 }
 
 /// Load galleries in download directory but is not downloaded by JHenTai
-class LocalGalleryService extends GetxController with GridBasePageServiceMixin{
+class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   static const String rootPath = '';
 
   LoadingState loadingState = LoadingState.idle;
@@ -230,6 +230,8 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin{
         return ehvMetadata.readAsLines().then((lines) {
           gid = int.tryParse(lines[2]);
           token = lines[3];
+        }).catchError((e) {
+          Log.error('Read Ehviewer metadata error!', e);
         });
       }
     }).then((_) {
