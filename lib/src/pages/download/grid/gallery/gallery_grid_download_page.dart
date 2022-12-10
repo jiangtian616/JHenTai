@@ -34,21 +34,36 @@ class GalleryGridDownloadPage extends GridBasePage {
           .sublist(0, min(GridGroup.maxWidgetCount, gallerys.length))
           .map(
             (gallery) => GetBuilder<GalleryDownloadService>(
-              id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
-              builder: (_) {
-                GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+              id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
+              builder: (_) => GetBuilder<GalleryDownloadService>(
+                id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
+                builder: (_) {
+                  GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
-                if (image?.downloadStatus != DownloadStatus.downloaded) {
-                  return Center(
-                    child: LoadingAnimationWidget.horizontalRotatingDots(
-                      color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800,
-                      size: 16,
-                    ),
+                  if (image == null) {
+                    return Center(
+                      child: LoadingAnimationWidget.horizontalRotatingDots(
+                        color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800,
+                        size: 16,
+                      ),
+                    );
+                  }
+
+                  Widget cover = buildGroupInnerImage(image);
+
+                  if (logic.downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+                    return cover;
+                  }
+
+                  return Blur(
+                    blur: 1,
+                    blurColor: Colors.black,
+                    colorOpacity: 0.6,
+                    child: cover,
+                    overlay: const Icon(Icons.download),
                   );
-                }
-
-                return buildGroupInnerImage(image!);
-              },
+                },
+              ),
             ),
           )
           .toList(),

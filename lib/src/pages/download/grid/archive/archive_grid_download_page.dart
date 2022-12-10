@@ -33,7 +33,26 @@ class ArchiveGridDownloadPage extends GridBasePage {
       groupName: groupName,
       widgets: archives
           .sublist(0, min(GridGroup.maxWidgetCount, archives.length))
-          .map((archive) => buildGroupInnerImage(GalleryImage(url: archive.coverUrl)))
+          .map(
+            (archive) => GetBuilder<ArchiveDownloadService>(
+              id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+              builder: (_) {
+                Widget cover = buildGroupInnerImage(GalleryImage(url: archive.coverUrl));
+
+                if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+                  return cover;
+                }
+
+                return Blur(
+                  blur: 1,
+                  blurColor: Colors.black,
+                  colorOpacity: 0.6,
+                  child: cover,
+                  overlay: const Icon(Icons.download),
+                );
+              },
+            ),
+          )
           .toList(),
       onTap: () => logic.enterGroup(groupName),
       onLongPress: () => logic.handleLongPressGroup(groupName),
