@@ -71,19 +71,33 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
                 key: PageStorageKey(state.currentGroup),
                 controller: state.scrollController,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                gridDelegate: StyleSetting.crossAxisCountInGridDownloadPage.value == null
-                    ? const SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
-                        mainAxisSpacing: 24,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
-                      )
-                    : SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPage.value!,
-                        mainAxisSpacing: 24,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
-                      ),
+                gridDelegate: state.isAtRoot
+                    ? StyleSetting.crossAxisCountInGridDownloadPageForGroup.value == null
+                        ? const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
+                            mainAxisSpacing: 24,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                          )
+                        : SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPageForGroup.value!,
+                            mainAxisSpacing: 24,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                          )
+                    : StyleSetting.crossAxisCountInGridDownloadPageForGallery.value == null
+                        ? const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
+                            mainAxisSpacing: 24,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                          )
+                        : SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPageForGallery.value!,
+                            mainAxisSpacing: 24,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
+                          ),
                 itemCount: itemCount(),
                 itemBuilder: itemBuilder,
               ),
