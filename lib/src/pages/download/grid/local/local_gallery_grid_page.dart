@@ -88,6 +88,7 @@ class LocalGalleryGridPage extends GridBasePage {
           galleryObjects[index].isFromEHViewer ? () => logic.goToDetailPage(galleryObjects[index]) : () => logic.goToReadPage(galleryObjects[index]),
       onLongPress: () => logic.showBottomSheet(galleryObjects[index], context),
       onSecondTap: () => logic.showBottomSheet(galleryObjects[index], context),
+      onTertiaryTap: galleryObjects[index].isFromEHViewer ? () => logic.goToDetailPage(galleryObjects[index]) : () => logic.goToReadPage(galleryObjects[index]),
     );
   }
 }

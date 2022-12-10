@@ -74,6 +74,7 @@ class GalleryGridDownloadPage extends GridBasePage {
       onTapTitle: () => logic.goToDetailPage(index),
       onLongPress: () => logic.showBottomSheet(galleryObjects[index], context),
       onSecondTap: () => logic.showBottomSheet(galleryObjects[index], context),
+      onTertiaryTap: () => logic.goToDetailPage(index),
     );
   }
 }

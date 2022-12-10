@@ -41,6 +41,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
       onTapTitle: () => logic.goToDetailPage(index),
       onLongPress: () => logic.showArchiveBottomSheet(galleryObjects[index], context),
       onSecondTap: () => logic.showArchiveBottomSheet(galleryObjects[index], context),
+      onTertiaryTap: () => logic.goToDetailPage(index),
     );
   }
 }

@@ -154,6 +154,7 @@ class GridGallery extends StatelessWidget {
   final VoidCallback onTapTitle;
   final VoidCallback onLongPress;
   final VoidCallback onSecondTap;
+  final VoidCallback onTertiaryTap;
 
   const GridGallery({
     Key? key,
@@ -163,13 +164,16 @@ class GridGallery extends StatelessWidget {
     required this.onTapTitle,
     required this.onLongPress,
     required this.onSecondTap,
+    required this.onTertiaryTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onLongPress: onLongPress,
       onSecondaryTap: onSecondTap,
+      onTertiaryTapDown: (_) => onTertiaryTap(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
