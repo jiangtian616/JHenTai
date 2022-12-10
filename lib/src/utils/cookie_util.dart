@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 
 import 'log.dart';
 
@@ -8,10 +9,10 @@ class CookieUtil {
   static List<Cookie> parse2Cookies(String? cookiesString) {
     return callWithParamsUploadIfErrorOccurs(
       () {
-        if (cookiesString == null) {
+        if (isEmptyOrNull(cookiesString)) {
           return <Cookie>[];
         }
-        return cookiesString.split(';').map((pair) {
+        return cookiesString!.split(';').map((pair) {
           List<String> nameAndValue = pair.trim().split('=');
           if (nameAndValue.length < 2) {
             Log.error('parse2Cookies error: $cookiesString');
