@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_la
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
+import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 
 import '../../config/ui_config.dart';
 import '../../routes/routes.dart';
@@ -45,33 +46,36 @@ class ReadPage extends StatelessWidget {
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: EHKeyboardListener(
-        focusNode: state.focusNode,
-        handleEsc: backRoute,
-        handleSpace: logic.toggleMenu,
-        handlePageDown: logic.toNext,
-        handlePageUp: logic.toPrev,
-        handleArrowDown: logic.toNext,
-        handleArrowUp: logic.toPrev,
-        handleArrowRight: logic.toRight,
-        handleArrowLeft: logic.toLeft,
-        handleA: logic.toLeft,
-        handleD: logic.toRight,
-        handleEnd: backRoute,
-        child: DefaultTextStyle(
-          style: DefaultTextStyle.of(context).style.copyWith(
-                color: Colors.white,
-                fontSize: 12,
-                decoration: TextDecoration.none,
-              ),
-          child: Stack(
-            children: [
-              buildLayout(),
-              buildRightBottomInfo(context),
-              buildGestureRegion(),
-              buildTopMenu(context),
-              buildBottomMenu(context),
-            ],
+      child: EHMouseButtonListener(
+        onFifthButtonTapDown: (_) => backRoute(),
+        child: EHKeyboardListener(
+          focusNode: state.focusNode,
+          handleEsc: backRoute,
+          handleSpace: logic.toggleMenu,
+          handlePageDown: logic.toNext,
+          handlePageUp: logic.toPrev,
+          handleArrowDown: logic.toNext,
+          handleArrowUp: logic.toPrev,
+          handleArrowRight: logic.toRight,
+          handleArrowLeft: logic.toLeft,
+          handleA: logic.toLeft,
+          handleD: logic.toRight,
+          handleEnd: backRoute,
+          child: DefaultTextStyle(
+            style: DefaultTextStyle.of(context).style.copyWith(
+                  color: Colors.white,
+                  fontSize: 12,
+                  decoration: TextDecoration.none,
+                ),
+            child: Stack(
+              children: [
+                buildLayout(),
+                buildRightBottomInfo(context),
+                buildGestureRegion(),
+                buildTopMenu(context),
+                buildBottomMenu(context),
+              ],
+            ),
           ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
+import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 
 import '../../utils/route_util.dart';
 
@@ -12,15 +13,18 @@ class SingleImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EHKeyboardListener(
-      handleEsc: () => backRoute(currentRoute: Routes.singleImagePage),
-      child: ExtendedImageSlidePage(
-        resetPageDuration: const Duration(milliseconds: 200),
-        slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
-        child: EHImage(
-          galleryImage: Get.arguments,
-          enableSlideOutPage: true,
-          heroTag: Get.arguments,
+    return EHMouseButtonListener(
+      onFifthButtonTapDown: (_) => backRoute(currentRoute: Routes.singleImagePage),
+      child: EHKeyboardListener(
+        handleEsc: () => backRoute(currentRoute: Routes.singleImagePage),
+        child: ExtendedImageSlidePage(
+          resetPageDuration: const Duration(milliseconds: 200),
+          slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
+          child: EHImage(
+            galleryImage: Get.arguments,
+            enableSlideOutPage: true,
+            heroTag: Get.arguments,
+          ),
         ),
       ),
     );
