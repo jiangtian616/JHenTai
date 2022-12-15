@@ -148,7 +148,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   void showBottomMenuInLocalMode(int index, BuildContext context) {
-    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 
