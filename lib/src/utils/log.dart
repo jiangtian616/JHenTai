@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
@@ -207,6 +208,9 @@ class Log {
       return true;
     }
     if (throwable is DioError && throwable.message.contains('HandshakeException')) {
+      return true;
+    }
+    if (throwable is TimeoutException && (throwable.message?.contains('Executor is closing') ?? false)) {
       return true;
     }
     return false;
