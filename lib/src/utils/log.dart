@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' as io;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -22,9 +21,9 @@ class Log {
   static Logger? _verboseFileLogger;
   static Logger? _warningFileLogger;
   static Logger? _downloadFileLogger;
-  static late io.File _verboseLogFile;
-  static late io.File _waringLogFile;
-  static late io.File _downloadLogFile;
+  static late File _verboseLogFile;
+  static late File _waringLogFile;
+  static late File _downloadLogFile;
 
   static final String logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
 
@@ -33,8 +32,8 @@ class Log {
       return;
     }
 
-    if (!io.Directory(logDirPath).existsSync()) {
-      io.Directory(logDirPath).createSync();
+    if (!Directory(logDirPath).existsSync()) {
+      Directory(logDirPath).createSync();
     }
 
     LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
@@ -43,16 +42,16 @@ class Log {
 
     _consoleLogger = Logger(printer: devPrinter);
 
-    _verboseLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'));
+    _verboseLogFile = File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'));
     _verboseFileLogger = Logger(
       printer: HybridPrinter(prodPrinterWithBox, verbose: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: EHLogFilter(),
-      output: FileOutput(file: io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
+      output: FileOutput(file: File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
     );
     PrettyPrinter.levelEmojis[Level.verbose] = '✔ ';
 
     if (AdvancedSetting.enableVerboseLogging.isTrue) {
-      _waringLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'));
+      _waringLogFile = File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'));
       _warningFileLogger = Logger(
         level: Level.warning,
         printer: prodPrinterWithBox,
@@ -60,7 +59,7 @@ class Log {
         output: FileOutput(file: _waringLogFile),
       );
 
-      _downloadLogFile = io.File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'));
+      _downloadLogFile = File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'));
       _downloadFileLogger = Logger(
         printer: prodPrinterWithoutBox,
         filter: ProductionFilter(),
@@ -152,14 +151,14 @@ class Log {
   }
 
   static String getSize() {
-    io.Directory logDirectory = io.Directory(logDirPath);
+    Directory logDirectory = Directory(logDirPath);
     if (!logDirectory.existsSync()) {
       return '0KB';
     }
 
     int totalBytes = -1;
     try {
-      totalBytes = logDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+      totalBytes = logDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
     } on Exception catch (e) {
       Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
     }
@@ -182,10 +181,15 @@ class Log {
     _warningFileLogger = null;
     _downloadFileLogger = null;
 
-    io.Directory logDirectory = io.Directory('${PathSetting.getVisibleDir().uri.toFilePath()}logs/');
-    if (logDirectory.existsSync()) {
-      logDirectory.deleteSync(recursive: true);
-    }
+    /// need to wait for log file close
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      () {
+        if (Directory(logDirPath).existsSync()) {
+          Directory(logDirPath).deleteSync(recursive: true);
+        }
+      },
+    );
   }
 
   static bool _shouldDismissUpload(throwable) {

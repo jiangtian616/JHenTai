@@ -34,9 +34,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildEnableLogging(),
             if (AdvancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
             _buildOpenLogs(),
-
-            /// Can't delete file that file is being used on Windows
-            if (!GetPlatform.isWindows) _buildClearLogs(),
+            _buildClearLogs(),
             _buildClearImageCache(),
             _buildClearNetworkCache(),
             _buildCheckUpdate(),
@@ -78,9 +76,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumeButtonColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () {
         Log.clear();
-        setState(() {
-          toast('clearSuccess'.tr, isCenter: false);
-        });
+        toast('clearSuccess'.tr, isCenter: false);
+        Future.delayed(
+          const Duration(milliseconds: 600),
+          () => setState(() {}),
+        );
       },
     );
   }
