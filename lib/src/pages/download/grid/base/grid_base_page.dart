@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
-import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
@@ -70,7 +69,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
               () => GridView.builder(
                 key: PageStorageKey(state.currentGroup),
                 controller: state.scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24),
                 gridDelegate: state.isAtRoot
                     ? StyleSetting.crossAxisCountInGridDownloadPageForGroup.value == null
                         ? const SliverGridDelegateWithMaxCrossAxisExtent(
