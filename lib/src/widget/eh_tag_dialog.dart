@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,10 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: Text('${widget.tagData.namespace}:${widget.tagData.key}'),
+      title: GestureDetector(
+        child: Text('${widget.tagData.namespace}:${widget.tagData.key}'),
+        onTap: () => FlutterClipboard.copy('${widget.tagData.namespace}:${widget.tagData.key}').then((_) => toast('hasCopiedToClipboard'.tr)),
+      ),
       contentPadding: const EdgeInsets.only(left: 12, right: 12, bottom: 12, top: 12),
       children: [
         if (widget.tagData.tagName != null) ...[
