@@ -8,8 +8,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_save/image_save.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
@@ -135,12 +137,20 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('save'.tr),
+            child: Text('${'save'.tr}(${'resampleImage'.tr})'),
             onPressed: () async {
               backRoute();
               saveOnlineImage(index);
             },
           ),
+          if (readPageState.images[index]!.originalImageUrl != null && UserSetting.hasLoggedIn())
+            CupertinoActionSheetAction(
+              child: Text('${'save'.tr}(${'originalImage'.tr})'),
+              onPressed: () async {
+                backRoute();
+                saveOriginalOnlineImage(index);
+              },
+            ),
         ],
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
@@ -244,6 +254,31 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     _saveImage2Album(data, basename(readPageState.images[index]!.url)).then((_) => toast('success'.tr));
+  }
+
+  Future<void> saveOriginalOnlineImage(int index) async {
+    if (readPageState.images[index] == null) {
+      return;
+    }
+
+    if (readPageState.images[index]!.originalImageUrl == null || !UserSetting.hasLoggedIn()) {
+      return saveOnlineImage(index);
+    }
+
+    String downloadPath = join(DownloadSetting.singleImageSavePath.value, basename(readPageState.images[index]!.url));
+
+    toast('downloading'.tr);
+    await EHRequest.download(
+      url: readPageState.images[index]!.originalImageUrl!,
+      path: downloadPath,
+      receiveTimeout: 0,
+    );
+
+    if (GetPlatform.isDesktop) {
+      toast('success'.tr);
+    } else {
+      _saveImage2Album(File(downloadPath).readAsBytesSync(), basename(readPageState.images[index]!.url)).then((_) => toast('success'.tr));
+    }
   }
 
   void saveLocalImage(int index) {

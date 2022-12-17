@@ -321,10 +321,19 @@ class EHSpiderParser {
       );
     }
 
+    Element? originalImg = document.querySelector('#i7 > a');
+    String? originalImgHref = originalImg?.attributes['href'];
+    RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
+    double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
+    double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
+
     return GalleryImage(
       url: url,
       height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
       width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
+      originalImageUrl: originalImgHref,
+      originalImageWidth: originalImgWidth,
+      originalImageHeight: originalImgHeight,
       imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
     );
   }
