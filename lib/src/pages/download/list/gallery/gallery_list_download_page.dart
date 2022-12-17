@@ -56,7 +56,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody() {
     return GetBuilder<GalleryDownloadService>(
-      id: logic.downloadService.galleryCountOrOrderChangedId,
+      id: logic.downloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<GalleryListDownloadPageLogic>(
         id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(

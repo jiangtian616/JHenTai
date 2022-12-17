@@ -373,6 +373,7 @@ class zh_TW {
       'renameGroup': '重命名分組',
       'deleteGroup': '刪除分組',
       'groupName': '分組名稱',
+      'drag2sort': '拖拽以排序',
 
       /// search dialog
       'searchConfig': '搜尋設定',

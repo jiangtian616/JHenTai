@@ -374,6 +374,7 @@ class zh_CN {
       'renameGroup': '重命名分组',
       'deleteGroup': '删除分组',
       'groupName': '分组名称',
+      'drag2sort': '拖拽以排序',
 
       /// search dialog
       'searchConfig': '搜索配置',

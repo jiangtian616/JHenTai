@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart';
 
 import '../../../../setting/style_setting.dart';
@@ -43,33 +45,19 @@ class LocalGalleryGridPage extends GridBasePage {
   }
 
   @override
-  int itemCount() {
-    return logic.computeItemCount();
+  List<DraggableGridItem> getChildren(BuildContext context) {
+    return logic.isAtRootPath
+        ? logic.localGalleryService.rootDirectories.map((dir) => DraggableGridItem(child: groupBuilder(context, dir, false))).toList()
+        : [
+            DraggableGridItem(child: ReturnWidget(onTap: logic.backRoute)),
+            ...?logic.localGalleryService.path2SubDir[logic.currentPath]
+                ?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
+            ...state.currentGalleryObjects.map((gallery) => DraggableGridItem(child: galleryBuilder(context, gallery, false))),
+          ];
   }
 
   @override
-  Widget itemBuilder(context, index) {
-    if (state.isAtRoot) {
-      return groupBuilder(context, index);
-    }
-
-    if (index == 0) {
-      return ReturnWidget(onTap: logic.backRoute);
-    }
-
-    index--;
-
-    if (index < logic.computeCurrentDirectoryCount()) {
-      return groupBuilder(context, index);
-    }
-
-    return galleryBuilder(context, state.currentGalleryObjects, index - logic.computeCurrentDirectoryCount());
-  }
-
-  @override
-  Widget groupBuilder(BuildContext context, int index) {
-    String groupName = logic.computeChildPath(index);
-
+  GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
     return GridGroup(
       groupName: logic.transformDisplayPath(logic.isAtRootPath ? groupName : relative(groupName, from: state.currentGroup)),
       widgets: [],
@@ -79,16 +67,15 @@ class LocalGalleryGridPage extends GridBasePage {
   }
 
   @override
-  Widget galleryBuilder(BuildContext context, List galleryObjects, int index) {
+  GridGallery galleryBuilder(BuildContext context, LocalGallery gallery, bool inEditMode) {
     return GridGallery(
-      title: galleryObjects[index].title,
-      widget: buildGalleryImage(galleryObjects[index].cover),
-      onTapWidget: () => logic.goToReadPage(galleryObjects[index]),
-      onTapTitle:
-          galleryObjects[index].isFromEHViewer ? () => logic.goToDetailPage(galleryObjects[index]) : () => logic.goToReadPage(galleryObjects[index]),
-      onLongPress: () => logic.showBottomSheet(galleryObjects[index], context),
-      onSecondTap: () => logic.showBottomSheet(galleryObjects[index], context),
-      onTertiaryTap: galleryObjects[index].isFromEHViewer ? () => logic.goToDetailPage(galleryObjects[index]) : () => logic.goToReadPage(galleryObjects[index]),
+      title: gallery.title,
+      widget: buildGalleryImage(gallery.cover),
+      onTapWidget: () => logic.goToReadPage(gallery),
+      onTapTitle: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : () => logic.goToReadPage(gallery),
+      onLongPress: () => logic.showBottomSheet(gallery, context),
+      onSecondTap: () => logic.showBottomSheet(gallery, context),
+      onTertiaryTap: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : () => logic.goToReadPage(gallery),
     );
   }
 }

@@ -59,7 +59,8 @@ where gid = :gid
 
 selectArchiveGroups:
 SELECT *
-FROM archive_group;
+FROM archive_group
+ORDER BY sortOrder;
 
 insertArchiveGroup:
 insert into archive_group(groupName)

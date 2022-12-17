@@ -493,6 +493,15 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.3.0"
+  flutter_draggable_gridview:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "7879d26be9f39895d434c0988898ea73ae1b35d9"
+      url: "https://github.com/jiangtian616/flutter_draggable_gridview"
+    source: git
+    version: "0.0.7"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:

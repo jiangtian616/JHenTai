@@ -25,8 +25,7 @@ class GalleryGridDownloadPage extends GridBasePage {
   final GalleryGridDownloadPageState state = Get.find<GalleryGridDownloadPageLogic>().state;
 
   @override
-  Widget groupBuilder(BuildContext context, int index) {
-    String groupName = state.allRootGroups[index];
+  GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
     List<GalleryDownloadedData> gallerys = state.galleryObjectsWithGroup(groupName);
     return GridGroup(
       groupName: groupName,
@@ -70,23 +69,23 @@ class GalleryGridDownloadPage extends GridBasePage {
             ),
           )
           .toList(),
-      onTap: () => logic.enterGroup(groupName),
-      onLongPress: () => logic.handleLongPressGroup(groupName),
-      onSecondTap: () => logic.handleLongPressGroup(groupName),
+      onTap: inEditMode ? null : () => logic.enterGroup(groupName),
+      onLongPress: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
+      onSecondTap: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
     );
   }
 
   @override
-  Widget galleryBuilder(BuildContext context, List galleryObjects, int index) {
+  GridGallery galleryBuilder(BuildContext context, GalleryDownloadedData gallery, bool inEditMode) {
     return GridGallery(
-      title: galleryObjects[index].title,
+      title: gallery.title,
       widget: GetBuilder<GalleryDownloadService>(
-        id: '${logic.downloadService.galleryDownloadSuccessId}::${galleryObjects[index].gid}',
+        id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
         builder: (_) {
           Widget cover = GetBuilder<GalleryDownloadService>(
-            id: '${logic.downloadService.downloadImageUrlId}::${galleryObjects[index].gid}::0',
+            id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
             builder: (_) {
-              GalleryImage? image = logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]?.images[0];
+              GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
               if (image?.downloadStatus != DownloadStatus.downloaded) {
                 return const Center();
@@ -96,12 +95,12 @@ class GalleryGridDownloadPage extends GridBasePage {
             },
           );
 
-          if (logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+          if (logic.downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
             return cover;
           }
 
-          GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]!.downloadProgress;
-          GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[galleryObjects[index].gid]!.speedComputer;
+          GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
+          GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
           return Stack(
             children: [
               ClipRRect(
@@ -110,7 +109,7 @@ class GalleryGridDownloadPage extends GridBasePage {
               ),
               Center(
                 child: GetBuilder<GalleryDownloadService>(
-                  id: '${logic.downloadService.galleryDownloadProgressId}::${galleryObjects[index].gid}',
+                  id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
                   builder: (_) => ConstrainedBox(
                     constraints: const BoxConstraints(
                       minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
@@ -126,7 +125,7 @@ class GalleryGridDownloadPage extends GridBasePage {
               ),
               Center(
                 child: GetBuilder<GalleryDownloadService>(
-                  id: '${logic.downloadService.galleryDownloadProgressId}::${galleryObjects[index].gid}',
+                  id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
                   builder: (_) => Text(
                     '${downloadProgress.curCount} / ${downloadProgress.totalCount}',
                     style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
@@ -136,15 +135,15 @@ class GalleryGridDownloadPage extends GridBasePage {
               GestureDetector(
                 onTap: () {
                   downloadProgress.downloadStatus == DownloadStatus.paused
-                      ? logic.downloadService.resumeDownloadGallery(galleryObjects[index])
-                      : logic.downloadService.pauseDownloadGallery(galleryObjects[index]);
+                      ? logic.downloadService.resumeDownloadGallery(gallery)
+                      : logic.downloadService.pauseDownloadGallery(gallery);
                 },
                 child: Center(
                   child: GetBuilder<GalleryDownloadService>(
-                    id: '${logic.downloadService.galleryDownloadProgressId}::${galleryObjects[index].gid}',
+                    id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
                     builder: (_) => downloadProgress.downloadStatus == DownloadStatus.downloading
                         ? GetBuilder<GalleryDownloadService>(
-                            id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${galleryObjects[index].gid}',
+                            id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
                             builder: (_) => Text(
                               speedComputer.speed,
                               style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
@@ -161,11 +160,11 @@ class GalleryGridDownloadPage extends GridBasePage {
           );
         },
       ),
-      onTapWidget: () => logic.goToReadPage(galleryObjects[index]),
-      onTapTitle: () => logic.goToDetailPage(index),
-      onLongPress: () => logic.showBottomSheet(galleryObjects[index], context),
-      onSecondTap: () => logic.showBottomSheet(galleryObjects[index], context),
-      onTertiaryTap: () => logic.goToDetailPage(index),
+      onTapWidget: inEditMode ? null : () => logic.goToReadPage(gallery),
+      onTapTitle: inEditMode ? null : () => logic.goToDetailPage(gallery),
+      onLongPress: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
+      onSecondTap: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
+      onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(gallery),
     );
   }
 }

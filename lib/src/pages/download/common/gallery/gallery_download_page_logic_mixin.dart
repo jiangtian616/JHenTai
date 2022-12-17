@@ -91,7 +91,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
   }
 
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
-    downloadService.update([downloadService.galleryCountOrOrderChangedId]);
+    downloadService.update([downloadService.galleryCountChangedId]);
   }
 
   void handleAssignPriority(GalleryDownloadedData gallery, int? priority) {

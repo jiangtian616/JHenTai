@@ -41,7 +41,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
       return;
     }
 
-    await archiveDownloadService.updateGroup(archive, newGroup);
+    await archiveDownloadService.updateArchiveGroup(archive, newGroup);
     update([bodyId]);
   }
 
@@ -90,7 +90,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
   }
 
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    archiveDownloadService.update([archiveDownloadService.galleryCountOrOrderChangedId]);
+    archiveDownloadService.update([archiveDownloadService.galleryCountChangedId]);
   }
 
   void goToReadPage(ArchiveDownloadedData archive) {

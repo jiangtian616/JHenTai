@@ -375,6 +375,7 @@ class en_US {
       'renameGroup': 'Rename Group',
       'deleteGroup': 'Delete Group',
       'groupName': 'Group Name',
+      'drag2sort': 'Drag to Sort',
 
       /// search dialog
       'searchConfig': 'Search Config',

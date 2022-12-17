@@ -59,7 +59,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
-      id: logic.archiveDownloadService.galleryCountOrOrderChangedId,
+      id: logic.archiveDownloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
         id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(

@@ -377,6 +377,7 @@ class pt_BR {
       'renameGroup': 'Renomear grupo',
       'deleteGroup': 'Apagar grupo',
       'groupName': 'Nome do grupo',
+      'drag2sort': 'Drag to Sort',
 
       /// search dialog
       'searchConfig': 'Opções de pesquisa',

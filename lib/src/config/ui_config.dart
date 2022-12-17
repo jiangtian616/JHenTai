@@ -165,6 +165,9 @@ class UIConfig {
   static const double downloadPageGridViewInfoTextSize = 12;
   static const double downloadPageGridViewSpeedTextSize = 8;
   static const double downloadPageGridViewCircularProgressSize = 40;
+
+  static Color get downloadPageGridGroupColor => Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200;
+
   /// Search page
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;

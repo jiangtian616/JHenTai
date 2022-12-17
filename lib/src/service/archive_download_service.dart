@@ -195,13 +195,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     downloadArchive(archive, resume: true);
   }
 
-  Future<bool> updateGroup(ArchiveDownloadedData archive, String group) async {
+  Future<bool> updateArchiveGroup(ArchiveDownloadedData archive, String group) async {
     archiveDownloadInfos[archive.gid]?.group = group;
 
     if (!allGroups.contains(group) && !await _addGroup(group)) {
       return false;
     }
-    _sortArchivesAndGroups();
+    _sortArchives();
 
     return _updateArchiveInDatabase(archive);
   }
@@ -210,8 +210,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     List<ArchiveDownloadedData> archiveDownloadedDatas = archives.where((a) => archiveDownloadInfos[a.gid]!.group == oldGroup).toList();
 
     await appDb.transaction(() async {
-      if (!allGroups.contains(newGroup) && !await _addGroup(newGroup)) {
-        return;
+      if (!allGroups.contains(newGroup)) {
+        int index = allGroups.indexOf(oldGroup);
+        allGroups[index] = newGroup;
+        await appDb.insertArchiveGroup(newGroup);
+        await appDb.updateArchiveGroupOrder(index, newGroup);
       }
 
       for (ArchiveDownloadedData a in archiveDownloadedDatas) {
@@ -222,7 +225,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       await deleteGroup(oldGroup);
     });
 
-    _sortArchivesAndGroups();
+    _sortArchives();
   }
 
   Future<bool> deleteGroup(String group) async {
@@ -234,6 +237,33 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       Log.info(e);
       return false;
     }
+  }
+
+  Future<void> updateArchiveOrder(List<ArchiveDownloadedData> archives) async {
+    await appDb.transaction(() async {
+      for (ArchiveDownloadedData archive in archives) {
+        await _updateArchiveInDatabase(archive);
+      }
+    });
+
+    _sortArchives();
+  }
+
+  Future<void> updateGroupOrder(int beforeIndex, int afterIndex) async {
+    if (afterIndex == allGroups.length - 1) {
+      allGroups.add(allGroups.removeAt(beforeIndex));
+    } else {
+      allGroups.insert(afterIndex, allGroups.removeAt(beforeIndex));
+    }
+
+    await appDb.transaction(() async {
+      for (int i = 0; i < allGroups.length; i++) {
+        try {
+          await appDb.insertArchiveGroup(allGroups[i]);
+        } on SqliteException catch (_) {}
+        await appDb.updateArchiveGroupOrder(i, allGroups[i]);
+      }
+    });
   }
 
   /// Use meta in each archive folder to restore download tasks, then sync to database.
@@ -338,20 +368,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return null;
   }
 
-  void _sortArchivesAndGroups() {
-    allGroups.sort((a, b) {
-      if (!(a == 'default'.tr && b == 'default'.tr)) {
-        if (a == 'default'.tr) {
-          return 1;
-        }
-        if (b == 'default'.tr) {
-          return -1;
-        }
-      }
-
-      return a.compareTo(b);
-    });
-
+  void _sortArchives() {
     archives.sort((a, b) {
       ArchiveDownloadInfo aInfo = archiveDownloadInfos[a.gid]!;
       ArchiveDownloadInfo bInfo = archiveDownloadInfos[b.gid]!;
@@ -660,7 +677,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     try {
-      return (await appDb.insertGalleryGroup(group) > 0);
+      return (await appDb.insertArchiveGroup(group) > 0);
     } on SqliteException catch (e) {
       Log.debug(e);
       return false;
@@ -740,8 +757,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       group: archive.groupName ?? 'default'.tr,
     );
 
-    _sortArchivesAndGroups();
-    update([galleryCountOrOrderChangedId, '$archiveStatusId::::${archive.gid}']);
+    _sortArchives();
+    update([galleryCountChangedId, '$archiveStatusId::::${archive.gid}']);
   }
 
   void _deleteArchiveInMemory(int gid, bool isOriginal) {
@@ -751,7 +768,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     archiveDownloadInfo?.cancelToken.cancel();
     archiveDownloadInfo?.speedComputer.dispose();
 
-    update([galleryCountOrOrderChangedId]);
+    update([galleryCountChangedId]);
   }
 
   // DISK

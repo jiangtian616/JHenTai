@@ -25,8 +25,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
   final ArchiveGridDownloadPageState state = Get.find<ArchiveGridDownloadPageLogic>().state;
 
   @override
-  Widget groupBuilder(BuildContext context, int index) {
-    String groupName = state.allRootGroups[index];
+  GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
     List<ArchiveDownloadedData> archives = state.galleryObjectsWithGroup(groupName);
 
     return GridGroup(
@@ -57,26 +56,26 @@ class ArchiveGridDownloadPage extends GridBasePage {
             ),
           )
           .toList(),
-      onTap: () => logic.enterGroup(groupName),
-      onLongPress: () => logic.handleLongPressGroup(groupName),
-      onSecondTap: () => logic.handleLongPressGroup(groupName),
+      onTap: inEditMode ? null : () => logic.enterGroup(groupName),
+      onLongPress: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
+      onSecondTap: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
     );
   }
 
   @override
-  Widget galleryBuilder(BuildContext context, List galleryObjects, int index) {
+  GridGallery galleryBuilder(BuildContext context, ArchiveDownloadedData archive, bool inEditMode) {
     return GridGallery(
-      title: galleryObjects[index].title,
+      title: archive.title,
       widget: GetBuilder<ArchiveDownloadService>(
-        id: '${ArchiveDownloadService.archiveStatusId}::${galleryObjects[index].gid}',
+        id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
         builder: (_) {
-          Widget cover = buildGalleryImage(GalleryImage(url: galleryObjects[index].coverUrl));
+          Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
 
-          if (logic.archiveDownloadService.archiveDownloadInfos[galleryObjects[index].gid]?.archiveStatus == ArchiveStatus.completed) {
+          if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
             return cover;
           }
 
-          ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[galleryObjects[index].gid]!;
+          ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
           return Stack(
             children: [
@@ -86,14 +85,14 @@ class ArchiveGridDownloadPage extends GridBasePage {
               ),
               Center(
                 child: GetBuilder<ArchiveDownloadService>(
-                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
+                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => ConstrainedBox(
                     constraints: const BoxConstraints(
                       minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
                       minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
                     ),
                     child: CircularProgressIndicator(
-                      value: archiveDownloadInfo.speedComputer.downloadedBytes / galleryObjects[index].size,
+                      value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
                       color: Colors.white,
                       backgroundColor: Colors.grey.shade800,
                     ),
@@ -102,24 +101,24 @@ class ArchiveGridDownloadPage extends GridBasePage {
               ),
               Center(
                 child: GetBuilder<ArchiveDownloadService>(
-                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
+                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => Text(
-                    '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(galleryObjects[index].size.toDouble())}',
+                    '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archive.size.toDouble())}',
                     style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
                   ),
                 ).marginOnly(top: 60),
               ),
               GestureDetector(
                 onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                    ? logic.archiveDownloadService.resumeDownloadArchive(galleryObjects[index])
-                    : logic.archiveDownloadService.pauseDownloadArchive(galleryObjects[index]),
+                    ? logic.archiveDownloadService.resumeDownloadArchive(archive)
+                    : logic.archiveDownloadService.pauseDownloadArchive(archive),
                 child: Center(
                   child: GetBuilder<ArchiveDownloadService>(
-                    id: '${ArchiveDownloadService.archiveStatusId}::${galleryObjects[index].gid}',
+                    id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
                     builder: (_) => archiveDownloadInfo.archiveStatus.index > ArchiveStatus.paused.index &&
                             archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index
                         ? GetBuilder<ArchiveDownloadService>(
-                            id: '${ArchiveDownloadService.archiveSpeedComputerId}::${galleryObjects[index].gid}::${galleryObjects[index].isOriginal}',
+                            id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                             builder: (_) => Text(
                               archiveDownloadInfo.speedComputer.speed,
                               style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
@@ -140,11 +139,11 @@ class ArchiveGridDownloadPage extends GridBasePage {
           );
         },
       ),
-      onTapWidget: () => logic.goToReadPage(galleryObjects[index]),
-      onTapTitle: () => logic.goToDetailPage(index),
-      onLongPress: () => logic.showArchiveBottomSheet(galleryObjects[index], context),
-      onSecondTap: () => logic.showArchiveBottomSheet(galleryObjects[index], context),
-      onTertiaryTap: () => logic.goToDetailPage(index),
+      onTapWidget: inEditMode ? null : () => logic.goToReadPage(archive),
+      onTapTitle: inEditMode ? null : () => logic.goToDetailPage(archive),
+      onLongPress: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
+      onSecondTap: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
+      onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(archive),
     );
   }
 }

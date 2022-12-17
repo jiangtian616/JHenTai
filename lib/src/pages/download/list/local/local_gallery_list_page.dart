@@ -54,7 +54,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody() {
     return GetBuilder<LocalGalleryService>(
-      id: logic.localGalleryService.galleryCountOrOrderChangedId,
+      id: logic.localGalleryService.galleryCountChangedId,
       builder: (_) => GetBuilder<LocalGalleryListPageLogic>(
         id: logic.bodyId,
         builder: (_) => LoadingStateIndicator(

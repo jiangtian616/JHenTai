@@ -137,7 +137,8 @@ where gid = :gid;
 
 selectGalleryGroups:
 SELECT *
-FROM gallery_group;
+FROM gallery_group
+ORDER BY sortOrder;
 
 insertGalleryGroup:
 insert into gallery_group(groupName)

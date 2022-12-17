@@ -82,7 +82,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     allGallerys.clear();
     path2GalleryDir.clear();
     path2SubDir.clear();
-    update([galleryCountOrOrderChangedId]);
+    update([galleryCountChangedId]);
 
     DateTime start = DateTime.now();
     return _loadGalleriesFromDisk().then((_) {
@@ -90,7 +90,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
         'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
       loadingState = LoadingState.success;
-      update([galleryCountOrOrderChangedId]);
+      update([galleryCountChangedId]);
     });
   }
 
@@ -132,7 +132,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     allGallerys.removeWhere((g) => g.title == gallery.title);
     path2GalleryDir[parentPath]?.removeWhere((g) => g.title == gallery.title);
 
-    update([galleryCountOrOrderChangedId]);
+    update([galleryCountChangedId]);
   }
 
   Future<void> _loadGalleriesFromDisk() {

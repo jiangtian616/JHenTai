@@ -28,7 +28,7 @@ class AppUpdateService extends GetxService {
     }
 
     if (appVersion > oldVersion) {
-      handleAppUpdate();
+      handleAppUpdate(oldVersion);
     }
   }
 
@@ -39,5 +39,5 @@ class AppUpdateService extends GetxService {
     }
   }
 
-  void handleAppUpdate() {}
+  void handleAppUpdate(int oldVersion) async {}
 }

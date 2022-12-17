@@ -3068,7 +3068,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   }
 
   Selectable<ArchiveGroupData> selectArchiveGroups() {
-    return customSelect('SELECT *\r\nFROM archive_group',
+    return customSelect('SELECT *\r\nFROM archive_group\r\nORDER BY sortOrder',
         variables: [],
         readsFrom: {
           archiveGroup,
@@ -3334,7 +3334,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   }
 
   Selectable<GalleryGroupData> selectGalleryGroups() {
-    return customSelect('SELECT *\r\nFROM gallery_group',
+    return customSelect('SELECT *\r\nFROM gallery_group\r\nORDER BY sortOrder',
         variables: [],
         readsFrom: {
           galleryGroup,
