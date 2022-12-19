@@ -13,7 +13,7 @@ import '../../../../service/local_gallery_service.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/process_util.dart';
-import '../../../../utils/route_util.dart';
+import '../../../../utils/route_util.dart' as route;
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -91,7 +91,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
 
-      toRoute(
+      route.toRoute(
         Routes.read,
         arguments: ReadPageInfo(
           mode: ReadMode.local,
@@ -107,7 +107,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
   }
 
   void goToDetailPage(LocalGallery gallery) {
-    toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl});
+    route.toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl});
   }
 
   Future<void> handleRefreshLocalGallery() async {
@@ -132,14 +132,14 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           CupertinoActionSheetAction(
             child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
             onPressed: () {
-              backRoute();
+              route.backRoute();
               handleRemoveItem(gallery);
             },
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
           child: Text('cancel'.tr),
-          onPressed: backRoute,
+          onPressed: route.backRoute,
         ),
       ),
     );

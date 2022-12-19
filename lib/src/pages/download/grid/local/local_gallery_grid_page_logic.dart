@@ -25,7 +25,6 @@ class LocalGalleryGridPageLogic extends GridBasePageLogic with LocalGalleryDownl
   @override
   Future<void> doRemoveItem(LocalGallery gallery) async {
     localGalleryService.deleteGallery(gallery, currentPath);
-    super.doRemoveItem(gallery);
   }
 
   @override

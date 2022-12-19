@@ -283,7 +283,7 @@ class GridGroup extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.8), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.7), borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.all(UIConfig.downloadPageGridViewGroupPadding),
               child: widgets.isEmpty
                   ? Center(child: Icon(emptyIcon ?? Icons.folder, size: 32))
