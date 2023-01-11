@@ -57,7 +57,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     return SimpleDialog(
       title: GestureDetector(
         child: Text('${widget.tagData.namespace}:${widget.tagData.key}'),
-        onTap: () => FlutterClipboard.copy('${widget.tagData.namespace}:${widget.tagData.key}').then((_) => toast('hasCopiedToClipboard'.tr)),
+        onTap: () => FlutterClipboard.copy('${widget.tagData.namespace}:"${widget.tagData.key}"').then((_) => toast('hasCopiedToClipboard'.tr)),
       ),
       contentPadding: const EdgeInsets.only(left: 12, right: 12, bottom: 12, top: 12),
       children: [
