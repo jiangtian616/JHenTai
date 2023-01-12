@@ -180,6 +180,7 @@ class zh_TW {
       'account': '帳戶',
       'EH': 'EH',
       'style': '樣式',
+      'preference': '偏好',
       'network': '網路',
       'mouseWheel': '滑鼠滾輪',
       'advanced': '進階',
@@ -191,6 +192,7 @@ class zh_TW {
       'ehSetting': 'EH 網站設定',
       'securitySetting': '安全設定',
       'readSetting': '閱讀設定',
+      'preferenceSetting': '偏好設置',
       'downloadSetting': '下載設定',
       'networkSetting': '網路設定',
       'mouseWheelSetting': '滑鼠滾輪設定',
@@ -342,6 +344,9 @@ class zh_TW {
       'enableAutoScaleUp': '自動放大長圖片',
       'enableAutoScaleUpHints': '優先使圖片寬度占滿螢幕',
 
+      /// preference setting page
+      'showR18GImageDirectly': '直接顯示R18G圖片',
+
       /// log page
       'logList': '日誌列表',
 
@@ -481,6 +486,9 @@ class zh_TW {
       /// dashboard page
       'seeAll': '查看全部',
       'newest': '最新',
+
+      /// tag dialog
+      'warningImageHint': 'R18G圖片，點擊以顯示',
 
       /// tag namespace
       'language': '語言',

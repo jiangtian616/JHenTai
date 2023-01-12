@@ -1,13 +1,14 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_warning_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -103,7 +104,10 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
               return null;
             }
             return Center(
-              child: ExtendedImage.network(element.attributes['src']!).marginSymmetric(vertical: 20),
+              child: EHWarningImage(
+                warning: PreferenceSetting.showR18GImageDirectly.isFalse && element.attributes['nsfw'] == 'R18G',
+                src: element.attributes['src']!,
+              ).marginSymmetric(vertical: 20),
             );
           },
         ).paddingSymmetric(horizontal: 12),

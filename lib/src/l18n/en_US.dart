@@ -181,6 +181,7 @@ class en_US {
       'account': 'Account',
       'EH': 'EH',
       'style': 'Style',
+      'preference': 'Preference',
       'network': 'Network',
       'mouseWheel': 'Mouse Wheel',
       'advanced': 'Advanced',
@@ -192,6 +193,7 @@ class en_US {
       'securitySetting': 'Security Setting',
       'ehSetting': 'EH Site Setting',
       'readSetting': 'Read Setting',
+      'preferenceSetting': 'Preference Setting',
       'downloadSetting': 'Download Setting',
       'networkSetting': 'Network Setting',
       'mouseWheelSetting': 'Mouse Wheel Setting',
@@ -343,6 +345,9 @@ class en_US {
       'enableAutoScaleUp': 'Enable Auto Scale up Long Image',
       'enableAutoScaleUpHints': 'Make image width same as screen width',
 
+      /// preference setting page
+      'showR18GImageDirectly': 'Show R18G Image Directly',
+
       /// log page
       'logList': 'Log List',
 
@@ -484,6 +489,9 @@ class en_US {
       /// dashboard page
       'seeAll': 'All',
       'newest': 'Newest',
+
+      /// tag dialog
+      'warningImageHint': 'R18G image, Tap to view',
 
       /// tag namespace
       'language': 'Language',

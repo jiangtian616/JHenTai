@@ -25,7 +25,7 @@ class SettingPage extends StatelessWidget {
             : null,
       ),
       body: Obx(
-            () => ListView(
+        () => ListView(
           padding: const EdgeInsets.only(top: 12),
           children: [
             ListTile(
@@ -48,6 +48,11 @@ class SettingPage extends StatelessWidget {
               leading: const Icon(Icons.local_library),
               title: Text('read'.tr),
               onTap: () => toRoute(Routes.settingPrefix + 'read'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.stars),
+              title: Text('preference'.tr),
+              onTap: () => toRoute(Routes.settingPrefix + 'preference'),
             ),
             ListTile(
               leading: const Icon(Icons.wifi),

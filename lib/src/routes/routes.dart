@@ -22,6 +22,7 @@ import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
 import 'package:jhentai/src/pages/setting/network/proxy/setting_proxy_page.dart';
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
+import 'package:jhentai/src/pages/setting/preference/setting_preference_page.dart';
 import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
@@ -78,6 +79,7 @@ class Routes {
   static const String settingEH = "/setting_EH";
   static const String settingStyle = "/setting_style";
   static const String settingRead = "/setting_read";
+  static const String settingPreference = "/setting_preference";
   static const String settingNetwork = "/setting_network";
   static const String settingDownload = "/setting_download";
   static const String settingAdvanced = "/setting_advanced";
@@ -232,6 +234,11 @@ class Routes {
     EHPage(
       name: settingRead,
       page: () => const SettingReadPage(),
+      transition: Transition.cupertino,
+    ),
+    EHPage(
+      name: settingPreference,
+      page: () => const SettingPreferencePage(),
       transition: Transition.cupertino,
     ),
     EHPage(

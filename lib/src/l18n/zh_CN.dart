@@ -180,6 +180,7 @@ class zh_CN {
       'account': '账户',
       'EH': 'EH',
       'style': '样式',
+      'preference': '偏好',
       'network': '网络',
       'mouseWheel': '鼠标滚轮',
       'advanced': '高级',
@@ -191,6 +192,7 @@ class zh_CN {
       'ehSetting': 'EH 网站设置',
       'securitySetting': '安全设置',
       'readSetting': '阅读设置',
+      'preferenceSetting': '偏好设置',
       'downloadSetting': '下载设置',
       'networkSetting': '网络设置',
       'mouseWheelSetting': '鼠标滚轮设置',
@@ -343,6 +345,9 @@ class zh_CN {
       'enableAutoScaleUp': '自动放大长图片',
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 
+      /// preference setting page
+      'showR18GImageDirectly': '直接显示R18G图片',
+
       /// log page
       'logList': '日志列表',
 
@@ -482,6 +487,9 @@ class zh_CN {
       /// dashboard page
       'seeAll': '查看全部',
       'newest': '最新',
+
+      /// tag dialog
+      'warningImageHint': 'R18G图片，点击以显示',
 
       /// tag namespace
       'language': '语言',

@@ -20,6 +20,7 @@ import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/app_state_listener.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'exception/upload_exception.dart';
@@ -152,7 +153,9 @@ Future<void> init() async {
   await EHRequest.init();
 
   MouseSetting.init();
-
+  
+  PreferenceSetting.init();
+  
   QuickSearchService.init();
 
   HistoryService.init();
