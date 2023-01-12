@@ -214,6 +214,9 @@ class Log {
     if (throwable is DioError && throwable.message.contains('HandshakeException')) {
       return true;
     }
+    if (throwable is DioError && throwable.message.contains('Connection closed while receiving data')) {
+      return true;
+    }
     if (throwable is TimeoutException && (throwable.message?.contains('Executor is closing') ?? false)) {
       return true;
     }

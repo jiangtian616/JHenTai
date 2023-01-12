@@ -1229,7 +1229,7 @@ class EHSpiderParser {
   }
 
   static String _galleryDetailDocument2Apikey(Document document) {
-    String script = document.querySelector('.gm')?.previousElementSibling?.text ?? '';
+    String script = document.querySelector('.gm')?.previousElementSibling?.previousElementSibling?.text ?? '';
     return RegExp(r'var apikey = "(\w+)"').firstMatch(script)?.group(1) ?? '';
   }
 
