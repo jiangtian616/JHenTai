@@ -10,7 +10,6 @@ import '../../../widget/auto_mode_interval_dialog.dart';
 class SettingReadPage extends StatelessWidget {
   const SettingReadPage({Key? key}) : super(key: key);
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,8 +19,8 @@ class SettingReadPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 16),
             children: [
-              _buildEnableImmersiveMode().center(),
-              _buildShowThumbnails().center(),
+              _buildEnableImmersiveMode().center(), _buildEnableImmersiveMode().center(),
+              _buildImageSpace().center(),
               _buildShowStatusInfo().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
@@ -61,6 +60,45 @@ class SettingReadPage extends StatelessWidget {
       title: Text('enableImmersiveMode'.tr),
       subtitle: Text('enableImmersiveHint'.tr),
       trailing: Switch(value: ReadSetting.enableImmersiveMode.value, onChanged: ReadSetting.saveEnableImmersiveMode),
+    );
+  }
+
+  Widget _buildImageSpace() {
+    return ListTile(
+      title: Text('spaceBetweenImages'.tr),
+      trailing: DropdownButton<int>(
+        value: ReadSetting.imageSpace.value,
+        elevation: 4,
+        onChanged: (int? newValue) {
+          ReadSetting.saveImageSpace(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(
+            child: Text('0'),
+            value: 0,
+          ),
+          DropdownMenuItem(
+            child: Text('2'),
+            value: 2,
+          ),
+          DropdownMenuItem(
+            child: Text('4'),
+            value: 4,
+          ),
+          DropdownMenuItem(
+            child: Text('6'),
+            value: 6,
+          ),
+          DropdownMenuItem(
+            child: Text('8'),
+            value: 7,
+          ),
+          DropdownMenuItem(
+            child: Text('10'),
+            value: 10,
+          ),
+        ],
+      ),
     );
   }
 

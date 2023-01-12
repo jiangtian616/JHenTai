@@ -43,7 +43,7 @@ class HorizontalListLayout extends BaseLayout {
             itemPositionsListener: state.itemPositionsListener,
             itemBuilder: (context, index) =>
                 readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
-            separatorBuilder: (_, __) => const VerticalDivider(width: 6),
+            separatorBuilder: (_, __) => Obx(() => VerticalDivider(width: ReadSetting.imageSpace.value.toDouble())),
           ),
         ),
       ),

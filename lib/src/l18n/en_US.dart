@@ -314,6 +314,7 @@ class en_US {
 
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',
+      'spaceBetweenImages': 'Space Between Images',
       'enableImmersiveHint': 'Hide System Bar',
       'readDirection': 'Read Direction',
       'useThirdPartyViewer': 'Use Custom Viewer',

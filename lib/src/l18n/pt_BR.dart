@@ -315,6 +315,7 @@ class pt_BR {
 
       /// read setting page
       'enableImmersiveMode': 'Habilitar modo imersivo',
+      'spaceBetweenImages': 'Space Between Images',
       'enableImmersiveHint': 'Esconder barra do sistema',
       'readDirection': 'Direção da leitura',
       'useThirdPartyViewer': 'Usar visualizador personaliado',

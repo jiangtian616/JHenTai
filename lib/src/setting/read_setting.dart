@@ -25,6 +25,7 @@ enum AutoModeStyle {
 
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
+  static RxInt imageSpace = 6.obs;
   static RxBool showThumbnails = true.obs;
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
@@ -54,6 +55,12 @@ class ReadSetting {
   static saveEnableImmersiveMode(bool value) {
     Log.debug('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
+    _save();
+  }
+
+  static saveImageSpace(int value) {
+    Log.debug('saveImageSpace:$value');
+    imageSpace.value = value;
     _save();
   }
 
@@ -154,6 +161,7 @@ class ReadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enableImmersiveMode': enableImmersiveMode.value,
+      'imageSpace': imageSpace.value,
       'showThumbnails': showThumbnails.value,
       'showStatusInfo': showStatusInfo.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
@@ -174,6 +182,7 @@ class ReadSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     enableImmersiveMode.value = map['enableImmersiveMode'];
+    imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];

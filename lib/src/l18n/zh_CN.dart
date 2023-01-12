@@ -314,6 +314,7 @@ class zh_CN {
 
       /// read setting page
       'enableImmersiveMode': '开启沉浸模式',
+      'spaceBetweenImages': '图片间隔',
       'enableImmersiveHint': '隐藏系统状态栏和底部导航栏',
       'readDirection': '阅读方向',
       'useThirdPartyViewer': '使用第三方阅读器',
