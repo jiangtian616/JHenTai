@@ -80,7 +80,8 @@ dependencies:
   flutter_draggable_gridview:
     # remove assert
     git: https://github.com/jiangtian616/flutter_draggable_gridview
-
+  flutter_displaymode: 0.5.0
+  
 dependency_overrides:
   dio:
     git:

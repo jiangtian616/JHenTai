@@ -17,6 +17,7 @@ import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
+import 'package:jhentai/src/setting/frame_rate_setting.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -124,7 +125,9 @@ Future<void> init() async {
     Log.error(details.exception, null, details.stack);
     Log.upload(details.exception, stackTrace: details.stack);
   };
-
+  
+  await FrameRateSetting.init();
+  
   await PathSetting.init();
   await StorageService.init();
 

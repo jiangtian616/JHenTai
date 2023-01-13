@@ -60,5 +60,7 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
     <string>Auth identity</string>
+    <key>CADisableMinimumFrameDurationOnPhone</key>
+    <true/>
 </dict>
 </plist>

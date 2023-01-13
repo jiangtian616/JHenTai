@@ -493,6 +493,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.3.0"
+  flutter_displaymode:
+    dependency: "direct main"
+    description:
+      name: flutter_displaymode
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.5.0"
   flutter_draggable_gridview:
     dependency: "direct main"
     description:
