@@ -9,6 +9,8 @@
 
 English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md)
 
+[Common Questions](https://github.com/jiangtian616/JHenTai/wiki/Common-Qustions)
+
 ## Description
 
 An E-Hentai app for Android & iOS & Windows & MacOS & Linux.
@@ -59,7 +61,7 @@ in order to benefit the development of new features. I would be very grateful if
 advice on coding style,
 design patterns and anything related to Flutter development or participate in the development of JHenTai.
 
-2022.10.29 I have been more familiar with basic Flutter development, and I'll focus on another area from now on. 
+2022.10.29 I have been more familiar with basic Flutter development, and I'll focus on another area from now on.
 So updates for JHenTai will be less than previous, but I'll still handle bugs or issues in time。
 
 ## References & Thanks
@@ -83,11 +85,11 @@ mush thanks to these projects and people🙇‍
 
 ## Screenshots
 
-### Mobile Layout 
+### Mobile Layout
 
 <img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/>
 
-### Tablet Layout 
+### Tablet Layout
 
 <img width="770" src="screenshot/tabletV2_en.png"/>
 
