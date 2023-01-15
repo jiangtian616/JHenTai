@@ -9,7 +9,7 @@
 
 English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md)
 
-[Common Questions](https://github.com/jiangtian616/JHenTai/wiki/Common-Qustions)
+[Q&A](https://github.com/jiangtian616/JHenTai/wiki/Common-Questions)
 
 ## Description
 
