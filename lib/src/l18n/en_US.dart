@@ -444,6 +444,7 @@ class en_US {
 
       /// about page
       'author': 'Author',
+      'Q&A': 'Q&A',
 
       /// download setting page
       'downloadPath': 'Download Path',

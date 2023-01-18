@@ -325,7 +325,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     } else {
       allGroups.insert(afterIndex, allGroups.removeAt(beforeIndex));
     }
-
+    
+    Log.info('Update group order: $allGroups');
+    
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
         await appDb.updateGalleryGroupOrder(i, allGroups[i]);
@@ -925,7 +927,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> _instantiateFromDB() async {
     allGroups = (await appDb.selectGalleryGroups().get()).map((e) => e.groupName).toList();
-
+    Log.debug('init Gallery groups: $allGroups');
+    
     /// Get download info from database
     List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
 

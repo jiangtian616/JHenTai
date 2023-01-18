@@ -255,7 +255,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     } else {
       allGroups.insert(afterIndex, allGroups.removeAt(beforeIndex));
     }
-
+    
+    Log.info('Update group order: $allGroups');
+    
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
         try {
@@ -655,7 +657,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> _instantiateFromDB() async {
     allGroups = (await appDb.selectArchiveGroups().get()).map((e) => e.groupName).toList();
-
+    Log.debug('init Archive groups: $allGroups');
+    
     List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
 
     for (ArchiveDownloadedData archive in archives) {

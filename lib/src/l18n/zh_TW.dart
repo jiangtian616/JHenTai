@@ -442,6 +442,7 @@ class zh_TW {
 
       /// about page
       'author': '創作者',
+      'Q&A': '常見問題',
 
       /// download setting page
       'downloadPath': '下載路徑',

@@ -17,6 +17,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
   String buildNumber = '';
   String author = 'JTMonster <jiangtian616@qq.com>';
   String gitRepo = 'https://github.com/jiangtian616/JHenTai';
+  String helpPage = 'https://github.com/jiangtian616/JHenTai/wiki';
 
   @override
   void initState() {
@@ -44,6 +45,11 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
             title: const Text('Github'),
             subtitle: SelectableText(gitRepo),
             onTap: () => launchUrlString(gitRepo, mode: LaunchMode.externalApplication),
+          ),
+          ListTile(
+            title: Text('Q&A'.tr),
+            subtitle: SelectableText(helpPage),
+            onTap: () => launchUrlString(helpPage, mode: LaunchMode.externalApplication),
           ),
         ],
       ),

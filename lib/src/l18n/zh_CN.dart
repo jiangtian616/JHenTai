@@ -439,10 +439,11 @@ class zh_CN {
       'search': '搜索',
       'searchFailed': '搜索失败',
       'fileSearchFailed': '以图搜图失败',
+      'tab': '标签页',
 
       /// about page
       'author': '创作者',
-      'tab': '标签页',
+      'Q&A': '常见问题',
 
       /// download setting page
       'downloadPath': '下载路径',

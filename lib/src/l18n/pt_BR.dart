@@ -446,6 +446,7 @@ class pt_BR {
 
       /// about page
       'author': 'Autor',
+      'Q&A': 'Q&A',
 
       /// download setting page
       'downloadPath': 'Caminho de download',
