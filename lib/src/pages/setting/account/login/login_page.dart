@@ -67,6 +67,7 @@ class LoginPage extends StatelessWidget {
       children: [
         _buildUsernameField(),
         _buildPasswordField().marginOnly(top: 18),
+        _buildUserNameFormHint().marginOnly(top: 6),
       ],
     );
   }
@@ -118,6 +119,15 @@ class LoginPage extends StatelessWidget {
     );
   }
 
+  Widget _buildUserNameFormHint() {
+    return Center(
+      child: Text(
+        'userNameFormHint'.tr,
+        style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+      ),
+    );
+  }
+
   Widget _buildCookieForm() {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -137,7 +147,8 @@ class LoginPage extends StatelessWidget {
             onFieldSubmitted: (_) => logic.handleLogin(),
           ),
         ),
-        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: Colors.grey.shade500, fontSize: 13)).marginOnly(top: 12, left: 4, right: 4),
+        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: Colors.grey.shade500, fontSize: 13))
+            .marginOnly(top: 12, left: 4, right: 4),
       ],
     );
   }

@@ -1,11 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -107,15 +103,16 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> _handleCookieLogin() async {
-    if (state.cookie == null || state.cookie!.isEmpty) {
+    if (state.cookie == null || state.cookie!.isBlank!) {
       toast('cookieIsBlack'.tr);
       return;
     }
 
-    RegExpMatch? match1 = RegExp(r'ipb_member_id=(\w+).*ipb_pass_hash=(\w+)').firstMatch(state.cookie!);
-    RegExpMatch? match2 = RegExp(r'igneous=(\w+)').firstMatch(state.cookie!);
+    RegExpMatch? match1 = RegExp(r'ipb_member_id[=:]\s?(\w+)').firstMatch(state.cookie!);
+    RegExpMatch? match2 = RegExp(r'ipb_pass_hash[=:]\s?(\w+)').firstMatch(state.cookie!);
+    RegExpMatch? match3 = RegExp(r'igneous[=:]\s?(\w+)').firstMatch(state.cookie!);
 
-    if (match1 == null) {
+    if (match1 == null || match2 == null) {
       toast('cookieFormatError'.tr);
       return;
     }
@@ -125,8 +122,8 @@ class LoginPageLogic extends GetxController {
     String? igneous;
     try {
       ipbMemberId = int.parse(match1.group(1)!);
-      ipbPassHash = match1.group(2)!;
-      igneous = match2?.group(1);
+      ipbPassHash = match2.group(1)!;
+      igneous = match3?.group(1);
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e);
       Log.upload(e, extraInfos: {'cookie': state.cookie!});

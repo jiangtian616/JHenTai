@@ -61,6 +61,7 @@ class pt_BR {
       'tap2Copy': 'Toque para copiar',
       'webLoginIsDisabled': 'Login pela Web está disabilitado no desktop',
       'loginSuccess': 'Login feito com sucesso',
+      'userNameFormHint': 'Try with cookie in case of Sad Panda',
 
       /// request
       'sadPanda': 'Panda triste: Sem dados',

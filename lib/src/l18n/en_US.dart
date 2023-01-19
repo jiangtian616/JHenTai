@@ -61,6 +61,7 @@ class en_US {
       'tap2Copy': 'Tap to copy',
       'webLoginIsDisabled': 'Web login is disabled on desktop',
       'loginSuccess': 'Login Success',
+      'userNameFormHint': 'Try with cookie in case of Sad Panda',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',

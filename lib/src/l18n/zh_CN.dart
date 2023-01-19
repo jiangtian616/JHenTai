@@ -61,6 +61,7 @@ class zh_CN {
       'tap2Copy': '点击复制',
       'webLoginIsDisabled': '桌面端无法使用Web登录',
       'loginSuccess': '登录成功',
+      'userNameFormHint': '如果无法访问里站，请尝试Cookie登录',
 
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',

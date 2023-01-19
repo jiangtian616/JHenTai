@@ -61,6 +61,7 @@ class zh_TW {
       'tap2Copy': '點擊複製',
       'webLoginIsDisabled': '桌面端無法使用Web登錄',
       'loginSuccess': '登錄成功',
+      'userNameFormHint': '如果無法訪問裏站，請嘗試Cookie登錄',
 
       /// request
       'sadPanda': 'Sad Panda: 無回應數據',
