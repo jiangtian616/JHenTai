@@ -3,10 +3,11 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  battery_plus_windows
+  battery_plus
   bitsdojo_window_windows
   permission_handler_windows
   sentry_flutter
+  share_plus
   sqlite3_flutter_libs
   url_launcher_windows
 )

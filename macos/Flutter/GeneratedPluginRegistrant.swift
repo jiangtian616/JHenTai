@@ -6,13 +6,13 @@ import FlutterMacOS
 import Foundation
 
 import audio_session
-import battery_plus_macos
+import battery_plus
 import bitsdojo_window_macos
 import just_audio
 import package_info_plus_macos
-import path_provider_macos
+import path_provider_foundation
 import sentry_flutter
-import share_plus_macos
+import share_plus
 import sqflite
 import sqlite3_flutter_libs
 import url_launcher_macos
