@@ -12,7 +12,13 @@ class CookiePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('accountSetting'.tr)),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('accountSetting'.tr),
+        actions: [
+          IconButton(icon: const Icon(Icons.copy), onPressed: _copCookies),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.only(top: 12),
         children: CookieUtil.parse2Cookies(EHCookieManager.userCookies)
@@ -20,7 +26,7 @@ class CookiePage extends StatelessWidget {
               (cookie) => ListTile(
                 title: Text(cookie.name),
                 subtitle: Text(cookie.value),
-                onTap: _copyCookies,
+                onTap: _copyAllCookies,
                 dense: true,
               ),
             )
@@ -29,8 +35,17 @@ class CookiePage extends StatelessWidget {
     );
   }
 
-  Future<void> _copyCookies() async {
+  Future<void> _copyAllCookies() async {
     await FlutterClipboard.copy(EHCookieManager.userCookies);
+    toast('hasCopiedToClipboard'.tr);
+  }
+
+  Future<void> _copCookies() async {
+    await FlutterClipboard.copy(CookieUtil.parse2String(CookieUtil.parse2Cookies(EHCookieManager.userCookies)
+        .where(
+          (cookie) => cookie.name == 'ipb_member_id' || cookie.name == 'ipb_pass_hash' || cookie.name == 'igneous',
+        )
+        .toList()));
     toast('hasCopiedToClipboard'.tr);
   }
 }
