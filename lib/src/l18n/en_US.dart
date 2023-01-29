@@ -62,6 +62,7 @@ class en_US {
       'webLoginIsDisabled': 'Web login is disabled on desktop',
       'loginSuccess': 'Login Success',
       'userNameFormHint': 'Try with cookie in case of Sad Panda',
+      'tap2Login': 'Log In',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',

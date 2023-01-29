@@ -92,6 +92,7 @@ class LoginPageLogic extends GetxController {
       EHSpiderParser.forumPage2UserInfo,
     ).then((userInfo) {
       UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl'];
+      UserSetting.nickName.value = userInfo?['nickName'];
       UserSetting.save();
     });
 
@@ -185,6 +186,7 @@ class LoginPageLogic extends GetxController {
       ipbMemberId: ipbMemberId,
       ipbPassHash: ipbPassHash,
       avatarImgUrl: userInfo['avatarImgUrl'],
+      nickName: userInfo['nickName'],
     );
 
     toast('loginSuccess'.tr);
@@ -226,8 +228,12 @@ class LoginPageLogic extends GetxController {
       predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.home,
     );
 
-    /// get username and avartar
+    /// get username and avatar
     Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-    UserSetting.saveUserNameAndAvatar(userName: userInfo!['userName']!, avatarImgUrl: userInfo['avatarImgUrl']);
+    UserSetting.saveUserNameAndAvatarAndNickName(
+      userName: userInfo!['userName']!,
+      avatarImgUrl: userInfo['avatarImgUrl'],
+      nickName: userInfo['nickName']!,
+    );
   }
 }

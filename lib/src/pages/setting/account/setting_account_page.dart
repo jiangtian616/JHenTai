@@ -40,7 +40,7 @@ class SettingAccountPage extends StatelessWidget {
 
   Widget _buildLogout() {
     return ListTile(
-      title: Text('youHaveLoggedInAs'.tr + UserSetting.userName.value!),
+      title: Text('${'youHaveLoggedInAs'.tr}${UserSetting.nickName.value ?? UserSetting.userName.value!}'),
       onTap: () => Get.dialog(const LogoutDialog()),
       trailing: IconButton(
         icon: const Icon(Icons.logout),

@@ -137,18 +137,19 @@ class EHUserAvatar extends StatelessWidget {
               child: CircleAvatar(
                 radius: 32,
                 backgroundColor: Colors.grey.shade300,
-                foregroundImage: UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!) : null,
+                foregroundImage:
+                    UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
                 child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: Colors.grey.withOpacity(0.8), size: 32),
               ),
-              onTap: () {
-                if (!UserSetting.hasLoggedIn()) {
-                  toRoute(Routes.login);
-                  return;
-                }
-                Get.dialog(const LogoutDialog());
-              },
             ),
-            title: Text(UserSetting.hasLoggedIn() ? UserSetting.userName.value! : ''),
+            title: Text(UserSetting.hasLoggedIn() ? UserSetting.nickName.value ?? UserSetting.userName.value! : 'tap2Login'.tr),
+            onTap: () {
+              if (!UserSetting.hasLoggedIn()) {
+                toRoute(Routes.login);
+                return;
+              }
+              Get.dialog(const LogoutDialog());
+            },
           ),
         ),
       ),

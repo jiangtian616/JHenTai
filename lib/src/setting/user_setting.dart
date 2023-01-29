@@ -8,6 +8,7 @@ class UserSetting {
   static RxnInt ipbMemberId = RxnInt();
   static RxnString ipbPassHash = RxnString();
   static RxnString avatarImgUrl = RxnString();
+  static RxnString nickName = RxnString();
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
@@ -24,22 +25,26 @@ class UserSetting {
     required int ipbMemberId,
     required String ipbPassHash,
     String? avatarImgUrl,
+    String? nickName,
   }) async {
-    Log.debug('saveUserInfo:$userName');
+    Log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
     UserSetting.userName.value = userName;
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
+    UserSetting.nickName.value = nickName;
     save();
   }
 
-  static Future<void> saveUserNameAndAvatar({
+  static Future<void> saveUserNameAndAvatarAndNickName({
     required String userName,
     String? avatarImgUrl,
+    required String nickName,
   }) async {
-    Log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl');
+    Log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl $nickName');
     UserSetting.userName.value = userName;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
+    UserSetting.nickName.value = nickName;
     save();
   }
 
@@ -53,6 +58,7 @@ class UserSetting {
     ipbMemberId.value = null;
     ipbPassHash.value = null;
     avatarImgUrl.value = null;
+    nickName.value = null;
   }
 
   static Future<void> save() async {
@@ -65,6 +71,7 @@ class UserSetting {
       'ipbMemberId': ipbMemberId.value,
       'ipbPassHash': ipbPassHash.value,
       'avatarImgUrl': avatarImgUrl.value,
+      'nickName': nickName.value,
     };
   }
 
@@ -73,5 +80,6 @@ class UserSetting {
     ipbMemberId = RxnInt(map['ipbMemberId']);
     ipbPassHash = RxnString(map['ipbPassHash']);
     avatarImgUrl = RxnString(map['avatarImgUrl']);
+    nickName = RxnString(map['nickName']);
   }
 }

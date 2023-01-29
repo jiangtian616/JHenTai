@@ -145,7 +145,7 @@ class TagTranslationService extends GetxService {
         () => EHRequest.download(
           url: downloadUrl,
           path: savePath,
-          receiveTimeout: 30000,
+          receiveTimeout: 3 * 60 * 1000,
           onReceiveProgress: (count, total) => downloadProgress.value = (count / 1024 / 1024).toStringAsFixed(2) + ' MB',
         ),
         maxAttempts: 5,

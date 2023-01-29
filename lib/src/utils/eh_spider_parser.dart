@@ -249,10 +249,11 @@ class EHSpiderParser {
       return null;
     }
 
-    String userName = document.querySelector('.home > b > a')!.text;
+    String userName = document.querySelector('#profilename')!.text;
+    String nickName = document.querySelector('.home > b > a')!.text;
     String? avatarImgUrl = document.querySelector('#profilename')?.nextElementSibling?.nextElementSibling?.querySelector('img')?.attributes['src'];
 
-    return {'userName': userName, 'avatarImgUrl': avatarImgUrl};
+    return {'userName': userName, 'avatarImgUrl': avatarImgUrl, 'nickName': nickName};
   }
 
   static List<String> favoritePopup2FavoriteTagNames(Response response) {
