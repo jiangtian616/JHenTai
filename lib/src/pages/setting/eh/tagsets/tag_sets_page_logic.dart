@@ -218,7 +218,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   Future<void> _translateTagSetNamesIfNeeded() async {
-    if (StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
+    if (tagTranslationService.isReady) {
       for (TagSet tagSet in state.tagSets) {
         TagData? tagData = await tagTranslationService.getTagTranslation(tagSet.tagData.namespace, tagSet.tagData.key);
         if (tagData != null) {

@@ -137,7 +137,6 @@ Future<void> init() async {
   await SecuritySetting.init();
   await Log.init();
   UserSetting.init();
-  TagTranslationService.init();
 
   TabBarSetting.init();
   WindowService.init();
@@ -155,6 +154,8 @@ Future<void> init() async {
   DownloadSetting.init();
   await EHRequest.init();
 
+  TagTranslationService.init();
+  
   MouseSetting.init();
   
   PreferenceSetting.init();

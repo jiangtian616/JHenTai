@@ -27,9 +27,7 @@ class SearchHistoryService extends GetxService {
       histories.add(
         SearchHistory(
           rawKeyword: searchHistory,
-          translatedKeyword: StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success
-              ? await translateSearchHistory(searchHistory)
-              : null,
+          translatedKeyword: tagTranslationService.isReady ? await translateSearchHistory(searchHistory) : null,
         ),
       );
     }
@@ -50,9 +48,7 @@ class SearchHistoryService extends GetxService {
       0,
       SearchHistory(
         rawKeyword: searchHistory,
-        translatedKeyword: StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success
-            ? await translateSearchHistory(searchHistory)
-            : null,
+        translatedKeyword: tagTranslationService.isReady ? await translateSearchHistory(searchHistory) : null,
       ),
     );
   }

@@ -109,9 +109,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
   }
 
   String? _getArtistName() {
-    String namespace = StyleSetting.enableTagZHTranslation.isTrue && Get.find<TagTranslationService>().loadingState.value == LoadingState.success
-        ? LocaleConsts.tagNamespace['artist']!
-        : 'artist';
+    String namespace = Get.find<TagTranslationService>().isReady ? LocaleConsts.tagNamespace['artist']! : 'artist';
 
     List<GalleryTag>? artistTags = widget.gallery.tags[namespace];
 

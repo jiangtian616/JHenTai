@@ -138,7 +138,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
 
     /// chinese => database
     /// other => EH api
-    if (StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
+    if (tagTranslationService.isReady) {
       state.suggestions = await tagTranslationService.searchTags(keyword);
     } else {
       try {

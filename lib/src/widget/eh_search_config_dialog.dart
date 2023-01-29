@@ -633,7 +633,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
     /// chinese => database
     /// other => EH api
-    if (StyleSetting.enableTagZHTranslation.isTrue && tagTranslationService.loadingState.value == LoadingState.success) {
+    if (tagTranslationService.isReady) {
       suggestions = await tagTranslationService.searchTags(keyword);
     } else {
       try {
