@@ -12,7 +12,7 @@ import just_audio
 import package_info_plus_macos
 import path_provider_foundation
 import sentry_flutter
-import share_plus
+import share_plus_macos
 import sqflite
 import sqlite3_flutter_libs
 import url_launcher_macos

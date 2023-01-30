@@ -1332,10 +1332,26 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: e387077716f80609bb979cd199331033326033ecd1c8f200a90c5f57b1c9f55e
+      sha256: f582d5741930f3ad1bf0211d358eddc0508cc346e5b4b248bd1e569c995ebb7a
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.3.0"
+    version: "4.5.3"
+  share_plus_linux:
+    dependency: transitive
+    description:
+      name: share_plus_linux
+      sha256: dc32bf9f1151b9864bb86a997c61a487967a08f2e0b4feaa9a10538712224da4
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
+  share_plus_macos:
+    dependency: transitive
+    description:
+      name: share_plus_macos
+      sha256: "44daa946f2845045ecd7abb3569b61cd9a55ae9cc4cbec9895b2067b270697ae"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   share_plus_platform_interface:
     dependency: transitive
     description:
@@ -1344,6 +1360,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.2.0"
+  share_plus_web:
+    dependency: transitive
+    description:
+      name: share_plus_web
+      sha256: eaef05fa8548b372253e772837dd1fbe4ce3aca30ea330765c945d7d4f7c9935
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0"
+  share_plus_windows:
+    dependency: transitive
+    description:
+      name: share_plus_windows
+      sha256: "3a21515ae7d46988d42130cd53294849e280a5de6ace24bae6912a1bffd757d4"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.1"
   shelf:
     dependency: transitive
     description:
