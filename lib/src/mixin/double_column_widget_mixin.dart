@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 
+import '../config/ui_config.dart';
 import '../service/windows_service.dart';
 import '../widget/eh_separator.dart';
 
@@ -12,8 +13,9 @@ mixin DoubleColumnWidgetMixin on StatelessWidget {
     return ColoredBox(
       color: Get.theme.colorScheme.background,
       child: ResizableWidget(
+        key: Key(UIConfig.desktopLayoutDividerColor.hashCode.toString()),
         separatorSize: 7.5,
-        separatorColor: Get.theme.colorScheme.onBackground.withOpacity(0.5),
+        separatorColor: UIConfig.desktopLayoutDividerColor,
         separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
         percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
         onResized: windowService.handleColumnResized,

@@ -22,7 +22,7 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
     return Row(
       children: [
         _leftTabBar(context),
-        VerticalDivider(width: 1, color: Get.theme.colorScheme.onBackground),
+        VerticalDivider(width: 1, color: UIConfig.desktopLayoutDividerColor),
         Expanded(child: buildDoubleColumnWidget(_leftColumn(), _rightColumn())),
       ],
     );

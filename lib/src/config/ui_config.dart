@@ -41,6 +41,7 @@ class UIConfig {
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
+  static Color get desktopLayoutDividerColor => Get.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade400;
   static const double desktopLeftTabBarWidth = 56;
   static const double desktopLeftTabBarItemHeight = 60;
   static const double desktopLeftTabBarTextHeight = 18;

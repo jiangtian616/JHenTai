@@ -9,6 +9,17 @@ class ThemeConfig {
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
     appBarTheme: GetPlatform.isDesktop ? const AppBarTheme(scrolledUnderElevation: 0) : null,
+    scaffoldBackgroundColor: const Color(0xFFFFFBFE),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 48,
+      indicatorColor: Color(0xFFEADDFF),
+      surfaceTintColor: Color(0xFFE7E0EC),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+    ),
+    listTileTheme: const ListTileThemeData(iconColor: Colors.black54),
+    dividerTheme: DividerThemeData(color: Colors.grey.shade200),
+    dialogTheme: const DialogTheme(surfaceTintColor: Colors.transparent),
+    popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
     colorScheme: ColorScheme.light(
       primary: const Color(0xFF6750A4),
       onPrimary: const Color(0xFFFFFFFF),
@@ -34,13 +45,6 @@ class ThemeConfig {
       surfaceVariant: const Color(0xFFE7E0EC),
       onSurfaceVariant: const Color(0xFF49454F),
     ),
-    navigationBarTheme: const NavigationBarThemeData(
-      height: 48,
-      indicatorColor: Color(0xFFEADDFF),
-      surfaceTintColor: Color(0xFFE7E0EC),
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-    ),
-    scaffoldBackgroundColor: const Color(0xFFFFFBFE),
 
     /// for mobile layout v1
     primaryColorLight: Colors.pink.shade300,
@@ -53,9 +57,18 @@ class ThemeConfig {
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
     appBarTheme: GetPlatform.isDesktop ? const AppBarTheme(scrolledUnderElevation: 0) : null,
-    cardTheme: CardTheme(
-      color: Colors.grey.shade900,
+    scaffoldBackgroundColor: const Color(0xFF1C1B1F),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 48,
+      indicatorColor: Color(0xFF4F378B),
+      surfaceTintColor: Color(0xFF49454F),
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
     ),
+    cardTheme: CardTheme(color: Colors.grey.shade900),
+    listTileTheme: const ListTileThemeData(iconColor: Colors.white70),
+    dividerTheme: DividerThemeData(color: Colors.grey.shade800),
+    dialogTheme: const DialogTheme(surfaceTintColor: Colors.transparent, backgroundColor: Color(0xFF333232)),
+    popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent, color: Color(0xFF333232)),
     colorScheme: ColorScheme.dark(
       primary: const Color(0xFFD0BCFF),
       onPrimary: const Color(0xFF381E72),
@@ -81,13 +94,6 @@ class ThemeConfig {
       surfaceVariant: const Color(0xFF232123),
       onSurfaceVariant: const Color(0xFFCAC4D0),
     ),
-    navigationBarTheme: const NavigationBarThemeData(
-      height: 48,
-      indicatorColor: Color(0xFF4F378B),
-      surfaceTintColor: Color(0xFF49454F),
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-    ),
-    scaffoldBackgroundColor: const Color(0xFF1C1B1F),
 
     /// for mobile layout v1
     primaryColorLight: Colors.pink.shade300,

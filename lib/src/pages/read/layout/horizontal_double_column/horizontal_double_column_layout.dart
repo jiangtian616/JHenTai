@@ -48,7 +48,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
         if (ReadSetting.readDirection.value == ReadDirection.left2right) buildItemInOnlineMode(context, pageIndex * 2),
         if (ReadSetting.readDirection.value == ReadDirection.right2left && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
           buildItemInOnlineMode(context, pageIndex * 2 + 1),
-        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) const VerticalDivider(width: 6),
+        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
         if (ReadSetting.readDirection.value == ReadDirection.left2right && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
           buildItemInOnlineMode(context, pageIndex * 2 + 1),
         if (ReadSetting.readDirection.value == ReadDirection.right2left) buildItemInOnlineMode(context, pageIndex * 2),
@@ -64,7 +64,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
         if (ReadSetting.readDirection.value == ReadDirection.left2right) buildItemInLocalMode(context, pageIndex * 2),
         if (ReadSetting.readDirection.value == ReadDirection.right2left && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
           buildItemInLocalMode(context, pageIndex * 2 + 1),
-        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) const VerticalDivider(width: 6),
+        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
         if (ReadSetting.readDirection.value == ReadDirection.left2right && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
           buildItemInLocalMode(context, pageIndex * 2 + 1),
         if (ReadSetting.readDirection.value == ReadDirection.right2left) buildItemInLocalMode(context, pageIndex * 2),
