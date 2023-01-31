@@ -49,7 +49,7 @@ jobs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
     env:
-      FLUTTER_VERSION: 3.3.5
+      FLUTTER_VERSION: 3.7.0
     steps:
       # Checkout branch
       - name: Checkout
@@ -67,8 +67,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          # flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       # Cache Pod
       - name: Cache Pod
