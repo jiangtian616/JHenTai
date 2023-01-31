@@ -44,7 +44,7 @@ dependencies:
   sqlite3_flutter_libs: 0.5.8
   path_provider: ^2.0.9
   flutter_slidable: ^2.0.0
-  flutter_widget_from_html: ^0.8.5
+  flutter_widget_from_html: 0.9.1
   url_launcher: 6.1.8
   like_button: 2.0.5
   webview_flutter: ^3.0.4
@@ -85,10 +85,6 @@ dependency_overrides:
     git:
       url: https://gitee.com/jiangtian616/dio
       path: dio
-  visibility_detector: ^0.3.3
-  cached_network_image: 3.2.3
-  fwfh_webview: ^0.6.2+3
-  fwfh_text_style: ^2.22.8+1
 
 dev_dependencies:
   flutter_test:

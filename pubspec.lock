@@ -210,7 +210,7 @@ packages:
     source: hosted
     version: "8.4.3"
   cached_network_image:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: cached_network_image
       sha256: fd3d0dc1d451f9a252b32d95d3f0c3c487bc41a75eba2e6097cb0b9c71491b15
@@ -635,18 +635,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_widget_from_html
-      sha256: f7d31bf1d4b2fa301f70fad46fe5c80e96f3d4fe27793b23757c8eaee5f70b84
+      sha256: bc92fa62986a1d14bec92d26225bb7b37d581bd91efdad55158efa2eeb200b85
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.5"
+    version: "0.9.1"
   flutter_widget_from_html_core:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: e8f4f8b461a140ffb7c71f938bc76efc758893e7468843d9dbf70cb0b9e900cb
+      sha256: "296485e685b44ad7c6883372aebc56038a28b84f75e7a668bcd8bf01de881739"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.8.5+3"
+    version: "0.9.1"
   flutter_windowmanager:
     dependency: "direct main"
     description:
@@ -699,18 +699,10 @@ packages:
     dependency: transitive
     description:
       name: fwfh_just_audio
-      sha256: b82a1f1902754980b53c46264693d2c11e739ccd09e7af89126132aa223ad027
+      sha256: e2721732cfb8d3da0d5e74bc82af48100312fd4edc305567f2b9b85d53b63a1c
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.6.2+2"
-  fwfh_selectable_text:
-    dependency: transitive
-    description:
-      name: fwfh_selectable_text
-      sha256: "55a17a85c0b5e26833127c57fc7864055799c1c2dfdb2ed665ac925222718901"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.8.3+1"
+    version: "0.9.0"
   fwfh_svg:
     dependency: transitive
     description:
@@ -720,7 +712,7 @@ packages:
     source: hosted
     version: "0.7.2+1"
   fwfh_text_style:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: fwfh_text_style
       sha256: "37806ee0222f79b6e8d4c698c322c897eae6a817258156f40aeece4e588fac60"
@@ -731,12 +723,12 @@ packages:
     dependency: transitive
     description:
       name: fwfh_url_launcher
-      sha256: e6a8020ad57dfd1d5b12f9ae12ffc9120fac7491736280603db0be0a4dc74c97
+      sha256: cf3a537d74bf01b65d91dc8eac8c889d94b4176002fdc7069138f166f22d3411
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.6.1+3"
+    version: "0.9.0"
   fwfh_webview:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: fwfh_webview
       sha256: "987ebaf94f3c42cddb6e0dbac6720a9cfc55c3510b770e925334373d91a12795"
@@ -1782,7 +1774,7 @@ packages:
     source: hosted
     version: "2.0.13"
   visibility_detector:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: visibility_detector
       sha256: "15c54a459ec2c17b4705450483f3d5a2858e733aee893dcee9d75fd04814940d"
