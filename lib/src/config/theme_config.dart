@@ -69,6 +69,7 @@ class ThemeConfig {
     dividerTheme: DividerThemeData(color: Colors.grey.shade800),
     dialogTheme: const DialogTheme(surfaceTintColor: Colors.transparent, backgroundColor: Color(0xFF333232)),
     popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent, color: Color(0xFF333232)),
+    canvasColor: const Color(0xFF333232),
     colorScheme: ColorScheme.dark(
       primary: const Color(0xFFD0BCFF),
       onPrimary: const Color(0xFF381E72),
