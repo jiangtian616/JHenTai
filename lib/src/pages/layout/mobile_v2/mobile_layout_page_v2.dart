@@ -142,7 +142,7 @@ class EHUserAvatar extends StatelessWidget {
                 child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: Colors.grey.withOpacity(0.8), size: 32),
               ),
             ),
-            title: Text(UserSetting.hasLoggedIn() ? UserSetting.nickName.value ?? UserSetting.userName.value! : 'tap2Login'.tr),
+            title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),
             onTap: () {
               if (!UserSetting.hasLoggedIn()) {
                 toRoute(Routes.login);

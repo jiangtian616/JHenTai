@@ -91,9 +91,11 @@ class LoginPageLogic extends GetxController {
       userInfoOrErrorMsg['ipbMemberId'],
       EHSpiderParser.forumPage2UserInfo,
     ).then((userInfo) {
-      UserSetting.avatarImgUrl.value = userInfo?['avatarImgUrl'];
-      UserSetting.nickName.value = userInfo?['nickName'];
-      UserSetting.save();
+      UserSetting.saveUserNameAndAvatarAndNickName(
+        userName: userInfo!['userName']!,
+        avatarImgUrl: userInfo['avatarImgUrl'],
+        nickName: userInfo['nickName']!,
+      );
     });
 
     state.loginState = LoadingState.success;

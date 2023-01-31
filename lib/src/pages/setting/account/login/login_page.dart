@@ -79,7 +79,6 @@ class LoginPage extends StatelessWidget {
       child: TextFormField(
         onEditingComplete: state.passwordFocusNode.requestFocus,
         onChanged: (userName) => state.userName = userName,
-        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: 'userName'.tr,
           hintStyle: TextStyle(color: UIConfig.loginPageHintColor, fontSize: 14, height: 1),
@@ -99,7 +98,6 @@ class LoginPage extends StatelessWidget {
         obscureText: state.obscureText,
         onChanged: (password) => state.password = password,
         onFieldSubmitted: (v) => logic.handleLogin(),
-        textAlignVertical: TextAlignVertical.center,
         decoration: InputDecoration(
           hintText: 'password'.tr,
           border: InputBorder.none,
