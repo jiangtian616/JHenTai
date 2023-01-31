@@ -60,6 +60,7 @@ class ReadPageLogic extends GetxController {
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
+  late Worker readDirectionLister;
 
   final EHExecutor executor = EHExecutor(
     concurrency: 10,
@@ -83,8 +84,11 @@ class ReadPageLogic extends GetxController {
 
     toggleCurrentImmersiveMode();
 
-    /// Listen to change
+    /// Listen to immersive mode change
     toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
+
+    /// Listen to layout change
+    readDirectionLister = ever(ReadSetting.readDirection, (_) => state.imageSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -112,7 +116,8 @@ class ReadPageLogic extends GetxController {
     state.focusNode.dispose();
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
-
+    readDirectionLister.dispose();
+    
     volumeService.cancelListen();
     volumeService.setInterceptVolumeEvent(false);
 
