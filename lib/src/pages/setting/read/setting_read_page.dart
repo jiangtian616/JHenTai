@@ -19,7 +19,8 @@ class SettingReadPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 16),
             children: [
-              _buildEnableImmersiveMode().center(), _buildEnableImmersiveMode().center(),
+              _buildEnableImmersiveMode().center(), 
+              _buildShowThumbnails().center(),
               _buildImageSpace().center(),
               _buildShowStatusInfo().center(),
               _buildEnablePageTurnAnime().center(),
