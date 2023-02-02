@@ -104,7 +104,7 @@ class Routes {
   static const String log = "/setting_advanced/logList/log";
 
   static final Transition defaultTransition =
-      PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.cupertinoDialog;
+      PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
 
   static List<EHPage> pages = <EHPage>[
     EHPage(
