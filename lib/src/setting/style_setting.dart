@@ -20,8 +20,6 @@ enum ListMode {
 }
 
 class StyleSetting {
-  static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
-  static RxBool enableTagZHTranslation = false.obs;
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
@@ -34,9 +32,6 @@ class StyleSetting {
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
-  static RxBool hideBottomBar = false.obs;
-  static RxBool alwaysShowScroll2TopButton = false.obs;
-  static RxBool enableQuickSearchDrawerGesture = true.obs;
 
   static bool get isInWaterFlowListMode =>
       listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
@@ -62,20 +57,6 @@ class StyleSetting {
     } else {
       Log.debug('init StyleSetting success: default', false);
     }
-  }
-
-  static saveLanguage(Locale locale) async {
-    Log.debug('saveLanguage:$locale');
-    StyleSetting.locale.value = locale;
-    _save();
-    Get.updateLocale(locale);
-    TabBarSetting.reset();
-  }
-
-  static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
-    Log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
-    StyleSetting.enableTagZHTranslation.value = enableTagZHTranslation;
-    _save();
   }
 
   static saveThemeMode(ThemeMode themeMode) {
@@ -131,24 +112,6 @@ class StyleSetting {
     _save();
   }
 
-  static saveHideBottomBar(bool hideBottomBar) {
-    Log.debug('saveHideBottomBar:$hideBottomBar');
-    StyleSetting.hideBottomBar.value = hideBottomBar;
-    _save();
-  }
-
-  static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
-    Log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
-    StyleSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
-    _save();
-  }
-
-  static saveAlwaysShowScroll2TopButton(bool alwaysShowScroll2TopButton) {
-    Log.debug('saveAlwaysShowScroll2TopButton:$alwaysShowScroll2TopButton');
-    StyleSetting.alwaysShowScroll2TopButton.value = alwaysShowScroll2TopButton;
-    _save();
-  }
-
   static ThemeData getCurrentThemeData() {
     return themeMode.value == ThemeMode.dark
         ? ThemeConfig.dark
@@ -165,8 +128,6 @@ class StyleSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
-      'locale': locale.value.toString(),
-      'enableTagZHTranslation': enableTagZHTranslation.value,
       'themeMode': themeMode.value.index,
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
@@ -175,15 +136,10 @@ class StyleSetting {
       'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
-      'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
-      'hideBottomBar': hideBottomBar.value,
-      'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    locale.value = localeCode2Locale(map['locale']);
-    enableTagZHTranslation.value = map['enableTagZHTranslation'];
     themeMode.value = ThemeMode.values[map['themeMode']];
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
@@ -202,8 +158,5 @@ class StyleSetting {
               : LayoutMode.tabletV2.obs;
     }
     actualLayout = layout.value;
-    enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
-    hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
-    alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
   }
 }

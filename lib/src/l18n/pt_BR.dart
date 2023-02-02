@@ -261,7 +261,8 @@ class pt_BR {
       'coverStyle': 'Estilo da tampa',
       'cover': 'Tampa',
       'adaptive': 'Adaptativo',
-      'hideBottomBar': 'Ocultar barra inferior',
+      'hideBottomBar': 'Ocultar barra inferior', 'enableSwipeBackGesture': 'Enable Swipe Back Gesture',
+      'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Ativar pesquisa rápida com gesto de gaveta',
       'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
 

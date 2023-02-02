@@ -3,12 +3,12 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
-import '../setting/style_setting.dart';
+import '../setting/preference_setting.dart';
 
 mixin Scroll2TopLogicMixin on GetxController {
   final String scroll2TopButtonId = 'scroll2TopButtonId';
 
-  bool inForwardScroll = StyleSetting.alwaysShowScroll2TopButton.isTrue;
+  bool inForwardScroll = PreferenceSetting.alwaysShowScroll2TopButton.isFalse;
 
   Scroll2TopStateMixin get state;
 
@@ -44,8 +44,8 @@ mixin Scroll2TopLogicMixin on GetxController {
     }
 
     // if always show FAB, update at most once to make sure we display the button actually.
-    if (StyleSetting.alwaysShowScroll2TopButton.isTrue) {
-      inForwardScroll = true;
+    if (PreferenceSetting.alwaysShowScroll2TopButton.isTrue) {
+      inForwardScroll = false;
       if (!oldValue && inForwardScroll) {
         update([scroll2TopButtonId]);
       }

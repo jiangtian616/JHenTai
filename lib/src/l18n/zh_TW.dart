@@ -260,6 +260,8 @@ class zh_TW {
       'cover': '覆蓋',
       'adaptive': '自適應',
       'hideBottomBar': '隱藏底部導航欄',
+      'enableSwipeBackGesture': '允許通過左滑手勢返回',
+      'enableLeftMenuDrawerGesture': '允許通過手勢喚起左側菜單',
       'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',
       'alwaysShowScroll2TopButton': '總是展示快速回頂按鈕',
 
@@ -347,7 +349,7 @@ class zh_TW {
       'enableAutoScaleUpHints': '優先使圖片寬度占滿螢幕',
 
       /// preference setting page
-      'showR18GImageDirectly': '直接顯示R18G圖片',
+      'showR18GImageDirectly': '標簽數據中直接顯示R18G圖片',
 
       /// log page
       'logList': '日誌列表',

@@ -9,9 +9,9 @@ import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import '../../../setting/preference_setting.dart';
 import '../../../widget/eh_log_out_dialog.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
@@ -26,10 +26,11 @@ class MobileLayoutPageV2 extends StatelessWidget {
       () => Scaffold(
         key: MobileLayoutPageV2State.scaffoldKey,
         drawer: buildLeftDrawer(),
+        drawerEnableOpenDragGesture: PreferenceSetting.enableLeftMenuDrawerGesture.isTrue,
         endDrawer: buildRightDrawer(),
-        endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+        endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
         body: buildBody(),
-        bottomNavigationBar: StyleSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
+        bottomNavigationBar: PreferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
       ),
     );
   }

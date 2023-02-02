@@ -31,6 +31,7 @@ import '../../database/database.dart';
 import '../../model/gallery_comment.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/local_gallery_service.dart';
+import '../../setting/preference_setting.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
@@ -943,7 +944,7 @@ class _GalleryTags extends StatelessWidget {
         tagData: TagData(
           namespace: 'rows',
           key: category,
-          tagName: StyleSetting.enableTagZHTranslation.isTrue ? LocaleConsts.tagNamespace[category] : null,
+          tagName: PreferenceSetting.enableTagZHTranslation.isTrue ? LocaleConsts.tagNamespace[category] : null,
         ),
       ),
       addNameSpaceColor: true,

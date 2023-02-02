@@ -5,6 +5,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../mixin/double_column_widget_mixin.dart';
 import '../../../routes/routes.dart';
+import '../../../setting/preference_setting.dart';
 import '../../blank_page.dart';
 import '../../home_page.dart';
 
@@ -40,8 +41,8 @@ class TabletLayoutPageV2 extends StatelessWidget with DoubleColumnWidgetMixin {
           /// setting name may include path params
           page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
-          popGesture: true,
-          transition: Transition.cupertino,
+          popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,
+          transition: Routes.defaultTransition,
           transitionDuration: const Duration(milliseconds: 150),
         );
       },

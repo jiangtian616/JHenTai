@@ -16,13 +16,13 @@ mixin Scroll2TopPageMixin on Widget {
       builder: (_) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
-          child: logic.inForwardScroll
+          child: !logic.inForwardScroll
               ? FloatingActionButton(
                   child: const Icon(Icons.arrow_upward),
                   heroTag: null,
                   onPressed: logic.scroll2Top,
                 )
-              : const SizedBox(),
+              : null,
         );
       },
     );

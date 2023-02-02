@@ -30,6 +30,7 @@ import 'package:jhentai/src/pages/setting/style/setting_style_page.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
@@ -102,6 +103,9 @@ class Routes {
   static const String logList = "/setting_advanced/logList";
   static const String log = "/setting_advanced/logList/log";
 
+  static final Transition defaultTransition =
+      PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.cupertinoDialog;
+
   static List<EHPage> pages = <EHPage>[
     EHPage(
       name: home,
@@ -118,84 +122,84 @@ class Routes {
     EHPage(
       name: blank,
       page: () => const BlankPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.right,
     ),
     EHPage(
       name: gallerys,
       page: () => const GallerysPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: dashboard,
       page: () => const DashboardPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: mobileLayoutV2,
       page: () => MobileLayoutPageV2(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: details,
       page: () => DetailsPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: popular,
       page: () => PopularPage(showTitle: true, name: 'popular'.tr),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: ranklist,
       page: () => const RanklistPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: favorite,
       page: () => const FavoritePage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: setting,
       page: () => const SettingPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: watched,
       page: () => const WatchedPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: history,
       page: () => HistoryPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: download,
       page: () => const DownloadPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: desktopSearch,
       page: () => const DesktopSearchPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
       name: mobileV2Search,
       page: () => SearchPageMobileV2(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.left,
     ),
     EHPage(
@@ -207,140 +211,140 @@ class Routes {
     EHPage(
       name: webview,
       page: () => const WebviewPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: quickSearch,
       page: () => QuickSearchPage(automaticallyImplyLeading: true),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: settingAccount,
       page: () => const SettingAccountPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingEH,
       page: () => SettingEHPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingStyle,
       page: () => SettingStylePage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingRead,
       page: () => const SettingReadPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingPreference,
-      page: () => const SettingPreferencePage(),
-      transition: Transition.cupertino,
+      page: () => SettingPreferencePage(),
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingNetwork,
       page: () => SettingNetworkPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingDownload,
       page: () => const SettingDownloadPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingMouseWheel,
       page: () => const SettingMouseWheelPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingAdvanced,
       page: () => const SettingAdvancedPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingSecurity,
       page: () => const SettingSecurityPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: settingAbout,
       page: () => const SettingAboutPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
     ),
     EHPage(
       name: login,
       page: () => LoginPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: cookie,
       page: () => const CookiePage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: pageListStyle,
       page: () => PageListStylePage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: tagSets,
       page: () => TagSetsPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: hostMapping,
       page: () => const HostMappingPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: proxy,
       page: () => const SettingProxyPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: extraGalleryScanPath,
       page: () => const ExtraGalleryScanPathPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: logList,
       page: () => const LogListPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: log,
       page: () => const LogPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: read,
       page: () => ReadPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       side: Side.fullScreen,
     ),
     EHPage(
       name: comment,
       page: () => const CommentPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
     EHPage(
       name: thumbnails,
       page: () => ThumbnailsPage(),
-      transition: Transition.cupertino,
+      transition: defaultTransition,
       offAllBefore: false,
     ),
   ];

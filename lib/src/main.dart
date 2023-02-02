@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
         Locale('zh', 'CN'),
         Locale('zh', 'TW'),
       ],
-      locale: StyleSetting.locale.value,
+      locale: PreferenceSetting.locale.value,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
 
@@ -87,7 +87,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => ScrollConfiguration(behavior: UIConfig.scrollBehaviourWithScrollBar, child: AppStateListener(child: child!)),
 
       /// enable swipe back feature
-      popGesture: true,
+      popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,
       onReady: onReady,
     );
   }

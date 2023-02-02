@@ -261,6 +261,8 @@ class en_US {
       'cover': 'Cover',
       'adaptive': 'Adaptive',
       'hideBottomBar': 'Hide Bottom Bar',
+      'enableSwipeBackGesture': 'Enable Swipe Back Gesture',
+      'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
 

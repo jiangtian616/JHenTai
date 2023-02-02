@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
 import '../../../mixin/double_tap_to_refresh_logic_mixin.dart';
+import '../../../setting/preference_setting.dart';
 
 class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogicMixin {
   final String bodyId = 'bodyId';
@@ -22,8 +22,8 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
     super.onReady();
 
     /// If user hideBottomBar, reset the selected navigation index to 0
-    hideBottomBarLister = ever(StyleSetting.hideBottomBar, (_) {
-      if (StyleSetting.hideBottomBar.isTrue) {
+    hideBottomBarLister = ever(PreferenceSetting.hideBottomBar, (_) {
+      if (PreferenceSetting.hideBottomBar.isTrue) {
         handleTapNavigationBarButton(0);
       }
     });

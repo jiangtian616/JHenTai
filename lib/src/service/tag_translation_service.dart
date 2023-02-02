@@ -8,6 +8,7 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
@@ -15,7 +16,6 @@ import 'package:retry/retry.dart';
 import '../database/database.dart';
 import '../model/gallery.dart';
 import '../model/gallery_tag.dart';
-import '../setting/style_setting.dart';
 import '../utils/log.dart';
 
 class TagTranslationService extends GetxService {
@@ -28,7 +28,7 @@ class TagTranslationService extends GetxService {
   RxnString timeStamp = RxnString(null);
   RxString downloadProgress = RxString('0 MB');
 
-  bool get isReady => StyleSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
+  bool get isReady => PreferenceSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
 
   static void init() {
     Get.put(TagTranslationService());
@@ -46,7 +46,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> refresh() async {
-    if (StyleSetting.enableTagZHTranslation.isFalse) {
+    if (PreferenceSetting.enableTagZHTranslation.isFalse) {
       return;
     }
     if (loadingState.value == LoadingState.loading) {

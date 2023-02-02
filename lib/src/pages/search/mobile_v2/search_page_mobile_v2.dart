@@ -1,16 +1,13 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
-import '../../../setting/style_setting.dart';
-import '../../../widget/eh_search_config_dialog.dart';
 import '../../base/base_page.dart';
 import '../base/base_search_page_state.dart';
 import '../quick_search/quick_search_page.dart';
@@ -41,7 +38,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
           key: scaffoldKey,
           appBar: buildAppBar(context),
           endDrawer: Drawer(width: 278, child: QuickSearchPage()),
-          endDrawerEnableOpenDragGesture: StyleSetting.enableQuickSearchDrawerGesture.isTrue,
+          endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
           floatingActionButton: buildFloatingActionButton(),
           resizeToAvoidBottomInset: false,

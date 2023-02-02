@@ -261,6 +261,8 @@ class zh_CN {
       'cover': '覆盖',
       'adaptive': '自适应',
       'hideBottomBar': '隐藏底部导航栏',
+      'enableSwipeBackGesture': '允许通过左滑手势返回',
+      'enableLeftMenuDrawerGesture': '允许通过手势唤起左侧菜单',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
 
@@ -348,7 +350,7 @@ class zh_CN {
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 
       /// preference setting page
-      'showR18GImageDirectly': '直接显示R18G图片',
+      'showR18GImageDirectly': '标签数据中直接显示R18G图片',
 
       /// log page
       'logList': '日志列表',

@@ -2,10 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 
+import '../../../consts/locale_consts.dart';
+import '../../../l18n/locale_text.dart';
+import '../../../model/jh_layout.dart';
+import '../../../service/tag_translation_service.dart';
 import '../../../setting/preference_setting.dart';
+import '../../../setting/style_setting.dart';
+import '../../../utils/locale_util.dart';
+import '../../../widget/loading_state_indicator.dart';
 
 class SettingPreferencePage extends StatelessWidget {
-  const SettingPreferencePage({Key? key}) : super(key: key);
+  final TagTranslationService tagTranslationService = Get.find();
+
+  SettingPreferencePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +25,121 @@ class SettingPreferencePage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 16),
             children: [
-              _buildShowR18GImageDirectly().center(),
+              _buildLanguage(),
+              _buildTagTranslate(),
+              if (StyleSetting.isInV2Layout) _buildShowBottomNavigation().fadeIn(),
+              _buildEnableSwipeBackGesture(),
+              if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture().fadeIn(),
+              if (StyleSetting.isInV2Layout) _buildQuickSearch().fadeIn(),
+              if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton().fadeIn(),
+              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly(),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLanguage() {
+    return ListTile(
+      title: Text('language'.tr),
+      trailing: DropdownButton<Locale>(
+        value: PreferenceSetting.locale.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (Locale? newValue) => PreferenceSetting.saveLanguage(newValue!),
+        items: LocaleText()
+            .keys
+            .keys
+            .map((localeCode) => DropdownMenuItem(
+                  child: Text(LocaleConsts.localeCode2Description[localeCode]!),
+                  value: localeCode2Locale(localeCode),
+                ))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildTagTranslate() {
+    return ListTile(
+      title: Text('enableTagZHTranslation'.tr),
+      subtitle: tagTranslationService.loadingState.value == LoadingState.success
+          ? Text(
+              '${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
+              style: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline),
+            )
+          : tagTranslationService.loadingState.value == LoadingState.loading
+              ? Text(
+                  '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}',
+                  style: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline),
+                )
+              : null,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            useCupertinoIndicator: true,
+            loadingState: tagTranslationService.loadingState.value,
+            indicatorRadius: 10,
+            width: 40,
+            idleWidget: IconButton(onPressed: tagTranslationService.refresh, icon: const Icon(Icons.refresh)),
+            errorWidgetSameWithIdle: true,
+            successWidgetSameWithIdle: true,
+          ),
+          Switch(
+            value: PreferenceSetting.enableTagZHTranslation.value,
+            onChanged: (value) {
+              PreferenceSetting.saveEnableTagZHTranslation(value);
+              if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
+                tagTranslationService.refresh();
+              }
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShowBottomNavigation() {
+    return SwitchListTile(
+      title: Text('hideBottomBar'.tr),
+      value: PreferenceSetting.hideBottomBar.value,
+      onChanged: PreferenceSetting.saveHideBottomBar,
+    );
+  }
+
+  Widget _buildEnableSwipeBackGesture() {
+    return SwitchListTile(
+      title: Text('enableSwipeBackGesture'.tr),
+      subtitle: Text('needRestart'.tr),
+      value: PreferenceSetting.enableSwipeBackGesture.value,
+      onChanged: PreferenceSetting.saveEnableSwipeBackGesture,
+    );
+  }
+
+  Widget _buildEnableLeftMenuDrawerGesture() {
+    return SwitchListTile(
+      title: Text('enableLeftMenuDrawerGesture'.tr),
+      value: PreferenceSetting.enableLeftMenuDrawerGesture.value,
+      onChanged: PreferenceSetting.saveEnableLeftMenuDrawerGesture,
+    );
+  }
+
+  Widget _buildQuickSearch() {
+    return ListTile(
+      title: Text('enableQuickSearchDrawerGesture'.tr),
+      trailing: Switch(
+        value: PreferenceSetting.enableQuickSearchDrawerGesture.value,
+        onChanged: PreferenceSetting.saveEnableQuickSearchDrawerGesture,
+      ),
+    );
+  }
+
+  Widget _buildAlwaysShowScroll2TopButton() {
+    return SwitchListTile(
+      title: Text('alwaysShowScroll2TopButton'.tr),
+      value: PreferenceSetting.alwaysShowScroll2TopButton.value,
+      onChanged: PreferenceSetting.saveAlwaysShowScroll2TopButton,
     );
   }
 
