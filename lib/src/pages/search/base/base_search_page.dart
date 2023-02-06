@@ -33,17 +33,17 @@ mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSear
         visualDensity: visualDensity,
       ),
       IconButton(
-        icon: const Icon(Icons.calendar_today, size: 20),
+        icon: const Icon(Icons.restore),
         onPressed: logic.handleTapJumpButton,
         visualDensity: visualDensity,
       ),
       IconButton(
-        icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.search : Icons.image),
+        icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.search : Icons.image_outlined),
         onPressed: logic.toggleBodyType,
         visualDensity: visualDensity,
       ),
       IconButton(
-        icon: const Icon(Icons.filter_alt),
+        icon: const Icon(Icons.filter_alt_outlined),
         onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter),
         visualDensity: visualDensity,
       ),
