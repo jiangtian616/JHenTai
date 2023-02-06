@@ -43,7 +43,8 @@ class _EHSeparatorState extends State<EHSeparator> {
           color: Theme.of(context).colorScheme.background,
           width: widget.info.isHorizontalSeparator ? double.infinity : widget.info.size,
           height: widget.info.isHorizontalSeparator ? widget.info.size : double.infinity,
-          child: Center(
+          child: Align(
+            alignment: Alignment.centerLeft,
             child: Container(height: dividerHeight, width: dividerWidth, color: widget.info.color),
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
@@ -318,9 +319,13 @@ class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
       case Axis.horizontal:
         return child;
       case Axis.vertical:
-        return GetPlatform.isMobile
-            ? CupertinoScrollbar(controller: details.controller, child: child)
-            : Scrollbar(controller: details.controller, child: child);
+        return ScrollbarTheme(
+          data: ScrollbarThemeData(
+            radius: StyleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
+            thickness: MaterialStateProperty.all(StyleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
+          ),
+          child: Scrollbar(controller: details.controller, child: child),
+        );
     }
   }
 }
