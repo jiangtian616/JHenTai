@@ -32,7 +32,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
-              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly(),
+              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(),
             ],
           ),
         ),
