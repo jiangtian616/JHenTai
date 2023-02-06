@@ -328,6 +328,7 @@ class _DetailsPageHeader extends StatelessWidget {
         letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
         height: UIConfig.detailsPageTitleTextHeight,
       ),
+      onTap: state.galleryDetails == null ? null : logic.searchSimilar,
     );
   }
 
