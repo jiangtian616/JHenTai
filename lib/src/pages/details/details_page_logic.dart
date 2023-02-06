@@ -309,6 +309,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     updateSafely([addFavoriteStateId]);
 
     updateGlobalGalleryStatus();
+
+    toast('favoriteGallerySuccess'.tr, isCenter: false);
   }
 
   Future<void> handleTapRating() async {
@@ -361,6 +363,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     updateSafely();
 
     updateGlobalGalleryStatus();
+
+    toast('ratingSuccess'.tr, isCenter: false);
   }
 
   Future<void> handleTapArchive() async {
