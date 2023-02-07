@@ -16,9 +16,9 @@ class SettingSecurityPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             if (GetPlatform.isMobile) _buildEnableBlurBackgroundApp(),
-            _buildEnablePasswordLock(),
-            if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricLock(),
-            if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricLockOnResume(),
+            _buildEnablePasswordAuth(),
+            if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricAuth(),
+            if (SecuritySetting.supportBiometricAuth) _buildEnableAuthOnResume(),
           ],
         ),
       ),
@@ -32,9 +32,9 @@ class SettingSecurityPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnablePasswordLock() {
+  Widget _buildEnablePasswordAuth() {
     return ListTile(
-      title: Text('enablePasswordLock'.tr),
+      title: Text('enablePasswordAuth'.tr),
       trailing: Switch(
         value: SecuritySetting.enablePasswordAuth.value,
         onChanged: (value) async {
@@ -55,17 +55,17 @@ class SettingSecurityPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnableBiometricLock() {
+  Widget _buildEnableBiometricAuth() {
     return ListTile(
-      title: Text('enableBiometricLock'.tr),
+      title: Text('enableBiometricAuth'.tr),
       trailing: Switch(value: SecuritySetting.enableBiometricAuth.value, onChanged: SecuritySetting.saveEnableBiometricAuth),
     );
   }
 
-  Widget _buildEnableBiometricLockOnResume() {
+  Widget _buildEnableAuthOnResume() {
     return SwitchListTile(
-      title: Text('enableBiometricLockOnResume'.tr),
-      subtitle: Text('enableBiometricLockOnResumeHints'.tr),
+      title: Text('enableAuthOnResume'.tr),
+      subtitle: Text('enableAuthOnResumeHints'.tr),
       value: SecuritySetting.enableAuthOnResume.value,
       onChanged: SecuritySetting.saveEnableAuthOnResume,
     );

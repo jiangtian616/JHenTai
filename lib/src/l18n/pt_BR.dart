@@ -317,10 +317,10 @@ class pt_BR {
       'address': 'Address',
 
       /// security setting page
-      'enablePasswordLock': 'Enable Password Auth on Launch',
-      'enableBiometricLock': 'Ativar autenticação biométrica no lançamento',
-      'enableBiometricLockOnResume': 'Ativar autenticação biométrica ao retomar',
-      'enableBiometricLockOnResumeHints': '3 segundos de atraso',
+      'enablePasswordAuth': 'Enable Password Auth',
+      'enableBiometricAuth': 'Ativar autenticação biométrica',
+      'enableAuthOnResume': 'Enable Auth on Resume',
+      'enableAuthOnResumeHints': '3 segundos de atraso',
       'enableBlurBackgroundApp': 'Ative a página de desfoque ao alternar para o plano de fundo',
 
       /// read setting page

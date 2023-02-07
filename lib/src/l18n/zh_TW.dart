@@ -315,9 +315,10 @@ class zh_TW {
       'address': '地址',
 
       /// security setting page
-      'enableBiometricLock': '開啓生物認證（啓動時）',
-      'enableBiometricLockOnResume': '開啓生物認證（切換至前台時）',
-      'enableBiometricLockOnResumeHints': '需要切換至後台超過3s',
+      'enablePasswordAuth': '開啓密碼認證',
+      'enableBiometricAuth': '開啓生物認證',
+      'enableAuthOnResume': '切換至後台後重新認證',
+      'enableAuthOnResumeHints': '需要切換至後台超過3s',
       'enableBlurBackgroundApp': '在任務欄中模糊應用頁面',
 
       /// read setting page

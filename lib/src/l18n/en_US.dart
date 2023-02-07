@@ -316,10 +316,10 @@ class en_US {
       'address': 'Address',
 
       /// security setting page
-      'enablePasswordLock': 'Enable Password Auth on Launch',
-      'enableBiometricLock': 'Enable Biometric Auth on Launch',
-      'enableBiometricLockOnResume': 'Enable Biometric Auth on Resume',
-      'enableBiometricLockOnResumeHints': '3 seconds delay',
+      'enablePasswordAuth': 'Enable Password Auth',
+      'enableBiometricAuth': 'Enable Biometric Auth',
+      'enableAuthOnResume': 'Enable Auth on Resume',
+      'enableAuthOnResumeHints': '3 seconds delay',
       'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
 
       /// read setting page

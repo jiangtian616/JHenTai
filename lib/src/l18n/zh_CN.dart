@@ -316,10 +316,10 @@ class zh_CN {
       'address': '地址',
 
       /// security setting page
-      'enablePasswordLock': '开启密码认证',
-      'enableBiometricLock': '开启生物认证（启动时）',
-      'enableBiometricLockOnResume': '开启生物认证（切换至前台时）',
-      'enableBiometricLockOnResumeHints': '需要切换至后台超过3s',
+      'enablePasswordAuth': '开启密码认证',
+      'enableBiometricAuth': '开启生物认证',
+      'enableAuthOnResume': '切换至后台后重新认证',
+      'enableAuthOnResumeHints': '需要切换至后台超过3s',
       'enableBlurBackgroundApp': '在任务栏中模糊应用页面',
 
       /// read setting page

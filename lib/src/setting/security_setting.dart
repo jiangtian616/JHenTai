@@ -64,9 +64,9 @@ class SecuritySetting {
     _save();
   }
 
-  static saveEnableBiometricAuth(bool enablePasswordAuth) {
-    Log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
-    SecuritySetting.enablePasswordAuth.value = enablePasswordAuth;
+  static saveEnableBiometricAuth(bool enableBiometricAuth) {
+    Log.debug('saveEnableBiometricAuth:$enableBiometricAuth');
+    SecuritySetting.enableBiometricAuth.value = enableBiometricAuth;
     _save();
   }
 
@@ -75,18 +75,9 @@ class SecuritySetting {
     SecuritySetting.enableAuthOnResume.value = enableAuthOnResume;
     _save();
 
-    if (!GetPlatform.isAndroid) {
-      return;
-    }
     if (enableAuthOnResume) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    } else {
-      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+      saveEnableBlur(true);
     }
-
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
-    );
   }
 
   static Future<void> _save() async {

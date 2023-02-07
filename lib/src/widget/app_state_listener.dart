@@ -130,18 +130,23 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
         return;
       }
 
-      /// only [enableBlur]
-      if (SecuritySetting.enableAuthOnResume.isFalse || (SecuritySetting.enablePasswordAuth.isFalse && SecuritySetting.enableBiometricAuth.isFalse)) {
+      if (SecuritySetting.enableBlur.isFalse) {
+        return;
+      }
+
+      if (SecuritySetting.enableAuthOnResume.isFalse) {
         setState(() => inBlur = false);
         return;
       }
 
-      if (lastInactiveTime != null && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
-        toRoute(Routes.lock)?.then((_) => setState(() => inBlur = false));
+      if (SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) {
+        toRoute(Routes.lock);
+        setState(() => inBlur = false);
+        lastInactiveTime = null;
       } else {
         setState(() => inBlur = false);
+        return;
       }
-      lastInactiveTime = null;
     }
   }
 }
