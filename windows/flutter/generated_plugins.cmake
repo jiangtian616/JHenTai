@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bitsdojo_window_windows
   permission_handler_windows
   sentry_flutter
+  smart_auth
   sqlite3_flutter_libs
   url_launcher_windows
 )

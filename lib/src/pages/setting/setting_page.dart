@@ -75,12 +75,11 @@ class SettingPage extends StatelessWidget {
               title: Text('advanced'.tr),
               onTap: () => toRoute(Routes.settingPrefix + 'advanced'),
             ),
-            if (!GetPlatform.isDesktop)
-              ListTile(
-                leading: const Icon(Icons.security),
-                title: Text('security'.tr),
-                onTap: () => toRoute(Routes.settingPrefix + 'security'),
-              ),
+            ListTile(
+              leading: const Icon(Icons.security),
+              title: Text('security'.tr),
+              onTap: () => toRoute(Routes.settingPrefix + 'security'),
+            ),
             ListTile(
               leading: const Icon(Icons.info),
               title: Text('about'.tr),

@@ -1,11 +1,16 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:local_auth/auth_strings.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:pinput/pinput.dart';
+
+import '../config/ui_config.dart';
 
 class LockPage extends StatefulWidget {
   const LockPage({Key? key}) : super(key: key);
@@ -15,29 +20,84 @@ class LockPage extends StatefulWidget {
 }
 
 class _LockPageState extends State<LockPage> {
+  String hintText = 'localizedReason'.tr;
+
+  TextEditingController controller = TextEditingController();
+
   @override
   void initState() {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      auth();
-    });
+    if (SecuritySetting.enableBiometricAuth.isTrue) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => biometricAuth());
+    }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: auth,
+    return Material(
       child: ColoredBox(
         color: Theme.of(context).colorScheme.background,
-        child: Center(
-          child: Text('tap2Auth'.tr, style: Theme.of(context).textTheme.titleLarge),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (SecuritySetting.enablePasswordAuth.isTrue)
+              Pinput(
+                length: 4,
+                controller: controller,
+                pinAnimationType: PinAnimationType.fade,
+                obscureText: true,
+                autofocus: true,
+                preFilledWidget: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: UIConfig.lockPagePinCodeRegionWidth,
+                      height: UIConfig.lockPageCursorHeight,
+                      color: Get.theme.colorScheme.secondaryContainer,
+                    )
+                  ],
+                ),
+                cursor: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      width: UIConfig.lockPagePinCodeRegionWidth,
+                      height: UIConfig.lockPageCursorHeight,
+                      color: Get.theme.colorScheme.onSecondaryContainer,
+                    )
+                  ],
+                ),
+                defaultPinTheme: const PinTheme(
+                  width: UIConfig.lockPagePinCodeRegionWidth,
+                  height: UIConfig.lockPagePinCodeRegionWidth,
+                  textStyle: TextStyle(fontSize: 24),
+                ),
+                onCompleted: (String value) {
+                  if (keyToMd5(value) != SecuritySetting.encryptedPassword.value) {
+                    setState(() {
+                      controller.clear();
+                      hintText = 'passwordErrorHint'.tr;
+                    });
+                    return;
+                  }
+
+                  unlock();
+                },
+                closeKeyboardWhenCompleted: false,
+              ),
+            if (SecuritySetting.enableBiometricAuth.isTrue) IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint)),
+            Container(
+              padding: const EdgeInsets.only(top: 32),
+              alignment: Alignment.center,
+              child: Text(hintText ?? ''),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Future<void> auth() async {
+  Future<void> biometricAuth() async {
     bool success = await LocalAuthentication().authenticate(
       localizedReason: ' ',
       androidAuthStrings: AndroidAuthMessages(
@@ -57,6 +117,10 @@ class _LockPageState extends State<LockPage> {
       return;
     }
 
+    unlock();
+  }
+
+  void unlock() {
     /// on launch
     if (isEmptyOrNull(Get.routing.previous)) {
       offRoute(Routes.home);

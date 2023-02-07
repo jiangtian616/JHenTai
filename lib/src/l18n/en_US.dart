@@ -30,6 +30,7 @@ class en_US {
       /// unlock page
       'localizedReason': 'Please authenticate to continue',
       'tap2Auth': 'Tap to Authenticate',
+      'passwordErrorHint': 'Password error, please try again',
 
       /// start page
       'TapAgainToExit': 'Tap again to exit',
@@ -315,6 +316,7 @@ class en_US {
       'address': 'Address',
 
       /// security setting page
+      'enablePasswordLock': 'Enable Password Auth on Launch',
       'enableBiometricLock': 'Enable Biometric Auth on Launch',
       'enableBiometricLockOnResume': 'Enable Biometric Auth on Resume',
       'enableBiometricLockOnResumeHints': '3 seconds delay',
@@ -489,6 +491,11 @@ class en_US {
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
       'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
+
+      /// password setting dialog
+      'setPasswordHint': 'Please input your password',
+      'confirmPasswordHint': 'Please input your password again',
+      'passwordNotMatchHint': 'Password not match, try again',
 
       /// quick search page
       'quickSearch': 'Quick Search',

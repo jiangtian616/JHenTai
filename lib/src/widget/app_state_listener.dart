@@ -98,7 +98,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
   /// so i choose to set FLAG_SECURE to do the same effect.
   void _addSecureFlagForAndroid(BuildContext context) {
-    if (GetPlatform.isAndroid && (SecuritySetting.enableBiometricLockOnResume.isTrue || SecuritySetting.enableBlur.isTrue)) {
+    if (GetPlatform.isAndroid && (SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue)) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     }
   }
@@ -116,11 +116,11 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     Log.debug("App state change: -> $state");
 
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      if (SecuritySetting.enableBiometricLockOnResume.isTrue) {
+      if (SecuritySetting.enableAuthOnResume.isTrue) {
         lastInactiveTime ??= DateTime.now();
       }
 
-      if ((SecuritySetting.enableBiometricLockOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur) {
+      if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur) {
         setState(() => inBlur = true);
       }
     }
@@ -131,7 +131,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
       }
 
       /// only [enableBlur]
-      if (SecuritySetting.enableBiometricLockOnResume.isFalse) {
+      if (SecuritySetting.enableAuthOnResume.isFalse || (SecuritySetting.enablePasswordAuth.isFalse && SecuritySetting.enableBiometricAuth.isFalse)) {
         setState(() => inBlur = false);
         return;
       }

@@ -1,3 +1,4 @@
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
@@ -8,25 +9,25 @@ import '../service/storage_service.dart';
 
 class SecuritySetting {
   static RxBool enableBlur = false.obs;
-  static RxBool enableBiometricLock = false.obs;
-  static RxBool enableBiometricLockOnResume = false.obs;
+  static RxnString encryptedPassword = RxnString(null);
+  static RxBool enablePasswordAuth = false.obs;
+  static RxBool enableBiometricAuth = false.obs;
+  static RxBool enableAuthOnResume = false.obs;
 
-  static bool supportBiometricLock = false;
-
+  static bool supportBiometricAuth = false;
+  
   static Future<void> init() async {
-    if (GetPlatform.isDesktop) {
-      return;
-    }
-
-    List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
-    supportBiometricLock = types.contains(BiometricType.fingerprint) || types.contains(BiometricType.face);
-
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('securitySetting');
     if (map != null) {
       _initFromMap(map);
       Log.debug('init SecuritySetting success', false);
     } else {
       Log.debug('init SecuritySetting success: default', false);
+    }
+
+    if (GetPlatform.isMobile) {
+      List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
+      supportBiometricAuth = types.contains(BiometricType.fingerprint) || types.contains(BiometricType.face);
     }
   }
 
@@ -50,21 +51,34 @@ class SecuritySetting {
     );
   }
 
-  static saveEnableBiometricLock(bool enableBiometricLock) {
-    Log.debug('saveEnableBiometricLock:$enableBiometricLock');
-    SecuritySetting.enableBiometricLock.value = enableBiometricLock;
+  static savePassword(String rawPassword) {
+    String md5 = keyToMd5(rawPassword);
+    Log.debug('saveEncryptedPassword:$md5');
+    SecuritySetting.encryptedPassword.value = md5;
     _save();
   }
 
-  static saveEnableBiometricLockOnResume(bool enableBiometricLockOnResume) {
-    Log.debug('saveEnableBiometricLockOnResume:$enableBiometricLockOnResume');
-    SecuritySetting.enableBiometricLockOnResume.value = enableBiometricLockOnResume;
+  static saveEnablePasswordAuth(bool enablePasswordAuth) {
+    Log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
+    SecuritySetting.enablePasswordAuth.value = enablePasswordAuth;
+    _save();
+  }
+
+  static saveEnableBiometricAuth(bool enablePasswordAuth) {
+    Log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
+    SecuritySetting.enablePasswordAuth.value = enablePasswordAuth;
+    _save();
+  }
+
+  static saveEnableAuthOnResume(bool enableAuthOnResume) {
+    Log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
+    SecuritySetting.enableAuthOnResume.value = enableAuthOnResume;
     _save();
 
     if (!GetPlatform.isAndroid) {
       return;
     }
-    if (enableBiometricLockOnResume) {
+    if (enableAuthOnResume) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     } else {
       FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
@@ -82,14 +96,18 @@ class SecuritySetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enableBlur': enableBlur.value,
-      'enableBiometricLock': enableBiometricLock.value,
-      'enableBiometricLockOnResume': enableBiometricLockOnResume.value,
+      'encryptedPassword': encryptedPassword.value,
+      'enablePasswordAuth': enablePasswordAuth.value,
+      'enableBiometricAuth': enableBiometricAuth.value,
+      'enableAuthOnResume': enableAuthOnResume.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     enableBlur.value = map['enableBlur'] ?? enableBlur.value;
-    enableBiometricLock.value = map['enableBiometricLock'] ?? enableBiometricLock.value;
-    enableBiometricLockOnResume.value = map['enableBiometricLockOnResume'] ?? enableBiometricLockOnResume.value;
+    encryptedPassword.value = map['encryptedPassword'] ?? encryptedPassword.value;
+    enablePasswordAuth.value = map['enablePasswordAuth'] ?? enablePasswordAuth.value;
+    enableBiometricAuth.value = map['enableBiometricAuth'] ?? enableBiometricAuth.value;
+    enableAuthOnResume.value = map['enableAuthOnResume'] ?? enableAuthOnResume.value;
   }
 }

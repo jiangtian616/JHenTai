@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: SecuritySetting.enableBiometricLock.isTrue ? Routes.lock : Routes.home,
+      initialRoute: SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
       builder: (context, child) => ScrollConfiguration(behavior: UIConfig.scrollBehaviourWithScrollBar, child: AppStateListener(child: child!)),
 
@@ -125,9 +125,9 @@ Future<void> init() async {
     Log.error(details.exception, null, details.stack);
     Log.upload(details.exception, stackTrace: details.stack);
   };
-  
+
   await FrameRateSetting.init();
-  
+
   await PathSetting.init();
   await StorageService.init();
 
@@ -155,11 +155,11 @@ Future<void> init() async {
   await EHRequest.init();
 
   TagTranslationService.init();
-  
+
   MouseSetting.init();
-  
+
   PreferenceSetting.init();
-  
+
   QuickSearchService.init();
 
   HistoryService.init();

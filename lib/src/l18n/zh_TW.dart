@@ -30,6 +30,7 @@ class zh_TW {
       /// unlock page
       'localizedReason': '請驗證以繼續',
       'tap2Auth': '點擊以驗證',
+      'passwordErrorHint': '密码错误，请重试',
 
       /// start page
       'TapAgainToExit': '再按一次退出',
@@ -486,6 +487,11 @@ class zh_TW {
       'restoredGalleryCount': '恢復畫廊數目',
       'restoredArchiveCount': '恢復歸檔數目',
       'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
+
+      /// password setting dialog
+      'setPasswordHint': '請輸入您的密碼',
+      'confirmPasswordHint': '請再次輸入您的密碼',
+      'passwordNotMatchHint': '密碼不匹配，請重試',
 
       /// quick search page
       'quickSearch': '快速搜尋',

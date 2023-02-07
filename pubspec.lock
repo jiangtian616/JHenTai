@@ -1191,6 +1191,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.14.0"
+  pinput:
+    dependency: "direct main"
+    description:
+      name: pinput
+      sha256: e6aabd1571dde622f9b942f62ac2c80f84b0b50f95fa209a93e78f7d621e1f82
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.23"
   platform:
     dependency: transitive
     description:
@@ -1413,6 +1421,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  smart_auth:
+    dependency: transitive
+    description:
+      name: smart_auth
+      sha256: "8cfaec55b77d5930ed1666bb7ae70db5bade099bb1422401386853b400962113"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.8"
   source_gen:
     dependency: transitive
     description:
@@ -1645,6 +1661,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.1"
+  universal_platform:
+    dependency: transitive
+    description:
+      name: universal_platform
+      sha256: d315be0f6641898b280ffa34e2ddb14f3d12b1a37882557869646e0cc363d0cc
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.0+1"
   upower:
     dependency: transitive
     description:
@@ -1927,4 +1951,4 @@ packages:
     version: "3.1.1"
 sdks:
   dart: ">=2.18.0 <3.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

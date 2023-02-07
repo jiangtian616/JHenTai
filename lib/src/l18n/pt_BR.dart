@@ -30,6 +30,8 @@ class pt_BR {
       /// unlock page
       'localizedReason': 'Por favor, autentique-se para continuar',
       'tap2Auth': 'Toque para autentique-se',
+      'authHint': 'Auth to continue',
+      'passwordErrorHint': 'Password error, please try again',
 
       /// start page
       'TapAgainToExit': 'Toque novamente para sair',
@@ -315,6 +317,7 @@ class pt_BR {
       'address': 'Address',
 
       /// security setting page
+      'enablePasswordLock': 'Enable Password Auth on Launch',
       'enableBiometricLock': 'Ativar autenticação biométrica no lançamento',
       'enableBiometricLockOnResume': 'Ativar autenticação biométrica ao retomar',
       'enableBiometricLockOnResumeHints': '3 segundos de atraso',
@@ -490,6 +493,11 @@ class pt_BR {
       'restoredGalleryCount': 'Contagem de galerias restaurada',
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
       'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
+
+      /// password setting dialog
+      'setPasswordHint': 'Please input your password',
+      'confirmPasswordHint': 'Please input your password again',
+      'passwordNotMatchHint': 'Password not match, try again',
 
       /// quick search page
       'quickSearch': 'Pesquisa rápida',

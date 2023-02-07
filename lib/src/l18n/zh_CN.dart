@@ -30,6 +30,7 @@ class zh_CN {
       /// unlock page
       'localizedReason': '请验证以继续',
       'tap2Auth': '点击以验证',
+      'passwordErrorHint': '密码错误，请重试',
 
       /// start page
       'TapAgainToExit': '再按一次退出',
@@ -315,6 +316,7 @@ class zh_CN {
       'address': '地址',
 
       /// security setting page
+      'enablePasswordLock': '开启密码认证',
       'enableBiometricLock': '开启生物认证（启动时）',
       'enableBiometricLockOnResume': '开启生物认证（切换至前台时）',
       'enableBiometricLockOnResumeHints': '需要切换至后台超过3s',
@@ -487,6 +489,11 @@ class zh_CN {
       'restoredGalleryCount': '恢复画廊数目',
       'restoredArchiveCount': '恢复归档数目',
       'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
+
+      /// password setting dialog
+      'setPasswordHint': '请输入您的密码',
+      'confirmPasswordHint': '请再次输入您的密码',
+      'passwordNotMatchHint': '密码不匹配，请重试',
 
       /// quick search page
       'quickSearch': '快速搜索',

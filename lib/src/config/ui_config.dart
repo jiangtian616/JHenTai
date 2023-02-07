@@ -310,6 +310,16 @@ class UIConfig {
 
   /// detail page
   static const double detailPagePadding = 15;
+
+  /// auth dialog
+  static const double authDialogPinWidth = 300;
+  static const double authDialogPinHeight = 120;
+  static const double authDialogPinCodeRegionWidth = 60;
+  static const double authDialogCursorHeight = 2;
+
+  /// lock page
+  static const double lockPagePinCodeRegionWidth = 60;
+  static const double lockPageCursorHeight = 2;
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
