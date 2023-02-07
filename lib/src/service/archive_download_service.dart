@@ -47,20 +47,15 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   @override
   onInit() async {
-    await recordTimeCost(
-      'init ArchiveDownloadService',
-      () async {
-        await _instantiateFromDB();
+    await _instantiateFromDB();
 
-        Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
+    Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
 
-        for (ArchiveDownloadedData archive in archives) {
-          if (archive.archiveStatusIndex > ArchiveStatus.paused.index && archive.archiveStatusIndex < ArchiveStatus.completed.index) {
-            downloadArchive(archive, resume: true);
-          }
-        }
-      },
-    );
+    for (ArchiveDownloadedData archive in archives) {
+      if (archive.archiveStatusIndex > ArchiveStatus.paused.index && archive.archiveStatusIndex < ArchiveStatus.completed.index) {
+        downloadArchive(archive, resume: true);
+      }
+    }
 
     super.onInit();
   }
