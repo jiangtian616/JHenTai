@@ -448,17 +448,19 @@ class ReadPage extends StatelessWidget {
           children: [
             Text((state.readPageInfo.currentIndex + 1).toString()).marginOnly(left: 36, right: 4),
             Expanded(
-              child: Material(
-                color: Colors.transparent,
-                child: RotatedBox(
-                  quarterTurns: ReadSetting.readDirection.value == ReadDirection.right2left ? 2 : 0,
-                  child: Slider(
-                    min: 1,
-                    max: state.readPageInfo.pageCount.toDouble(),
-                    value: state.readPageInfo.currentIndex + 1.0,
-                    thumbColor: Colors.white,
-                    onChanged: logic.handleSlide,
-                    onChangeEnd: logic.handleSlideEnd,
+              child: ExcludeFocus(
+                child: Material(
+                  color: Colors.transparent,
+                  child: RotatedBox(
+                    quarterTurns: ReadSetting.readDirection.value == ReadDirection.right2left ? 2 : 0,
+                    child: Slider(
+                      min: 1,
+                      max: state.readPageInfo.pageCount.toDouble(),
+                      value: state.readPageInfo.currentIndex + 1.0,
+                      thumbColor: Colors.white,
+                      onChanged: logic.handleSlide,
+                      onChangeEnd: logic.handleSlideEnd,
+                    ),
                   ),
                 ),
               ),
