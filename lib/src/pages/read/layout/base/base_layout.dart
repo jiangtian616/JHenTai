@@ -167,8 +167,8 @@ abstract class BaseLayout extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
-          icon: const Icon(Icons.error),
-          text: Text('networkError'.tr),
+          icon: const Icon(Icons.error, color: UIConfig.readPageButtonColor),
+          text: Text('networkError'.tr, style: const TextStyle(color: UIConfig.readPageButtonColor)),
           onPressed: state.reLoadImage,
           onLongPress: state.reLoadImage,
         ),
