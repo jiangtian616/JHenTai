@@ -182,6 +182,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         containerWidth: UIConfig.downloadPageCoverWidth,
         containerHeight: UIConfig.downloadPageCoverHeight,
         fit: BoxFit.fitWidth,
+        maxBytes: 1024 * 1024,
       ),
     );
   }

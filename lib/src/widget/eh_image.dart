@@ -29,6 +29,7 @@ class EHImage extends StatelessWidget {
   final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
   final bool forceFadeIn;
+  final int? maxBytes;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -51,6 +52,7 @@ class EHImage extends StatelessWidget {
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,
     this.forceFadeIn = false,
+    this.maxBytes,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -73,6 +75,7 @@ class EHImage extends StatelessWidget {
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,
     this.forceFadeIn = false,
+    this.maxBytes,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -152,6 +155,7 @@ class EHImage extends StatelessWidget {
             return forceFadeIn || !state.wasSynchronouslyLoaded ? child.fadeIn() : child;
         }
       },
+      maxBytes: maxBytes,
     );
   }
 
@@ -206,6 +210,7 @@ class EHImage extends StatelessWidget {
             );
         }
       },
+      maxBytes: maxBytes,
     );
   }
 
