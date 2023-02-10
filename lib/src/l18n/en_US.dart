@@ -22,6 +22,7 @@ class en_US {
       'invalid': "Invalid",
       'internalError': "Internal Error",
       'you': 'You',
+      'retryHint': 'Please retry after refresh',
 
       'home': "Home",
       'gallery': "Gallery",

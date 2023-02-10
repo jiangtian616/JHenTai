@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
+import 'package:resizable_widget/resizable_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import '../../../mixin/double_column_widget_mixin.dart';
+import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
+import '../../../service/windows_service.dart';
 import '../../../setting/preference_setting.dart';
+import '../../../widget/eh_separator.dart';
 import '../../blank_page.dart';
 import '../../home_page.dart';
 
-class TabletLayoutPageV2 extends StatelessWidget with DoubleColumnWidgetMixin {
+class TabletLayoutPageV2 extends StatelessWidget {
+  final WindowService windowService = Get.find<WindowService>();
+
   TabletLayoutPageV2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return buildDoubleColumnWidget(_leftColumn(), _rightColumn());
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.background,
+      child: ResizableWidget(
+        key: Key(Theme.of(context).colorScheme.background.hashCode.toString()),
+        separatorSize: 7.5,
+        separatorColor: UIConfig.desktopLayoutDividerColor,
+        separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
+        percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
+        onResized: windowService.handleColumnResized,
+        isDisabledSmartHide: true,
+        children: [_leftColumn(), _rightColumn()],
+      ),
+    );
   }
 
   Widget _leftColumn() {

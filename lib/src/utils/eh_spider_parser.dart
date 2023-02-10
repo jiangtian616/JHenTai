@@ -553,12 +553,12 @@ class EHSpiderParser {
     };
   }
 
-  static int votingCommentResponse2Score(Response response) {
+  static int? votingCommentResponse2Score(Response response) {
     int? score = jsonDecode(response.toString())['comment_score'];
 
     CheckUtil.build(() => score != null, errorMsg: "Voting comment result score shouldn't be null!").withUploadParam(response).check();
 
-    return score!;
+    return score;
   }
 
   static String _parseLoginErrorMsg(String html) {

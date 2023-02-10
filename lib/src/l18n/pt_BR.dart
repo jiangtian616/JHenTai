@@ -22,7 +22,8 @@ class pt_BR {
       'invalid': "Inválido",
       'internalError': "Erro interno",
       'you': 'Você',
-
+      'retryHint': 'Please retry after refresh',
+      
       'home': "Home",
       'gallery': "Galeria",
       'setting': 'Configuração',

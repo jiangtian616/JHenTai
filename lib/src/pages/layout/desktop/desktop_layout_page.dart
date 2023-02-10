@@ -3,17 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:resizable_widget/resizable_widget.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/ui_config.dart';
-import '../../../mixin/double_column_widget_mixin.dart';
 import '../../../routes/routes.dart';
+import '../../../service/windows_service.dart';
+import '../../../widget/eh_separator.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
-class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
+class DesktopLayoutPage extends StatelessWidget {
   final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic(), permanent: true);
   final DesktopLayoutPageState state = Get.find<DesktopLayoutPageLogic>().state;
+
+  final WindowService windowService = Get.find<WindowService>();
 
   DesktopLayoutPage({Key? key}) : super(key: key);
 
@@ -23,7 +27,21 @@ class DesktopLayoutPage extends StatelessWidget with DoubleColumnWidgetMixin {
       children: [
         _leftTabBar(context),
         VerticalDivider(width: 1, color: UIConfig.desktopLayoutDividerColor),
-        Expanded(child: buildDoubleColumnWidget(_leftColumn(), _rightColumn())),
+        Expanded(
+          child: ColoredBox(
+            color: Theme.of(context).colorScheme.background,
+            child: ResizableWidget(
+              key: Key(Theme.of(context).colorScheme.background.hashCode.toString()),
+              separatorSize: 7.5,
+              separatorColor: UIConfig.desktopLayoutDividerColor,
+              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
+              percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
+              onResized: windowService.handleColumnResized,
+              isDisabledSmartHide: true,
+              children: [_leftColumn(), _rightColumn()],
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -446,7 +446,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
     Log.info('Voting comment: ${widget.commentId}, isVotingUp: $isVotingUp');
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
-    int newScore;
+    int? newScore;
 
     try {
       newScore = await EHRequest.voteComment(
@@ -468,8 +468,13 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       return _doVoteComment(isVotingUp);
     }
 
+    if (newScore == null) {
+      toast('retryHint'.tr);
+      return;
+    }
+    
     setStateIfMounted(() {
-      score = newScore >= 0 ? '+' + newScore.toString() : newScore.toString();
+      score = newScore! >= 0 ? '+' + newScore.toString() : newScore.toString();
     });
   }
 }

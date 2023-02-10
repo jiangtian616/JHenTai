@@ -22,7 +22,8 @@ class zh_CN {
       'invalid': "无效",
       'internalError': "内部错误",
       'you': '你',
-
+      'retryHint': '请刷新后重试',
+      
       'home': "主页",
       'gallery': "画廊",
       'setting': '设置',

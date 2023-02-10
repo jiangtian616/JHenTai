@@ -22,7 +22,8 @@ class zh_TW {
       'invalid': "無效",
       'internalError': "內部錯誤",
       'you': '你',
-
+      'retryHint': '請刷新后重試',
+      
       'home': "主畫面",
       'gallery': "畫廊",
       'setting': '設定',

@@ -349,6 +349,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       state.ratingState = LoadingState.error;
       updateSafely([ratingStateId]);
       return;
+    } on FormatException catch (_) {
+      /// expired apikey
+      await DetailsPageLogic.current!.handleRefresh();
+      return handleTapRating();
     }
 
     /// eg: {"rating_avg":0.93000000000000005,"rating_usr":0.5,"rating_cnt":21,"rating_cls":"ir irr"}

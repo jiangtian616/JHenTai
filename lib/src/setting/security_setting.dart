@@ -15,7 +15,7 @@ class SecuritySetting {
   static RxBool enableAuthOnResume = false.obs;
 
   static bool supportBiometricAuth = false;
-  
+
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('securitySetting');
     if (map != null) {
@@ -28,6 +28,7 @@ class SecuritySetting {
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
       supportBiometricAuth = types.contains(BiometricType.fingerprint) || types.contains(BiometricType.face);
+      Log.debug('supportBiometricAuth:$supportBiometricAuth');
     }
   }
 

@@ -106,14 +106,13 @@ Future<void> init() async {
     await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
   }
 
-  ErrorCallback? defaultOnError = PlatformDispatcher.instance.onError;
   PlatformDispatcher.instance.onError = (error, stack) {
     if (error is NotUploadException) {
       return true;
     }
 
     Log.error('Global Error', error, stack);
-    defaultOnError?.call(error, stack);
+    Log.upload(error, stackTrace: stack);
     return false;
   };
 
