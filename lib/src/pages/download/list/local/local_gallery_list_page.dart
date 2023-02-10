@@ -220,7 +220,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       containerWidth: UIConfig.downloadPageCoverWidth,
       containerHeight: UIConfig.downloadPageCoverHeight,
       fit: BoxFit.fitWidth,
-      maxBytes: 1024 * 1024,
+      maxBytes: 2 * 1024 * 1024,
     );
   }
 

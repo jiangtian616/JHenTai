@@ -180,7 +180,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
       galleryImage: image,
       fit: BoxFit.cover,
       borderRadius: BorderRadius.circular(8),
-      maxBytes: 1024 * 1024,
+      maxBytes: 2 * 1024 * 1024,
     );
   }
 
@@ -190,7 +190,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
       fit: BoxFit.cover,
       forceFadeIn: true,
       borderRadius: BorderRadius.circular(12),
-      maxBytes: 1024 * 1024,
+      maxBytes: 2 * 1024 * 1024,
     );
   }
 }

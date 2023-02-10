@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -182,7 +181,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         containerWidth: UIConfig.downloadPageCoverWidth,
         containerHeight: UIConfig.downloadPageCoverHeight,
         fit: BoxFit.fitWidth,
-        maxBytes: 1024 * 1024,
+        maxBytes: 2 * 1024 * 1024,
       ),
     );
   }
