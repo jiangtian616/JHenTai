@@ -35,7 +35,6 @@ class _WindowWidgetState extends State<WindowWidget> {
               behavior: HitTestBehavior.translucent,
               onPanStart: (_) {
                 appWindow.startDragging();
-                windowService.handleWindowResized();
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,

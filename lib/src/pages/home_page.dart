@@ -22,6 +22,7 @@ import '../model/jh_layout.dart';
 import '../network/eh_request.dart';
 import '../routes/routes.dart';
 import '../service/storage_service.dart';
+import '../service/windows_service.dart';
 import '../setting/advanced_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/route_util.dart';
@@ -49,7 +50,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with LoginRequiredMixin {
   final StorageService storageService = Get.find();
-
+  final WindowService windowService = Get.find<WindowService>();
+  
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
@@ -78,6 +80,8 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         child: LayoutBuilder(
           builder: (_, __) => Obx(
             () {
+              windowService.handleWindowResized();
+              
               if (StyleSetting.layout.value == LayoutMode.mobileV2 || StyleSetting.layout.value == LayoutMode.mobile) {
                 StyleSetting.actualLayout = LayoutMode.mobileV2;
                 return MobileLayoutPageV2();
