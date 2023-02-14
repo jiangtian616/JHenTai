@@ -15,7 +15,6 @@ import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
-import 'package:jhentai/src/utils/recorder_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -34,7 +33,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
   static const int _retryTimes = 3;
-  static const String metadataFileName = '.archive.metadata';
+  static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
 
   List<String> allGroups = [];

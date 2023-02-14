@@ -15,7 +15,6 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
-import 'package:jhentai/src/utils/recorder_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -50,7 +49,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
   static const int _retryTimes = 3;
-  static const String metadataFileName = '.metadata';
+  static const String metadataFileName = 'metadata';
   static const int _maxTitleLength = 85;
 
   static const int defaultDownloadGalleryPriority = 4;
