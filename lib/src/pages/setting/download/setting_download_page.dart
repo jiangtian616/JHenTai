@@ -55,8 +55,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             padding: const EdgeInsets.only(top: 16),
             children: [
               _buildDownloadPath(),
-              if (!GetPlatform.isIOS) _buildResetDownloadPath(),
-              if (!GetPlatform.isIOS) _buildExtraGalleryScanPath(),
+              if (!GetPlatform.isIOS && !GetPlatform.isMacOS) _buildResetDownloadPath(),
+              if (!GetPlatform.isIOS && !GetPlatform.isMacOS) _buildExtraGalleryScanPath(),
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
               _buildDownloadConcurrency(),
@@ -107,8 +107,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
       title: Text('singleImageSavePath'.tr),
       subtitle: Text(DownloadSetting.singleImageSavePath.value.breakWord),
-      trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: _handleChangeSingleImageSavePath,
+      trailing: GetPlatform.isMacOS ? null : const Icon(Icons.keyboard_arrow_right),
+      onTap: GetPlatform.isMacOS ? null : _handleChangeSingleImageSavePath,
     );
   }
 
