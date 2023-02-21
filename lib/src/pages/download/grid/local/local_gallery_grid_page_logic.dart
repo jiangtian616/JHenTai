@@ -32,4 +32,10 @@ class LocalGalleryGridPageLogic extends GridBasePageLogic with LocalGalleryDownl
 
   @override
   Future<void> saveGroupOrderAfterDrag(int beforeIndex, int afterIndex) async {}
+
+  @override
+  void handlePauseAllTasks() {}
+
+  @override
+  void handleResumeAllTasks() {}
 }

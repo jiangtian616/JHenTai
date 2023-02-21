@@ -23,7 +23,7 @@ class pt_BR {
       'internalError': "Erro interno",
       'you': 'Você',
       'retryHint': 'Please retry after refresh',
-      
+
       'home': "Home",
       'gallery': "Galeria",
       'setting': 'Configuração',
@@ -393,6 +393,10 @@ class pt_BR {
       'deleteGroup': 'Apagar grupo',
       'groupName': 'Nome do grupo',
       'drag2sort': 'Drag to Sort',
+      'switch2GridMode': 'Switch to Grid Mode',
+      'switch2ListMode': 'Switch to List Mode',
+      'resumeAllTasks': 'Resume All Tasks',
+      'pauseAllTasks': 'Pause All Tasks',
 
       /// search dialog
       'searchConfig': 'Opções de pesquisa',

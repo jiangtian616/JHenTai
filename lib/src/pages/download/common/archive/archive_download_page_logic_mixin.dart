@@ -89,6 +89,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
     update([bodyId]);
   }
 
+  void handleResumeAllTasks() {
+    archiveDownloadService.resumeAllDownloadArchive();
+  }
+
+  void handlePauseAllTasks() {
+    archiveDownloadService.pauseAllDownloadArchive();
+  }
+
   void handleRemoveItem(ArchiveDownloadedData archive) {
     archiveDownloadService.update([archiveDownloadService.galleryCountChangedId]);
   }

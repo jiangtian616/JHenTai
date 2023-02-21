@@ -48,9 +48,43 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.archive),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.view_list),
-          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context),
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                value: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.grid_view), const SizedBox(width: 12), Text('switch2GridMode'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 1,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 2,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
+                ),
+              ),
+            ];
+          },
+          onSelected: (value) {
+            if (value == 0) {
+              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context);
+            }
+            if (value == 1) {
+              logic.archiveDownloadService.resumeAllDownloadArchive();
+            }
+            if (value == 2) {
+              logic.archiveDownloadService.pauseAllDownloadArchive();
+            }
+          },
         ),
       ],
     );

@@ -90,6 +90,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
     update([bodyId]);
   }
 
+  void handleResumeAllTasks() {
+    downloadService.resumeAllDownloadGallery();
+  }
+
+  void handlePauseAllTasks() {
+    downloadService.pauseAllDownloadGallery();
+  }
+
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
     downloadService.update([downloadService.galleryCountChangedId]);
   }

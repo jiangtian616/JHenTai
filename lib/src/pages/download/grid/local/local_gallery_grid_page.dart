@@ -37,7 +37,7 @@ class LocalGalleryGridPage extends GridBasePage {
           onPressed: logic.handleRefreshLocalGallery,
         ),
         IconButton(
-          icon: const Icon(Icons.grid_view),
+          icon: const Icon(Icons.view_list),
           onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context),
         ),
       ],

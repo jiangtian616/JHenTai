@@ -23,7 +23,7 @@ class zh_TW {
       'internalError': "內部錯誤",
       'you': '你',
       'retryHint': '請刷新后重試',
-      
+
       'home': "主畫面",
       'gallery': "畫廊",
       'setting': '設定',
@@ -389,6 +389,10 @@ class zh_TW {
       'deleteGroup': '刪除分組',
       'groupName': '分組名稱',
       'drag2sort': '拖拽以排序',
+      'switch2GridMode': '切換至網格模式',
+      'switch2ListMode': '切換至列表模式',
+      'resumeAllTasks': '恢複所有任務',
+      'pauseAllTasks': '恢複所有任務',
 
       /// search dialog
       'searchConfig': '搜尋設定',

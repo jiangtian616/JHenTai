@@ -36,4 +36,9 @@ class ArchiveListDownloadPageLogic extends GetxController with Scroll2TopLogicMi
     state.removedGids.add(archive.gid);
     super.handleRemoveItem(archive);
   }
+
+  @override
+  void handleResumeAllTasks() {
+    archiveDownloadService.resumeAllDownloadArchive();
+  }
 }

@@ -39,4 +39,8 @@ abstract class GridBasePageLogic extends GetxController with Scroll2TopLogicMixi
   Future<void> saveGalleryOrderAfterDrag(int beforeIndex, int afterIndex);
 
   Future<void> saveGroupOrderAfterDrag(int beforeIndex, int afterIndex);
+
+  void handleResumeAllTasks();
+
+  void handlePauseAllTasks();
 }

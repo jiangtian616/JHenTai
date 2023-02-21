@@ -23,7 +23,7 @@ class zh_CN {
       'internalError': "内部错误",
       'you': '你',
       'retryHint': '请刷新后重试',
-      
+
       'home': "主页",
       'gallery': "画廊",
       'setting': '设置',
@@ -390,6 +390,10 @@ class zh_CN {
       'deleteGroup': '删除分组',
       'groupName': '分组名称',
       'drag2sort': '拖拽以排序',
+      'switch2GridMode': '切换至网格模式',
+      'switch2ListMode': '切换至列表模式',
+      'resumeAllTasks': '恢复所有任务',
+      'pauseAllTasks': '暂停所有任务',
 
       /// search dialog
       'searchConfig': '搜索配置',

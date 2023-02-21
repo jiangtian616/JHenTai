@@ -391,6 +391,10 @@ class en_US {
       'deleteGroup': 'Delete Group',
       'groupName': 'Group Name',
       'drag2sort': 'Drag to Sort',
+      'switch2GridMode': 'Switch to Grid Mode',
+      'switch2ListMode': 'Switch to List Mode',
+      'resumeAllTasks': 'Resume All Tasks',
+      'pauseAllTasks': 'Pause All Tasks',
 
       /// search dialog
       'searchConfig': 'Search Config',

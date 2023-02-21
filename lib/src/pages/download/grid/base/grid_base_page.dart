@@ -56,9 +56,43 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
             isSelected: state.inEditMode,
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.grid_view),
-          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context),
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                value: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 1,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 2,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
+                ),
+              ),
+            ];
+          },
+          onSelected: (value) {
+            if (value == 0) {
+              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
+            }
+            if (value == 1) {
+              logic.handleResumeAllTasks();
+            }
+            if (value == 2) {
+              logic.handlePauseAllTasks();
+            }
+          },
         ),
       ],
     );

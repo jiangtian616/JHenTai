@@ -15,13 +15,6 @@ class GalleryListDownloadPageLogic extends GetxController with Scroll2TopLogicMi
     state.displayGroups = Set.from(storageService.read('displayArchiveGroups') ?? ['default'.tr]);
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-
-    state.scrollController.dispose();
-  }
-
   void toggleDisplayGroups(String groupName) {
     if (state.displayGroups.contains(groupName)) {
       state.displayGroups.remove(groupName);
@@ -39,7 +32,7 @@ class GalleryListDownloadPageLogic extends GetxController with Scroll2TopLogicMi
     return super.doRenameGroup(oldGroup, newGroup);
   }
 
-    @override
+  @override
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
     if (deleteImages) {
       state.removedGids.add(gallery.gid);
