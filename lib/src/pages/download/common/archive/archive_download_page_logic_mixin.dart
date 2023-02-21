@@ -13,6 +13,7 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_download_dialog.dart';
+import '../../../../widget/re_unlock_dialog.dart';
 
 mixin ArchiveDownloadPageLogicMixin on GetxController {
   final String bodyId = 'bodyId';
@@ -157,5 +158,12 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
         ),
       ),
     );
+  }
+
+  Future<void> handleReUnlockArchive(ArchiveDownloadedData archive) async {
+    bool? ok = await Get.dialog(const ReUnlockDialog());
+    if (ok ?? false) {
+      archiveDownloadService.cancelUnlockArchiveAndDownload(archive);
+    }
   }
 }

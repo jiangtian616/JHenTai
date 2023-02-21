@@ -291,12 +291,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         }
 
         return GestureDetector(
-          onTap: () async {
-            bool? ok = await Get.dialog(const ReUnlockDialog());
-            if (ok ?? false) {
-              logic.archiveDownloadService.cancelUnlockArchiveAndDownload(archive);
-            }
-          },
+          onTap: () => logic.handleReUnlockArchive(archive),
           child: const Icon(Icons.lock_open, size: 18, color: Colors.red),
         );
       },

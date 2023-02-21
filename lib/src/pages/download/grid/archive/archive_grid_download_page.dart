@@ -109,9 +109,11 @@ class ArchiveGridDownloadPage extends GridBasePage {
                 ).marginOnly(top: 60),
               ),
               GestureDetector(
-                onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                    ? logic.archiveDownloadService.resumeDownloadArchive(archive)
-                    : logic.archiveDownloadService.pauseDownloadArchive(archive),
+                onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+                    ? logic.handleReUnlockArchive(archive)
+                    : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                        ? logic.archiveDownloadService.resumeDownloadArchive(archive)
+                        : logic.archiveDownloadService.pauseDownloadArchive(archive),
                 child: Center(
                   child: GetBuilder<ArchiveDownloadService>(
                     id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
@@ -125,11 +127,13 @@ class ArchiveGridDownloadPage extends GridBasePage {
                             ),
                           )
                         : Icon(
-                            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                                ? Icons.play_arrow
-                                : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
-                                    ? Icons.done
-                                    : Icons.pause,
+                            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+                                ? Icons.lock_open
+                                : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                                    ? Icons.play_arrow
+                                    : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                                        ? Icons.done
+                                        : Icons.pause,
                             color: Colors.white,
                           ),
                   ),
