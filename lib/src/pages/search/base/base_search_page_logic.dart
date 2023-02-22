@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
@@ -17,7 +18,6 @@ import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
-import '../../../setting/style_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
 import '../../../utils/snack_util.dart';
@@ -35,7 +35,8 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   final QuickSearchService quickSearchService = Get.find();
   final SearchHistoryService searchHistoryService = Get.find();
 
-  Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
+  final Debouncing suggestDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
+  final Debouncing recordDebouncing = Debouncing(duration: const Duration(milliseconds: 1000));
 
   @override
   void onInit() {
@@ -46,6 +47,8 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
   @override
   void onClose() {
     state.searchFieldFocusNode.dispose();
+    suggestDebouncing.close();
+    recordDebouncing.close();
   }
 
   @override
@@ -125,7 +128,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     }
 
     /// only search after 300ms
-    debouncing.debounce(searchTags);
+    suggestDebouncing.debounce(searchTags);
   }
 
   Future<void> searchTags() async {
@@ -236,5 +239,27 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     state.enableSearchHistoryTranslation = !state.enableSearchHistoryTranslation;
     storageService.write('enableSearchHistoryTranslation', state.enableSearchHistoryTranslation);
     update([suggestionBodyId]);
+  }
+
+  void recordBrowseProgress(Gallery gallery) {
+    if (state.loadingState == LoadingState.loading) {
+      return;
+    }
+
+    String oldKeyword = state.searchConfig.computeFullKeywordsWithLanguage();
+
+    recordDebouncing.debounce(() {
+      if (state.loadingState == LoadingState.loading) {
+        return;
+      }
+
+      String currentKeyword = state.searchConfig.computeFullKeywordsWithLanguage();
+      if (oldKeyword != currentKeyword) {
+        return;
+      }
+
+      Log.verbose('record browse progress, keyword:$currentKeyword, gid:${gallery.gid},');
+      appDb.updateTagBrowseProgress(currentKeyword, gallery.gid);
+    });
   }
 }

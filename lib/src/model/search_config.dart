@@ -147,6 +147,14 @@ class SearchConfig {
     return params;
   }
 
+  String computeFullKeywordsWithLanguage() {
+    if (language != null) {
+      return computeFullKeywords() + ' language:"$language"';
+    } else {
+      return computeFullKeywords();
+    }
+  }
+
   String computeFullKeywords() {
     return '${keyword ?? ''} ${computeTagKeywords(withTranslation: false, separator: ' ')}'.trim();
   }

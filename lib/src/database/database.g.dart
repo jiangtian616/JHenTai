@@ -7,6 +7,189 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
+class TagBrowseProgres extends DataClass
+    implements Insertable<TagBrowseProgres> {
+  final String keyword;
+  final int gid;
+  TagBrowseProgres({required this.keyword, required this.gid});
+  factory TagBrowseProgres.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return TagBrowseProgres(
+      keyword: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}keyword'])!,
+      gid: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}gid'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['keyword'] = Variable<String>(keyword);
+    map['gid'] = Variable<int>(gid);
+    return map;
+  }
+
+  TagBrowseProgressCompanion toCompanion(bool nullToAbsent) {
+    return TagBrowseProgressCompanion(
+      keyword: Value(keyword),
+      gid: Value(gid),
+    );
+  }
+
+  factory TagBrowseProgres.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TagBrowseProgres(
+      keyword: serializer.fromJson<String>(json['keyword']),
+      gid: serializer.fromJson<int>(json['gid']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'keyword': serializer.toJson<String>(keyword),
+      'gid': serializer.toJson<int>(gid),
+    };
+  }
+
+  TagBrowseProgres copyWith({String? keyword, int? gid}) => TagBrowseProgres(
+        keyword: keyword ?? this.keyword,
+        gid: gid ?? this.gid,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TagBrowseProgres(')
+          ..write('keyword: $keyword, ')
+          ..write('gid: $gid')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(keyword, gid);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TagBrowseProgres &&
+          other.keyword == this.keyword &&
+          other.gid == this.gid);
+}
+
+class TagBrowseProgressCompanion extends UpdateCompanion<TagBrowseProgres> {
+  final Value<String> keyword;
+  final Value<int> gid;
+  const TagBrowseProgressCompanion({
+    this.keyword = const Value.absent(),
+    this.gid = const Value.absent(),
+  });
+  TagBrowseProgressCompanion.insert({
+    required String keyword,
+    required int gid,
+  })  : keyword = Value(keyword),
+        gid = Value(gid);
+  static Insertable<TagBrowseProgres> custom({
+    Expression<String>? keyword,
+    Expression<int>? gid,
+  }) {
+    return RawValuesInsertable({
+      if (keyword != null) 'keyword': keyword,
+      if (gid != null) 'gid': gid,
+    });
+  }
+
+  TagBrowseProgressCompanion copyWith(
+      {Value<String>? keyword, Value<int>? gid}) {
+    return TagBrowseProgressCompanion(
+      keyword: keyword ?? this.keyword,
+      gid: gid ?? this.gid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (keyword.present) {
+      map['keyword'] = Variable<String>(keyword.value);
+    }
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TagBrowseProgressCompanion(')
+          ..write('keyword: $keyword, ')
+          ..write('gid: $gid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class TagBrowseProgress extends Table
+    with TableInfo<TagBrowseProgress, TagBrowseProgres> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  TagBrowseProgress(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _keywordMeta = const VerificationMeta('keyword');
+  late final GeneratedColumn<String?> keyword = GeneratedColumn<String?>(
+      'keyword', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  final VerificationMeta _gidMeta = const VerificationMeta('gid');
+  late final GeneratedColumn<int?> gid = GeneratedColumn<int?>(
+      'gid', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [keyword, gid];
+  @override
+  String get aliasedName => _alias ?? 'tag_browse_progress';
+  @override
+  String get actualTableName => 'tag_browse_progress';
+  @override
+  VerificationContext validateIntegrity(Insertable<TagBrowseProgres> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('keyword')) {
+      context.handle(_keywordMeta,
+          keyword.isAcceptableOrUnknown(data['keyword']!, _keywordMeta));
+    } else if (isInserting) {
+      context.missing(_keywordMeta);
+    }
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    } else if (isInserting) {
+      context.missing(_gidMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {keyword};
+  @override
+  TagBrowseProgres map(Map<String, dynamic> data, {String? tablePrefix}) {
+    return TagBrowseProgres.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  TagBrowseProgress createAlias(String alias) {
+    return TagBrowseProgress(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class GalleryHistoryData extends DataClass
     implements Insertable<GalleryHistoryData> {
   final int gid;
@@ -2856,6 +3039,7 @@ class GalleryGroup extends Table
 
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  late final TagBrowseProgress tagBrowseProgress = TagBrowseProgress(this);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
   late final Tag tag = Tag(this);
   late final ArchiveDownloaded archiveDownloaded = ArchiveDownloaded(this);
@@ -2863,6 +3047,25 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
   late final GalleryGroup galleryGroup = GalleryGroup(this);
+  Selectable<TagBrowseProgres> selectTagBrowseProgress(String keyword) {
+    return customSelect(
+        'select *\r\nfrom tag_browse_progress\r\nwhere keyword = :keyword',
+        variables: [
+          Variable<String>(keyword)
+        ],
+        readsFrom: {
+          tagBrowseProgress,
+        }).map(tagBrowseProgress.mapFromRow);
+  }
+
+  Future<int> updateTagBrowseProgress(String keyword, int gid) {
+    return customInsert(
+      'insert or ignore into tag_browse_progress(keyword, gid)\r\nvalues (:keyword, :gid)\r\non conflict (keyword) do update\r\n    set gid = :gid and gid > :gid\r\nwhere keyword = :keyword',
+      variables: [Variable<String>(keyword), Variable<int>(gid)],
+      updates: {tagBrowseProgress},
+    );
+  }
+
   Selectable<GalleryHistoryData> selectHistorys() {
     return customSelect(
         'SELECT *\r\nFROM gallery_history\r\nORDER BY lastReadTime DESC',
@@ -3395,6 +3598,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+        tagBrowseProgress,
         galleryHistory,
         tag,
         archiveDownloaded,

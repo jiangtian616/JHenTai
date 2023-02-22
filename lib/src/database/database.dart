@@ -18,12 +18,12 @@ import '../service/storage_service.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(include: {'gallery_downloaded.drift', 'archive_downloaded.drift', 'tag.drift', 'gallery_history.drift'})
+@DriftDatabase(include: {'gallery_downloaded.drift', 'archive_downloaded.drift', 'tag.drift', 'gallery_history.drift', 'tag_browse_progress.drift'})
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -70,6 +70,9 @@ class AppDb extends _$AppDb {
           }
           if (from < 10) {
             await _deleteImageSizeColumn(m);
+          }
+          if (from < 12) {
+            await m.createTable(tagBrowseProgress);
           }
         } on Exception catch (e) {
           Log.error(e);

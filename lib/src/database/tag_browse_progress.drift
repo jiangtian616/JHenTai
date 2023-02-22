@@ -1,0 +1,17 @@
+CREATE TABLE tag_browse_progress
+(
+    keyword TEXT NOT NULL PRIMARY KEY,
+    gid     INT  NOT NULL
+);
+
+selectTagBrowseProgress:
+select *
+from tag_browse_progress
+where keyword = :keyword;
+
+updateTagBrowseProgress(REQUIRED :keyword AS TEXT,REQUIRED :gid AS INT):
+insert or ignore into tag_browse_progress(keyword, gid)
+values (:keyword, :gid)
+on conflict (keyword) do update
+    set gid = :gid and gid > :gid
+where keyword = :keyword;
