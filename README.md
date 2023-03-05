@@ -80,6 +80,7 @@ App translation：
 
 - [andyching168](https://github.com/andyching168) 繁體中文(台灣)
 - [lucas-04](https://github.com/lucas-04) Português brasileiro
+- [qlife1146](https://github.com/qlife1146) 한국어
 
 mush thanks to these projects and people🙇‍
 

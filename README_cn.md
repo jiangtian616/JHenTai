@@ -63,6 +63,7 @@ App翻译：
 
 - [andyching168](https://github.com/andyching168) 繁體中文(台灣)
 - [lucas-04](https://github.com/lucas-04) 葡萄牙语 Português brasileiro
+- [qlife1146](https://github.com/qlife1146) 韩语
 
 十分感谢以上项目与人员🙇‍
 
@@ -129,7 +130,8 @@ App翻译：
 
 你可以只做以上步骤然后提交PR，我会补充其他的步骤，或者你自己可以继续：
 
-4. 在 `/lib/src/l18n/locale_text.dart` 的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
+4. 在 `/lib/src/l18n/locale_text.dart`
+   的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 5. 在 `/lib/src/consts/locale_consts.dart` 的 `localeCode2Description`
    属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`，用于描述你的语言
 
