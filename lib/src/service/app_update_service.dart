@@ -57,9 +57,11 @@ class AppUpdateService extends GetxService {
       File oldBakFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.bak'));
       if (oldConfigFile.existsSync()) {
         oldConfigFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.gs'));
+        oldConfigFile.delete();
       }
       if (oldBakFile.existsSync()) {
         oldBakFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.bak'));
+        oldBakFile.delete();
       }
     } on Exception catch (e) {
       Log.upload(e);
