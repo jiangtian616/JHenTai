@@ -15,7 +15,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 4 ;
+  static const int appVersion = 4;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -24,6 +24,8 @@ class AppUpdateService extends GetxService {
   @override
   void onInit() async {
     super.onInit();
+
+    migrateOldConfigFile();
 
     File file = File(join(PathSetting.getVisibleDir().path, 'jhentai.version'));
     if (!file.existsSync()) {
@@ -49,6 +51,21 @@ class AppUpdateService extends GetxService {
     }
   }
 
+  void migrateOldConfigFile() {
+    try {
+      File oldConfigFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.gs'));
+      File oldBakFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.bak'));
+      if (oldConfigFile.existsSync()) {
+        oldConfigFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.gs'));
+      }
+      if (oldBakFile.existsSync()) {
+        oldBakFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.bak'));
+      }
+    } on Exception catch (e) {
+      Log.upload(e);
+    }
+  }
+
   void handleFirstOpen() {
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
@@ -59,12 +76,7 @@ class AppUpdateService extends GetxService {
   }
 
   void handleAppUpdateWhenInit(int oldVersion) {
-    try {
-      if (oldVersion < 4) {
-        File(join(PathSetting.getVisibleDir().path, '.GetStorage.gs')).copySync(join(PathSetting.getVisibleDir().path, 'jhentai.gs'));
-        File(join(PathSetting.getVisibleDir().path, '.GetStorage.bak')).copySync(join(PathSetting.getVisibleDir().path, 'jhentai.bak'));
-      }
-    } on Exception catch (e) {
+    try {} on Exception catch (e) {
       Log.upload(e);
     }
   }
