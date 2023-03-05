@@ -324,6 +324,7 @@ class zh_TW {
 
       /// read setting page
       'enableImmersiveMode': '開啟沉浸模式',
+      'keepScreenAwakeWhenReading': '閱讀時屏幕不自動鎖定',
       'spaceBetweenImages': '圖片間隔',
       'enableImmersiveHint': '隱藏系統狀態欄和底部導航列',
       'readDirection': '閱讀方向',

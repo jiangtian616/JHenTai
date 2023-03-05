@@ -128,6 +128,7 @@ Future<void> init() async {
   await FrameRateSetting.init();
 
   await PathSetting.init();
+  AppUpdateService.init();
   await StorageService.init();
 
   StyleSetting.init();
@@ -178,8 +179,6 @@ Future<void> onReady() async {
   ArchiveDownloadService.init();
 
   VolumeService.init();
-
-  AppUpdateService.init();
 }
 
 void _doForDesktop() {

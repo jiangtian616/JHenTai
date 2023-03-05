@@ -326,6 +326,7 @@ class pt_BR {
 
       /// read setting page
       'enableImmersiveMode': 'Habilitar modo imersivo',
+      'keepScreenAwakeWhenReading': 'Keep Screen Awake When Reading',
       'spaceBetweenImages': 'Space Between Images',
       'enableImmersiveHint': 'Esconder barra do sistema',
       'readDirection': 'Direção da leitura',

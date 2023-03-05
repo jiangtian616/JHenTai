@@ -20,6 +20,7 @@ class SettingReadPage extends StatelessWidget {
             padding: const EdgeInsets.only(top: 16),
             children: [
               _buildEnableImmersiveMode().center(), 
+              _buildKeepScreenAwake().center(),
               _buildShowThumbnails().center(),
               _buildImageSpace().center(),
               _buildShowStatusInfo().center(),
@@ -61,6 +62,13 @@ class SettingReadPage extends StatelessWidget {
       title: Text('enableImmersiveMode'.tr),
       subtitle: Text('enableImmersiveHint'.tr),
       trailing: Switch(value: ReadSetting.enableImmersiveMode.value, onChanged: ReadSetting.saveEnableImmersiveMode),
+    );
+  }
+  
+  Widget _buildKeepScreenAwake(){
+    return ListTile(
+      title: Text('keepScreenAwakeWhenReading'.tr),
+      trailing: Switch(value: ReadSetting.keepScreenAwakeWhenReading.value, onChanged: ReadSetting.saveKeepScreenAwakeWhenReading),
     );
   }
 

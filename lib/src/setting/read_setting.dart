@@ -25,6 +25,7 @@ enum AutoModeStyle {
 
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
+  static RxBool keepScreenAwakeWhenReading = true.obs;
   static RxInt imageSpace = 6.obs;
   static RxBool showThumbnails = true.obs;
   static RxBool showStatusInfo = true.obs;
@@ -55,6 +56,12 @@ class ReadSetting {
   static saveEnableImmersiveMode(bool value) {
     Log.debug('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
+    _save();
+  }
+
+  static saveKeepScreenAwakeWhenReading(bool value) {
+    Log.debug('saveKeepScreenAwakeWhenReading:$value');
+    keepScreenAwakeWhenReading.value = value;
     _save();
   }
 
@@ -161,6 +168,7 @@ class ReadSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'enableImmersiveMode': enableImmersiveMode.value,
+      'keepScreenAwakeWhenReading': keepScreenAwakeWhenReading.value,
       'imageSpace': imageSpace.value,
       'showThumbnails': showThumbnails.value,
       'showStatusInfo': showStatusInfo.value,
@@ -182,6 +190,7 @@ class ReadSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     enableImmersiveMode.value = map['enableImmersiveMode'];
+    keepScreenAwakeWhenReading.value = map['keepScreenAwakeWhenReading'] ?? keepScreenAwakeWhenReading.value;
     imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;

@@ -5,11 +5,11 @@ import 'package:jhentai/src/setting/path_setting.dart';
 import '../utils/log.dart';
 
 class StorageService extends GetxService {
-  static const storageFileName = '.GetStorage';
+  static const storageFileName = 'jhentai';
 
   final GetStorage _storage = GetStorage(storageFileName, PathSetting.getVisibleDir().path);
 
-  static Future<void>  init() async {
+  static Future<void> init() async {
     StorageService storageService = StorageService();
     Get.put(storageService);
     await storageService._storage.initStorage;

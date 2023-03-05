@@ -325,6 +325,7 @@ class ko_KR {
 
       /// read setting page
       'enableImmersiveMode': '몰입형 모드 사용',
+      'keepScreenAwakeWhenReading': '독서 중 화면이 자동으로 잠기지 않도록 방지',
       'spaceBetweenImages': '이미지 간격',
       'enableImmersiveHint': '시스템 바를 숨김',
       'readDirection': '읽는 방향',

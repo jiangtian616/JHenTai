@@ -27,7 +27,7 @@ class SecuritySetting {
 
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
-      supportBiometricAuth = types.contains(BiometricType.fingerprint);
+      supportBiometricAuth = types.contains(BiometricType.fingerprint) || types.contains(BiometricType.face);
       Log.debug('supportBiometricAuth:$supportBiometricAuth');
     }
   }
@@ -99,7 +99,7 @@ class SecuritySetting {
     enableBlur.value = map['enableBlur'] ?? enableBlur.value;
     encryptedPassword.value = map['encryptedPassword'] ?? encryptedPassword.value;
     enablePasswordAuth.value = map['enablePasswordAuth'] ?? enablePasswordAuth.value;
-    enableBiometricAuth.value = supportBiometricAuth && (map['enableBiometricAuth'] ?? enableBiometricAuth.value);
+    enableBiometricAuth.value = map['enableBiometricAuth'] ?? enableBiometricAuth.value;
     enableAuthOnResume.value = map['enableAuthOnResume'] ?? enableAuthOnResume.value;
   }
 }

@@ -19,6 +19,7 @@ import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:throttling/throttling.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
@@ -107,6 +108,10 @@ class ReadPageLogic extends GetxController {
         update([currentTimeId]);
       },
     );
+
+    if (!GetPlatform.isLinux && ReadSetting.keepScreenAwakeWhenReading.isTrue) {
+      Wakelock.enable();
+    }
   }
 
   @override
@@ -117,7 +122,7 @@ class ReadPageLogic extends GetxController {
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
-    
+
     volumeService.cancelListen();
     volumeService.setInterceptVolumeEvent(false);
 
@@ -134,6 +139,10 @@ class ReadPageLogic extends GetxController {
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
 
     executor.close();
+
+    if (!GetPlatform.isLinux) {
+      Wakelock.disable();
+    }
   }
 
   void beginToParseImageHref(int index) {

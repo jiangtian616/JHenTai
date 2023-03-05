@@ -120,7 +120,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
         lastInactiveTime ??= DateTime.now();
       }
 
-      if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur) {
+      if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && isRouteAtTop(Routes.lock)) {
         setState(() => inBlur = true);
       }
     }
