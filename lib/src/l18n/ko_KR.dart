@@ -29,7 +29,7 @@ class ko_KR {
       'setting': '설정',
 
       /// unlock page
-      'localizedReason': '계속하려면 인증을 진행하세요.',
+      'localizedReason': '입장하려면 인증을 진행하세요.',
       'tap2Auth': '인증하려면 터치하세요.',
       'passwordErrorHint': '비밀번호 오류, 다시 시도하세요.',
 
@@ -49,7 +49,7 @@ class ko_KR {
       'logout': '로그인',
       'passwordLogin': '비밀번호 로그인',
       'cookieLogin': '쿠키 로그인',
-      'youHaveLoggedInAs': '안녕하십니까:   ',
+      'youHaveLoggedInAs': '환영합니다:   ',
       'cookieIsBlack': '쿠키가 비었습니다',
       'cookieFormatError': '쿠키 형식이 잘못됐습니다.',
       'invalidCookie': '로그인 실패 혹은 쿠키가 유효하지 않습니다.',
@@ -208,7 +208,7 @@ class ko_KR {
       'site': '사이트',
       'redirect2Eh': '사용 가능하면 EH로 재요청',
       'siteSetting': '사이트 내부 설정',
-      'showCookie': '쿠키',
+      'showCookie': '쿠키 정보',
       'useSeparateProfile': '분리된 프로파일 사용',
       'editProfileHint': '프로파일 수정',
       'redirect2EH': '사용 가능하면 EH 사이트로 재요청',
@@ -325,7 +325,7 @@ class ko_KR {
 
       /// read setting page
       'enableImmersiveMode': '몰입형 모드 사용',
-      'keepScreenAwakeWhenReading': '독서 중 화면이 자동으로 잠기지 않도록 방지',
+      'keepScreenAwakeWhenReading': '읽는 중에 화면 꺼짐 방지하기',
       'spaceBetweenImages': '이미지 간격',
       'enableImmersiveHint': '시스템 바를 숨김',
       'readDirection': '읽는 방향',
@@ -348,9 +348,9 @@ class ko_KR {
       'screen': '화면 기준',
       'preloadDistanceInOnlineMode': '미리 불러올 거리(온라인)',
       'ScreenHeight': '장 거리',
-      'preloadPageCount': '미리 불러온 쪽수(온라인)',
+      'preloadPageCount': '미리 불러올 쪽수(온라인)',
       'continuousScroll': '길게 이어진 스크롤',
-      'continuousScrollHint': '여러 이미지가 연결됨',
+      'continuousScrollHint': '여러 이미지가 가로로 연결됨',
       'doubleColumn': '두 쪽으로 보기',
       'enableAutoScaleUp': '긴 이미지 자동 확대 사용',
       'enableAutoScaleUpHints': '이미지 너비를 화면 너비와 동일하게 함',
@@ -435,9 +435,9 @@ class ko_KR {
       'searchTags': '태그 검색',
       'searchNote': '주석 검색',
       'allTime': '전체',
-      'year': '1년',
-      'month': '1개월',
-      'day': '1일',
+      'year': '연도별',
+      'month': '월별',
+      'day': '일별',
 
       /// popular page
       'getPopularListFailed': '인기 있는 리스트 불러오기 실패',
