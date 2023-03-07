@@ -7,7 +7,7 @@
 
 # JHenTai
 
-English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md)
+English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md) | [한국어](https://github.com/jiangtian616/JHenTai/blob/master/README_kr.md)
 
 [Q&A](https://github.com/jiangtian616/JHenTai/wiki/Common-Questions)
 
@@ -23,11 +23,11 @@ Still in development stage, welcome to submit issues or feature requests.
 
 Install for Android: download .apk according to your device architecture and install.
 
-- arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
-- armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
-- x86_64：rare
+-   arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
+-   armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
+-   x86_64：rare
 
-Install for iOS: download .ipa, then use  [AltStore](https://altstore.io) or SideLoadly to sign.
+Install for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
 
 Install for Windows: download Windows_xxx.zip, then unpack it. If you use a proxy server, set proxy address at network
 setting
@@ -68,19 +68,19 @@ So updates for JHenTai will be less than previous, but I'll still handle bugs or
 
 Layout and style references:
 
-- [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
-- [EHPanda](https://github.com/tatsuz0u/EhPanda)
-- [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
+-   [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
+-   [EHPanda](https://github.com/tatsuz0u/EhPanda)
+-   [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
 Tag translation:
 
-- [EhTagTranslation](https://github.com/EhTagTranslation/Database)
+-   [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
 App translation：
 
-- [andyching168](https://github.com/andyching168) 繁體中文(台灣)
-- [lucas-04](https://github.com/lucas-04) Português brasileiro
-- [qlife1146](https://github.com/qlife1146) 한국어
+-   [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+-   [lucas-04](https://github.com/lucas-04) Português brasileiro
+-   [qlife1146](https://github.com/qlife1146) 한국어
 
 mush thanks to these projects and people🙇‍
 
@@ -118,23 +118,23 @@ mush thanks to these projects and people🙇‍
 
 ## Main Features
 
-- [x] Mobile, tablet, desktop layout(3 kinds)
-- [x] Vertical, horizontal, double column read page layout(4 kinds)
-- [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
-- [x] search, search suggestion, tap tag to search, file search, jump to a certain page
-- [x] online reading and download, support restore download task, support synchronize updates after the uploader has
-  uploaded a new version
-- [x] archive download and automatic unpacking and reading
-- [x] support loading local images and read
-- [x] support assign priority to download task manually
-- [x] support assign group to gallery and archive
-- [x] favorite, rating, torrent, archive, statistics, share
-- [x] password login, Cookie login, web login
-- [x] support EX site(domain fronting optional)
-- [x] vote for Tag, watch and hidden tags
-- [x] comment, vote for comment
-- [x] Fingerprint unlock
-- [x] Support shortcut keys like 'Tab' and 'Arrow keys' in desktop layout
+-   [x] Mobile, tablet, desktop layout(3 kinds)
+-   [x] Vertical, horizontal, double column read page layout(4 kinds)
+-   [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
+-   [x] search, search suggestion, tap tag to search, file search, jump to a certain page
+-   [x] online reading and download, support restore download task, support synchronize updates after the uploader has
+        uploaded a new version
+-   [x] archive download and automatic unpacking and reading
+-   [x] support loading local images and read
+-   [x] support assign priority to download task manually
+-   [x] support assign group to gallery and archive
+-   [x] favorite, rating, torrent, archive, statistics, share
+-   [x] password login, Cookie login, web login
+-   [x] support EX site(domain fronting optional)
+-   [x] vote for Tag, watch and hidden tags
+-   [x] comment, vote for comment
+-   [x] Fingerprint unlock
+-   [x] Support shortcut keys like 'Tab' and 'Arrow keys' in desktop layout
 
 ## Translation
 
@@ -166,7 +166,7 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 
 ## Main Dart Dependencies
 
-- [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL
-- [dio](https://pub.flutter-io.cn/packages?q=dio): network
-- [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
-- [drift](https://pub.flutter-io.cn/packages/drift): database
+-   [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL
+-   [dio](https://pub.flutter-io.cn/packages?q=dio): network
+-   [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
+-   [drift](https://pub.flutter-io.cn/packages/drift): database
