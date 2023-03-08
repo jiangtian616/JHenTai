@@ -98,7 +98,10 @@ class _TorrentList extends StatelessWidget {
             (torrent) => ListTile(
               dense: true,
               title: InkWell(
-                onTap: () => launchUrlString(torrent.torrentUrl, mode: LaunchMode.externalApplication),
+                onTap: () => launchUrlString(
+                  torrent.torrentUrl.replaceFirst('https://exhentai.org/torrent', 'https://ehtracker.org/get'),
+                  mode: LaunchMode.externalApplication,
+                ),
                 child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumeButtonColor)),
               ),
               subtitle: Row(
@@ -115,11 +118,7 @@ class _TorrentList extends StatelessWidget {
               trailing: IconButton(
                 icon: Icon(FontAwesomeIcons.magnet, size: 16, color: UIConfig.resumeButtonColor),
                 padding: EdgeInsets.zero,
-                onPressed: () => FlutterClipboard.copy(
-                  torrent.magnetUrl,
-                ).then(
-                  (_) => toast('hasCopiedToClipboard'.tr),
-                ),
+                onPressed: () => FlutterClipboard.copy(torrent.magnetUrl).then((_) => toast('hasCopiedToClipboard'.tr)),
               ),
             ),
           )
