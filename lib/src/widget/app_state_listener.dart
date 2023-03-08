@@ -141,7 +141,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
       if (SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) {
         toRoute(Routes.lock);
-        setState(() => inBlur = false);
+        Future.delayed(const Duration(milliseconds: 500), () => setState(() => inBlur = false));
         lastInactiveTime = null;
       } else {
         setState(() => inBlur = false);

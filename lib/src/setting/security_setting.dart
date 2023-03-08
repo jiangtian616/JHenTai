@@ -45,6 +45,7 @@ class SecuritySetting {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     } else {
       FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+      saveEnableAuthOnResume(false);
     }
 
     SystemChrome.setSystemUIOverlayStyle(

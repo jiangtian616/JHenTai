@@ -116,7 +116,7 @@ class Routes {
     EHPage(
       name: lock,
       page: () => const LockPage(),
-      transition: Transition.noTransition,
+      transition: Transition.fade,
       side: Side.fullScreen,
       popGesture: false,
     ),
