@@ -191,7 +191,16 @@ class EHSpiderParser {
         String namespace = list.length == 2 && list[0].isNotEmpty ? list[0].split('_')[1] : 'temp';
         String key = list.length == 1 ? list[0].substring(3).replaceAll('_', ' ') : list[1].replaceAll('_', ' ');
 
-        tags.putIfAbsent(namespace, () => []).add(GalleryTag(tagData: TagData(namespace: namespace, key: key)));
+        String? tagClass = tagDiv.attributes['class'];
+        EHTagStatus tagStatus = tagClass == 'gt'
+            ? EHTagStatus.confidence
+            : tagClass == 'gtl'
+                ? EHTagStatus.skepticism
+                : tagClass == 'gtw'
+                    ? EHTagStatus.incorrect
+                    : EHTagStatus.confidence;
+
+        tags.putIfAbsent(namespace, () => []).add(GalleryTag(tagData: TagData(namespace: namespace, key: key), tagStatus: tagStatus));
       }
     }
     return tags;

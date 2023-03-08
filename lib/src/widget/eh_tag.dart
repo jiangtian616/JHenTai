@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
@@ -60,6 +61,18 @@ class _EHTagState extends State<EHTag> {
         ),
       ),
     );
+
+    if (widget.tag.tagStatus == EHTagStatus.skepticism || widget.tag.tagStatus == EHTagStatus.incorrect) {
+      child = DottedBorder(
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(8),
+        padding: const EdgeInsets.all(0),
+        strokeWidth: 0.4,
+        dashPattern: widget.tag.tagStatus == EHTagStatus.skepticism ? [2, 1] : [1.2, 1.2],
+        color: Theme.of(context).colorScheme.onSecondaryContainer,
+        child: child,
+      );
+    }
 
     if (!widget.enableTapping) {
       return child;

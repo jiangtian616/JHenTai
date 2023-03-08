@@ -81,6 +81,7 @@ dependencies:
   flutter_displaymode: 0.5.0
   pinput: 2.2.23
   wakelock: 0.6.2
+  dotted_border: 2.0.0+3
   
 dependency_overrides:
   dio:

@@ -235,9 +235,7 @@ class GalleryCardTagWaterFlow extends StatelessWidget {
           crossAxisSpacing: 4,
         ),
         itemCount: mergedList.length,
-        itemBuilder: (_, int index) => EHTag(
-          tag: mergedList[index],
-        ),
+        itemBuilder: (_, int index) => EHTag(tag: mergedList[index]),
       ),
     );
   }
