@@ -4,6 +4,7 @@ import 'dart:io' as io;
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -14,7 +15,6 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/utils/byte_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -249,9 +249,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     } else {
       allGroups.insert(afterIndex, allGroups.removeAt(beforeIndex));
     }
-    
+
     Log.info('Update group order: $allGroups');
-    
+
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
         try {
@@ -619,22 +619,30 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> _unpackingArchive(ArchiveDownloadedData archive) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-    InputFileStream inputStream = InputFileStream(_computePackingFileDownloadPath(archive));
+    Log.info('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}');
 
-    Log.info('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}, length: ${byte2String(inputStream.length.toDouble())}');
+    bool success = await compute(
+      (List<String> path) async {
+        InputFileStream inputStream = InputFileStream(path[0]);
+        try {
+          extractArchiveToDisk(ZipDecoder().decodeBuffer(inputStream), path[1]);
+        } on Exception catch (_) {
+          return false;
+        } finally {
+          inputStream.close();
+        }
+        return true;
+      },
+      [_computePackingFileDownloadPath(archive), computeArchiveUnpackingPath(archive)],
+    );
 
-    try {
-      Archive unpackedDir = ZipDecoder().decodeBuffer(inputStream);
-      extractArchiveToDisk(unpackedDir, computeArchiveUnpackingPath(archive));
-    } on Exception catch (e) {
-      Log.error('Unpacking error!', e);
-      Log.upload(e, extraInfos: {'archive': archive});
+    if (!success) {
+      Log.error('Unpacking error!');
+      Log.upload(Exception('Unpacking error!'), extraInfos: {'archive': archive});
       snack('error'.tr, '${'failedToDealWith'.tr}:${archive.title}', longDuration: true);
       archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
       await _deletePackingFileInDisk(archive);
       return pauseDownloadArchive(archive);
-    } finally {
-      inputStream.close();
     }
 
     if (DownloadSetting.deleteArchiveFileAfterDownload.isTrue) {
@@ -652,7 +660,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _instantiateFromDB() async {
     allGroups = (await appDb.selectArchiveGroups().get()).map((e) => e.groupName).toList();
     Log.debug('init Archive groups: $allGroups');
-    
+
     List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
 
     for (ArchiveDownloadedData archive in archives) {
