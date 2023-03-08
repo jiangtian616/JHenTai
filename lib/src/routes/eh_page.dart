@@ -14,10 +14,11 @@ class EHPage extends GetPage {
   final bool offAllBefore;
 
   EHPage({
-    required String name,
-    required GetPageBuilder page,
+    required super.name,
+    required super.page,
     this.side = Side.right,
     this.offAllBefore = true,
-    Transition? transition,
-  }) : super(name: name, page: page, transition: transition);
+    super.transition,
+    super.popGesture,
+  });
 }

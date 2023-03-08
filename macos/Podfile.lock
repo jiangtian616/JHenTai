@@ -15,13 +15,11 @@ PODS:
     - FlutterMacOS
   - path_provider_macos (0.0.1):
     - FlutterMacOS
-  - Sentry (7.23.0):
-    - Sentry/Core (= 7.23.0)
-  - Sentry/Core (7.23.0)
+  - Sentry/HybridSDK (7.30.2)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.23.0)
+    - Sentry/HybridSDK (= 7.30.2)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - sqflite (0.0.2):
@@ -103,13 +101,13 @@ SPEC CHECKSUMS:
   audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
   battery_plus_macos: 6011b4f68b8845e0a7dda4787b90f455fb67c2d1
   bitsdojo_window_macos: 44e3b8fe3dd463820e0321f6256c5b1c16bb6a00
-  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
-  Sentry: a0d4563fa4ddacba31fdcc35daaa8573d87224d6
-  sentry_flutter: 8bde7d0e57a721727fe573f13bb292c497b5a249
+  Sentry: 9be48e341494bc976c963b05aa4a8ca48308c684
+  sentry_flutter: 544e6376e35b00eef9f0864f8bb7f10a0e204993
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
   sqlite3: d115522c740c457b805c018b0296b5ba003da280
