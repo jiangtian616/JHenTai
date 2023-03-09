@@ -65,8 +65,8 @@ class SettingStylePage extends StatelessWidget {
         items: [
           DropdownMenuItem(child: Text('flat'.tr), value: ListMode.flat),
           DropdownMenuItem(child: Text('flatWithoutTags'.tr), value: ListMode.flatWithoutTags),
-          DropdownMenuItem(child: Text('listWithoutTags'.tr), value: ListMode.listWithoutTags),
           DropdownMenuItem(child: Text('listWithTags'.tr), value: ListMode.listWithTags),
+          DropdownMenuItem(child: Text('listWithoutTags'.tr), value: ListMode.listWithoutTags),
           DropdownMenuItem(child: Text('waterfallFlowWithImageOnly'.tr), value: ListMode.waterfallFlowWithImageOnly),
           DropdownMenuItem(child: Text('waterfallFlowWithImageAndInfo'.tr), value: ListMode.waterfallFlowWithImageAndInfo),
         ],
