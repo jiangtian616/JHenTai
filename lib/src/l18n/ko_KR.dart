@@ -37,11 +37,11 @@ class ko_KR {
       'TapAgainToExit': '종료하려면 다시 한번 누르세요.',
 
       /// update dialog
-      'availableUpdate': '사용 가능한 업데이트 있음!',
+      'availableUpdate': '사용 가능한 업데이트가 있습니다!',
       'LatestVersion': '최신 버전',
       'CurrentVersion': '현재 버전',
       'check': '확인',
-      'dismiss': '해제',
+      'dismiss': '무시',
 
       /// login page
       'login': '로그인',
@@ -220,7 +220,7 @@ class ko_KR {
       'myTags': '나의 태그',
       'myTagsHint': '강조하거나 숨기고 싶은 태그를 관리',
       'hidden': '숨김',
-      'nope': '취소',
+      'nope': '없음',
       'getTagSetFailed': '태그 목록 불러오기 실패',
       'updateTagSetFailed': '태그 목록 수정 실패',
       'deleteTagSetSuccess': '태그 목록 삭제 성공',
