@@ -139,9 +139,10 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
         return;
       }
 
-      if (SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) {
+      if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) &&
+          DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
         toRoute(Routes.lock);
-        Future.delayed(const Duration(milliseconds: 500), () => setState(() => inBlur = false));
+        Future.delayed(const Duration(milliseconds: 300), () => setState(() => inBlur = false));
         lastInactiveTime = null;
       } else {
         setState(() => inBlur = false);
