@@ -44,7 +44,7 @@ jobs:
             cache_pod_path: macos/Pods
             cache_pod_restore_keys_hash_file: macos/Podfile.lock
             artifact_name: release-macOS
-            artifact_path: build/macos/*.zip
+            artifact_path: build/macos/*.pkg
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
@@ -129,10 +129,7 @@ jobs:
           cd macos
           pod update
           cd ..
-          flutter build macos -t lib/src/main.dart --release
-          cp -a build/macos/Build/Products/Release/jhentai.app ./build
-          cd build
-          zip -qroy macos/JHenTai_${{ steps.get_version.outputs.version }}_macOS.zip jhentai.app
+          sh dmg.sh
       # Build Windows .zip
       - name: Build Windows
         if: matrix.target == 'Windows'

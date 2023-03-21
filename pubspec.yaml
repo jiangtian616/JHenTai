@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 6.6.5+122
+version: 6.6.6+123
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
