@@ -7,7 +7,8 @@
 
 # JHenTai
 
-[English](https://github.com/jiangtian616/JHenTai/blob/master/README.md) | 简体中文 | [한국어](https://github.com/jiangtian616/JHenTai/blob/master/README_kr.md)
+[English](https://github.com/jiangtian616/JHenTai/blob/master/README.md) | 简体中文
+| [한국어](https://github.com/jiangtian616/JHenTai/blob/master/README_kr.md)
 
 [常见问题，提问前必看](https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
 
@@ -27,14 +28,22 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 - armeabiv-v7a：适用于较老的第7代ARM处理器安卓手机
 - x86_64：少见
 
-苹果安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
+iOS安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
 
-Windows安装： 下载Windows_xxx.zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。如果你使用的是Win11且出现打不开应用的情况，
-请尝试右键更改jhentai.exe的属性，以兼容模式启动。如果Windows Defender报毒，请信任它。
+Windows安装： 下载Windows_xxx.zip后解压即可。
 
-Mac安装： 下载dmg解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
+- 如果你使用了代理服务器，在网络设置里配置代理地址。
+- 如果你使用的是Win11且出现打不开应用的情况， 请尝试右键更改jhentai.exe的属性，以兼容模式启动。
+- 如果Windows Defender报毒，请信任它。
 
-Linux安装（不维护）：下载Linux_xxx.zip后解压即可。如果你使用了代理服务器，在网络设置里配置代理地址。
+MacOS安装： 下载dmg后安装即可。
+
+- 在系统设置-安全性与隐私中信任应用
+- 如果你使用了代理服务器，在网络设置里配置代理地址。
+
+Linux安装（不维护）：下载Linux_xxx.zip后解压即可。
+
+- 如果你使用了代理服务器，在网络设置里配置代理地址。
 
 ## 开发动机
 
