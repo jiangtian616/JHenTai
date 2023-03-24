@@ -44,7 +44,7 @@ jobs:
             cache_pod_path: macos/Pods
             cache_pod_restore_keys_hash_file: macos/Podfile.lock
             artifact_name: release-macOS
-            artifact_path: build/macos/*.pkg
+            artifact_path: /Users/runner/work/JHenTai/JHenTai/*.dmg
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
@@ -122,7 +122,7 @@ jobs:
           mkdir -p Payload
           mv ios/iphoneos/*.app Payload
           zip -9 JHenTai_${{ steps.get_version.outputs.version }}.ipa -r Payload
-      # Build macOS .zip
+      # Build macOS .dmg
       - name: Build macOS
         if: matrix.target == 'macOS'
         run: |
