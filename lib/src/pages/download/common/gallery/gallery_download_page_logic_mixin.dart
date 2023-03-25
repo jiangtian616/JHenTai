@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 
 import '../../../../database/database.dart';
@@ -161,14 +162,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTask'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('deleteTask'.tr, style: TextStyle(color: UIConfig.alertColor)),
             onPressed: () {
               handleRemoveItem(gallery, false);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor)),
             onPressed: () {
               handleRemoveItem(gallery, true);
               backRoute();

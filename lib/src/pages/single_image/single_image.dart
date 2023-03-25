@@ -1,6 +1,7 @@
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
@@ -19,7 +20,7 @@ class SingleImagePage extends StatelessWidget {
         handleEsc: () => backRoute(currentRoute: Routes.singleImagePage),
         child: ExtendedImageSlidePage(
           resetPageDuration: const Duration(milliseconds: 200),
-          slidePageBackgroundHandler: (Offset offset, Size pageSize) => Colors.black,
+          slidePageBackgroundHandler: (Offset offset, Size pageSize) => UIConfig.backGroundColor(context),
           child: EHImage(
             galleryImage: Get.arguments,
             enableSlideOutPage: true,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 class EHAsset extends StatelessWidget {
   final int gpCount;
@@ -30,12 +31,12 @@ class _CircleAssetChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: Get.theme.colorScheme.primary, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: UIConfig.primaryColor, shape: BoxShape.circle),
       child: Center(
         child: Text(
           str,
           style: TextStyle(
-            color: Get.theme.colorScheme.onPrimary,
+            color: UIConfig.onPrimaryColor,
             fontSize: 12,
             fontWeight: FontWeight.bold,
             height: 1,

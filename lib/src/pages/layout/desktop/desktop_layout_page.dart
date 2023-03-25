@@ -26,14 +26,14 @@ class DesktopLayoutPage extends StatelessWidget {
     return Row(
       children: [
         _leftTabBar(context),
-        VerticalDivider(width: 1, color: UIConfig.desktopLayoutDividerColor),
+        VerticalDivider(width: 1, color: UIConfig.layoutDividerColor),
         Expanded(
           child: ColoredBox(
-            color: Theme.of(context).colorScheme.background,
+            color: UIConfig.backGroundColor(context),
             child: ResizableWidget(
-              key: Key(Theme.of(context).colorScheme.background.hashCode.toString()),
+              key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
               separatorSize: 7.5,
-              separatorColor: UIConfig.desktopLayoutDividerColor,
+              separatorColor: UIConfig.layoutDividerColor,
               separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
               percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
               onResized: windowService.handleColumnResized,
@@ -50,7 +50,7 @@ class DesktopLayoutPage extends StatelessWidget {
     return Material(
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
-        color: Theme.of(context).colorScheme.background,
+        color: UIConfig.backGroundColor(context),
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
           builder: (_) => ScrollConfiguration(
@@ -78,7 +78,7 @@ class DesktopLayoutPage extends StatelessWidget {
             child: Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 4, color: Get.theme.colorScheme.onBackground)) : null,
+                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconDashColor)) : null,
                 ),
                 child: IconButton(
                   onPressed: () => logic.handleTapTabBarButton(index),

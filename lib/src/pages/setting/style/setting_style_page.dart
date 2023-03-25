@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
@@ -163,7 +164,7 @@ class SettingStylePage extends StatelessWidget {
         items: JHLayout.allLayouts
             .map((e) => DropdownMenuItem(
                   enabled: e.isSupported(),
-                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: Get.theme.colorScheme.secondaryContainer)),
+                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor)),
                   value: e.mode,
                 ))
             .toList(),

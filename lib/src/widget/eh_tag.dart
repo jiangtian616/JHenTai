@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
@@ -41,7 +42,7 @@ class _EHTagState extends State<EHTag> {
         color: widget.tag.backgroundColor ??
             (widget.addNameSpaceColor
                 ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
-                : Get.theme.colorScheme.secondaryContainer),
+                : UIConfig.ehTagBackGroundColor),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Align(
@@ -55,7 +56,7 @@ class _EHTagState extends State<EHTag> {
           style: TextStyle(
             fontSize: 12,
             height: 1,
-            color: widget.tag.color ?? (widget.addNameSpaceColor ? Colors.black : Get.theme.colorScheme.onSecondaryContainer),
+            color: widget.tag.color ?? (widget.addNameSpaceColor ? ColorConsts.tagNameSpaceTextColor : UIConfig.ehTagTextColor),
           ),
         ),
       ),

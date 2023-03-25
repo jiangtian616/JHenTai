@@ -39,7 +39,7 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
   Widget _buildRatingBar() {
     return Center(
       child: RatingBar.builder(
-        unratedColor: Colors.grey.shade300,
+        unratedColor: UIConfig.galleryRatingStarUnRatedColor,
         minRating: 0.5,
         initialRating: max(rating, 0.5),
         itemCount: 5,
@@ -47,7 +47,7 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
         itemSize: UIConfig.ratingDialogStarSize,
         itemPadding: const EdgeInsets.only(left: 4),
         updateOnDrag: true,
-        itemBuilder: (context, index) => Icon(Icons.star, color: hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
+        itemBuilder: (context, index) => Icon(Icons.star, color: hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
         onRatingUpdate: (rating) => setState(() => this.rating = rating),
       ),
     );

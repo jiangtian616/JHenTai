@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
@@ -51,7 +52,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
                       dense: true,
                       title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       selected: state.selectedDrawerTabIndex == index,
-                      selectedTileColor: Get.theme.colorScheme.primaryContainer,
+                      selectedTileColor: UIConfig.mobileDrawerSelectedTileColor,
                       leading: state.icons[index].unselectedIcon,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadiusDirectional.only(topEnd: Radius.circular(32), bottomEnd: Radius.circular(32)),
@@ -137,10 +138,10 @@ class EHUserAvatar extends StatelessWidget {
             leading: GestureDetector(
               child: CircleAvatar(
                 radius: 32,
-                backgroundColor: Colors.grey.shade300,
+                backgroundColor: UIConfig.loginAvatarBackGroundColor,
                 foregroundImage:
                     UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
-                child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: Colors.grey.withOpacity(0.8), size: 32),
+                child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor, size: 32),
               ),
             ),
             title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),

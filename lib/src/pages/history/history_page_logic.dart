@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
@@ -44,7 +45,7 @@ class HistoryPageLogic extends OldBasePageLogic {
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Get.theme.colorScheme.error)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
             onPressed: () {
               backRoute();
               delete(gallery.gid);

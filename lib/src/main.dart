@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
-      builder: (context, child) => ScrollConfiguration(behavior: UIConfig.scrollBehaviourWithScrollBar, child: AppStateListener(child: child!)),
+      builder: (context, child) => AppManager(child: child!),
 
       /// enable swipe back feature
       popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,

@@ -248,7 +248,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             helperText: searchConfig.computeTagKeywords(withTranslation: true, separator: '  /  '),
             helperMaxLines: 99,
             hintText: searchConfig.tags?.isEmpty ?? true ? null : 'backspace2DeleteTag'.tr,
-            hintStyle: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline.withOpacity(0.5)),
+            hintStyle: TextStyle(fontSize: 12, color: UIConfig.searchConfigDialogFieldHintTextColor),
           ),
           controller: TextEditingController.fromValue(
             TextEditingValue(
@@ -293,10 +293,10 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
+                    color: UIConfig.searchConfigDialogSuggestionShadowColor,
                     blurRadius: 4,
                     blurStyle: BlurStyle.outer,
-                  ),
+                  )
                 ],
               ),
               child: SearchSuggestionList(
@@ -573,7 +573,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       height: 30,
       enabled: enabled,
       color: color,
-      textStyle: const TextStyle(height: 1, fontSize: 16, color: Colors.white),
+      textStyle: const TextStyle(height: 1, fontSize: 16, color: UIConfig.galleryCategoryTagTextColor),
       onTap: onTap,
     );
   }

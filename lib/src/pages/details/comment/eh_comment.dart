@@ -213,7 +213,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'img') {
       /// not show image in detail page
       if (inDetailPage) {
-        return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: Colors.blue));
+        return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: UIConfig.commentLinkColor));
       }
 
       return WidgetSpan(
@@ -232,7 +232,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'a') {
       return TextSpan(
         text: node.text,
-        style: const TextStyle(color: Colors.blue),
+        style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(node.attributes['href'] ?? node.text)),
         children: node.children.map((childTag) => buildTag(childTag)).toList(),
       );
@@ -255,7 +255,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (match.start == 0) {
       return TextSpan(
         text: match.group(0),
-        style: const TextStyle(color: Colors.blue),
+        style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
         children: [_buildText(text.substring(match.end))],
       );
@@ -472,7 +472,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       toast('retryHint'.tr);
       return;
     }
-    
+
     setStateIfMounted(() {
       score = newScore! >= 0 ? '+' + newScore.toString() : newScore.toString();
     });

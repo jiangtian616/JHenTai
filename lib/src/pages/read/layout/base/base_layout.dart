@@ -86,7 +86,7 @@ abstract class BaseLayout extends StatelessWidget {
               LoadingStateIndicator(
                 loadingState: readPageState.parseImageHrefsStates[index],
                 idleWidget: const CircularProgressIndicator(),
-                errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+                errorWidget: const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
               ),
               Text(
                 readPageState.parseImageHrefsStates[index] == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
@@ -118,7 +118,7 @@ abstract class BaseLayout extends StatelessWidget {
               LoadingStateIndicator(
                 loadingState: readPageState.parseImageUrlStates[index],
                 idleWidget: const CircularProgressIndicator(),
-                errorWidget: const Icon(Icons.warning, color: Colors.yellow),
+                errorWidget: const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
               ),
               Text(
                 readPageState.parseImageUrlStates[index] == LoadingState.error ? readPageState.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
@@ -231,7 +231,7 @@ abstract class BaseLayout extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
-          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
+          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: UIConfig.readPageButtonColor),
           Text(downloadStatus == DownloadStatus.downloading ? 'parsingPage'.tr : 'paused'.tr).marginOnly(top: 8),
           Text((index + 1).toString()).marginOnly(top: 4),
         ],
@@ -250,7 +250,7 @@ abstract class BaseLayout extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (downloadStatus == DownloadStatus.downloading) const CircularProgressIndicator(),
-          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: Colors.white),
+          if (downloadStatus == DownloadStatus.paused) const Icon(Icons.pause_circle_outline, color: UIConfig.readPageButtonColor),
           Text(downloadStatus == DownloadStatus.downloading ? 'parsingURL'.tr : 'paused'.tr).marginOnly(top: 8),
           Text((index + 1).toString()).marginOnly(top: 4),
         ],
@@ -302,7 +302,7 @@ abstract class BaseLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.pause_circle_outline, color: Colors.white),
+        const Icon(Icons.pause_circle_outline, color: UIConfig.readPageButtonColor),
         Text('paused'.tr).marginOnly(top: 8),
         Text((index + 1).toString()),
       ],

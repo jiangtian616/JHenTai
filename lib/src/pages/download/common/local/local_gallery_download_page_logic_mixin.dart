@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:path/path.dart';
 
+import '../../../../config/ui_config.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
@@ -130,7 +131,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
             onPressed: () {
               route.backRoute();
               handleRemoveItem(gallery);

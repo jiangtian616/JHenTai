@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 class BlankPage extends StatelessWidget {
   const BlankPage({Key? key}) : super(key: key);
@@ -6,11 +7,11 @@ class BlankPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Theme.of(context).colorScheme.background,
+      color: UIConfig.backGroundColor(context),
       child: Center(
         child: Text(
           'J',
-          style: TextStyle(color: Colors.grey.shade400, fontSize: 120, fontWeight: FontWeight.w600),
+          style: TextStyle(color: UIConfig.jHentaiIconColor, fontSize: 120, fontWeight: FontWeight.w600),
         ),
       ),
     );

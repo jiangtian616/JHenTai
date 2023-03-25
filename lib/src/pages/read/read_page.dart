@@ -63,7 +63,7 @@ class ReadPage extends StatelessWidget {
           handleEnd: backRoute,
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
-                  color: Colors.white,
+                  color: UIConfig.readPageForeGroundColor,
                   fontSize: 12,
                   decoration: TextDecoration.none,
                 ),
@@ -111,14 +111,14 @@ class ReadPage extends StatelessWidget {
 
           Widget child = DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
-                  color: Colors.white,
+                  color: UIConfig.readPageForeGroundColor,
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   decoration: TextDecoration.none,
                 ),
             child: Container(
               decoration: BoxDecoration(
-                color: Get.theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                color: UIConfig.readPageRightBottomRegionColor,
                 borderRadius: const BorderRadius.only(topLeft: Radius.circular(8)),
               ),
               alignment: Alignment.center,
@@ -269,11 +269,11 @@ class ReadPage extends StatelessWidget {
         width: fullScreenWidth,
         child: AppBar(
           backgroundColor: UIConfig.readPageMenuColor,
-          leading: BackButton(color: UIConfig.readPageButtonColor),
+          leading: const BackButton(color: UIConfig.readPageButtonColor),
           actions: [
             if (GetPlatform.isDesktop)
               IconButton(
-                icon: Icon(Icons.help, color: UIConfig.readPageButtonColor),
+                icon: const Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
                   'PageDown、→、↓ 、D :  ${'toNext'.tr}'
                   '\n'
@@ -290,12 +290,12 @@ class ReadPage extends StatelessWidget {
               builder: (_) => IconButton(
                 icon: const Icon(Icons.schedule),
                 onPressed: logic.toggleAutoMode,
-                color: state.autoMode ? Get.theme.colorScheme.primary : UIConfig.readPageButtonColor,
+                color: state.autoMode ? UIConfig.readPageActiveButtonColor : UIConfig.readPageButtonColor,
               ),
             ),
             IconButton(
               onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
-              icon: Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+              icon: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
             ),
           ],
         ),
@@ -370,7 +370,9 @@ class ReadPage extends StatelessWidget {
                         child: Container(
                           width: 24,
                           decoration: BoxDecoration(
-                            color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.primary : Colors.transparent,
+                            color: state.readPageInfo.currentIndex == index
+                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           alignment: Alignment.center,
@@ -378,7 +380,7 @@ class ReadPage extends StatelessWidget {
                             (index + 1).toString(),
                             style: TextStyle(
                               fontSize: 9,
-                              color: state.readPageInfo.currentIndex == index ? Get.theme.colorScheme.onPrimary : null,
+                              color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor : null,
                             ),
                           ),
                         ),
@@ -457,7 +459,7 @@ class ReadPage extends StatelessWidget {
                       min: 1,
                       max: state.readPageInfo.pageCount.toDouble(),
                       value: state.readPageInfo.currentIndex + 1.0,
-                      thumbColor: Colors.white,
+                      thumbColor: UIConfig.readPageForeGroundColor,
                       onChanged: logic.handleSlide,
                       onChangeEnd: logic.handleSlideEnd,
                     ),

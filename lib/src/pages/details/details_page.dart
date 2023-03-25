@@ -57,7 +57,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     return GetBuilder<DetailsPageLogic>(
       tag: tag,
       builder: (_) => Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: UIConfig.backGroundColor(context),
         appBar: buildAppBar(),
         body: buildBody(),
         floatingActionButton: state.galleryDetails == null ? null : buildFloatingActionButton(),
@@ -290,7 +290,7 @@ class _DetailsPageHeader extends StatelessWidget {
         heroTag: state.gallery!.cover,
         shadows: [
           BoxShadow(
-            color: Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.3),
+            color: UIConfig.detailPageCoverShadowColor,
             blurRadius: 5,
             offset: const Offset(3, 5),
           ),
@@ -561,7 +561,7 @@ class _DetailsPageHeader extends StatelessWidget {
         EHGalleryCategoryTag(
           category: state.gallery!.category,
           padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
-          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: Colors.white, height: 1),
+          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
           borderRadius: 3,
         ),
       ],
@@ -575,14 +575,14 @@ class _DetailsPageHeader extends StatelessWidget {
           ? _buildDefaultRatingBar()
           : KeyedSubtree(
               child: RatingBar.builder(
-                unratedColor: Colors.grey.shade300,
+                unratedColor: UIConfig.galleryRatingStarUnRatedColor,
                 initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
                 itemCount: 5,
                 allowHalfRating: true,
                 itemSize: 16,
                 ignoreGestures: true,
                 itemBuilder: (context, index) =>
-                    Icon(Icons.star, color: state.gallery!.hasRated ? Get.theme.colorScheme.error : Colors.amber.shade800),
+                    Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
                 onRatingUpdate: (_) {},
               ),
             ),
@@ -591,7 +591,7 @@ class _DetailsPageHeader extends StatelessWidget {
 
   Widget _buildDefaultRatingBar() {
     return RatingBar.builder(
-      unratedColor: Colors.grey.shade300,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
       initialRating: 0,
       itemCount: 5,
       allowHalfRating: true,
@@ -711,7 +711,7 @@ class _ActionButtons extends StatelessWidget {
                         ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
                         : state.galleryDetails?.newVersionGalleryUrl == null
                             ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
-                            : Icon(Icons.auto_awesome, color: Get.theme.colorScheme.error);
+                            : Icon(Icons.auto_awesome, color: UIConfig.alertColor);
 
         return IconTextButton(
           icon: icon,
@@ -781,7 +781,7 @@ class _ActionButtons extends StatelessWidget {
               color: disabled
                   ? Get.theme.disabledColor
                   : state.gallery!.hasRated
-                      ? Get.theme.colorScheme.error
+                      ? UIConfig.alertColor
                       : UIConfig.detailsPageActionIconColor,
             ),
             text: Text(

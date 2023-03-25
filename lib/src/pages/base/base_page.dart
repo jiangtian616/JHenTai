@@ -45,7 +45,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
       global: false,
       init: logic,
       builder: (_) => Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: UIConfig.backGroundColor(context),
         appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
         body: SafeArea(child: buildBody(context)),
         floatingActionButton: showScroll2TopButton ? buildFloatingActionButton() : null,

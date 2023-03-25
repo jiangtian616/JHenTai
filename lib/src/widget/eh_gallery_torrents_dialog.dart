@@ -50,7 +50,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
             errorWidget: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _getTorrent,
-              child: Icon(Icons.refresh, size: 32, color: Get.theme.colorScheme.onSecondaryContainer),
+              child: Icon(Icons.refresh, size: 32, color: UIConfig.loadingStateIndicatorButtonColor),
             ),
           ),
         ],

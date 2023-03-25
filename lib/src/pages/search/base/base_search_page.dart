@@ -223,14 +223,14 @@ class SuggestionAndHistoryBody extends StatelessWidget {
             onPressed: toggleEnableSearchHistoryTranslation,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: Get.theme.colorScheme.primary),
+              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: UIConfig.primaryColor),
             ),
           ),
           IconButton(
             onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : const Icon(Icons.delete, size: 20, color: Colors.red),
+              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor),
             ),
           ),
         ],

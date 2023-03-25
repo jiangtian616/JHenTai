@@ -27,7 +27,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget build(BuildContext context) {
     return GetBuilder<ThumbnailsPageLogic>(
       builder: (_) => Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: UIConfig.backGroundColor(context),
         appBar: buildAppBar(),
         body: buildBody(),
         floatingActionButton: buildFloatingActionButton(),

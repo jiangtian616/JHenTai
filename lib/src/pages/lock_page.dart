@@ -38,7 +38,7 @@ class _LockPageState extends State<LockPage> {
     return WindowWidget(
       child: Material(
         child: ColoredBox(
-          color: Theme.of(context).colorScheme.background,
+          color: UIConfig.backGroundColor(context),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -54,7 +54,7 @@ class _LockPageState extends State<LockPage> {
                       Container(
                         width: UIConfig.lockPagePinCodeRegionWidth,
                         height: UIConfig.lockPageCursorHeight,
-                        color: Get.theme.colorScheme.secondaryContainer,
+                        color: UIConfig.lockPageFilledDashColor,
                       )
                     ],
                   ),
@@ -64,7 +64,7 @@ class _LockPageState extends State<LockPage> {
                       Container(
                         width: UIConfig.lockPagePinCodeRegionWidth,
                         height: UIConfig.lockPageCursorHeight,
-                        color: Get.theme.colorScheme.onSecondaryContainer,
+                        color: UIConfig.lockPageUnfilledDashColor,
                       )
                     ],
                   ),

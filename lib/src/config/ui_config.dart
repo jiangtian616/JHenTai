@@ -33,8 +33,29 @@ class UIConfig {
     scrollbars: false,
   );
 
-  static Widget get loadingAnimation =>
-      LoadingAnimationWidget.horizontalRotatingDots(color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800, size: 32);
+  static Widget get loadingAnimation => LoadingAnimationWidget.horizontalRotatingDots(color: Get.theme.colorScheme.onSurfaceVariant, size: 32);
+
+  static Color get alertColor => Get.theme.colorScheme.error;
+
+  static Color get primaryColor => Get.theme.colorScheme.primary;
+
+  static Color get onPrimaryColor => Get.theme.colorScheme.onPrimary;
+
+  static Color backGroundColor(BuildContext context) => Theme.of(context).colorScheme.background;
+
+  static Color onBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
+
+  /// snack
+  static Color get snackBackGroundColor => Colors.black.withOpacity(0.7);
+  static const Color snackTextColor = Colors.white70;
+
+  /// toast
+  static Color get toastBackGroundColor => Get.theme.colorScheme.onBackground;
+
+  static Color get toastTextColor => Get.theme.colorScheme.background;
+
+  /// window
+  static const Color windowBorderColor = Colors.black;
 
   /// layout
   static const double appBarHeight = 40;
@@ -42,10 +63,19 @@ class UIConfig {
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
-  static Color get desktopLayoutDividerColor => Get.isDarkMode ? Colors.grey.shade800 : Colors.grey.shade400;
+  static Color get layoutDividerColor => Get.theme.colorScheme.surfaceVariant;
+
+  static Color get desktopLeftTabIconDashColor => Get.theme.colorScheme.onBackground;
   static const double desktopLeftTabBarWidth = 56;
   static const double desktopLeftTabBarItemHeight = 60;
   static const double desktopLeftTabBarTextHeight = 18;
+
+  /// mobile home page
+  static Color get loginAvatarBackGroundColor => Get.theme.colorScheme.surfaceVariant;
+
+  static Color get loginAvatarForeGroundColor => Get.theme.colorScheme.onSurfaceVariant.withOpacity(0.6);
+
+  static Color get mobileDrawerSelectedTileColor => Get.theme.colorScheme.primaryContainer;
 
   /// Gallery card
   static const double galleryCardHeight = 200;
@@ -55,28 +85,41 @@ class UIConfig {
   static const double galleryCardTitleSize = 15;
   static const double galleryCardTextSize = 12;
 
+  static Color get galleryCardBackGroundColor => Get.theme.colorScheme.surfaceVariant.withOpacity(0.8);
+
+  static Color get galleryCardShadowColor => Get.theme.colorScheme.onBackground.withOpacity(0.2);
+
   static Color get galleryCardTextColor => Get.theme.colorScheme.outline;
   static const double galleryCardTagsHeight = 70;
 
   static const double dashboardCardSize = 210;
+  static const Color dashboardCardTextColor = Colors.white;
+  static Color dashboardCardFooterTextColor = Colors.grey.shade300;
+  static const Color dashboardCardShadeColor = Colors.black87;
 
   static const double waterFallFlowCardInfoHeight = 68;
   static const double waterFallFlowCardTitleSize = 12;
   static const double waterFallFlowCardTagsMaxHeight = 18;
   static const double waterFallFlowCardTagTextSize = 10;
 
+  static Color get waterFallFlowCardBackGroundColor => Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.05);
+
+  static const Color waterFallFlowCardLanguageChipTextColor = Colors.white;
+
   /// Login page
-  static Color get loginPageForegroundColor => Get.theme.colorScheme.background;
+  static Color get loginPageForegroundColor => Get.theme.colorScheme.onSurfaceVariant;
 
-  static Color get loginPageFormColor => Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade100;
+  static Color get loginPageBackgroundColor => Get.theme.colorScheme.background;
 
-  static Color get loginPageBackgroundColor => Get.isDarkMode ? Colors.blue.shade900 : Colors.blue;
+  static Color get loginPageFormIconColor => Get.theme.colorScheme.onSurfaceVariant;
 
-  static Color get loginPageFieldColor => Get.theme.colorScheme.secondaryContainer;
+  static Color get loginPageTextHintColor => Get.theme.colorScheme.onSurfaceVariant;
 
-  static Color get loginPageHintColor => Get.isDarkMode ? Colors.grey.shade300 : Colors.grey.shade700;
+  static Color get loginPagePrefixIconColor => Get.theme.colorScheme.onSurfaceVariant;
 
-  static Color get loginPagePrefixIconColor => Get.isDarkMode ? Colors.grey.shade400 : Colors.grey.shade600;
+  static Color get loginPageFormHintColor => Get.theme.colorScheme.outline;
+
+  static Color get loginPageIndicatorColor => Get.theme.colorScheme.background;
 
   /// Detail page
   static const double detailsPageHeaderHeight = 200;
@@ -120,7 +163,7 @@ class UIConfig {
   static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;
 
-  static Color get resumeButtonColor => Colors.blue;
+  static Color get resumeButtonColor => Get.theme.colorScheme.primary;
 
   static Color get pauseButtonColor => Get.theme.colorScheme.primary;
 
@@ -129,7 +172,7 @@ class UIConfig {
   static Color downloadPageGroupColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
 
   static BoxShadow get downloadPageGroupShadow => BoxShadow(
-        color: Colors.black.withOpacity(0.3),
+        color: Get.theme.colorScheme.onBackground.withOpacity(0.3),
         blurRadius: 2,
         offset: const Offset(0.3, 1),
       );
@@ -154,11 +197,15 @@ class UIConfig {
   static Color get downloadPageCardTextColor => Get.theme.colorScheme.outline;
   static const double downloadPageProgressIndicatorHeight = 3;
 
-  static Color get downloadPageProgressIndicatorColor => Colors.blue;
+  static Color get downloadPageProgressIndicatorColor => Get.theme.colorScheme.primary;
 
-  static Color get downloadPageProgressIndicatorPausedColor => Get.theme.colorScheme.surfaceVariant;
+  static Color get downloadPageProgressPausedIndicatorColor => Get.theme.colorScheme.surfaceVariant;
+
+  static Color get downloadPageLoadingIndicatorColor => Get.theme.colorScheme.onSurfaceVariant;
 
   /// download page with gridview
+  static Color get downloadPageGridViewGroupBackGroundColor => Get.theme.colorScheme.secondaryContainer.withOpacity(0.6);
+
   static const double downloadPageGridViewCardAspectRatio = 0.8;
   static const double downloadPageGridViewCardWidth = 180;
   static const double downloadPageGridViewCardHeight = 180 / 0.8;
@@ -168,7 +215,7 @@ class UIConfig {
   static const double downloadPageGridViewSpeedTextSize = 8;
   static const double downloadPageGridViewCircularProgressSize = 40;
 
-  static Color get downloadPageGridGroupColor => Get.isDarkMode ? Colors.grey.shade900 : Colors.grey.shade200;
+  static Color get downloadPageGridViewCardDragBorderColor => Get.theme.colorScheme.onBackground;
 
   /// Search page
   static const double desktopSearchBarHeight = 32;
@@ -180,6 +227,16 @@ class UIConfig {
   static const double desktopSearchTabDividerWidth = 16;
   static const double desktopSearchTabDividerBorderRadius = 8;
   static const double desktopSearchTabIconSize = 16;
+
+  static Color get desktopSearchTabSelectedBackGroundColor => Get.theme.colorScheme.onBackground;
+
+  static Color get desktopSearchTabUnSelectedBackGroundColor => Get.theme.colorScheme.secondaryContainer;
+
+  static Color get desktopSearchTabSelectedTextColor => Get.theme.colorScheme.background;
+
+  static Color get desktopSearchTabUnSelectedTextColor => Get.theme.colorScheme.onBackground;
+
+  static Color get desktopSearchTabDividerBackGroundColor => Get.theme.colorScheme.background;
 
   static Duration desktopSearchTabAnimationDuration = const Duration(milliseconds: 200);
 
@@ -198,16 +255,53 @@ class UIConfig {
   static const int searchPageAnimationDuration = 250;
 
   /// Read page
+  static const Color readPageForeGroundColor = Colors.white;
+
   static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
 
   static const Color readPageButtonColor = Colors.white;
+
+  static Color get readPageActiveButtonColor => Get.theme.colorScheme.primary;
   static const double readPageBottomThumbnailsRegionHeight = 134;
   static const double readPageThumbnailHeight = 102;
   static const double readPageThumbnailWidth = 80;
 
-  static Color get readPageThumbnailShadowColor => Colors.white.withOpacity(0.8);
+  static Color get readPageBottomCurrentImageHighlightBackgroundColor => Get.theme.colorScheme.primary;
+
+  static Color get readPageBottomCurrentImageHighlightForegroundColor => Get.theme.colorScheme.onPrimary;
+
   static const double readPageBottomSliderHeight = 56;
   static const double readPageBottomSpacingHeight = 36;
+
+  static const Color readPageWarningButtonColor = Colors.yellow;
+
+  static Color get readPageRightBottomRegionColor => Colors.grey.withOpacity(0.8);
+
+  /// Blank page
+  static Color get jHentaiIconColor => Get.theme.colorScheme.outline;
+
+  /// Dashboard page
+  static Color get dashboardPageSeeAllTextColor => Get.theme.colorScheme.outline;
+
+  static Color get dashboardPageArrowButtonColor => Get.theme.colorScheme.primary;
+
+  static Color get dashboardPageGalleryDescButtonColor => Get.theme.colorScheme.onSurfaceVariant;
+
+  /// Download page
+  static const Color downloadPageGridCoverOverlayColor = Colors.white;
+  static const Color downloadPageGridCoverBlurColor = Colors.black;
+  static const Color downloadPageGridProgressColor = Colors.white;
+
+  static Color get downloadPageGridProgressBackGroundColor => Colors.grey.shade800;
+
+  static const Color downloadPageGridTextColor = Colors.white;
+
+  static Color get downloadPageActionBackGroundColor => Get.theme.colorScheme.background;
+
+  /// Detail page
+  static const double detailPagePadding = 15;
+
+  static Color get detailPageCoverShadowColor => Get.theme.colorScheme.primary.withOpacity(0.3);
 
   /// Comment
   static const double commentAuthorTextSizeInDetailPage = 12;
@@ -236,18 +330,52 @@ class UIConfig {
 
   static Color get commentFooterTextColor => Get.theme.colorScheme.outline;
 
+  static const Color commentLinkColor = Colors.blue;
+
+  static const Color galleryCategoryTagTextColor = Colors.white;
+
+  static Color get galleryCategoryTagDisabledBackGroundColor => Get.theme.colorScheme.outline.withOpacity(0.2);
+
+  static Color get galleryCategoryTagDisabledTextColor => Get.theme.colorScheme.onSurfaceVariant.withOpacity(0.2);
+
+  static Color galleryRatingStarColor = Colors.amber.shade800;
+
+  static Color get galleryRatingStarUnRatedColor => Get.theme.colorScheme.outline.withOpacity(0.5);
+
+  static Color get galleryRatingStarRatedColor => Get.theme.colorScheme.error;
+
+  /// Setting page
+  static Color get settingPageLayoutSelectorUnSupportColor => Get.theme.colorScheme.outline.withOpacity(0.5);
+
   /// Group selector
   static const double groupSelectorHeight = 100;
   static const double groupSelectorWidth = 230;
   static const double groupSelectorChipsHeight = 40;
   static const double groupSelectorChipTextSize = 11;
 
-  static const Color groupSelectorSelectedChipColor = Color(0xFFEADDFF);
+  static Color get groupSelectorSelectedChipColor => Get.theme.colorScheme.secondaryContainer;
 
-  static Color get groupSelectorChipColor => groupSelectorSelectedChipColor.withOpacity(0.3);
-  static const Color groupSelectorTextColor = Colors.black;
+  static Color get groupSelectorChipColor => Get.theme.colorScheme.background;
+
+  static Color get groupSelectorTextColor => Get.theme.colorScheme.onSecondaryContainer;
   static const double groupSelectorTextFieldLabelTextSize = 12;
   static const double groupSelectorTextFieldTextSize = 14;
+
+  /// EH Tag
+  static Color get ehTagBackGroundColor => Get.theme.colorScheme.secondary.withOpacity(0.15);
+
+  static Color get ehTagTextColor => Get.theme.colorScheme.onBackground;
+
+  /// Gallery card favorite tag
+  static const Color galleryCardFavoriteTagTextColor = Colors.white;
+
+  /// Warning image
+  static const Color warningImageBlurColor = Colors.black;
+
+  static const Color warningImageTextColor = Colors.white;
+
+  /// Loading state indicator
+  static Color get loadingStateIndicatorButtonColor => Get.theme.colorScheme.outline;
 
   /// Download dialog
   static const double downloadDialogWidth = 230;
@@ -302,14 +430,13 @@ class UIConfig {
   static double get statisticsDialogGraphWidth => max(300, fullScreenWidth * 2 / 3);
 
   /// Tag dialog
-  static Color get tagDialogButtonColor => Get.theme.colorScheme.onPrimaryContainer;
+  static Color get tagDialogButtonColor => Get.theme.colorScheme.primary;
+
+  static Color get tagDialogLikedButtonColor => Get.theme.colorScheme.error;
   static const double tagDialogButtonSize = 20;
 
   /// Tag sets page
   static Color get tagSetsPageIconColor => Get.theme.colorScheme.primary;
-
-  /// detail page
-  static const double detailPagePadding = 15;
 
   /// auth dialog
   static const double authDialogPinWidth = 300;
@@ -317,9 +444,18 @@ class UIConfig {
   static const double authDialogPinCodeRegionWidth = 60;
   static const double authDialogCursorHeight = 2;
 
+  /// search config dialog
+  static Color get searchConfigDialogSuggestionShadowColor => Get.theme.colorScheme.onBackground.withOpacity(0.6);
+
+  static Color get searchConfigDialogFieldHintTextColor => Get.theme.colorScheme.outline.withOpacity(0.5);
+
   /// lock page
   static const double lockPagePinCodeRegionWidth = 60;
   static const double lockPageCursorHeight = 2;
+
+  static Color get lockPageFilledDashColor => Get.theme.colorScheme.secondaryContainer;
+
+  static Color get lockPageUnfilledDashColor => Get.theme.colorScheme.onSecondaryContainer;
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {

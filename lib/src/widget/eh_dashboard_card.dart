@@ -72,7 +72,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Colors.transparent, Colors.black87],
+          colors: [Colors.transparent, UIConfig.dashboardCardShadeColor],
         ),
       ),
     );
@@ -86,21 +86,21 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
         Text(
           widget.gallery.title,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+          style: const TextStyle(color: UIConfig.dashboardCardTextColor, fontSize: 12),
         ),
         const SizedBox(height: 8),
         Row(
           children: [
-            const Icon(Icons.account_circle, color: Colors.white, size: 12),
+            const Icon(Icons.account_circle, color: UIConfig.dashboardCardTextColor, size: 12),
             Text(
               widget.gallery.uploader ?? 'unknownUser'.tr,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: Colors.grey.shade300, fontSize: 10),
+              style: TextStyle(color: UIConfig.dashboardCardFooterTextColor, fontSize: 10),
             ).marginOnly(left: 2),
             const Expanded(child: SizedBox()),
             Text(
               '${widget.badge ?? ''} ${LocaleConsts.language2Abbreviation[widget.gallery.language] ?? ''}',
-              style: TextStyle(color: Colors.grey.shade300, fontSize: 10),
+              style: TextStyle(color: UIConfig.dashboardCardFooterTextColor, fontSize: 10),
             ),
           ],
         )

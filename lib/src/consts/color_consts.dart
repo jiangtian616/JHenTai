@@ -16,7 +16,10 @@ class ColorConsts {
     'other': Colors.white,
   };
 
-  /// color for category tag
+  /// color for category tag text
+  static const Color tagNameSpaceTextColor = Colors.black;
+
+  /// background color for category tag
   static const Map<String, Color> tagNameSpaceColor = {
     'language': Color(0xfff5dff5),
     'artist': Color(0xffccd9cd),
@@ -49,7 +52,6 @@ class ColorConsts {
     '临时': Color(0xffe9dbfa),
     '其他': Color(0xfffadcdb),
   };
-
 
   /// raw tag color to tag index
   static const Map<String, int> favoriteTagIndex = <String, int>{

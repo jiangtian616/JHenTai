@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -45,7 +46,7 @@ Widget EHGalleryCollection({
           return Container(
             decoration: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags
                 ? BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
+                    color: UIConfig.backGroundColor(context),
                     border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
                   )
                 : null,

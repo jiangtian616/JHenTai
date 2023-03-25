@@ -152,11 +152,11 @@ class _GroupChipState extends State<GroupChip> with AnimationMixin {
               Align(
                 heightFactor: animation.value,
                 widthFactor: animation.value,
-                child: Transform.scale(scale: animation.value, child: const Icon(Icons.check, size: 12, color: UIConfig.groupSelectorTextColor)),
+                child: Transform.scale(scale: animation.value, child: Icon(Icons.check, size: 12, color: UIConfig.groupSelectorTextColor)),
               ).marginOnly(right: animation.value),
               Text(
                 widget.text,
-                style: const TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1, color: UIConfig.groupSelectorTextColor),
+                style: TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1, color: UIConfig.groupSelectorTextColor),
               ),
             ],
           ),

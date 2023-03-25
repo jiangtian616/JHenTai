@@ -146,7 +146,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.delete, color: Get.theme.colorScheme.error),
+                Icon(Icons.delete, color: UIConfig.alertColor),
                 SizedBox(width: 56, child: Text('delete'.tr)),
               ],
             ),

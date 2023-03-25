@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 import '../network/eh_request.dart';
 import '../utils/route_util.dart';
@@ -15,7 +15,7 @@ class LogoutDialog extends StatelessWidget {
       actions: [
         CupertinoDialogAction(child: Text('cancel'.tr), onPressed: backRoute),
         CupertinoDialogAction(
-          child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
+          child: Text('OK'.tr, style: TextStyle(color: UIConfig.alertColor)),
           onPressed: () {
             EHRequest.requestLogout();
             backRoute();

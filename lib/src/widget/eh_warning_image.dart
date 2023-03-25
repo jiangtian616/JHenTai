@@ -2,6 +2,7 @@ import 'package:blur/blur.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 class EHWarningImage extends StatefulWidget {
   final bool warning;
@@ -33,13 +34,13 @@ class _EHWarningImageState extends State<EHWarningImage> {
       child: warning
           ? Blur(
               blur: 15,
-              blurColor: Colors.black,
+              blurColor: UIConfig.warningImageBlurColor,
               colorOpacity: 0.75,
               child: ExtendedImage.network(widget.src),
               overlay: Center(
                 child: Text(
                   'warningImageHint'.tr,
-                  style: const TextStyle(fontSize: 12, height: 2, color: Colors.white),
+                  style: const TextStyle(fontSize: 12, height: 2, color: UIConfig.warningImageTextColor),
                   textAlign: TextAlign.center,
                 ),
               ),

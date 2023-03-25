@@ -46,10 +46,10 @@ class ArchiveGridDownloadPage extends GridBasePage {
                   borderRadius: BorderRadius.circular(8),
                   child: Blur(
                     blur: 1,
-                    blurColor: Colors.black,
+                    blurColor: UIConfig.downloadPageGridCoverBlurColor,
                     colorOpacity: 0.6,
                     child: cover,
-                    overlay: const Icon(Icons.download, color: Colors.white),
+                    overlay: const Icon(Icons.download, color: UIConfig.downloadPageGridCoverOverlayColor),
                   ),
                 );
               },
@@ -81,7 +81,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+                child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
               ),
               Center(
                 child: GetBuilder<ArchiveDownloadService>(
@@ -93,8 +93,8 @@ class ArchiveGridDownloadPage extends GridBasePage {
                     ),
                     child: CircularProgressIndicator(
                       value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
-                      color: Colors.white,
-                      backgroundColor: Colors.grey.shade800,
+                      color: UIConfig.downloadPageGridProgressColor,
+                      backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
                     ),
                   ),
                 ),
@@ -104,7 +104,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => Text(
                     '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archive.size.toDouble())}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
+                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
                   ),
                 ).marginOnly(top: 60),
               ),
@@ -123,7 +123,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                             id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                             builder: (_) => Text(
                               archiveDownloadInfo.speedComputer.speed,
-                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
+                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
                             ),
                           )
                         : Icon(
@@ -134,7 +134,7 @@ class ArchiveGridDownloadPage extends GridBasePage {
                                     : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
                                         ? Icons.done
                                         : Icons.pause,
-                            color: Colors.white,
+                            color: UIConfig.downloadPageGridTextColor,
                           ),
                   ),
                 ),

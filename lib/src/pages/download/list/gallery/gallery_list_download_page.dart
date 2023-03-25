@@ -117,7 +117,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
           color: UIConfig.downloadPageGroupColor(context),
-          boxShadow: [UIConfig.downloadPageGroupShadow],
+          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -174,18 +174,18 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       children: [
         SlidableAction(
           icon: Icons.bookmark,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (_) => logic.handleChangeGroup(gallery),
         ),
         SlidableAction(
           icon: FontAwesomeIcons.sort,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (BuildContext context) => logic.showPrioritySheet(gallery, context),
         ),
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: Colors.red,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          foregroundColor: UIConfig.alertColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (BuildContext context) => logic.handleRemoveItem(gallery, true),
         )
       ],
@@ -401,7 +401,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                   value: downloadProgress.curCount / downloadProgress.totalCount,
                   color: downloadProgress.downloadStatus == DownloadStatus.downloading
                       ? UIConfig.downloadPageProgressIndicatorColor
-                      : UIConfig.downloadPageProgressIndicatorPausedColor,
+                      : UIConfig.downloadPageProgressPausedIndicatorColor,
                 ),
               ).marginOnly(top: 4),
           ],

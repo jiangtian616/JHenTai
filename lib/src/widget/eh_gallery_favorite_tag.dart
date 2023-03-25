@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 class EHGalleryFavoriteTag extends StatelessWidget {
   final String name;
@@ -14,8 +15,8 @@ class EHGalleryFavoriteTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
       child: Row(
         children: [
-          const Icon(Icons.favorite, size: 8, color: Colors.white),
-          Text(name, style: const TextStyle(fontSize: 10, height: 1, color: Colors.white)).marginOnly(left: 2),
+          const Icon(Icons.favorite, size: 8, color: UIConfig.galleryCardFavoriteTagTextColor),
+          Text(name, style: const TextStyle(fontSize: 10, height: 1, color: UIConfig.galleryCardFavoriteTagTextColor)).marginOnly(left: 2),
         ],
       ),
     );

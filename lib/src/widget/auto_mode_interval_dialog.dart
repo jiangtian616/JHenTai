@@ -30,7 +30,7 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
           onSelectedItemChanged: (index) => interval = (index + 1) * 0.5,
           scrollController: scrollController,
           itemBuilder: (_, int index) => Center(
-            child: Text('${(index + 1) * 0.5} s', style: TextStyle(color: Get.theme.colorScheme.onBackground)),
+            child: Text('${(index + 1) * 0.5} s', style: TextStyle(color: UIConfig.onBackGroundColor(context))),
           ),
           childCount: 39,
         ),

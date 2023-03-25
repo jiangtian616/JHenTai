@@ -155,12 +155,12 @@ class DashboardPage extends BasePage {
         child: _GalleryListDesc(
           actions: [
             IconButton(
-              icon: Icon(Icons.settings, size: 22, color: Get.theme.colorScheme.onSurfaceVariant),
+              icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor),
               onPressed: logic.handleTapFilterButton,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
             ),
             IconButton(
-              icon: Icon(Icons.refresh, size: 25, color: Get.theme.colorScheme.onSurfaceVariant),
+              icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor),
               onPressed: logic.handleClearAndRefresh,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
             ),
@@ -214,9 +214,9 @@ class _RankListDesc extends StatelessWidget {
             children: [
               Text(
                 'seeAll'.tr,
-                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
               ),
-              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary),
+              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor),
             ],
           ),
         )
@@ -248,9 +248,9 @@ class _PopularListDesc extends StatelessWidget {
             children: [
               Text(
                 'seeAll'.tr,
-                style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
               ),
-              Icon(Icons.keyboard_arrow_right, color: Get.theme.colorScheme.primary),
+              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor),
             ],
           ),
         )

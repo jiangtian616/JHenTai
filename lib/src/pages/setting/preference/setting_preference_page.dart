@@ -64,14 +64,11 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('enableTagZHTranslation'.tr),
       subtitle: tagTranslationService.loadingState.value == LoadingState.success
-          ? Text(
-              '${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
-              style: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline),
-            )
+          ? Text('${'version'.tr}: ${tagTranslationService.timeStamp.value!}', style: const TextStyle(fontSize: 12))
           : tagTranslationService.loadingState.value == LoadingState.loading
               ? Text(
                   '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}',
-                  style: TextStyle(fontSize: 12, color: Get.theme.colorScheme.outline),
+                  style: const TextStyle(fontSize: 12),
                 )
               : null,
       trailing: Row(

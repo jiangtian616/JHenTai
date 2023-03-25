@@ -20,11 +20,11 @@ class TabletLayoutPageV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: Theme.of(context).colorScheme.background,
+      color: UIConfig.backGroundColor(context),
       child: ResizableWidget(
-        key: Key(Theme.of(context).colorScheme.background.hashCode.toString()),
+        key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
         separatorSize: 7.5,
-        separatorColor: UIConfig.desktopLayoutDividerColor,
+        separatorColor: UIConfig.layoutDividerColor,
         separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
         percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
         onResized: windowService.handleColumnResized,

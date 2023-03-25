@@ -1,6 +1,7 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import '../../../network/eh_cookie_manager.dart';
 import '../../../routes/routes.dart';
@@ -44,7 +45,7 @@ class SettingAccountPage extends StatelessWidget {
       onTap: () => Get.dialog(const LogoutDialog()),
       trailing: IconButton(
         icon: const Icon(Icons.logout),
-        color: Get.theme.colorScheme.error,
+        color: UIConfig.alertColor,
         onPressed: () => Get.dialog(const LogoutDialog()),
       ),
     );

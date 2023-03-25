@@ -34,7 +34,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: buildBody(context),
+      body: buildBody(),
       floatingActionButton: buildFloatingActionButton(),
     );
   }
@@ -90,7 +90,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget buildBody(BuildContext context) {
+  Widget buildBody() {
     return GetBuilder<ArchiveDownloadService>(
       id: logic.archiveDownloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
@@ -119,7 +119,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
           color: UIConfig.downloadPageGroupColor(context),
-          boxShadow: [UIConfig.downloadPageGroupShadow],
+          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -173,13 +173,13 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       children: [
         SlidableAction(
           icon: Icons.bookmark,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (_) => logic.handleChangeArchiveGroup(archive),
         ),
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: Colors.red,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          foregroundColor: UIConfig.alertColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (BuildContext context) => logic.handleRemoveItem(archive),
         ),
       ],
@@ -199,7 +199,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         child: Row(
           children: [
             _buildCover(archive),
-            Expanded(child: _buildInfo(archive)),
+            _buildInfo(archive),
           ],
         ),
       ),
@@ -221,19 +221,21 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildInfo(ArchiveDownloadedData archive) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => logic.goToReadPage(archive),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildInfoHeader(archive),
-          const Expanded(child: SizedBox()),
-          _buildInfoCenter(archive),
-          const Expanded(child: SizedBox()),
-          _buildInfoFooter(archive),
-        ],
-      ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
+    return Expanded(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => logic.goToReadPage(archive),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildInfoHeader(archive),
+            const Expanded(child: SizedBox()),
+            _buildInfoCenter(archive),
+            const Expanded(child: SizedBox()),
+            _buildInfoFooter(archive),
+          ],
+        ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
+      ),
     );
   }
 
@@ -292,7 +294,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return GestureDetector(
           onTap: () => logic.handleReUnlockArchive(archive),
-          child: const Icon(Icons.lock_open, size: 18, color: Colors.red),
+          child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor),
         );
       },
     );
@@ -385,7 +387,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                   builder: (_) => LinearProgressIndicator(
                     value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
                     color: archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                        ? UIConfig.downloadPageProgressIndicatorPausedColor
+                        ? UIConfig.downloadPageProgressPausedIndicatorColor
                         : UIConfig.downloadPageProgressIndicatorColor,
                   ),
                 ),

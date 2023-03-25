@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 import '../../../../database/database.dart';
 import '../../../../model/gallery_image.dart';
@@ -145,7 +145,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: Colors.red.shade400)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
             onPressed: () {
               handleRemoveItem(archive);
               backRoute();

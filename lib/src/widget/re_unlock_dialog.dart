@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../config/ui_config.dart';
 import '../utils/route_util.dart';
 
 class ReUnlockDialog extends StatelessWidget {
@@ -18,7 +18,7 @@ class ReUnlockDialog extends StatelessWidget {
           onPressed: backRoute,
         ),
         CupertinoDialogAction(
-          child: Text('OK'.tr, style: const TextStyle(color: Colors.red)),
+          child: Text('OK'.tr, style: TextStyle(color: UIConfig.alertColor)),
           onPressed: () => backRoute(result: true),
         ),
       ],

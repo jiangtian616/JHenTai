@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 
 class EHSeparator extends StatefulWidget {
@@ -40,7 +41,7 @@ class _EHSeparatorState extends State<EHSeparator> {
         },
         cursor: widget.info.isHorizontalSeparator ? SystemMouseCursors.resizeRow : SystemMouseCursors.resizeColumn,
         child: Container(
-          color: Theme.of(context).colorScheme.background,
+          color: UIConfig.backGroundColor(context),
           width: widget.info.isHorizontalSeparator ? double.infinity : widget.info.size,
           height: widget.info.isHorizontalSeparator ? widget.info.size : double.infinity,
           child: Align(

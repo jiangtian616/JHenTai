@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 
+import '../config/ui_config.dart';
 import '../routes/routes.dart';
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
@@ -13,17 +14,17 @@ typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
 typedef AppLaunchCallback = void Function(BuildContext context);
 
-class AppStateListener extends StatefulWidget {
+class AppManager extends StatefulWidget {
   static final List<DidChangePlatformBrightnessCallback> _didChangePlatformBrightnessCallbacks = [];
   static final List<DidChangeAppLifecycleStateCallback> _didChangeAppLifecycleStateCallbacks = [];
   static final List<AppLaunchCallback> _appLaunchCallbacks = [];
 
   final Widget child;
 
-  const AppStateListener({Key? key, required this.child}) : super(key: key);
+  const AppManager({Key? key, required this.child}) : super(key: key);
 
   @override
-  State<AppStateListener> createState() => _AppStateListenerState();
+  State<AppManager> createState() => _AppManagerState();
 
   static void registerDidChangePlatformBrightnessCallback(DidChangePlatformBrightnessCallback callback) {
     _didChangePlatformBrightnessCallbacks.add(callback);
@@ -50,7 +51,7 @@ class AppStateListener extends StatefulWidget {
   }
 }
 
-class _AppStateListenerState extends State<AppStateListener> with WidgetsBindingObserver {
+class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   DateTime? lastInactiveTime;
   bool inBlur = false;
 
@@ -59,11 +60,11 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    AppStateListener.registerAppLaunchCallback(_addSecureFlagForAndroid);
-    AppStateListener.registerDidChangePlatformBrightnessCallback(_changeTheme);
-    AppStateListener.registerDidChangeAppLifecycleStateCallback(_lockAfterResume);
+    AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
+    AppManager.registerDidChangePlatformBrightnessCallback(_changeTheme);
+    AppManager.registerDidChangeAppLifecycleStateCallback(_lockAfterResume);
 
-    for (var callback in AppStateListener._appLaunchCallbacks) {
+    for (var callback in AppManager._appLaunchCallbacks) {
       callback.call(context);
     }
   }
@@ -76,7 +77,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   void didChangePlatformBrightness() {
-    for (DidChangePlatformBrightnessCallback callback in AppStateListener._didChangePlatformBrightnessCallbacks) {
+    for (DidChangePlatformBrightnessCallback callback in AppManager._didChangePlatformBrightnessCallbacks) {
       callback.call();
     }
     super.didChangePlatformBrightness();
@@ -84,7 +85,7 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    for (DidChangeAppLifecycleStateCallback callback in AppStateListener._didChangeAppLifecycleStateCallbacks) {
+    for (DidChangeAppLifecycleStateCallback callback in AppManager._didChangeAppLifecycleStateCallbacks) {
       callback.call(state);
     }
     super.didChangeAppLifecycleState(state);
@@ -92,7 +93,13 @@ class _AppStateListenerState extends State<AppStateListener> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    return inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child;
+    return ScrollConfiguration(
+      behavior: UIConfig.scrollBehaviourWithScrollBar,
+      child: ListTileTheme(
+        iconColor: UIConfig.onBackGroundColor(context),
+        child: inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child,
+      ),
+    );
   }
 
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),

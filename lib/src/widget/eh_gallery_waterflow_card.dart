@@ -62,7 +62,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           galleryImage: gallery.cover,
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
-          containerColor: Get.theme.colorScheme.onPrimaryContainer.withOpacity(0.05),
+          containerColor: UIConfig.waterFallFlowCardBackGroundColor,
           heroTag: gallery.cover,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
@@ -81,7 +81,10 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4),
       constraints: const BoxConstraints(minWidth: 12),
       child: Center(
-        child: Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9, color: Colors.white)),
+        child: Text(
+          LocaleConsts.language2Abbreviation[gallery.language] ?? '',
+          style: const TextStyle(fontSize: 9, color: UIConfig.waterFallFlowCardLanguageChipTextColor),
+        ),
       ),
     );
   }
@@ -97,7 +100,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
             if (listMode == ListMode.waterfallFlowWithImageAndInfo && gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             EHGalleryCategoryTag(
               category: gallery.category,
-              textStyle: const TextStyle(fontSize: 8, color: Colors.white),
+              textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
             ).marginOnly(right: 4),
             if (gallery.language != null)
@@ -113,13 +116,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildRatingBar() {
     return RatingBar.builder(
-      unratedColor: Colors.grey.shade300,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
       initialRating: gallery.rating,
       itemCount: 5,
       allowHalfRating: true,
       itemSize: 12,
       ignoreGestures: true,
-      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.resumeButtonColor : Colors.amber.shade800),
+      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
       onRatingUpdate: (_) {},
     );
   }
@@ -195,7 +198,7 @@ class WaterFallFlowTag extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: galleryTag.backgroundColor ?? (Get.isDarkMode ? Get.theme.colorScheme.secondaryContainer : Colors.grey.shade300.withOpacity(0.7)),
+        color: galleryTag.backgroundColor ?? UIConfig.ehTagBackGroundColor,
         borderRadius: BorderRadius.circular(6),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -206,7 +209,7 @@ class WaterFallFlowTag extends StatelessWidget {
         style: TextStyle(
           fontSize: UIConfig.waterFallFlowCardTagTextSize,
           height: 1,
-          color: galleryTag.color ?? Get.theme.colorScheme.onSecondaryContainer,
+          color: galleryTag.color ?? UIConfig.ehTagTextColor,
         ),
       ),
     );

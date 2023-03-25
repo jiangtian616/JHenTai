@@ -1,6 +1,7 @@
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 import '../service/windows_service.dart';
 
@@ -26,11 +27,11 @@ class _WindowWidgetState extends State<WindowWidget> {
 
     return WindowBorder(
       width: 0.5,
-      color: Colors.black,
+      color: UIConfig.windowBorderColor,
       child: Column(
         children: [
           ColoredBox(
-            color: Get.theme.colorScheme.background,
+            color: UIConfig.backGroundColor(context),
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onPanStart: (_) {

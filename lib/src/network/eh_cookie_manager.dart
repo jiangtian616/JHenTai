@@ -95,6 +95,9 @@ class EHCookieManager extends CookieManager {
   }
 
   Future<void> storeEhCookiesForAllUri(List<Cookie> cookies) async {
+    /// https://github.com/Ehviewer-Overhauled/Ehviewer/issues/873
+    cookies.removeWhere((cookie) => cookie.name == '__utmp');
+
     /// host
     await Future.wait(
       NetworkSetting.host2IPs.keys.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),

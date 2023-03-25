@@ -41,10 +41,7 @@ class GalleryGridDownloadPage extends GridBasePage {
 
                   if (image == null) {
                     return Center(
-                      child: LoadingAnimationWidget.horizontalRotatingDots(
-                        color: Get.isDarkMode ? Colors.grey.shade200 : Colors.grey.shade800,
-                        size: 16,
-                      ),
+                      child: LoadingAnimationWidget.horizontalRotatingDots(color: UIConfig.downloadPageLoadingIndicatorColor, size: 16),
                     );
                   }
 
@@ -58,10 +55,10 @@ class GalleryGridDownloadPage extends GridBasePage {
                     borderRadius: BorderRadius.circular(8),
                     child: Blur(
                       blur: 1,
-                      blurColor: Colors.black,
+                      blurColor: UIConfig.downloadPageGridCoverBlurColor,
                       colorOpacity: 0.6,
                       child: cover,
-                      overlay: const Icon(Icons.download, color: Colors.white),
+                      overlay: const Icon(Icons.download, color: UIConfig.downloadPageGridCoverOverlayColor),
                     ),
                   );
                 },
@@ -105,7 +102,7 @@ class GalleryGridDownloadPage extends GridBasePage {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Blur(blur: 1, blurColor: Colors.black, colorOpacity: 0.6, child: cover),
+                child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
               ),
               Center(
                 child: GetBuilder<GalleryDownloadService>(
@@ -117,8 +114,8 @@ class GalleryGridDownloadPage extends GridBasePage {
                     ),
                     child: CircularProgressIndicator(
                       value: downloadProgress.curCount / downloadProgress.totalCount,
-                      color: Colors.white,
-                      backgroundColor: Colors.grey.shade800,
+                      color: UIConfig.downloadPageGridProgressColor,
+                      backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
                     ),
                   ),
                 ),
@@ -128,7 +125,7 @@ class GalleryGridDownloadPage extends GridBasePage {
                   id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
                   builder: (_) => Text(
                     '${downloadProgress.curCount} / ${downloadProgress.totalCount}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: Colors.white),
+                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
                   ),
                 ).marginOnly(top: 60),
               ),
@@ -146,12 +143,12 @@ class GalleryGridDownloadPage extends GridBasePage {
                             id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
                             builder: (_) => Text(
                               speedComputer.speed,
-                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: Colors.white),
+                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
                             ),
                           )
                         : Icon(
                             downloadProgress.downloadStatus == DownloadStatus.paused ? Icons.play_arrow : Icons.done,
-                            color: Colors.white,
+                            color: UIConfig.downloadPageGridTextColor,
                           ),
                   ),
                 ),

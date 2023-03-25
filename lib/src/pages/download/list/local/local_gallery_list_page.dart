@@ -133,7 +133,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       height: UIConfig.downloadPageGroupHeight,
       decoration: BoxDecoration(
         color: UIConfig.downloadPageGroupColor(context),
-        boxShadow: [UIConfig.downloadPageGroupShadow],
+        boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
         borderRadius: BorderRadius.circular(15),
       ),
       padding: const EdgeInsets.only(right: 40),
@@ -179,8 +179,8 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       children: [
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: Colors.red,
-          backgroundColor: Get.theme.scaffoldBackgroundColor,
+          foregroundColor: UIConfig.alertColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
           onPressed: (BuildContext context) => logic.handleRemoveItem(gallery),
         )
       ],

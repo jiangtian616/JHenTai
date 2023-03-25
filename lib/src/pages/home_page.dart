@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     _checkUpdate();
     _handleUrlInClipBoard();
 
-    AppStateListener.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+    AppManager.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
   }
 
   @override

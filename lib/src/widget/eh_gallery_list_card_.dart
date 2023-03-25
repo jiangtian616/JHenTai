@@ -99,10 +99,10 @@ class _RoundGalleryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
+        color: UIConfig.backGroundColor(context),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+            color: UIConfig.galleryCardShadowColor,
             blurRadius: 3,
             offset: const Offset(2, 2),
           )
@@ -137,7 +137,7 @@ class _FlatGalleryCard extends StatelessWidget {
     }
 
     return ColoredBox(
-      color: Theme.of(context).colorScheme.background,
+      color: UIConfig.backGroundColor(context),
       child: Row(children: children),
     );
   }
@@ -153,7 +153,7 @@ class _GalleryCardCover extends StatelessWidget {
   Widget build(BuildContext context) {
     return EHImage(
       galleryImage: image,
-      containerColor: Get.theme.colorScheme.surfaceVariant,
+      containerColor: UIConfig.galleryCardBackGroundColor,
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
       heroTag: image,
@@ -291,7 +291,7 @@ class _GalleryInfoFooter extends StatelessWidget {
 
   Widget _buildRatingBar() {
     return RatingBar.builder(
-      unratedColor: Colors.grey.shade300,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
       initialRating: gallery.rating,
       itemCount: 5,
       allowHalfRating: true,
@@ -299,7 +299,7 @@ class _GalleryInfoFooter extends StatelessWidget {
       ignoreGestures: true,
       itemBuilder: (context, _) => Icon(
         Icons.star,
-        color: gallery.hasRated ? UIConfig.resumeButtonColor : Colors.amber.shade800,
+        color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor,
       ),
       onRatingUpdate: (rating) {},
     );
