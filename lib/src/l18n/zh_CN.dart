@@ -246,6 +246,7 @@ class zh_CN {
       'dark': '黑暗',
       'light': '明亮',
       'followSystem': '跟随系统',
+      'themeColor': '主题颜色',
       'listStyle': '画廊列表样式(全局)',
       'flat': '平坦',
       'flatWithoutTags': '平坦 - 无标签',
@@ -269,6 +270,10 @@ class zh_CN {
       'enableLeftMenuDrawerGesture': '允许通过手势唤起左侧菜单',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
+
+      /// theme color setting page
+      'preset': '预设',
+      'custom': '自定义',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',

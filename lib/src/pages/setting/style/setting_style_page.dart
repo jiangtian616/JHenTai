@@ -23,6 +23,7 @@ class SettingStylePage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildBrightness(),
+            _buildThemeColor(),
             _buildListMode(),
             if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ||
                 StyleSetting.listMode.value == ListMode.waterfallFlowWithImageOnly)
@@ -52,6 +53,14 @@ class SettingStylePage extends StatelessWidget {
           DropdownMenuItem(child: Text('followSystem'.tr), value: ThemeMode.system),
         ],
       ),
+    );
+  }
+
+  Widget _buildThemeColor() {
+    return ListTile(
+      title: Text('themeColor'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.themeColor),
     );
   }
 

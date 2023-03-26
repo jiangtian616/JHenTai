@@ -247,6 +247,7 @@ class en_US {
       'dark': 'Dark',
       'light': 'Light',
       'followSystem': 'Follow System',
+      'themeColor': 'Theme Color',
       'listStyle': 'Gallery List Style (Global)',
       'flat': 'Flat',
       'flatWithoutTags': 'Flat(Without Tags)',
@@ -269,6 +270,10 @@ class en_US {
       'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
+
+      /// theme color setting page
+      'preset': 'Preset',
+      'custom': 'Custom',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

@@ -3,8 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
-import 'package:jhentai/src/setting/tab_bar_setting.dart';
-import 'package:jhentai/src/utils/locale_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../model/jh_layout.dart';
@@ -21,6 +19,8 @@ enum ListMode {
 
 class StyleSetting {
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
+  static Rx<Color> lightThemeColor = const Color(0xFF6750A4).obs;
+  static Rx<Color> darkThemeColor = const Color(0xFFD0BCFF).obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
   static RxnInt crossAxisCountInGridDownloadPageForGroup = RxnInt(null);
@@ -64,6 +64,18 @@ class StyleSetting {
     StyleSetting.themeMode.value = themeMode;
     _save();
     Get.changeThemeMode(themeMode);
+  }
+
+  static saveLightThemeColor(Color color) {
+    Log.debug('saveLightThemeColor:$color');
+    StyleSetting.lightThemeColor.value = color;
+    _save();
+  }
+
+  static saveDarkThemeColor(Color color) {
+    Log.debug('saveDarkThemeColor:$color');
+    StyleSetting.darkThemeColor.value = color;
+    _save();
   }
 
   static saveListMode(ListMode listMode) {
@@ -129,6 +141,8 @@ class StyleSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'themeMode': themeMode.value.index,
+      'lightThemeColor': lightThemeColor.value.value,
+      'darkThemeColor': darkThemeColor.value.value,
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
       'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,
@@ -141,6 +155,8 @@ class StyleSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     themeMode.value = ThemeMode.values[map['themeMode']];
+    lightThemeColor.value = Color(map['lightThemeColor'] ?? lightThemeColor.value.value);
+    darkThemeColor.value = Color(map['darkThemeColor'] ?? darkThemeColor.value.value);
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
     crossAxisCountInGridDownloadPageForGroup.value = map['crossAxisCountInGridDownloadPageForGroup'];

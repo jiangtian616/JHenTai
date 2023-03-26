@@ -249,6 +249,7 @@ class pt_BR {
       'dark': 'Escuro',
       'light': 'Claro',
       'followSystem': 'Seguir o sistema',
+      'themeColor': 'Theme Color',
       'listStyle': 'Estilo da lista da galeria',
       'flat': 'Reto',
       'flatWithoutTags': 'Reto(Sem tags)',
@@ -270,6 +271,10 @@ class pt_BR {
       'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Ativar pesquisa rápida com gesto de gaveta',
       'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
+
+      /// theme color setting page
+      'preset': 'Preset',
+      'custom': 'Custom',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',

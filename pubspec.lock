@@ -506,6 +506,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.1"
+  flex_color_picker:
+    dependency: "direct main"
+    description:
+      name: flex_color_picker
+      sha256: "607c9fdb26be84d4a5a0931ab42a7eda725372e4f5ebaa2526ab6b22ead752f9"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.0"
+  flex_seed_scheme:
+    dependency: transitive
+    description:
+      name: flex_seed_scheme
+      sha256: "7058288ef97d348657ac95cea25d65a9aac181ca08387ede891fd7230ad7600f"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.2.3"
   flukit:
     dependency: "direct main"
     description:
@@ -952,7 +968,7 @@ packages:
     source: hosted
     version: "0.12.13"
   material_color_utilities:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: material_color_utilities
       sha256: d92141dc6fe1dad30722f9aa826c7fbc896d021d792f80678280601aff8cf724
@@ -1316,18 +1332,18 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: af941fc46c559111acdc9d5483a641b80c8cdcd43694e90a985b727255c1d97a
+      sha256: faecda9087cd6d1c2b95bd5e16cce0adeef2e9aa34b8016b150b314be7b5c642
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.15.1"
+    version: "7.2.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: "6c94076c12a3d94f3b37ad1894aadc9575cef806b34bead76e44c03ab37429d2"
+      sha256: "038607c578d2601c63ced78a503c23d7b25f24bd3c24492cadfc47bc9cbb6636"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.15.1"
+    version: "7.2.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -1950,5 +1966,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.18.0 <3.0.0"
+  dart: ">=2.19.0 <3.0.0"
   flutter: ">=3.7.0"

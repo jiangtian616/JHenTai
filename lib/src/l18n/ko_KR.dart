@@ -247,6 +247,7 @@ class ko_KR {
       'dark': '어두운 모드',
       'light': '밝은 모드',
       'followSystem': '시스템에 따라',
+      'themeColor': 'Theme Color',
       'listStyle': '갤러리 리스트 스타일 (기본값)',
       'flat': '플랫',
       'flatWithoutTags': '플랫(태그 없음)',
@@ -269,6 +270,10 @@ class ko_KR {
       'enableLeftMenuDrawerGesture': '좌측 서랍 메뉴 제스처로 열기 활성화',
       'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화',
       'alwaysShowScroll2TopButton': '맨 위로 가기 버튼 항상 보이기',
+
+      /// theme color setting page
+      'preset': 'Preset',
+      'custom': 'Custom',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '휠 스크롤 속도',

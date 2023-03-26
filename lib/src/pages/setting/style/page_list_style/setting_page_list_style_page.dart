@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import '../../../../routes/routes.dart';
 import '../../../../setting/style_setting.dart';
 
-class PageListStylePage extends StatelessWidget {
-  PageListStylePage({Key? key}) : super(key: key);
+class SettingPageListStylePage extends StatelessWidget {
+  SettingPageListStylePage({Key? key}) : super(key: key);
 
   final List<PageListStyleItem> items = [
     PageListStyleItem(name: 'home'.tr, route: Routes.gallerys, show: () => StyleSetting.isInDesktopLayout),
