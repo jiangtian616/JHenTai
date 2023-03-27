@@ -101,17 +101,17 @@ class _EHCommentHeader extends StatelessWidget {
             fontSize: inDetailPage ? UIConfig.commentAuthorTextSizeInDetailPage : UIConfig.commentAuthorTextSizeInCommentPage,
             fontWeight: FontWeight.bold,
             color: username == null
-                ? UIConfig.commentUnknownAuthorTextColor
+                ? UIConfig.commentUnknownAuthorTextColor(context)
                 : fromMe
-                    ? UIConfig.commentOwnAuthorTextColor
-                    : UIConfig.commentOtherAuthorTextColor,
+                    ? UIConfig.commentOwnAuthorTextColor(context)
+                    : UIConfig.commentOtherAuthorTextColor(context),
           ),
         ),
         Text(
           commentTime,
           style: TextStyle(
             fontSize: inDetailPage ? UIConfig.commentTimeTextSizeInDetailPage : UIConfig.commentTimeTextSizeInCommentPage,
-            color: UIConfig.commentTimeTextColor,
+            color: UIConfig.commentTimeTextColor(context),
           ),
         ),
       ],
@@ -137,10 +137,10 @@ class _EHCommentTextBody extends StatelessWidget {
         TextSpan(
           style: TextStyle(
             fontSize: inDetailPage ? UIConfig.commentBodyTextSizeInDetailPage : UIConfig.commentBodyTextSizeInCommentPage,
-            color: UIConfig.commentBodyTextColor,
+            color: UIConfig.commentBodyTextColor(context),
             height: 1.5,
           ),
-          children: element.nodes.map((tag) => buildTag(tag)).toList(),
+          children: element.nodes.map((tag) => buildTag(context, tag)).toList(),
         ),
         maxLines: inDetailPage ? 5 : null,
         overflow: inDetailPage ? TextOverflow.ellipsis : null,
@@ -155,10 +155,10 @@ class _EHCommentTextBody extends StatelessWidget {
   }
 
   /// Maybe i can rewrite it by `Chain of Responsibility Pattern`
-  InlineSpan buildTag(dom.Node node) {
+  InlineSpan buildTag(BuildContext context, dom.Node node) {
     /// plain text
     if (node is dom.Text) {
-      return _buildText(node.text);
+      return _buildText(context, node.text);
     }
 
     /// unknown node
@@ -181,7 +181,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'span') {
       return TextSpan(
         style: _parseTextStyle(node),
-        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context, childTag)).toList(),
       );
     }
 
@@ -189,7 +189,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'strong') {
       return TextSpan(
         style: const TextStyle(fontWeight: FontWeight.bold),
-        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
       );
     }
 
@@ -197,7 +197,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'em') {
       return TextSpan(
         style: const TextStyle(fontStyle: FontStyle.italic),
-        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
       );
     }
 
@@ -205,7 +205,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'del') {
       return TextSpan(
         style: const TextStyle(decoration: TextDecoration.lineThrough),
-        children: node.nodes.map((childTag) => buildTag(childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
       );
     }
 
@@ -234,7 +234,7 @@ class _EHCommentTextBody extends StatelessWidget {
         text: node.text,
         style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(node.attributes['href'] ?? node.text)),
-        children: node.children.map((childTag) => buildTag(childTag)).toList(),
+        children: node.children.map((childTag) => buildTag(context,childTag)).toList(),
       );
     }
 
@@ -243,12 +243,12 @@ class _EHCommentTextBody extends StatelessWidget {
     return TextSpan(text: node.text);
   }
 
-  InlineSpan _buildText(String text) {
+  InlineSpan _buildText(BuildContext context, String text) {
     RegExp reg = RegExp(r'(https?:\/\/((\w|=|\?|\.|\/|&|-|#|%|@|~|\+|:)+))');
     Match? match = reg.firstMatch(text);
 
     if (match == null) {
-      return TextSpan(text: text, style: TextStyle(color: UIConfig.commentBodyTextColor));
+      return TextSpan(text: text, style: TextStyle(color: UIConfig.commentBodyTextColor(context)));
     }
 
     /// some url link doesn't be wrapped in <a href='xxx'></a>, we manually render it as a url.
@@ -257,14 +257,14 @@ class _EHCommentTextBody extends StatelessWidget {
         text: match.group(0),
         style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
-        children: [_buildText(text.substring(match.end))],
+        children: [_buildText(context,text.substring(match.end))],
       );
     }
 
     return TextSpan(
       text: text.substring(0, match.start),
-      style: TextStyle(color: UIConfig.commentBodyTextColor),
-      children: [_buildText(text.substring(match.start))],
+      style: TextStyle(color: UIConfig.commentBodyTextColor(context)),
+      children: [_buildText(context,text.substring(match.start))],
     );
   }
 
@@ -375,7 +375,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         if (widget.lastEditTime?.isNotEmpty ?? false)
           Text(
             '${'lastEditedOn'.tr}: ${widget.lastEditTime}',
-            style: TextStyle(fontSize: UIConfig.commentLastEditTimeTextSize, color: UIConfig.commentFooterTextColor),
+            style: TextStyle(fontSize: UIConfig.commentLastEditTimeTextSize, color: UIConfig.commentFooterTextColor(context)),
           ),
         const Expanded(child: SizedBox()),
 
@@ -383,12 +383,12 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         if (score.isNotEmpty && !widget.fromMe && !widget.disableButtons) ...[
           LikeButton(
             size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
-            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor),
+            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor(context)),
             onTap: (_) => _handleVotingComment(true),
           ).marginOnly(right: 18),
           LikeButton(
             size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
-            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor),
+            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor(context)),
             onTap: (_) => _handleVotingComment(false),
           ),
         ],
@@ -412,7 +412,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
                       'uploader'.tr,
                       style: TextStyle(
                         fontSize: widget.inDetailPage ? UIConfig.commentScoreSizeInDetailPage : UIConfig.commentScoreSizeInCommentPage,
-                        color: UIConfig.commentFooterTextColor,
+                        color: UIConfig.commentFooterTextColor(context),
                       ),
                     )
                   : AnimatedFlipCounter(
@@ -421,7 +421,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
                       duration: const Duration(milliseconds: 700),
                       textStyle: TextStyle(
                         fontSize: widget.inDetailPage ? UIConfig.commentScoreSizeInDetailPage : UIConfig.commentScoreSizeInCommentPage,
-                        color: UIConfig.commentFooterTextColor,
+                        color: UIConfig.commentFooterTextColor(context),
                       ),
                     ),
             ),

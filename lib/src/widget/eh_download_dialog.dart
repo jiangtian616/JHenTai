@@ -93,7 +93,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
           Text('downloadOriginalImage'.tr + ' ?', style: const TextStyle(fontSize: UIConfig.groupDialogCheckBoxTextSize)),
           Checkbox(
             value: downloadOriginalImage,
-            activeColor: UIConfig.groupDialogCheckBoxColor,
+            activeColor: UIConfig.groupDialogCheckBoxColor(context),
             onChanged: (bool? value) => setState(() => downloadOriginalImage = (value ?? true)),
           ),
         ],

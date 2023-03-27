@@ -107,7 +107,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor).marginOnly(right: 4),
+                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor(context)).marginOnly(right: 4),
                 SizedBox(width: 56, child: Text('favorite'.tr)),
               ],
             ),
@@ -120,7 +120,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor).marginOnly(right: 4),
+                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor(context)).marginOnly(right: 4),
                 SizedBox(width: 56, child: Text('hidden'.tr)),
               ],
             ),
@@ -133,7 +133,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
+                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor(context)),
                 SizedBox(width: 56, child: Text('nope'.tr)),
               ],
             ),
@@ -146,7 +146,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.delete, color: UIConfig.alertColor),
+                Icon(Icons.delete, color: UIConfig.alertColor(context)),
                 SizedBox(width: 56, child: Text('delete'.tr)),
               ],
             ),

@@ -26,7 +26,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
     return Obx(
       () => Scaffold(
         key: MobileLayoutPageV2State.scaffoldKey,
-        drawer: buildLeftDrawer(),
+        drawer: buildLeftDrawer(context),
         drawerEnableOpenDragGesture: PreferenceSetting.enableLeftMenuDrawerGesture.isTrue,
         endDrawer: buildRightDrawer(),
         endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
@@ -36,7 +36,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
     );
   }
 
-  Widget buildLeftDrawer() {
+  Widget buildLeftDrawer(BuildContext context) {
     return Drawer(
       width: 278,
       child: GetBuilder<MobileLayoutPageV2Logic>(
@@ -52,7 +52,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
                       dense: true,
                       title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       selected: state.selectedDrawerTabIndex == index,
-                      selectedTileColor: UIConfig.mobileDrawerSelectedTileColor,
+                      selectedTileColor: UIConfig.mobileDrawerSelectedTileColor(context),
                       leading: state.icons[index].unselectedIcon,
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadiusDirectional.only(topEnd: Radius.circular(32), bottomEnd: Radius.circular(32)),
@@ -138,10 +138,10 @@ class EHUserAvatar extends StatelessWidget {
             leading: GestureDetector(
               child: CircleAvatar(
                 radius: 32,
-                backgroundColor: UIConfig.loginAvatarBackGroundColor,
+                backgroundColor: UIConfig.loginAvatarBackGroundColor(context),
                 foregroundImage:
                     UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
-                child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor, size: 32),
+                child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor(context), size: 32),
               ),
             ),
             title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),

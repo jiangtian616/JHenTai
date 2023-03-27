@@ -25,25 +25,25 @@ class LoginPage extends StatelessWidget {
       builder: (_) => Scaffold(
         /// set false to deal with keyboard
         resizeToAvoidBottomInset: false,
-        backgroundColor: UIConfig.loginPageBackgroundColor,
-        appBar: AppBar(backgroundColor: UIConfig.loginPageBackgroundColor, leading: BackButton(color: UIConfig.loginPageForegroundColor)),
+        backgroundColor: UIConfig.loginPageBackgroundColor(context),
+        appBar: AppBar(backgroundColor: UIConfig.loginPageBackgroundColor(context), leading: BackButton(color: UIConfig.loginPageForegroundColor(context))),
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const _TopArea(),
-            Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor, fontSize: 60)),
-            _buildForm(),
+            Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor(context), fontSize: 60)),
+            _buildForm(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildForm() {
+  Widget _buildForm(BuildContext context) {
     return Container(
       height: 300,
       width: 300,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: UIConfig.loginPageForegroundColor, width: 2)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: UIConfig.loginPageForegroundColor(context), width: 2)),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GetBuilder<LoginPageLogic>(
         id: LoginPageLogic.formId,
@@ -52,27 +52,27 @@ class LoginPage extends StatelessWidget {
           children: [
             SizedBox(
               height: 170,
-              child: Center(child: state.loginType == LoginType.password ? _buildUserNameForm() : _buildCookieForm()),
+              child: Center(child: state.loginType == LoginType.password ? _buildUserNameForm(context) : _buildCookieForm(context)),
             ),
-            _buildButtons().marginOnly(top: 24),
+            _buildButtons(context).marginOnly(top: 24),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildUserNameForm() {
+  Widget _buildUserNameForm(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildUsernameField().marginOnly(top: 6),
-        _buildPasswordField().marginOnly(top: 12),
-        _buildUserNameFormHint().marginOnly(top: 36),
+        _buildUsernameField(context).marginOnly(top: 6),
+        _buildPasswordField(context).marginOnly(top: 12),
+        _buildUserNameFormHint(context).marginOnly(top: 36),
       ],
     );
   }
 
-  Widget _buildUsernameField() {
+  Widget _buildUsernameField(BuildContext context) {
     return Container(
       height: 48,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
@@ -81,14 +81,14 @@ class LoginPage extends StatelessWidget {
         onChanged: (userName) => state.userName = userName,
         decoration: InputDecoration(
           hintText: 'userName'.tr,
-          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor, fontSize: 14, height: 1),
-          prefixIcon: Icon(Icons.account_circle, size: 22, color: UIConfig.loginPagePrefixIconColor),
+          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+          prefixIcon: Icon(Icons.account_circle, size: 22, color: UIConfig.loginPagePrefixIconColor(context)),
         ),
       ),
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(BuildContext context) {
     return Container(
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
       height: 48,
@@ -99,12 +99,12 @@ class LoginPage extends StatelessWidget {
         onFieldSubmitted: (v) => logic.handleLogin(),
         decoration: InputDecoration(
           hintText: 'password'.tr,
-          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor, fontSize: 14, height: 1),
-          prefixIcon: Icon(Icons.key, size: 22, color: UIConfig.loginPagePrefixIconColor),
+          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+          prefixIcon: Icon(Icons.key, size: 22, color: UIConfig.loginPagePrefixIconColor(context)),
           suffixIcon: InkWell(
             child: state.obscureText
-                ? Icon(Icons.visibility, size: 22, color: UIConfig.loginPagePrefixIconColor)
-                : Icon(Icons.visibility_off, size: 22, color: UIConfig.loginPagePrefixIconColor),
+                ? Icon(Icons.visibility, size: 22, color: UIConfig.loginPagePrefixIconColor(context))
+                : Icon(Icons.visibility_off, size: 22, color: UIConfig.loginPagePrefixIconColor(context)),
             onTap: () {
               state.obscureText = !state.obscureText;
               logic.update();
@@ -115,16 +115,16 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUserNameFormHint() {
+  Widget _buildUserNameFormHint(BuildContext context) {
     return Center(
       child: Text(
         'userNameFormHint'.tr,
-        style: TextStyle(color: UIConfig.loginPageFormHintColor, fontSize: 13),
+        style: TextStyle(color: UIConfig.loginPageFormHintColor(context), fontSize: 13),
       ),
     );
   }
 
-  Widget _buildCookieForm() {
+  Widget _buildCookieForm(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -135,34 +135,34 @@ class LoginPage extends StatelessWidget {
             key: const Key('cookie'),
             decoration: InputDecoration(
               hintText: 'Cookie',
-              hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor, fontSize: 14, height: 1),
-              prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor),
+              hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+              prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
             ),
             onChanged: (cookie) => state.cookie = cookie,
             onFieldSubmitted: (_) => logic.handleLogin(),
           ),
         ),
-        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: UIConfig.loginPageFormHintColor, fontSize: 13))
+        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: UIConfig.loginPageFormHintColor(context), fontSize: 13))
             .marginOnly(top: 12, left: 4, right: 4),
       ],
     );
   }
 
-  Widget _buildButtons() {
+  Widget _buildButtons(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
           width: 56,
-          icon: Icon(Icons.public, color: UIConfig.loginPageFormIconColor),
+          icon: Icon(Icons.public, color: UIConfig.loginPageFormIconColor(context)),
           text: const Text('Web', style: TextStyle(fontSize: 10)),
           onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
         ),
         ElevatedButton(
           onPressed: logic.handleLogin,
           style: ElevatedButton.styleFrom(
-            backgroundColor: UIConfig.loginPageFormIconColor,
-            foregroundColor: UIConfig.loginPageBackgroundColor,
+            backgroundColor: UIConfig.loginPageFormIconColor(context),
+            foregroundColor: UIConfig.loginPageBackgroundColor(context),
             shape: const CircleBorder(),
             padding: const EdgeInsets.all(12),
             minimumSize: const Size(52, 52),
@@ -174,7 +174,7 @@ class LoginPage extends StatelessWidget {
               useCupertinoIndicator: true,
               loadingState: state.loginState,
               indicatorRadius: 10,
-              indicatorColor: UIConfig.loginPageIndicatorColor,
+              indicatorColor: UIConfig.loginPageIndicatorColor(context),
               idleWidget: const Icon(Icons.arrow_forward),
               successWidgetBuilder: () => const Icon(Icons.check),
               errorWidgetSameWithIdle: true,
@@ -183,7 +183,7 @@ class LoginPage extends StatelessWidget {
         ).marginSymmetric(horizontal: 18),
         IconTextButton(
           width: 56,
-          icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: UIConfig.loginPageFormIconColor),
+          icon: Icon(state.loginType == LoginType.password ? Icons.cookie : Icons.face, color: UIConfig.loginPageFormIconColor(context)),
           text: Text(state.loginType == LoginType.password ? 'Cookie' : 'User', style: const TextStyle(fontSize: 10)),
           onPressed: logic.toggleLoginType,
         ),

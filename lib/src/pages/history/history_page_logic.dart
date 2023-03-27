@@ -39,13 +39,13 @@ class HistoryPageLogic extends OldBasePageLogic {
   }
 
   @override
-  void handleLongPressCard(Gallery gallery) {
+  void handleLongPressCard(BuildContext context, Gallery gallery) {
     showCupertinoModalPopup(
       context: Get.context!,
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
               backRoute();
               delete(gallery.gid);
@@ -61,8 +61,8 @@ class HistoryPageLogic extends OldBasePageLogic {
   }
 
   @override
-  void handleSecondaryTapCard(Gallery gallery) {
-    handleLongPressCard(gallery);
+  void handleSecondaryTapCard(BuildContext context, Gallery gallery) {
+    handleLongPressCard(context, gallery);
   }
 
   Future<void> delete(int gid) async {

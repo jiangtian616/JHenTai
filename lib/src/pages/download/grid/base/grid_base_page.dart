@@ -129,7 +129,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: UIConfig.downloadPageGridViewCardDragBorderColor, width: 1.2),
+                        border: Border.all(color: UIConfig.downloadPageGridViewCardDragBorderColor(context), width: 1.2),
                       ),
                     ),
                   );
@@ -320,7 +320,7 @@ class GridGroup extends StatelessWidget {
           Expanded(
             child: Container(
               decoration:
-                  BoxDecoration(color: UIConfig.downloadPageGridViewGroupBackGroundColor, borderRadius: BorderRadius.circular(8)),
+                  BoxDecoration(color: UIConfig.downloadPageGridViewGroupBackGroundColor(context), borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.all(UIConfig.downloadPageGridViewGroupPadding),
               child: widgets.isEmpty
                   ? Center(child: Icon(emptyIcon ?? Icons.folder, size: 32))

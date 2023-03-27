@@ -34,8 +34,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildEnableLogging(),
             if (AdvancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
             _buildOpenLogs(),
-            _buildClearLogs(),
-            _buildClearImageCache(),
+            _buildClearLogs(context),
+            _buildClearImageCache(context),
             _buildClearNetworkCache(),
             _buildCheckUpdate(),
             _buildCheckClipboard(),
@@ -69,11 +69,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  Widget _buildClearLogs() {
+  Widget _buildClearLogs(BuildContext context) {
     return ListTile(
       title: Text('clearLogs'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumeButtonColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumeButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () {
         Log.clear();
         toast('clearSuccess'.tr, isCenter: false);
@@ -85,11 +85,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  Widget _buildClearImageCache() {
+  Widget _buildClearImageCache(BuildContext context) {
     return ListTile(
       title: Text('clearImagesCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumeButtonColor, fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumeButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () async {
         await clearDiskCachedImages();
         setState(() {

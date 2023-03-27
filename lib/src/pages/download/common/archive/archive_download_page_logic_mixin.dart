@@ -145,7 +145,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
               handleRemoveItem(archive);
               backRoute();

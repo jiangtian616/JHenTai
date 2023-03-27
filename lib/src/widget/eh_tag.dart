@@ -42,7 +42,7 @@ class _EHTagState extends State<EHTag> {
         color: widget.tag.backgroundColor ??
             (widget.addNameSpaceColor
                 ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
-                : UIConfig.ehTagBackGroundColor),
+                : UIConfig.ehTagBackGroundColor(context)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Align(
@@ -56,7 +56,7 @@ class _EHTagState extends State<EHTag> {
           style: TextStyle(
             fontSize: 12,
             height: 1,
-            color: widget.tag.color ?? (widget.addNameSpaceColor ? ColorConsts.tagNameSpaceTextColor : UIConfig.ehTagTextColor),
+            color: widget.tag.color ?? (widget.addNameSpaceColor ? ColorConsts.tagNameSpaceTextColor : UIConfig.ehTagTextColor(context)),
           ),
         ),
       ),

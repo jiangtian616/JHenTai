@@ -248,7 +248,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             helperText: searchConfig.computeTagKeywords(withTranslation: true, separator: '  /  '),
             helperMaxLines: 99,
             hintText: searchConfig.tags?.isEmpty ?? true ? null : 'backspace2DeleteTag'.tr,
-            hintStyle: TextStyle(fontSize: 12, color: UIConfig.searchConfigDialogFieldHintTextColor),
+            hintStyle: TextStyle(fontSize: 12, color: UIConfig.searchConfigDialogFieldHintTextColor(context)),
           ),
           controller: TextEditingController.fromValue(
             TextEditingValue(
@@ -293,7 +293,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: UIConfig.searchConfigDialogSuggestionShadowColor,
+                    color: UIConfig.searchConfigDialogSuggestionShadowColor(overlayContext),
                     blurRadius: 4,
                     blurStyle: BlurStyle.outer,
                   )
@@ -721,14 +721,14 @@ class SearchSuggestionList extends StatelessWidget {
               visualDensity: const VisualDensity(vertical: -4),
               minVerticalPadding: 0,
               title: RichText(
-                text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false),
+                text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', currentKeyword, false),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: tagData.tagName == null
                   ? null
                   : RichText(
-                      text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                      text: highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -741,7 +741,7 @@ class SearchSuggestionList extends StatelessWidget {
   }
 
   /// highlight keyword in rawText
-  TextSpan highlightKeyword(String rawText, String currentKeyword, bool isSubTitle) {
+  TextSpan highlightKeyword(BuildContext context, String rawText, String currentKeyword, bool isSubTitle) {
     List<TextSpan> children = <TextSpan>[];
 
     List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
@@ -754,7 +754,7 @@ class SearchSuggestionList extends StatelessWidget {
             text: rawText.substring(indexHandling, index),
             style: TextStyle(
               fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
-              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
             ),
           ),
         );
@@ -779,7 +779,7 @@ class SearchSuggestionList extends StatelessWidget {
           text: rawText.substring(indexHandling, rawText.length),
           style: TextStyle(
             fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
-            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
           ),
         ),
       );

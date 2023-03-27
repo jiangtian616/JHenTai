@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -34,7 +33,7 @@ class UpdateDialog extends StatelessWidget {
       actions: [
         CupertinoDialogAction(
           child: Text('${'dismiss'.tr} $latestVersion'),
-          textStyle: TextStyle(color: UIConfig.alertColor, fontSize: 16),
+          textStyle: TextStyle(color: UIConfig.alertColor(context), fontSize: 16),
           onPressed: () {
             storageService.write(dismissVersion, latestVersion);
             backRoute();

@@ -269,7 +269,7 @@ abstract class BaseLayout extends StatelessWidget {
         clearMemoryCacheWhenDispose: true,
         downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
         pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
-        loadingWidgetBuilder: () => _loadingWidgetBuilder(index),
+        loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
         failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
         completedWidgetBuilder: (state) => _completedWidgetBuilderForLocalMode(index, state),
       ),
@@ -310,11 +310,11 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// loading for local mode
-  Widget _loadingWidgetBuilder(int index) {
+  Widget _loadingWidgetBuilder(BuildContext context, int index) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        UIConfig.loadingAnimation,
+        UIConfig.loadingAnimation(context),
         Text((index + 1).toString()),
       ],
     );

@@ -26,14 +26,14 @@ class DesktopLayoutPage extends StatelessWidget {
     return Row(
       children: [
         _leftTabBar(context),
-        VerticalDivider(width: 1, color: UIConfig.layoutDividerColor),
+        VerticalDivider(width: 1, color: UIConfig.layoutDividerColor(context)),
         Expanded(
           child: ColoredBox(
             color: UIConfig.backGroundColor(context),
             child: ResizableWidget(
               key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
               separatorSize: 7.5,
-              separatorColor: UIConfig.layoutDividerColor,
+              separatorColor: UIConfig.layoutDividerColor(context),
               separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
               percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
               onResized: windowService.handleColumnResized,
@@ -59,7 +59,7 @@ class DesktopLayoutPage extends StatelessWidget {
               controller: state.leftTabBarScrollController,
               itemCount: state.icons.length,
               itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-              itemBuilder: (_, int index) => _tabBarIcon(index),
+              itemBuilder: (context, int index) => _tabBarIcon(context, index),
             ),
           ),
         ),
@@ -67,7 +67,7 @@ class DesktopLayoutPage extends StatelessWidget {
     );
   }
 
-  Widget _tabBarIcon(int index) {
+  Widget _tabBarIcon(BuildContext context, int index) {
     return MouseRegion(
       onEnter: (_) => logic.updateHoveringTabIndex(index),
       onExit: (_) => logic.updateHoveringTabIndex(null),
@@ -78,11 +78,14 @@ class DesktopLayoutPage extends StatelessWidget {
             child: Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconDashColor)) : null,
+                  border: state.selectedTabIndex == index
+                      ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context)))
+                      : null,
                 ),
                 child: IconButton(
                   onPressed: () => logic.handleTapTabBarButton(index),
                   icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                  color: UIConfig.desktopLeftTabIconColor(context),
                 ),
               ),
             ),

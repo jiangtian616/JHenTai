@@ -47,7 +47,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
       builder: (_) => SizedBox(
         height: UIConfig.desktopSearchTabHeight,
         child: LayoutBuilder(
-          builder: (_, constraints) => Row(
+          builder: (context, constraints) => Row(
             children: [
               ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: constraints.maxWidth - UIConfig.desktopSearchTabRemainingWidth),
@@ -57,7 +57,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
                     scrollDirection: Axis.horizontal,
                     controller: state.tabController,
                     shrinkWrap: true,
-                    children: _buildTabs(),
+                    children: _buildTabs(context),
                   ),
                 ),
               ),
@@ -69,7 +69,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  List<Widget> _buildTabs() {
+  List<Widget> _buildTabs(BuildContext context) {
     return state.tabLogics
         .mapIndexed<Widget>(
           (index, tabLogic) => FadeShrinkWidget(
@@ -82,10 +82,10 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
             child: _SearchTab(
               name: tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
               selected: index == state.currentTabIndex,
-              selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor,
-              unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor,
-              selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor,
-              unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor,
+              selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+              unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
+              selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
+              unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
               onTap: () => logic.handleTapTab(index),
               onDelete: () => logic.deleteTab(index),
             ),
@@ -98,9 +98,9 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
             hasRightTab: index != state.tabLogics.length - 1,
             leftTabIsSelected: index == state.currentTabIndex,
             rightTabIsSelected: index == state.currentTabIndex - 1,
-            selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor,
-            unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor,
-            backgroundColor: UIConfig.desktopSearchTabDividerBackGroundColor,
+            selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+            unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
+            backgroundColor: UIConfig.desktopSearchTabDividerBackGroundColor(context),
           ),
           joinAtFirst: true,
           joinAtLast: true,

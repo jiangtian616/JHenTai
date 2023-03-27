@@ -31,12 +31,12 @@ class _CircleAssetChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: UIConfig.primaryColor, shape: BoxShape.circle),
+      decoration: BoxDecoration(color: UIConfig.primaryColor(context), shape: BoxShape.circle),
       child: Center(
         child: Text(
           str,
           style: TextStyle(
-            color: UIConfig.onPrimaryColor,
+            color: UIConfig.onPrimaryColor(context),
             fontSize: 12,
             fontWeight: FontWeight.bold,
             height: 1,

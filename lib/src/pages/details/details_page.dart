@@ -61,7 +61,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       builder: (_) => Scaffold(
         backgroundColor: UIConfig.backGroundColor(context),
         appBar: buildAppBar(),
-        body: buildBody(),
+        body: buildBody(context),
         floatingActionButton: state.galleryDetails == null ? null : buildFloatingActionButton(),
       ),
     );
@@ -86,7 +86,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     if (state.gallery == null) {
       return GetBuilder<DetailsPageLogic>(
         id: DetailsPageLogic.loadingStateId,
@@ -111,13 +111,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             buildHeader(),
             buildDivider(),
             buildNewVersionHint(),
-            buildActions(),
+            buildActions(context),
             buildTags(),
             buildLoadingDetailsIndicator(),
             buildCommentsIndicator(),
             buildComments(),
-            _buildThumbnails(),
-            if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
+            buildThumbnails(),
+            if (state.galleryDetails != null) buildLoadingThumbnailIndicator(context),
           ],
         ),
       ),
@@ -151,7 +151,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget buildActions() {
+  Widget buildActions(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 20, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: _ActionButtons()),
@@ -233,7 +233,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildLoadingThumbnailIndicator() {
+  Widget buildLoadingThumbnailIndicator(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 12, bottom: 40),
       sliver: SliverToBoxAdapter(
@@ -249,7 +249,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildThumbnails() {
+  Widget buildThumbnails() {
     if (state.galleryDetails == null) {
       return const SliverToBoxAdapter();
     }
@@ -274,14 +274,14 @@ class _DetailsPageHeader extends StatelessWidget {
       height: UIConfig.detailsPageHeaderHeight,
       child: Row(
         children: [
-          _buildCover(),
+          _buildCover(context),
           Expanded(child: _buildDetails(context).marginOnly(left: 10)),
         ],
       ),
     );
   }
 
-  Widget _buildCover() {
+  Widget _buildCover(BuildContext context) {
     return GestureDetector(
       onTap: () => toRoute(Routes.singleImagePage, arguments: state.gallery!.cover),
       child: EHImage(
@@ -292,7 +292,7 @@ class _DetailsPageHeader extends StatelessWidget {
         heroTag: state.gallery!.cover,
         shadows: [
           BoxShadow(
-            color: UIConfig.detailPageCoverShadowColor,
+            color: UIConfig.detailPageCoverShadowColor(context),
             blurRadius: 5,
             offset: const Offset(3, 5),
           ),
@@ -306,14 +306,16 @@ class _DetailsPageHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle(),
-        _buildUploader(),
+        _buildUploader(context),
         const Expanded(child: SizedBox()),
         GestureDetector(
-          onTap: state.loadingState == LoadingState.success ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!)) : null,
+          onTap: state.loadingState == LoadingState.success
+              ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!))
+              : null,
           behavior: HitTestBehavior.opaque,
           child: StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
         ),
-        _buildRatingAndCategory(),
+        _buildRatingAndCategory(context),
       ],
     );
   }
@@ -332,21 +334,21 @@ class _DetailsPageHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildUploader() {
+  Widget _buildUploader(BuildContext context) {
     if (state.gallery?.uploader == null) {
       return const SizedBox();
     }
 
     return SelectableText(
       state.gallery!.uploader!,
-      style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor),
+      style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor(context)),
       onTap: logic.searchUploader,
     ).marginOnly(top: 4);
   }
 
   Widget _buildInfoInTwoRows() {
     return LayoutBuilder(
-      builder: (_, BoxConstraints constraints) {
+      builder: (BuildContext context, BoxConstraints constraints) {
         double iconSize = 10 + constraints.maxWidth / 120;
         double textSize = 6 + constraints.maxWidth / 120;
         double space = 4 / 3 + constraints.maxWidth / 300;
@@ -361,7 +363,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
                       Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese', style: TextStyle(fontSize: textSize)).marginOnly(left: space),
                     ],
                   ),
@@ -371,7 +373,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -388,7 +390,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: space),
+                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: space),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -409,7 +411,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -426,7 +428,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor),
+                      Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                         child: Text(
@@ -443,7 +445,7 @@ class _DetailsPageHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: space),
+                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: space),
                       Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime), style: TextStyle(fontSize: textSize)),
                     ],
                   ),
@@ -469,14 +471,14 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.language, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  Icon(Icons.language, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
                   Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese').marginOnly(left: 2),
                 ],
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.star, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  Icon(Icons.star, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                     child: Text(
@@ -489,7 +491,7 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.collections, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  Icon(Icons.collections, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                     child: Text(
@@ -508,7 +510,7 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.archive, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                  Icon(Icons.archive, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: 2),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                     child: Text(
@@ -521,7 +523,7 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor),
+                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
                     child: Text(
@@ -534,7 +536,7 @@ class _DetailsPageHeader extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.cloud_upload, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor).marginOnly(right: 2),
+                  Icon(Icons.cloud_upload, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: 2),
                   Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime)),
                 ],
               ).marginOnly(top: 2),
@@ -545,10 +547,10 @@ class _DetailsPageHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingAndCategory() {
+  Widget _buildRatingAndCategory(BuildContext context) {
     return Row(
       children: [
-        _buildRatingBar(),
+        _buildRatingBar(context),
         AnimatedSwitcher(
           duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
           child: Text(
@@ -568,29 +570,30 @@ class _DetailsPageHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingBar() {
+  Widget _buildRatingBar(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
       child: state.galleryDetails == null
-          ? _buildDefaultRatingBar()
+          ? _buildDefaultRatingBar(context)
           : KeyedSubtree(
               child: RatingBar.builder(
-                unratedColor: UIConfig.galleryRatingStarUnRatedColor,
+                unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
                 initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
                 itemCount: 5,
                 allowHalfRating: true,
                 itemSize: 16,
                 ignoreGestures: true,
-                itemBuilder: (context, index) => Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
+                itemBuilder: (context, index) =>
+                    Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
                 onRatingUpdate: (_) {},
               ),
             ),
     );
   }
 
-  Widget _buildDefaultRatingBar() {
+  Widget _buildDefaultRatingBar(BuildContext context) {
     return RatingBar.builder(
-      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
       initialRating: 0,
       itemCount: 5,
       allowHalfRating: true,
@@ -644,34 +647,34 @@ class _ActionButtons extends StatelessWidget {
           itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
           padding: EdgeInsets.zero,
           children: [
-            _buildReadButton(),
-            _buildDownloadButton(),
-            _buildFavoriteButton(),
-            _buildRatingButton(),
-            _buildArchiveButton(),
-            _buildHHButton(),
-            _buildSimilarButton(),
-            _buildTorrentButton(),
-            _buildStatisticButton(),
+            _buildReadButton(context),
+            _buildDownloadButton(context),
+            _buildFavoriteButton(context),
+            _buildRatingButton(context),
+            _buildArchiveButton(context),
+            _buildHHButton(context),
+            _buildSimilarButton(context),
+            _buildTorrentButton(context),
+            _buildStatisticButton(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildReadButton() {
+  Widget _buildReadButton(BuildContext context) {
     bool disabled = state.gallery?.pageCount == null;
 
     int readIndexRecord = logic.getReadIndexRecord();
     String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
 
     return IconTextButton(
-      icon: Icon(Icons.visibility, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.visibility, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
       text: Text(
         text,
         style: TextStyle(
           fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
           height: 1,
         ),
       ),
@@ -679,7 +682,7 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildDownloadButton() {
+  Widget _buildDownloadButton(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gallery!.gid}',
       builder: (_) {
@@ -701,16 +704,16 @@ class _ActionButtons extends StatelessWidget {
                             : 'update'.tr;
 
         Icon icon = localGallery != null
-            ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
+            ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
             : downloadProgress == null
-                ? Icon(Icons.download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
+                ? Icon(Icons.download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
                 : downloadProgress.downloadStatus == DownloadStatus.paused
-                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
+                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor(context))
                     : downloadProgress.downloadStatus == DownloadStatus.downloading
-                        ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor)
+                        ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor(context))
                         : state.galleryDetails?.newVersionGalleryUrl == null
-                            ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
-                            : Icon(Icons.auto_awesome, color: UIConfig.alertColor);
+                            ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
+                            : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
 
         return IconTextButton(
           icon: icon,
@@ -718,7 +721,7 @@ class _ActionButtons extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: UIConfig.detailsPageActionTextSize,
-              color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
               height: 1,
             ),
           ),
@@ -729,7 +732,7 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildFavoriteButton() {
+  Widget _buildFavoriteButton(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
       id: DetailsPageLogic.addFavoriteStateId,
       tag: logic.tag,
@@ -742,10 +745,10 @@ class _ActionButtons extends StatelessWidget {
             icon: Icon(
               state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
               color: disabled
-                  ? Get.theme.disabledColor
+                  ? UIConfig.detailsPageActionDisabledIconColor(context)
                   : state.gallery!.favoriteTagIndex != null
                       ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
-                      : UIConfig.detailsPageActionIconColor,
+                      : UIConfig.detailsPageActionIconColor(context),
             ),
             text: Text(
               state.gallery!.isFavorite ? state.gallery!.favoriteTagName! : 'favorite'.tr,
@@ -753,7 +756,7 @@ class _ActionButtons extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: UIConfig.detailsPageActionTextSize,
-                color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
                 height: 1,
               ),
             ),
@@ -765,7 +768,7 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingButton() {
+  Widget _buildRatingButton(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
       id: DetailsPageLogic.ratingStateId,
       tag: logic.tag,
@@ -778,16 +781,16 @@ class _ActionButtons extends StatelessWidget {
             icon: Icon(
               state.gallery!.hasRated ? Icons.star : Icons.star_border,
               color: disabled
-                  ? Get.theme.disabledColor
+                  ? UIConfig.detailsPageActionDisabledIconColor(context)
                   : state.gallery!.hasRated
-                      ? UIConfig.alertColor
-                      : UIConfig.detailsPageActionIconColor,
+                      ? UIConfig.alertColor(context)
+                      : UIConfig.detailsPageActionIconColor(context),
             ),
             text: Text(
               state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
               style: TextStyle(
                 fontSize: UIConfig.detailsPageActionTextSize,
-                color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
                 height: 1,
               ),
             ),
@@ -799,7 +802,7 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveButton() {
+  Widget _buildArchiveButton(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${state.gallery!.gid}',
       builder: (_) {
@@ -810,12 +813,12 @@ class _ActionButtons extends StatelessWidget {
         String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
         Icon icon = archiveStatus == null
-            ? Icon(Icons.archive, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor)
+            ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
             : archiveStatus == ArchiveStatus.paused
-                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor)
+                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor(context))
                 : archiveStatus == ArchiveStatus.completed
-                    ? Icon(Icons.done, color: UIConfig.resumeButtonColor)
-                    : Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor);
+                    ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
+                    : Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor(context));
 
         return IconTextButton(
           icon: icon,
@@ -823,7 +826,7 @@ class _ActionButtons extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: UIConfig.detailsPageActionTextSize,
-              color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
               height: 1,
             ),
           ),
@@ -834,16 +837,16 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildHHButton() {
+  Widget _buildHHButton(BuildContext context) {
     bool disabled = state.galleryDetails == null;
 
     return IconTextButton(
-      icon: Icon(Icons.cloud_download, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.cloud_download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
       text: Text(
         'H@H',
         style: TextStyle(
           fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
           height: 1,
         ),
       ),
@@ -851,16 +854,16 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildSimilarButton() {
+  Widget _buildSimilarButton(BuildContext context) {
     bool disabled = state.galleryDetails == null;
 
     return IconTextButton(
-      icon: Icon(Icons.saved_search, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.saved_search, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
       text: Text(
         'similar'.tr,
         style: TextStyle(
           fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
           height: 1,
         ),
       ),
@@ -868,18 +871,18 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildTorrentButton() {
+  Widget _buildTorrentButton(BuildContext context) {
     bool disabled = state.galleryDetails == null || state.galleryDetails!.torrentCount == '0';
 
     String text = '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})';
 
     return IconTextButton(
-      icon: Icon(Icons.file_present, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.file_present, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
       text: Text(
         text,
         style: TextStyle(
           fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
           height: 1,
         ),
       ),
@@ -887,16 +890,16 @@ class _ActionButtons extends StatelessWidget {
     );
   }
 
-  Widget _buildStatisticButton() {
+  Widget _buildStatisticButton(BuildContext context) {
     bool disabled = state.galleryDetails == null;
 
     return IconTextButton(
-      icon: Icon(Icons.analytics, color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionIconColor),
+      icon: Icon(Icons.analytics, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
       text: Text(
         'statistic'.tr,
         style: TextStyle(
           fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? Get.theme.disabledColor : UIConfig.detailsPageActionTextColor,
+          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
           height: 1,
         ),
       ),
@@ -1049,7 +1052,7 @@ class _Thumbnails extends StatelessWidget {
                   ),
                   Text(
                     (index + 1).toString(),
-                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor),
+                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
                   ).paddingOnly(top: 3),
                 ],
               ),

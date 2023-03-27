@@ -41,7 +41,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               listMode == ListMode.waterfallFlowWithImageAndInfo
                   ? _buildCover()
                   : Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
-              if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(),
+              if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(context),
             ],
           ),
         ),
@@ -51,7 +51,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildCover() {
     return LayoutBuilder(
-      builder: (_, constraints) {
+      builder: (context, constraints) {
         FittedSizes fittedSizes = applyBoxFit(
           BoxFit.contain,
           Size(gallery.cover.width!, gallery.cover.height!),
@@ -62,7 +62,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           galleryImage: gallery.cover,
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
-          containerColor: UIConfig.waterFallFlowCardBackGroundColor,
+          containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
           heroTag: gallery.cover,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
@@ -89,13 +89,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     );
   }
 
-  Widget _buildInfo() {
+  Widget _buildInfo(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            _buildRatingBar(),
+            _buildRatingBar(context),
             const Expanded(child: SizedBox()),
             if (listMode == ListMode.waterfallFlowWithImageAndInfo && gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             EHGalleryCategoryTag(
@@ -114,15 +114,15 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     ).paddingOnly(top: 6, bottom: 6, left: 6, right: 6);
   }
 
-  Widget _buildRatingBar() {
+  Widget _buildRatingBar(BuildContext context) {
     return RatingBar.builder(
-      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
       initialRating: gallery.rating,
       itemCount: 5,
       allowHalfRating: true,
       itemSize: 12,
       ignoreGestures: true,
-      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
+      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
       onRatingUpdate: (_) {},
     );
   }
@@ -198,7 +198,7 @@ class WaterFallFlowTag extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: galleryTag.backgroundColor ?? UIConfig.ehTagBackGroundColor,
+        color: galleryTag.backgroundColor ?? UIConfig.ehTagBackGroundColor(context),
         borderRadius: BorderRadius.circular(6),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -209,7 +209,7 @@ class WaterFallFlowTag extends StatelessWidget {
         style: TextStyle(
           fontSize: UIConfig.waterFallFlowCardTagTextSize,
           height: 1,
-          color: galleryTag.color ?? UIConfig.ehTagTextColor,
+          color: galleryTag.color ?? UIConfig.ehTagTextColor(context),
         ),
       ),
     );

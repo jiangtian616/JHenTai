@@ -101,7 +101,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             elements: logic.downloadService.gallerys,
             groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
             groupBuilder: (context, groupName) => _groupBuilder(context, groupName).marginAll(5),
-            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(gallery, context),
+            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(context, gallery),
           ),
         ),
       ),
@@ -117,7 +117,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
           color: UIConfig.downloadPageGroupColor(context),
-          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
+          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow(context)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -135,14 +135,14 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _itemBuilder(GalleryDownloadedData gallery, BuildContext context) {
+  Widget _itemBuilder(BuildContext context, GalleryDownloadedData gallery) {
     String? group = logic.downloadService.galleryDownloadInfos[gallery.gid]?.group;
 
     return GetBuilder<GalleryListDownloadPageLogic>(
       id: '${logic.groupId}::$group',
       builder: (_) => Slidable(
         key: Key(gallery.gid.toString()),
-        endActionPane: _buildEndActionPane(gallery),
+        endActionPane: _buildEndActionPane(context, gallery),
         child: GestureDetector(
           onSecondaryTap: () => logic.showBottomSheet(gallery, context),
           onLongPress: () => logic.showBottomSheet(gallery, context),
@@ -150,7 +150,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
               show: !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
-              child: _buildCard(gallery, context).marginAll(5),
+              child: _buildCard(context, gallery).marginAll(5),
               afterDisappear: () {
                 Get.engine.addPostFrameCallback(
                   (_) {
@@ -167,52 +167,52 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  ActionPane _buildEndActionPane(GalleryDownloadedData gallery) {
+  ActionPane _buildEndActionPane(BuildContext context, GalleryDownloadedData gallery) {
     return ActionPane(
       motion: const DrawerMotion(),
       extentRatio: 0.4,
       children: [
         SlidableAction(
           icon: Icons.bookmark,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (_) => logic.handleChangeGroup(gallery),
         ),
         SlidableAction(
           icon: FontAwesomeIcons.sort,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (BuildContext context) => logic.showPrioritySheet(gallery, context),
         ),
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: UIConfig.alertColor,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          foregroundColor: UIConfig.alertColor(context),
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (BuildContext context) => logic.handleRemoveItem(gallery, true),
         )
       ],
     );
   }
 
-  Widget _buildCard(GalleryDownloadedData gallery, BuildContext context) {
+  Widget _buildCard(BuildContext context, GalleryDownloadedData gallery) {
     return Container(
       height: UIConfig.downloadPageCardHeight,
       decoration: BoxDecoration(
-        color: UIConfig.downloadPageCardColor,
-        boxShadow: [UIConfig.downloadPageCardShadow],
+        color: UIConfig.downloadPageCardColor(context),
+        boxShadow: [UIConfig.downloadPageCardShadow(context)],
         borderRadius: BorderRadius.circular(15),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
         child: Row(
           children: [
-            _buildCover(gallery, context),
-            _buildInfo(gallery),
+            _buildCover(context, gallery),
+            _buildInfo(context, gallery),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCover(GalleryDownloadedData gallery, BuildContext context) {
+  Widget _buildCover(BuildContext context, GalleryDownloadedData gallery) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
@@ -226,7 +226,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             return SizedBox(
               width: UIConfig.downloadPageCoverWidth,
               height: UIConfig.downloadPageCoverHeight,
-              child: Center(child: UIConfig.loadingAnimation),
+              child: Center(child: UIConfig.loadingAnimation(context)),
             );
           }
 
@@ -242,7 +242,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildInfo(GalleryDownloadedData gallery) {
+  Widget _buildInfo(BuildContext context, GalleryDownloadedData gallery) {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -250,18 +250,18 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildInfoHeader(gallery),
+            _buildInfoHeader(context, gallery),
             const Expanded(child: SizedBox()),
-            _buildInfoCenter(gallery),
+            _buildInfoCenter(context, gallery),
             const Expanded(child: SizedBox()),
-            _buildInfoFooter(gallery),
+            _buildInfoFooter(context, gallery),
           ],
         ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
       ),
     );
   }
 
-  Widget _buildInfoHeader(GalleryDownloadedData gallery) {
+  Widget _buildInfoHeader(BuildContext context, GalleryDownloadedData gallery) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,11 +278,11 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             if (gallery.uploader != null)
               Text(
                 gallery.uploader!,
-                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
               ),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
             ),
           ],
         ).marginOnly(top: 5),
@@ -290,20 +290,20 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildInfoCenter(GalleryDownloadedData gallery) {
+  Widget _buildInfoCenter(BuildContext context, GalleryDownloadedData gallery) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGalleryCategoryTag(category: gallery.category),
         const Expanded(child: SizedBox()),
-        _buildIsOriginal(gallery).marginOnly(right: 10),
-        _buildPriority(gallery).marginOnly(right: 6),
-        _buildButton(gallery),
+        _buildIsOriginal(context, gallery).marginOnly(right: 10),
+        _buildPriority(context, gallery).marginOnly(right: 6),
+        _buildButton(context, gallery),
       ],
     );
   }
 
-  Widget _buildIsOriginal(GalleryDownloadedData gallery) {
+  Widget _buildIsOriginal(BuildContext context, GalleryDownloadedData gallery) {
     bool isOriginal = gallery.downloadOriginalImage;
     if (!isOriginal) {
       return const SizedBox();
@@ -313,16 +313,16 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: UIConfig.pauseButtonColor),
+        border: Border.all(color: UIConfig.pauseButtonColor(context)),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
 
-  Widget _buildPriority(GalleryDownloadedData gallery) {
+  Widget _buildPriority(BuildContext context, GalleryDownloadedData gallery) {
     int? priority = logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority;
     if (priority == null) {
       return const SizedBox();
@@ -330,21 +330,21 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
     switch (priority) {
       case 1:
-        return Text('①', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
+        return Text('①', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
       case 2:
-        return Text('②', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
+        return Text('②', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
       case 3:
-        return Text('③', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
+        return Text('③', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
       case GalleryDownloadService.defaultDownloadGalleryPriority:
         return const SizedBox();
       case 5:
-        return Text('⑤', style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold));
+        return Text('⑤', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
       default:
         return const SizedBox();
     }
   }
 
-  Widget _buildButton(GalleryDownloadedData gallery) {
+  Widget _buildButton(BuildContext context, GalleryDownloadedData gallery) {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
       builder: (_) {
@@ -362,14 +362,14 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     ? Icons.pause
                     : Icons.done,
             size: 26,
-            color: downloadStatus == DownloadStatus.downloading ? UIConfig.pauseButtonColor : UIConfig.resumeButtonColor,
+            color: downloadStatus == DownloadStatus.downloading ? UIConfig.pauseButtonColor(context) : UIConfig.resumeButtonColor(context),
           ),
         );
       },
     );
   }
 
-  Widget _buildInfoFooter(GalleryDownloadedData gallery) {
+  Widget _buildInfoFooter(BuildContext context, GalleryDownloadedData gallery) {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
       builder: (_) {
@@ -384,13 +384,13 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
                     builder: (_) => Text(
                       speedComputer.speed,
-                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                     ),
                   ),
                 const Expanded(child: SizedBox()),
                 Text(
                   '${downloadProgress.curCount}/${downloadProgress.totalCount}',
-                  style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                  style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                 ),
               ],
             ),
@@ -400,8 +400,8 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                 child: LinearProgressIndicator(
                   value: downloadProgress.curCount / downloadProgress.totalCount,
                   color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                      ? UIConfig.downloadPageProgressIndicatorColor
-                      : UIConfig.downloadPageProgressPausedIndicatorColor,
+                      ? UIConfig.downloadPageProgressIndicatorColor(context)
+                      : UIConfig.downloadPageProgressPausedIndicatorColor(context),
                 ),
               ).marginOnly(top: 4),
           ],

@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
-import 'package:jhentai/src/widget/re_unlock_dialog.dart';
+import 'package:path/path.dart';
 
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
@@ -119,7 +119,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         height: UIConfig.downloadPageGroupHeight,
         decoration: BoxDecoration(
           color: UIConfig.downloadPageGroupColor(context),
-          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
+          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow(context)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -144,7 +144,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       id: '${logic.groupId}::$group',
       builder: (_) => Slidable(
         key: Key(archive.gid.toString()),
-        endActionPane: _buildEndActionPane(archive),
+        endActionPane: _buildEndActionPane(context, archive),
         child: GestureDetector(
           onSecondaryTap: () => logic.showArchiveBottomSheet(archive, context),
           onLongPress: () => logic.showArchiveBottomSheet(archive, context),
@@ -152,7 +152,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             show: state.displayGroups.contains(group),
             child: FadeShrinkWidget(
               show: !state.removedGids.contains(archive.gid),
-              child: _buildCard(archive, context).marginAll(5),
+              child: _buildCard(context, archive).marginAll(5),
               afterDisappear: () {
                 Get.engine.addPostFrameCallback(
                   (_) => logic.archiveDownloadService.deleteArchive(archive),
@@ -166,32 +166,32 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  ActionPane _buildEndActionPane(ArchiveDownloadedData archive) {
+  ActionPane _buildEndActionPane(BuildContext context, ArchiveDownloadedData archive) {
     return ActionPane(
       motion: const DrawerMotion(),
       extentRatio: 0.3,
       children: [
         SlidableAction(
           icon: Icons.bookmark,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (_) => logic.handleChangeArchiveGroup(archive),
         ),
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: UIConfig.alertColor,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          foregroundColor: UIConfig.alertColor(context),
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (BuildContext context) => logic.handleRemoveItem(archive),
         ),
       ],
     );
   }
 
-  Widget _buildCard(ArchiveDownloadedData archive, BuildContext context) {
+  Widget _buildCard(BuildContext context, ArchiveDownloadedData archive) {
     return Container(
       height: UIConfig.downloadPageCardHeight,
       decoration: BoxDecoration(
-        color: UIConfig.downloadPageCardColor,
-        boxShadow: [UIConfig.downloadPageCardShadow],
+        color: UIConfig.downloadPageCardColor(context),
+        boxShadow: [UIConfig.downloadPageCardShadow(context)],
         borderRadius: BorderRadius.circular(15),
       ),
       child: ClipRRect(
@@ -199,7 +199,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         child: Row(
           children: [
             _buildCover(archive),
-            _buildInfo(archive),
+            _buildInfo(context, archive),
           ],
         ),
       ),
@@ -220,7 +220,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildInfo(ArchiveDownloadedData archive) {
+  Widget _buildInfo(BuildContext context, ArchiveDownloadedData archive) {
     return Expanded(
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -228,18 +228,18 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildInfoHeader(archive),
+            _buildInfoHeader(context, archive),
             const Expanded(child: SizedBox()),
-            _buildInfoCenter(archive),
+            _buildInfoCenter(context, archive),
             const Expanded(child: SizedBox()),
-            _buildInfoFooter(archive),
+            _buildInfoFooter(context, archive),
           ],
         ).paddingOnly(left: 6, right: 10, bottom: 6, top: 6),
       ),
     );
   }
 
-  Widget _buildInfoHeader(ArchiveDownloadedData archive) {
+  Widget _buildInfoHeader(BuildContext context, ArchiveDownloadedData archive) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,11 +257,11 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             if (archive.uploader != null)
               Text(
                 archive.uploader!,
-                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
               ),
             Text(
               DateUtil.transform2LocalTimeString(archive.publishTime),
-              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+              style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
             ),
           ],
         ).marginOnly(top: 5),
@@ -269,20 +269,20 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildInfoCenter(ArchiveDownloadedData archive) {
+  Widget _buildInfoCenter(BuildContext context, ArchiveDownloadedData archive) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGalleryCategoryTag(category: archive.category),
         const Expanded(child: SizedBox()),
-        _buildReUnlockButton(archive).marginOnly(right: 10),
-        _buildIsOriginal(archive).marginOnly(right: 6),
-        _buildButton(archive),
+        _buildReUnlockButton(context, archive).marginOnly(right: 10),
+        _buildIsOriginal(context, archive).marginOnly(right: 6),
+        _buildButton(context, archive),
       ],
     );
   }
 
-  Widget _buildReUnlockButton(ArchiveDownloadedData archive) {
+  Widget _buildReUnlockButton(BuildContext context, ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
@@ -294,13 +294,13 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return GestureDetector(
           onTap: () => logic.handleReUnlockArchive(archive),
-          child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor),
+          child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor(context)),
         );
       },
     );
   }
 
-  Widget _buildIsOriginal(ArchiveDownloadedData archive) {
+  Widget _buildIsOriginal(BuildContext context, ArchiveDownloadedData archive) {
     bool isOriginal = archive.isOriginal;
     if (!isOriginal) {
       return const SizedBox();
@@ -310,16 +310,16 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: UIConfig.pauseButtonColor),
+        border: Border.all(color: UIConfig.pauseButtonColor(context)),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: UIConfig.pauseButtonColor, fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
 
-  Widget _buildButton(ArchiveDownloadedData archive) {
+  Widget _buildButton(BuildContext context, ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
@@ -337,15 +337,15 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
             size: 26,
             color: (archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.unlocking.index &&
                     archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
-                ? UIConfig.pauseButtonColor
-                : UIConfig.resumeButtonColor,
+                ? UIConfig.pauseButtonColor(context)
+                : UIConfig.resumeButtonColor(context),
           ),
         );
       },
     );
   }
 
-  Widget _buildInfoFooter(ArchiveDownloadedData archive) {
+  Widget _buildInfoFooter(BuildContext context, ArchiveDownloadedData archive) {
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
@@ -360,7 +360,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                     builder: (_) => Text(
                       archiveDownloadInfo.speedComputer.speed,
-                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                     ),
                   ),
                 const Expanded(child: SizedBox()),
@@ -369,13 +369,13 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                     builder: (_) => Text(
                       '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
-                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor),
+                      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                     ),
                   ),
                 if (archiveDownloadInfo.archiveStatus != ArchiveStatus.downloading)
                   Text(
                     archiveDownloadInfo.archiveStatus.name.tr,
-                    style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor, height: 1),
+                    style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context), height: 1),
                   ).marginOnly(left: 8),
               ],
             ),
@@ -387,8 +387,8 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                   builder: (_) => LinearProgressIndicator(
                     value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
                     color: archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                        ? UIConfig.downloadPageProgressPausedIndicatorColor
-                        : UIConfig.downloadPageProgressIndicatorColor,
+                        ? UIConfig.downloadPageProgressPausedIndicatorColor(context)
+                        : UIConfig.downloadPageProgressIndicatorColor(context),
                   ),
                 ),
               ).marginOnly(top: 6),

@@ -143,7 +143,7 @@ class _GroupChipState extends State<GroupChip> with AnimationMixin {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
           height: 26,
           decoration: BoxDecoration(
-            color: _selected ? UIConfig.groupSelectorSelectedChipColor : UIConfig.groupSelectorChipColor,
+            color: _selected ? UIConfig.groupSelectorSelectedChipColor(context) : UIConfig.groupSelectorChipColor(context),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -152,11 +152,11 @@ class _GroupChipState extends State<GroupChip> with AnimationMixin {
               Align(
                 heightFactor: animation.value,
                 widthFactor: animation.value,
-                child: Transform.scale(scale: animation.value, child: Icon(Icons.check, size: 12, color: UIConfig.groupSelectorTextColor)),
+                child: Transform.scale(scale: animation.value, child: Icon(Icons.check, size: 12, color: UIConfig.groupSelectorTextColor(context))),
               ).marginOnly(right: animation.value),
               Text(
                 widget.text,
-                style: TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1, color: UIConfig.groupSelectorTextColor),
+                style: TextStyle(fontSize: UIConfig.groupSelectorChipTextSize, height: 1, color: UIConfig.groupSelectorTextColor(context)),
               ),
             ],
           ),

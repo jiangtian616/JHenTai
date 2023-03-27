@@ -48,7 +48,7 @@ class _EHAppPasswordSettingDialogState extends State<EHAppPasswordSettingDialog>
                 Container(
                   width: UIConfig.authDialogPinCodeRegionWidth,
                   height: UIConfig.authDialogCursorHeight,
-                  color: UIConfig.lockPageFilledDashColor,
+                  color: UIConfig.lockPageFilledDashColor(context),
                 )
               ],
             ),
@@ -58,7 +58,7 @@ class _EHAppPasswordSettingDialogState extends State<EHAppPasswordSettingDialog>
                 Container(
                   width: UIConfig.authDialogPinCodeRegionWidth,
                   height: UIConfig.authDialogCursorHeight,
-                  color: UIConfig.lockPageUnfilledDashColor,
+                  color: UIConfig.lockPageUnfilledDashColor(context),
                 )
               ],
             ),

@@ -2,7 +2,9 @@ import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 
+import '../config/theme_config.dart';
 import '../config/ui_config.dart';
 import '../routes/routes.dart';
 import '../setting/security_setting.dart';
@@ -96,7 +98,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     return ScrollConfiguration(
       behavior: UIConfig.scrollBehaviourWithScrollBar,
       child: ListTileTheme(
-        iconColor: UIConfig.onBackGroundColor(context),
+        iconColor: Theme.of(context).colorScheme.onBackground,
         child: inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child,
       ),
     );
@@ -114,9 +116,14 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     if (StyleSetting.themeMode.value != ThemeMode.system) {
       return;
     }
-    Get.changeThemeMode(
-      WidgetsBinding.instance.window.platformBrightness == Brightness.light ? ThemeMode.light : ThemeMode.dark,
-    );
+
+    if (WidgetsBinding.instance.window.platformBrightness == Brightness.light) {
+      Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
+    } else {
+      Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
+    }
+
+    Get.rootController.updateSafely();
   }
 
   void _lockAfterResume(AppLifecycleState state) {

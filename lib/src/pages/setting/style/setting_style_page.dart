@@ -29,7 +29,7 @@ class SettingStylePage extends StatelessWidget {
             _buildCrossAxisCountInGridDownloadPageForGroup(),
             _buildCrossAxisCountInGridDownloadPageForGallery(),
             if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
-            _buildLayout(),
+            _buildLayout(context),
           ],
         ),
       ),
@@ -158,7 +158,7 @@ class SettingStylePage extends StatelessWidget {
     );
   }
 
-  Widget _buildLayout() {
+  Widget _buildLayout(BuildContext context) {
     return ListTile(
       title: Text('layoutMode'.tr),
       subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == StyleSetting.layout.value).desc),
@@ -170,7 +170,7 @@ class SettingStylePage extends StatelessWidget {
         items: JHLayout.allLayouts
             .map((e) => DropdownMenuItem(
                   enabled: e.isSupported(),
-                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor)),
+                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor(context))),
                   value: e.mode,
                 ))
             .toList(),

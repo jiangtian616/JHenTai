@@ -162,14 +162,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTask'.tr, style: TextStyle(color: UIConfig.alertColor)),
+            child: Text('deleteTask'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
               handleRemoveItem(gallery, false);
               backRoute();
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor)),
+            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
               handleRemoveItem(gallery, true);
               backRoute();

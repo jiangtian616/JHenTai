@@ -185,8 +185,8 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         controller: scrollController,
         slivers: [
           if (histories.isNotEmpty) buildSearchHistory(),
-          if (histories.isNotEmpty) buildButtons(),
-          buildSuggestions(),
+          if (histories.isNotEmpty) buildButtons(context),
+          buildSuggestions(context),
         ],
       ),
     );
@@ -214,7 +214,9 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     );
   }
 
-  Widget buildButtons() {
+  Widget buildButtons(
+    BuildContext context,
+  ) {
     return SliverToBoxAdapter(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -223,14 +225,14 @@ class SuggestionAndHistoryBody extends StatelessWidget {
             onPressed: toggleEnableSearchHistoryTranslation,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: UIConfig.primaryColor),
+              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: UIConfig.primaryColor((context))),
             ),
           ),
           IconButton(
             onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
             icon: AnimatedSwitcher(
               duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor),
+              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
             ),
           ),
         ],
@@ -238,7 +240,9 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     );
   }
 
-  Widget buildSuggestions() {
+  Widget buildSuggestions(
+    BuildContext context,
+  ) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 16, bottom: 600),
       sliver: SliverList(
@@ -247,13 +251,13 @@ class SuggestionAndHistoryBody extends StatelessWidget {
               .map((tagData) => FadeIn(
                     duration: const Duration(milliseconds: 500),
                     child: ListTile(
-                      title: RichText(text: highlightKeyword('${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
+                      title: RichText(text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
                       subtitle: tagData.tagName == null
                           ? null
                           : RichText(
-                              text: highlightKeyword('${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                              text: highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
                             ),
-                      leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor),
+                      leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
                       dense: true,
                       minLeadingWidth: 20,
                       visualDensity: const VisualDensity(vertical: -1),
@@ -267,7 +271,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
   }
 
   /// highlight keyword in rawText
-  TextSpan highlightKeyword(String rawText, String currentKeyword, bool isSubTitle) {
+  TextSpan highlightKeyword(BuildContext context, String rawText, String currentKeyword, bool isSubTitle) {
     List<TextSpan> children = <TextSpan>[];
 
     List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
@@ -280,7 +284,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
             text: rawText.substring(indexHandling, index),
             style: TextStyle(
               fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
             ),
           ),
         );
@@ -305,7 +309,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
           text: rawText.substring(indexHandling, rawText.length),
           style: TextStyle(
             fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor : UIConfig.searchPageSuggestionTitleColor,
+            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
           ),
         ),
       );

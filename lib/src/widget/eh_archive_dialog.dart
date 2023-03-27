@@ -202,7 +202,7 @@ class _ArchiveButtonSet extends StatelessWidget {
         if (cost != null)
           Text(
             cost!,
-            style: TextStyle(color: UIConfig.archiveDialogCostTextColor, fontSize: UIConfig.archiveDialogCostTextSize),
+            style: TextStyle(color: UIConfig.archiveDialogCostTextColor(context), fontSize: UIConfig.archiveDialogCostTextSize),
           ),
         ElevatedButton(
           onPressed: callback,
@@ -216,7 +216,7 @@ class _ArchiveButtonSet extends StatelessWidget {
         if (size != null)
           Text(
             size!,
-            style: TextStyle(color: UIConfig.archiveDialogCostTextColor, fontSize: UIConfig.archiveDialogCostTextSize),
+            style: TextStyle(color: UIConfig.archiveDialogCostTextColor(context), fontSize: UIConfig.archiveDialogCostTextSize),
           ),
       ],
     );

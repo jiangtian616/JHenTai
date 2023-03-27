@@ -86,7 +86,7 @@ class EHImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = galleryImage.path == null ? buildNetworkImage() : buildFileImage();
+    Widget child = galleryImage.path == null ? buildNetworkImage(context) : buildFileImage(context);
 
     if (heroTag != null && StyleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);
@@ -111,7 +111,7 @@ class EHImage extends StatelessWidget {
     );
   }
 
-  Widget buildNetworkImage() {
+  Widget buildNetworkImage(BuildContext context) {
     return ExtendedImage.network(
       _replaceEXUrl(galleryImage.url),
       fit: fit,
@@ -126,7 +126,7 @@ class EHImage extends StatelessWidget {
           case LoadState.loading:
             return loadingProgressWidgetBuilder != null
                 ? loadingProgressWidgetBuilder!.call(_computeLoadingProgress(state.loadingProgress, state.extendedImageInfo))
-                : Center(child: UIConfig.loadingAnimation);
+                : Center(child: UIConfig.loadingAnimation(context));
           case LoadState.failed:
             return failedWidgetBuilder?.call(state) ??
                 Center(
@@ -159,7 +159,7 @@ class EHImage extends StatelessWidget {
     );
   }
 
-  Widget buildFileImage() {
+  Widget buildFileImage(BuildContext context) {
     if (galleryImage.downloadStatus == DownloadStatus.paused) {
       return pausedWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
     }
@@ -181,7 +181,7 @@ class EHImage extends StatelessWidget {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
-            return loadingWidgetBuilder != null ? loadingWidgetBuilder!.call() : Center(child: UIConfig.loadingAnimation);
+            return loadingWidgetBuilder != null ? loadingWidgetBuilder!.call() : Center(child: UIConfig.loadingAnimation(context));
           case LoadState.failed:
             return failedWidgetBuilder?.call(state) ??
                 Center(

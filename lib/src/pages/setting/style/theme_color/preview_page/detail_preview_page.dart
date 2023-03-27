@@ -22,7 +22,6 @@ import '../../../../../widget/eh_wheel_speed_controller.dart';
 import '../../../../../widget/icon_text_button.dart';
 
 class DetailPreviewPage extends DetailsPage {
-
   DetailPreviewPage({super.key}) : super.preview() {
     logic = DetailsPreviewPageLogic('preview');
     state = logic.state;
@@ -32,13 +31,13 @@ class DetailPreviewPage extends DetailsPage {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: UIConfig.backGroundColor(context),
-      body: buildBody(),
+      body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
     );
   }
 
   @override
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     return NotificationListener<UserScrollNotification>(
       onNotification: logic.onUserScroll,
       child: EHWheelSpeedController(
@@ -50,12 +49,12 @@ class DetailPreviewPage extends DetailsPage {
             buildHeader(),
             buildDivider(),
             buildNewVersionHint(),
-            buildActions(),
+            buildActions(context),
             buildTags(),
             buildCommentsIndicator(),
             buildComments(),
             buildThumbnails(),
-            buildLoadingThumbnailIndicator(),
+            buildLoadingThumbnailIndicator(context),
           ],
         ),
       ),
@@ -63,48 +62,38 @@ class DetailPreviewPage extends DetailsPage {
   }
 
   @override
-  Widget buildLoadingThumbnailIndicator() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 12, bottom: 40),
-      sliver: SliverToBoxAdapter(
-        child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor)),
-      ),
-    );
-  }
-
-  @override
-  Widget buildActions() {
+  Widget buildActions(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 20, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(
         child: SizedBox(
           height: UIConfig.detailsPageActionsHeight,
           child: LayoutBuilder(
-            builder: (_, BoxConstraints constraints) => ListView(
+            builder: (BuildContext context, BoxConstraints constraints) => ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
               padding: EdgeInsets.zero,
               children: [
                 IconTextButton(
-                  icon: Icon(Icons.visibility, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.visibility, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'read'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.download, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.download, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'download'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
@@ -113,7 +102,7 @@ class DetailPreviewPage extends DetailsPage {
                 IconTextButton(
                   icon: Icon(
                     state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
-                    color: UIConfig.detailsPageActionIconColor,
+                    color: UIConfig.detailsPageActionTextColor(context),
                   ),
                   text: Text(
                     'favorite'.tr,
@@ -121,7 +110,7 @@ class DetailPreviewPage extends DetailsPage {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
@@ -130,73 +119,73 @@ class DetailPreviewPage extends DetailsPage {
                 IconTextButton(
                   icon: Icon(
                     state.gallery!.hasRated ? Icons.star : Icons.star_border,
-                    color: state.gallery!.hasRated ? UIConfig.alertColor : UIConfig.detailsPageActionIconColor,
+                    color: state.gallery!.hasRated ? UIConfig.alertColor(context) : UIConfig.detailsPageActionTextColor(context),
                   ),
                   text: Text(
                     state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.archive, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.archive, color: UIConfig.detailsPageActionTextColor(context)),
                   text: Text(
                     'archive'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.cloud_download, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.cloud_download, color: UIConfig.detailsPageActionTextColor(context)),
                   text: Text(
                     'H@H',
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.saved_search, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.saved_search, color: UIConfig.detailsPageActionTextColor(context)),
                   text: Text(
                     'similar'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.file_present, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.file_present, color: UIConfig.detailsPageActionTextColor(context)),
                   text: Text(
                     '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})',
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.analytics, color: UIConfig.detailsPageActionIconColor),
+                  icon: Icon(Icons.analytics, color: UIConfig.detailsPageActionTextColor(context)),
                   text: Text(
                     'statistic'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
-                      color: UIConfig.detailsPageActionTextColor,
+                      color: UIConfig.detailsPageActionTextColor(context),
                       height: 1,
                     ),
                   ),
@@ -211,6 +200,16 @@ class DetailPreviewPage extends DetailsPage {
   }
 
   @override
+  Widget buildLoadingThumbnailIndicator(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 12, bottom: 40),
+      sliver: SliverToBoxAdapter(
+        child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
+      ),
+    );
+  }
+
+  @override
   Widget buildThumbnails() {
     if (state.galleryDetails == null) {
       return const SliverToBoxAdapter();
@@ -220,7 +219,7 @@ class DetailPreviewPage extends DetailsPage {
       padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate(
-          (_, index) {
+          (context, index) {
             return KeepAliveWrapper(
               child: Column(
                 children: [
@@ -241,7 +240,7 @@ class DetailPreviewPage extends DetailsPage {
                   ),
                   Text(
                     (index + 1).toString(),
-                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor),
+                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
                   ).paddingOnly(top: 3),
                 ],
               ),
@@ -269,8 +268,8 @@ class DetailsPreviewPageLogic extends DetailsPageLogic {
 
 class DetailsPreviewPageState extends DetailsPageState {
   DetailsPreviewPageState() {
-    galleryUrl ='gallery url - preview';
-    
+    galleryUrl = 'gallery url - preview';
+
     gallery = Gallery(
       gid: 1,
       token: 'token - preview',

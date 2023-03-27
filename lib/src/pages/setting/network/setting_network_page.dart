@@ -29,8 +29,8 @@ class SettingNetworkPage extends StatelessWidget {
             if (NetworkSetting.enableDomainFronting.isTrue) _buildHostMapping().fadeIn(),
             _buildProxyAddress(),
             _buildPageCacheMaxAge(),
-            _buildConnectTimeout(),
-            _buildReceiveTimeout(),
+            _buildConnectTimeout(context),
+            _buildReceiveTimeout(context),
           ],
         ),
       ),
@@ -82,7 +82,7 @@ class SettingNetworkPage extends StatelessWidget {
     );
   }
 
-  Widget _buildConnectTimeout() {
+  Widget _buildConnectTimeout(BuildContext context) {
     return ListTile(
       title: Text('connectTimeout'.tr),
       subtitle: Text('needRestart'.tr),
@@ -111,14 +111,14 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
+            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor(context)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildReceiveTimeout() {
+  Widget _buildReceiveTimeout(BuildContext context) {
     return ListTile(
       title: Text('receiveTimeout'.tr),
       subtitle: Text('needRestart'.tr),
@@ -147,7 +147,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
+            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor(context)),
           ),
         ],
       ),

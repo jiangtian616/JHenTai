@@ -3,7 +3,6 @@ import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/scheme/scheme.dart';
 
 class ThemeConfig {
-  
   static ThemeData base = ThemeData(
     useMaterial3: true,
 
@@ -24,7 +23,7 @@ class ThemeConfig {
 
   static ThemeData generateThemeData(Color color, Brightness brightness) {
     final colorScheme = generateColorScheme(color, brightness);
-    
+
     return brightness == Brightness.light
         ? light.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background)
         : dark.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background);

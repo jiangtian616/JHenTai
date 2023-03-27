@@ -102,7 +102,7 @@ class _RoundGalleryCard extends StatelessWidget {
         color: UIConfig.backGroundColor(context),
         boxShadow: [
           BoxShadow(
-            color: UIConfig.galleryCardShadowColor,
+            color: UIConfig.galleryCardShadowColor(context),
             blurRadius: 3,
             offset: const Offset(2, 2),
           )
@@ -153,7 +153,7 @@ class _GalleryCardCover extends StatelessWidget {
   Widget build(BuildContext context) {
     return EHImage(
       galleryImage: image,
-      containerColor: UIConfig.galleryCardBackGroundColor,
+      containerColor: UIConfig.galleryCardBackGroundColor(context),
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
       heroTag: image,
@@ -203,7 +203,7 @@ class _GalleryCardInfoHeader extends StatelessWidget {
         if (uploader != null)
           Text(
             uploader!,
-            style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
+            style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)),
           ).marginOnly(top: 2),
       ],
     );
@@ -261,13 +261,13 @@ class _GalleryInfoFooter extends StatelessWidget {
             if (gallery.language != null)
               Text(
                 LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
+                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)),
               ).marginOnly(left: 4),
             if (gallery.pageCount != null) ...[
-              Icon(Icons.panorama, size: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor).marginOnly(right: 1, left: 6),
+              Icon(Icons.panorama, size: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)).marginOnly(right: 1, left: 6),
               Text(
                 gallery.pageCount.toString(),
-                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor),
+                style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)),
               ),
             ],
           ],
@@ -275,12 +275,12 @@ class _GalleryInfoFooter extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildRatingBar(),
+            _buildRatingBar(context),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
               style: TextStyle(
                   fontSize: UIConfig.galleryCardTextSize,
-                  color: UIConfig.galleryCardTextColor,
+                  color: UIConfig.galleryCardTextColor(context),
                   decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
             ),
           ],
@@ -289,9 +289,9 @@ class _GalleryInfoFooter extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingBar() {
+  Widget _buildRatingBar(BuildContext context) {
     return RatingBar.builder(
-      unratedColor: UIConfig.galleryRatingStarUnRatedColor,
+      unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
       initialRating: gallery.rating,
       itemCount: 5,
       allowHalfRating: true,
@@ -299,7 +299,7 @@ class _GalleryInfoFooter extends StatelessWidget {
       ignoreGestures: true,
       itemBuilder: (context, _) => Icon(
         Icons.star,
-        color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor,
+        color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor,
       ),
       onRatingUpdate: (rating) {},
     );

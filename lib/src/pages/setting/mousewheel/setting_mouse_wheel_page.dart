@@ -43,7 +43,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.check, color: UIConfig.resumeButtonColor),
+                    icon: Icon(Icons.check, color: UIConfig.resumeButtonColor(context)),
                     onPressed: () {
                       double? value = double.tryParse(wheelScrollSpeedController.value.text);
                       if (value == null) {

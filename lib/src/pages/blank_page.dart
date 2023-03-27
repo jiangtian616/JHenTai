@@ -11,7 +11,7 @@ class BlankPage extends StatelessWidget {
       child: Center(
         child: Text(
           'J',
-          style: TextStyle(color: UIConfig.jHentaiIconColor, fontSize: 120, fontWeight: FontWeight.w600),
+          style: TextStyle(color: UIConfig.jHentaiIconColor(context), fontSize: 120, fontWeight: FontWeight.w600),
         ),
       ),
     );

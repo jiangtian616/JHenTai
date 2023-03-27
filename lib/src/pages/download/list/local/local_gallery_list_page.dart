@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
@@ -133,7 +132,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       height: UIConfig.downloadPageGroupHeight,
       decoration: BoxDecoration(
         color: UIConfig.downloadPageGroupColor(context),
-        boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow],
+        boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow(context)],
         borderRadius: BorderRadius.circular(15),
       ),
       padding: const EdgeInsets.only(right: 40),
@@ -154,7 +153,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
 
     return Slidable(
       key: Key(gallery.title),
-      endActionPane: _buildEndActionPane(gallery),
+      endActionPane: _buildEndActionPane(context, gallery),
       child: GestureDetector(
         onSecondaryTap: () => logic.showBottomSheet(gallery, context),
         onLongPress: () => logic.showBottomSheet(gallery, context),
@@ -172,15 +171,15 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  ActionPane _buildEndActionPane(LocalGallery gallery) {
+  ActionPane _buildEndActionPane(BuildContext context, LocalGallery gallery) {
     return ActionPane(
       motion: const DrawerMotion(),
       extentRatio: 0.15,
       children: [
         SlidableAction(
           icon: Icons.delete,
-          foregroundColor: UIConfig.alertColor,
-          backgroundColor: UIConfig.downloadPageActionBackGroundColor,
+          foregroundColor: UIConfig.alertColor(context),
+          backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (BuildContext context) => logic.handleRemoveItem(gallery),
         )
       ],
@@ -194,8 +193,8 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       child: Container(
         height: UIConfig.downloadPageCardHeight,
         decoration: BoxDecoration(
-          color: UIConfig.downloadPageCardColor,
-          boxShadow: [UIConfig.downloadPageCardShadow],
+          color: UIConfig.downloadPageCardColor(context),
+          boxShadow: [UIConfig.downloadPageCardShadow(context)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: ClipRRect(
@@ -206,7 +205,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
                 onTap: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : null,
                 child: _buildCover(gallery, context),
               ),
-              Expanded(child: _buildInfo(gallery)),
+              Expanded(child: _buildInfo(context, gallery)),
             ],
           ),
         ),
@@ -224,7 +223,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildInfo(LocalGallery gallery) {
+  Widget _buildInfo(BuildContext context, LocalGallery gallery) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +235,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             if (gallery.isFromEHViewer)
-              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor))
+              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)))
                   .marginOnly(right: 8),
           ],
         ),

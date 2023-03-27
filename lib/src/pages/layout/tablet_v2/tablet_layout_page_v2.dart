@@ -24,7 +24,7 @@ class TabletLayoutPageV2 extends StatelessWidget {
       child: ResizableWidget(
         key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
         separatorSize: 7.5,
-        separatorColor: UIConfig.layoutDividerColor,
+        separatorColor: UIConfig.layoutDividerColor(context),
         separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
         percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
         onResized: windowService.handleColumnResized,

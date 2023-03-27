@@ -290,7 +290,7 @@ class ReadPage extends StatelessWidget {
               builder: (_) => IconButton(
                 icon: const Icon(Icons.schedule),
                 onPressed: logic.toggleAutoMode,
-                color: state.autoMode ? UIConfig.readPageActiveButtonColor : UIConfig.readPageButtonColor,
+                color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
               ),
             ),
             IconButton(
@@ -323,7 +323,7 @@ class ReadPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(),
+                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(context),
                 _buildSlider(),
                 SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
               ],
@@ -334,7 +334,7 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnails() {
+  Widget _buildThumbnails(BuildContext context) {
     return Container(
       width: fullScreenWidth,
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
@@ -362,7 +362,9 @@ class ReadPage extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => logic.jump2PageIndex(index),
-                        child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(index) : _buildThumbnailInLocalMode(index),
+                        child: state.readPageInfo.mode == ReadMode.online
+                            ? _buildThumbnailInOnlineMode(context, index)
+                            : _buildThumbnailInLocalMode(context, index),
                       ),
                     ),
                     GetBuilder<ReadPageLogic>(
@@ -371,7 +373,7 @@ class ReadPage extends StatelessWidget {
                           width: 24,
                           decoration: BoxDecoration(
                             color: state.readPageInfo.currentIndex == index
-                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor
+                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -380,7 +382,9 @@ class ReadPage extends StatelessWidget {
                             (index + 1).toString(),
                             style: TextStyle(
                               fontSize: 9,
-                              color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor : null,
+                              color: state.readPageInfo.currentIndex == index
+                                  ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
+                                  : null,
                             ),
                           ),
                         ),
@@ -397,7 +401,7 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnailInOnlineMode(int index) {
+  Widget _buildThumbnailInOnlineMode(BuildContext context, int index) {
     return GetBuilder<ReadPageLogic>(
       id: '${logic.onlineImageId}::$index',
       builder: (_) {
@@ -406,7 +410,7 @@ class ReadPage extends StatelessWidget {
             logic.beginToParseImageHref(index);
           }
 
-          return Center(child: UIConfig.loadingAnimation);
+          return Center(child: UIConfig.loadingAnimation(context));
         }
 
         return LayoutBuilder(
@@ -421,12 +425,12 @@ class ReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThumbnailInLocalMode(int index) {
+  Widget _buildThumbnailInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
       id: '${Get.find<GalleryDownloadService>().downloadImageId}::${state.readPageInfo.gid}::$index',
       builder: (_) {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
-          return Center(child: UIConfig.loadingAnimation);
+          return Center(child: UIConfig.loadingAnimation(context));
         }
         return LayoutBuilder(
           builder: (_, constraints) => EHImage(

@@ -36,10 +36,10 @@ class EHGalleryCategoryTag extends StatelessWidget {
         width: width,
         padding: padding,
         decoration: BoxDecoration(
-          color: enabled ? color ?? ColorConsts.galleryCategoryColor[category] : UIConfig.galleryCategoryTagDisabledBackGroundColor,
+          color: enabled ? color ?? ColorConsts.galleryCategoryColor[category] : UIConfig.galleryCategoryTagDisabledBackGroundColor(context),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        child: Text(category, style: enabled ? textStyle : textStyle.copyWith(color: UIConfig.galleryCategoryTagDisabledTextColor)),
+        child: Text(category, style: enabled ? textStyle : textStyle.copyWith(color: UIConfig.galleryCategoryTagDisabledTextColor(context))),
       ),
     );
   }

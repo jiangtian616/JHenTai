@@ -28,7 +28,7 @@ import '../utils/eh_spider_parser.dart';
 import '../utils/route_util.dart';
 import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
-import '../widget/app_state_listener.dart';
+import '../widget/app_manager.dart';
 import '../widget/update_dialog.dart';
 
 const int left = 1;

@@ -144,7 +144,7 @@ class _TagHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<TagSetStatus>(
-      icon: Icon(_computeIcon(), color: UIConfig.tagSetsPageIconColor),
+      icon: Icon(_computeIcon(), color: UIConfig.tagSetsPageIconColor(context)),
       initialValue: _computeStatus(),
       onSelected: onStatusUpdated,
       elevation: 4,
@@ -153,7 +153,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.watched,
           child: Row(
             children: [
-              Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor),
+              Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor(context)),
               const SizedBox(width: 8),
               Text('watched'.tr),
             ],
@@ -163,7 +163,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.hidden,
           child: Row(
             children: [
-              Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor),
+              Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor(context)),
               const SizedBox(width: 8),
               Text('hidden'.tr),
             ],
@@ -173,7 +173,7 @@ class _TagHeader extends StatelessWidget {
           value: TagSetStatus.nope,
           child: Row(
             children: [
-              Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor),
+              Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor(context)),
               const SizedBox(width: 8),
               Text('nope'.tr),
             ],

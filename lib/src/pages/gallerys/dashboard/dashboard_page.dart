@@ -66,7 +66,7 @@ class DashboardPage extends BasePage {
               _buildRanklist(),
               _buildPopularListDesc(),
               _buildPopular(),
-              _buildGalleryDesc(),
+              _buildGalleryDesc(context),
               _buildGalleryBody(context),
               super.buildLoadMoreIndicator(),
             ],
@@ -148,19 +148,19 @@ class DashboardPage extends BasePage {
     );
   }
 
-  Widget _buildGalleryDesc() {
+  Widget _buildGalleryDesc(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(left: 10, right: 10, top: 20),
       sliver: SliverToBoxAdapter(
         child: _GalleryListDesc(
           actions: [
             IconButton(
-              icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor),
+              icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
               onPressed: logic.handleTapFilterButton,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
             ),
             IconButton(
-              icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor),
+              icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
               onPressed: logic.handleClearAndRefresh,
               style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
             ),
@@ -214,9 +214,9 @@ class _RankListDesc extends StatelessWidget {
             children: [
               Text(
                 'seeAll'.tr,
-                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor(context), fontSize: 12, fontWeight: FontWeight.w400, height: 1),
               ),
-              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor),
+              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor(context)),
             ],
           ),
         )
@@ -248,9 +248,9 @@ class _PopularListDesc extends StatelessWidget {
             children: [
               Text(
                 'seeAll'.tr,
-                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor, fontSize: 12, fontWeight: FontWeight.w400, height: 1),
+                style: TextStyle(color: UIConfig.dashboardPageSeeAllTextColor(context), fontSize: 12, fontWeight: FontWeight.w400, height: 1),
               ),
-              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor),
+              Icon(Icons.keyboard_arrow_right, color: UIConfig.dashboardPageArrowButtonColor(context)),
             ],
           ),
         )

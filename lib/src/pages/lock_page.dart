@@ -54,7 +54,7 @@ class _LockPageState extends State<LockPage> {
                       Container(
                         width: UIConfig.lockPagePinCodeRegionWidth,
                         height: UIConfig.lockPageCursorHeight,
-                        color: UIConfig.lockPageFilledDashColor,
+                        color: UIConfig.lockPageFilledDashColor(context),
                       )
                     ],
                   ),
@@ -64,7 +64,7 @@ class _LockPageState extends State<LockPage> {
                       Container(
                         width: UIConfig.lockPagePinCodeRegionWidth,
                         height: UIConfig.lockPageCursorHeight,
-                        color: UIConfig.lockPageUnfilledDashColor,
+                        color: UIConfig.lockPageUnfilledDashColor(context),
                       )
                     ],
                   ),

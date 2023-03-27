@@ -72,7 +72,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
         builder: (_) {
           return SliverGrid(
             delegate: SliverChildBuilderDelegate(
-              (_, index) {
+              (context, index) {
                 if (index == state.thumbnails.length - 1 && state.loadingState == LoadingState.idle) {
                   SchedulerBinding.instance.addPostFrameCallback((_) => logic.loadMoreThumbnails());
                 }
@@ -109,7 +109,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                       ),
                       Text(
                         (state.absoluteIndexOfThumbnails[index] + 1).toString(),
-                        style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor),
+                        style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
                       ).paddingOnly(top: 3),
                     ],
                   ),

@@ -122,11 +122,11 @@ class _HHDownloadButtonSet extends StatelessWidget {
           children: [
             Text(
               archive.size.removeAllWhitespace,
-              style: TextStyle(color: UIConfig.hhDialogCostTextColor, fontSize: UIConfig.hhDialogTextSize),
+              style: TextStyle(color: UIConfig.hhDialogCostTextColor(context), fontSize: UIConfig.hhDialogTextSize),
             ).marginOnly(right: 6),
             Text(
               archive.cost.removeAllWhitespace,
-              style: TextStyle(color: UIConfig.hhDialogCostTextColor, fontSize: UIConfig.hhDialogTextSize),
+              style: TextStyle(color: UIConfig.hhDialogCostTextColor(context), fontSize: UIConfig.hhDialogTextSize),
             ),
           ],
         )

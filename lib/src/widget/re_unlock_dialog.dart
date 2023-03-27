@@ -18,7 +18,7 @@ class ReUnlockDialog extends StatelessWidget {
           onPressed: backRoute,
         ),
         CupertinoDialogAction(
-          child: Text('OK'.tr, style: TextStyle(color: UIConfig.alertColor)),
+          child: Text('OK'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
           onPressed: () => backRoute(result: true),
         ),
       ],

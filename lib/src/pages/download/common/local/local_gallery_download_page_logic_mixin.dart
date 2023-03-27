@@ -131,7 +131,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor)),
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
               route.backRoute();
               handleRemoveItem(gallery);

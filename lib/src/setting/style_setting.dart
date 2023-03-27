@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../model/jh_layout.dart';
@@ -63,7 +64,16 @@ class StyleSetting {
     Log.debug('saveThemeMode:${themeMode.name}');
     StyleSetting.themeMode.value = themeMode;
     _save();
+    
     Get.changeThemeMode(themeMode);
+    
+    // if (themeMode == ThemeMode.light) {
+    //   Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
+    // } else {
+    //   Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
+    // }
+    //
+    // Get.rootController.updateSafely();
   }
 
   static saveLightThemeColor(Color color) {

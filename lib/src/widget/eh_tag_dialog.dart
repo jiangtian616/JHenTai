@@ -120,7 +120,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       likeBuilder: (bool liked) => Icon(
         Icons.thumb_up,
         size: UIConfig.tagDialogButtonSize,
-        color: liked ? UIConfig.tagDialogLikedButtonColor : UIConfig.tagDialogButtonColor,
+        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (bool liked) => liked ? Future.value(true) : vote(isVotingUp: true),
     );
@@ -131,7 +131,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       likeBuilder: (bool liked) => Icon(
         Icons.thumb_down,
         size: UIConfig.tagDialogButtonSize,
-        color: liked ? UIConfig.tagDialogLikedButtonColor : UIConfig.tagDialogButtonColor,
+        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (bool liked) => liked ? Future.value(true) : vote(isVotingUp: false),
     );
@@ -142,7 +142,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       likeBuilder: (bool liked) => Icon(
         Icons.favorite,
         size: UIConfig.tagDialogButtonSize,
-        color: liked ? UIConfig.tagDialogLikedButtonColor : UIConfig.tagDialogButtonColor,
+        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(true),
     );
@@ -153,7 +153,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       likeBuilder: (bool liked) => Icon(
         Icons.visibility_off,
         size: UIConfig.tagDialogButtonSize,
-        color: liked ? UIConfig.tagDialogLikedButtonColor : UIConfig.tagDialogButtonColor,
+        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(false),
     );
@@ -164,7 +164,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       likeBuilder: (_) => Icon(
         Icons.settings,
         size: UIConfig.tagDialogButtonSize,
-        color: UIConfig.tagDialogButtonColor,
+        color: UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (_) async {
         backRoute();

@@ -22,7 +22,7 @@ class SettingAccountPage extends StatelessWidget {
           children: [
             if (!UserSetting.hasLoggedIn()) _buildLogin(),
             if (UserSetting.hasLoggedIn()) ...[
-              _buildLogout().marginOnly(bottom: 12),
+              _buildLogout(context).marginOnly(bottom: 12),
               _buildCookiePage(),
             ],
           ],
@@ -39,13 +39,13 @@ class SettingAccountPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLogout() {
+  Widget _buildLogout(BuildContext context) {
     return ListTile(
       title: Text('${'youHaveLoggedInAs'.tr}${UserSetting.nickName.value ?? UserSetting.userName.value!}'),
       onTap: () => Get.dialog(const LogoutDialog()),
       trailing: IconButton(
         icon: const Icon(Icons.logout),
-        color: UIConfig.alertColor,
+        color: UIConfig.alertColor(context),
         onPressed: () => Get.dialog(const LogoutDialog()),
       ),
     );

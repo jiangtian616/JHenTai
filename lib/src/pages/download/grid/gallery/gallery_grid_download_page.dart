@@ -41,7 +41,7 @@ class GalleryGridDownloadPage extends GridBasePage {
 
                   if (image == null) {
                     return Center(
-                      child: LoadingAnimationWidget.horizontalRotatingDots(color: UIConfig.downloadPageLoadingIndicatorColor, size: 16),
+                      child: LoadingAnimationWidget.horizontalRotatingDots(color: UIConfig.downloadPageLoadingIndicatorColor(context), size: 16),
                     );
                   }
 
