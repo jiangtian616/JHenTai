@@ -47,10 +47,12 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   @override
   late final DetailsPageState state;
 
-  DetailsPage({Key? key}) : super(key: key) {
+  DetailsPage({super.key}) {
     logic = Get.put(DetailsPageLogic(tag), tag: tag);
     state = logic.state;
   }
+
+  DetailsPage.preview({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +108,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           controller: state.scrollController,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
-            _buildHeader(),
-            _buildDivider(),
-            _buildNewVersionHint(),
-            _buildActions(),
-            _buildTags(),
-            _buildLoadingDetailsIndicator(),
-            _buildCommentsIndicator(),
-            _buildComments(),
+            buildHeader(),
+            buildDivider(),
+            buildNewVersionHint(),
+            buildActions(),
+            buildTags(),
+            buildLoadingDetailsIndicator(),
+            buildCommentsIndicator(),
+            buildComments(),
             _buildThumbnails(),
             if (state.galleryDetails != null) _buildLoadingThumbnailIndicator(),
           ],
@@ -122,14 +124,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildHeader() {
+  Widget buildHeader() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 12, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: _DetailsPageHeader(logic: logic, state: state)),
     );
   }
 
-  Widget _buildNewVersionHint() {
+  Widget buildNewVersionHint() {
     if (state.galleryDetails?.newVersionGalleryUrl == null) {
       return const SliverToBoxAdapter();
     }
@@ -142,21 +144,21 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildDivider() {
+  Widget buildDivider() {
     return const SliverPadding(
       padding: EdgeInsets.only(top: 24, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: Divider(height: 1)),
     );
   }
 
-  Widget _buildActions() {
+  Widget buildActions() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 20, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverToBoxAdapter(child: _ActionButtons()),
     );
   }
 
-  Widget _buildTags() {
+  Widget buildTags() {
     LinkedHashMap<String, List<GalleryTag>>? tagList = state.galleryDetails?.fullTags;
     if (tagList?.isEmpty ?? true) {
       return const SliverToBoxAdapter();
@@ -175,7 +177,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildLoadingDetailsIndicator() {
+  Widget buildLoadingDetailsIndicator() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 24),
       sliver: SliverToBoxAdapter(
@@ -192,7 +194,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildCommentsIndicator() {
+  Widget buildCommentsIndicator() {
     if (state.galleryDetails == null) {
       return const SliverToBoxAdapter();
     }
@@ -218,7 +220,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget _buildComments() {
+  Widget buildComments() {
     if (state.galleryDetails?.comments.isEmpty ?? true) {
       return const SliverToBoxAdapter();
     }
@@ -307,9 +309,7 @@ class _DetailsPageHeader extends StatelessWidget {
         _buildUploader(),
         const Expanded(child: SizedBox()),
         GestureDetector(
-          onTap: state.loadingState == LoadingState.success
-              ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!))
-              : null,
+          onTap: state.loadingState == LoadingState.success ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!)) : null,
           behavior: HitTestBehavior.opaque,
           child: StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
         ),
@@ -581,8 +581,7 @@ class _DetailsPageHeader extends StatelessWidget {
                 allowHalfRating: true,
                 itemSize: 16,
                 ignoreGestures: true,
-                itemBuilder: (context, index) =>
-                    Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
+                itemBuilder: (context, index) => Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor : UIConfig.galleryRatingStarColor),
                 onRatingUpdate: (_) {},
               ),
             ),

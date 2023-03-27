@@ -272,6 +272,7 @@ class zh_CN {
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
 
       /// theme color setting page
+      'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',
       'preset': '预设',
       'custom': '自定义',
 

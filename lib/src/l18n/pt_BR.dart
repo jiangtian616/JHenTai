@@ -273,6 +273,7 @@ class pt_BR {
       'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
 
       /// theme color setting page
+      'themeColorSettingHint': 'You can assign different color for light and dark theme',
       'preset': 'Preset',
       'custom': 'Custom',
 

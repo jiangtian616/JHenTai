@@ -272,6 +272,7 @@ class en_US {
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
 
       /// theme color setting page
+      'themeColorSettingHint': 'You can assign different color for light and dark theme',
       'preset': 'Preset',
       'custom': 'Custom',
 
@@ -383,8 +384,7 @@ class en_US {
       'reUnlock': 'Re-Unlock',
       'reUnlockHint': 'Attention! Re-unlock need to buy this archive again.',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
-      'localGalleryHelpInfo':
-          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Priority',
       'highest': 'Highest',
@@ -467,8 +467,7 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint':
-          'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
+      'changeDownloadPathHint': 'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
       'resetDownloadPath': 'Reset Download Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
       'extraGalleryScanPathHint': 'To scan and load local gallerys',

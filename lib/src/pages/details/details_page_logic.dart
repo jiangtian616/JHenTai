@@ -62,7 +62,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   static const String addFavoriteStateId = 'addFavoriteStateId';
   static const String ratingStateId = 'ratingStateId';
 
-  /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.
+  /// there may be more than one DetailsPages in route stack at same time, eg: tap a link in a comment.
   /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
   String tag;
   static final List<DetailsPageLogic> _stack = <DetailsPageLogic>[];
@@ -83,6 +83,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   DetailsPageLogic(this.tag) {
     _stack.add(this);
   }
+
+  DetailsPageLogic.preview(this.tag);
 
   @override
   void onInit() {

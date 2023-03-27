@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/l18n/locale_text.dart';
-import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../../../model/jh_layout.dart';
