@@ -30,8 +30,8 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
   Widget _buildPreviewBody() {
     ThemeData previewThemeData = selectedThemeMode == ThemeMode.light
-        ? ThemeConfig.light.copyWith(colorScheme: ThemeConfig.generateColorScheme(StyleSetting.lightThemeColor.value, Brightness.light))
-        : ThemeConfig.dark.copyWith(colorScheme: ThemeConfig.generateColorScheme(StyleSetting.darkThemeColor.value, Brightness.dark));
+        ? ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light)
+        : ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
 
     return Column(
       children: [
@@ -87,10 +87,10 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
                     if (selectedThemeMode == ThemeMode.light) {
                       StyleSetting.saveLightThemeColor(newColor);
-                      Get.rootController.theme = ThemeConfig.light.copyWith(colorScheme: ThemeConfig.generateColorScheme(newColor, Brightness.light));
+                      Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
                     } else {
                       StyleSetting.saveDarkThemeColor(newColor);
-                      Get.rootController.darkTheme = ThemeConfig.dark.copyWith(colorScheme: ThemeConfig.generateColorScheme(newColor, Brightness.dark));
+                      Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
                     }
 
                     if (selectedThemeMode == StyleSetting.themeMode.value) {

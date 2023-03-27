@@ -124,16 +124,6 @@ class StyleSetting {
     _save();
   }
 
-  static ThemeData getCurrentThemeData() {
-    return themeMode.value == ThemeMode.dark
-        ? ThemeConfig.dark
-        : themeMode.value == ThemeMode.light
-            ? ThemeConfig.light
-            : WidgetsBinding.instance.window.platformBrightness == Brightness.dark
-                ? ThemeConfig.dark
-                : ThemeConfig.light;
-  }
-
   static Future<void> _save() async {
     await Get.find<StorageService>().write('styleSetting', _toMap());
   }

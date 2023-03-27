@@ -3,9 +3,9 @@ import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/scheme/scheme.dart';
 
 class ThemeConfig {
-  static ThemeData light = ThemeData(
+  
+  static ThemeData base = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
@@ -18,25 +18,22 @@ class ThemeConfig {
     popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
   );
 
-  static ThemeData dark = ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
+  static ThemeData light = base.copyWith(brightness: Brightness.light);
 
-    /// default w500 is not supported for chinese characters in some devices
-    textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
-    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
-    navigationBarTheme: const NavigationBarThemeData(
-      height: 48,
-      surfaceTintColor: Colors.transparent,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-    ),
-    popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
-  );
+  static ThemeData dark = base.copyWith(brightness: Brightness.dark);
+
+  static ThemeData generateThemeData(Color color, Brightness brightness) {
+    final colorScheme = generateColorScheme(color, brightness);
+    
+    return brightness == Brightness.light
+        ? light.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background)
+        : dark.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background);
+  }
 
   static ColorScheme generateColorScheme(Color seedColor, Brightness brightness) {
     Scheme scheme;
     if (brightness == Brightness.light) {
-        scheme = Scheme.lightFromCorePalette(CorePalette.contentOf(seedColor.value));
+      scheme = Scheme.lightFromCorePalette(CorePalette.contentOf(seedColor.value));
     } else {
       scheme = Scheme.darkFromCorePalette(CorePalette.contentOf(seedColor.value));
     }
