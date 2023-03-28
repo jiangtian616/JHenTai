@@ -8,6 +8,7 @@ class ko_KR {
       'no': '아니요',
       'cancel': "취소",
       'OK': "확인",
+      'reset': "Reset",
       'success': "성공",
       'error': "오류",
       'failed': "실패",
@@ -277,6 +278,7 @@ class ko_KR {
 
       /// mouse wheel setting page
       'themeColorSettingHint': 'You can assign different color for light and dark theme',
+      'preview': 'Preview',
       'wheelScrollSpeed': '휠 스크롤 속도',
       'ineffectiveInGalleryPage': '현재 갤러리 페이지에서 유효하지 않습니다.',
 

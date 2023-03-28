@@ -33,8 +33,10 @@ class UIConfig {
     scrollbars: false,
   );
 
-  static Widget loadingAnimation(BuildContext context) =>
-      LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
+  static const Color defaultLightThemeColor = Color(0xFF6750A4);
+  static const Color defaultDarkThemeColor = Color(0xFFD0BCFF);
+
+  static Widget loadingAnimation(BuildContext context) => LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
 
   static Color alertColor(BuildContext context) => Theme.of(context).colorScheme.error;
 
@@ -149,7 +151,7 @@ class UIConfig {
   static Color detailsPageActionIconColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
   static Color detailsPageActionDisabledIconColor(BuildContext context) => Theme.of(context).disabledColor;
-  
+
   static Color detailsPageActionTextColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
 
   static const double detailsPageActionTextSize = 11;

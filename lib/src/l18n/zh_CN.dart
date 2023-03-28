@@ -8,6 +8,7 @@ class zh_CN {
       'no': '否',
       'cancel': "取消",
       'OK': "确定",
+      'reset': "重置",
       'success': "成功",
       'error': "错误",
       'failed': "失败",
@@ -273,6 +274,7 @@ class zh_CN {
 
       /// theme color setting page
       'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',
+      'preview': '预览',
       'preset': '预设',
       'custom': '自定义',
 

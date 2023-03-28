@@ -8,6 +8,7 @@ class zh_TW {
       'no': '否',
       'cancel': "取消",
       'OK': "確定",
+      'reset': "重置",
       'success': "成功",
       'error': "錯誤",
       'failed': "失敗",
@@ -272,6 +273,7 @@ class zh_TW {
 
       /// theme color setting page
       'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',
+      'preview': '預覽',
       'preset': '預設',
       'custom': '自定義',
 

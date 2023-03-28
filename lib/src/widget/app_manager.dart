@@ -97,10 +97,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return ScrollConfiguration(
       behavior: UIConfig.scrollBehaviourWithScrollBar,
-      child: ListTileTheme(
-        iconColor: Theme.of(context).colorScheme.onBackground,
-        child: inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child,
-      ),
+      child: inBlur ? Blur(blur: 100, colorOpacity: 1, child: widget.child) : widget.child,
     );
   }
 

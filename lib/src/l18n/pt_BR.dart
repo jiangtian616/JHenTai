@@ -8,6 +8,7 @@ class pt_BR {
       'no': 'Não',
       'cancel': "Cancelar",
       'OK': "OK",
+      'reset': "Reset",
       'success': "Successo",
       'error': "Erro",
       'failed': "Falhou",
@@ -274,6 +275,7 @@ class pt_BR {
 
       /// theme color setting page
       'themeColorSettingHint': 'You can assign different color for light and dark theme',
+      'preview': 'Preview',
       'preset': 'Preset',
       'custom': 'Custom',
 

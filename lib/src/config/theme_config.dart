@@ -3,8 +3,9 @@ import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/scheme/scheme.dart';
 
 class ThemeConfig {
-  static ThemeData base = ThemeData(
+  static ThemeData light = ThemeData(
     useMaterial3: true,
+    brightness: Brightness.light,
 
     /// default w500 is not supported for chinese characters in some devices
     textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
@@ -17,16 +18,35 @@ class ThemeConfig {
     popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
   );
 
-  static ThemeData light = base.copyWith(brightness: Brightness.light);
+  static ThemeData dark = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
 
-  static ThemeData dark = base.copyWith(brightness: Brightness.dark);
+    /// default w500 is not supported for chinese characters in some devices
+    textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+    appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
+    navigationBarTheme: const NavigationBarThemeData(
+      height: 48,
+      surfaceTintColor: Colors.transparent,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+    ),
+    popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
+  );
 
   static ThemeData generateThemeData(Color color, Brightness brightness) {
     final colorScheme = generateColorScheme(color, brightness);
 
     return brightness == Brightness.light
-        ? light.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background)
-        : dark.copyWith(colorScheme: colorScheme, scaffoldBackgroundColor: colorScheme.background);
+        ? light.copyWith(
+            colorScheme: colorScheme,
+            scaffoldBackgroundColor: colorScheme.background,
+            listTileTheme: ListTileThemeData(iconColor: colorScheme.onBackground),
+          )
+        : dark.copyWith(
+            colorScheme: colorScheme,
+            scaffoldBackgroundColor: colorScheme.background,
+            listTileTheme: ListTileThemeData(iconColor: colorScheme.onBackground),
+          );
   }
 
   static ColorScheme generateColorScheme(Color seedColor, Brightness brightness) {

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/utils/log.dart';
 
@@ -20,8 +21,8 @@ enum ListMode {
 
 class StyleSetting {
   static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
-  static Rx<Color> lightThemeColor = const Color(0xFF6750A4).obs;
-  static Rx<Color> darkThemeColor = const Color(0xFFD0BCFF).obs;
+  static Rx<Color> lightThemeColor = UIConfig.defaultLightThemeColor.obs;
+  static Rx<Color> darkThemeColor = UIConfig.defaultDarkThemeColor.obs;
   static Rx<ListMode> listMode = ListMode.listWithTags.obs;
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
   static RxnInt crossAxisCountInGridDownloadPageForGroup = RxnInt(null);

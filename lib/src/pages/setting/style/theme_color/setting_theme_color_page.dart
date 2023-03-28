@@ -2,12 +2,12 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/setting/style/theme_color/preview_page/detail_preview_page.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class SettingThemeColorPage extends StatefulWidget {
   const SettingThemeColorPage({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('themeColor'.tr)),
+      appBar: AppBar(centerTitle: true, title: Text('preview'.tr)),
       body: _buildPreviewBody(),
       bottomNavigationBar: _buildBottomAppBar(),
     );
@@ -33,20 +33,9 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
         ? ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light)
         : ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
 
-    return Column(
-      children: [
-        Expanded(
-          child: Theme(
-            data: previewThemeData,
-            child: CarouselSlider(
-              items: [
-                DetailPreviewPage(),
-              ],
-              options: CarouselOptions(height: 400.0, enableInfiniteScroll: false),
-            ),
-          ),
-        ),
-      ],
+    return Theme(
+      data: previewThemeData,
+      child: DetailPreviewPage(),
     );
   }
 
@@ -78,6 +67,7 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                     Color? newColor = await Get.dialog(
                       _ColorSettingDialog(
                         initialColor: selectedThemeMode == ThemeMode.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
+                        resetColor: selectedThemeMode == ThemeMode.light ? UIConfig.defaultLightThemeColor : UIConfig.defaultDarkThemeColor,
                       ),
                     );
 
@@ -112,8 +102,9 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
 class _ColorSettingDialog extends StatefulWidget {
   final Color initialColor;
+  final Color resetColor;
 
-  const _ColorSettingDialog({Key? key, required this.initialColor}) : super(key: key);
+  const _ColorSettingDialog({Key? key, required this.initialColor, required this.resetColor}) : super(key: key);
 
   @override
   State<_ColorSettingDialog> createState() => _ColorSettingDialogState();
@@ -158,8 +149,12 @@ class _ColorSettingDialogState extends State<_ColorSettingDialog> {
           children: [
             TextButton(
               child: Text('cancel'.tr),
+              onPressed: backRoute,
+            ),
+            TextButton(
+              child: Text('reset'.tr),
               onPressed: () {
-                backRoute();
+                setState(() => selectedColor = widget.resetColor);
               },
             ),
             TextButton(

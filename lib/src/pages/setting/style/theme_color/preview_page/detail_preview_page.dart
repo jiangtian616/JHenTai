@@ -204,17 +204,15 @@ class DetailPreviewPage extends DetailsPage {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 12, bottom: 40),
       sliver: SliverToBoxAdapter(
-        child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
+        child: Center(
+          child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
+        ),
       ),
     );
   }
 
   @override
   Widget buildThumbnails() {
-    if (state.galleryDetails == null) {
-      return const SliverToBoxAdapter();
-    }
-
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
       sliver: SliverGrid(
@@ -226,7 +224,6 @@ class DetailPreviewPage extends DetailsPage {
                   Expanded(
                     child: Center(
                       child: GestureDetector(
-                        onTap: () => logic.goToReadPage(index),
                         child: LayoutBuilder(
                           builder: (_, constraints) => EHThumbnail(
                             thumbnail: state.galleryDetails!.thumbnails[index],
@@ -273,10 +270,11 @@ class DetailsPreviewPageState extends DetailsPageState {
     gallery = Gallery(
       gid: 1,
       token: 'token - preview',
-      title: 'Title - This is the detail preview page',
+      title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
       category: 'Doujinshi',
       cover: GalleryImage(url: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png', height: 400, width: 800),
       rating: 4.5,
+      pageCount: 66,
       hasRated: true,
       isFavorite: true,
       galleryUrl: 'gallery url - preview',
@@ -289,10 +287,10 @@ class DetailsPreviewPageState extends DetailsPageState {
           GalleryTag(tagData: TagData(namespace: 'artist', key: '酱天小禽兽')),
         ],
         'character': [
-          GalleryTag(tagData: TagData(namespace: 'artist', key: 'Hibiki')),
+          GalleryTag(tagData: TagData(namespace: 'character', key: 'hibiki')),
         ],
         'female': [
-          GalleryTag(tagData: TagData(namespace: 'artist', key: 'Hibiki')),
+          GalleryTag(tagData: TagData(namespace: 'female', key: 'lolicon')),
         ],
       }),
       publishTime: '2022-02-22 12:12:12',
@@ -326,14 +324,16 @@ class DetailsPreviewPageState extends DetailsPageState {
       comments: [
         GalleryComment(
           id: 0,
+          username: 'Your name',
           score: '+66',
           scoreDetails: ['JTMONSTER +66'],
-          content: dom.Element.html('<p>Comment - This is a comment from mine</p>'),
+          content: dom.Element.html('<p>Comment - This is a comment from mine, you can see the color of the uploader is different</p>'),
           time: '2022-02-22',
           fromMe: true,
         ),
         GalleryComment(
           id: 0,
+          username: 'Others',
           score: '-666',
           scoreDetails: ['JTMONSTER -666'],
           content: dom.Element.html('<p>Comment - This is a comment from others</p>'),
@@ -342,6 +342,31 @@ class DetailsPreviewPageState extends DetailsPageState {
         ),
       ],
       thumbnails: [
+        GalleryThumbnail(
+          href: 'href - preview',
+          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          isLarge: true,
+        ),
+        GalleryThumbnail(
+          href: 'href - preview',
+          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          isLarge: true,
+        ),
+        GalleryThumbnail(
+          href: 'href - preview',
+          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          isLarge: true,
+        ),
+        GalleryThumbnail(
+          href: 'href - preview',
+          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          isLarge: true,
+        ),
+        GalleryThumbnail(
+          href: 'href - preview',
+          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          isLarge: true,
+        ),
         GalleryThumbnail(
           href: 'href - preview',
           thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',

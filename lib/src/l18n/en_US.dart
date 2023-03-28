@@ -8,6 +8,7 @@ class en_US {
       'no': 'No',
       'cancel': "Cancel",
       'OK': "OK",
+      'reset': "Reset",
       'success': "Success",
       'error': "Error",
       'failed': "Failed",
@@ -273,6 +274,7 @@ class en_US {
 
       /// theme color setting page
       'themeColorSettingHint': 'You can assign different color for light and dark theme',
+      'preview': 'Preview',
       'preset': 'Preset',
       'custom': 'Custom',
 
