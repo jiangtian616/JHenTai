@@ -43,7 +43,6 @@ class DetailPreviewPage extends DetailsPage {
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
           controller: state.scrollController,
           slivers: [
             buildHeader(),
@@ -102,7 +101,7 @@ class DetailPreviewPage extends DetailsPage {
                 IconTextButton(
                   icon: Icon(
                     state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
-                    color: UIConfig.detailsPageActionTextColor(context),
+                    color: UIConfig.detailsPageActionIconColor(context),
                   ),
                   text: Text(
                     'favorite'.tr,
@@ -132,7 +131,7 @@ class DetailPreviewPage extends DetailsPage {
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.archive, color: UIConfig.detailsPageActionTextColor(context)),
+                  icon: Icon(Icons.archive, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'archive'.tr,
                     style: TextStyle(
@@ -144,7 +143,7 @@ class DetailPreviewPage extends DetailsPage {
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.cloud_download, color: UIConfig.detailsPageActionTextColor(context)),
+                  icon: Icon(Icons.cloud_download, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'H@H',
                     style: TextStyle(
@@ -156,7 +155,7 @@ class DetailPreviewPage extends DetailsPage {
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.saved_search, color: UIConfig.detailsPageActionTextColor(context)),
+                  icon: Icon(Icons.saved_search, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'similar'.tr,
                     style: TextStyle(
@@ -168,7 +167,7 @@ class DetailPreviewPage extends DetailsPage {
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.file_present, color: UIConfig.detailsPageActionTextColor(context)),
+                  icon: Icon(Icons.file_present, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})',
                     style: TextStyle(
@@ -180,7 +179,7 @@ class DetailPreviewPage extends DetailsPage {
                   onPressed: () {},
                 ),
                 IconTextButton(
-                  icon: Icon(Icons.analytics, color: UIConfig.detailsPageActionTextColor(context)),
+                  icon: Icon(Icons.analytics, color: UIConfig.detailsPageActionIconColor(context)),
                   text: Text(
                     'statistic'.tr,
                     style: TextStyle(
@@ -272,7 +271,7 @@ class DetailsPreviewPageState extends DetailsPageState {
       token: 'token - preview',
       title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
       category: 'Doujinshi',
-      cover: GalleryImage(url: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png', height: 400, width: 800),
+      cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
       rating: 4.5,
       pageCount: 66,
       hasRated: true,
@@ -344,32 +343,32 @@ class DetailsPreviewPageState extends DetailsPageState {
       thumbnails: [
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg',
           isLarge: true,
         ),
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/db/f5/dbf5141490676994fe3d7df681cb30a5080b6f11-8415428-2796-4015-jpg_250.jpg',
           isLarge: true,
         ),
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/e1/ba/e1bab290a2ca1217955d395bd6e0a56874383c4e-8159354-2796-4015-jpg_250.jpg',
           isLarge: true,
         ),
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/c1/fc/c1fc4299c883bb5a6e2e7142a635b9349f07030d-7593228-2796-4015-jpg_250.jpg',
           isLarge: true,
         ),
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/54/66/5466d5c0318f708c5f7d0d71930a68ca549fa73c-954881-1800-2544-jpg_250.jpg',
           isLarge: true,
         ),
         GalleryThumbnail(
           href: 'href - preview',
-          thumbUrl: 'https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png',
+          thumbUrl: 'https://ehgt.org/6d/06/6d06775741f61da2d9989ed5e42dd0e672858b7a-3183575-2115-3036-jpg_250.jpg',
           isLarge: true,
         ),
       ],

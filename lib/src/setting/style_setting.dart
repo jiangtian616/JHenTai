@@ -38,6 +38,12 @@ class StyleSetting {
   static bool get isInWaterFlowListMode =>
       listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
 
+  static Brightness currentBrightness() => themeMode.value == ThemeMode.system
+      ? WidgetsBinding.instance.window.platformBrightness
+      : themeMode.value == ThemeMode.light
+          ? Brightness.light
+          : Brightness.dark;
+
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
   static LayoutMode actualLayout = layout.value;
 
@@ -65,16 +71,8 @@ class StyleSetting {
     Log.debug('saveThemeMode:${themeMode.name}');
     StyleSetting.themeMode.value = themeMode;
     _save();
-    
+
     Get.changeThemeMode(themeMode);
-    
-    // if (themeMode == ThemeMode.light) {
-    //   Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
-    // } else {
-    //   Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
-    // }
-    //
-    // Get.rootController.updateSafely();
   }
 
   static saveLightThemeColor(Color color) {

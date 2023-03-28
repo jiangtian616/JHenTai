@@ -35,17 +35,22 @@ class ThemeConfig {
 
   static ThemeData generateThemeData(Color color, Brightness brightness) {
     final colorScheme = generateColorScheme(color, brightness);
-
     return brightness == Brightness.light
         ? light.copyWith(
             colorScheme: colorScheme,
             scaffoldBackgroundColor: colorScheme.background,
             listTileTheme: ListTileThemeData(iconColor: colorScheme.onBackground),
+
+            /// for DropdownButton
+            canvasColor: colorScheme.background,
           )
         : dark.copyWith(
             colorScheme: colorScheme,
             scaffoldBackgroundColor: colorScheme.background,
             listTileTheme: ListTileThemeData(iconColor: colorScheme.onBackground),
+
+            /// for DropdownButton
+            canvasColor: colorScheme.background,
           );
   }
 

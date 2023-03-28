@@ -17,31 +17,27 @@ class SettingThemeColorPage extends StatefulWidget {
 }
 
 class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
-  ThemeMode selectedThemeMode = StyleSetting.themeMode.value;
+  Brightness selectedBrightness = StyleSetting.currentBrightness();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('preview'.tr)),
-      body: _buildPreviewBody(),
-      bottomNavigationBar: _buildBottomAppBar(),
-    );
-  }
-
-  Widget _buildPreviewBody() {
-    ThemeData previewThemeData = selectedThemeMode == ThemeMode.light
+    ThemeData previewThemeData = selectedBrightness == Brightness.light
         ? ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light)
         : ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
 
     return Theme(
       data: previewThemeData,
-      child: DetailPreviewPage(),
+      child: Scaffold(
+        appBar: AppBar(centerTitle: true, title: Text('preview'.tr)),
+        body: DetailPreviewPage(),
+        bottomNavigationBar: _buildBottomAppBar(),
+      ),
     );
   }
 
   Widget _buildBottomAppBar() {
     return BottomAppBar(
-      height: 88,
+      height: 140,
       child: Column(
         children: [
           Expanded(
@@ -49,9 +45,9 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  icon: Icon(selectedThemeMode == ThemeMode.light ? Icons.sunny : Icons.nightlight),
+                  icon: Icon(selectedBrightness == Brightness.light ? Icons.sunny : Icons.nightlight),
                   onPressed: () {
-                    setState(() => selectedThemeMode = selectedThemeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light);
+                    setState(() => selectedBrightness = selectedBrightness == Brightness.light ? Brightness.dark : Brightness.light);
                   },
                 ),
                 IconButton(
@@ -60,14 +56,14 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                     height: 24,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: selectedThemeMode == ThemeMode.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
+                      color: selectedBrightness == Brightness.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
                     ),
                   ),
                   onPressed: () async {
                     Color? newColor = await Get.dialog(
                       _ColorSettingDialog(
-                        initialColor: selectedThemeMode == ThemeMode.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
-                        resetColor: selectedThemeMode == ThemeMode.light ? UIConfig.defaultLightThemeColor : UIConfig.defaultDarkThemeColor,
+                        initialColor: selectedBrightness == Brightness.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
+                        resetColor: selectedBrightness == Brightness.light ? UIConfig.defaultLightThemeColor : UIConfig.defaultDarkThemeColor,
                       ),
                     );
 
@@ -75,7 +71,7 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                       return;
                     }
 
-                    if (selectedThemeMode == ThemeMode.light) {
+                    if (selectedBrightness == Brightness.light) {
                       StyleSetting.saveLightThemeColor(newColor);
                       Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
                     } else {
@@ -83,10 +79,11 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                       Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
                     }
 
-                    if (selectedThemeMode == StyleSetting.themeMode.value) {
+                    if (selectedBrightness == StyleSetting.currentBrightness()) {
                       Get.rootController.updateSafely();
                     }
 
+                    setState(() {});
                     toast('success'.tr);
                   },
                 ),
@@ -123,26 +120,34 @@ class _ColorSettingDialogState extends State<_ColorSettingDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       children: [
-        ColorPicker(
-          color: selectedColor,
-          pickersEnabled: const <ColorPickerType, bool>{
-            ColorPickerType.both: true,
-            ColorPickerType.primary: false,
-            ColorPickerType.accent: false,
-            ColorPickerType.bw: false,
-            ColorPickerType.custom: false,
-            ColorPickerType.wheel: true,
-          },
-          pickerTypeLabels: <ColorPickerType, String>{
-            ColorPickerType.both: 'preset'.tr,
-            ColorPickerType.wheel: 'custom'.tr,
-          },
-          enableTonalPalette: true,
-          showColorCode: true,
-          colorCodeHasColor: true,
-          onColorChanged: (Color color) {
-            selectedColor = color;
-          },
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: ColorPicker(
+            color: selectedColor,
+            pickersEnabled: const <ColorPickerType, bool>{
+              ColorPickerType.both: true,
+              ColorPickerType.primary: false,
+              ColorPickerType.accent: false,
+              ColorPickerType.bw: false,
+              ColorPickerType.custom: false,
+              ColorPickerType.wheel: true,
+            },
+            pickerTypeLabels: <ColorPickerType, String>{
+              ColorPickerType.both: 'preset'.tr,
+              ColorPickerType.wheel: 'custom'.tr,
+            },
+            enableTonalPalette: true,
+            showColorCode: true,
+            colorCodeHasColor: true,
+            colorCodeTextStyle: const TextStyle(fontSize: 18),
+            enableOpacity: true,
+            width: 36,
+            height: 36,
+            columnSpacing: 16,
+            onColorChanged: (Color color) {
+              selectedColor = color;
+            },
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -164,7 +169,7 @@ class _ColorSettingDialogState extends State<_ColorSettingDialog> {
               },
             ),
           ],
-        ).marginOnly(top: 24),
+        ),
       ],
     );
   }
