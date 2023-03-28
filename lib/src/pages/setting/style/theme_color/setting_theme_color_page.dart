@@ -37,7 +37,7 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
   Widget _buildBottomAppBar() {
     return BottomAppBar(
-      height: 140,
+      height: 150,
       child: Column(
         children: [
           Expanded(

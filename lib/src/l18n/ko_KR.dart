@@ -277,7 +277,7 @@ class ko_KR {
       'custom': 'Custom',
 
       /// mouse wheel setting page
-      'themeColorSettingHint': 'You can assign different color for light and dark theme',
+      'themeColorSettingHint': 'Assign different color for light and dark theme',
       'preview': 'Preview',
       'wheelScrollSpeed': '휠 스크롤 속도',
       'ineffectiveInGalleryPage': '현재 갤러리 페이지에서 유효하지 않습니다.',

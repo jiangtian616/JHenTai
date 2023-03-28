@@ -273,7 +273,7 @@ class en_US {
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
 
       /// theme color setting page
-      'themeColorSettingHint': 'You can assign different color for light and dark theme',
+      'themeColorSettingHint': 'Assign different color for light and dark theme',
       'preview': 'Preview',
       'preset': 'Preset',
       'custom': 'Custom',
