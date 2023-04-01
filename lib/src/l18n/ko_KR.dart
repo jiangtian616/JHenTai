@@ -8,7 +8,7 @@ class ko_KR {
       'no': '아니요',
       'cancel': "취소",
       'OK': "확인",
-      'reset': "Reset",
+      'reset': "초기화",
       'success': "성공",
       'error': "오류",
       'failed': "실패",
@@ -41,7 +41,7 @@ class ko_KR {
       'availableUpdate': '사용 가능한 업데이트가 있습니다!',
       'LatestVersion': '최신 버전',
       'CurrentVersion': '현재 버전',
-      'check': '확인',
+      'check': '확인: ',
       'dismiss': '무시',
 
       /// login page
@@ -115,8 +115,8 @@ class ko_KR {
       'resumeDownload': '계속 다운로드',
       'pauseDownload': '다운로드 일시정지',
       'addNewTagSetSuccess': '태그 추가 성공',
-      'addNewWatchedTagSetSuccess': '강조하고 싶은 태그 추가 성공',
-      'addNewHiddenTagSetSuccess': '숨기고 싶은 태그 추가 성공',
+      'addNewWatchedTagSetSuccess': '강조 태그 추가 성공',
+      'addNewHiddenTagSetSuccess': '숨김 태그 추가 성공',
       'addNewTagSetSuccessHint': '\'설정 → EH → 나의 태그\'에서 사용자의 태그를 확인할 수 있습니다.',
       'addNewTagSetFailed': '태그 추가 실패',
       'VisitorStatistics': '방문자 통계',
@@ -248,7 +248,7 @@ class ko_KR {
       'dark': '어두운 모드',
       'light': '밝은 모드',
       'followSystem': '시스템에 따라',
-      'themeColor': 'Theme Color',
+      'themeColor': '테마 색상',
       'listStyle': '갤러리 리스트 스타일 (기본값)',
       'flat': '플랫',
       'flatWithoutTags': '플랫(태그 없음)',
@@ -273,12 +273,12 @@ class ko_KR {
       'alwaysShowScroll2TopButton': '맨 위로 가기 버튼 항상 보이기',
 
       /// theme color setting page
-      'preset': 'Preset',
-      'custom': 'Custom',
+      'preset': '프리셋',
+      'custom': '커스텀',
 
       /// mouse wheel setting page
-      'themeColorSettingHint': 'Assign different color for light and dark theme',
-      'preview': 'Preview',
+      'themeColorSettingHint': '라이트 모드와 다크 모드 각각에 다른 색을 지정합니다',
+      'preview': '미리 보기',
       'wheelScrollSpeed': '휠 스크롤 속도',
       'ineffectiveInGalleryPage': '현재 갤러리 페이지에서 유효하지 않습니다.',
 
@@ -433,7 +433,7 @@ class ko_KR {
       'pageAtLeast': '최소 페이지',
       'pageAtMost': '최대 페이지',
       'pagesBetween': '페이지 사이',
-      'pageRangeSelectHint': '최소 <= 1000, 최대 >= 10\n최소/최대 <= 0.8, 최대-최소 >= 20',
+      'pageRangeSelectHint': '최소 ≤ 1000, 최대 ≥ 10\n최소/최대 ≤ 0.8, 최대-최소 ≥ 20',
       'to': '~',
       'minimumRating': '최소 점수',
       'disableFilterForLanguage': '언어 필터 사용 안 함',
