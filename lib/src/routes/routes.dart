@@ -102,6 +102,7 @@ class Routes {
 
   static const String extraGalleryScanPath = "/setting_download/extraGalleryScanPath";
 
+  static const String superResolution = "/setting_advanced/superResolution";
   static const String logList = "/setting_advanced/logList";
   static const String log = "/setting_advanced/logList/log";
 
@@ -323,6 +324,12 @@ class Routes {
     EHPage(
       name: extraGalleryScanPath,
       page: () => const ExtraGalleryScanPathPage(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: superResolution,
+      page: () => const LogListPage(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

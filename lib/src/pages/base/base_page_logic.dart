@@ -138,7 +138,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     loadMore(checkLoadingState: false);
   }
 
-  /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.loadingState]
+  /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.downloadState]
   /// to [prevState] in case of [prevState] is [noMore]
   Future<void> loadBefore() async {
     if (state.loadingState == LoadingState.loading) {

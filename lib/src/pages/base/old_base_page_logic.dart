@@ -95,7 +95,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     }
   }
 
-  /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.loadingState]
+  /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.downloadState]
   /// to [prevState] in case of [prevState] is [noMore]
   @override
   Future<void> loadBefore() async {

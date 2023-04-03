@@ -110,6 +110,14 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
+  Widget _buildSuperResolution() {
+    return ListTile(
+      title: Text('superResolution'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      onTap: () => toRoute(Routes.logList),
+    );
+  }
+  
   Widget _buildCheckUpdate() {
     return ListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),

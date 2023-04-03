@@ -23,6 +23,7 @@ import 'package:retry/retry.dart';
 
 import '../model/gallery_image.dart';
 import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
+import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
 import '../utils/log.dart';
 import '../utils/snack_util.dart';
@@ -341,7 +342,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return title;
   }
 
-  String _computePackingFileDownloadPath(ArchiveDownloadedData archive) {
+  String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
     String title = _computeArchiveTitle(archive.title);
 
     return join(DownloadSetting.downloadPath.value, 'Archive - ${archive.gid} - $title.zip');
@@ -355,7 +356,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   /// if we have downloaded parts of this archive, return downloaded bytes length, otherwise null
   int? _computeDownloadedPackingFileBytes(ArchiveDownloadedData archive) {
-    String packingFilePath = _computePackingFileDownloadPath(archive);
+    String packingFilePath = computePackingFileDownloadPath(archive);
     io.File packingFile = io.File(packingFilePath);
     if (packingFile.existsSync()) {
       return packingFile.lengthSync();
@@ -545,7 +546,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       response = await EHRequest.download(
         url: archiveDownloadInfo.downloadUrl!,
-        path: _computePackingFileDownloadPath(archive),
+        path: computePackingFileDownloadPath(archive),
         receiveTimeout: 0,
         appendMode: true,
         caseInsensitiveHeader: false,
@@ -621,19 +622,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     Log.info('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}');
 
-    bool success = await compute(
-      (List<String> path) async {
-        InputFileStream inputStream = InputFileStream(path[0]);
-        try {
-          extractArchiveToDisk(ZipDecoder().decodeBuffer(inputStream), path[1]);
-        } on Exception catch (_) {
-          return false;
-        } finally {
-          inputStream.close();
-        }
-        return true;
-      },
-      [_computePackingFileDownloadPath(archive), computeArchiveUnpackingPath(archive)],
+    bool success = await extractArchive(
+      computePackingFileDownloadPath(archive),
+      computeArchiveUnpackingPath(archive),
     );
 
     if (!success) {
@@ -788,7 +779,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
-    io.File file = io.File(_computePackingFileDownloadPath(archive));
+    io.File file = io.File(computePackingFileDownloadPath(archive));
     if (file.existsSync()) {
       await file.delete();
     }

@@ -310,6 +310,7 @@ class en_US {
       'checkClipboard': 'Check Gallery URL in Clipboard',
       'clearPageCache': 'Clear Page Cache',
       'clearSuccess': 'Clear Success',
+      'superResolution': 'Image Super Resolution',
 
       /// host mapping page
       'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
@@ -368,6 +369,11 @@ class en_US {
 
       /// log page
       'logList': 'Log List',
+
+      /// super resolution setting page
+      'downloadSuperResolutionModelHint': 'Download Model From Github',
+      'executableFilePath': 'Executable File Path',
+      'upSamplingScale': 'Up Sampling Scale',
 
       /// download page
       'local': 'Local',

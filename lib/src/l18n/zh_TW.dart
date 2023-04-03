@@ -309,6 +309,7 @@ class zh_TW {
       'checkClipboard': '檢測剪切板中的畫廊鏈接',
       'clearPageCache': '清除頁面快取',
       'clearSuccess': '清除成功',
+      'superResolution': 'AI圖片放大',
 
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
@@ -367,6 +368,11 @@ class zh_TW {
 
       /// log page
       'logList': '日誌列表',
+
+      /// super resolution setting page
+      'downloadSuperResolutionModelHint': '從Github下載模型',
+      'executableFilePath': '可執行文件路徑',
+      'upSamplingScale': '圖片放大倍數',
 
       /// download page
       'local': '本地',

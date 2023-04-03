@@ -310,6 +310,7 @@ class ko_KR {
       'checkClipboard': '클립보드에서 갤러리 주소 검사',
       'clearPageCache': '페이지 캐시 삭제',
       'clearSuccess': '삭제 완료',
+      'superResolution': 'Image Super Resolution',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
@@ -368,6 +369,11 @@ class ko_KR {
 
       /// log page
       'logList': '로그 리스트',
+
+      /// super resolution setting page
+      'downloadSuperResolutionModelHint': 'Download Model From Github',
+      'executableFilePath': 'Executable File Path',
+      'upSamplingScale': 'Up Sampling Scale',
 
       /// download page
       'local': '로컬',

@@ -310,6 +310,7 @@ class zh_CN {
       'checkClipboard': '检测剪切板中的画廊链接',
       'clearPageCache': '清除页面缓存',
       'clearSuccess': '清除成功',
+      'superResolution': 'AI图片放大',
 
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
@@ -368,6 +369,11 @@ class zh_CN {
 
       /// log page
       'logList': '日志列表',
+
+      /// super resolution setting page
+      'downloadSuperResolutionModelHint': '从Github下载模型',
+      'executableFilePath': '可执行文件路径',
+      'upSamplingScale': '图片放大倍数',
 
       /// download page
       'local': '本地',

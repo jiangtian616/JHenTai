@@ -131,8 +131,7 @@ class pt_BR {
       'score': 'Pontuação',
       'NotOnTheList': 'Não está na lista',
       'getGalleryArchiveFailed': 'Falha ao obter arquivo da galeria',
-      'parseGalleryArchiveFailed':
-          'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
+      'parseGalleryArchiveFailed': 'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
       'original': 'Original',
       'resample': 'Redimensionamento',
       'beginToDownloadArchive': 'Começar a baixar o arquivo',
@@ -311,6 +310,7 @@ class pt_BR {
       'checkClipboard': 'Verificar se há URL de Galeria na área de transferência',
       'clearPageCache': 'Limpar cache de página',
       'clearSuccess': 'Limpado com Sucesso',
+      'superResolution': 'Image Super Resolution',
 
       /// host mapping page
       'hostDataSource': 'Não há necessidade de alterar por padrão.\nFonte de dados: https://dns.google/',
@@ -370,6 +370,11 @@ class pt_BR {
       /// log page
       'logList': 'Lista de resgistro(log)',
 
+      /// super resolution setting page
+      'downloadSuperResolutionModelHint': 'Download Model From Github',
+      'executableFilePath': 'Executable File Path',
+      'upSamplingScale': 'Up Sampling Scale',
+
       /// download page
       'local': 'Local',
       'reDownload': 'Baixar novamente',
@@ -386,10 +391,8 @@ class pt_BR {
       'needReUnlock': 'Precisa de novo desbloqueio',
       'reUnlock': 'Desbloquear novamente',
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
-      'downloadHelpInfo':
-          'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
-      'localGalleryHelpInfo':
-          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'downloadHelpInfo': 'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
+      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Prioridade',
       'highest': 'Alta',

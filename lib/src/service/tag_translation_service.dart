@@ -71,7 +71,7 @@ class TagTranslationService extends GetxService {
         onRetry: (error) => Log.warning('Download tag translation data failed, retry.'),
       );
     } on DioError catch (e) {
-      Log.error('Download tag translation data failed after 3 times', e.message);
+      Log.error('Download tag translation data failed after 5 times', e.message);
       loadingState.value = LoadingState.error;
       return;
     }
