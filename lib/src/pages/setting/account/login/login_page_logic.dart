@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -20,6 +23,7 @@ import 'login_page_state.dart';
 
 class LoginPageLogic extends GetxController {
   static const formId = 'formId';
+  static const cookieFormId = 'cookieFormId';
   static const loadingStateId = 'loadingStateId';
 
   final LoginPageState state = LoginPageState();
@@ -28,6 +32,34 @@ class LoginPageLogic extends GetxController {
   void toggleLoginType() {
     state.loginType = (state.loginType == LoginType.cookie ? LoginType.password : LoginType.cookie);
     update([formId]);
+  }
+
+  Future<void> pasteCookie() async {
+    String? cookie = (await Clipboard.getData('text/plain'))?.text?.toString();
+
+    if (isEmptyOrNull(cookie)) {
+      return;
+    }
+
+    RegExpMatch? match1 = RegExp(r'ipb_member_id[=:]\s?(\w+)').firstMatch(cookie!);
+    RegExpMatch? match2 = RegExp(r'ipb_pass_hash[=:]\s?(\w+)').firstMatch(cookie);
+    RegExpMatch? match3 = RegExp(r'igneous[=:]\s?(\w+)').firstMatch(cookie);
+
+    String? ipbMemberId = match1?.group(1);
+    String? ipbPassHash = match2?.group(1);
+    String? igneous = match3?.group(1);
+
+    if (ipbMemberId != null) {
+      state.ipbMemberId = ipbMemberId;
+    }
+    if (ipbPassHash != null) {
+      state.ipbPassHash = ipbPassHash;
+    }
+    if (igneous != null) {
+      state.igneous = igneous;
+    }
+    
+    updateSafely([cookieFormId]);
   }
 
   void handleLogin() {
@@ -106,41 +138,18 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> _handleCookieLogin() async {
-    if (state.cookie == null || state.cookie!.isBlank!) {
+    if (isEmptyOrNull(state.ipbMemberId) || isEmptyOrNull(state.ipbPassHash)) {
       toast('cookieIsBlack'.tr);
       return;
     }
 
-    RegExpMatch? match1 = RegExp(r'ipb_member_id[=:]\s?(\w+)').firstMatch(state.cookie!);
-    RegExpMatch? match2 = RegExp(r'ipb_pass_hash[=:]\s?(\w+)').firstMatch(state.cookie!);
-    RegExpMatch? match3 = RegExp(r'igneous[=:]\s?(\w+)').firstMatch(state.cookie!);
-
-    if (match1 == null || match2 == null) {
-      toast('cookieFormatError'.tr);
-      return;
-    }
-
-    int ipbMemberId;
-    String ipbPassHash;
-    String? igneous;
-    try {
-      ipbMemberId = int.parse(match1.group(1)!);
-      ipbPassHash = match2.group(1)!;
-      igneous = match3?.group(1);
-    } on Exception catch (e) {
-      Log.error('loginFail'.tr, e);
-      Log.upload(e, extraInfos: {'cookie': state.cookie!});
-      toast('cookieFormatError'.tr);
-      return;
-    }
-
     await cookieManager.storeEhCookiesForAllUri([
-      Cookie('ipb_member_id', ipbMemberId.toString()),
-      Cookie('ipb_pass_hash', ipbPassHash),
+      Cookie('ipb_member_id', state.ipbMemberId!),
+      Cookie('ipb_pass_hash', state.ipbPassHash!),
     ]);
-    if (igneous != null) {
+    if (state.igneous != null) {
       await cookieManager.storeEhCookiesForAllUri([
-        Cookie('igneous', igneous.toString()),
+        Cookie('igneous', state.igneous!),
       ]);
     }
 
@@ -154,7 +163,7 @@ class LoginPageLogic extends GetxController {
     try {
       /// get cookie [sk] first
       await EHRequest.requestHomePage();
-      userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioError catch (e) {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
@@ -164,6 +173,14 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
+    } on Exception catch (e) {
+      Log.error('loginFail'.tr, e.toString());
+      snack('loginFail'.tr, e.toString());
+
+      await cookieManager.removeAllCookies();
+
+      state.loginState = LoadingState.error;
+      update([loadingStateId]);
     }
 
     if (userInfo == null) {
@@ -185,8 +202,8 @@ class LoginPageLogic extends GetxController {
 
     UserSetting.saveUserInfo(
       userName: userInfo['userName']!,
-      ipbMemberId: ipbMemberId,
-      ipbPassHash: ipbPassHash,
+      ipbMemberId: int.parse(state.ipbMemberId!),
+      ipbPassHash: state.ipbPassHash!,
       avatarImgUrl: userInfo['avatarImgUrl'],
       nickName: userInfo['nickName'],
     );

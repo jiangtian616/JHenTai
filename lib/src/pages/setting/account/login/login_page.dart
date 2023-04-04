@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_logic.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -125,26 +124,87 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _buildCookieForm(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
-          height: 48,
-          child: TextFormField(
-            key: const Key('cookie'),
-            decoration: InputDecoration(
-              hintText: 'Cookie',
-              hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
-              prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
-            ),
-            onChanged: (cookie) => state.cookie = cookie,
-            onFieldSubmitted: (_) => logic.handleLogin(),
+    return GetBuilder<LoginPageLogic>(
+      id: LoginPageLogic.cookieFormId,
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildIpbMemberIdField(context).marginOnly(top: 6),
+          _buildIpbPassHashField(context).marginOnly(top: 6),
+          _buildIgneousField(context).marginOnly(top: 6),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIpbMemberIdField(BuildContext context) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
+      child: TextFormField(
+        key: const Key('ipbMemberId'),
+        onEditingComplete: state.passwordFocusNode.requestFocus,
+        controller: TextEditingController(text: state.ipbMemberId ?? ''),
+        decoration: InputDecoration(
+          hintText: 'ipb_member_id',
+          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          suffixIcon: const SizedBox(
+            height: 8,
+            width: 8,
+            child: Center(child: Text('*')),
           ),
         ),
-        Text('ipb_member_id=?; ipb_pass_hash=?; igneous=?'.breakWord, style: TextStyle(color: UIConfig.loginPageFormHintColor(context), fontSize: 13))
-            .marginOnly(top: 12, left: 4, right: 4),
-      ],
+        onChanged: (ipbMemberId) => state.ipbMemberId = ipbMemberId,
+      ),
+    );
+  }
+
+  Widget _buildIpbPassHashField(BuildContext context) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
+      child: TextFormField(
+        key: const Key('ipbPassHash'),
+        focusNode: state.ipbPassHashFocusNode,
+        controller: TextEditingController(text: state.ipbPassHash ?? ''),
+        decoration: InputDecoration(
+          hintText: 'ipb_pass_hash',
+          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          suffixIcon: const SizedBox(
+            height: 8,
+            width: 8,
+            child: Center(child: Text('*')),
+          ),
+        ),
+        onEditingComplete: state.igneousFocusNode.requestFocus,
+        onFieldSubmitted: (v) => logic.handleLogin(),
+        onChanged: (ipbPassHash) => state.ipbPassHash = ipbPassHash,
+      ),
+    );
+  }
+
+  Widget _buildIgneousField(BuildContext context) {
+    return Container(
+      height: 48,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(40)),
+      child: TextFormField(
+        key: const Key('igneous'),
+        focusNode: state.igneousFocusNode,
+        controller: TextEditingController(text: state.igneous ?? ''),
+        decoration: InputDecoration(
+          hintText: 'igneous',
+          hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: 14, height: 1),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          suffixIcon: IconButton(
+            icon: Icon(Icons.paste, size: 22, color: UIConfig.loginPagePrefixIconColor(context)),
+            onPressed: logic.pasteCookie,
+          ),
+        ),
+        onChanged: (igneous) => state.igneous = igneous,
+        onFieldSubmitted: (v) => logic.handleLogin(),
+      ),
     );
   }
 

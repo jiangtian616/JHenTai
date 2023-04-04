@@ -7,11 +7,16 @@ class LoginPageState {
   LoginType loginType = LoginType.password;
 
   FocusNode passwordFocusNode = FocusNode();
+  FocusNode ipbPassHashFocusNode = FocusNode();
+  FocusNode igneousFocusNode = FocusNode();
+  
   bool obscureText = true;
 
   String? userName;
   String? password;
-  String? cookie;
-
+  String? ipbMemberId;
+  String? ipbPassHash;
+  String? igneous;
+  
   LoadingState loginState = LoadingState.idle;
 }
