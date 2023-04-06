@@ -10,17 +10,20 @@ class PathSetting {
   static Directory? appDocDir;
 
   /// visible on windows
-  static late Directory appSupportDir;
+  static Directory? appSupportDir;
 
   /// visible on android
   static Directory? externalStorageDir;
 
+  static Directory? systemDownloadDir;
+
   static Future<void> init() async {
     await Future.wait([
       getTemporaryDirectory().then((value) => tempDir = value),
-      getApplicationDocumentsDirectory().then((value) => appDocDir = value),
-      getApplicationSupportDirectory().then((value) => appSupportDir = value),
+      getApplicationDocumentsDirectory().then((value) => appDocDir = value).catchError((error) => null),
+      getApplicationSupportDirectory().then((value) => appSupportDir = value).catchError((error) => null),
       getExternalStorageDirectory().then((value) => externalStorageDir = value).catchError((error) => null),
+      getDownloadsDirectory().then((value) => systemDownloadDir = value).catchError((error) => null),
     ]);
   }
 
@@ -28,9 +31,9 @@ class PathSetting {
     if (Platform.isAndroid && externalStorageDir != null) {
       return externalStorageDir!;
     }
-    if (GetPlatform.isWindows) {
-      return appSupportDir;
+    if (GetPlatform.isWindows && appSupportDir != null) {
+      return appSupportDir!;
     }
-    return appDocDir!;
+    return appDocDir ?? appSupportDir ?? systemDownloadDir!;
   }
 }

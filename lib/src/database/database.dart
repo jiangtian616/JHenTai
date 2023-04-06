@@ -148,7 +148,7 @@ class AppDb extends _$AppDb {
 
   /// copy files
   Future<void> _updateConfigFileLocation() async {
-    await PathSetting.appSupportDir.copy(PathSetting.getVisibleDir().path);
+    await PathSetting.appSupportDir?.copy(PathSetting.getVisibleDir().path);
   }
 
   Future<void> _deleteImageSizeColumn(Migrator m) async {
