@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -9,9 +10,7 @@ import '../../../../utils/log.dart';
 import '../../../../widget/loading_state_indicator.dart';
 
 class SettingSuperResolutionPage extends StatelessWidget {
-  // final SuperResolutionService superResolutionService = Get.find();
-
-  SettingSuperResolutionPage({Key? key}) : super(key: key);
+  const SettingSuperResolutionPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +21,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildDownload(),
-            _buildExecutableFilePath(),
-            _buildUpSamplingScale(),
+            _buildModelDirectoryPath(),
           ],
         ),
       ),
@@ -34,28 +32,18 @@ class SettingSuperResolutionPage extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: SuperResolutionService.downloadId,
       builder: (superResolutionService) => ListTile(
-        title: LoadingStateIndicator(
-          loadingState: superResolutionService.downloadState,
-          idleWidget: Text('downloadModelHint'.tr),
-          loadingWidget: Text('downloading'.tr),
-          successWidgetSameWithIdle: true,
-          errorWidgetSameWithIdle: true,
-        ),
-        subtitle: LoadingStateIndicator(
-          loadingState: superResolutionService.downloadState,
-          idleWidget: null,
-          loadingWidget: Text(superResolutionService.downloadProgress),
-          successWidgetBuilder: () => Text('downloaded'.tr),
-          errorWidgetSameWithIdle: true,
-        ),
-        trailing: LoadingStateIndicator(
-          loadingState: superResolutionService.downloadState,
-          idleWidget: null,
-          successWidgetSameWithIdle: true,
-        ),
+        title: superResolutionService.downloadState == LoadingState.loading ? Text('downloading'.tr) : Text('downloadSuperResolutionModelHint'.tr),
+        subtitle: superResolutionService.downloadState == LoadingState.loading
+            ? Text(superResolutionService.downloadProgress)
+            : superResolutionService.downloadState == LoadingState.success
+                ? Text('downloaded'.tr)
+                : null,
+        trailing: superResolutionService.downloadState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
         onTap: () {
           if (superResolutionService.downloadState == LoadingState.idle || superResolutionService.downloadState == LoadingState.error) {
             superResolutionService.downloadModelFile();
+          } else if (superResolutionService.downloadState == LoadingState.success) {
+            superResolutionService.deleteModelFile();
           } else {
             return;
           }
@@ -64,43 +52,27 @@ class SettingSuperResolutionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildExecutableFilePath() {
+  Widget _buildModelDirectoryPath() {
     return ListTile(
       title: Text('executableFilePath'.tr),
-      subtitle: Text(SuperResolutionSetting.executableFilePath.value ?? ''),
+      subtitle: Text(SuperResolutionSetting.modelDirectoryPath.value ?? ''),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () async {
-        FilePickerResult? result;
+        String? result;
         try {
-          result = await FilePicker.platform.pickFiles();
+          result = await FilePicker.platform.getDirectoryPath();
         } on Exception catch (e) {
           Log.error('Pick executable file path failed', e);
           Log.upload(e);
           toast('internalError'.tr);
         }
 
-        if (result == null || result.files.single.path == null) {
+        if (result == null) {
           return;
         }
 
-        SuperResolutionSetting.saveExecutableFilePath(result.files.single.path!);
+        SuperResolutionSetting.saveModelDirectoryPath(result);
       },
-    );
-  }
-
-  Widget _buildUpSamplingScale() {
-    return ListTile(
-      title: Text('upSamplingScale'.tr),
-      trailing: DropdownButton<int>(
-        value: SuperResolutionSetting.upSamplingScale.value,
-        elevation: 4,
-        onChanged: (int? newValue) => SuperResolutionSetting.saveUpSamplingScale(newValue!),
-        items: const [
-          DropdownMenuItem(child: Text('2'), value: 2),
-          DropdownMenuItem(child: Text('3'), value: 3),
-          DropdownMenuItem(child: Text('4'), value: 4),
-        ],
-      ).marginOnly(right: 12),
     );
   }
 }

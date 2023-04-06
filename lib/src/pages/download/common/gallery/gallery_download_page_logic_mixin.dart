@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../../../../database/database.dart';
 import '../../../../model/read_page_info.dart';
@@ -18,8 +20,10 @@ import '../../../../widget/eh_download_dialog.dart';
 mixin GalleryDownloadPageLogicMixin on GetxController {
   final String bodyId = 'bodyId';
   final String groupId = 'groupId';
-
+  
+  
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
+  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find<StorageService>();
 
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
@@ -140,6 +144,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
+          if (SuperResolutionSetting.modelDirectoryPath.value != null)
+            CupertinoActionSheetAction(
+              child: Text('superResolution'.tr),
+              onPressed: () {
+                backRoute();
+                superResolutionService.startSuperResolveGallery(gallery);
+              },
+            ),
           CupertinoActionSheetAction(
             child: Text('changeGroup'.tr),
             onPressed: () {

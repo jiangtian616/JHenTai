@@ -372,7 +372,7 @@ class en_US {
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': 'Download Model From Github',
-      'executableFilePath': 'Executable File Path',
+      'modelDirectoryPath': 'Model Directory Path',
       'upSamplingScale': 'Up Sampling Scale',
 
       /// download page
@@ -409,6 +409,10 @@ class en_US {
       'switch2ListMode': 'Switch to List Mode',
       'resumeAllTasks': 'Resume All Tasks',
       'pauseAllTasks': 'Pause All Tasks',
+      'requireDownloadComplete': 'Require download complete',
+      'operationHasCompleted': 'The operation has completed',
+      'operationInProgress': 'The operation is in progress',
+      'startProcess': 'Start Process',
 
       /// search dialog
       'searchConfig': 'Search Config',

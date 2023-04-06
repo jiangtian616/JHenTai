@@ -372,7 +372,7 @@ class zh_CN {
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': '从Github下载模型',
-      'executableFilePath': '可执行文件路径',
+      'modelDirectoryPath': '模型文件夹路径',
       'upSamplingScale': '图片放大倍数',
 
       /// download page
@@ -409,7 +409,11 @@ class zh_CN {
       'switch2ListMode': '切换至列表模式',
       'resumeAllTasks': '恢复所有任务',
       'pauseAllTasks': '暂停所有任务',
-
+      'requireDownloadComplete': '需要等待下载完成',
+      'operationHasCompleted': '操作已经结束',
+      'operationInProgress': '操作正在进行中',
+      'startProcess': '开始处理',
+      
       /// search dialog
       'searchConfig': '搜索配置',
       'addTabBar': '添加标签栏',

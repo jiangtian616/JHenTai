@@ -372,7 +372,7 @@ class ko_KR {
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': 'Download Model From Github',
-      'executableFilePath': 'Executable File Path',
+      'modelDirectoryPath': 'Model Directory Path',
       'upSamplingScale': 'Up Sampling Scale',
 
       /// download page
@@ -409,6 +409,10 @@ class ko_KR {
       'switch2ListMode': '리스트 모드로 전환',
       'resumeAllTasks': '모든 작업 이어서 시작',
       'pauseAllTasks': '모든 작업 일시정지',
+      'requireDownloadComplete': 'Require download complete',
+      'operationHasCompleted': 'The operation has completed',
+      'operationInProgress': 'The operation is in progress',
+      'startProcess': 'Start Process',
 
       /// search dialog
       'searchConfig': '검색 설정',

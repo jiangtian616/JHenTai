@@ -14,6 +14,7 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/frame_rate_setting.dart';
@@ -21,6 +22,7 @@ import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'exception/upload_exception.dart';
@@ -177,6 +179,9 @@ Future<void> onReady() async {
 
   ArchiveDownloadService.init();
 
+  SuperResolutionSetting.init();
+  SuperResolutionService.init();
+  
   VolumeService.init();
 }
 

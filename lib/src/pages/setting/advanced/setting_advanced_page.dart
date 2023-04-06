@@ -37,6 +37,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildClearLogs(context),
             _buildClearImageCache(context),
             _buildClearNetworkCache(),
+            _buildSuperResolution(),
             _buildCheckUpdate(),
             _buildCheckClipboard(),
           ],
@@ -114,7 +115,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('superResolution'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
-      onTap: () => toRoute(Routes.logList),
+      onTap: () => toRoute(Routes.superResolution),
     );
   }
   

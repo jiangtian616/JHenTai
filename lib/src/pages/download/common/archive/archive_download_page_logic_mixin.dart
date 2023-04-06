@@ -8,7 +8,9 @@ import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
 import '../../../../service/storage_service.dart';
+import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../setting/super_resolution_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
@@ -20,6 +22,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
   final String groupId = 'groupId';
 
   final ArchiveDownloadService archiveDownloadService = Get.find();
+  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find();
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
@@ -137,6 +140,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
+          if (SuperResolutionSetting.modelDirectoryPath.value != null)
+            CupertinoActionSheetAction(
+              child: Text('superResolution'.tr),
+              onPressed: () {
+                backRoute();
+                superResolutionService.startSuperResolveArchive(archive);
+              },
+            ),
           CupertinoActionSheetAction(
             child: Text('changeGroup'.tr),
             onPressed: () {

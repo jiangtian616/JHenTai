@@ -31,6 +31,7 @@ import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
@@ -40,6 +41,7 @@ import '../pages/search/desktop/desktop_search_page.dart';
 import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
+import '../pages/setting/advanced/super_resolution/setting_super_resolution_page.dart';
 import '../pages/setting/network/host_mapping/host_mapping_page.dart';
 import '../pages/setting/style/page_list_style/setting_page_list_style_page.dart';
 import '../pages/setting/style/theme_color/setting_theme_color_page.dart';
@@ -329,7 +331,7 @@ class Routes {
     ),
     EHPage(
       name: superResolution,
-      page: () => const LogListPage(),
+      page: () => const SettingSuperResolutionPage(),
       transition: defaultTransition,
       offAllBefore: false,
     ),
