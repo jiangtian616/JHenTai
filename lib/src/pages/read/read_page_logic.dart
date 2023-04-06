@@ -8,12 +8,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
@@ -23,6 +25,7 @@ import 'package:wakelock/wakelock.dart';
 
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
+import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
@@ -58,6 +61,8 @@ class ReadPageLogic extends GetxController {
 
   final StorageService storageService = Get.find();
   final VolumeService volumeService = Get.find();
+
+  final SuperResolutionService superResolutionService = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
@@ -359,6 +364,36 @@ class ReadPageLogic extends GetxController {
       index: max(0, index - 2),
       duration: const Duration(milliseconds: 200),
     );
+  }
+
+  void handleTapSuperResolutionButton() {
+    state.useSuperResolution = !state.useSuperResolution;
+    Log.info('toggle super resolution mode: ${state.useSuperResolution}');
+
+    if (state.useSuperResolution) {
+      bool success = superResolutionService.superResolve(
+        state.readPageInfo.gid!,
+        state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive,
+      );
+      if (success) {
+        state.useSuperResolution = true;
+      }
+    } else {
+      superResolutionService.pauseSuperResolve(state.readPageInfo.gid!);
+    }
+
+    updateSafely([topMenuId]);
+    layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
+  }
+
+  String getSuperResolutionProgress() {
+    SuperResolutionInfo? superResolutionInfo = superResolutionService.gid2SuperResolutionInfo[state.readPageInfo.gid];
+
+    if (superResolutionInfo == null) {
+      return '';
+    }
+    
+    return '(${superResolutionInfo.imageStatuses.where((status) => status == SuperResolutionStatus.success).length}/${superResolutionInfo.imageStatuses.length})';
   }
 
   List<ItemPosition> getCurrentVisibleThumbnails() {

@@ -24,6 +24,8 @@ class en_US {
       'internalError': "Internal Error",
       'you': 'You',
       'retryHint': 'Please retry after refresh',
+      'stop': 'Stop',
+      'attention': 'Attention',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -311,6 +313,9 @@ class en_US {
       'clearPageCache': 'Clear Page Cache',
       'clearSuccess': 'Clear Success',
       'superResolution': 'Image Super Resolution',
+      'stopSuperResolution': 'Stop Super Resolution',
+      'deleteSuperResolvedImage': 'Delete Super Resolved Image',
+      'superResolveOriginalImageHint': 'Process original image cost more time, space and performance, are you sure to continue?',
 
       /// host mapping page
       'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
@@ -392,7 +397,8 @@ class en_US {
       'reUnlock': 'Re-Unlock',
       'reUnlockHint': 'Attention! Re-unlock need to buy this archive again.',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
-      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo':
+          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Priority',
       'highest': 'Highest',
@@ -479,7 +485,8 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint': 'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
+      'changeDownloadPathHint':
+          'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
       'resetDownloadPath': 'Reset Download Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
       'extraGalleryScanPathHint': 'To scan and load local gallerys',

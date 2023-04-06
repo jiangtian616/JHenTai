@@ -24,6 +24,8 @@ class ko_KR {
       'internalError': "내부 오류",
       'you': '사용자',
       'retryHint': '새로고침 후 다시 시도하세요.',
+      'stop': 'Stop',
+      'attention': 'Attention',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -311,6 +313,9 @@ class ko_KR {
       'clearPageCache': '페이지 캐시 삭제',
       'clearSuccess': '삭제 완료',
       'superResolution': 'Image Super Resolution',
+      'stopSuperResolution': 'Stop Super Resolution',
+      'deleteSuperResolvedImage': 'Delete Super Resolved Image',
+      'superResolveOriginalImageHint': 'Process original image cost more time, space and performance, are you sure to continue?',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',

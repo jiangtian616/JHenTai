@@ -24,6 +24,8 @@ class zh_TW {
       'internalError': "內部錯誤",
       'you': '你',
       'retryHint': '請刷新后重試',
+      'stop': '停止',
+      'attention': '注意',
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -310,6 +312,9 @@ class zh_TW {
       'clearPageCache': '清除頁面快取',
       'clearSuccess': '清除成功',
       'superResolution': 'AI圖片放大',
+      'stopSuperResolution': '停止AI圖片放大',
+      'deleteSuperResolvedImage': '刪除AI放大後的圖片',
+      'superResolveOriginalImageHint': '處理原圖會耗費更多的時間、空間和性能，確定繼續？',
 
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
@@ -412,7 +417,7 @@ class zh_TW {
       'operationHasCompleted': '操作已經結束',
       'operationInProgress': '操作正在進行中',
       'startProcess': '開始處理',
-      
+
       /// search dialog
       'searchConfig': '搜尋設定',
       'addTabBar': '添加標籤欄',

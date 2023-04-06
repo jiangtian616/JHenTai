@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
@@ -10,12 +11,11 @@ import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
-import '../database/database.dart';
 import '../model/gallery_image.dart';
 import '../setting/path_setting.dart';
 import '../utils/archive_util.dart';
+import '../utils/eh_executor.dart';
 import '../utils/log.dart';
-import '../utils/string_uril.dart';
 import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
@@ -24,11 +24,14 @@ import 'gallery_download_service.dart';
 class SuperResolutionService extends GetxController {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
+  static const String superResolutionImageId = 'superResolutionImageId';
 
   final String modelDownloadPath = join(PathSetting.getVisibleDir().path, 'realesrgan.zip');
   final String modelSavePath = join(PathSetting.getVisibleDir().path, 'realesrgan');
   LoadingState downloadState = LoadingState.idle;
   String downloadProgress = '';
+
+  EHExecutor executor = EHExecutor(concurrency: 1);
 
   Map<int, SuperResolutionInfo> gid2SuperResolutionInfo = {};
 
@@ -36,107 +39,36 @@ class SuperResolutionService extends GetxController {
   final ArchiveDownloadService archiveDownloadService = Get.find();
 
   static const String imageDirName = 'super_resolution';
-  static const String metadataFileName = 'super_resolution.metadata';
 
   static void init() {
-    Get.put(SuperResolutionService());
+    Get.put(SuperResolutionService(), permanent: true);
     Log.debug('init SuperResolutionService success', false);
   }
 
   @override
   void onInit() async {
-    resumeAllSuperResolve();
+    List<SuperResolutionInfoData> superResolutionInfoDatas = await _selectAllSuperResolutionInfo();
+    gid2SuperResolutionInfo = Map.fromEntries(
+      superResolutionInfoDatas.map(
+        (data) => MapEntry(
+          data.gid,
+          SuperResolutionInfo(
+            SuperResolutionType.values[data.type],
+            SuperResolutionStatus.values[data.status],
+            data.imageStatuses
+                .split(SuperResolutionInfo.imageStatusesSeparator)
+                .map((e) => int.parse(e))
+                .map((index) => SuperResolutionStatus.values[index])
+                .toList(),
+          ),
+        ),
+      ),
+    );
+    Future.wait(gid2SuperResolutionInfo.entries
+        .where((e) => e.value.status == SuperResolutionStatus.running)
+        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key, e.value.type)))
+        .toList());
     super.onInit();
-  }
-
-  Future<void> startSuperResolveGallery(GalleryDownloadedData gallery) async {
-    GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gallery.gid];
-    if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
-      toast('requireDownloadComplete'.tr);
-      return;
-    }
-
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gallery.gid];
-    if (superResolutionInfo?.status == SuperResolutionStatus.success) {
-      toast('operationHasCompleted'.tr);
-      return;
-    }
-    if (superResolutionInfo?.status == SuperResolutionStatus.running || superResolutionInfo?.status == SuperResolutionStatus.success) {
-      toast('operationInProgress'.tr);
-      return;
-    }
-
-    gid2SuperResolutionInfo[gallery.gid] ??= SuperResolutionInfo(galleryDownloadInfo!.images.cast<GalleryImage>());
-
-    return _doSuperResolve(gallery.gid);
-  }
-
-  Future<void> startSuperResolveArchive(ArchiveDownloadedData archive) async {
-    ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid];
-    if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
-      toast('requireDownloadComplete'.tr);
-      return;
-    }
-
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[archive.gid];
-    if (superResolutionInfo?.status == SuperResolutionStatus.running || superResolutionInfo?.status == SuperResolutionStatus.success) {
-      toast('operationInProgress'.tr);
-      return;
-    }
-
-    if (superResolutionInfo?.status == SuperResolutionStatus.paused) {
-      return resumeSuperResolve(archive.gid);
-    }
-
-    gid2SuperResolutionInfo[archive.gid] ??= SuperResolutionInfo(archiveDownloadService.getUnpackedImages(archive));
-
-    return _doSuperResolve(archive.gid);
-  }
-
-  Future<void> resumeAllSuperResolve() {
-    return Future.wait(gid2SuperResolutionInfo.keys.map((gid) => resumeSuperResolve(gid)));
-  }
-
-  Future<void> resumeSuperResolve(int gid) {
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
-
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.running) {
-      return Future.value();
-    }
-
-    return _doSuperResolve(gid);
-  }
-
-  Future<void> pauseAllSuperResolve() {
-    return Future.wait(gid2SuperResolutionInfo.keys.map((gid) => pauseSuperResolve(gid)));
-  }
-
-  Future<void> pauseSuperResolve(int gid) async {
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
-
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
-      return;
-    }
-
-    superResolutionInfo.status = SuperResolutionStatus.paused;
-    for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
-      if (status == SuperResolutionStatus.running) {
-        superResolutionInfo.status = SuperResolutionStatus.paused;
-        _saveSuperResolutionInfoInDisk(superResolutionInfo);
-      }
-    }
-
-    updateSafely(['$superResolutionId::$gid']);
-  }
-
-  Future<void> cancelSuperResolve(int gid) async {
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
-
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success) {
-      return;
-    }
-
-    gid2SuperResolutionInfo.remove(gid);
   }
 
   Future<void> downloadModelFile() async {
@@ -208,16 +140,84 @@ class SuperResolutionService extends GetxController {
     }
   }
 
-  Future<void> _doSuperResolve(int gid) async {
+  bool superResolve(int gid, SuperResolutionType type) {
+    if (type == SuperResolutionType.gallery) {
+      GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gid];
+      if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
+        toast('requireDownloadComplete'.tr);
+        return false;
+      }
+    } else {
+      ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
+      if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
+        toast('requireDownloadComplete'.tr);
+        return true;
+      }
+    }
+
+    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
+    if (superResolutionInfo?.status == SuperResolutionStatus.success) {
+      return true;
+    }
+    if (superResolutionInfo?.status == SuperResolutionStatus.running) {
+      return true;
+    }
+
+    executor.scheduleTask(0, () => _doSuperResolve(gid, type));
+    return true;
+  }
+
+  Future<void> pauseSuperResolve(int gid) async {
+    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
+
+    if (superResolutionInfo == null ||
+        superResolutionInfo.status == SuperResolutionStatus.success ||
+        superResolutionInfo.status == SuperResolutionStatus.paused) {
+      return;
+    }
+
+    Log.info('pause super resolution: $gid');
+    toast('cancel'.tr);
+
+    superResolutionInfo.currentProcess?.kill();
+
+    superResolutionInfo.status = SuperResolutionStatus.paused;
+    for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
+      if (status == SuperResolutionStatus.running) {
+        status = SuperResolutionStatus.paused;
+      }
+    }
+    await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+    updateSafely(['$superResolutionId::$gid']);
+  }
+
+  Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
     toast('${'startProcess'.tr}: $gid');
 
-    SuperResolutionInfo superResolutionInfo = gid2SuperResolutionInfo[gid]!;
+    List<GalleryImage> rawImages;
+    if (type == SuperResolutionType.gallery) {
+      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+    } else {
+      rawImages = archiveDownloadService.getUnpackedImages(gid);
+    }
 
-    superResolutionInfo.status = SuperResolutionStatus.running;
-    _saveSuperResolutionInfoInDisk(superResolutionInfo);
+    SuperResolutionInfo superResolutionInfo;
+    if (gid2SuperResolutionInfo[gid] == null) {
+      superResolutionInfo = gid2SuperResolutionInfo[gid] = SuperResolutionInfo(
+        type,
+        SuperResolutionStatus.running,
+        List.generate(rawImages.length, (_) => SuperResolutionStatus.running),
+      );
+      await _insertSuperResolutionInfo(gid, superResolutionInfo);
+    } else {
+      superResolutionInfo = gid2SuperResolutionInfo[gid]!;
+      superResolutionInfo.status = SuperResolutionStatus.running;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+    }
+
     updateSafely(['$superResolutionId::$gid']);
 
-    for (int i = 0; i < superResolutionInfo.rawImages.length; i++) {
+    for (int i = 0; i < rawImages.length; i++) {
       /// cancelled
       if (gid2SuperResolutionInfo[gid] == null) {
         return;
@@ -227,83 +227,98 @@ class SuperResolutionService extends GetxController {
         return;
       }
 
-      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success && superResolutionInfo.images[i] != null) {
+      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success) {
         continue;
       }
-
-      GalleryImage rawImage = superResolutionInfo.rawImages[i];
-      GalleryImage image = GalleryImage(url: rawImage.url, path: join(dirname(rawImage.path!), imageDirName, basename(rawImage.path!)));
-      superResolutionInfo.images[i] = image;
 
       if (SuperResolutionSetting.modelDirectoryPath.value == null) {
         return;
       }
 
       superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
-      _saveSuperResolutionInfoInDisk(superResolutionInfo);
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
 
-      await _callProcess(rawImage, image).catchError((e) {
+      Process? process;
+      try {
+        process = await _callProcess(rawImages[i]);
+      } on Exception catch (e) {
         toast('internalError'.tr + e.toString(), isShort: false);
-        pauseSuperResolve(gid);
-
         Log.error(e);
-        Log.upload(e, extraInfos: {'rawImage': rawImage, 'image': image});
-      }).then((result) {
-        if (result is! ProcessResult) {
-          return;
-        }
+        Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
 
-        if (result.exitCode != 0) {
-          toast('${'internalError'.tr} exitCode:${result.exitCode} stderr:${result.stderr.toString().trim()}', isShort: false);
-          pauseSuperResolve(gid);
+        pauseSuperResolve(gid);
+        return;
+      } on Error catch (e) {
+        toast('internalError'.tr + e.toString(), isShort: false);
+        Log.error(e);
+        Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
 
-          Log.error('${'internalError'.tr} exitCode:${result.exitCode} stderr:${result.stderr.toString().trim()}');
-          Log.upload(
-            Exception('Process Error'),
-            extraInfos: {
-              'rawImage': rawImage,
-              'image': image,
-              'exitCode': result.exitCode,
-              'stderr': result.stderr,
-            },
-          );
-          return;
-        }
+        pauseSuperResolve(gid);
+        return;
+      }
 
-        if (!isEmptyOrNull(result.stdout)) {
-          Log.download(result.stdout);
-        }
+      if (process == null) {
+        return;
+      }
 
-        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
-        if (superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
-          superResolutionInfo.status = SuperResolutionStatus.success;
-          Log.info('super resolve success, gid:$gid');
-        }
-        _saveSuperResolutionInfoInDisk(superResolutionInfo);
-        updateSafely(['$superResolutionId::$gid']);
+      superResolutionInfo.currentProcess = process;
+
+      process.stderr.listen((event) {
+        Log.verbose(String.fromCharCodes(event).trim());
       });
+
+      int exitCode = await process.exitCode;
+
+      /// paused
+      if (exitCode == -1) {
+        return;
+      }
+
+      if (exitCode != 0) {
+        toast('${'internalError'.tr} exitCode:$exitCode}', isShort: false);
+        Log.error('${'internalError'.tr} exitCode:$exitCode}');
+        Log.upload(
+          Exception('Process Error'),
+          extraInfos: {'rawImage': rawImages[i], 'exitCode': exitCode},
+        );
+
+        pauseSuperResolve(gid);
+        return;
+      }
+
+      superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
+      Log.download('super resolve image ${rawImages[i].path} success');
+      if (superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
+        superResolutionInfo.status = SuperResolutionStatus.success;
+        Log.info('super resolve success, gid:$gid');
+      }
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$i']);
     }
   }
 
-  Future _callProcess(GalleryImage rawImage, GalleryImage image) {
+  Future<Process?> _callProcess(GalleryImage rawImage) {
     Log.download('start to super resolve image ${rawImage.path}');
 
+    String outputPath = computeImageOutputPath(rawImage.path!);
+
     if (extension(rawImage.path!) == '.gif') {
-      return File(rawImage.path!).copy(image.path!);
+      File(rawImage.path!).copySync(outputPath);
+      return Future.value(null);
     }
 
-    return Process.run(
+    return Process.start(
       join(SuperResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows ? 'realesrgan-ncnn-vulkan.exe' : 'realesrgan-ncnn-vulkan'),
       [
         '-i',
         rawImage.path!,
         '-o',
-        image.path!,
+        outputPath,
         '-n',
         'realesrgan-x4plus-anime',
         '-f',
-        extension(rawImage.path!) == '.png' ? 'png' : 'jpg',
+        'png',
         '-m',
         join(SuperResolutionSetting.modelDirectoryPath.value!, 'models'),
       ],
@@ -312,52 +327,59 @@ class SuperResolutionService extends GetxController {
     );
   }
 
+  String computeImageOutputPath(String rawImagePath) {
+    return join(dirname(rawImagePath), imageDirName, basenameWithoutExtension(rawImagePath) + '.png');
+  }
+
   /// db
+  Future<List<SuperResolutionInfoData>> _selectAllSuperResolutionInfo() async {
+    return appDb.selectAllSuperResolutionInfo().get();
+  }
 
-  /// disk
-  void _saveSuperResolutionInfoInDisk(SuperResolutionInfo superResolutionInfo) {
-    File file = File(join(dirname(superResolutionInfo.rawImages[0].path!), metadataFileName));
-    if (!file.existsSync()) {
-      file.createSync(recursive: true);
-    }
+  Future<bool> _insertSuperResolutionInfo(int gid, SuperResolutionInfo superResolutionInfo) async {
+    return await appDb.insertSuperResolutionInfo(
+          gid,
+          superResolutionInfo.type.index,
+          superResolutionInfo.status.index,
+          superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+        ) >
+        0;
+  }
 
-    file.writeAsStringSync(jsonEncode(superResolutionInfo.toJson()));
+  Future<bool> _updateSuperResolutionInfoStatus(int gid, SuperResolutionInfo superResolutionInfo) async {
+    return await appDb.updateSuperResolutionInfoStatus(
+          superResolutionInfo.status.index,
+          superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+          gid,
+        ) >
+        0;
+  }
+
+  Future<bool> deleteSuperResolutionInfo(int gid) async {
+    Log.info('delete super resolution: $gid');
+
+    gid2SuperResolutionInfo.remove(gid);
+    updateSafely(['$superResolutionId::$gid']);
+    toast('success'.tr);
+
+    return await appDb.deleteSuperResolutionInfo(gid) > 0;
   }
 }
 
 class SuperResolutionInfo {
-  List<GalleryImage> rawImages;
+  Process? currentProcess;
 
-  List<GalleryImage?> images;
+  SuperResolutionType type;
 
   SuperResolutionStatus status;
 
   List<SuperResolutionStatus> imageStatuses;
 
-  SuperResolutionInfo(this.rawImages)
-      : images = List.generate(rawImages.length, (_) => null),
-        status = SuperResolutionStatus.none,
-        imageStatuses = List.generate(rawImages.length, (_) => SuperResolutionStatus.none);
+  static const imageStatusesSeparator = ',';
 
-  SuperResolutionInfo._({required this.rawImages, required this.images, required this.status, required this.imageStatuses});
-
-  Map<String, dynamic> toJson() {
-    return {
-      "rawImages": jsonEncode(rawImages),
-      "images": jsonEncode(images),
-      "status": status.index,
-      "imageStatuses": imageStatuses.map((status) => status.index).toList(),
-    };
-  }
-
-  factory SuperResolutionInfo.fromJson(Map<String, dynamic> json) {
-    return SuperResolutionInfo._(
-      rawImages: jsonDecode(json['rawImages']),
-      images: jsonDecode(json['images']),
-      status: SuperResolutionStatus.values[json["status"]],
-      imageStatuses: (jsonDecode(json["imageStatuses"]) as List).map((index) => SuperResolutionStatus.values[index]).toList(),
-    );
-  }
+  SuperResolutionInfo(this.type, this.status, this.imageStatuses);
 }
 
-enum SuperResolutionStatus { none, failed, paused, running, success }
+enum SuperResolutionType { gallery, archive }
+
+enum SuperResolutionStatus { paused, running, success }

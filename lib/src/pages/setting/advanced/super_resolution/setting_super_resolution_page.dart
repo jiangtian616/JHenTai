@@ -20,11 +20,35 @@ class SettingSuperResolutionPage extends StatelessWidget {
         () => ListView(
           padding: const EdgeInsets.only(top: 16),
           children: [
-            _buildDownload(),
             _buildModelDirectoryPath(),
+            _buildDownload(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildModelDirectoryPath() {
+    return ListTile(
+      title: Text('modelDirectoryPath'.tr),
+      subtitle: Text(SuperResolutionSetting.modelDirectoryPath.value ?? ''),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () async {
+        String? result;
+        try {
+          result = await FilePicker.platform.getDirectoryPath();
+        } on Exception catch (e) {
+          Log.error('Pick executable file path failed', e);
+          Log.upload(e);
+          toast('internalError'.tr);
+        }
+
+        if (result == null) {
+          return;
+        }
+
+        SuperResolutionSetting.saveModelDirectoryPath(result);
+      },
     );
   }
 
@@ -49,30 +73,6 @@ class SettingSuperResolutionPage extends StatelessWidget {
           }
         },
       ),
-    );
-  }
-
-  Widget _buildModelDirectoryPath() {
-    return ListTile(
-      title: Text('executableFilePath'.tr),
-      subtitle: Text(SuperResolutionSetting.modelDirectoryPath.value ?? ''),
-      trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: () async {
-        String? result;
-        try {
-          result = await FilePicker.platform.getDirectoryPath();
-        } on Exception catch (e) {
-          Log.error('Pick executable file path failed', e);
-          Log.upload(e);
-          toast('internalError'.tr);
-        }
-
-        if (result == null) {
-          return;
-        }
-
-        SuperResolutionSetting.saveModelDirectoryPath(result);
-      },
     );
   }
 }

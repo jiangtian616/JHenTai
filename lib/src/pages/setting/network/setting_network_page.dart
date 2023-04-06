@@ -111,7 +111,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor(context)),
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
           ),
         ],
       ),
@@ -147,7 +147,7 @@ class SettingNetworkPage extends StatelessWidget {
               NetworkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumeButtonColor(context)),
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
           ),
         ],
       ),

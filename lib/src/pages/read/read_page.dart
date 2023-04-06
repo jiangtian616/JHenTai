@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_la
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 
 import '../../config/ui_config.dart';
@@ -272,8 +273,8 @@ class ReadPage extends StatelessWidget {
           leading: const BackButton(color: UIConfig.readPageButtonColor),
           actions: [
             if (GetPlatform.isDesktop)
-              IconButton(
-                icon: const Icon(Icons.help, color: UIConfig.readPageButtonColor),
+              ElevatedButton(
+                child: const Icon(Icons.help, color: UIConfig.readPageButtonColor),
                 onPressed: () => toast(
                   'PageDown、→、↓ 、D :  ${'toNext'.tr}'
                   '\n'
@@ -284,18 +285,60 @@ class ReadPage extends StatelessWidget {
                   'Space  :  ${'toggleMenu'.tr}',
                   isShort: false,
                 ),
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(56, 56),
+                ),
+              ),
+            if (GetPlatform.isDesktop &&
+                state.readPageInfo.gid != null &&
+                (state.readPageInfo.mode == ReadMode.downloaded || state.readPageInfo.mode == ReadMode.archive))
+              TextButton(
+                child: GetBuilder<SuperResolutionService>(
+                  id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
+                  builder: (_) => Text(
+                    'AI' + logic.getSuperResolutionProgress(),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: state.useSuperResolution ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
+                    ),
+                  ),
+                ),
+                onPressed: logic.handleTapSuperResolutionButton,
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(56, 56),
+                ),
               ),
             GetBuilder<ReadPageLogic>(
               id: logic.autoModeId,
-              builder: (_) => IconButton(
-                icon: const Icon(Icons.schedule),
+              builder: (_) => ElevatedButton(
+                child: Icon(Icons.schedule, color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor),
                 onPressed: logic.toggleAutoMode,
-                color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(56, 56),
+                ),
               ),
             ),
-            IconButton(
+            ElevatedButton(
+              child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
               onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
-              icon: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+              style: ElevatedButton.styleFrom(
+                elevation: 0,
+                padding: const EdgeInsets.all(0),
+                surfaceTintColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                minimumSize: const Size(56, 56),
+              ),
             ),
           ],
         ),

@@ -170,9 +170,7 @@ class UIConfig {
   static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;
 
-  static Color resumeButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
-
-  static Color pauseButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color resumePauseButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
   static const double downloadPageGroupHeight = 50;
 

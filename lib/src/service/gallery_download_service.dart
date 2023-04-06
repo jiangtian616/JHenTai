@@ -13,6 +13,7 @@ import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
@@ -188,6 +189,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       _clearDownloadedImageInDisk(gallery);
     }
     _clearGalleryInfoInMemory(gallery);
+
+    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(gallery.gid);
   }
 
   /// Update local downloaded gallery if there's a new version.
@@ -319,9 +322,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     } else {
       allGroups.insert(afterIndex, allGroups.removeAt(beforeIndex));
     }
-    
+
     Log.info('Update group order: $allGroups');
-    
+
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
         await appDb.updateGalleryGroupOrder(i, allGroups[i]);
@@ -922,7 +925,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _instantiateFromDB() async {
     allGroups = (await appDb.selectGalleryGroups().get()).map((e) => e.groupName).toList();
     Log.debug('init Gallery groups: $allGroups');
-    
+
     /// Get download info from database
     List<SelectGallerysWithImagesResult> records = await appDb.selectGallerysWithImages().get();
 

@@ -24,6 +24,8 @@ class zh_CN {
       'internalError': "内部错误",
       'you': '你',
       'retryHint': '请刷新后重试',
+      'stop': '停止',
+      'attention': '注意',
 
       'home': "主页",
       'gallery': "画廊",
@@ -311,6 +313,9 @@ class zh_CN {
       'clearPageCache': '清除页面缓存',
       'clearSuccess': '清除成功',
       'superResolution': 'AI图片放大',
+      'stopSuperResolution': '停止AI图片放大',
+      'deleteSuperResolvedImage': '删除AI放大后的图片',
+      'superResolveOriginalImageHint': '处理原图会耗费更多的时间、空间和性能，确定继续？',
 
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
@@ -413,7 +418,7 @@ class zh_CN {
       'operationHasCompleted': '操作已经结束',
       'operationInProgress': '操作正在进行中',
       'startProcess': '开始处理',
-      
+
       /// search dialog
       'searchConfig': '搜索配置',
       'addTabBar': '添加标签栏',

@@ -30,6 +30,7 @@ class ReadPageState {
   bool isMenuOpen = false;
   Battery battery = Battery();
   int batteryLevel = 100;
+  bool useSuperResolution = false;
   FocusNode focusNode = FocusNode();
 
   final EHItemScrollController thumbnailsScrollController = EHItemScrollController();
@@ -55,5 +56,7 @@ class ReadPageState {
     imageSizes = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
+
+    useSuperResolution = readPageInfo.useSuperResolution;
   }
 }

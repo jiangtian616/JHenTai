@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -14,6 +12,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -114,6 +113,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     await _deleteArchiveInDisk(archive);
 
     _deleteArchiveInMemory(archive.gid, archive.isOriginal);
+
+    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(archive.gid);
 
     update(['$archiveStatusId::${archive.gid}']);
   }
@@ -308,7 +309,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return restoredCount;
   }
 
-  List<GalleryImage> getUnpackedImages(ArchiveDownloadedData archive) {
+  List<GalleryImage> getUnpackedImages(int gid) {
+    ArchiveDownloadedData archive = archives.firstWhere((a) => a.gid == gid);
     io.Directory directory = io.Directory(computeArchiveUnpackingPath(archive));
 
     List<io.File> imageFiles;

@@ -102,6 +102,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           pageCount: images.length,
           readProgressRecordStorageKey: storageKey,
           images: localGalleryService.getGalleryImages(gallery),
+          useSuperResolution: false,
         ),
       );
     }

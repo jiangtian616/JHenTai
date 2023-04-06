@@ -1,0 +1,26 @@
+CREATE TABLE super_resolution_info
+(
+    gid           INT  NOT NULL PRIMARY KEY,
+    type          INT  NOT NULL,
+    status        INT  NOT NULL,
+    imageStatuses TEXT NOT NULL
+);
+
+selectAllSuperResolutionInfo:
+SELECT *
+from super_resolution_info;
+
+insertSuperResolutionInfo:
+INSERT INTO super_resolution_info
+values (:gid, :type, :status, :imageStatuses);
+
+updateSuperResolutionInfoStatus:
+update super_resolution_info
+set status        = :status,
+    imageStatuses = :imageStatuses
+where gid = :gid;
+
+deleteSuperResolutionInfo:
+delete
+from super_resolution_info
+where gid = :gid;

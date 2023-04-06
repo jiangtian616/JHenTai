@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
-import 'package:path/path.dart';
 
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
@@ -310,11 +309,11 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: UIConfig.pauseButtonColor(context)),
+        border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
@@ -335,10 +334,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     ? Icons.done
                     : Icons.pause,
             size: 26,
-            color: (archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.unlocking.index &&
-                    archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
-                ? UIConfig.pauseButtonColor(context)
-                : UIConfig.resumeButtonColor(context),
+            color: UIConfig.resumePauseButtonColor(context),
           ),
         );
       },

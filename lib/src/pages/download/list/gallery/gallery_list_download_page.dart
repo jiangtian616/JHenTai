@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -313,11 +312,11 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: UIConfig.pauseButtonColor(context)),
+        border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
       ),
       child: Text(
         'original'.tr,
-        style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+        style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
       ),
     );
   }
@@ -330,15 +329,15 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
     switch (priority) {
       case 1:
-        return Text('①', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('①', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
       case 2:
-        return Text('②', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('②', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
       case 3:
-        return Text('③', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('③', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
       case GalleryDownloadService.defaultDownloadGalleryPriority:
         return const SizedBox();
       case 5:
-        return Text('⑤', style: TextStyle(color: UIConfig.pauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('⑤', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
       default:
         return const SizedBox();
     }
@@ -362,7 +361,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                     ? Icons.pause
                     : Icons.done,
             size: 26,
-            color: downloadStatus == DownloadStatus.downloading ? UIConfig.pauseButtonColor(context) : UIConfig.resumeButtonColor(context),
+            color: UIConfig.resumePauseButtonColor(context),
           ),
         );
       },

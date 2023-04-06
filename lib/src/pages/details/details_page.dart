@@ -704,15 +704,15 @@ class _ActionButtons extends StatelessWidget {
                             : 'update'.tr;
 
         Icon icon = localGallery != null
-            ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
+            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
             : downloadProgress == null
                 ? Icon(Icons.download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
                 : downloadProgress.downloadStatus == DownloadStatus.paused
-                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor(context))
+                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
                     : downloadProgress.downloadStatus == DownloadStatus.downloading
-                        ? Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor(context))
+                        ? Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context))
                         : state.galleryDetails?.newVersionGalleryUrl == null
-                            ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
+                            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
                             : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
 
         return IconTextButton(
@@ -815,10 +815,10 @@ class _ActionButtons extends StatelessWidget {
         Icon icon = archiveStatus == null
             ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
             : archiveStatus == ArchiveStatus.paused
-                ? Icon(Icons.play_circle_outline, color: UIConfig.resumeButtonColor(context))
+                ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
                 : archiveStatus == ArchiveStatus.completed
-                    ? Icon(Icons.done, color: UIConfig.resumeButtonColor(context))
-                    : Icon(Icons.pause_circle_outline, color: UIConfig.pauseButtonColor(context));
+                    ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                    : Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context));
 
         return IconTextButton(
           icon: icon,

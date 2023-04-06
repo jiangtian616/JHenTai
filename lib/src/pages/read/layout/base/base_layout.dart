@@ -7,6 +7,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/super_resolution_service.dart';
 import '../../../../utils/log.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/icon_text_button.dart';
@@ -202,6 +203,11 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
+        /// step 0: if this image has been super resolved, display it
+        if (logic.readPageState.useSuperResolution) {
+          return _buildSuperResolutionImage(context, index);
+        }
+
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
         if (readPageState.thumbnails[index] == null && readPageState.images[index] == null) {
@@ -215,6 +221,34 @@ abstract class BaseLayout extends StatelessWidget {
 
         /// step 3: use url to load image
         return _buildLocalImage(context, index);
+      },
+    );
+  }
+
+  Widget _buildSuperResolutionImage(BuildContext context, int index) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionImageId}::$index',
+      builder: (_) {
+        if (logic.readPageLogic.superResolutionService.gid2SuperResolutionInfo[readPageState.readPageInfo.gid]?.imageStatuses[index] !=
+            SuperResolutionStatus.success) {
+          return _buildLocalImage(context, index);
+        }
+
+        return GestureDetector(
+          onLongPress: () => logic.showBottomMenuInLocalMode(index, context),
+          onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
+          child: EHImage(
+            galleryImage: readPageState.images[index]!.copyWith(
+              path: logic.readPageLogic.superResolutionService.computeImageOutputPath(readPageState.images[index]!.path!),
+            ),
+            containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
+            containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+            clearMemoryCacheWhenDispose: true,
+            loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
+            failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
+            completedWidgetBuilder: (state) => _completedWidgetBuilderForLocalModeWithSuperResolution(index, state),
+          ),
+        );
       },
     );
   }
@@ -340,6 +374,26 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for local mode
   Widget? _completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      return null;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+        return;
+      }
+      FittedSizes fittedSizes = logic.getImageFittedSize(
+        Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
+      );
+      logic.readPageState.imageSizes[index] = fittedSizes.destination;
+      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
+    });
+
+    return null;
+  }
+
+  /// completed for local mode
+  Widget? _completedWidgetBuilderForLocalModeWithSuperResolution(int index, ExtendedImageState state) {
     if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
       return null;
     }

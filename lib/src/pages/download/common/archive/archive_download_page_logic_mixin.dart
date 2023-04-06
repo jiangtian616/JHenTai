@@ -115,7 +115,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
     } else {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
-      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
+      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
         Routes.read,
@@ -130,6 +130,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,
           images: images,
+          useSuperResolution: superResolutionService.gid2SuperResolutionInfo[archive.gid] != null,
         ),
       );
     }
@@ -142,10 +143,29 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
         actions: <CupertinoActionSheetAction>[
           if (SuperResolutionSetting.modelDirectoryPath.value != null)
             CupertinoActionSheetAction(
-              child: Text('superResolution'.tr),
-              onPressed: () {
+              child: Text(
+                superResolutionService.gid2SuperResolutionInfo[archive.gid]?.status == SuperResolutionStatus.running
+                    ? 'stopSuperResolution'.tr
+                    : superResolutionService.gid2SuperResolutionInfo[archive.gid]?.status == SuperResolutionStatus.success
+                        ? 'deleteSuperResolvedImage'.tr
+                        : 'superResolution'.tr,
+              ),
+              onPressed: () async{
                 backRoute();
-                superResolutionService.startSuperResolveArchive(archive);
+                if (superResolutionService.gid2SuperResolutionInfo[archive.gid]?.status == SuperResolutionStatus.running) {
+                  superResolutionService.pauseSuperResolve(archive.gid);
+                } else if (superResolutionService.gid2SuperResolutionInfo[archive.gid]?.status == SuperResolutionStatus.success) {
+                  superResolutionService.deleteSuperResolutionInfo(archive.gid);
+                } else {
+                  if (archive.isOriginal) {
+                    bool? result = await Get.dialog(
+                      EHAlertDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr),
+                    );
+                    if (result == true) {
+                      superResolutionService.superResolve(archive.gid, SuperResolutionType.gallery);
+                    }
+                  }
+                }
               },
             ),
           CupertinoActionSheetAction(

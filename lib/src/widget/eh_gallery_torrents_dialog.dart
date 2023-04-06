@@ -102,7 +102,7 @@ class _TorrentList extends StatelessWidget {
                   torrent.torrentUrl.replaceFirst('https://exhentai.org/torrent', 'https://ehtracker.org/get'),
                   mode: LaunchMode.externalApplication,
                 ),
-                child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumeButtonColor(context))),
+                child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumePauseButtonColor(context))),
               ),
               subtitle: Row(
                 children: [
@@ -116,7 +116,7 @@ class _TorrentList extends StatelessWidget {
                 ],
               ),
               trailing: IconButton(
-                icon: Icon(FontAwesomeIcons.magnet, size: 16, color: UIConfig.resumeButtonColor(context)),
+                icon: Icon(FontAwesomeIcons.magnet, size: 16, color: UIConfig.resumePauseButtonColor(context)),
                 padding: EdgeInsets.zero,
                 onPressed: () => FlutterClipboard.copy(torrent.magnetUrl).then((_) => toast('hasCopiedToClipboard'.tr)),
               ),

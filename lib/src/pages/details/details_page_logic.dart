@@ -16,6 +16,7 @@ import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
@@ -75,6 +76,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final LocalGalleryService localGalleryService = Get.find();
+  final SuperResolutionService superResolutionService = Get.find();
   final LocalGalleryListPageLogic localGalleryPageLogic = Get.find();
   final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
@@ -419,7 +421,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (archiveStatus == ArchiveStatus.completed) {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
-      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive);
+      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
         Routes.read,
@@ -434,6 +436,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,
           images: images,
+          useSuperResolution: superResolutionService.gid2SuperResolutionInfo[archive.gid] != null,
         ),
       );
     }
@@ -560,6 +563,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           currentIndex: forceIndex ?? readIndexRecord,
           readProgressRecordStorageKey: storageKey,
           pageCount: state.gallery!.pageCount!,
+          useSuperResolution: false,
         ),
       );
       return;
@@ -583,6 +587,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         currentIndex: forceIndex ?? readIndexRecord,
         readProgressRecordStorageKey: storageKey,
         pageCount: state.gallery!.pageCount!,
+        useSuperResolution: superResolutionService.gid2SuperResolutionInfo[state.gallery!.gid] != null,
       ),
     );
   }

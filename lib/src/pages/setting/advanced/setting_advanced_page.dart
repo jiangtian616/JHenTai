@@ -74,7 +74,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('clearLogs'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumeButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () {
         Log.clear();
         toast('clearSuccess'.tr, isCenter: false);
@@ -90,7 +90,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('clearImagesCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumeButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
       onLongPress: () async {
         await clearDiskCachedImages();
         setState(() {

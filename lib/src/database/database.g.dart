@@ -7,6 +7,267 @@ part of 'database.dart';
 // **************************************************************************
 
 // ignore_for_file: type=lint
+class SuperResolutionInfoData extends DataClass
+    implements Insertable<SuperResolutionInfoData> {
+  final int gid;
+  final int type;
+  final int status;
+  final String imageStatuses;
+  SuperResolutionInfoData(
+      {required this.gid,
+      required this.type,
+      required this.status,
+      required this.imageStatuses});
+  factory SuperResolutionInfoData.fromData(Map<String, dynamic> data,
+      {String? prefix}) {
+    final effectivePrefix = prefix ?? '';
+    return SuperResolutionInfoData(
+      gid: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}gid'])!,
+      type: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}type'])!,
+      status: const IntType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}status'])!,
+      imageStatuses: const StringType()
+          .mapFromDatabaseResponse(data['${effectivePrefix}imageStatuses'])!,
+    );
+  }
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['type'] = Variable<int>(type);
+    map['status'] = Variable<int>(status);
+    map['imageStatuses'] = Variable<String>(imageStatuses);
+    return map;
+  }
+
+  SuperResolutionInfoCompanion toCompanion(bool nullToAbsent) {
+    return SuperResolutionInfoCompanion(
+      gid: Value(gid),
+      type: Value(type),
+      status: Value(status),
+      imageStatuses: Value(imageStatuses),
+    );
+  }
+
+  factory SuperResolutionInfoData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SuperResolutionInfoData(
+      gid: serializer.fromJson<int>(json['gid']),
+      type: serializer.fromJson<int>(json['type']),
+      status: serializer.fromJson<int>(json['status']),
+      imageStatuses: serializer.fromJson<String>(json['imageStatuses']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'type': serializer.toJson<int>(type),
+      'status': serializer.toJson<int>(status),
+      'imageStatuses': serializer.toJson<String>(imageStatuses),
+    };
+  }
+
+  SuperResolutionInfoData copyWith(
+          {int? gid, int? type, int? status, String? imageStatuses}) =>
+      SuperResolutionInfoData(
+        gid: gid ?? this.gid,
+        type: type ?? this.type,
+        status: status ?? this.status,
+        imageStatuses: imageStatuses ?? this.imageStatuses,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('SuperResolutionInfoData(')
+          ..write('gid: $gid, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('imageStatuses: $imageStatuses')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(gid, type, status, imageStatuses);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SuperResolutionInfoData &&
+          other.gid == this.gid &&
+          other.type == this.type &&
+          other.status == this.status &&
+          other.imageStatuses == this.imageStatuses);
+}
+
+class SuperResolutionInfoCompanion
+    extends UpdateCompanion<SuperResolutionInfoData> {
+  final Value<int> gid;
+  final Value<int> type;
+  final Value<int> status;
+  final Value<String> imageStatuses;
+  const SuperResolutionInfoCompanion({
+    this.gid = const Value.absent(),
+    this.type = const Value.absent(),
+    this.status = const Value.absent(),
+    this.imageStatuses = const Value.absent(),
+  });
+  SuperResolutionInfoCompanion.insert({
+    this.gid = const Value.absent(),
+    required int type,
+    required int status,
+    required String imageStatuses,
+  })  : type = Value(type),
+        status = Value(status),
+        imageStatuses = Value(imageStatuses);
+  static Insertable<SuperResolutionInfoData> custom({
+    Expression<int>? gid,
+    Expression<int>? type,
+    Expression<int>? status,
+    Expression<String>? imageStatuses,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (type != null) 'type': type,
+      if (status != null) 'status': status,
+      if (imageStatuses != null) 'imageStatuses': imageStatuses,
+    });
+  }
+
+  SuperResolutionInfoCompanion copyWith(
+      {Value<int>? gid,
+      Value<int>? type,
+      Value<int>? status,
+      Value<String>? imageStatuses}) {
+    return SuperResolutionInfoCompanion(
+      gid: gid ?? this.gid,
+      type: type ?? this.type,
+      status: status ?? this.status,
+      imageStatuses: imageStatuses ?? this.imageStatuses,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<int>(type.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<int>(status.value);
+    }
+    if (imageStatuses.present) {
+      map['imageStatuses'] = Variable<String>(imageStatuses.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SuperResolutionInfoCompanion(')
+          ..write('gid: $gid, ')
+          ..write('type: $type, ')
+          ..write('status: $status, ')
+          ..write('imageStatuses: $imageStatuses')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class SuperResolutionInfo extends Table
+    with TableInfo<SuperResolutionInfo, SuperResolutionInfoData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  SuperResolutionInfo(this.attachedDatabase, [this._alias]);
+  final VerificationMeta _gidMeta = const VerificationMeta('gid');
+  late final GeneratedColumn<int?> gid = GeneratedColumn<int?>(
+      'gid', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: false,
+      $customConstraints: 'NOT NULL PRIMARY KEY');
+  final VerificationMeta _typeMeta = const VerificationMeta('type');
+  late final GeneratedColumn<int?> type = GeneratedColumn<int?>(
+      'type', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _statusMeta = const VerificationMeta('status');
+  late final GeneratedColumn<int?> status = GeneratedColumn<int?>(
+      'status', aliasedName, false,
+      type: const IntType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  final VerificationMeta _imageStatusesMeta =
+      const VerificationMeta('imageStatuses');
+  late final GeneratedColumn<String?> imageStatuses = GeneratedColumn<String?>(
+      'imageStatuses', aliasedName, false,
+      type: const StringType(),
+      requiredDuringInsert: true,
+      $customConstraints: 'NOT NULL');
+  @override
+  List<GeneratedColumn> get $columns => [gid, type, status, imageStatuses];
+  @override
+  String get aliasedName => _alias ?? 'super_resolution_info';
+  @override
+  String get actualTableName => 'super_resolution_info';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<SuperResolutionInfoData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('imageStatuses')) {
+      context.handle(
+          _imageStatusesMeta,
+          imageStatuses.isAcceptableOrUnknown(
+              data['imageStatuses']!, _imageStatusesMeta));
+    } else if (isInserting) {
+      context.missing(_imageStatusesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid};
+  @override
+  SuperResolutionInfoData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    return SuperResolutionInfoData.fromData(data,
+        prefix: tablePrefix != null ? '$tablePrefix.' : null);
+  }
+
+  @override
+  SuperResolutionInfo createAlias(String alias) {
+    return SuperResolutionInfo(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class TagBrowseProgres extends DataClass
     implements Insertable<TagBrowseProgres> {
   final String keyword;
@@ -3039,6 +3300,8 @@ class GalleryGroup extends Table
 
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(SqlTypeSystem.defaultInstance, e);
+  late final SuperResolutionInfo superResolutionInfo =
+      SuperResolutionInfo(this);
   late final TagBrowseProgress tagBrowseProgress = TagBrowseProgress(this);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
   late final Tag tag = Tag(this);
@@ -3047,6 +3310,51 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
   late final GalleryGroup galleryGroup = GalleryGroup(this);
+  Selectable<SuperResolutionInfoData> selectAllSuperResolutionInfo() {
+    return customSelect('SELECT *\r\nfrom super_resolution_info',
+        variables: [],
+        readsFrom: {
+          superResolutionInfo,
+        }).map(superResolutionInfo.mapFromRow);
+  }
+
+  Future<int> insertSuperResolutionInfo(
+      int gid, int type, int status, String imageStatuses) {
+    return customInsert(
+      'INSERT INTO super_resolution_info\r\nvalues (:gid, :type, :status, :imageStatuses)',
+      variables: [
+        Variable<int>(gid),
+        Variable<int>(type),
+        Variable<int>(status),
+        Variable<String>(imageStatuses)
+      ],
+      updates: {superResolutionInfo},
+    );
+  }
+
+  Future<int> updateSuperResolutionInfoStatus(
+      int status, String imageStatuses, int gid) {
+    return customUpdate(
+      'update super_resolution_info\r\nset status        = :status,\r\n    imageStatuses = :imageStatuses\r\nwhere gid = :gid',
+      variables: [
+        Variable<int>(status),
+        Variable<String>(imageStatuses),
+        Variable<int>(gid)
+      ],
+      updates: {superResolutionInfo},
+      updateKind: UpdateKind.update,
+    );
+  }
+
+  Future<int> deleteSuperResolutionInfo(int gid) {
+    return customUpdate(
+      'delete\r\nfrom super_resolution_info\r\nwhere gid = :gid',
+      variables: [Variable<int>(gid)],
+      updates: {superResolutionInfo},
+      updateKind: UpdateKind.delete,
+    );
+  }
+
   Selectable<TagBrowseProgres> selectTagBrowseProgress(String keyword) {
     return customSelect(
         'select *\r\nfrom tag_browse_progress\r\nwhere keyword = :keyword',
@@ -3598,6 +3906,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   Iterable<TableInfo> get allTables => allSchemaEntities.whereType<TableInfo>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+        superResolutionInfo,
         tagBrowseProgress,
         galleryHistory,
         tag,
