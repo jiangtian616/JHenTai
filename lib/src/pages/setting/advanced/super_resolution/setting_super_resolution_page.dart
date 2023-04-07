@@ -22,6 +22,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
           children: [
             _buildModelDirectoryPath(),
             _buildDownload(),
+            _buildModelType(),
           ],
         ),
       ),
@@ -72,6 +73,22 @@ class SettingSuperResolutionPage extends StatelessWidget {
             return;
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildModelType() {
+    return ListTile(
+      title: Text('modelType'.tr),
+      subtitle: Text(SuperResolutionSetting.modelType.value == 'realesrgan-x4plus' ? 'x4plusHint'.tr : 'x4plusAnimeHint'.tr),
+      trailing: DropdownButton<String>(
+        value: SuperResolutionSetting.modelType.value,
+        elevation: 4,
+        onChanged: (String? newValue) => SuperResolutionSetting.saveModelType(newValue!),
+        items: const [
+          DropdownMenuItem(child: Text('realesrgan-x4plus'), value: 'realesrgan-x4plus'),
+          DropdownMenuItem(child: Text('realesrgan-x4plus-anime'), value: 'realesrgan-x4plus-anime'),
+        ],
       ),
     );
   }

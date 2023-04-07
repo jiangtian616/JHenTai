@@ -436,7 +436,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,
           images: images,
-          useSuperResolution: superResolutionService.gid2SuperResolutionInfo[archive.gid] != null,
+          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
@@ -587,7 +587,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         currentIndex: forceIndex ?? readIndexRecord,
         readProgressRecordStorageKey: storageKey,
         pageCount: state.gallery!.pageCount!,
-        useSuperResolution: superResolutionService.gid2SuperResolutionInfo[state.gallery!.gid] != null,
+        useSuperResolution: superResolutionService.get(state.gallery!.gid, SuperResolutionType.gallery) != null,
       ),
     );
   }

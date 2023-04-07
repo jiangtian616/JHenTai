@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 
 import '../../../../model/gallery_image.dart';
 import '../../../../service/archive_download_service.dart';
@@ -63,91 +64,95 @@ class ArchiveGridDownloadPage extends GridBasePage {
   }
 
   @override
-  GridGallery galleryBuilder(BuildContext context, ArchiveDownloadedData archive, bool inEditMode) {
-    return GridGallery(
-      title: archive.title,
-      widget: GetBuilder<ArchiveDownloadService>(
-        id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
-        builder: (_) {
-          Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
+  Widget galleryBuilder(BuildContext context, ArchiveDownloadedData archive, bool inEditMode) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
+      builder: (_) => GridGallery(
+        title: archive.title,
+        widget: GetBuilder<ArchiveDownloadService>(
+          id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+          builder: (_) {
+            Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
 
-          if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
-            return cover;
-          }
+            if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+              return cover;
+            }
 
-          ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+            ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
-          return Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
-              ),
-              Center(
-                child: GetBuilder<ArchiveDownloadService>(
-                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
-                  builder: (_) => ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
-                      minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
-                    ),
-                    child: CircularProgressIndicator(
-                      value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
-                      color: UIConfig.downloadPageGridProgressColor,
-                      backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
-                    ),
-                  ),
+            return Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
                 ),
-              ),
-              Center(
-                child: GetBuilder<ArchiveDownloadService>(
-                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
-                  builder: (_) => Text(
-                    '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archive.size.toDouble())}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
-                  ),
-                ).marginOnly(top: 60),
-              ),
-              GestureDetector(
-                onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
-                    ? logic.handleReUnlockArchive(archive)
-                    : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                        ? logic.archiveDownloadService.resumeDownloadArchive(archive)
-                        : logic.archiveDownloadService.pauseDownloadArchive(archive),
-                child: Center(
+                Center(
                   child: GetBuilder<ArchiveDownloadService>(
-                    id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
-                    builder: (_) => archiveDownloadInfo.archiveStatus.index > ArchiveStatus.paused.index &&
-                            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index
-                        ? GetBuilder<ArchiveDownloadService>(
-                            id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
-                            builder: (_) => Text(
-                              archiveDownloadInfo.speedComputer.speed,
-                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
-                            ),
-                          )
-                        : Icon(
-                            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
-                                ? Icons.lock_open
-                                : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                                    ? Icons.play_arrow
-                                    : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
-                                        ? Icons.done
-                                        : Icons.pause,
-                            color: UIConfig.downloadPageGridTextColor,
-                          ),
+                    id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                    builder: (_) => ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
+                        minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
+                      ),
+                      child: CircularProgressIndicator(
+                        value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
+                        color: UIConfig.downloadPageGridProgressColor,
+                        backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+                Center(
+                  child: GetBuilder<ArchiveDownloadService>(
+                    id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                    builder: (_) => Text(
+                      '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archive.size.toDouble())}',
+                      style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
+                    ),
+                  ).marginOnly(top: 60),
+                ),
+                GestureDetector(
+                  onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+                      ? logic.handleReUnlockArchive(archive)
+                      : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                          ? logic.archiveDownloadService.resumeDownloadArchive(archive)
+                          : logic.archiveDownloadService.pauseDownloadArchive(archive),
+                  child: Center(
+                    child: GetBuilder<ArchiveDownloadService>(
+                      id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+                      builder: (_) => archiveDownloadInfo.archiveStatus.index > ArchiveStatus.paused.index && archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index
+                          ? GetBuilder<ArchiveDownloadService>(
+                              id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                              builder: (_) => Text(
+                                archiveDownloadInfo.speedComputer.speed,
+                                style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
+                              ),
+                            )
+                          : Icon(
+                              archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+                                  ? Icons.lock_open
+                                  : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                                      ? Icons.play_arrow
+                                      : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                                          ? Icons.done
+                                          : Icons.pause,
+                              color: UIConfig.downloadPageGridTextColor,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        isOriginal: archive.isOriginal,
+        isSuperResolution: logic.superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+        onTapWidget: inEditMode ? null : () => logic.goToReadPage(archive),
+        onTapTitle: inEditMode ? null : () => logic.goToDetailPage(archive),
+        onLongPress: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
+        onSecondTap: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
+        onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(archive),
       ),
-      onTapWidget: inEditMode ? null : () => logic.goToReadPage(archive),
-      onTapTitle: inEditMode ? null : () => logic.goToDetailPage(archive),
-      onLongPress: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
-      onSecondTap: inEditMode ? null : () => logic.showArchiveBottomSheet(archive, context),
-      onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(archive),
     );
   }
 }

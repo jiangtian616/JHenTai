@@ -114,7 +114,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _deleteArchiveInMemory(archive.gid, archive.isOriginal);
 
-    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(archive.gid);
+    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(archive.gid, SuperResolutionType.archive);
 
     update(['$archiveStatusId::${archive.gid}']);
   }
@@ -128,8 +128,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     archiveDownloadInfo.cancelToken.cancel();
     archiveDownloadInfo.speedComputer.pause();
-    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ||
-        archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
+    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index || archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
       return;
     }
 
@@ -315,8 +314,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     List<io.File> imageFiles;
     try {
-      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-        ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});

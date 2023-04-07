@@ -378,6 +378,9 @@ class zh_TW {
       'downloadSuperResolutionModelHint': '從Github下載模型',
       'modelDirectoryPath': '模型文件夾路徑',
       'upSamplingScale': '圖片放大倍數',
+      'modelType': '選擇模型',
+      'x4plusHint': '占據更多空間',
+      'x4plusAnimeHint': '占據更少空間',
 
       /// download page
       'local': '本地',

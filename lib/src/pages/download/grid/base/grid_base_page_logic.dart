@@ -4,6 +4,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../service/local_gallery_service.dart';
 import '../../../../service/storage_service.dart';
+import '../../../../service/super_resolution_service.dart';
 import 'grid_base_page_service_mixin.dart';
 import 'grid_base_page_state.dart';
 
@@ -15,7 +16,8 @@ abstract class GridBasePageLogic extends GetxController with Scroll2TopLogicMixi
   GridBasePageState get state;
 
   GridBasePageServiceMixin get galleryService;
-
+  
+  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find<StorageService>();
 
   void enterGroup(String group) {

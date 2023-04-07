@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
@@ -39,9 +40,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
-          : null,
+      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.download),
       actions: [
@@ -295,8 +294,9 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       children: [
         EHGalleryCategoryTag(category: gallery.category),
         const Expanded(child: SizedBox()),
-        _buildIsOriginal(context, gallery).marginOnly(right: 10),
-        _buildPriority(context, gallery).marginOnly(right: 6),
+        _buildIsOriginal(context, gallery),
+        _buildSuperResolutionLabel(context, gallery),
+        _buildPriority(context, gallery),
         _buildButton(context, gallery),
       ],
     );
@@ -309,6 +309,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     }
 
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6),
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
@@ -321,6 +322,30 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
+  Widget _buildSuperResolutionLabel(BuildContext context, GalleryDownloadedData gallery) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
+      builder: (_) {
+        if (logic.superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null) {
+          return const SizedBox();
+        }
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+          ),
+          child: Text(
+            'AI',
+            style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildPriority(BuildContext context, GalleryDownloadedData gallery) {
     int? priority = logic.downloadService.galleryDownloadInfos[gallery.gid]?.priority;
     if (priority == null) {
@@ -329,15 +354,15 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
 
     switch (priority) {
       case 1:
-        return Text('①', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('①', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case 2:
-        return Text('②', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('②', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case 3:
-        return Text('③', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('③', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case GalleryDownloadService.defaultDownloadGalleryPriority:
         return const SizedBox();
       case 5:
-        return Text('⑤', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold));
+        return Text('⑤', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       default:
         return const SizedBox();
     }
@@ -350,9 +375,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         DownloadStatus downloadStatus = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus;
         return GestureDetector(
           onTap: () {
-            downloadStatus == DownloadStatus.paused
-                ? logic.downloadService.resumeDownloadGallery(gallery)
-                : logic.downloadService.pauseDownloadGallery(gallery);
+            downloadStatus == DownloadStatus.paused ? logic.downloadService.resumeDownloadGallery(gallery) : logic.downloadService.pauseDownloadGallery(gallery);
           },
           child: Icon(
             downloadStatus == DownloadStatus.paused
@@ -398,9 +421,8 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
                 height: 3,
                 child: LinearProgressIndicator(
                   value: downloadProgress.curCount / downloadProgress.totalCount,
-                  color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                      ? UIConfig.downloadPageProgressIndicatorColor(context)
-                      : UIConfig.downloadPageProgressPausedIndicatorColor(context),
+                  color:
+                      downloadProgress.downloadStatus == DownloadStatus.downloading ? UIConfig.downloadPageProgressIndicatorColor(context) : UIConfig.downloadPageProgressPausedIndicatorColor(context),
                 ),
               ).marginOnly(top: 4),
           ],

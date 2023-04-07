@@ -71,6 +71,8 @@ class LocalGalleryGridPage extends GridBasePage {
     return GridGallery(
       title: gallery.title,
       widget: buildGalleryImage(gallery.cover),
+      isOriginal: false,
+      isSuperResolution: false,
       onTapWidget: () => logic.goToReadPage(gallery),
       onTapTitle: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : () => logic.goToReadPage(gallery),
       onLongPress: () => logic.showBottomSheet(gallery, context),

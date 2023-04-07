@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/download/grid/gallery/gallery_grid_download_page_state.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../config/ui_config.dart';
@@ -73,95 +74,98 @@ class GalleryGridDownloadPage extends GridBasePage {
   }
 
   @override
-  GridGallery galleryBuilder(BuildContext context, GalleryDownloadedData gallery, bool inEditMode) {
-    return GridGallery(
-      title: gallery.title,
-      widget: GetBuilder<GalleryDownloadService>(
-        id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
-        builder: (_) {
-          Widget cover = GetBuilder<GalleryDownloadService>(
-            id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
-            builder: (_) {
-              GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+  Widget galleryBuilder(BuildContext context, GalleryDownloadedData gallery, bool inEditMode) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
+      builder: (_) => GridGallery(
+        title: gallery.title,
+        widget: GetBuilder<GalleryDownloadService>(
+          id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
+          builder: (_) {
+            Widget cover = GetBuilder<GalleryDownloadService>(
+              id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
+              builder: (_) {
+                GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
-              if (image?.downloadStatus != DownloadStatus.downloaded) {
-                return const Center();
-              }
+                if (image?.downloadStatus != DownloadStatus.downloaded) {
+                  return const Center();
+                }
 
-              return buildGalleryImage(image!);
-            },
-          );
+                return buildGalleryImage(image!);
+              },
+            );
 
-          if (logic.downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
-            return cover;
-          }
+            if (logic.downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+              return cover;
+            }
 
-          GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
-          GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
-          return Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
-              ),
-              Center(
-                child: GetBuilder<GalleryDownloadService>(
-                  id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
-                  builder: (_) => ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
-                      minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
-                    ),
-                    child: CircularProgressIndicator(
-                      value: downloadProgress.curCount / downloadProgress.totalCount,
-                      color: UIConfig.downloadPageGridProgressColor,
-                      backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
-                    ),
-                  ),
+            GalleryDownloadProgress downloadProgress = logic.downloadService.galleryDownloadInfos[gallery.gid]!.downloadProgress;
+            GalleryDownloadSpeedComputer speedComputer = logic.downloadService.galleryDownloadInfos[gallery.gid]!.speedComputer;
+            return Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Blur(blur: 1, blurColor: UIConfig.downloadPageGridCoverBlurColor, colorOpacity: 0.6, child: cover),
                 ),
-              ),
-              Center(
-                child: GetBuilder<GalleryDownloadService>(
-                  id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
-                  builder: (_) => Text(
-                    '${downloadProgress.curCount} / ${downloadProgress.totalCount}',
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
-                  ),
-                ).marginOnly(top: 60),
-              ),
-              GestureDetector(
-                onTap: () {
-                  downloadProgress.downloadStatus == DownloadStatus.paused
-                      ? logic.downloadService.resumeDownloadGallery(gallery)
-                      : logic.downloadService.pauseDownloadGallery(gallery);
-                },
-                child: Center(
+                Center(
                   child: GetBuilder<GalleryDownloadService>(
                     id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
-                    builder: (_) => downloadProgress.downloadStatus == DownloadStatus.downloading
-                        ? GetBuilder<GalleryDownloadService>(
-                            id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
-                            builder: (_) => Text(
-                              speedComputer.speed,
-                              style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
-                            ),
-                          )
-                        : Icon(
-                            downloadProgress.downloadStatus == DownloadStatus.paused ? Icons.play_arrow : Icons.done,
-                            color: UIConfig.downloadPageGridTextColor,
-                          ),
+                    builder: (_) => ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
+                        minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
+                      ),
+                      child: CircularProgressIndicator(
+                        value: downloadProgress.curCount / downloadProgress.totalCount,
+                        color: UIConfig.downloadPageGridProgressColor,
+                        backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+                Center(
+                  child: GetBuilder<GalleryDownloadService>(
+                    id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
+                    builder: (_) => Text(
+                      '${downloadProgress.curCount} / ${downloadProgress.totalCount}',
+                      style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
+                    ),
+                  ).marginOnly(top: 60),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    downloadProgress.downloadStatus == DownloadStatus.paused ? logic.downloadService.resumeDownloadGallery(gallery) : logic.downloadService.pauseDownloadGallery(gallery);
+                  },
+                  child: Center(
+                    child: GetBuilder<GalleryDownloadService>(
+                      id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
+                      builder: (_) => downloadProgress.downloadStatus == DownloadStatus.downloading
+                          ? GetBuilder<GalleryDownloadService>(
+                              id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
+                              builder: (_) => Text(
+                                speedComputer.speed,
+                                style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
+                              ),
+                            )
+                          : Icon(
+                              downloadProgress.downloadStatus == DownloadStatus.paused ? Icons.play_arrow : Icons.done,
+                              color: UIConfig.downloadPageGridTextColor,
+                            ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        isOriginal: gallery.downloadOriginalImage,
+        isSuperResolution: logic.superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
+        onTapWidget: inEditMode ? null : () => logic.goToReadPage(gallery),
+        onTapTitle: inEditMode ? null : () => logic.goToDetailPage(gallery),
+        onLongPress: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
+        onSecondTap: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
+        onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(gallery),
       ),
-      onTapWidget: inEditMode ? null : () => logic.goToReadPage(gallery),
-      onTapTitle: inEditMode ? null : () => logic.goToDetailPage(gallery),
-      onLongPress: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
-      onSecondTap: inEditMode ? null : () => logic.showBottomSheet(gallery, context),
-      onTertiaryTap: inEditMode ? null : () => logic.goToDetailPage(gallery),
     );
   }
 }

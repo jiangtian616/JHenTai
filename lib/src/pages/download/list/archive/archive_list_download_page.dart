@@ -9,6 +9,7 @@ import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
+import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
@@ -274,8 +275,9 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
       children: [
         EHGalleryCategoryTag(category: archive.category),
         const Expanded(child: SizedBox()),
-        _buildReUnlockButton(context, archive).marginOnly(right: 10),
-        _buildIsOriginal(context, archive).marginOnly(right: 6),
+        _buildReUnlockButton(context, archive),
+        _buildIsOriginal(context, archive),
+        _buildSuperResolutionLabel(context, archive),
         _buildButton(context, archive),
       ],
     );
@@ -294,7 +296,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         return GestureDetector(
           onTap: () => logic.handleReUnlockArchive(archive),
           child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor(context)),
-        );
+        ).marginSymmetric(horizontal: 6);
       },
     );
   }
@@ -306,6 +308,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     }
 
     return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6),
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
@@ -315,6 +318,30 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
         'original'.tr,
         style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
       ),
+    );
+  }
+
+  Widget _buildSuperResolutionLabel(BuildContext context, ArchiveDownloadedData archive) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
+      builder: (_) {
+        if (logic.superResolutionService.get(archive.gid, SuperResolutionType.archive) == null) {
+          return const SizedBox();
+        }
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+          ),
+          child: Text(
+            'AI',
+            style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+          ),
+        );
+      },
     );
   }
 

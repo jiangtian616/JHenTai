@@ -190,7 +190,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
     _clearGalleryInfoInMemory(gallery);
 
-    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(gallery.gid);
+    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(gallery.gid, SuperResolutionType.gallery);
   }
 
   /// Update local downloaded gallery if there's a new version.
@@ -730,9 +730,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
-                ? EHSpiderParser.imagePage2OriginalGalleryImage
-                : EHSpiderParser.imagePage2GalleryImage,
+            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
@@ -804,8 +802,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           maxAttempts: _retryTimes,
 
           /// 403 is due to token error(maybe... I forgot the reason)
-          retryIf: (e) =>
-              e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
+          retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
           onRetry: (e) {
             Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${image.url}');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
@@ -1033,8 +1030,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         curCount: images?.fold<int>(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded:
-            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded: images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),

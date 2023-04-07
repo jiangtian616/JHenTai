@@ -379,6 +379,9 @@ class zh_CN {
       'downloadSuperResolutionModelHint': '从Github下载模型',
       'modelDirectoryPath': '模型文件夹路径',
       'upSamplingScale': '图片放大倍数',
+      'modelType': '选择模型',
+      'x4plusHint': '占据更多空间',
+      'x4plusAnimeHint': '占据更少空间',
 
       /// download page
       'local': '本地',

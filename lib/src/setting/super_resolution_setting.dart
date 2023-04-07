@@ -7,6 +7,7 @@ import '../service/storage_service.dart';
 
 class SuperResolutionSetting {
   static RxnString modelDirectoryPath = RxnString(null);
+  static RxString modelType = 'realesrgan-x4plus'.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('SuperResolutionSetting');
@@ -24,6 +25,12 @@ class SuperResolutionSetting {
     _save();
   }
 
+  static saveModelType(String modelType) {
+    Log.debug('saveModelType:$modelType');
+    SuperResolutionSetting.modelType.value = modelType;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('SuperResolutionSetting', _toMap());
   }
@@ -31,10 +38,12 @@ class SuperResolutionSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'modelDirectoryPath': modelDirectoryPath.value,
+      'modelType': modelType.value,
     };
   }
 
   static _initFromMap(Map<String, dynamic> map) {
     modelDirectoryPath.value = map['modelDirectoryPath'];
+    modelType.value = map['modelType'] ?? modelType.value;
   }
 }

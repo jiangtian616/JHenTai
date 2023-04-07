@@ -39,9 +39,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
-          : null,
+      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: [
@@ -207,7 +205,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
 
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode);
 
-  GridGallery galleryBuilder(BuildContext context, covariant Object gallery, bool inEditMode);
+  Widget galleryBuilder(BuildContext context, covariant Object gallery, bool inEditMode);
 
   Widget buildGroupInnerImage(GalleryImage image) {
     return EHImage.autoLayout(
@@ -247,6 +245,8 @@ class ReturnWidget extends StatelessWidget {
 class GridGallery extends StatelessWidget {
   final String title;
   final Widget widget;
+  final bool isOriginal;
+  final bool isSuperResolution;
   final VoidCallback? onTapWidget;
   final VoidCallback? onTapTitle;
   final VoidCallback? onLongPress;
@@ -257,6 +257,8 @@ class GridGallery extends StatelessWidget {
     Key? key,
     required this.title,
     required this.widget,
+    required this.isOriginal,
+    required this.isSuperResolution,
     this.onTapWidget,
     this.onTapTitle,
     this.onLongPress,
@@ -275,12 +277,60 @@ class GridGallery extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: widget),
+          Expanded(
+            child: Stack(
+              children: [
+                widget,
+                if (isSuperResolution || isOriginal)
+                  Positioned(
+                    height: 24,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, UIConfig.onBackGroundColor(context)],
+                        ),
+                      ),
+                    ),
+                  ),
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (isSuperResolution)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          margin: const EdgeInsets.only(right: 4),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: UIConfig.backGroundColor(context)),
+                          ),
+                          child: Text('AI'.tr, style: TextStyle(fontSize: 8, color: UIConfig.backGroundColor(context))),
+                        ),
+                      if (isOriginal)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: UIConfig.backGroundColor(context)),
+                          ),
+                          child: Text('original'.tr, style: TextStyle(fontSize: 8, color: UIConfig.backGroundColor(context))),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           GestureDetector(
             onTap: onTapTitle,
-            child: Center(
-              child: Text(title.breakWord, maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
+            child: Center(child: Text(title.breakWord, maxLines: 1, overflow: TextOverflow.ellipsis)),
           ),
         ],
       ),
@@ -319,8 +369,7 @@ class GridGroup extends StatelessWidget {
         children: [
           Expanded(
             child: Container(
-              decoration:
-                  BoxDecoration(color: UIConfig.downloadPageGridViewGroupBackGroundColor(context), borderRadius: BorderRadius.circular(8)),
+              decoration: BoxDecoration(color: UIConfig.downloadPageGridViewGroupBackGroundColor(context), borderRadius: BorderRadius.circular(8)),
               padding: const EdgeInsets.all(UIConfig.downloadPageGridViewGroupPadding),
               child: widgets.isEmpty
                   ? Center(child: Icon(emptyIcon ?? Icons.folder, size: 32))

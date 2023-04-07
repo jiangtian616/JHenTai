@@ -133,7 +133,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
           currentIndex: readIndexRecord,
           readProgressRecordStorageKey: storageKey,
           pageCount: gallery.pageCount,
-          useSuperResolution: superResolutionService.gid2SuperResolutionInfo[gallery.gid] != null,
+          useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
         ),
       );
     }
@@ -147,28 +147,27 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
           if (SuperResolutionSetting.modelDirectoryPath.value != null)
             CupertinoActionSheetAction(
               child: Text(
-                superResolutionService.gid2SuperResolutionInfo[gallery.gid]?.status == SuperResolutionStatus.running
+                superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running
                     ? 'stopSuperResolution'.tr
-                    : superResolutionService.gid2SuperResolutionInfo[gallery.gid]?.status == SuperResolutionStatus.success
+                    : superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success
                         ? 'deleteSuperResolvedImage'.tr
                         : 'superResolution'.tr,
               ),
               onPressed: () async {
                 backRoute();
 
-                if (superResolutionService.gid2SuperResolutionInfo[gallery.gid]?.status == SuperResolutionStatus.running) {
-                  superResolutionService.pauseSuperResolve(gallery.gid);
-                } else if (superResolutionService.gid2SuperResolutionInfo[gallery.gid]?.status == SuperResolutionStatus.success) {
-                  superResolutionService.deleteSuperResolutionInfo(gallery.gid);
+                if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running) {
+                  superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery);
+                } else if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success) {
+                  superResolutionService.deleteSuperResolutionInfo(gallery.gid, SuperResolutionType.gallery);
                 } else {
                   if (gallery.downloadOriginalImage) {
-                    bool? result = await Get.dialog(
-                      EHAlertDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr),
-                    );
-                    if (result == true) {
-                      superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
+                    bool? result = await Get.dialog(EHAlertDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                    if (result == false) {
+                      return;
                     }
                   }
+                  superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
                 }
               },
             ),

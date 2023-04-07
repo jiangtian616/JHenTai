@@ -379,7 +379,10 @@ class ReadPageLogic extends GetxController {
         state.useSuperResolution = true;
       }
     } else {
-      superResolutionService.pauseSuperResolve(state.readPageInfo.gid!);
+      superResolutionService.pauseSuperResolve(
+        state.readPageInfo.gid!,
+        state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive,
+      );
     }
 
     updateSafely([topMenuId]);
@@ -387,12 +390,14 @@ class ReadPageLogic extends GetxController {
   }
 
   String getSuperResolutionProgress() {
-    SuperResolutionInfo? superResolutionInfo = superResolutionService.gid2SuperResolutionInfo[state.readPageInfo.gid];
+    int gid = state.readPageInfo.gid!;
+    SuperResolutionType type = state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;
+    SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gid, type);
 
     if (superResolutionInfo == null) {
       return '';
     }
-    
+
     return '(${superResolutionInfo.imageStatuses.where((status) => status == SuperResolutionStatus.success).length}/${superResolutionInfo.imageStatuses.length})';
   }
 

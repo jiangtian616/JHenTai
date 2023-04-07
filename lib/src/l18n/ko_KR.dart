@@ -379,6 +379,9 @@ class ko_KR {
       'downloadSuperResolutionModelHint': 'Download Model From Github',
       'modelDirectoryPath': 'Model Directory Path',
       'upSamplingScale': 'Up Sampling Scale',
+      'modelType': 'Choose Model',
+      'x4plusHint': 'Take up more space',
+      'x4plusAnimeHint': 'Take up less space',
 
       /// download page
       'local': '로컬',

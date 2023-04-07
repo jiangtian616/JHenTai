@@ -4,6 +4,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/read_page_info.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -229,8 +230,9 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionImageId}::$index',
       builder: (_) {
-        if (logic.readPageLogic.superResolutionService.gid2SuperResolutionInfo[readPageState.readPageInfo.gid]?.imageStatuses[index] !=
-            SuperResolutionStatus.success) {
+        int gid = readPageState.readPageInfo.gid!;
+        SuperResolutionType type = readPageState.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;
+        if (logic.readPageLogic.superResolutionService.get(gid, type)?.imageStatuses[index] != SuperResolutionStatus.success) {
           return _buildLocalImage(context, index);
         }
 

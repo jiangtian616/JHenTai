@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -7,6 +6,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
+import 'package:jhentai/src/utils/table.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
@@ -33,7 +33,7 @@ class SuperResolutionService extends GetxController {
 
   EHExecutor executor = EHExecutor(concurrency: 1);
 
-  Map<int, SuperResolutionInfo> gid2SuperResolutionInfo = {};
+  Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = Table();
 
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
@@ -48,28 +48,22 @@ class SuperResolutionService extends GetxController {
   @override
   void onInit() async {
     List<SuperResolutionInfoData> superResolutionInfoDatas = await _selectAllSuperResolutionInfo();
-    gid2SuperResolutionInfo = Map.fromEntries(
-      superResolutionInfoDatas.map(
-        (data) => MapEntry(
-          data.gid,
-          SuperResolutionInfo(
-            SuperResolutionType.values[data.type],
-            SuperResolutionStatus.values[data.status],
-            data.imageStatuses
-                .split(SuperResolutionInfo.imageStatusesSeparator)
-                .map((e) => int.parse(e))
-                .map((index) => SuperResolutionStatus.values[index])
-                .toList(),
-          ),
+    for (SuperResolutionInfoData data in superResolutionInfoDatas) {
+      superResolutionInfoTable.put(
+        data.gid,
+        SuperResolutionType.values[data.type],
+        SuperResolutionInfo(
+          SuperResolutionType.values[data.type],
+          SuperResolutionStatus.values[data.status],
+          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
         ),
-      ),
-    );
-    Future.wait(gid2SuperResolutionInfo.entries
-        .where((e) => e.value.status == SuperResolutionStatus.running)
-        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key, e.value.type)))
-        .toList());
+      );
+    }
+    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
     super.onInit();
   }
+
+  SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
 
   Future<void> downloadModelFile() async {
     String downloadUrl;
@@ -155,7 +149,7 @@ class SuperResolutionService extends GetxController {
       }
     }
 
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
+    SuperResolutionInfo? superResolutionInfo = get(gid, type);
     if (superResolutionInfo?.status == SuperResolutionStatus.success) {
       return true;
     }
@@ -167,12 +161,10 @@ class SuperResolutionService extends GetxController {
     return true;
   }
 
-  Future<void> pauseSuperResolve(int gid) async {
-    SuperResolutionInfo? superResolutionInfo = gid2SuperResolutionInfo[gid];
+  Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
+    SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null ||
-        superResolutionInfo.status == SuperResolutionStatus.success ||
-        superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -202,15 +194,16 @@ class SuperResolutionService extends GetxController {
     }
 
     SuperResolutionInfo superResolutionInfo;
-    if (gid2SuperResolutionInfo[gid] == null) {
-      superResolutionInfo = gid2SuperResolutionInfo[gid] = SuperResolutionInfo(
+    if (get(gid, type) == null) {
+      superResolutionInfo = SuperResolutionInfo(
         type,
         SuperResolutionStatus.running,
         List.generate(rawImages.length, (_) => SuperResolutionStatus.running),
       );
+      superResolutionInfoTable.put(gid, type, superResolutionInfo);
       await _insertSuperResolutionInfo(gid, superResolutionInfo);
     } else {
-      superResolutionInfo = gid2SuperResolutionInfo[gid]!;
+      superResolutionInfo = get(gid, type)!;
       superResolutionInfo.status = SuperResolutionStatus.running;
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
     }
@@ -219,7 +212,7 @@ class SuperResolutionService extends GetxController {
 
     for (int i = 0; i < rawImages.length; i++) {
       /// cancelled
-      if (gid2SuperResolutionInfo[gid] == null) {
+      if (get(gid, type) == null) {
         return;
       }
 
@@ -247,14 +240,14 @@ class SuperResolutionService extends GetxController {
         Log.error(e);
         Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
 
-        pauseSuperResolve(gid);
+        pauseSuperResolve(gid, type);
         return;
       } on Error catch (e) {
         toast('internalError'.tr + e.toString(), isShort: false);
         Log.error(e);
         Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
 
-        pauseSuperResolve(gid);
+        pauseSuperResolve(gid, type);
         return;
       }
 
@@ -270,8 +263,8 @@ class SuperResolutionService extends GetxController {
 
       int exitCode = await process.exitCode;
 
-      /// paused
-      if (exitCode == -1) {
+      /// pause and kill the process
+      if (exitCode == -1 || exitCode == -15 || exitCode == 15) {
         return;
       }
 
@@ -283,7 +276,7 @@ class SuperResolutionService extends GetxController {
           extraInfos: {'rawImage': rawImages[i], 'exitCode': exitCode},
         );
 
-        pauseSuperResolve(gid);
+        pauseSuperResolve(gid, type);
         return;
       }
 
@@ -316,7 +309,7 @@ class SuperResolutionService extends GetxController {
         '-o',
         outputPath,
         '-n',
-        'realesrgan-x4plus-anime',
+        SuperResolutionSetting.modelType.value,
         '-f',
         'png',
         '-m',
@@ -355,10 +348,10 @@ class SuperResolutionService extends GetxController {
         0;
   }
 
-  Future<bool> deleteSuperResolutionInfo(int gid) async {
+  Future<bool> deleteSuperResolutionInfo(int gid, SuperResolutionType type) async {
     Log.info('delete super resolution: $gid');
 
-    gid2SuperResolutionInfo.remove(gid);
+    superResolutionInfoTable.remove(gid, type);
     updateSafely(['$superResolutionId::$gid']);
     toast('success'.tr);
 
