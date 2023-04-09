@@ -380,8 +380,8 @@ class zh_CN {
       'modelDirectoryPath': '模型文件夹路径',
       'upSamplingScale': '图片放大倍数',
       'modelType': '选择模型',
-      'x4plusHint': '占据更多空间',
-      'x4plusAnimeHint': '占据更少空间',
+      'x4plusHint': '占据更多空间但大多数情况下更快',
+      'x4plusAnimeHint': '占据更少空间但大多数情况下更慢',
 
       /// download page
       'local': '本地',

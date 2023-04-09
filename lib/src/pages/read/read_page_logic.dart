@@ -369,22 +369,6 @@ class ReadPageLogic extends GetxController {
   void handleTapSuperResolutionButton() {
     state.useSuperResolution = !state.useSuperResolution;
     Log.info('toggle super resolution mode: ${state.useSuperResolution}');
-
-    if (state.useSuperResolution) {
-      bool success = superResolutionService.superResolve(
-        state.readPageInfo.gid!,
-        state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive,
-      );
-      if (success) {
-        state.useSuperResolution = true;
-      }
-    } else {
-      superResolutionService.pauseSuperResolve(
-        state.readPageInfo.gid!,
-        state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive,
-      );
-    }
-
     updateSafely([topMenuId]);
     layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
   }

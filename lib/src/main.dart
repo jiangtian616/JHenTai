@@ -163,6 +163,9 @@ Future<void> init() async {
 
   QuickSearchService.init();
 
+  SuperResolutionSetting.init();
+  SuperResolutionService.init();
+  
   HistoryService.init();
   SearchHistoryService.init();
   GalleryDownloadService.init();
@@ -179,9 +182,6 @@ Future<void> onReady() async {
 
   ArchiveDownloadService.init();
 
-  SuperResolutionSetting.init();
-  SuperResolutionService.init();
-  
   VolumeService.init();
 }
 

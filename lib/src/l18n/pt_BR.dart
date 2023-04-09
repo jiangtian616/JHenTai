@@ -380,8 +380,8 @@ class pt_BR {
       'modelDirectoryPath': 'Model Directory Path',
       'upSamplingScale': 'Up Sampling Scale',
       'modelType': 'Choose Model',
-      'x4plusHint': 'Take up more space',
-      'x4plusAnimeHint': 'Take up less space',
+      'x4plusHint': 'Take up more space but faster at most time',
+      'x4plusAnimeHint': 'Take up less space but slower at most time',
 
       /// download page
       'local': 'Local',

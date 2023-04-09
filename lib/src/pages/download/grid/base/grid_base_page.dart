@@ -39,7 +39,9 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
+      leading: StyleSetting.isInV2Layout
+          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+          : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: [
@@ -281,50 +283,7 @@ class GridGallery extends StatelessWidget {
             child: Stack(
               children: [
                 widget,
-                if (isSuperResolution || isOriginal)
-                  Positioned(
-                    height: 24,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, UIConfig.onBackGroundColor(context)],
-                        ),
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (isSuperResolution)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          margin: const EdgeInsets.only(right: 4),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: UIConfig.backGroundColor(context)),
-                          ),
-                          child: Text('AI'.tr, style: TextStyle(fontSize: 8, color: UIConfig.backGroundColor(context))),
-                        ),
-                      if (isOriginal)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: UIConfig.backGroundColor(context)),
-                          ),
-                          child: Text('original'.tr, style: TextStyle(fontSize: 8, color: UIConfig.backGroundColor(context))),
-                        ),
-                    ],
-                  ),
-                ),
+                if (isSuperResolution || isOriginal) buildChips(context),
               ],
             ),
           ),
@@ -332,6 +291,39 @@ class GridGallery extends StatelessWidget {
             onTap: onTapTitle,
             child: Center(child: Text(title.breakWord, maxLines: 1, overflow: TextOverflow.ellipsis)),
           ),
+        ],
+      ),
+    );
+  }
+
+  Positioned buildChips(BuildContext context) {
+    return Positioned(
+      bottom: 4,
+      right: 4,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (isSuperResolution)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: UIConfig.backGroundColor(context),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: UIConfig.onBackGroundColor(context)),
+              ),
+              child: Text('AI'.tr, style: TextStyle(fontSize: 9, color: UIConfig.onBackGroundColor(context))),
+            ),
+          if (isOriginal)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: BoxDecoration(
+                color: UIConfig.backGroundColor(context),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: UIConfig.onBackGroundColor(context)),
+              ),
+              child: Text('original'.tr, style: TextStyle(fontSize: 9, color: UIConfig.onBackGroundColor(context))),
+            ),
         ],
       ),
     );

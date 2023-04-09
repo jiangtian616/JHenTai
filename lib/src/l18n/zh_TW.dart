@@ -379,8 +379,8 @@ class zh_TW {
       'modelDirectoryPath': '模型文件夾路徑',
       'upSamplingScale': '圖片放大倍數',
       'modelType': '選擇模型',
-      'x4plusHint': '占據更多空間',
-      'x4plusAnimeHint': '占據更少空間',
+      'x4plusHint': '占據更多空間但大多數情況下更快',
+      'x4plusAnimeHint': '占據更少空間但大多數情況下更慢',
 
       /// download page
       'local': '本地',

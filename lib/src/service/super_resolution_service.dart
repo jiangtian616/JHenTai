@@ -29,14 +29,11 @@ class SuperResolutionService extends GetxController {
   final String modelDownloadPath = join(PathSetting.getVisibleDir().path, 'realesrgan.zip');
   final String modelSavePath = join(PathSetting.getVisibleDir().path, 'realesrgan');
   LoadingState downloadState = LoadingState.idle;
-  String downloadProgress = '';
+  String downloadProgress = '0%';
 
   EHExecutor executor = EHExecutor(concurrency: 1);
 
   Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = Table();
-
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final ArchiveDownloadService archiveDownloadService = Get.find();
 
   static const String imageDirName = 'super_resolution';
 
@@ -55,11 +52,19 @@ class SuperResolutionService extends GetxController {
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
+          data.imageStatuses
+              .split(SuperResolutionInfo.imageStatusesSeparator)
+              .map((e) => int.parse(e))
+              .map((index) => SuperResolutionStatus.values[index])
+              .toList(),
         ),
       );
     }
-    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
+    Future.wait(superResolutionInfoTable
+        .entries()
+        .where((e) => e.value.status == SuperResolutionStatus.running)
+        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
+        .toList());
     super.onInit();
   }
 
@@ -79,7 +84,7 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    downloadProgress = '';
+    downloadProgress = '0%';
     downloadState = LoadingState.loading;
     updateSafely([downloadId]);
 
@@ -88,7 +93,7 @@ class SuperResolutionService extends GetxController {
         () => EHRequest.download(
           url: downloadUrl,
           path: modelDownloadPath,
-          receiveTimeout: 3 * 60 * 1000,
+          receiveTimeout: 10 * 60 * 1000,
           onReceiveProgress: (count, total) {
             downloadProgress = (count / total * 100).toStringAsFixed(2) + '%';
             updateSafely([downloadId]);
@@ -136,13 +141,13 @@ class SuperResolutionService extends GetxController {
 
   bool superResolve(int gid, SuperResolutionType type) {
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gid];
+      GalleryDownloadInfo? galleryDownloadInfo = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid];
       if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
         toast('requireDownloadComplete'.tr);
         return false;
       }
     } else {
-      ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
+      ArchiveDownloadInfo? archiveDownloadInfo = Get.find<ArchiveDownloadService>().archiveDownloadInfos[gid];
       if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
         toast('requireDownloadComplete'.tr);
         return true;
@@ -164,7 +169,9 @@ class SuperResolutionService extends GetxController {
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null ||
+        superResolutionInfo.status == SuperResolutionStatus.success ||
+        superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -188,9 +195,9 @@ class SuperResolutionService extends GetxController {
 
     List<GalleryImage> rawImages;
     if (type == SuperResolutionType.gallery) {
-      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+      rawImages = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid]!.images.cast();
     } else {
-      rawImages = archiveDownloadService.getUnpackedImages(gid);
+      rawImages = Get.find<ArchiveDownloadService>().getUnpackedImages(gid);
     }
 
     SuperResolutionInfo superResolutionInfo;

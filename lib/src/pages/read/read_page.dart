@@ -296,7 +296,8 @@ class ReadPage extends StatelessWidget {
               ),
             if (GetPlatform.isDesktop &&
                 state.readPageInfo.gid != null &&
-                (state.readPageInfo.mode == ReadMode.downloaded || state.readPageInfo.mode == ReadMode.archive))
+                (state.readPageInfo.mode == ReadMode.downloaded || state.readPageInfo.mode == ReadMode.archive) &&
+                state.readPageInfo.useSuperResolution)
               TextButton(
                 child: GetBuilder<SuperResolutionService>(
                   id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
