@@ -2,7 +2,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/super_resolution_setting.dart';
@@ -15,7 +17,20 @@ class SettingSuperResolutionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('superResolution'.tr)),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('superResolution'.tr),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help),
+            onPressed: () => launchUrlString(
+              PreferenceSetting.locale.value.languageCode == 'zh'
+                  ? 'https://github.com/jiangtian616/JHenTai/wiki/AI%E5%9B%BE%E7%89%87%E6%94%BE%E5%A4%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
+                  : 'https: //github.com/jiangtian616/JHenTai/wiki/AI-Image-Super-Resolution-Usage',
+            ),
+          )
+        ],
+      ),
       body: Obx(
         () => ListView(
           padding: const EdgeInsets.only(top: 16),
