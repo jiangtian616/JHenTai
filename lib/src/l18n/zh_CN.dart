@@ -146,6 +146,7 @@ class zh_CN {
       'getUnpackedImagesFailedMsg': 'JHenTai无法读取此归档的图片，请检查本地文件是否正常',
       'getGalleryTorrentsFailed': '获取种子失败',
       'chooseArchive': '选择归档',
+      'tagSetExceedLimit': '标签数量已达到上限',
 
       /// detail dialog
       'galleryUrl': '画廊链接',

@@ -145,6 +145,7 @@ class zh_TW {
       'getUnpackedImagesFailedMsg': 'JHenTai無法讀取此歸檔的圖片，請檢查本地文件是否正常',
       'getGalleryTorrentsFailed': '獲取種子失敗',
       'chooseArchive': '選擇歸檔',
+      'tagSetExceedLimit': '标签数量已达到上限',
 
       /// detail dialog
       'galleryUrl': '畫廊鏈接',

@@ -146,6 +146,7 @@ class ko_KR {
       'getUnpackedImagesFailedMsg': 'JHenTai에서 이 아카이브 이미지를 가져올 수 없습니다. 로컬 파일을 확인하세요.',
       'getGalleryTorrentsFailed': '토렌트 불러오기 실패',
       'chooseArchive': '아카이브 선택',
+      'tagSetExceedLimit': 'No more tags can be added because you have reach the limit',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',

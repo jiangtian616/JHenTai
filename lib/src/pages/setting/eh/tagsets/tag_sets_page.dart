@@ -7,6 +7,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_logic.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_state.dart';
+import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../widget/loading_state_indicator.dart';
@@ -46,7 +47,8 @@ class TagSetsPage extends StatelessWidget {
                     idleWidget: FadeIn(
                       child: _Tag(
                         tagSet: state.tagSets[index],
-                        onLongPress: () => logic.showBottomSheet(index, context),
+                        onTap: () => logic.showBottomSheet(index, context),
+                        onLongPress: () => newSearch('${state.tagSets[index].tagData.namespace}:${state.tagSets[index].tagData.key}', true),
                         onWeightUpdated: (v) => logic.handleUpdateWeight(index, v),
                         onStatusUpdated: (v) => logic.handleUpdateStatus(index, v),
                       ),
@@ -96,6 +98,7 @@ class TagSetsPage extends StatelessWidget {
 
 class _Tag extends StatelessWidget {
   final TagSet tagSet;
+  final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final ValueChanged<String> onWeightUpdated;
   final ValueChanged<TagSetStatus> onStatusUpdated;
@@ -103,6 +106,7 @@ class _Tag extends StatelessWidget {
   const _Tag({
     Key? key,
     required this.tagSet,
+    this.onTap,
     this.onLongPress,
     required this.onWeightUpdated,
     required this.onStatusUpdated,
@@ -112,10 +116,13 @@ class _Tag extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: GestureDetector(
-        onSecondaryTap: onLongPress,
+        onSecondaryTap: onTap,
         child: ListTile(
           dense: true,
-          onTap: Get.focusScope?.unfocus,
+          onTap: () {
+            Get.focusScope?.unfocus;
+            onTap?.call();
+          },
           onLongPress: onLongPress,
           leading: _TagHeader(watched: tagSet.watched, hidden: tagSet.hidden, onStatusUpdated: onStatusUpdated),
           title: Text(tagSet.tagData.translatedNamespace == null

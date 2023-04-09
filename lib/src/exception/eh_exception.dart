@@ -2,10 +2,7 @@ class EHException implements Exception {
   EHExceptionType type;
   String msg;
 
-  EHException({
-    required this.type,
-    required this.msg,
-  });
+  EHException({required this.type, required this.msg});
 
   @override
   String toString() {
@@ -18,4 +15,5 @@ enum EHExceptionType {
   banned,
   exceedLimit,
   unsupportedImagePageStyle,
+  tagSetExceedLimit,
 }

@@ -477,7 +477,7 @@ class EHSpiderParser {
     List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
     List<String> tagSetNames = options.map((o) => o.text).toList();
 
-    List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div').sublist(1);
+    List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div');
     List<TagSet> tagSets = tagDivs.map(
       (div) {
         String pair = div.querySelector('div:nth-child(1) > a > div')?.attributes['title'] ?? '';

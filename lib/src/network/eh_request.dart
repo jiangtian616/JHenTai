@@ -515,6 +515,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       response = e.response!;
     }
 
+    if (response.data.contains('No more tags can be added to this tagset')) {
+      throw EHException(type: EHExceptionType.tagSetExceedLimit, msg: 'tagSetExceedLimit'.tr);
+    }
+
     parser ??= noOpParser;
     return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }

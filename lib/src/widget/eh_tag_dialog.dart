@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
@@ -263,6 +264,14 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       Log.error('addNewTagSetFailed'.tr, e.message);
       toast('${'addNewTagSetFailed'.tr}: ${e.message}', isShort: false);
 
+      if (watch) {
+        addWatchedTagState = LoadingState.error;
+      } else {
+        addHiddenTagState = LoadingState.error;
+      }
+      return;
+    } on EHException catch (e) {
+      toast(e.toString(), isShort: false);
       if (watch) {
         addWatchedTagState = LoadingState.error;
       } else {
