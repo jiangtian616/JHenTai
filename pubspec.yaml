@@ -48,7 +48,10 @@ dependencies:
   url_launcher: 6.1.8
   like_button: 2.0.5
   webview_flutter: ^3.0.4
-  photo_view: ^0.14.0
+  photo_view:
+    git: 
+      url: https://github.com/jiangtian616/photo_view
+      branch: main
   package_info_plus: ^1.4.3+1
   file_picker: 5.2.5
   local_auth: 1.1.11
@@ -83,6 +86,7 @@ dependencies:
   wakelock: 0.6.2
   material_color_utilities: 0.2.0
   flex_color_picker: 3.1.0
+  zoom_widget: 2.0.1
   
 dependency_overrides:
   dio:

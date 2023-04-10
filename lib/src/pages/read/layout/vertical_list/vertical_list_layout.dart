@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../../setting/read_setting.dart';
@@ -28,6 +29,17 @@ class VerticalListLayout extends BaseLayout {
         controller: state.photoViewController,
         scaleStateController: state.photoViewScaleStateController,
         basePosition: state.scalePosition,
+        initialScale: PhotoViewComputedScale.contained * 1.0,
+        minScale: PhotoViewComputedScale.contained * 1.0,
+        maxScale: PhotoViewComputedScale.covered * 2.5,
+        scaleStateCycle: (PhotoViewScaleState actual) {
+          switch (actual) {
+            case PhotoViewScaleState.initial:
+              return PhotoViewScaleState.zoomedIn;
+            default:
+              return PhotoViewScaleState.initial;
+          }
+        },
         onScaleEnd: logic.onScaleEnd,
         child: EHWheelSpeedControllerForReadPage(
           scrollController: state.itemScrollController,
@@ -42,8 +54,7 @@ class VerticalListLayout extends BaseLayout {
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,
             itemPositionsListener: state.itemPositionsListener,
-            itemBuilder: (context, index) =>
-                readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+            itemBuilder: (context, index) => readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
             separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
           ),
         ),

@@ -74,9 +74,7 @@ abstract class BaseLayout extends StatelessWidget {
     Size placeHolderSize = logic.getPlaceHolderSize();
 
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onSecondaryTap: () => readPageLogic.beginToParseImageHref(index),
-      onLongPress: () => readPageLogic.beginToParseImageHref(index),
+      onTap: () => readPageLogic.beginToParseImageHref(index),
       child: SizedBox(
         height: placeHolderSize.height,
         width: placeHolderSize.width,
@@ -106,9 +104,7 @@ abstract class BaseLayout extends StatelessWidget {
     Size placeHolderSize = logic.getPlaceHolderSize();
 
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onSecondaryTap: () => readPageLogic.beginToParseImageUrl(index, true),
-      onLongPress: () => readPageLogic.beginToParseImageUrl(index, true),
+      onTap: () => readPageLogic.beginToParseImageUrl(index, true),
       child: SizedBox(
         height: placeHolderSize.height,
         width: placeHolderSize.width,
@@ -172,7 +168,6 @@ abstract class BaseLayout extends StatelessWidget {
           icon: const Icon(Icons.error, color: UIConfig.readPageButtonColor),
           text: Text('networkError'.tr, style: const TextStyle(color: UIConfig.readPageButtonColor)),
           onPressed: state.reLoadImage,
-          onLongPress: state.reLoadImage,
         ),
         Text((index + 1).toString()),
       ],
@@ -367,7 +362,6 @@ abstract class BaseLayout extends StatelessWidget {
           icon: const Icon(Icons.sentiment_very_dissatisfied),
           text: Text('error'.tr),
           onPressed: state.reLoadImage,
-          onLongPress: state.reLoadImage,
         ),
         Text((index + 1).toString()),
       ],

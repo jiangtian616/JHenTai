@@ -23,6 +23,7 @@ import '../../utils/screen_size_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/eh_image.dart';
 import '../../widget/eh_keyboard_listener.dart';
+import '../../widget/eh_read_page_stack.dart';
 import '../../widget/eh_thumbnail.dart';
 import '../../widget/eh_wheel_speed_controller_for_read_page.dart';
 import '../../widget/loading_state_indicator.dart';
@@ -68,11 +69,11 @@ class ReadPage extends StatelessWidget {
                   fontSize: 12,
                   decoration: TextDecoration.none,
                 ),
-            child: Stack(
+            child: EHReadPageStack(
               children: [
+                buildGestureRegion(),
                 buildLayout(),
                 buildRightBottomInfo(context),
-                buildGestureRegion(),
                 buildTopMenu(context),
                 buildBottomMenu(context),
               ],
@@ -174,7 +175,6 @@ class ReadPage extends StatelessWidget {
         Expanded(
           flex: 1,
           child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
             onTap: logic.toLeft,
             onDoubleTapDown: (TapDownDetails details) {
               if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {
@@ -198,12 +198,11 @@ class ReadPage extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onDoubleTapDown: (TapDownDetails details) =>
-                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-
-                  /// just to invoke [onDoubleTapDown]
-                  onDoubleTap: () {},
+                  // onDoubleTapDown: (TapDownDetails details) =>
+                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+                  //
+                  // /// just to invoke [onDoubleTapDown]
+                  // onDoubleTap: () {},
                 ),
               ),
 
@@ -211,13 +210,12 @@ class ReadPage extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
                   onTap: logic.toggleMenu,
-                  onDoubleTapDown: (TapDownDetails details) =>
-                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-
-                  /// just to invoke [onDoubleTapDown]
-                  onDoubleTap: () {},
+                  // onDoubleTapDown: (TapDownDetails details) =>
+                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+                  //
+                  // /// just to invoke [onDoubleTapDown]
+                  // onDoubleTap: () {},
                 ),
               ),
 
@@ -225,12 +223,11 @@ class ReadPage extends StatelessWidget {
               Expanded(
                 flex: 1,
                 child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onDoubleTapDown: (TapDownDetails details) =>
-                      ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-
-                  /// just to invoke [onDoubleTapDown]
-                  onDoubleTap: () {},
+                  // onDoubleTapDown: (TapDownDetails details) =>
+                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
+                  //
+                  // /// just to invoke [onDoubleTapDown]
+                  // onDoubleTap: () {},
                 ),
               ),
             ],
@@ -241,7 +238,6 @@ class ReadPage extends StatelessWidget {
         Expanded(
           flex: 1,
           child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
             onTap: logic.toRight,
             onDoubleTapDown: (TapDownDetails details) {
               if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {

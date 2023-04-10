@@ -1202,10 +1202,11 @@ packages:
   photo_view:
     dependency: "direct main"
     description:
-      name: photo_view
-      sha256: "8036802a00bae2a78fc197af8a158e3e2f7b500561ed23b4c458107685e645bb"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: ccde9e39e6a834cc0e37d101d6e717a98b79312f
+      url: "https://github.com/jiangtian616/photo_view"
+    source: git
     version: "0.14.0"
   pinput:
     dependency: "direct main"
@@ -1965,6 +1966,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.1.1"
+  zoom_widget:
+    dependency: "direct main"
+    description:
+      name: zoom_widget
+      sha256: "50fbaa460ffc938ca14c0077f8c9e5968c437897242d7f552dacff1bf3270225"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.0.1"
 sdks:
   dart: ">=2.19.0 <3.0.0"
   flutter: ">=3.7.0"
