@@ -183,7 +183,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         maxAttempts: _retryTimes,
       );
     } on DioError catch (e) {
-      Log.download('Re-Unlock archive error, reason: ${e.error.msg}');
+      Log.download('Re-Unlock archive error, reason: ${e.toString()}');
       return;
     }
 
