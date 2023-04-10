@@ -37,7 +37,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildClearLogs(context),
             _buildClearImageCache(context),
             _buildClearNetworkCache(),
-            _buildSuperResolution(),
+            if (GetPlatform.isDesktop) _buildSuperResolution(),
             _buildCheckUpdate(),
             _buildCheckClipboard(),
           ],
@@ -118,7 +118,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       onTap: () => toRoute(Routes.superResolution),
     );
   }
-  
+
   Widget _buildCheckUpdate() {
     return ListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
