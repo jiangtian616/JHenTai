@@ -27,20 +27,10 @@ class VerticalListLayout extends BaseLayout {
       itemCount: 1,
       builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
         controller: state.photoViewController,
-        scaleStateController: state.photoViewScaleStateController,
-        basePosition: state.scalePosition,
-        initialScale: PhotoViewComputedScale.contained * 1.0,
-        minScale: PhotoViewComputedScale.contained * 1.0,
-        maxScale: PhotoViewComputedScale.covered * 2.5,
-        scaleStateCycle: (PhotoViewScaleState actual) {
-          switch (actual) {
-            case PhotoViewScaleState.initial:
-              return PhotoViewScaleState.zoomedIn;
-            default:
-              return PhotoViewScaleState.initial;
-          }
-        },
-        onScaleEnd: logic.onScaleEnd,
+        initialScale: 1.0,
+        minScale: 1.0,
+        maxScale: 2.5,
+        scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
         child: EHWheelSpeedControllerForReadPage(
           scrollController: state.itemScrollController,
           child: EHScrollablePositionedList.separated(
@@ -54,7 +44,8 @@ class VerticalListLayout extends BaseLayout {
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,
             itemPositionsListener: state.itemPositionsListener,
-            itemBuilder: (context, index) => readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+            itemBuilder: (context, index) =>
+                readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
             separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
           ),
         ),

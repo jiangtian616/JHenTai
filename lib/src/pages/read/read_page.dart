@@ -87,6 +87,8 @@ class ReadPage extends StatelessWidget {
   /// Main region to display images
   Widget buildLayout() {
     return Obx(() {
+      logic.resetImageSize();
+      
       if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
         return VerticalListLayout();
       }
@@ -172,85 +174,13 @@ class ReadPage extends StatelessWidget {
     return Row(
       children: [
         /// left region
-        Expanded(
-          flex: 1,
-          child: GestureDetector(
-            onTap: logic.toLeft,
-            onDoubleTapDown: (TapDownDetails details) {
-              if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {
-                logic.toggleScale(details.globalPosition);
-              }
-            },
-            onDoubleTap: () {
-              if (ReadSetting.enableDoubleTapToScaleUp.isFalse) {
-                logic.toLeft();
-              }
-            },
-          ),
-        ),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.toLeft)),
 
         /// center region
-        Expanded(
-          flex: 3,
-          child: Column(
-            children: [
-              /// top center
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  // onDoubleTapDown: (TapDownDetails details) =>
-                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-                  //
-                  // /// just to invoke [onDoubleTapDown]
-                  // onDoubleTap: () {},
-                ),
-              ),
-
-              /// center
-              Expanded(
-                flex: 2,
-                child: GestureDetector(
-                  onTap: logic.toggleMenu,
-                  // onDoubleTapDown: (TapDownDetails details) =>
-                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-                  //
-                  // /// just to invoke [onDoubleTapDown]
-                  // onDoubleTap: () {},
-                ),
-              ),
-
-              /// bottom center
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  // onDoubleTapDown: (TapDownDetails details) =>
-                  //     ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.toggleScale(details.globalPosition) : logic.toggleMenu(),
-                  //
-                  // /// just to invoke [onDoubleTapDown]
-                  // onDoubleTap: () {},
-                ),
-              ),
-            ],
-          ),
-        ),
+        Expanded(flex: 3, child: GestureDetector(onTap: logic.toggleMenu)),
 
         /// right region: toRight
-        Expanded(
-          flex: 1,
-          child: GestureDetector(
-            onTap: logic.toRight,
-            onDoubleTapDown: (TapDownDetails details) {
-              if (ReadSetting.enableDoubleTapToScaleUp.isTrue) {
-                logic.toggleScale(details.globalPosition);
-              }
-            },
-            onDoubleTap: () {
-              if (ReadSetting.enableDoubleTapToScaleUp.isFalse) {
-                logic.toRight();
-              }
-            },
-          ),
-        ),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.toRight)),
       ],
     );
   }

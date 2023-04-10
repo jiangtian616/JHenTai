@@ -261,11 +261,6 @@ class ReadPageLogic extends GetxController {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
-  /// double tap to scale up or reset
-  void toggleScale(Offset position) {
-    layoutLogic.toggleScale(position);
-  }
-
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
     update([topMenuId, bottomMenuId, rightBottomInfoId]);
@@ -371,6 +366,10 @@ class ReadPageLogic extends GetxController {
     Log.info('toggle super resolution mode: ${state.useSuperResolution}');
     updateSafely([topMenuId]);
     layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
+  }
+
+  void resetImageSize() {
+    state.imageSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
   }
 
   String getSuperResolutionProgress() {

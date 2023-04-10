@@ -18,7 +18,7 @@ class ko_KR {
       'operationFailed': '작업 실패',
       'needLoginToOperate': '로그인이 필요한 작업',
       'hasCopiedToClipboard': "클립보드에 복사됨",
-      'networkError': "네트워크 오류, 길게 눌러 재실행",
+      'networkError': "네트워크 오류, 재시도 클릭",
       'systemError': "시스템 오류",
       'invalid': "유효하지 않음",
       'internalError': "내부 오류",
@@ -174,7 +174,7 @@ class ko_KR {
       /// read page
       'parsingPage': "페이지 분석",
       'parsingURL': "주소 분석",
-      'parsePageFailed': "페이지 분석 실패, 길게 눌러 재시도",
+      'parsePageFailed': "페이지 분석 실패, 재시도 클릭",
       'parseURLFailed': "주소 분석 실패, 길게 눌러 재시도",
       'loading': "로딩",
       'paused': '일시정지',

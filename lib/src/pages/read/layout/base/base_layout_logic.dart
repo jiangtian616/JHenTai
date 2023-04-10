@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_save/image_save.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -37,12 +38,15 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   late Animation<double> animation;
 
   Timer? autoModeTimer;
+  Worker? doubleTapGestureListener;
 
   @override
   void onInit() {
     scaleAnimationController = AnimationController(duration: const Duration(milliseconds: 150), vsync: this);
     animation = Tween(begin: 1.0, end: 2.0).animate(CurvedAnimation(curve: Curves.ease, parent: scaleAnimationController));
     animation.addListener(() => state.photoViewController.scale = animation.value);
+    
+    doubleTapGestureListener = ever(ReadSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
     super.onInit();
   }
 
@@ -50,6 +54,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   void onClose() {
     autoModeTimer?.cancel();
     scaleAnimationController.dispose();
+    doubleTapGestureListener?.dispose();
     super.onClose();
   }
 
@@ -84,36 +89,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     readPageLogic.update([readPageLogic.sliderId]);
   }
 
-  void toggleScale(Offset tapPosition) {
-    if (scaleAnimationController.isAnimating) {
-      return;
-    }
-
-    if (state.photoViewController.scale == 1.0) {
-      /// scale position
-      state.scalePosition = _computeAlignmentByTapOffset(tapPosition);
-      update([pageId]);
-
-      /// For some reason i don't know, sometimes [scaleAnimationController.isCompleted] but [state.photoViewController.scale] is still 1.0
-      if (scaleAnimationController.isCompleted) {
-        scaleAnimationController.reset();
-      }
-
-      scaleAnimationController.forward();
-      return;
-    }
-
-    if (state.photoViewController.scale == 2.0) {
-      scaleAnimationController.reverse();
-      return;
-    }
-
-    state.photoViewScaleStateController.reset();
-  }
-
-  void onScaleEnd(BuildContext context, ScaleEndDetails details, PhotoViewControllerValue controllerValue) {
-    if (controllerValue.scale! < 1) {
-      state.photoViewScaleStateController.reset();
+  PhotoViewScaleState scaleStateCycle(PhotoViewScaleState actual) {
+    switch (actual) {
+      case PhotoViewScaleState.initial:
+        return PhotoViewScaleState.zoomedIn;
+      default:
+        return PhotoViewScaleState.initial;
     }
   }
 
