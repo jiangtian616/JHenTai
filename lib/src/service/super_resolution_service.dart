@@ -162,6 +162,7 @@ class SuperResolutionService extends GetxController {
       return true;
     }
 
+    toast('${'startProcess'.tr}: $gid');
     executor.scheduleTask(0, () => _doSuperResolve(gid, type));
     return true;
   }
@@ -191,8 +192,6 @@ class SuperResolutionService extends GetxController {
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
-    toast('${'startProcess'.tr}: $gid');
-
     List<GalleryImage> rawImages;
     if (type == SuperResolutionType.gallery) {
       rawImages = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid]!.images.cast();
