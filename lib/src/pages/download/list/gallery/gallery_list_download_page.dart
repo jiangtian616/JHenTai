@@ -3,7 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
 import 'package:jhentai/src/setting/style_setting.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
@@ -323,10 +323,12 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildSuperResolutionLabel(BuildContext context, GalleryDownloadedData gallery) {
-    return GetBuilder<SuperResolutionService>(
-      id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
+    return GetBuilder<srs.SuperResolutionService>(
+      id: '${srs.SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
-        if (logic.superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null) {
+        srs.SuperResolutionInfo? superResolutionInfo = logic.superResolutionService.get(gallery.gid, srs.SuperResolutionType.gallery);
+
+        if (superResolutionInfo == null) {
           return const SizedBox();
         }
 
@@ -334,12 +336,21 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           margin: const EdgeInsets.symmetric(horizontal: 6),
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: superResolutionInfo.status == srs.SuperResolutionStatus.success ? null : BorderRadius.circular(4),
             border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+            shape: superResolutionInfo.status == srs.SuperResolutionStatus.success ? BoxShape.circle : BoxShape.rectangle,
           ),
           child: Text(
-            'AI',
-            style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+            superResolutionInfo.status == srs.SuperResolutionStatus.paused
+                ? 'AI'
+                : superResolutionInfo.status == srs.SuperResolutionStatus.success
+                    ? 'AI'
+                    : 'AI(${superResolutionInfo.imageStatuses.fold<int>(0, (previousValue, element) => previousValue + (element == srs.SuperResolutionStatus.success ? 1 : 0))}/${superResolutionInfo.imageStatuses.length})',
+            style: TextStyle(
+              fontSize: 9,
+              color: UIConfig.resumePauseButtonColor(context),
+              decoration: superResolutionInfo.status == srs.SuperResolutionStatus.paused ? TextDecoration.lineThrough : null,
+            ),
           ),
         );
       },

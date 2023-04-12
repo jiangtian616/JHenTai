@@ -7,6 +7,7 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:jhentai/src/service/super_resolution_service.dart';
 
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../setting/style_setting.dart';
@@ -39,9 +40,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
-          : null,
+      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: [
@@ -207,7 +206,7 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
 
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode);
 
-  Widget galleryBuilder(BuildContext context, covariant Object gallery, bool inEditMode);
+  GridGallery galleryBuilder(BuildContext context, covariant Object gallery, bool inEditMode);
 
   Widget buildGroupInnerImage(GalleryImage image) {
     return EHImage.autoLayout(
@@ -248,7 +247,8 @@ class GridGallery extends StatelessWidget {
   final String title;
   final Widget widget;
   final bool isOriginal;
-  final bool isSuperResolution;
+  final int? gid;
+  final SuperResolutionType? superResolutionType;
   final VoidCallback? onTapWidget;
   final VoidCallback? onTapTitle;
   final VoidCallback? onLongPress;
@@ -260,7 +260,8 @@ class GridGallery extends StatelessWidget {
     required this.title,
     required this.widget,
     required this.isOriginal,
-    required this.isSuperResolution,
+    this.gid,
+    this.superResolutionType,
     this.onTapWidget,
     this.onTapTitle,
     this.onLongPress,
@@ -281,10 +282,7 @@ class GridGallery extends StatelessWidget {
         children: [
           Expanded(
             child: Stack(
-              children: [
-                widget,
-                if (isSuperResolution || isOriginal) buildChips(context),
-              ],
+              children: [widget, buildChips(context)],
             ),
           ),
           GestureDetector(
@@ -303,16 +301,36 @@ class GridGallery extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (isSuperResolution)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              margin: const EdgeInsets.only(right: 4),
-              decoration: BoxDecoration(
-                color: UIConfig.backGroundColor(context),
-                borderRadius: BorderRadius.circular(4),
-                border: Border.all(color: UIConfig.onBackGroundColor(context)),
-              ),
-              child: Text('AI'.tr, style: TextStyle(fontSize: 9, color: UIConfig.onBackGroundColor(context))),
+          if (gid != null && superResolutionType != null)
+            GetBuilder<SuperResolutionService>(
+              id: '${SuperResolutionService.superResolutionId}::$gid',
+              builder: (_) {
+                SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(gid!, superResolutionType!);
+                return superResolutionInfo == null
+                    ? const SizedBox()
+                    : Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        margin: const EdgeInsets.only(right: 4),
+                        decoration: BoxDecoration(
+                          color: UIConfig.backGroundColor(context),
+                          borderRadius: superResolutionInfo.status == SuperResolutionStatus.success ? null : BorderRadius.circular(4),
+                          border: Border.all(color: UIConfig.onBackGroundColor(context)),
+                          shape: superResolutionInfo.status == SuperResolutionStatus.success ? BoxShape.circle : BoxShape.rectangle,
+                        ),
+                        child: Text(
+                          superResolutionInfo.status == SuperResolutionStatus.paused
+                              ? 'AI'
+                              : superResolutionInfo.status == SuperResolutionStatus.success
+                                  ? 'AI'
+                                  : 'AI(${superResolutionInfo.imageStatuses.fold<int>(0, (previousValue, element) => previousValue + (element == SuperResolutionStatus.success ? 1 : 0))}/${superResolutionInfo.imageStatuses.length})',
+                          style: TextStyle(
+                            fontSize: 9,
+                            color: UIConfig.onBackGroundColor(context),
+                            decoration: superResolutionInfo.status == SuperResolutionStatus.paused ? TextDecoration.lineThrough : null,
+                          ),
+                        ),
+                      );
+              },
             ),
           if (isOriginal)
             Container(

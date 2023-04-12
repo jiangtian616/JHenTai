@@ -52,19 +52,11 @@ class SuperResolutionService extends GetxController {
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses
-              .split(SuperResolutionInfo.imageStatusesSeparator)
-              .map((e) => int.parse(e))
-              .map((index) => SuperResolutionStatus.values[index])
-              .toList(),
+          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
         ),
       );
     }
-    Future.wait(superResolutionInfoTable
-        .entries()
-        .where((e) => e.value.status == SuperResolutionStatus.running)
-        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
-        .toList());
+    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
     super.onInit();
   }
 
@@ -139,7 +131,7 @@ class SuperResolutionService extends GetxController {
     }
   }
 
-  bool superResolve(int gid, SuperResolutionType type) {
+  Future<bool> superResolve(int gid, SuperResolutionType type) async {
     if (type == SuperResolutionType.gallery) {
       GalleryDownloadInfo? galleryDownloadInfo = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid];
       if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
@@ -162,6 +154,24 @@ class SuperResolutionService extends GetxController {
       return true;
     }
 
+    if (superResolutionInfo == null) {
+      List<GalleryImage> rawImages;
+      if (type == SuperResolutionType.gallery) {
+        rawImages = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid]!.images.cast();
+      } else {
+        rawImages = Get.find<ArchiveDownloadService>().getUnpackedImages(gid);
+      }
+
+      superResolutionInfo = SuperResolutionInfo(
+        type,
+        SuperResolutionStatus.running,
+        List.generate(rawImages.length, (_) => SuperResolutionStatus.running),
+      );
+      superResolutionInfoTable.put(gid, type, superResolutionInfo);
+      await _insertSuperResolutionInfo(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
+    }
+
     toast('${'startProcess'.tr}: $gid');
     executor.scheduleTask(0, () => _doSuperResolve(gid, type));
     return true;
@@ -170,9 +180,7 @@ class SuperResolutionService extends GetxController {
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null ||
-        superResolutionInfo.status == SuperResolutionStatus.success ||
-        superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -199,22 +207,12 @@ class SuperResolutionService extends GetxController {
       rawImages = Get.find<ArchiveDownloadService>().getUnpackedImages(gid);
     }
 
-    SuperResolutionInfo superResolutionInfo;
-    if (get(gid, type) == null) {
-      superResolutionInfo = SuperResolutionInfo(
-        type,
-        SuperResolutionStatus.running,
-        List.generate(rawImages.length, (_) => SuperResolutionStatus.running),
-      );
-      superResolutionInfoTable.put(gid, type, superResolutionInfo);
-      await _insertSuperResolutionInfo(gid, superResolutionInfo);
-    } else {
-      superResolutionInfo = get(gid, type)!;
+    SuperResolutionInfo superResolutionInfo = get(gid, type)!;
+    if (superResolutionInfo.status != SuperResolutionStatus.running) {
       superResolutionInfo.status = SuperResolutionStatus.running;
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
     }
-
-    updateSafely(['$superResolutionId::$gid']);
 
     for (int i = 0; i < rawImages.length; i++) {
       /// cancelled

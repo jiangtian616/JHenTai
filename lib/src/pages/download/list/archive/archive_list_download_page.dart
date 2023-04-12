@@ -9,7 +9,7 @@ import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
-import '../../../../service/super_resolution_service.dart';
+import '../../../../service/super_resolution_service.dart' as srs;
 import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
@@ -42,9 +42,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
-          : null,
+      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.archive),
       actions: [
@@ -322,10 +320,12 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildSuperResolutionLabel(BuildContext context, ArchiveDownloadedData archive) {
-    return GetBuilder<SuperResolutionService>(
-      id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
+    return GetBuilder<srs.SuperResolutionService>(
+      id: '${srs.SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        if (logic.superResolutionService.get(archive.gid, SuperResolutionType.archive) == null) {
+        srs.SuperResolutionInfo? superResolutionInfo = logic.superResolutionService.get(archive.gid, srs.SuperResolutionType.archive);
+
+        if (superResolutionInfo == null) {
           return const SizedBox();
         }
 
@@ -333,12 +333,21 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
           margin: const EdgeInsets.symmetric(horizontal: 6),
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: superResolutionInfo.status == srs.SuperResolutionStatus.success ? null : BorderRadius.circular(4),
             border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+            shape: superResolutionInfo.status == srs.SuperResolutionStatus.success ? BoxShape.circle : BoxShape.rectangle,
           ),
           child: Text(
-            'AI',
-            style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+            superResolutionInfo.status == srs.SuperResolutionStatus.paused
+                ? 'AI'
+                : superResolutionInfo.status == srs.SuperResolutionStatus.success
+                    ? 'AI'
+                    : 'AI(${superResolutionInfo.imageStatuses.fold<int>(0, (previousValue, element) => previousValue + (element == srs.SuperResolutionStatus.success ? 1 : 0))}/${superResolutionInfo.imageStatuses.length})',
+            style: TextStyle(
+              fontSize: 9,
+              color: UIConfig.resumePauseButtonColor(context),
+              decoration: superResolutionInfo.status == srs.SuperResolutionStatus.paused ? TextDecoration.lineThrough : null,
+            ),
           ),
         );
       },
