@@ -22,7 +22,6 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
   final String groupId = 'groupId';
 
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
-  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find<StorageService>();
 
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
@@ -119,6 +118,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(downloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
     } else {
+      SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
       String storageKey = 'readIndexRecord::${gallery.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
@@ -140,6 +140,8 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
   }
 
   void showBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
+    SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(

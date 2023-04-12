@@ -48,6 +48,7 @@ dependencies:
   url_launcher: 6.1.8
   like_button: 2.0.5
   webview_flutter: ^3.0.4
+  # rewrite double tap & tap drag gesture
   photo_view:
     git: 
       url: https://github.com/jiangtian616/photo_view
