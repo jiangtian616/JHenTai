@@ -1204,7 +1204,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "29ba20642a57c303d50481764ecaac34a4b08a06"
+      resolved-ref: "130812f1063bcca60ade4676182aadab7a48f330"
       url: "https://github.com/jiangtian616/photo_view"
     source: git
     version: "0.14.0"
