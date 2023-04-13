@@ -52,11 +52,19 @@ class SuperResolutionService extends GetxController {
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
+          data.imageStatuses
+              .split(SuperResolutionInfo.imageStatusesSeparator)
+              .map((e) => int.parse(e))
+              .map((index) => SuperResolutionStatus.values[index])
+              .toList(),
         ),
       );
     }
-    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
+    Future.wait(superResolutionInfoTable
+        .entries()
+        .where((e) => e.value.status == SuperResolutionStatus.running)
+        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
+        .toList());
     super.onInit();
   }
 
@@ -180,7 +188,9 @@ class SuperResolutionService extends GetxController {
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null ||
+        superResolutionInfo.status == SuperResolutionStatus.success ||
+        superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -290,7 +300,11 @@ class SuperResolutionService extends GetxController {
         superResolutionInfo.status = SuperResolutionStatus.success;
         Log.info('super resolve success, gid:$gid');
       }
-      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+
+      /// we can't kill the process immediately on Windows
+      if (get(gid, type) != null) {
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      }
       updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$i']);
     }
   }
