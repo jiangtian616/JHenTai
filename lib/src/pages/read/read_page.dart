@@ -69,10 +69,14 @@ class ReadPage extends StatelessWidget {
                   fontSize: 12,
                   decoration: TextDecoration.none,
                 ),
-            child: EHReadPageStack(
+            child: Stack(
               children: [
-                buildGestureRegion(),
-                buildLayout(),
+                EHReadPageStack(
+                  children: [
+                    buildGestureRegion(),
+                    buildLayout(),
+                  ],
+                ),
                 buildRightBottomInfo(context),
                 buildTopMenu(context),
                 buildBottomMenu(context),
@@ -88,7 +92,7 @@ class ReadPage extends StatelessWidget {
   Widget buildLayout() {
     return Obx(() {
       logic.resetImageSize();
-      
+
       if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
         return VerticalListLayout();
       }
@@ -174,13 +178,13 @@ class ReadPage extends StatelessWidget {
     return Row(
       children: [
         /// left region
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.toLeft)),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.toLeft, behavior: HitTestBehavior.opaque)),
 
         /// center region
-        Expanded(flex: 3, child: GestureDetector(onTap: logic.toggleMenu)),
+        Expanded(flex: 3, child: GestureDetector(onTap: logic.toggleMenu, behavior: HitTestBehavior.opaque)),
 
         /// right region: toRight
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.toRight)),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.toRight, behavior: HitTestBehavior.opaque)),
       ],
     );
   }
@@ -284,9 +288,7 @@ class ReadPage extends StatelessWidget {
           bottom: state.isMenuOpen
               ? 0
               : ReadSetting.showThumbnails.isTrue
-                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight +
-                      UIConfig.readPageBottomSliderHeight +
-                      max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
+                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight + UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
                   : -(UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
@@ -332,9 +334,7 @@ class ReadPage extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => logic.jump2PageIndex(index),
-                        child: state.readPageInfo.mode == ReadMode.online
-                            ? _buildThumbnailInOnlineMode(context, index)
-                            : _buildThumbnailInLocalMode(context, index),
+                        child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(context, index) : _buildThumbnailInLocalMode(context, index),
                       ),
                     ),
                     GetBuilder<ReadPageLogic>(
@@ -342,9 +342,7 @@ class ReadPage extends StatelessWidget {
                         child: Container(
                           width: 24,
                           decoration: BoxDecoration(
-                            color: state.readPageInfo.currentIndex == index
-                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
-                                : Colors.transparent,
+                            color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context) : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           alignment: Alignment.center,
@@ -352,9 +350,7 @@ class ReadPage extends StatelessWidget {
                             (index + 1).toString(),
                             style: TextStyle(
                               fontSize: 9,
-                              color: state.readPageInfo.currentIndex == index
-                                  ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
-                                  : null,
+                              color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context) : null,
                             ),
                           ),
                         ),
