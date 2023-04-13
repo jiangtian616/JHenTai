@@ -163,7 +163,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
                       return;
                     }
                   }
-                  superResolutionService.superResolve(archive.gid, SuperResolutionType.gallery);
+                  superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
                 }
               },
             ),
