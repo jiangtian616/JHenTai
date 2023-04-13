@@ -26,11 +26,12 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewController,
+        controller: state.photoViewControllers[index],
         initialScale: 1.0,
         minScale: 1.0,
         maxScale: 2.5,
         scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+        enableDoubleTapZoom: ReadSetting.enableDoubleTapToScaleUp.isTrue,
         child: readPageState.readPageInfo.mode == ReadMode.online
             ? _buildDoubleColumnItemInOnlineMode(context, index)
             : _buildDoubleColumnItemInLocalMode(context, index),

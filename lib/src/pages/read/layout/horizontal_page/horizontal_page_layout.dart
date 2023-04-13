@@ -26,11 +26,12 @@ class HorizontalPageLayout extends BaseLayout {
       cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewController,
+        controller: state.photoViewControllers[index],
         initialScale: 1.0,
         minScale: 1.0,
         maxScale: 2.5,
         scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+        enableDoubleTapZoom: ReadSetting.enableDoubleTapToScaleUp.isTrue,
         child: Obx(() {
           Widget item =
               readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);

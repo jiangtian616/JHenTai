@@ -23,38 +23,27 @@ import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
-import 'base_layout_state.dart';
 
 abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStateMixin {
   static const String pageId = 'pageId';
-
-  BaseLayoutState get state;
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
   final ReadPageState readPageState = Get.find<ReadPageLogic>().state;
   final GalleryDownloadService galleryDownloadService = Get.find<GalleryDownloadService>();
 
-  late AnimationController scaleAnimationController;
-  late Animation<double> animation;
-
   Timer? autoModeTimer;
-  Worker? doubleTapGestureListener;
+  Worker? doubleTapGestureSwitcherListener;
 
   @override
   void onInit() {
-    scaleAnimationController = AnimationController(duration: const Duration(milliseconds: 150), vsync: this);
-    animation = Tween(begin: 1.0, end: 2.0).animate(CurvedAnimation(curve: Curves.ease, parent: scaleAnimationController));
-    animation.addListener(() => state.photoViewController.scale = animation.value);
-    
-    doubleTapGestureListener = ever(ReadSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
+    doubleTapGestureSwitcherListener = ever(ReadSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
     super.onInit();
   }
 
   @override
   void onClose() {
     autoModeTimer?.cancel();
-    scaleAnimationController.dispose();
-    doubleTapGestureListener?.dispose();
+    doubleTapGestureSwitcherListener?.dispose();
     super.onClose();
   }
 

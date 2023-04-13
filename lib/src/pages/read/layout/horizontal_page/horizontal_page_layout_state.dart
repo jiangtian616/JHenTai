@@ -1,3 +1,5 @@
-import '../base/base_layout_state.dart';
+import 'package:photo_view/photo_view.dart';
 
-class HorizontalPageLayoutState extends BaseLayoutState {}
+class HorizontalPageLayoutState {
+  late final List<PhotoViewController> photoViewControllers;
+}

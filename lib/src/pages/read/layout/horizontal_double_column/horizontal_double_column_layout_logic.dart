@@ -4,14 +4,13 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
+import 'package:photo_view/photo_view.dart';
 
-import '../../../../model/gallery_image.dart';
 import '../../../../setting/read_setting.dart';
 import '../base/base_layout_logic.dart';
 import 'horizontal_double_column_layout_state.dart';
 
 class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
-  @override
   HorizontalDoubleColumnLayoutState state = HorizontalDoubleColumnLayoutState();
 
   late PageController pageController;
@@ -20,6 +19,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void onInit() {
     super.onInit();
 
+    state.photoViewControllers = List.generate((readPageState.readPageInfo.pageCount + 1) ~/ 2, (index) => PhotoViewController());
+    
     pageController = PageController(initialPage: readPageState.readPageInfo.initialIndex ~/ 2);
 
     /// record reading progress and sync thumbnails list index

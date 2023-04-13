@@ -16,7 +16,6 @@ import '../../../../widget/loading_state_indicator.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 import 'base_layout_logic.dart';
-import 'base_layout_state.dart';
 
 abstract class BaseLayout extends StatelessWidget {
   BaseLayout({Key? key}) : super(key: key);
@@ -27,8 +26,6 @@ abstract class BaseLayout extends StatelessWidget {
   final GalleryDownloadService downloadService = Get.find();
 
   BaseLayoutLogic get logic;
-
-  BaseLayoutState get state;
 
   @override
   Widget build(BuildContext context) {

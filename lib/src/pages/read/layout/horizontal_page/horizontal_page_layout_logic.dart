@@ -4,12 +4,12 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:photo_view/photo_view.dart';
 
 import '../base/base_layout_logic.dart';
 import 'horizontal_page_layout_state.dart';
 
 class HorizontalPageLayoutLogic extends BaseLayoutLogic {
-  @override
   HorizontalPageLayoutState state = HorizontalPageLayoutState();
 
   late PageController pageController;
@@ -17,6 +17,8 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   @override
   void onInit() {
     super.onInit();
+
+    state.photoViewControllers = List.generate(readPageState.readPageInfo.pageCount, (index) => PhotoViewController());
 
     pageController = PageController(initialPage: readPageState.readPageInfo.currentIndex);
 

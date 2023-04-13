@@ -31,6 +31,7 @@ class HorizontalListLayout extends BaseLayout {
         minScale: 1.0,
         maxScale: 2.5,
         scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+        enableDoubleTapZoom: ReadSetting.enableDoubleTapToScaleUp.isTrue,
         child: EHWheelSpeedControllerForReadPage(
           scrollController: state.itemScrollController,
           child: EHScrollablePositionedList.separated(
