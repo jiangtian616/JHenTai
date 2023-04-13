@@ -1,6 +1,6 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
   - name: Others
-    url: https://github.com/jiangtian616/JHenTai/issues/new
+    url: https://github.com/jiangtian616/JHenTai/discussions/new/choose
     about: | 
-      提交缺陷请使用第一条模板，否则将不予处理 / Please use the  first template to report bugs, otherwise they will not be processed
+      其余问题请移步至讨论区 / Go to discussion for other questions
