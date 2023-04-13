@@ -3,4 +3,4 @@ contact_links:
   - name: Others
     url: https://github.com/jiangtian616/JHenTai/issues/new
     about: | 
-      Bug和提问请使用第一条模板，否则将不予处理 / Please use the  first template to report bugs or ask questions, otherwise they will not be processed
+      提交缺陷请使用第一条模板，否则将不予处理 / Please use the  first template to report bugs, otherwise they will not be processed

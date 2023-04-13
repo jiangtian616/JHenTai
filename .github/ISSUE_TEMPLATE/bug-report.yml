@@ -1,5 +1,5 @@
-name: Bug / Question
-description: 提出bug或询问应用相关问题 / Create a bug report or ask a question
+name: Bug Report
+description: 提交一个应用缺陷 / Create a bug report
 body:
   - type: textarea
     id: reproduce
