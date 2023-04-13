@@ -51,8 +51,6 @@ import 'network/eh_cache_interceptor.dart';
 import 'network/eh_cookie_manager.dart';
 
 void main() async {
-  debugPrintGestureArenaDiagnostics = true;
-  
   await init();
 
   runApp(const MyApp());
