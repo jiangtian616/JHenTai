@@ -270,6 +270,14 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
+  Widget _buildEnableAutoScaleUp() {
+    return ListTile(
+      title: Text('enableAutoScaleUp'.tr),
+      subtitle: Text('enableAutoScaleUpHints'.tr),
+      trailing: Switch(value: ReadSetting.enableAutoScaleUp.value, onChanged: ReadSetting.saveEnableAutoScaleUp),
+    );
+  }
+
   Widget _buildContinuousScroll() {
     return ListTile(
       title: Text('continuousScroll'.tr),
@@ -282,14 +290,6 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('doubleColumn'.tr),
       trailing: Switch(value: ReadSetting.enableDoubleColumn.value, onChanged: ReadSetting.saveEnableDoubleColumn),
-    );
-  }
-
-  Widget _buildEnableAutoScaleUp() {
-    return ListTile(
-      title: Text('enableAutoScaleUp'.tr),
-      subtitle: Text('enableAutoScaleUpHints'.tr),
-      trailing: Switch(value: ReadSetting.enableAutoScaleUp.value, onChanged: ReadSetting.saveEnableAutoScaleUp),
     );
   }
 
