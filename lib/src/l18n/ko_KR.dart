@@ -24,8 +24,8 @@ class ko_KR {
       'internalError': "내부 오류",
       'you': '사용자',
       'retryHint': '새로고침 후 다시 시도하세요.',
-      'stop': 'Stop',
-      'attention': 'Attention',
+      'stop': '멈춤',
+      'attention': '경고',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -75,7 +75,7 @@ class ko_KR {
       /// gallery page
       'getGallerysFailed': "갤러리 가져오기 실패",
       'refreshGalleryFailed': '갤러리 새로고침 실패',
-      'tabBarSetting': 'TabBar Setting',
+      'tabBarSetting': '탭 바 설정',
       'jumpPageTo': '페이지 이동: ',
       'range': '범위',
       'current': '현재',
@@ -137,7 +137,7 @@ class ko_KR {
       'resample': '압축',
       'beginToDownloadArchive': '아카이브 다운로드 시작',
       'beginToDownloadArchiveHint': '다운로드 → 아카이브에서 진행 상황을 확인할 수 있습니다.',
-      'updateGalleryError': '갤러기 업데이트 오류',
+      'updateGalleryError': '갤러리 업데이트 오류',
       'thisGalleryHasANewVersion': '이 갤러리는 새 버전이 있습니다.',
       'hasUpdated': '업데이트됨',
       'failedToDealWith': '처리 실패',
@@ -146,7 +146,7 @@ class ko_KR {
       'getUnpackedImagesFailedMsg': 'JHenTai에서 이 아카이브 이미지를 가져올 수 없습니다. 로컬 파일을 확인하세요.',
       'getGalleryTorrentsFailed': '토렌트 불러오기 실패',
       'chooseArchive': '아카이브 선택',
-      'tagSetExceedLimit': 'No more tags can be added because you have reach the limit',
+      'tagSetExceedLimit': '저장된 태그 수가 최대치에 도달해서 더 추가할 수 없습니다.',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',
@@ -313,10 +313,10 @@ class ko_KR {
       'checkClipboard': '클립보드에서 갤러리 주소 검사',
       'clearPageCache': '페이지 캐시 삭제',
       'clearSuccess': '삭제 완료',
-      'superResolution': 'Image Super Resolution',
+      'superResolution': '초고해상도 이미지',
       'stopSuperResolution': 'Stop Super Resolution',
-      'deleteSuperResolvedImage': 'Delete Super Resolved Image',
-      'superResolveOriginalImageHint': 'Process original image cost more time, space and performance, are you sure to continue?',
+      'deleteSuperResolvedImage': '초고해상도 이미지 삭제',
+      'superResolveOriginalImageHint': '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
@@ -377,12 +377,12 @@ class ko_KR {
       'logList': '로그 리스트',
 
       /// super resolution setting page
-      'downloadSuperResolutionModelHint': 'Download Model From Github',
-      'modelDirectoryPath': 'Model Directory Path',
-      'upSamplingScale': 'Up Sampling Scale',
-      'modelType': 'Choose Model',
-      'x4plusHint': 'Take up more space but faster at most time',
-      'x4plusAnimeHint': 'Take up less space but slower at most time',
+      'downloadSuperResolutionModelHint': 'Github에서 모델 다운로드 하기',
+      'modelDirectoryPath': '모델 디렉터리 경로',
+      'upSamplingScale': '샘플링 스케일 올리기',
+      'modelType': '모델 선택하기',
+      'x4plusHint': '용량이 커지지만 소요 시간은 짧아집니다',
+      'x4plusAnimeHint': '용량을 작아지지만 소요 시간은 늘어납니다.',
 
       /// download page
       'local': '로컬',
@@ -418,10 +418,10 @@ class ko_KR {
       'switch2ListMode': '리스트 모드로 전환',
       'resumeAllTasks': '모든 작업 이어서 시작',
       'pauseAllTasks': '모든 작업 일시정지',
-      'requireDownloadComplete': 'Require download complete',
-      'operationHasCompleted': 'The operation has completed',
-      'operationInProgress': 'The operation is in progress',
-      'startProcess': 'Start Process',
+      'requireDownloadComplete': '다운로드가 완료되어야 합니다',
+      'operationHasCompleted': '작업이 완료되었습니다',
+      'operationInProgress': '작업이 진행 중입니다',
+      'startProcess': '작업을 시작합니다',
 
       /// search dialog
       'searchConfig': '검색 설정',
