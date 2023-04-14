@@ -213,12 +213,12 @@ class ko_KR {
       'redirect2Eh': '사용 가능하면 EH로 재요청',
       'siteSetting': '사이트 내부 설정',
       'showCookie': '쿠키 정보',
-      'useSeparateProfile': '분리된 프로파일 사용',
-      'editProfileHint': '프로파일 수정',
+      'useSeparateProfile': '분리된 프로필 사용',
+      'editProfileHint': '프로필 수정',
       'redirect2EH': '사용 가능하면 EH 사이트로 재요청',
       'redirect2Hints': 'EH 사이트 분석을 먼저 합니다.',
       'pleaseLogInToOperate': '실행하려면 로그인하세요',
-      'imageLimits': '이미지 제한',
+      'imageLimits': '이미지 한도',
 
       /// tag setting page
       'myTags': '나의 태그',
@@ -313,8 +313,8 @@ class ko_KR {
       'checkClipboard': '클립보드에서 갤러리 주소 검사',
       'clearPageCache': '페이지 캐시 삭제',
       'clearSuccess': '삭제 완료',
-      'superResolution': '초고해상도 이미지',
-      'stopSuperResolution': 'Stop Super Resolution',
+      'superResolution': '초고해상도 이미지 생성',
+      'stopSuperResolution': '초고해상도 이미지 생성 취소',
       'deleteSuperResolvedImage': '초고해상도 이미지 삭제',
       'superResolveOriginalImageHint': '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
 
@@ -378,11 +378,11 @@ class ko_KR {
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': 'Github에서 모델 다운로드 하기',
-      'modelDirectoryPath': '모델 디렉터리 경로',
+      'modelDirectoryPath': '모델 폴더 경로',
       'upSamplingScale': '샘플링 스케일 올리기',
       'modelType': '모델 선택하기',
-      'x4plusHint': '용량이 커지지만 소요 시간은 짧아집니다',
-      'x4plusAnimeHint': '용량을 작아지지만 소요 시간은 늘어납니다.',
+      'x4plusHint': '용량이 크지만 소요 시간은 짧아집니다',
+      'x4plusAnimeHint': '용량이 작지만 소요 시간은 늘어납니다.',
 
       /// download page
       'local': '로컬',
