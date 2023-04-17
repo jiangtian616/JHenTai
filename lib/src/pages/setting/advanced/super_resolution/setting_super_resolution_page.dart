@@ -26,7 +26,9 @@ class SettingSuperResolutionPage extends StatelessWidget {
             onPressed: () => launchUrlString(
               PreferenceSetting.locale.value.languageCode == 'zh'
                   ? 'https://github.com/jiangtian616/JHenTai/wiki/AI%E5%9B%BE%E7%89%87%E6%94%BE%E5%A4%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
-                  : 'https: //github.com/jiangtian616/JHenTai/wiki/AI-Image-Super-Resolution-Usage',
+                  : PreferenceSetting.locale.value.languageCode == 'ko'
+                      ? 'https://github.com/jiangtian616/JHenTai/wiki/AI-%EC%B4%88%EA%B3%A0%ED%99%94%EC%A7%88-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95'
+                      : 'https://github.com/jiangtian616/JHenTai/wiki/AI-Image-Super-Resolution-Usage',
             ),
           )
         ],
@@ -38,6 +40,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
             _buildModelDirectoryPath(),
             _buildDownload(),
             _buildModelType(),
+            _buildEnable4OnlineReading(),
           ],
         ),
       ),
@@ -105,6 +108,14 @@ class SettingSuperResolutionPage extends StatelessWidget {
           DropdownMenuItem(child: Text('realesrgan-x4plus-anime'), value: 'realesrgan-x4plus-anime'),
         ],
       ),
+    );
+  }
+
+  Widget _buildEnable4OnlineReading() {
+    return SwitchListTile(
+      title: Text('enable4OnlineReading'.tr),
+      value: SuperResolutionSetting.enable4OnlineReading.value,
+      onChanged: SuperResolutionSetting.saveEnable4OnlineReading,
     );
   }
 }

@@ -383,7 +383,8 @@ class zh_TW {
       'modelType': '選擇模型',
       'x4plusHint': '占據更多空間但大多數情況下更快',
       'x4plusAnimeHint': '占據更少空間但大多數情況下更慢',
-
+      'enable4OnlineReading': '在線閱讀時自動處理圖片',
+      
       /// download page
       'local': '本地',
       'delete': '刪除',

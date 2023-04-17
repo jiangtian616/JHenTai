@@ -384,7 +384,8 @@ class ko_KR {
       'modelType': '모델 선택하기',
       'x4plusHint': '용량이 크지만 소요 시간은 짧아집니다',
       'x4plusAnimeHint': '용량이 작지만 소요 시간은 늘어납니다.',
-
+      'enable4OnlineReading': 'Process Automatically While Reading Online',
+      
       /// download page
       'local': '로컬',
       'reDownload': '다시 다운로드',

@@ -78,6 +78,8 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('zh', 'CN'),
         Locale('zh', 'TW'),
+        Locale('ko', 'KR'),
+        Locale('pt', 'BR'),
       ],
       locale: PreferenceSetting.locale.value,
       fallbackLocale: const Locale('en', 'US'),

@@ -384,7 +384,8 @@ class zh_CN {
       'modelType': '选择模型',
       'x4plusHint': '占据更多空间但大多数情况下更快',
       'x4plusAnimeHint': '占据更少空间但大多数情况下更慢',
-
+      'enable4OnlineReading': '在线阅读时自动处理图片',
+      
       /// download page
       'local': '本地',
       'delete': '删除',

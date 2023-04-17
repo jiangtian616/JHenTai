@@ -385,7 +385,8 @@ class pt_BR {
       'modelType': 'Choose Model',
       'x4plusHint': 'Take up more space but faster at most time',
       'x4plusAnimeHint': 'Take up less space but slower at most time',
-
+      'enable4OnlineReading': 'Process Automatically While Reading Online',
+      
       /// download page
       'local': 'Local',
       'reDownload': 'Baixar novamente',
