@@ -59,7 +59,10 @@ class EHCookieManager extends CookieManager {
     if (cookies.isEmpty && UserSetting.hasLoggedIn()) {
       Log.error('Logged in but cookie is missing, try log out.');
       UserSetting.clear();
+    } else {
+      userCookies = CookieUtil.parse2String(cookies);
     }
+
     Log.debug('init EHCookieManager success, cookies length:${cookies.length}', false);
   }
 
