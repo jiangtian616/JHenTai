@@ -68,7 +68,8 @@ class zh_TW {
       'loginSuccess': '登錄成功',
       'userNameFormHint': '如果無法訪問裏站，請嘗試Cookie登錄',
       'tap2Login': '點擊登錄',
-
+      'parse': '解析',
+      
       /// request
       'sadPanda': 'Sad Panda: 無回應數據',
 

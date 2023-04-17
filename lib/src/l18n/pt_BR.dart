@@ -69,7 +69,8 @@ class pt_BR {
       'loginSuccess': 'Login feito com sucesso',
       'userNameFormHint': 'Try with cookie in case of Sad Panda',
       'tap2Login': 'Log In',
-
+      'parse': 'parse',
+      
       /// request
       'sadPanda': 'Panda triste: Sem dados',
 

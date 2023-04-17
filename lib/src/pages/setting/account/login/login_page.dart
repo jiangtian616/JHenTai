@@ -134,10 +134,11 @@ class LoginPage extends StatelessWidget {
           Row(
             children: [
               Expanded(child: _buildIgneousField(context)),
-              IconButton(
+              IconTextButton(
                 icon: Icon(Icons.paste, size: 22, color: UIConfig.loginPagePrefixIconColor(context)),
+                text: Text('parse'.tr, style: const TextStyle(fontSize: UIConfig.loginPageParseCookieTextSize)),
                 onPressed: logic.pasteCookie,
-              )
+              ),
             ],
           ).marginOnly(top: 6),
         ],

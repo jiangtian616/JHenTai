@@ -68,6 +68,7 @@ class en_US {
       'loginSuccess': 'Login Success',
       'userNameFormHint': 'Try with cookie in case of Sad Panda',
       'tap2Login': 'Log In',
+      'parse': 'parse',
 
       /// request
       'sadPanda': 'Sad Panda: No Data',

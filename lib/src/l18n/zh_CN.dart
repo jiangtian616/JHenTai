@@ -68,7 +68,8 @@ class zh_CN {
       'loginSuccess': '登录成功',
       'userNameFormHint': '如果无法访问里站，请尝试Cookie登录',
       'tap2Login': '点击登录',
-
+      'parse': '解析',
+      
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
 

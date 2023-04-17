@@ -125,6 +125,8 @@ class UIConfig {
 
   static Color loginPageIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.background;
 
+  static const double loginPageParseCookieTextSize = 10;
+  
   /// Detail page
   static const double detailsPageHeaderHeight = 200;
   static const double detailsPageCoverHeight = 200;

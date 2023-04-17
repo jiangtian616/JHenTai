@@ -68,7 +68,8 @@ class ko_KR {
       'loginSuccess': '로그인 성공',
       'userNameFormHint': '슬픈 판다가 나온다면 쿠키로 시도하세요.',
       'tap2Login': '로그인',
-
+      'parse': 'parse',
+      
       /// request
       'sadPanda': '슬픈 판다: 데이터 없음',
 
