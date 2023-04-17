@@ -115,7 +115,9 @@ class UIConfig {
 
   static Color loginPageFormIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
-  static Color loginPageTextHintColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static const double loginPageTextHintSize = 13;
+  
+  static Color loginPageTextHintColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
   static Color loginPagePrefixIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
