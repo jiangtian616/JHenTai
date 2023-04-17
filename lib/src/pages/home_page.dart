@@ -28,6 +28,7 @@ import '../utils/eh_spider_parser.dart';
 import '../utils/route_util.dart';
 import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
+import '../utils/string_uril.dart';
 import '../widget/app_manager.dart';
 import '../widget/update_dialog.dart';
 
@@ -51,7 +52,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with LoginRequiredMixin {
   final StorageService storageService = Get.find();
   final WindowService windowService = Get.find<WindowService>();
-  
+
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
 
@@ -81,7 +82,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
           builder: (_, __) => Obx(
             () {
               windowService.handleWindowResized();
-              
+
               if (StyleSetting.layout.value == LayoutMode.mobileV2 || StyleSetting.layout.value == LayoutMode.mobile) {
                 StyleSetting.actualLayout = LayoutMode.mobileV2;
                 return MobileLayoutPageV2();
@@ -165,10 +166,17 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
 
     ReceiveSharingIntent.getInitialText().then(
       (String? url) {
-        if (url != null) {
+        if (isEmptyOrNull(url)) {
+          return;
+        }
+
+        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(url!);
+        if (match == null) {
+          toast('Invalid jump link', isShort: false);
+        } else {
           toRoute(
             Routes.details,
-            arguments: {'galleryUrl': url},
+            arguments: {'galleryUrl': match.group(0)},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -177,12 +185,19 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     );
 
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
-      (String url) => toRoute(
-        Routes.details,
-        arguments: {'galleryUrl': url},
-        offAllBefore: false,
-        preventDuplicates: false,
-      ),
+      (String url) {
+        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(url);
+        if (match == null) {
+          toast('Invalid jump link', isShort: false);
+        } else {
+          toRoute(
+            Routes.details,
+            arguments: {'galleryUrl': match.group(0)},
+            offAllBefore: false,
+            preventDuplicates: false,
+          );
+        }
+      },
       onError: (e) {
         Log.error('ReceiveSharingIntent Error!', e);
         Log.upload(e);
@@ -196,29 +211,31 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
       return;
     }
 
-    String text = (await FlutterClipboard.paste()).trim();
-    if (!text.startsWith('${EHConsts.EHIndex}/g') && !text.startsWith('${EHConsts.EXIndex}/g')) {
+    Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(await FlutterClipboard.paste());
+    if (match == null) {
       return;
     }
+    
+    String url = match.group(0)!;
 
     /// show snack only once
-    if (text == _lastDetectedUrl) {
+    if (url == _lastDetectedUrl) {
       return;
     }
 
-    _lastDetectedUrl = text;
+    _lastDetectedUrl = url;
 
     snack(
       'galleryUrlDetected'.tr,
-      '${'galleryUrlDetectedHint'.tr}: $text',
+      '${'galleryUrlDetectedHint'.tr}: $url',
       onTap: (_) {
-        if (text.startsWith('${EHConsts.EXIndex}/g') && !UserSetting.hasLoggedIn()) {
+        if (url.startsWith('${EHConsts.EXIndex}/g') && !UserSetting.hasLoggedIn()) {
           showLoginToast();
           return;
         }
         toRoute(
           Routes.details,
-          arguments: {'galleryUrl': text},
+          arguments: {'galleryUrl': url},
           offAllBefore: false,
           preventDuplicates: false,
         );
