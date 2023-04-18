@@ -196,11 +196,6 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
-        /// step 0: if this image has been super resolved, display it
-        if (logic.readPageState.useSuperResolution) {
-          return _buildSuperResolutionImage(context, index);
-        }
-
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
         if (readPageState.thumbnails[index] == null && readPageState.images[index] == null) {
@@ -211,14 +206,19 @@ abstract class BaseLayout extends StatelessWidget {
         if (readPageState.images[index] == null) {
           return _buildWaitParsingUrlIndicator(context, index);
         }
-
-        /// step 3: use url to load image
+      
+        /// step 3: check if we are using super resolution
+        if (logic.readPageState.useSuperResolution) {
+          return _buildLocalSuperResolutionImage(context, index);
+        }
+        
+        /// step 4: wait for downloading or display it
         return _buildLocalImage(context, index);
       },
     );
   }
 
-  Widget _buildSuperResolutionImage(BuildContext context, int index) {
+  Widget _buildLocalSuperResolutionImage(BuildContext context, int index) {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionImageId}::$index',
       builder: (_) {
