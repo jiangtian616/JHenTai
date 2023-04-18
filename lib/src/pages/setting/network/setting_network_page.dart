@@ -32,7 +32,7 @@ class SettingNetworkPage extends StatelessWidget {
             _buildConnectTimeout(context),
             _buildReceiveTimeout(context),
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }
@@ -101,7 +101,7 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          const Text('ms', style: TextStyle(fontSize: 15)),
+          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(connectTimeoutController.value.text);
@@ -137,7 +137,7 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          const Text('ms', style: TextStyle(fontSize: 15)),
+          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(receiveTimeoutController.value.text);

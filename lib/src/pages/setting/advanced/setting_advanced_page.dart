@@ -43,7 +43,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildCheckClipboard(),
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }

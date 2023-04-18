@@ -1,11 +1,12 @@
 import 'dart:io' as io;
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -60,13 +61,13 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
               _buildDownloadConcurrency(),
-              _buildSpeedLimit(),
+              _buildSpeedLimit(context),
               _buildTimeout(),
               _buildDownloadInOrder(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
             ],
-          ),
+          ).withListTileTheme(context),
         ),
       ),
     );
@@ -146,7 +147,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     );
   }
 
-  Widget _buildSpeedLimit() {
+  Widget _buildSpeedLimit(BuildContext context) {
     return ListTile(
       title: Text('speedLimit'.tr),
       subtitle: Text('speedLimitHint'.tr),
@@ -170,7 +171,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               DropdownMenuItem(child: Text('99'), value: 99),
             ],
           ),
-          Text('${'images'.tr} ${'per'.tr}').marginSymmetric(horizontal: 8),
+          Text('${'images'.tr} ${'per'.tr}', style: UIConfig.settingPageListTileTrailingTextStyle(context)).marginSymmetric(horizontal: 8),
           DropdownButton<Duration>(
             value: DownloadSetting.period.value,
             elevation: 4,

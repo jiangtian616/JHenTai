@@ -1,6 +1,7 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
@@ -31,7 +32,7 @@ class CookiePage extends StatelessWidget {
               ),
             )
             .toList(),
-      ),
+      ).withListTileTheme(context),
     );
   }
 

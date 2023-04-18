@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 
 extension WidgetExtension on Widget {
   Widget center([Key? key]) {
@@ -12,5 +13,17 @@ extension WidgetExtension on Widget {
 
   Widget fadeOut([Key? key]) {
     return FadeOut(key: key, child: this, animate: true);
+  }
+
+  Widget withListTileTheme(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.copyWith(
+              bodyMedium: const TextStyle(fontSize: UIConfig.settingPageListTileSubTitleTextSize),
+              bodySmall: TextStyle(color: UIConfig.settingPageListTileSubTitleColor(context)),
+            ),
+      ),
+      child: this,
+    );
   }
 }

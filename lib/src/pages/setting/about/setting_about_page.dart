@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -52,7 +53,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
             onTap: () => launchUrlString(helpPage, mode: LaunchMode.externalApplication),
           ),
         ],
-      ),
+      ).withListTileTheme(context),
     );
   }
 }

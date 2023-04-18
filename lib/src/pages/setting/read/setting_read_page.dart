@@ -1,6 +1,7 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
@@ -30,7 +31,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               _buildReadDirection().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
-                _buildPreloadDistanceInOnlineMode().fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
+                _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
               if (ReadSetting.readDirection.value != ReadDirection.top2bottom && ReadSetting.enableContinuousHorizontalScroll.isFalse)
                 _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
               if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
@@ -51,7 +52,7 @@ class SettingReadPage extends StatelessWidget {
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
                 _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
             ],
-          ),
+          ).withListTileTheme(context),
         ),
       ),
     );
@@ -186,7 +187,7 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildPreloadDistanceInOnlineMode() {
+  Widget _buildPreloadDistanceInOnlineMode(BuildContext context) {
     return ListTile(
       title: Text('preloadDistanceInOnlineMode'.tr),
       trailing: Row(
@@ -225,7 +226,7 @@ class SettingReadPage extends StatelessWidget {
               ),
             ],
           ),
-          Text('ScreenHeight'.tr).marginSymmetric(horizontal: 12),
+          Text('ScreenHeight'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)).marginSymmetric(horizontal: 12),
         ],
       ),
     );

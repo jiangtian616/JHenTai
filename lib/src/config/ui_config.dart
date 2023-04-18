@@ -354,6 +354,11 @@ class UIConfig {
 
   /// Setting page
   static Color settingPageLayoutSelectorUnSupportColor(BuildContext context) => Theme.of(context).colorScheme.outline.withOpacity(0.5);
+  static const double settingPageListTileSubTitleTextSize = 12;
+
+  static Color settingPageListTileSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+
+  static TextStyle settingPageListTileTrailingTextStyle(BuildContext context) => TextStyle(color: onBackGroundColor(context), fontSize: 14);
 
   /// Group selector
   static const double groupSelectorHeight = 100;

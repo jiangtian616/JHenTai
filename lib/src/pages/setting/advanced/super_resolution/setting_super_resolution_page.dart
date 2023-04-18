@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -42,7 +43,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
             _buildModelType(),
             _buildEnable4OnlineReading(),
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }

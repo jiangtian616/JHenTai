@@ -34,7 +34,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(),
             ],
-          ),
+          ).withListTileTheme(context),
         ),
       ),
     );

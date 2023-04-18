@@ -31,7 +31,7 @@ class SettingStylePage extends StatelessWidget {
             if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildLayout(context),
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }
