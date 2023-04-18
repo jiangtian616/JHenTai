@@ -17,7 +17,6 @@ abstract class GridBasePageLogic extends GetxController with Scroll2TopLogicMixi
 
   GridBasePageServiceMixin get galleryService;
   
-  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find<StorageService>();
 
   void enterGroup(String group) {

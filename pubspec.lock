@@ -572,7 +572,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "7879d26be9f39895d434c0988898ea73ae1b35d9"
+      resolved-ref: "948931c5c3287d2253145cb7959539ba626063a1"
       url: "https://github.com/jiangtian616/flutter_draggable_gridview"
     source: git
     version: "0.0.7"
