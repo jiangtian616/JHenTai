@@ -211,6 +211,7 @@ class EHImage extends StatelessWidget {
         }
       },
       maxBytes: maxBytes,
+      filterQuality: FilterQuality.medium,
     );
   }
 
