@@ -129,7 +129,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       galleryAndDetailAndApikey = await _getDetailsWithRedirect(useCache: !refresh);
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       if (!refresh) {
         updateSafely([loadingStateId]);
@@ -187,7 +187,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
     } on DioError catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
-      snack('failToGetThumbnails'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
@@ -301,7 +301,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       FavoriteSetting.save();
     } on DioError catch (e) {
       Log.error('favoriteGalleryFailed'.tr, e.message);
-      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([addFavoriteStateId]);
       return;
@@ -349,7 +349,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
     } on DioError catch (e) {
       Log.error('ratingFailed'.tr, e.message);
-      snack('ratingFailed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      snack('ratingFailed'.tr, e.message);
       state.ratingState = LoadingState.error;
       updateSafely([ratingStateId]);
       return;
@@ -464,7 +464,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
     } on DioError catch (e) {
       Log.error('H@H download error', e.message);
-      snack('failed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      snack('failed'.tr, e.message);
       return;
     }
 

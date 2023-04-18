@@ -53,7 +53,7 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
       );
     } on DioError catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
-      snack('failToGetThumbnails'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;

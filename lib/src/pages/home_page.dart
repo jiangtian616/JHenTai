@@ -228,7 +228,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     snack(
       'galleryUrlDetected'.tr,
       '${'galleryUrlDetectedHint'.tr}: $url',
-      onTap: (_) {
+      onPressed: () {
         if (url.startsWith('${EHConsts.EXIndex}/g') && !UserSetting.hasLoggedIn()) {
           showLoginToast();
           return;

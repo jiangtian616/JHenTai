@@ -86,7 +86,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage();
     } on DioError catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
-      snack('refreshGalleryFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('refreshGalleryFailed'.tr, e.message, longDuration: true);
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
@@ -153,7 +153,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(prevGid: state.prevGid);
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
@@ -186,7 +186,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(nextGid: state.nextGid);
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -229,7 +229,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(nextGid: state.nextGid, prevGid: state.prevGid, seek: dateTime);
     } on DioError catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;

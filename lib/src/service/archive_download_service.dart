@@ -571,7 +571,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           return await pauseDownloadArchive(archive, needReUnlock: true);
         } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
           Log.download('IP quota exhausted! Archive: ${archive.title}');
-          snack('error'.tr, 'IP quota exhausted!', longDuration: true, snackPosition: SnackPosition.BOTTOM);
+          snack('error'.tr, 'IP quota exhausted!', longDuration: true);
 
           return await pauseDownloadArchive(archive, needReUnlock: true);
         } else {

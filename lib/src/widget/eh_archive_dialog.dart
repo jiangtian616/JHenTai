@@ -110,7 +110,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       );
     } on DioError catch (e) {
       Log.error('getGalleryArchiveFailed'.tr, e.message);
-      snack('getGalleryArchiveFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      snack('getGalleryArchiveFailed'.tr, e.message);
       if (mounted) {
         setState(() {
           loadingState = LoadingState.error;
@@ -118,7 +118,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       }
       return;
     } on NotUploadException catch (_) {
-      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.TOP);
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }

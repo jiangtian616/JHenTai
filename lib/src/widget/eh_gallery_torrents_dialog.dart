@@ -71,7 +71,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
       );
     } on DioError catch (e) {
       Log.error('getGalleryTorrentsFailed'.tr, e.message);
-      snack('getGalleryTorrentsFailed'.tr, e.message, snackPosition: SnackPosition.TOP);
+      snack('getGalleryTorrentsFailed'.tr, e.message);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }

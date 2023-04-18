@@ -6,7 +6,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -51,7 +50,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       );
     } on DioError catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
-      snack('getTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('getTagSetFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       updateSafely([bodyId]);
       return;
@@ -179,7 +178,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       );
     } on DioError catch (e) {
       Log.error('updateTagSetFailed'.tr, e.message);
-      snack('updateTagSetFailed'.tr, e.message, longDuration: true, snackPosition: SnackPosition.BOTTOM);
+      snack('updateTagSetFailed'.tr, e.message, longDuration: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;

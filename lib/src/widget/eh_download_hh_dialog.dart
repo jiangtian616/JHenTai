@@ -80,13 +80,13 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
       );
     } on DioError catch (e) {
       Log.error('Get H@H download info failed', e.message);
-      snack('failed'.tr, e.message, snackPosition: SnackPosition.BOTTOM);
+      snack('failed'.tr, e.message);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }
       return;
     } on NotUploadException catch (_) {
-      snack('Get H@H download info failed', 'parseGalleryArchiveFailed'.tr, snackPosition: SnackPosition.BOTTOM);
+      snack('Get H@H download info failed', 'parseGalleryArchiveFailed'.tr);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }
