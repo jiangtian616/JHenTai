@@ -22,7 +22,6 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
   final String groupId = 'groupId';
 
   final ArchiveDownloadService archiveDownloadService = Get.find();
-  final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find();
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
@@ -130,13 +129,15 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,
           images: images,
-          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          useSuperResolution: Get.find<SuperResolutionService>().get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
   }
 
   void showArchiveBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+    SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(

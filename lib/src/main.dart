@@ -166,12 +166,13 @@ Future<void> init() async {
 
   QuickSearchService.init();
 
-
-  
   HistoryService.init();
   SearchHistoryService.init();
   GalleryDownloadService.init();
+  ArchiveDownloadService.init();
   LocalGalleryService.init();
+  SuperResolutionSetting.init();
+  SuperResolutionService.init();
 }
 
 Future<void> onReady() async {
@@ -181,11 +182,6 @@ Future<void> onReady() async {
   MyTagsSetting.refresh();
 
   ReadSetting.init();
-
-  ArchiveDownloadService.init();
-  
-  SuperResolutionSetting.init();
-  SuperResolutionService.init();
   
   VolumeService.init();
 }

@@ -10,6 +10,7 @@ import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
 import '../../../../service/super_resolution_service.dart' as srs;
+import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
@@ -323,7 +324,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin {
     return GetBuilder<srs.SuperResolutionService>(
       id: '${srs.SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        srs.SuperResolutionInfo? superResolutionInfo = logic.superResolutionService.get(archive.gid, srs.SuperResolutionType.archive);
+        srs.SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(archive.gid, srs.SuperResolutionType.archive);
 
         if (superResolutionInfo == null) {
           return const SizedBox();
