@@ -25,6 +25,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.10.0"
+  android_intent_plus:
+    dependency: "direct main"
+    description:
+      name: android_intent_plus
+      sha256: "6bcdcd20461ac7a0c785f6298cdda96ad275d5bcbc1ecf28829cbe03ec6690be"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.1.7"
   animate_do:
     dependency: "direct main"
     description:

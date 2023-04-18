@@ -318,7 +318,9 @@ class ko_KR {
       'stopSuperResolution': '초고해상도 이미지 생성 취소',
       'deleteSuperResolvedImage': '초고해상도 이미지 삭제',
       'superResolveOriginalImageHint': '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
-
+      'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
+      'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
+      
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
 

@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -40,6 +41,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             if (GetPlatform.isDesktop) _buildSuperResolution(),
             _buildCheckUpdate(),
             _buildCheckClipboard(),
+            if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
           ],
         ),
       ),
@@ -130,6 +132,26 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('checkClipboard'.tr),
       trailing: Switch(value: AdvancedSetting.enableCheckClipboard.value, onChanged: AdvancedSetting.saveEnableCheckClipboard),
+    );
+  }
+
+  Widget _buildVerifyAppLinks() {
+    return ListTile(
+      title: Text('verityAppLinks4Android12'.tr),
+      subtitle: Text('verityAppLinks4Android12Hint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      onTap: () async {
+        try {
+          await const AndroidIntent(
+            action: 'android.settings.APP_OPEN_BY_DEFAULT_SETTINGS',
+            data: 'package:top.jtmonster.jhentai',
+          ).launch();
+        } on Exception catch (e) {
+          Log.error(e);
+          Log.upload(e);
+          toast('error'.tr);
+        }
+      },
     );
   }
 

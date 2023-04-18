@@ -318,6 +318,8 @@ class zh_CN {
       'stopSuperResolution': '停止AI图片放大',
       'deleteSuperResolvedImage': '删除AI放大后的图片',
       'superResolveOriginalImageHint': '处理原图会耗费更多的时间、空间和性能，确定继续？',
+      'verityAppLinks4Android12': '验证应用链接（安卓12+）',
+      'verityAppLinks4Android12Hint': '对于Android 12+，您需要手动添加链接到已验证链接才能在其他应用中唤起JHenTai',
 
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
