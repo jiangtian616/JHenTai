@@ -752,6 +752,19 @@ class EHSpiderParser {
     return 'copyRightHints'.tr + copyRighter;
   }
 
+  static Map<String, String> exchangePage2Assets(Response response) {
+    String html = response.data! as String;
+    Document document = parse(html);
+
+    String? creditDesc = document.querySelector('#buyform')?.parent?.nextElementSibling?.text;
+    String? gpCreditDesc = document.querySelector('#sellform')?.parent?.nextElementSibling?.text;
+
+    String? credit = RegExp(r'([\d,k ]+)Credits').firstMatch(creditDesc ?? '')?.group(1);
+    String? gp = RegExp(r'([\d,k ]+)GP').firstMatch(gpCreditDesc ?? '')?.group(1);
+
+    return {'credit': credit?.trim() ?? '-1', 'gp': gp?.trim() ?? '-1'};
+  }
+
   static String githubReleasePage2LatestVersion(Response response) {
     List releases = response.data!;
     Map latestRelease = releases[0];

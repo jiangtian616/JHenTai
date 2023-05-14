@@ -219,7 +219,9 @@ class en_US {
       'redirect2EH': 'Redirect to EH site if Available',
       'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
-      'imageLimits': 'Image Limits',
+      'imageLimits': 'Image Limits', 
+      'resetCost': 'Long press to reset, cost',
+      'assets': 'Assets',
 
       /// tag setting page
       'myTags': 'My Tags',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 
 import '../../../../utils/toast_util.dart';
@@ -67,7 +68,7 @@ class HostMappingPage extends StatelessWidget {
               ),
             ),
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }

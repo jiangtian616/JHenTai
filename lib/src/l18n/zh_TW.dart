@@ -69,7 +69,7 @@ class zh_TW {
       'userNameFormHint': '如果無法訪問裏站，請嘗試Cookie登錄',
       'tap2Login': '點擊登錄',
       'parse': '解析',
-      
+
       /// request
       'sadPanda': 'Sad Panda: 無回應數據',
 
@@ -219,6 +219,8 @@ class zh_TW {
       'redirect2Hints': '會先嘗試解析表站',
       'pleaseLogInToOperate': '請登入後操作',
       'imageLimits': '圖片配額',
+      'resetCost': '長按重置，花費',
+      'assets': '資産',
 
       /// tag setting page
       'myTags': '我的標籤',
@@ -386,7 +388,7 @@ class zh_TW {
       'x4plusHint': '占據更多空間但大多數情況下更快',
       'x4plusAnimeHint': '占據更少空間但大多數情況下更慢',
       'enable4OnlineReading': '在線閱讀時自動處理圖片',
-      
+
       /// download page
       'local': '本地',
       'delete': '刪除',

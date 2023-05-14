@@ -70,7 +70,7 @@ class pt_BR {
       'userNameFormHint': 'Try with cookie in case of Sad Panda',
       'tap2Login': 'Log In',
       'parse': 'parse',
-      
+
       /// request
       'sadPanda': 'Panda triste: Sem dados',
 
@@ -222,6 +222,8 @@ class pt_BR {
       'redirect2Hints': 'Tentar analisar o site EH primeiro',
       'pleaseLogInToOperate': 'Faça login para operar',
       'imageLimits': 'Limite de imagens',
+      'resetCost': 'Long press to reset, cost',
+      'assets': 'Assets',
 
       /// tag setting page
       'myTags': 'Minhas Tags',
@@ -321,7 +323,7 @@ class pt_BR {
       'superResolveOriginalImageHint': 'Process original image cost more time, space and performance, are you sure to continue?',
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
-      
+
       /// host mapping page
       'hostDataSource': 'Não há necessidade de alterar por padrão.\nFonte de dados: https://dns.google/',
 
@@ -388,7 +390,7 @@ class pt_BR {
       'x4plusHint': 'Take up more space but faster at most time',
       'x4plusAnimeHint': 'Take up less space but slower at most time',
       'enable4OnlineReading': 'Process Automatically While Reading Online',
-      
+
       /// download page
       'local': 'Local',
       'reDownload': 'Baixar novamente',

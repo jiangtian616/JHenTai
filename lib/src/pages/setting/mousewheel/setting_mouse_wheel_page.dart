@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 
 import '../../../utils/toast_util.dart';
@@ -57,7 +58,7 @@ class SettingMouseWheelPage extends StatelessWidget {
               ),
             ),
           ],
-        );
+        ).withListTileTheme(context);
       }),
     );
   }

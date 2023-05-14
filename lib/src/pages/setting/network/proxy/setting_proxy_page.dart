@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../setting/network_setting.dart';
@@ -41,7 +42,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           _buildProxyUsername(),
           _buildProxyPassword(),
         ],
-      ),
+      ).withListTileTheme(context),
     );
   }
 

@@ -770,6 +770,26 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
   }
 
+  static Future<T> requestExchangePage<T>({EHHtmlParser<T>? parser}) async {
+    Response response = await _dio.get(EHConsts.EExchange);
+
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
+  static Future<T> requestResetImageLimit<T>({EHHtmlParser<T>? parser}) async {
+    Response response = await _dio.post(
+      EHConsts.EHome,
+      data: FormData.fromMap({
+        'act': 'limits',
+        'reset': 'Reset Limit',
+      }),
+    );
+
+    parser ??= noOpParser;
+    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+  }
+
   static Future<T> request<T>({
     required String url,
     bool useCacheIfAvailable = true,

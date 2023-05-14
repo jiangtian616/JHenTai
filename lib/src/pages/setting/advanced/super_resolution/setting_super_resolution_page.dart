@@ -41,7 +41,6 @@ class SettingSuperResolutionPage extends StatelessWidget {
             _buildModelDirectoryPath(),
             _buildDownload(),
             _buildModelType(),
-            _buildEnable4OnlineReading(),
           ],
         ).withListTileTheme(context),
       ),

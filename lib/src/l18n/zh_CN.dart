@@ -69,7 +69,7 @@ class zh_CN {
       'userNameFormHint': '如果无法访问里站，请尝试Cookie登录',
       'tap2Login': '点击登录',
       'parse': '解析',
-      
+
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
 
@@ -219,6 +219,8 @@ class zh_CN {
       'redirect2Hints': '会先尝试解析表站',
       'pleaseLogInToOperate': '请登陆后操作',
       'imageLimits': '图片配额',
+      'resetCost': '长按重置，花费',
+      'assets': '资产',
 
       /// tag setting page
       'myTags': '我的标签',
@@ -387,7 +389,7 @@ class zh_CN {
       'x4plusHint': '占据更多空间但大多数情况下更快',
       'x4plusAnimeHint': '占据更少空间但大多数情况下更慢',
       'enable4OnlineReading': '在线阅读时自动处理图片',
-      
+
       /// download page
       'local': '本地',
       'delete': '删除',

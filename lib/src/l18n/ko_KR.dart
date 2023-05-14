@@ -69,7 +69,7 @@ class ko_KR {
       'userNameFormHint': '슬픈 판다가 나온다면 쿠키로 시도하세요.',
       'tap2Login': '로그인',
       'parse': 'parse',
-      
+
       /// request
       'sadPanda': '슬픈 판다: 데이터 없음',
 
@@ -220,6 +220,8 @@ class ko_KR {
       'redirect2Hints': 'EH 사이트 분석을 먼저 합니다.',
       'pleaseLogInToOperate': '실행하려면 로그인하세요',
       'imageLimits': '이미지 한도',
+      'resetCost': 'Long press to reset, cost',
+      'assets': 'Assets',
 
       /// tag setting page
       'myTags': '나의 태그',
@@ -320,7 +322,7 @@ class ko_KR {
       'superResolveOriginalImageHint': '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
-      
+
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
 
@@ -387,7 +389,7 @@ class ko_KR {
       'x4plusHint': '용량이 크지만 소요 시간은 짧아집니다',
       'x4plusAnimeHint': '용량이 작지만 소요 시간은 늘어납니다.',
       'enable4OnlineReading': 'Process Automatically While Reading Online',
-      
+
       /// download page
       'local': '로컬',
       'reDownload': '다시 다운로드',

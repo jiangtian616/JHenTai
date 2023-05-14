@@ -2,6 +2,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import '../../../network/eh_cookie_manager.dart';
 import '../../../routes/routes.dart';
@@ -26,7 +27,7 @@ class SettingAccountPage extends StatelessWidget {
               _buildCookiePage(),
             ],
           ],
-        ),
+        ).withListTileTheme(context),
       ),
     );
   }

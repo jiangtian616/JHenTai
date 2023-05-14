@@ -66,4 +66,6 @@ class EHConsts {
   static String get EXLookup => 'https://exhentai.org/upld/image_lookup.php';
 
   static String get EMyTags => 'https://e-hentai.org/mytags';
+
+  static String get EExchange => 'https://e-hentai.org/exchange.php?t=gp';
 }
