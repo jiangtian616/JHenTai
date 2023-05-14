@@ -673,7 +673,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         if (e.error is EHException) {
           Log.download('Download error, reason: ${e.error.msg}');
           snack('error'.tr, e.error.msg, longDuration: true);
-          pauseAllDownloadGallery();
+          if ((e.error as EHException).shouldPauseAllDownloadTasks) {
+            pauseAllDownloadGallery();
+          } else {
+            pauseDownloadGallery(gallery);
+          }
           return;
         }
 
@@ -730,7 +734,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
+            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
+                ? EHSpiderParser.imagePage2OriginalGalleryImage
+                : EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
@@ -744,7 +750,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         if (e.error is EHException) {
           Log.download('Download Error, reason: ${e.error.msg}');
           snack('error'.tr, e.error.msg, longDuration: true);
-          pauseAllDownloadGallery();
+          if ((e.error as EHException).shouldPauseAllDownloadTasks) {
+            pauseAllDownloadGallery();
+          } else {
+            pauseDownloadGallery(gallery);
+          }
           return;
         }
 
@@ -802,7 +812,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           maxAttempts: _retryTimes,
 
           /// 403 is due to token error(maybe... I forgot the reason)
-          retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
+          retryIf: (e) =>
+              e is DioError && e.type != DioErrorType.cancel && e.error is! EHException && (e.response == null || e.response!.statusCode != 403),
           onRetry: (e) {
             Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${image.url}');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
@@ -816,7 +827,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         if (e.error is EHException) {
           Log.download('Download Error, reason: ${e.error.msg}');
           snack('error'.tr, e.error.msg, longDuration: true);
-          pauseAllDownloadGallery();
+          if ((e.error as EHException).shouldPauseAllDownloadTasks) {
+            pauseAllDownloadGallery();
+          } else {
+            pauseDownloadGallery(gallery);
+          }
           return;
         }
 
@@ -1030,7 +1045,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         curCount: images?.fold<int>(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded: images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded:
+            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),

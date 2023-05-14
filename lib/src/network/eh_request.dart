@@ -97,7 +97,11 @@ class EHRequest {
             return;
           }
 
-          e.error = EHSpiderParser.galleryDeletedPage2Hint(e.response!);
+          e.error = EHException(
+            type: EHExceptionType.galleryDeleted,
+            msg: EHSpiderParser.galleryDeletedPage2Hint(e.response!),
+            shouldPauseAllDownloadTasks: false,
+          );
           handler.next(e);
         },
       ),

@@ -1,8 +1,9 @@
 class EHException implements Exception {
   EHExceptionType type;
   String msg;
+  bool shouldPauseAllDownloadTasks;
 
-  EHException({required this.type, required this.msg});
+  EHException({required this.type, required this.msg, this.shouldPauseAllDownloadTasks = true});
 
   @override
   String toString() {
@@ -10,10 +11,4 @@ class EHException implements Exception {
   }
 }
 
-enum EHExceptionType {
-  blankBody,
-  banned,
-  exceedLimit,
-  unsupportedImagePageStyle,
-  tagSetExceedLimit,
-}
+enum EHExceptionType { blankBody, banned, exceedLimit, unsupportedImagePageStyle, tagSetExceedLimit, galleryDeleted }
