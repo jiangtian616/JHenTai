@@ -33,6 +33,9 @@ class SuperResolutionService extends GetxController {
 
   EHExecutor executor = EHExecutor(concurrency: 1);
 
+  final GalleryDownloadService galleryDownloadService = Get.find();
+  final ArchiveDownloadService archiveDownloadService = Get.find();
+
   Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = Table();
 
   static const String imageDirName = 'super_resolution';
@@ -44,6 +47,13 @@ class SuperResolutionService extends GetxController {
 
   @override
   void onInit() async {
+    if (!await galleryDownloadService.completer.future) {
+      return;
+    }
+    if (!await archiveDownloadService.completer.future) {
+      return;
+    }
+
     List<SuperResolutionInfoData> superResolutionInfoDatas = await _selectAllSuperResolutionInfo();
     for (SuperResolutionInfoData data in superResolutionInfoDatas) {
       superResolutionInfoTable.put(
@@ -60,6 +70,9 @@ class SuperResolutionService extends GetxController {
         ),
       );
     }
+
+    _checkInfoSourceExists();
+
     Future.wait(superResolutionInfoTable
         .entries()
         .where((e) => e.value.status == SuperResolutionStatus.running)
@@ -141,13 +154,13 @@ class SuperResolutionService extends GetxController {
 
   Future<bool> superResolve(int gid, SuperResolutionType type) async {
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadInfo? galleryDownloadInfo = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid];
+      GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gid];
       if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
         toast('requireDownloadComplete'.tr);
         return false;
       }
     } else {
-      ArchiveDownloadInfo? archiveDownloadInfo = Get.find<ArchiveDownloadService>().archiveDownloadInfos[gid];
+      ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
       if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
         toast('requireDownloadComplete'.tr);
         return true;
@@ -165,9 +178,9 @@ class SuperResolutionService extends GetxController {
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        rawImages = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid]!.images.cast();
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
       } else {
-        rawImages = Get.find<ArchiveDownloadService>().getUnpackedImages(gid);
+        rawImages = archiveDownloadService.getUnpackedImages(gid);
       }
 
       superResolutionInfo = SuperResolutionInfo(
@@ -212,9 +225,9 @@ class SuperResolutionService extends GetxController {
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
     List<GalleryImage> rawImages;
     if (type == SuperResolutionType.gallery) {
-      rawImages = Get.find<GalleryDownloadService>().galleryDownloadInfos[gid]!.images.cast();
+      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
     } else {
-      rawImages = Get.find<ArchiveDownloadService>().getUnpackedImages(gid);
+      rawImages = archiveDownloadService.getUnpackedImages(gid);
     }
 
     SuperResolutionInfo superResolutionInfo = get(gid, type)!;
@@ -336,6 +349,26 @@ class SuperResolutionService extends GetxController {
       workingDirectory: PathSetting.getVisibleDir().path,
       runInShell: true,
     );
+  }
+
+  void _checkInfoSourceExists() {
+    List<TableEntry<int, SuperResolutionType, SuperResolutionInfo>> targetEntries = [];
+
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in superResolutionInfoTable.entries()) {
+      if (entry.key2 == SuperResolutionType.gallery && galleryDownloadService.galleryDownloadInfos.containsKey(entry.key1)) {
+        continue;
+      }
+      if (entry.key2 == SuperResolutionType.archive && archiveDownloadService.archiveDownloadInfos.containsKey(entry.key1)) {
+        continue;
+      }
+
+      Log.error('Try to init super-resolution info but image source not exists: $entry');
+      targetEntries.add(entry);
+    }
+
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in targetEntries) {
+      // deleteSuperResolutionInfo(entry.key1, entry.key2);
+    }
   }
 
   String computeImageOutputPath(String rawImagePath) {

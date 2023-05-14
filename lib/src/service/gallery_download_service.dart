@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
@@ -56,6 +57,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
 
+  final Completer<bool> completer = Completer();
+
   static void init() {
     Get.put(GalleryDownloadService(), permanent: true);
   }
@@ -69,6 +72,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     Log.debug('init DownloadService success, download task count: ${gallerys.length}');
 
     _startExecutor();
+
+    completer.complete(true);
 
     super.onInit();
   }

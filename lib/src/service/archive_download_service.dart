@@ -36,6 +36,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
 
+  final Completer<bool> completer = Completer();
+  
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
@@ -56,6 +58,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
+    completer.complete(true);
+    
     super.onInit();
   }
 
