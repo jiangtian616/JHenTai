@@ -2,8 +2,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_history.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../database/database.dart';
 import '../utils/log.dart';
@@ -13,6 +11,8 @@ class SearchHistoryService extends GetxService {
   TagTranslationService tagTranslationService = Get.find();
 
   List<SearchHistory> histories = [];
+
+  static const _maxLength = 50;
 
   static void init() {
     Get.put(SearchHistoryService(), permanent: true);
@@ -41,6 +41,10 @@ class SearchHistoryService extends GetxService {
     history.remove(searchHistory);
     history.insert(0, searchHistory);
 
+    if (history.length > _maxLength) {
+      history = history.sublist(0, _maxLength);
+    }
+    
     storageService.write('searchHistory', history);
 
     histories.removeWhere((history) => history.rawKeyword == searchHistory);
