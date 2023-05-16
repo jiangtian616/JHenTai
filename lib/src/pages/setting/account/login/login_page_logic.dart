@@ -15,6 +15,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../../../network/eh_cookie_manager.dart';
+import '../../../../setting/eh_setting.dart';
 import '../../../../utils/cookie_util.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
@@ -147,10 +148,13 @@ class LoginPageLogic extends GetxController {
       Cookie('ipb_member_id', state.ipbMemberId!),
       Cookie('ipb_pass_hash', state.ipbPassHash!),
     ]);
-    if (state.igneous != null) {
+    
+    bool useEXSite = false;
+    if (state.igneous != null && state.igneous != 'null' && state.igneous != 'mystery') {
       await cookieManager.storeEhCookiesForAllUri([
         Cookie('igneous', state.igneous!),
       ]);
+      useEXSite = true;
     }
 
     /// control mobile keyboard
@@ -200,6 +204,9 @@ class LoginPageLogic extends GetxController {
     state.loginState = LoadingState.success;
     update([loadingStateId]);
 
+    if (useEXSite) {
+      EHSetting.site.value = 'EX';
+    }
     UserSetting.saveUserInfo(
       userName: userInfo['userName']!,
       ipbMemberId: int.parse(state.ipbMemberId!),
