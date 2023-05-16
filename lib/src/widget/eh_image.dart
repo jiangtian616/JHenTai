@@ -230,7 +230,7 @@ class EHImage extends StatelessWidget {
   String _replaceEXUrl(String url) {
     Uri rawUri = Uri.parse(url);
     String host = rawUri.host;
-    if (host != 'exhentai.org') {
+    if (host != 's.exhentai.org' && host != 'exhentai.org') {
       return url;
     }
 
