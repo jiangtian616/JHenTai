@@ -60,6 +60,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
             _buildImageLimit(),
             _buildAssets(),
             _buildMyTags(),
+            _buildLocalTags(),
           ],
         ).withListTileTheme(context),
       ),
@@ -178,6 +179,15 @@ class _SettingEHPageState extends State<SettingEHPage> {
       subtitle: Text('myTagsHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.tagSets),
+    );
+  }
+
+  Widget _buildLocalTags() {
+    return ListTile(
+      title: Text('localTags'.tr),
+      subtitle: Text('localTagsHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.localTagSets),
     );
   }
 

@@ -6,24 +6,34 @@ import 'package:retry/retry.dart';
 
 import '../model/tag_set.dart';
 import '../network/eh_request.dart';
+import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
 
 class MyTagsSetting {
-  static List<TagSet> tagSets = [];
+  static List<TagSet> onlineTagSets = [];
+  static List<TagData> localTagSets = [];
 
   static void init() {
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
+    if (map != null) {
+      _initFromMap(map);
+      Log.debug('init MyTagsSetting success');
+    } else {
+      Log.debug('init MyTagsSetting success: default');
+    }
+
     /// listen to login and logout
     ever(UserSetting.ipbMemberId, (v) {
       if (UserSetting.hasLoggedIn()) {
-        refresh();
+        refreshOnlineTagSets();
       } else {
-        _clear();
+        _clearOnlineTagSets();
       }
     });
   }
 
-  static Future<void> refresh() async {
+  static Future<void> refreshOnlineTagSets() async {
     if (!UserSetting.hasLoggedIn()) {
       return;
     }
@@ -45,17 +55,45 @@ class MyTagsSetting {
       return;
     }
 
-    tagSets = map['tagSets'] ?? tagSets;
+    onlineTagSets = map['tagSets'] ?? onlineTagSets;
 
-    Log.info('refresh MyTagsSetting success, length: ${tagSets.length}');
+    Log.info('refresh MyTagsSetting success, length: ${onlineTagSets.length}');
   }
 
-  static TagSet? getTagSetByTagData(TagData tagData) {
-    return tagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
+  static TagSet? getOnlineTagSetByTagData(TagData tagData) {
+    return onlineTagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
+  }
+  
+  static void addLocalTagSet(TagData tagData){
+    localTagSets.add(tagData);
+    _saveLocalTagSets();
   }
 
-  static Future<void> _clear() async {
-    tagSets.clear();
+  static void removeLocalTagSet(TagData tagData){
+    localTagSets.remove(tagData);
+    _saveLocalTagSets();
+  }
+  
+  static Future<void> _clearOnlineTagSets() async {
+    onlineTagSets.clear();
     Log.info('clear MyTagsSetting success');
+  }
+
+  static Future<void> _saveLocalTagSets() async {
+    await Get.find<StorageService>().write('MyTagsSetting', _toMap());
+  }
+
+  static Map<String, dynamic> _toMap() {
+    return {
+      'localTagSets': localTagSets,
+    };
+  }
+
+  static _initFromMap(Map<String, dynamic> map) {
+    if (map['localTagSets'] == null) {
+      return;
+    }
+
+    localTagSets = (map['localTagSets'] as List).map((e) => TagData.fromJson(e)).toList();
   }
 }

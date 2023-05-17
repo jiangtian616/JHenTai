@@ -179,7 +179,7 @@ Future<void> onReady() async {
   FavoriteSetting.refresh();
   SiteSetting.refresh();
   EHSetting.refresh();
-  MyTagsSetting.refresh();
+  MyTagsSetting.refreshOnlineTagSets();
 
   ReadSetting.init();
   

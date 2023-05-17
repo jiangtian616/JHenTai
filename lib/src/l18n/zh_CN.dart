@@ -225,6 +225,9 @@ class zh_CN {
       /// tag setting page
       'myTags': '我的标签',
       'myTagsHint': '管理关注和隐藏的标签',
+      'localTags': '本地标签',
+      'localTagsHint': '额外的屏蔽标签',
+      'localTagsHint2': '本地屏蔽标签会和E站本身的屏蔽标签共同作用。此外E站本身的屏蔽标签对排行榜的画廊不生效，而本地标签可以做到。',
       'hidden': '屏蔽',
       'nope': '无',
       'getTagSetFailed': '获取标签数据失败',
