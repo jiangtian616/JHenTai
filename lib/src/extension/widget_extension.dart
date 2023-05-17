@@ -19,7 +19,7 @@ extension WidgetExtension on Widget {
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.copyWith(
-              bodyMedium: const TextStyle(fontSize: UIConfig.settingPageListTileSubTitleTextSize),
+              bodyMedium: TextStyle(fontSize: UIConfig.settingPageListTileSubTitleTextSize, color: UIConfig.onBackGroundColor(context)),
               bodySmall: TextStyle(color: UIConfig.settingPageListTileSubTitleColor(context)),
             ),
       ),
