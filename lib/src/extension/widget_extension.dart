@@ -27,3 +27,11 @@ extension WidgetExtension on Widget {
     );
   }
 }
+
+extension StateExtension on State {
+  void setStateSafely(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
+    }
+  }
+}

@@ -186,7 +186,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
       return;
     }
 
-    setState(() {
+    setStateSafely(() {
       assetsLoadingState = LoadingState.loading;
     });
 
@@ -196,13 +196,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
     } on DioError catch (e) {
       Log.error('Get assets failed', e.message);
       snack('Get assets failed'.tr, e.message, longDuration: true);
-      setState(() {
+      setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
       return;
     }
-    
-    setState(() {
+
+    setStateSafely(() {
       gp = assets['gp']!;
       credit = assets['credit']!;
       assetsLoadingState = LoadingState.success;
@@ -214,7 +214,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
       return;
     }
 
-    setState(() {
+    setStateSafely(() {
       resetLimitLoadingState = LoadingState.loading;
     });
 
@@ -223,13 +223,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
     } on DioError catch (e) {
       Log.error('Reset limit failed', e.message);
       snack('Reset limit failed'.tr, e.message, longDuration: true);
-      setState(() {
+      setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });
       return;
     }
 
-    setState(() {
+    setStateSafely(() {
       resetLimitLoadingState = LoadingState.success;
     });
 

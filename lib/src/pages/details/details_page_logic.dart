@@ -18,6 +18,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
@@ -126,7 +127,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     Map<String, dynamic>? galleryAndDetailAndApikey;
     try {
-      galleryAndDetailAndApikey = await _getDetailsWithRedirect(useCache: !refresh);
+      galleryAndDetailAndApikey = await _getDetailsWithRedirectAndFallback(useCache: !refresh);
     } on DioError catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
@@ -596,32 +597,53 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? storageService.read('readIndexRecord::${state.gallery!.title}') ?? 0;
   }
 
-  Future<Map<String, dynamic>> _getDetailsWithRedirect({bool useCache = true}) async {
-    /// try EH site
+  Future<Map<String, dynamic>> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
+    final String? firstLink;
+    final String? secondLink;
+    
+    /// 1. if redirect is enabled, try EH site first for EX link
+    /// 2. if a gallery can't be found in EH site, it may be moved into EX site
     if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
+      firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+      secondLink = state.galleryUrl;
+    } else if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isFalse) {
+      firstLink = null;
+      secondLink = state.galleryUrl;
+    } else {
+      firstLink = state.galleryUrl;
+      secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+    }
+
+    /// if we can't find gallery via firstLink, try second link
+    if (!isEmptyOrNull(firstLink)) {
       try {
         Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex),
+          galleryUrl: firstLink!,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );
-        Log.verbose('Try redirect to EH success, url: ${state.galleryUrl}');
-        state.galleryUrl = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-        state.gallery?.galleryUrl = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+        state.gallery?.galleryUrl = state.galleryUrl = firstLink;
         return galleryAndDetailAndApikey;
       } on DioError catch (e) {
         if (e.response?.statusCode != 404) {
           rethrow;
         }
-        Log.verbose('Try redirect to EH failed, url: ${state.galleryUrl}');
+        Log.verbose('Can\'t find gallery, url: $firstLink');
       }
     }
 
-    return EHRequest.requestDetailPage<Map<String, dynamic>>(
-      galleryUrl: state.galleryUrl,
-      parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
-      useCacheIfAvailable: useCache,
-    );
+    try {
+      Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+        galleryUrl: secondLink,
+        parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
+        useCacheIfAvailable: useCache,
+      );
+      state.gallery?.galleryUrl = state.galleryUrl = secondLink;
+      return galleryAndDetailAndApikey;
+    } on DioError catch (e) {
+      Log.verbose('Can\'t find gallery, url: $secondLink');
+      rethrow;
+    }
   }
 
   void _addColor2WatchedTags(LinkedHashMap<String, List<GalleryTag>> fullTags) {
