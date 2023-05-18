@@ -37,7 +37,10 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       centerTitle: true,
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.local),
-      leading: IconButton(icon: const Icon(Icons.help), onPressed: () => toast('localGalleryHelpInfo'.tr, isShort: false)),
+      leading: IconButton(
+        icon: const Icon(Icons.help),
+        onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
+      ),
       actions: [
         IconButton(
           icon: const Icon(Icons.refresh, size: 26),
@@ -228,15 +231,12 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(gallery.title,
-            maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
+        Text(gallery.title, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
         const Expanded(child: SizedBox()),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (gallery.isFromEHViewer)
-              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)))
-                  .marginOnly(right: 8),
+            if (gallery.isFromEHViewer) Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context))).marginOnly(right: 8),
           ],
         ),
       ],

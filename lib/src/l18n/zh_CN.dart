@@ -411,6 +411,7 @@ class zh_CN {
       'reUnlockHint': '注意！重新解锁需要重新购买此归档！',
       'downloadHelpInfo': '如果发现无法下载，在日志中发现了数据库表不存在等问题，卸载当前app重装即可。',
       'localGalleryHelpInfo': '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。在下载设置-额外的画廊扫描路径中配置，之后刷新即可',
+      'localGalleryHelpInfo4iOSAndMacOS': '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。将你的画廊放在默认下载路径下，之后刷新即可',
       'deleteLocalGalleryHint': '删除您的本地文件',
       'priority': '优先级',
       'highest': '最高',

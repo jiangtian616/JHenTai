@@ -62,5 +62,7 @@
     <string>Auth identity</string>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
