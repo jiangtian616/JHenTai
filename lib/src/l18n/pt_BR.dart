@@ -237,7 +237,8 @@ class pt_BR {
       'updateTagSetFailed': 'Falha na atualização do conjunto de tags',
       'deleteTagSetSuccess': 'Falha na atualização do conjunto de tags',
       'deleteTagSetFailed': 'Falha ao excluir conjunto de tags',
-
+      'addLocalTagHint': 'Search to add new tag',
+      
       /// Layout
       'layoutMode': 'Modo de layout',
       'mobileLayoutV2Name': 'Celular',

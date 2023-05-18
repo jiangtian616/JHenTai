@@ -219,7 +219,7 @@ class en_US {
       'redirect2EH': 'Redirect to EH site if Available',
       'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
-      'imageLimits': 'Image Limits', 
+      'imageLimits': 'Image Limits',
       'resetCost': 'Long press to reset, cost',
       'assets': 'Assets',
 
@@ -228,13 +228,15 @@ class en_US {
       'myTagsHint': 'Manage watched and hidden tags online',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'localTagsHint2':
+          'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
       'hidden': 'Hidden',
       'nope': 'Nope',
       'getTagSetFailed': 'Get Tag Set Failed',
       'updateTagSetFailed': 'Update Tag Set Failed',
       'deleteTagSetSuccess': 'Delete Tag Set Success',
       'deleteTagSetFailed': 'Delete Tag Set Failed',
+      'addLocalTagHint': 'Search to add new tag',
 
       /// Layout
       'layoutMode': 'Layout Mode',
@@ -498,8 +500,7 @@ class en_US {
 
       /// download setting page
       'downloadPath': 'Download Path',
-      'changeDownloadPathHint':
-          'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
+      'changeDownloadPathHint': 'Long press to change(do not use SD-Card or any system path). Will copy downloaded gallerys automatically and keep old files. If you meet any error, try to reset.',
       'resetDownloadPath': 'Reset Download Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
       'extraGalleryScanPathHint': 'To scan and load local gallerys',

@@ -12,7 +12,11 @@ import '../utils/log.dart';
 
 class MyTagsSetting {
   static List<TagSet> onlineTagSets = [];
-  static List<TagData> localTagSets = [];
+  static List<TagData> localTagSets = [
+    TagData(namespace: 'artist', key: 'hibiki'),
+    TagData(namespace: 'artist', key: 'hibiki2'),
+    TagData(namespace: 'artist', key: 'hibiki3'),
+  ];
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
@@ -63,17 +67,17 @@ class MyTagsSetting {
   static TagSet? getOnlineTagSetByTagData(TagData tagData) {
     return onlineTagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
   }
-  
-  static void addLocalTagSet(TagData tagData){
+
+  static void addLocalTagSet(TagData tagData) {
     localTagSets.add(tagData);
     _saveLocalTagSets();
   }
 
-  static void removeLocalTagSet(TagData tagData){
+  static void removeLocalTagSet(TagData tagData) {
     localTagSets.remove(tagData);
     _saveLocalTagSets();
   }
-  
+
   static Future<void> _clearOnlineTagSets() async {
     onlineTagSets.clear();
     Log.info('clear MyTagsSetting success');

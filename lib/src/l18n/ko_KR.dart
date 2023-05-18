@@ -235,7 +235,8 @@ class ko_KR {
       'updateTagSetFailed': '태그 목록 수정 실패',
       'deleteTagSetSuccess': '태그 목록 삭제 성공',
       'deleteTagSetFailed': '태그 목록 삭제 실패',
-
+      'addLocalTagHint': 'Search to add new tag',
+      
       /// Layout
       'layoutMode': '레이아웃 모드',
       'mobileLayoutV2Name': '모바일',

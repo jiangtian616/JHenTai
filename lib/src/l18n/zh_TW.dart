@@ -234,7 +234,8 @@ class zh_TW {
       'updateTagSetFailed': '更新標籤數據失敗',
       'deleteTagSetSuccess': '刪除標籤數據成功',
       'deleteTagSetFailed': '刪除標籤數據失敗',
-
+      'addLocalTagHint': '搜索添加新标签',
+      
       /// Layout
       'mobileLayoutV2Name': '手機模式',
       'mobileLayoutV2Desc': '單列',
