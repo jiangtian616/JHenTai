@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 
 /// Rewrite gesture mechanism
 class EHReadPageStack extends Stack {
-  EHReadPageStack({
+  const EHReadPageStack({
     super.key,
     super.alignment,
     super.textDirection,

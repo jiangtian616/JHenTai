@@ -9,7 +9,7 @@ import audio_session
 import battery_plus
 import bitsdojo_window_macos
 import just_audio
-import package_info_plus_macos
+import package_info_plus
 import path_provider_foundation
 import sentry_flutter
 import share_plus_macos

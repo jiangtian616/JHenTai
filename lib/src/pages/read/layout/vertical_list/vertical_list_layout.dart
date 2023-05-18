@@ -16,7 +16,6 @@ class VerticalListLayout extends BaseLayout {
 
   @override
   final VerticalListLayoutLogic logic = Get.put<VerticalListLayoutLogic>(VerticalListLayoutLogic(), permanent: true);
-  @override
   final VerticalListLayoutState state = Get.find<VerticalListLayoutLogic>().state;
 
   @override

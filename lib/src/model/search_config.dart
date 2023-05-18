@@ -313,7 +313,7 @@ class SearchConfig {
       keyword: keyword ?? this.keyword,
       tags: tags ?? this.tags?.map((tag) => tag.copyWith()).toList(),
       language: language ?? this.language,
-      onlySearchExpungedGalleries: searchExpungedGalleries ?? this.onlySearchExpungedGalleries,
+      onlySearchExpungedGalleries: searchExpungedGalleries ?? onlySearchExpungedGalleries,
       onlyShowGalleriesWithTorrents: onlyShowGalleriesWithTorrents ?? this.onlyShowGalleriesWithTorrents,
       searchLowPowerTags: searchLowPowerTags ?? this.searchLowPowerTags,
       pageAtLeast: pageAtLeast ?? this.pageAtLeast,

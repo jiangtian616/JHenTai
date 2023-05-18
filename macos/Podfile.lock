@@ -11,18 +11,18 @@ PODS:
   - FMDB/standard (2.7.5)
   - just_audio (0.0.1):
     - FlutterMacOS
-  - package_info_plus_macos (0.0.1):
+  - package_info_plus (0.0.1):
     - FlutterMacOS
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Sentry/HybridSDK (8.3.1):
-    - SentryPrivate (= 8.3.1)
+  - Sentry/HybridSDK (8.7.1):
+    - SentryPrivate (= 8.7.1)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.3.1)
-  - SentryPrivate (8.3.1)
+    - Sentry/HybridSDK (= 8.7.1)
+  - SentryPrivate (8.7.1)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - smart_auth (0.0.1):
@@ -59,8 +59,8 @@ DEPENDENCIES:
   - bitsdojo_window_macos (from `Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
-  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos`)
+  - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
+  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
   - smart_auth (from `Flutter/ephemeral/.symlinks/plugins/smart_auth/macos`)
@@ -87,10 +87,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
+  package_info_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/macos
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   sentry_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus_macos:
@@ -113,11 +113,11 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
+  package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
-  Sentry: 316f997b2f89557014ae9919f0d0c71e6e43c01e
-  sentry_flutter: f0e51fac01e46af2e16f0a7458e3014bbc131ff5
-  SentryPrivate: 63dd9ee25187d20427ab7b5d03054df149912c23
+  Sentry: 11776f6a25a128808d793d0d41bb7ad873b5ae4f
+  sentry_flutter: 886dbeb2674ba1232f540c54311a774bb50fda42
+  SentryPrivate: b3c448eacdabe9eab7679a2e0af609c608f91572
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea

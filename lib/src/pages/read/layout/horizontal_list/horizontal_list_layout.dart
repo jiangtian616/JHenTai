@@ -17,7 +17,6 @@ class HorizontalListLayout extends BaseLayout {
   @override
   final HorizontalListLayoutLogic logic = Get.put<HorizontalListLayoutLogic>(HorizontalListLayoutLogic(), permanent: true);
 
-  @override
   final HorizontalListLayoutState state = Get.find<HorizontalListLayoutLogic>().state;
 
   @override

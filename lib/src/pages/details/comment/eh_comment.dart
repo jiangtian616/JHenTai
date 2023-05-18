@@ -7,7 +7,7 @@ import 'package:html/dom.dart' as dom;
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
-import 'package:jhentai/src/extension/state_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -473,7 +473,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       return;
     }
 
-    setStateIfMounted(() {
+    setStateSafely(() {
       score = newScore! >= 0 ? '+' + newScore.toString() : newScore.toString();
     });
   }

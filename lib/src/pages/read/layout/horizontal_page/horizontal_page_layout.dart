@@ -14,7 +14,6 @@ class HorizontalPageLayout extends BaseLayout {
   @override
   final HorizontalPageLayoutLogic logic = Get.put<HorizontalPageLayoutLogic>(HorizontalPageLayoutLogic(), permanent: true);
 
-  @override
   final HorizontalPageLayoutState state = Get.find<HorizontalPageLayoutLogic>().state;
 
   @override

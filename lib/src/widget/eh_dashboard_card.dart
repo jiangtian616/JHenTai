@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import '../config/ui_config.dart';
 
@@ -11,7 +10,6 @@ import '../model/gallery_tag.dart';
 import '../routes/routes.dart';
 import '../service/tag_translation_service.dart';
 import '../utils/route_util.dart';
-import 'loading_state_indicator.dart';
 
 class EHDashboardCard extends StatefulWidget {
   final Gallery gallery;

@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   bitsdojo_window_windows
+  local_auth_windows
   permission_handler_windows
   sentry_flutter
   smart_auth

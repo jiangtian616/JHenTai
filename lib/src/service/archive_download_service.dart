@@ -4,7 +4,6 @@ import 'dart:io' as io;
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_navigation/src/snackbar/snackbar.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';

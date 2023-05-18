@@ -2,9 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../model/jh_layout.dart';
@@ -29,17 +27,16 @@ class StyleSetting {
   static RxnInt crossAxisCountInGridDownloadPageForGallery = RxnInt(null);
   static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
-  static Rx<LayoutMode> layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
+  static Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
 
-  static bool get isInWaterFlowListMode =>
-      listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
+  static bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
 
   static Brightness currentBrightness() => themeMode.value == ThemeMode.system
-      ? WidgetsBinding.instance.window.platformBrightness
+      ? PlatformDispatcher.instance.platformBrightness
       : themeMode.value == ThemeMode.light
           ? Brightness.light
           : Brightness.dark;
@@ -166,7 +163,7 @@ class StyleSetting {
 
     /// old layout has been removed in v5.0.0
     if (isInV1Layout) {
-      layout = WidgetsBinding.instance.window.physicalSize.width / WidgetsBinding.instance.window.devicePixelRatio < 600
+      layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
           ? LayoutMode.mobileV2.obs
           : GetPlatform.isDesktop
               ? LayoutMode.desktop.obs

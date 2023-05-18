@@ -60,7 +60,7 @@ class LocalGalleryGridPage extends GridBasePage {
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
     return GridGroup(
       groupName: logic.transformDisplayPath(logic.isAtRootPath ? groupName : relative(groupName, from: state.currentGroup)),
-      widgets: [],
+      widgets: const [],
       emptyIcon: state.isAtRoot ? Icons.folder_special : null,
       onTap: () => logic.enterGroup(groupName),
     );

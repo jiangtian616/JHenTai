@@ -14,7 +14,6 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
   @override
   final HorizontalDoubleColumnLayoutLogic logic = Get.put<HorizontalDoubleColumnLayoutLogic>(HorizontalDoubleColumnLayoutLogic(), permanent: true);
 
-  @override
   final HorizontalDoubleColumnLayoutState state = Get.find<HorizontalDoubleColumnLayoutLogic>().state;
 
   @override

@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,11 +21,9 @@ import '../config/ui_config.dart';
 import '../consts/locale_consts.dart';
 import '../database/database.dart';
 import '../network/eh_request.dart';
-import '../setting/style_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
 import 'eh_gallery_category_tag.dart';
-import 'loading_state_indicator.dart';
 
 enum EHSearchConfigDialogType { update, add, filter }
 
@@ -482,7 +479,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 controller: TextEditingController(text: searchConfig.pageAtLeast?.toString()),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d'))],
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).textTheme.bodyText1?.color),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                 onChanged: (value) => searchConfig.pageAtLeast = value.isEmpty ? null : int.parse(value),
               ),
             ),
@@ -493,7 +490,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 controller: TextEditingController(text: searchConfig.pageAtMost?.toString()),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d'))],
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).textTheme.bodyText1?.color),
+                style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
                 onChanged: (value) => searchConfig.pageAtMost = value.isEmpty ? null : int.parse(value),
               ),
             ),
@@ -652,7 +649,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     }
 
     overlayEntry = _buildSuggestions(keyword);
-    Overlay.of(context)?.insert(overlayEntry!);
+    Overlay.of(context).insert(overlayEntry!);
 
     _isShowingSuggestions = true;
   }

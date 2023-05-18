@@ -8,6 +8,7 @@
 
 #include <battery_plus/battery_plus_windows_plugin.h>
 #include <bitsdojo_window_windows/bitsdojo_window_plugin.h>
+#include <local_auth_windows/local_auth_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <sentry_flutter/sentry_flutter_plugin.h>
 #include <smart_auth/smart_auth_plugin.h>
@@ -19,6 +20,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("BatteryPlusWindowsPlugin"));
   BitsdojoWindowPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("BitsdojoWindowPlugin"));
+  LocalAuthPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("LocalAuthPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PermissionHandlerWindowsPlugin"));
   SentryFlutterPluginRegisterWithRegistrar(

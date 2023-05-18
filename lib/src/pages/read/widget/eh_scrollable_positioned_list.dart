@@ -272,7 +272,7 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
   @override
   void initState() {
     super.initState();
-    ItemPosition? initialPosition = PageStorage.of(context)!.readState(context);
+    ItemPosition? initialPosition = PageStorage.of(context).readState(context);
     primary.target = initialPosition?.index ?? widget.initialScrollIndex;
     primary.alignment = initialPosition?.itemLeadingEdge ?? widget.initialAlignment;
     if (widget.itemCount > 0 && primary.target > widget.itemCount - 1) {
@@ -586,7 +586,7 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
     final itemPositions = primary.itemPositionsNotifier.itemPositions.value
         .where((ItemPosition position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0);
     if (itemPositions.isNotEmpty) {
-      PageStorage.of(context)!.writeState(context,
+      PageStorage.of(context).writeState(context,
           itemPositions.reduce((value, element) => value.itemLeadingEdge < element.itemLeadingEdge ? value : element));
     }
     widget.itemPositionsNotifier?.itemPositions.value = itemPositions;

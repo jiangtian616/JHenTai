@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';

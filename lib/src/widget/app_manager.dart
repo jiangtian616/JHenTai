@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
@@ -113,8 +115,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     if (StyleSetting.themeMode.value != ThemeMode.system) {
       return;
     }
-
-    if (WidgetsBinding.instance.window.platformBrightness == Brightness.light) {
+    if (PlatformDispatcher.instance.platformBrightness == Brightness.light) {
       Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
     } else {
       Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);

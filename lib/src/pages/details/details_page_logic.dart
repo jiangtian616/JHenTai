@@ -640,7 +640,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
       state.gallery?.galleryUrl = state.galleryUrl = secondLink;
       return galleryAndDetailAndApikey;
-    } on DioError catch (e) {
+    } on DioError catch (_) {
       Log.verbose('Can\'t find gallery, url: $secondLink');
       rethrow;
     }

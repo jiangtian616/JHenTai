@@ -31,7 +31,6 @@ import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/pages/webview/webview_page.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
-import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../pages/blank_page.dart';
 import '../pages/details/comment/comment_page.dart';
@@ -235,12 +234,12 @@ class Routes {
     ),
     EHPage(
       name: settingEH,
-      page: () => SettingEHPage(),
+      page: () => const SettingEHPage(),
       transition: defaultTransition,
     ),
     EHPage(
       name: settingStyle,
-      page: () => SettingStylePage(),
+      page: () => const SettingStylePage(),
       transition: defaultTransition,
     ),
     EHPage(
@@ -297,7 +296,7 @@ class Routes {
     ),
     EHPage(
       name: themeColor,
-      page: () => SettingThemeColorPage(),
+      page: () => const SettingThemeColorPage(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

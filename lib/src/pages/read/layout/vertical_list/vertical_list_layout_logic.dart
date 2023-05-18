@@ -11,7 +11,6 @@ import '../../../../utils/screen_size_util.dart';
 import '../base/base_layout_logic.dart';
 
 class VerticalListLayoutLogic extends BaseLayoutLogic {
-  @override
   VerticalListLayoutState state = VerticalListLayoutState();
 
   @override

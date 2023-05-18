@@ -42,12 +42,12 @@ class LocalTagSetsPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () {},
       ),
       bottomSheet: BottomSheet(
         onClosing: () {},
-        builder: (context) => SizedBox(),
+        builder: (context) => const SizedBox(),
       ),
     );
   }

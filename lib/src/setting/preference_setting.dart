@@ -8,7 +8,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class PreferenceSetting {
-  static Rx<Locale> locale = computeDefaultLocale(window.locale).obs;
+  static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static RxBool hideBottomBar = false.obs;
   static RxBool alwaysShowScroll2TopButton = false.obs;

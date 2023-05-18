@@ -12,7 +12,6 @@ import '../base/base_layout_logic.dart';
 import 'horizontal_list_layout_state.dart';
 
 class HorizontalListLayoutLogic extends BaseLayoutLogic {
-  @override
   HorizontalListLayoutState state = HorizontalListLayoutState();
 
   @override
