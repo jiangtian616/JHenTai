@@ -367,7 +367,7 @@ class SuperResolutionService extends GetxController {
     }
 
     for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in targetEntries) {
-      // deleteSuperResolutionInfo(entry.key1, entry.key2);
+      deleteSuperResolutionInfo(entry.key1, entry.key2);
     }
   }
 
