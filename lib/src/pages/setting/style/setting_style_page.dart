@@ -22,9 +22,7 @@ class SettingStylePage extends StatelessWidget {
             _buildBrightness(),
             _buildThemeColor(),
             _buildListMode(),
-            if (StyleSetting.listMode.value == ListMode.waterfallFlowWithImageAndInfo ||
-                StyleSetting.listMode.value == ListMode.waterfallFlowWithImageOnly)
-              _buildCrossAxisCountInWaterFallFlow().fadeIn(),
+            if (StyleSetting.isInWaterFlowListMode) _buildCrossAxisCountInWaterFallFlow().fadeIn(),
             _buildPageListMode(),
             _buildCrossAxisCountInGridDownloadPageForGroup(),
             _buildCrossAxisCountInGridDownloadPageForGallery(),
@@ -74,8 +72,9 @@ class SettingStylePage extends StatelessWidget {
           DropdownMenuItem(child: Text('flatWithoutTags'.tr), value: ListMode.flatWithoutTags),
           DropdownMenuItem(child: Text('listWithTags'.tr), value: ListMode.listWithTags),
           DropdownMenuItem(child: Text('listWithoutTags'.tr), value: ListMode.listWithoutTags),
-          DropdownMenuItem(child: Text('waterfallFlowWithImageOnly'.tr), value: ListMode.waterfallFlowWithImageOnly),
-          DropdownMenuItem(child: Text('waterfallFlowWithImageAndInfo'.tr), value: ListMode.waterfallFlowWithImageAndInfo),
+          DropdownMenuItem(child: Text('waterfallFlowSmall'.tr), value: ListMode.waterfallFlowSmall),
+          DropdownMenuItem(child: Text('waterfallFlowMedium'.tr), value: ListMode.waterfallFlowMedium),
+          DropdownMenuItem(child: Text('waterfallFlowBig'.tr), value: ListMode.waterfallFlowBig),
         ],
       ),
     );

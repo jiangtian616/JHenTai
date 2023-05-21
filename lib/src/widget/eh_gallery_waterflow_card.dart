@@ -38,10 +38,11 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
         child: Card(
           child: Column(
             children: [
-              listMode == ListMode.waterfallFlowWithImageAndInfo
-                  ? _buildCover()
-                  : Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
-              if (listMode == ListMode.waterfallFlowWithImageAndInfo) _buildInfo(context),
+              if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium)
+                Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
+              if (listMode == ListMode.waterfallFlowBig) _buildCover(),
+              if (listMode == ListMode.waterfallFlowMedium) _buildMediumInfo(context),
+              if (listMode == ListMode.waterfallFlowBig) _buildBigInfo(context),
             ],
           ),
         ),
@@ -65,10 +66,10 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
           heroTag: gallery.cover,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
-            topRight: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 12 : 8),
-            bottomLeft: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
-            bottomRight: Radius.circular(listMode == ListMode.waterfallFlowWithImageAndInfo ? 0 : 8),
+            topLeft: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
+            topRight: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
+            bottomLeft: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
+            bottomRight: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
           ),
         );
       },
@@ -83,13 +84,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       child: Center(
         child: Text(
           LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-          style: const TextStyle(fontSize: 9, color: UIConfig.waterFallFlowCardLanguageChipTextColor),
+          style: TextStyle(fontSize: 9, color: UIConfig.waterFallFlowCardLanguageChipTextColor(ColorConsts.galleryCategoryColor[gallery.category]!)),
         ),
       ),
     );
   }
 
-  Widget _buildInfo(BuildContext context) {
+  Widget _buildMediumInfo(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -97,21 +98,45 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           children: [
             _buildRatingBar(context),
             const Expanded(child: SizedBox()),
-            if (listMode == ListMode.waterfallFlowWithImageAndInfo && gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
-            EHGalleryCategoryTag(
-              category: gallery.category,
-              textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            ).marginOnly(right: 4),
-            if (gallery.language != null)
-              Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
             if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
           ],
         ),
+      ],
+    ).paddingOnly(top: 2, bottom: 2, left: 6, right: 6);
+  }
+
+  Widget _buildBigInfo(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBasicInfo(context),
         _buildTitle().marginOnly(top: 4, left: 2),
         if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
       ],
     ).paddingOnly(top: 6, bottom: 6, left: 6, right: 6);
+  }
+
+  Widget _buildBasicInfo(BuildContext context) {
+    return Row(
+      children: [
+        _buildRatingBar(context),
+        const Expanded(child: SizedBox()),
+        if (listMode == ListMode.waterfallFlowBig && gallery.isFavorite)
+          Icon(
+            Icons.favorite,
+            size: 11,
+            color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
+          ).marginOnly(right: 4),
+        EHGalleryCategoryTag(
+          category: gallery.category,
+          textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+        ).marginOnly(right: 4),
+        if (gallery.language != null)
+          Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
+        if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
+      ],
+    );
   }
 
   Widget _buildRatingBar(BuildContext context) {
@@ -122,16 +147,9 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       allowHalfRating: true,
       itemSize: 12,
       ignoreGestures: true,
-      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
+      itemBuilder: (context, _) =>
+          Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
       onRatingUpdate: (_) {},
-    );
-  }
-
-  Widget _buildFavoriteIcon() {
-    return Icon(
-      Icons.favorite,
-      size: 11,
-      color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
     );
   }
 

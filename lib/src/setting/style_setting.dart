@@ -11,10 +11,11 @@ import '../service/storage_service.dart';
 enum ListMode {
   listWithoutTags,
   listWithTags,
-  waterfallFlowWithImageOnly,
-  waterfallFlowWithImageAndInfo,
+  waterfallFlowSmall,
+  waterfallFlowBig,
   flat,
   flatWithoutTags,
+  waterfallFlowMedium,
 }
 
 class StyleSetting {
@@ -27,13 +28,15 @@ class StyleSetting {
   static RxnInt crossAxisCountInGridDownloadPageForGallery = RxnInt(null);
   static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
-  static Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-      ? LayoutMode.mobileV2.obs
-      : GetPlatform.isDesktop
-          ? LayoutMode.desktop.obs
-          : LayoutMode.tabletV2.obs;
+  static Rx<LayoutMode> layout =
+      PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+          ? LayoutMode.mobileV2.obs
+          : GetPlatform.isDesktop
+              ? LayoutMode.desktop.obs
+              : LayoutMode.tabletV2.obs;
 
-  static bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowWithImageAndInfo || listMode.value == ListMode.waterfallFlowWithImageOnly;
+  static bool get isInWaterFlowListMode =>
+      listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
 
   static Brightness currentBrightness() => themeMode.value == ThemeMode.system
       ? PlatformDispatcher.instance.platformBrightness

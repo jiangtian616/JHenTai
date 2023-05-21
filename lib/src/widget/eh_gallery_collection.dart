@@ -76,8 +76,8 @@ Widget EHGalleryCollection({
       sliver: SliverWaterfallFlow(
         gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: listMode == ListMode.waterfallFlowWithImageAndInfo ? 225 : 150,
-                mainAxisSpacing: listMode == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? 225 : 150,
+                mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
                 collectGarbage: (List<int> garbages) {
                   if (gallerys.isNotEmpty) {
@@ -87,7 +87,7 @@ Widget EHGalleryCollection({
               )
             : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                 crossAxisCount: StyleSetting.crossAxisCountInWaterFallFlow.value!,
-                mainAxisSpacing: listMode == ListMode.waterfallFlowWithImageAndInfo ? 10 : 5,
+                mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
                 collectGarbage: (List<int> garbages) {
                   if (gallerys.isNotEmpty) {

@@ -235,7 +235,7 @@ class zh_TW {
       'deleteTagSetSuccess': '刪除標籤數據成功',
       'deleteTagSetFailed': '刪除標籤數據失敗',
       'addLocalTagHint': '搜索添加新标签',
-      
+
       /// Layout
       'mobileLayoutV2Name': '手機模式',
       'mobileLayoutV2Desc': '單列',
@@ -263,8 +263,9 @@ class zh_TW {
       'flatWithoutTags': '平坦 - 無標籤',
       'listWithoutTags': '卡片 - 無標籤',
       'listWithTags': '卡片',
-      'waterfallFlowWithImageOnly': '瀑布流(僅圖片)',
-      'waterfallFlowWithImageAndInfo': '瀑布流',
+      'waterfallFlowSmall': '瀑布流(小)',
+      'waterfallFlowMedium': '瀑布流(中)',
+      'waterfallFlowBig': '瀑布流(大)',
       'crossAxisCountInWaterFallFlow': '瀑布流列數',
       'pageListStyle': '畫廊列表樣式(頁面)',
       'crossAxisCountInGridDownloadPageForGroup': '下載頁網格布局列數(分組)',

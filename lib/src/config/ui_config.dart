@@ -35,7 +35,8 @@ class UIConfig {
   static const Color defaultLightThemeColor = Color(0xFF6750A4);
   static const Color defaultDarkThemeColor = Color(0xFFD0BCFF);
 
-  static Widget loadingAnimation(BuildContext context) => LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
+  static Widget loadingAnimation(BuildContext context) =>
+      LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
 
   static Color alertColor(BuildContext context) => Theme.of(context).colorScheme.error;
 
@@ -106,7 +107,8 @@ class UIConfig {
 
   static Color waterFallFlowCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.05);
 
-  static const Color waterFallFlowCardLanguageChipTextColor = Colors.white;
+  static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) =>
+      backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
 
   /// Login page
   static Color loginPageForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
@@ -116,7 +118,7 @@ class UIConfig {
   static Color loginPageFormIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
   static const double loginPageTextHintSize = 13;
-  
+
   static Color loginPageTextHintColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
   static Color loginPagePrefixIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
@@ -126,7 +128,7 @@ class UIConfig {
   static Color loginPageIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.background;
 
   static const double loginPageParseCookieTextSize = 10;
-  
+
   /// Detail page
   static const double detailsPageHeaderHeight = 200;
   static const double detailsPageCoverHeight = 200;
