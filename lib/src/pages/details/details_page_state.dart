@@ -9,7 +9,7 @@ class DetailsPageState with Scroll2TopStateMixin {
   GalleryDetail? galleryDetails;
 
   /// used for rating
-  late String apikey;
+  String? apikey;
 
   int nextPageIndexToLoadThumbnails = 1;
   LoadingState loadingState = LoadingState.idle;

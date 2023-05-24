@@ -23,7 +23,7 @@ import '../../../../../widget/icon_text_button.dart';
 
 class DetailPreviewPage extends DetailsPage {
   DetailPreviewPage({super.key}) : super.preview() {
-    logic = DetailsPreviewPageLogic('preview');
+    logic = DetailsPreviewPageLogic();
     state = logic.state;
   }
 
@@ -45,12 +45,11 @@ class DetailPreviewPage extends DetailsPage {
         child: CustomScrollView(
           controller: state.scrollController,
           slivers: [
-            buildHeader(),
+            buildDetail(context),
             buildDivider(),
             buildNewVersionHint(),
             buildActions(context),
             buildTags(),
-            buildCommentsIndicator(),
             buildComments(),
             buildThumbnails(),
             buildLoadingThumbnailIndicator(context),
@@ -199,18 +198,6 @@ class DetailPreviewPage extends DetailsPage {
   }
 
   @override
-  Widget buildLoadingThumbnailIndicator(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 12, bottom: 40),
-      sliver: SliverToBoxAdapter(
-        child: Center(
-          child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
-        ),
-      ),
-    );
-  }
-
-  @override
   Widget buildThumbnails() {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
@@ -234,10 +221,8 @@ class DetailPreviewPage extends DetailsPage {
                       ),
                     ),
                   ),
-                  Text(
-                    (index + 1).toString(),
-                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
-                  ).paddingOnly(top: 3),
+                  const SizedBox(height: 3),
+                  Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
                 ],
               ),
             );
@@ -253,13 +238,25 @@ class DetailPreviewPage extends DetailsPage {
       ),
     );
   }
+
+  @override
+  Widget buildLoadingThumbnailIndicator(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 12, bottom: 40),
+      sliver: SliverToBoxAdapter(
+        child: Center(
+          child: Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
+        ),
+      ),
+    );
+  }
 }
 
 class DetailsPreviewPageLogic extends DetailsPageLogic {
   @override
   final DetailsPageState state = DetailsPreviewPageState();
 
-  DetailsPreviewPageLogic(String tag) : super.preview(tag);
+  DetailsPreviewPageLogic() : super.preview();
 }
 
 class DetailsPreviewPageState extends DetailsPageState {
@@ -271,7 +268,8 @@ class DetailsPreviewPageState extends DetailsPageState {
       token: 'token - preview',
       title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
       category: 'Doujinshi',
-      cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
+      cover:
+          GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
       rating: 4.5,
       pageCount: 66,
       hasRated: true,

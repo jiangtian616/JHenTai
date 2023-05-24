@@ -36,7 +36,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const int _maxTitleLength = 80;
 
   final Completer<bool> completer = Completer();
-  
+
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
@@ -58,7 +58,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     completer.complete(true);
-    
+
     super.onInit();
   }
 
@@ -131,7 +131,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     archiveDownloadInfo.cancelToken.cancel();
     archiveDownloadInfo.speedComputer.pause();
-    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index || archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
+    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ||
+        archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
       return;
     }
 
@@ -181,11 +182,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       await retry(
         () => EHRequest.requestCancelUnlockArchive(url: archive.archivePageUrl.replaceFirst('--', '-')),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
         onRetry: (e) => Log.download('Request re-unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: _retryTimes,
       );
-    } on DioError catch (e) {
+    } on Exception catch (e) {
       Log.download('Re-Unlock archive error, reason: ${e.toString()}');
       return;
     }
@@ -317,7 +318,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     List<io.File> imageFiles;
     try {
-      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
+        ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});
@@ -436,7 +438,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           cancelToken: archiveDownloadInfo.cancelToken,
           parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
         ),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && e.error is! EHException,
+        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
         onRetry: (e) => Log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioError).message}'),
         maxAttempts: _retryTimes,
       );
@@ -445,14 +447,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      if (e.error is EHException) {
-        Log.download('Download error, reason: ${e.error.msg}');
-        snack('error'.tr, e.error.msg, longDuration: true);
-        pauseAllDownloadArchive();
-        return;
-      }
-
       return await _requestUnlock(archive);
+    } on EHException catch (e) {
+      Log.download('Download error, reason: ${e.msg}');
+      snack('error'.tr, e.msg, longDuration: true);
+      pauseAllDownloadArchive();
+      return;
     }
 
     if (downloadPageUrl == null) {
@@ -501,15 +501,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (e.type == DioErrorType.cancel) {
         return;
       }
-
-      if (e.error is EHException) {
-        Log.download('Download error, reason: ${e.error.msg}');
-        snack('error'.tr, e.error.msg, longDuration: true);
-        pauseAllDownloadArchive();
-        return;
-      }
-
       return await _getDownloadUrl(archive);
+    } on EHException catch (e) {
+      Log.download('Download error, reason: ${e.msg}');
+      snack('error'.tr, e.msg, longDuration: true);
+      pauseAllDownloadArchive();
+      return;
     }
 
     /// sometimes the download url is invalid(the same as [downloadPageUrl]), retry

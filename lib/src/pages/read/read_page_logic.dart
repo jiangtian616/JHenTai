@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_logic.dart';
@@ -63,6 +64,7 @@ class ReadPageLogic extends GetxController {
   final VolumeService volumeService = Get.find();
 
   final SuperResolutionService superResolutionService = Get.find();
+  final EHCacheInterceptor ehCacheInterceptor = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
@@ -135,9 +137,6 @@ class ReadPageLogic extends GetxController {
 
     storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentIndex);
 
-    /// update read progress in detail page
-    DetailsPageLogic.current?.update();
-
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
     Get.delete<HorizontalPageLayoutLogic>(force: true);
@@ -176,15 +175,16 @@ class ReadPageLogic extends GetxController {
           parser: EHSpiderParser.detailPage2RangeAndThumbnails,
         ),
         maxAttempts: 3,
-        retryIf: (e) => e is DioError && e.error is! EHException,
+        retryIf: (e) => e is DioError,
         onRetry: (e) => Log.error('Get thumbnails error!', (e as DioError).message),
       );
-    } on DioError catch (e) {
-      if (e.error is EHException) {
-        state.parseImageHrefErrorMsg = e.error.msg;
-      } else {
-        state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
-      }
+    } on DioError catch (_) {
+      state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
+      state.parseImageHrefsStates[index] = LoadingState.error;
+      update(['$parseImageHrefsStateId::$index']);
+      return;
+    } on EHException catch (e) {
+      state.parseImageHrefErrorMsg = e.msg;
       state.parseImageHrefsStates[index] = LoadingState.error;
       update(['$parseImageHrefsStateId::$index']);
       return;
@@ -229,17 +229,21 @@ class ReadPageLogic extends GetxController {
           useCacheIfAvailable: !reParse,
         ),
         maxAttempts: 3,
-        retryIf: (e) => e is DioError && e.error is! EHException,
+        retryIf: (e) => e is DioError,
         onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioError).message),
       );
-    } on DioError catch (e) {
+    } on DioError catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
-      if (e.error is EHException) {
-        state.parseImageUrlErrorMsg[index] = e.error.msg;
-      } else {
-        state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
-      }
+      state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
       update(['$parseImageUrlStateId::$index']);
+      return;
+    } on EHException catch (e) {
+      state.parseImageUrlStates[index] = LoadingState.error;
+      state.parseImageUrlErrorMsg[index] = e.msg;
+      update(['$parseImageUrlStateId::$index']);
+      if (e.type == EHExceptionType.exceedLimit) {
+        ehCacheInterceptor.removeCacheByUrl(state.thumbnails[index]!.href);
+      }
       return;
     }
 

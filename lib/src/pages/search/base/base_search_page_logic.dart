@@ -14,6 +14,7 @@ import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:throttling/throttling.dart';
 
+import '../../../exception/eh_exception.dart';
 import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
@@ -108,6 +109,12 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     } on DioError catch (e) {
       Log.error('fileSearchFailed'.tr, e.message);
       snack('fileSearchFailed'.tr, e.message);
+      state.loadingState = LoadingState.idle;
+      update([loadingStateId]);
+      return;
+    } on EHException catch (e) {
+      Log.error('fileSearchFailed'.tr, e.msg);
+      snack('fileSearchFailed'.tr, e.msg);
       state.loadingState = LoadingState.idle;
       update([loadingStateId]);
       return;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -5,6 +6,7 @@ import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
@@ -57,16 +59,22 @@ import '../download/list/local/local_gallery_list_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+  static const String galleryId = 'galleryId';
+  static const String uploaderId = 'uploaderId';
+  static const String detailsId = 'detailsId';
+  static const String pageCountId = 'pageCountId';
+  static const String ratingId = 'ratingId';
+  static const String favoriteId = 'favoriteId';
+  static const String readButtonId = 'readButtonId';
   static const String thumbnailsId = 'thumbnailsId';
   static const String thumbnailId = 'thumbnailId';
-  static const String loadingStateId = 'loadingStateId';
+  static const String loadingStateId = 'fullPageLoadingStateId';
   static const String loadingThumbnailsStateId = 'loadingThumbnailsStateId';
   static const String addFavoriteStateId = 'addFavoriteStateId';
   static const String ratingStateId = 'ratingStateId';
 
   /// there may be more than one DetailsPages in route stack at same time, eg: tap a link in a comment.
   /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
-  String tag;
   static final List<DetailsPageLogic> _stack = <DetailsPageLogic>[];
 
   static DetailsPageLogic? get current => _stack.isEmpty ? null : _stack.last;
@@ -83,11 +91,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
 
-  DetailsPageLogic(this.tag) {
+  DetailsPageLogic() {
     _stack.add(this);
   }
 
-  DetailsPageLogic.preview(this.tag);
+  DetailsPageLogic.preview();
 
   @override
   void onInit() {
@@ -138,30 +146,20 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     }
 
-    Gallery newGallery = galleryAndDetailAndApikey['gallery']!;
-
-    state.gallery ??= newGallery;
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
     state.apikey = galleryAndDetailAndApikey['apikey'];
     state.nextPageIndexToLoadThumbnails = 1;
 
-    /// some field in [Gallery] sometimes is null
-    state.gallery?.pageCount = newGallery.pageCount;
-    state.gallery?.uploader = newGallery.uploader;
-    state.gallery?.isFavorite = newGallery.isFavorite;
-    state.gallery?.favoriteTagIndex = newGallery.favoriteTagIndex;
-    state.gallery?.favoriteTagName = newGallery.favoriteTagName;
-    state.gallery?.hasRated = newGallery.hasRated;
-    state.gallery?.rating = newGallery.rating;
-
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
-
-    historyService.record(state.gallery);
 
     _addColor2WatchedTags(state.galleryDetails!.fullTags);
 
     state.loadingState = LoadingState.success;
-    updateSafely();
+    List<Object> updateIds = [detailsId, loadingStateId];
+    _dealWithMissingField(updateIds, galleryAndDetailAndApikey['gallery']! as Gallery);
+    updateSafely(updateIds);
+
+    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.idle);
   }
 
   Future<void> loadMoreThumbnails() async {
@@ -319,6 +317,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapRating() async {
+    if (state.apikey == null) {
+      return;
+    }
+
     if (!UserSetting.hasLoggedIn()) {
       showLoginToast();
       return;
@@ -344,9 +346,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         state.gallery!.gid,
         state.gallery!.token,
         UserSetting.ipbMemberId.value!,
-        state.apikey,
+        state.apikey!,
         (rating * 2).toInt(),
-        parser: EHSpiderParser.galleryRatingResponse2RatingInfo,
+        EHSpiderParser.galleryRatingResponse2RatingInfo,
       );
     } on DioError catch (e) {
       Log.error('ratingFailed'.tr, e.message);
@@ -473,6 +475,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void searchSimilar() {
+    if (state.galleryDetails == null) {
+      return;
+    }
     newSearch('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"', true);
   }
 
@@ -482,33 +487,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   Future<void> handleTapTorrent() async {
     Get.dialog(EHGalleryTorrentsDialog(gid: state.gallery!.gid, token: state.gallery!.token));
-  }
-
-  Future<bool?> handleVotingComment(int commentId, bool isVotingUp) async {
-    if (!UserSetting.hasLoggedIn()) {
-      snack('operationFailed'.tr, 'needLoginToOperate'.tr);
-      return null;
-    }
-
-    Log.info('Vote for comment:${state.gallery!.gid}-$commentId}');
-
-    EHRequest.voteComment(
-      state.gallery!.gid,
-      state.gallery!.token,
-      UserSetting.ipbMemberId.value!,
-      state.apikey,
-      commentId,
-      isVotingUp,
-    ).then((result) {
-      int score = jsonDecode(result)['comment_score'];
-      state.galleryDetails!.comments.firstWhere((comment) => comment.id == commentId).score = score >= 0 ? '+' + score.toString() : score.toString();
-      updateSafely();
-    }).catchError((error) {
-      Log.error('voteCommentFailed'.tr, (error as DioError).message);
-      snack('voteCommentFailed'.tr, error.message);
-    });
-
-    return true;
   }
 
   Future<void> handleTapStatistic() async {
@@ -566,7 +544,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           pageCount: state.gallery!.pageCount!,
           useSuperResolution: false,
         ),
-      );
+      )?.then((_) => updateSafely([readButtonId]));
       return;
     }
 
@@ -590,17 +568,20 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         pageCount: state.gallery!.pageCount!,
         useSuperResolution: superResolutionService.get(state.gallery!.gid, SuperResolutionType.gallery) != null,
       ),
-    );
+    )?.then((_) => updateSafely([readButtonId]));
   }
 
   int getReadIndexRecord() {
-    return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? storageService.read('readIndexRecord::${state.gallery!.title}') ?? 0;
+    if (state.gallery == null) {
+      return 0;
+    }
+    return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0;
   }
 
   Future<Map<String, dynamic>> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
     final String? firstLink;
     final String? secondLink;
-    
+
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
     if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
@@ -643,6 +624,49 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     } on DioError catch (_) {
       Log.verbose('Can\'t find gallery, url: $secondLink');
       rethrow;
+    }
+  }
+
+  /// some field in [gallery] sometimes is null
+  void _dealWithMissingField(List<Object> updateIds, Gallery newGallery) {
+    if (state.gallery == null) {
+      state.gallery = newGallery;
+      updateIds.add(galleryId);
+      updateIds.add(pageCountId);
+      updateIds.add(uploaderId);
+      updateIds.add(favoriteId);
+      updateIds.add(ratingId);
+      updateIds.add(pageCountId);
+      return;
+    }
+
+    /// page count is null in favorite page
+    if (state.gallery?.pageCount != newGallery.pageCount) {
+      state.gallery?.pageCount = newGallery.pageCount;
+      updateIds.add(pageCountId);
+    }
+
+    /// uploader info is null in favorite page
+    if (state.gallery?.uploader != newGallery.uploader) {
+      state.gallery?.uploader = newGallery.uploader;
+      updateIds.add(uploaderId);
+    }
+
+    /// favorite info is null in ranklist page
+    if (state.gallery?.isFavorite != newGallery.isFavorite ||
+        state.gallery?.favoriteTagIndex != newGallery.favoriteTagIndex ||
+        state.gallery?.favoriteTagName != newGallery.favoriteTagName) {
+      state.gallery?.isFavorite = newGallery.isFavorite;
+      state.gallery?.favoriteTagIndex = newGallery.favoriteTagIndex;
+      state.gallery?.favoriteTagName = newGallery.favoriteTagName;
+      updateIds.add(favoriteId);
+    }
+
+    /// rating info is null in ranklist page
+    if (state.gallery?.hasRated != newGallery.hasRated || state.gallery?.rating != newGallery.rating) {
+      state.gallery?.hasRated = newGallery.hasRated;
+      state.gallery?.rating = newGallery.rating;
+      updateIds.add(ratingId);
     }
   }
 

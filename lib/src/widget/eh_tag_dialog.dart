@@ -7,6 +7,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_warning_image.dart';
@@ -259,6 +260,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         tagWeight: 10,
         watch: watch,
         hidden: !watch,
+        parser: EHSpiderParser.addTagSetResponse2Result,
       );
     } on DioError catch (e) {
       Log.error('addNewTagSetFailed'.tr, e.message);

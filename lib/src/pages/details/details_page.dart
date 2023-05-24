@@ -13,6 +13,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
@@ -28,7 +29,6 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
-import '../../model/gallery_comment.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/local_gallery_service.dart';
 import '../../setting/preference_setting.dart';
@@ -48,7 +48,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   late final DetailsPageState state;
 
   DetailsPage({super.key}) {
-    logic = Get.put(DetailsPageLogic(tag), tag: tag);
+    logic = Get.put(DetailsPageLogic(), tag: tag);
     state = logic.state;
   }
 
@@ -57,29 +57,34 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
-      tag: tag,
+      global: false,
+      init: logic,
       builder: (_) => Scaffold(
-        backgroundColor: UIConfig.backGroundColor(context),
         appBar: buildAppBar(),
         body: buildBody(context),
-        floatingActionButton: state.galleryDetails == null ? null : buildFloatingActionButton(),
+        floatingActionButton: buildFloatingActionButton(),
       ),
     );
   }
 
   AppBar buildAppBar() {
     return AppBar(
-      title: Text(state.gallery?.title.breakWord ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      title: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.galleryId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (state.gallery == null) {
+            return const Text('');
+          }
+          return Text(state.gallery!.title.breakWord, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold));
+        },
+      ),
       actions: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-          child: state.galleryDetails == null
-              ? const SizedBox(width: 40)
-              : IconButton(
-                  icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
-                  visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
-                  onPressed: logic.handleTapJumpButton,
-                ),
+        IconButton(
+          icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
+          visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
+          onPressed: logic.handleTapJumpButton,
         ),
         IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery),
       ],
@@ -87,461 +92,360 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget buildBody(BuildContext context) {
-    if (state.gallery == null) {
-      return GetBuilder<DetailsPageLogic>(
-        id: DetailsPageLogic.loadingStateId,
-        tag: tag,
-        builder: (_) => LoadingStateIndicator(
-          indicatorRadius: 18,
-          loadingState: state.loadingState,
-          errorTapCallback: logic.getDetails,
-        ),
-      );
-    }
-
     return NotificationListener<UserScrollNotification>(
       onNotification: logic.onUserScroll,
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           controller: state.scrollController,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
-            buildHeader(),
+            buildDetail(context),
             buildDivider(),
             buildNewVersionHint(),
             buildActions(context),
-            buildTags(),
             buildLoadingDetailsIndicator(),
-            buildCommentsIndicator(),
+            buildTags(),
             buildComments(),
             buildThumbnails(),
-            if (state.galleryDetails != null) buildLoadingThumbnailIndicator(context),
+            buildLoadingThumbnailIndicator(context),
           ],
         ),
       ),
     );
   }
 
-  Widget buildHeader() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 12, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(child: _DetailsPageHeader(logic: logic, state: state)),
-    );
-  }
-
-  Widget buildNewVersionHint() {
-    if (state.galleryDetails?.newVersionGalleryUrl == null) {
-      return const SliverToBoxAdapter();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 12),
-      sliver: SliverToBoxAdapter(
-        child: _NewVersionHint(newGalleryUrl: state.galleryDetails!.newVersionGalleryUrl!),
-      ),
-    );
-  }
-
-  Widget buildDivider() {
-    return const SliverPadding(
-      padding: EdgeInsets.only(top: 24, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(child: Divider(height: 1)),
-    );
-  }
-
-  Widget buildActions(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 20, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(child: _ActionButtons()),
-    );
-  }
-
-  Widget buildTags() {
-    LinkedHashMap<String, List<GalleryTag>>? tagList = state.galleryDetails?.fullTags;
-    if (tagList?.isEmpty ?? true) {
-      return const SliverToBoxAdapter();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 16, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(
-        child: _GalleryTags(
-          tagList: tagList!,
-          gid: state.gallery!.gid,
-          token: state.gallery!.token,
-          apikey: state.apikey,
+  Widget buildDetail(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: UIConfig.detailsPageHeaderHeight,
+        margin: const EdgeInsets.only(top: 12, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+        child: Row(
+          children: [
+            _buildCover(context),
+            const SizedBox(width: 10),
+            Expanded(child: _buildInfo(context)),
+          ],
         ),
-      ),
-    );
-  }
-
-  Widget buildLoadingDetailsIndicator() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 24),
-      sliver: SliverToBoxAdapter(
-        child: GetBuilder<DetailsPageLogic>(
-          id: DetailsPageLogic.loadingStateId,
-          tag: tag,
-          builder: (_) => LoadingStateIndicator(
-            indicatorRadius: 16,
-            loadingState: state.loadingState,
-            errorTapCallback: logic.getDetails,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildCommentsIndicator() {
-    if (state.galleryDetails == null) {
-      return const SliverToBoxAdapter();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.only(left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(
-        child: FadeIn(
-          child: SizedBox(
-            height: UIConfig.detailsPageCommentIndicatorHeight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
-                  child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildComments() {
-    if (state.galleryDetails?.comments.isEmpty ?? true) {
-      return const SliverToBoxAdapter();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.only(left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: SliverToBoxAdapter(
-        child: _Comments(comments: state.galleryDetails!.comments),
-      ),
-    );
-  }
-
-  Widget buildLoadingThumbnailIndicator(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 12, bottom: 40),
-      sliver: SliverToBoxAdapter(
-        child: GetBuilder<DetailsPageLogic>(
-          id: DetailsPageLogic.loadingThumbnailsStateId,
-          tag: tag,
-          builder: (_) => LoadingStateIndicator(
-            loadingState: state.loadingThumbnailsState,
-            errorTapCallback: logic.loadMoreThumbnails,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildThumbnails() {
-    if (state.galleryDetails == null) {
-      return const SliverToBoxAdapter();
-    }
-
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
-      sliver: _Thumbnails(logic: logic, state: state),
-    );
-  }
-}
-
-class _DetailsPageHeader extends StatelessWidget {
-  final DetailsPageLogic logic;
-
-  final DetailsPageState state;
-
-  const _DetailsPageHeader({Key? key, required this.logic, required this.state}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: UIConfig.detailsPageHeaderHeight,
-      child: Row(
-        children: [
-          _buildCover(context),
-          Expanded(child: _buildDetails(context).marginOnly(left: 10)),
-        ],
       ),
     );
   }
 
   Widget _buildCover(BuildContext context) {
-    return GestureDetector(
-      onTap: () => toRoute(Routes.singleImagePage, arguments: state.gallery!.cover),
-      child: EHImage(
-        galleryImage: state.gallery!.cover,
-        containerHeight: UIConfig.detailsPageCoverHeight,
-        containerWidth: UIConfig.detailsPageCoverWidth,
-        borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
-        heroTag: state.gallery!.cover,
-        shadows: [
-          BoxShadow(
-            color: UIConfig.detailPageCoverShadowColor(context),
-            blurRadius: 5,
-            offset: const Offset(3, 5),
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.galleryId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        if (state.gallery == null) {
+          return Container(
+            height: UIConfig.detailsPageCoverHeight,
+            width: UIConfig.detailsPageCoverWidth,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              border: Border.all(color: UIConfig.detailsPageActionDisabledIconColor(context), width: 1),
+              borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
+            ),
+            child: UIConfig.loadingAnimation(context),
+          );
+        }
+
+        return GestureDetector(
+          onTap: () => toRoute(Routes.singleImagePage, arguments: state.gallery!.cover),
+          child: EHImage(
+            galleryImage: state.gallery!.cover,
+            containerHeight: UIConfig.detailsPageCoverHeight,
+            containerWidth: UIConfig.detailsPageCoverWidth,
+            borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
+            heroTag: state.gallery!.cover,
+            shadows: [
+              BoxShadow(
+                color: UIConfig.detailPageCoverShadowColor(context),
+                blurRadius: 5,
+                offset: const Offset(3, 5),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildDetails(BuildContext context) {
+  Widget _buildInfo(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildTitle(),
+        const SizedBox(height: 4),
         _buildUploader(context),
         const Expanded(child: SizedBox()),
-        GestureDetector(
-          onTap: state.loadingState == LoadingState.success
-              ? () => Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!))
-              : null,
-          behavior: HitTestBehavior.opaque,
-          child: StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context).marginOnly(bottom: 4) : _buildInfoInTwoRows().marginOnly(bottom: 4),
-        ),
+        _buildDataInfo(context),
+        const SizedBox(height: 4),
         _buildRatingAndCategory(context),
       ],
     );
   }
 
   Widget _buildTitle() {
-    return SelectableText(
-      state.gallery!.title,
-      minLines: 1,
-      maxLines: 5,
-      style: const TextStyle(
-        fontSize: UIConfig.detailsPageTitleTextSize,
-        letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
-        height: UIConfig.detailsPageTitleTextHeight,
-      ),
-      onTap: state.galleryDetails == null ? null : logic.searchSimilar,
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.galleryId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        if (state.gallery == null) {
+          return const SizedBox();
+        }
+
+        return SelectableText(
+          state.gallery!.title,
+          minLines: 1,
+          maxLines: 5,
+          style: const TextStyle(
+            fontSize: UIConfig.detailsPageTitleTextSize,
+            letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
+            height: UIConfig.detailsPageTitleTextHeight,
+          ),
+          onTap: logic.searchSimilar,
+        );
+      },
     );
   }
 
   Widget _buildUploader(BuildContext context) {
-    if (state.gallery?.uploader == null) {
-      return const SizedBox();
-    }
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.uploaderId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        if (state.gallery?.uploader == null) {
+          return const SizedBox();
+        }
 
-    return SelectableText(
-      state.gallery!.uploader!,
-      style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor(context)),
-      onTap: logic.searchUploader,
-    ).marginOnly(top: 4);
+        return SelectableText(
+          state.gallery!.uploader!,
+          style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor(context)),
+          onTap: logic.searchUploader,
+        );
+      },
+    );
+  }
+
+  Widget _buildDataInfo(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
+        if (state.gallery != null && state.galleryDetails != null) {
+          Get.dialog(EHGalleryDetailDialog(gallery: state.gallery!, galleryDetail: state.galleryDetails!));
+        }
+      },
+      child: StyleSetting.isInMobileLayout ? _buildInfoInThreeRows(context) : _buildInfoInTwoRows(),
+    );
   }
 
   Widget _buildInfoInTwoRows() {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        double iconSize = 10 + constraints.maxWidth / 120;
-        double textSize = 6 + constraints.maxWidth / 120;
-        double space = 4 / 3 + constraints.maxWidth / 300;
+        final double iconSize = 10 + constraints.maxWidth / 120;
+        final double textSize = 6 + constraints.maxWidth / 120;
+        final double space = 4 / 3 + constraints.maxWidth / 300;
 
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  flex: 9,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
-                      Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese', style: TextStyle(fontSize: textSize)).marginOnly(left: space),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 7,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                        child: Text(
-                          state.galleryDetails?.favoriteCount.toString() ?? '...',
-                          key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
-                          style: TextStyle(fontSize: textSize),
-                        ),
-                      ).marginOnly(left: space),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: space),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                        child: Text(
-                          state.galleryDetails?.size ?? '...',
-                          key: Key(state.galleryDetails?.size ?? '...'),
-                          style: TextStyle(fontSize: textSize),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                  flex: 9,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                        child: Text(
-                          state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString(),
-                          key: Key(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString()),
-                          style: TextStyle(fontSize: textSize),
-                        ),
-                      ).marginOnly(left: space),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 7,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                        child: Text(
-                          state.galleryDetails?.ratingCount.toString() ?? '...',
-                          key: Key(state.galleryDetails?.ratingCount.toString() ?? '...'),
-                          style: TextStyle(fontSize: textSize),
-                        ),
-                      ).marginOnly(left: space),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: space),
-                      Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime), style: TextStyle(fontSize: textSize)),
-                    ],
-                  ),
-                ),
-              ],
-            ).marginOnly(top: space),
-          ],
+        return DefaultTextStyle(
+          style: DefaultTextStyle.of(context).style.copyWith(fontSize: textSize),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(flex: 9, child: _buildLanguage(iconSize, space, context)),
+                  Expanded(flex: 7, child: _buildFavoriteCount(iconSize, space, context)),
+                  Expanded(flex: 10, child: _buildSize(iconSize, space, context)),
+                ],
+              ),
+              SizedBox(height: space),
+              Row(
+                children: [
+                  Expanded(flex: 9, child: _buildPageCount(iconSize, space, context)),
+                  Expanded(flex: 7, child: _buildRatingCount(iconSize, space, context)),
+                  Expanded(flex: 10, child: _buildPublishTime(iconSize, space, context)),
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
   }
 
   Widget _buildInfoInThreeRows(BuildContext context) {
-    return DefaultTextStyle(
-      style: DefaultTextStyle.of(context).style.copyWith(fontSize: UIConfig.detailsPageInfoTextSize),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          flex: 1,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildLanguage(UIConfig.detailsPageInfoIconSize, 2, context),
+              const SizedBox(height: 2),
+              _buildRatingCount(UIConfig.detailsPageInfoIconSize, 2, context),
+              const SizedBox(height: 2),
+              _buildPageCount(UIConfig.detailsPageInfoIconSize, 2, context),
+            ],
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSize(UIConfig.detailsPageInfoIconSize, 2, context),
+              const SizedBox(height: 2),
+              _buildFavoriteCount(UIConfig.detailsPageInfoIconSize, 2, context),
+              const SizedBox(height: 2),
+              _buildPublishTime(UIConfig.detailsPageInfoIconSize, 2, context),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLanguage(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.galleryId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.language, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
-                  Text(state.gallery!.language?.capitalizeFirst ?? 'Japanese').marginOnly(left: 2),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.star, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                    child: Text(
-                      state.galleryDetails?.ratingCount.toString() ?? '...',
-                      key: Key(state.galleryDetails?.ratingCount.toString() ?? '...'),
-                    ),
-                  ).marginOnly(left: 2),
-                ],
-              ).marginOnly(top: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.collections, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                    child: Text(
-                      state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString() + 'P',
-                      key: Key(state.gallery!.pageCount == null ? '...' : state.gallery!.pageCount.toString()),
-                    ),
-                  ).marginOnly(left: 2),
-                ],
-              ).marginOnly(top: 2),
-            ],
+          Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.gallery == null ? '...' : state.gallery!.language?.capitalizeFirst ?? 'Japanese',
+              key: ValueKey(state.gallery == null ? '...' : state.gallery!.language?.capitalizeFirst ?? 'Japanese'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
           ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.archive, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: 2),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                    child: Text(
-                      state.galleryDetails?.size ?? '...',
-                      key: Key(state.galleryDetails?.size ?? '...'),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.favorite, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-                    child: Text(
-                      state.galleryDetails?.favoriteCount.toString() ?? '...',
-                      key: Key(state.galleryDetails?.favoriteCount.toString() ?? '...'),
-                    ),
-                  ).marginOnly(left: 2),
-                ],
-              ).marginOnly(top: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.cloud_upload, size: UIConfig.detailsPageInfoIconSize, color: UIConfig.detailsPageIconColor(context)).marginOnly(right: 2),
-                  Text(DateUtil.transform2LocalTimeString(state.gallery!.publishTime)),
-                ],
-              ).marginOnly(top: 2),
-            ],
-          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavoriteCount(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.favorite, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.galleryDetails?.favoriteCount.toString() ?? '...',
+              key: ValueKey(state.galleryDetails?.favoriteCount.toString() ?? '...'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSize(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.archive, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.galleryDetails?.size ?? '...',
+              key: ValueKey(state.galleryDetails?.size ?? '...'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPageCount(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.pageCountId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.collections, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.gallery?.pageCount?.toString() ?? '...',
+              key: ValueKey(state.gallery?.pageCount?.toString() ?? '...'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingCount(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.star, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.galleryDetails?.ratingCount.toString() ?? '...',
+              key: ValueKey(state.galleryDetails?.ratingCount.toString() ?? '...'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPublishTime(double iconSize, double space, BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.galleryId,
+      global: false,
+      init: logic,
+      builder: (_) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.cloud_upload, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+          SizedBox(width: space),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+            child: Text(
+              state.gallery == null ? '...' : DateUtil.transform2LocalTimeString(state.gallery!.publishTime),
+              key: ValueKey(state.gallery == null ? 'null' : 'nonNull'),
+              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+            ),
+          )
         ],
       ),
     );
@@ -551,182 +455,250 @@ class _DetailsPageHeader extends StatelessWidget {
     return Row(
       children: [
         _buildRatingBar(context),
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-          child: Text(
-            state.galleryDetails?.realRating.toString() ?? '...',
-            key: Key(state.galleryDetails?.realRating.toString() ?? '...'),
-            style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize),
-          ),
-        ).marginOnly(bottom: 1),
+        _buildRealRating(),
+        const SizedBox(height: 1),
         const Expanded(child: SizedBox()),
-        EHGalleryCategoryTag(
-          category: state.gallery!.category,
-          padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
-          textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
-          borderRadius: 3,
-        ),
+        _buildCategory(),
       ],
     );
   }
 
   Widget _buildRatingBar(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-      child: state.galleryDetails == null
-          ? _buildDefaultRatingBar(context)
-          : KeyedSubtree(
-              child: RatingBar.builder(
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.ratingId,
+      global: false,
+      init: logic,
+      builder: (_) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+        child: state.gallery == null
+            ? RatingBar.builder(
                 unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
-                initialRating: state.galleryDetails == null ? 0 : state.gallery!.rating,
+                initialRating: 0,
                 itemCount: 5,
                 allowHalfRating: true,
                 itemSize: 16,
                 ignoreGestures: true,
-                itemBuilder: (context, index) =>
-                    Icon(Icons.star, color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
+                itemBuilder: (context, index) => const Icon(Icons.star),
                 onRatingUpdate: (_) {},
+              )
+            : KeyedSubtree(
+                child: RatingBar.builder(
+                  unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
+                  initialRating: state.gallery!.rating,
+                  itemCount: 5,
+                  allowHalfRating: true,
+                  itemSize: 16,
+                  ignoreGestures: true,
+                  itemBuilder: (context, index) => Icon(
+                    Icons.star,
+                    color: state.gallery!.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor,
+                  ),
+                  onRatingUpdate: (_) {},
+                ),
               ),
-            ),
+      ),
     );
   }
 
-  Widget _buildDefaultRatingBar(BuildContext context) {
-    return RatingBar.builder(
-      unratedColor: UIConfig.galleryRatingStarUnRatedColor(context),
-      initialRating: 0,
-      itemCount: 5,
-      allowHalfRating: true,
-      itemSize: 16,
-      ignoreGestures: true,
-      itemBuilder: (context, index) => const Icon(Icons.star),
-      onRatingUpdate: (_) {},
-    );
-  }
-}
-
-class _NewVersionHint extends StatelessWidget {
-  final String newGalleryUrl;
-
-  const _NewVersionHint({Key? key, required this.newGalleryUrl}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: UIConfig.detailsPageNewVersionHintHeight,
-      child: FadeIn(
-        child: TextButton(
-          child: Text('thisGalleryHasANewVersion'.tr),
-          onPressed: () => toRoute(
-            Routes.details,
-            arguments: {'galleryUrl': newGalleryUrl},
-            offAllBefore: false,
-            preventDuplicates: false,
-          ),
+  Widget _buildRealRating() {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+        child: Text(
+          state.galleryDetails?.realRating.toString() ?? '...',
+          key: Key(state.galleryDetails?.realRating.toString() ?? '...'),
+          style: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize),
         ),
       ),
     );
   }
-}
 
-class _ActionButtons extends StatelessWidget {
-  final DetailsPageLogic logic = DetailsPageLogic.current!;
-  final DetailsPageState state = DetailsPageLogic.current!.state;
-  final LocalGalleryService localGalleryService = Get.find();
+  Widget _buildCategory() {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.galleryId,
+      global: false,
+      init: logic,
+      builder: (_) => AnimatedSwitcher(
+        duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+        child: state.gallery == null
+            ? const EHGalleryCategoryTag(
+                enabled: false,
+                category: '               ',
+                padding: EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
+                textStyle: TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
+                borderRadius: 3,
+              )
+            : EHGalleryCategoryTag(
+                category: state.gallery!.category,
+                padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
+                textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
+                borderRadius: 3,
+              ),
+      ),
+    );
+  }
 
-  _ActionButtons({Key? key}) : super(key: key);
+  Widget buildDivider() {
+    return const SliverPadding(
+      padding: EdgeInsets.only(top: 16, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+      sliver: SliverToBoxAdapter(child: Divider(height: 1)),
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: UIConfig.detailsPageActionsHeight,
-      child: LayoutBuilder(
-        builder: (_, BoxConstraints constraints) => ListView(
-          scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - 15 * 2) / 9),
-          padding: EdgeInsets.zero,
-          children: [
-            _buildReadButton(context),
-            _buildDownloadButton(context),
-            _buildFavoriteButton(context),
-            _buildRatingButton(context),
-            _buildArchiveButton(context),
-            _buildHHButton(context),
-            _buildSimilarButton(context),
-            _buildTorrentButton(context),
-            _buildStatisticButton(context),
-          ],
+  Widget buildNewVersionHint() {
+    return SliverToBoxAdapter(
+      child: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.detailsId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (state.galleryDetails?.newVersionGalleryUrl == null) {
+            return const SizedBox();
+          }
+
+          return Container(
+            height: UIConfig.detailsPageNewVersionHintHeight,
+            margin: const EdgeInsets.only(top: 12),
+            child: FadeIn(
+              child: TextButton(
+                child: Text('thisGalleryHasANewVersion'.tr),
+                onPressed: () => toRoute(
+                  Routes.details,
+                  arguments: {'galleryUrl': state.galleryDetails!.newVersionGalleryUrl},
+                  offAllBefore: false,
+                  preventDuplicates: false,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildActions(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: UIConfig.detailsPageActionsHeight,
+        margin: const EdgeInsets.only(top: 20, bottom: 16, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+        child: LayoutBuilder(
+          builder: (_, BoxConstraints constraints) => ListView(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - UIConfig.detailPagePadding * 2) / 9),
+            padding: EdgeInsets.zero,
+            children: [
+              _buildReadButton(context),
+              _buildDownloadButton(context),
+              _buildFavoriteButton(context),
+              _buildRatingButton(context),
+              _buildArchiveButton(context),
+              _buildHHButton(context),
+              _buildSimilarButton(context),
+              _buildTorrentButton(context),
+              _buildStatisticButton(context),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildReadButton(BuildContext context) {
-    bool disabled = state.gallery?.pageCount == null;
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.pageCountId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool disabled = state.gallery?.pageCount == null;
 
-    int readIndexRecord = logic.getReadIndexRecord();
-    String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
+        return GetBuilder<DetailsPageLogic>(
+          id: DetailsPageLogic.readButtonId,
+          global: false,
+          init: logic,
+          builder: (_) {
+            int readIndexRecord = logic.getReadIndexRecord();
+            String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
 
-    return IconTextButton(
-      icon: Icon(Icons.visibility, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
-      text: Text(
-        text,
-        style: TextStyle(
-          fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-          height: 1,
-        ),
-      ),
-      onPressed: disabled ? null : logic.goToReadPage,
+            return IconTextButton(
+              width: UIConfig.detailsPageActionExtent,
+              icon: Icon(
+                Icons.visibility,
+                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context),
+              ),
+              text: Text(
+                text,
+                style: TextStyle(
+                  fontSize: UIConfig.detailsPageActionTextSize,
+                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                  height: 1,
+                ),
+              ),
+              onPressed: disabled ? null : logic.goToReadPage,
+            );
+          },
+        );
+      },
     );
   }
 
   Widget _buildDownloadButton(BuildContext context) {
-    return GetBuilder<GalleryDownloadService>(
-      id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gallery!.gid}',
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.pageCountId,
+      global: false,
+      init: logic,
       builder: (_) {
         bool disabled = state.gallery?.pageCount == null;
+        LocalGallery? localGallery = logic.localGalleryService.gid2EHViewerGallery[state.gallery?.gid];
 
-        GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.downloadProgress;
-        LocalGallery? localGallery = localGalleryService.gid2EHViewerGallery[state.gallery!.gid];
+        return GetBuilder<GalleryDownloadService>(
+          id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gallery?.gid}',
+          builder: (_) {
+            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.downloadProgress;
 
-        String text = localGallery != null
-            ? 'finished'.tr
-            : downloadProgress == null
-                ? 'download'.tr
-                : downloadProgress.downloadStatus == DownloadStatus.paused
-                    ? 'resume'.tr
-                    : downloadProgress.downloadStatus == DownloadStatus.downloading
-                        ? 'pause'.tr
-                        : state.galleryDetails?.newVersionGalleryUrl == null
-                            ? 'finished'.tr
-                            : 'update'.tr;
+            String text = localGallery != null
+                ? 'finished'.tr
+                : downloadProgress == null
+                    ? 'download'.tr
+                    : downloadProgress.downloadStatus == DownloadStatus.paused
+                        ? 'resume'.tr
+                        : downloadProgress.downloadStatus == DownloadStatus.downloading
+                            ? 'pause'.tr
+                            : state.galleryDetails?.newVersionGalleryUrl == null
+                                ? 'finished'.tr
+                                : 'update'.tr;
 
-        Icon icon = localGallery != null
-            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-            : downloadProgress == null
-                ? Icon(Icons.download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
-                : downloadProgress.downloadStatus == DownloadStatus.paused
-                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                    : downloadProgress.downloadStatus == DownloadStatus.downloading
-                        ? Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                        : state.galleryDetails?.newVersionGalleryUrl == null
-                            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-                            : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
+            Icon icon = localGallery != null
+                ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                : downloadProgress == null
+                    ? Icon(Icons.download,
+                        color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                    : downloadProgress.downloadStatus == DownloadStatus.paused
+                        ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                        : downloadProgress.downloadStatus == DownloadStatus.downloading
+                            ? Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                            : state.galleryDetails?.newVersionGalleryUrl == null
+                                ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                                : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
 
-        return IconTextButton(
-          icon: icon,
-          text: Text(
-            text,
-            style: TextStyle(
-              fontSize: UIConfig.detailsPageActionTextSize,
-              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-              height: 1,
-            ),
-          ),
-          onPressed: disabled ? null : logic.handleTapDownload,
-          onLongPress: () => toRoute(Routes.download),
+            return IconTextButton(
+              width: UIConfig.detailsPageActionExtent,
+              icon: icon,
+              text: Text(
+                text,
+                style: TextStyle(
+                  fontSize: UIConfig.detailsPageActionTextSize,
+                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                  height: 1,
+                ),
+              ),
+              onPressed: disabled ? null : logic.handleTapDownload,
+              onLongPress: () => toRoute(Routes.download),
+            );
+          },
         );
       },
     );
@@ -734,35 +706,42 @@ class _ActionButtons extends StatelessWidget {
 
   Widget _buildFavoriteButton(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
-      id: DetailsPageLogic.addFavoriteStateId,
-      tag: logic.tag,
+      id: DetailsPageLogic.favoriteId,
+      global: false,
+      init: logic,
       builder: (_) {
         bool disabled = state.gallery == null;
 
-        return LoadingStateIndicator(
-          loadingState: state.favoriteState,
-          idleWidget: IconTextButton(
-            icon: Icon(
-              state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
-              color: disabled
-                  ? UIConfig.detailsPageActionDisabledIconColor(context)
-                  : state.gallery!.favoriteTagIndex != null
-                      ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
-                      : UIConfig.detailsPageActionIconColor(context),
-            ),
-            text: Text(
-              state.gallery!.isFavorite ? state.gallery!.favoriteTagName! : 'favorite'.tr,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: UIConfig.detailsPageActionTextSize,
-                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-                height: 1,
+        return GetBuilder<DetailsPageLogic>(
+          id: DetailsPageLogic.addFavoriteStateId,
+          global: false,
+          init: logic,
+          builder: (_) => LoadingStateIndicator(
+            loadingState: state.favoriteState,
+            idleWidget: IconTextButton(
+              width: UIConfig.detailsPageActionExtent,
+              icon: Icon(
+                state.gallery?.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
+                color: disabled
+                    ? UIConfig.detailsPageActionDisabledIconColor(context)
+                    : state.gallery?.favoriteTagIndex != null
+                        ? ColorConsts.favoriteTagColor[state.gallery!.favoriteTagIndex!]
+                        : UIConfig.detailsPageActionIconColor(context),
               ),
+              text: Text(
+                (state.gallery?.isFavorite ?? false) ? state.gallery!.favoriteTagName! : 'favorite'.tr,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: UIConfig.detailsPageActionTextSize,
+                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                  height: 1,
+                ),
+              ),
+              onPressed: disabled ? null : logic.handleTapFavorite,
             ),
-            onPressed: disabled ? null : logic.handleTapFavorite,
+            errorWidgetSameWithIdle: true,
           ),
-          errorWidgetSameWithIdle: true,
         );
       },
     );
@@ -770,58 +749,157 @@ class _ActionButtons extends StatelessWidget {
 
   Widget _buildRatingButton(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
-      id: DetailsPageLogic.ratingStateId,
-      tag: logic.tag,
+      id: DetailsPageLogic.ratingId,
+      global: false,
+      init: logic,
       builder: (_) {
-        bool disabled = state.galleryDetails == null;
+        bool disabled = state.gallery == null;
 
-        return LoadingStateIndicator(
-          loadingState: state.ratingState,
-          idleWidget: IconTextButton(
-            icon: Icon(
-              state.gallery!.hasRated ? Icons.star : Icons.star_border,
-              color: disabled
-                  ? UIConfig.detailsPageActionDisabledIconColor(context)
-                  : state.gallery!.hasRated
-                      ? UIConfig.alertColor(context)
-                      : UIConfig.detailsPageActionIconColor(context),
-            ),
-            text: Text(
-              state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
-              style: TextStyle(
-                fontSize: UIConfig.detailsPageActionTextSize,
-                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-                height: 1,
+        return GetBuilder<DetailsPageLogic>(
+          id: DetailsPageLogic.ratingStateId,
+          global: false,
+          init: logic,
+          builder: (_) {
+            return LoadingStateIndicator(
+              loadingState: state.ratingState,
+              idleWidget: IconTextButton(
+                width: UIConfig.detailsPageActionExtent,
+                icon: Icon(
+                  (state.gallery?.hasRated ?? false) ? Icons.star : Icons.star_border,
+                  color: disabled
+                      ? UIConfig.detailsPageActionDisabledIconColor(context)
+                      : (state.gallery?.hasRated ?? false)
+                          ? UIConfig.alertColor(context)
+                          : UIConfig.detailsPageActionIconColor(context),
+                ),
+                text: Text(
+                  (state.gallery?.hasRated ?? false) ? state.gallery!.rating.toString() : 'rating'.tr,
+                  style: TextStyle(
+                    fontSize: UIConfig.detailsPageActionTextSize,
+                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                    height: 1,
+                  ),
+                ),
+                onPressed: disabled ? null : logic.handleTapRating,
               ),
-            ),
-            onPressed: disabled ? null : logic.handleTapRating,
-          ),
-          errorWidgetSameWithIdle: true,
+              errorWidgetSameWithIdle: true,
+            );
+          },
         );
       },
     );
   }
 
   Widget _buildArchiveButton(BuildContext context) {
-    return GetBuilder<ArchiveDownloadService>(
-      id: '${ArchiveDownloadService.archiveStatusId}::${state.gallery!.gid}',
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
       builder: (_) {
         bool disabled = state.galleryDetails == null;
 
-        ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gallery!.gid]?.archiveStatus;
+        return GetBuilder<ArchiveDownloadService>(
+          id: '${ArchiveDownloadService.archiveStatusId}::${state.gallery?.gid}',
+          builder: (_) {
+            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gallery?.gid]?.archiveStatus;
 
-        String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
+            String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
-        Icon icon = archiveStatus == null
-            ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
-            : archiveStatus == ArchiveStatus.paused
-                ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                : archiveStatus == ArchiveStatus.completed
-                    ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-                    : Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context));
+            Icon icon = archiveStatus == null
+                ? Icon(Icons.archive,
+                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                : archiveStatus == ArchiveStatus.paused
+                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                    : archiveStatus == ArchiveStatus.completed
+                        ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                        : Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context));
+
+            return IconTextButton(
+              width: UIConfig.detailsPageActionExtent,
+              icon: icon,
+              text: Text(
+                text,
+                style: TextStyle(
+                  fontSize: UIConfig.detailsPageActionTextSize,
+                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                  height: 1,
+                ),
+              ),
+              onPressed: disabled ? null : logic.handleTapArchive,
+              onLongPress: () => toRoute(Routes.download),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHHButton(BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool disabled = state.galleryDetails == null;
 
         return IconTextButton(
-          icon: icon,
+          width: UIConfig.detailsPageActionExtent,
+          icon: Icon(Icons.cloud_download,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          text: Text(
+            'H@H',
+            style: TextStyle(
+              fontSize: UIConfig.detailsPageActionTextSize,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+              height: 1,
+            ),
+          ),
+          onPressed: disabled ? null : logic.handleTapHH,
+        );
+      },
+    );
+  }
+
+  Widget _buildSimilarButton(BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool disabled = state.galleryDetails == null;
+
+        return IconTextButton(
+          width: UIConfig.detailsPageActionExtent,
+          icon: Icon(Icons.saved_search,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          text: Text(
+            'similar'.tr,
+            style: TextStyle(
+              fontSize: UIConfig.detailsPageActionTextSize,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+              height: 1,
+            ),
+          ),
+          onPressed: disabled ? null : logic.searchSimilar,
+        );
+      },
+    );
+  }
+
+  Widget _buildTorrentButton(BuildContext context) {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool disabled = state.galleryDetails == null || state.galleryDetails!.torrentCount == '0';
+
+        String text = '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})';
+
+        return IconTextButton(
+          width: UIConfig.detailsPageActionExtent,
+          icon: Icon(Icons.file_present,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             text,
             style: TextStyle(
@@ -830,80 +908,220 @@ class _ActionButtons extends StatelessWidget {
               height: 1,
             ),
           ),
-          onPressed: disabled ? null : logic.handleTapArchive,
-          onLongPress: () => toRoute(Routes.download),
+          onPressed: disabled || state.galleryDetails!.torrentCount == '0' ? null : logic.handleTapTorrent,
         );
       },
     );
   }
 
-  Widget _buildHHButton(BuildContext context) {
-    bool disabled = state.galleryDetails == null;
-
-    return IconTextButton(
-      icon: Icon(Icons.cloud_download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
-      text: Text(
-        'H@H',
-        style: TextStyle(
-          fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-          height: 1,
-        ),
-      ),
-      onPressed: disabled ? null : logic.handleTapHH,
-    );
-  }
-
-  Widget _buildSimilarButton(BuildContext context) {
-    bool disabled = state.galleryDetails == null;
-
-    return IconTextButton(
-      icon: Icon(Icons.saved_search, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
-      text: Text(
-        'similar'.tr,
-        style: TextStyle(
-          fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-          height: 1,
-        ),
-      ),
-      onPressed: disabled ? null : logic.searchSimilar,
-    );
-  }
-
-  Widget _buildTorrentButton(BuildContext context) {
-    bool disabled = state.galleryDetails == null || state.galleryDetails!.torrentCount == '0';
-
-    String text = '${'torrent'.tr}(${state.galleryDetails?.torrentCount ?? '.'})';
-
-    return IconTextButton(
-      icon: Icon(Icons.file_present, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
-      text: Text(
-        text,
-        style: TextStyle(
-          fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-          height: 1,
-        ),
-      ),
-      onPressed: disabled || state.galleryDetails!.torrentCount == '0' ? null : logic.handleTapTorrent,
-    );
-  }
-
   Widget _buildStatisticButton(BuildContext context) {
-    bool disabled = state.galleryDetails == null;
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool disabled = state.galleryDetails == null;
 
-    return IconTextButton(
-      icon: Icon(Icons.analytics, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
-      text: Text(
-        'statistic'.tr,
-        style: TextStyle(
-          fontSize: UIConfig.detailsPageActionTextSize,
-          color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-          height: 1,
+        return IconTextButton(
+          width: UIConfig.detailsPageActionExtent,
+          icon: Icon(Icons.analytics,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          text: Text(
+            'statistic'.tr,
+            style: TextStyle(
+              fontSize: UIConfig.detailsPageActionTextSize,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+              height: 1,
+            ),
+          ),
+          onPressed: state.galleryDetails == null ? null : logic.handleTapStatistic,
+        );
+      },
+    );
+  }
+
+  Widget buildLoadingDetailsIndicator() {
+    return SliverToBoxAdapter(
+      child: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.loadingStateId,
+        global: false,
+        init: logic,
+        builder: (_) => LoadingStateIndicator(
+          indicatorRadius: 16,
+          loadingState: state.loadingState,
+          errorTapCallback: logic.getDetails,
         ),
       ),
-      onPressed: state.galleryDetails == null ? null : logic.handleTapStatistic,
+    );
+  }
+
+  Widget buildTags() {
+    return SliverToBoxAdapter(
+      child: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.detailsId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (state.galleryDetails?.fullTags.isEmpty ?? true) {
+            return const SizedBox();
+          }
+
+          return _GalleryTags(
+            tagList: state.galleryDetails!.fullTags,
+            gid: state.gallery!.gid,
+            token: state.gallery!.token,
+            apikey: state.apikey!,
+          ).marginSymmetric(horizontal: UIConfig.detailPagePadding);
+        },
+      ),
+    );
+  }
+
+  Widget buildComments() {
+    return SliverToBoxAdapter(
+      child: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.detailsId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (state.galleryDetails == null) {
+            return const SizedBox();
+          }
+
+          bool disableButtons = state.galleryDetails!.comments.any((comment) => comment.fromMe);
+
+          return Column(
+            children: [
+              SizedBox(
+                height: UIConfig.detailsPageCommentIndicatorHeight,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
+                    child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
+                  ),
+                ).fadeIn(),
+              ),
+              if (state.galleryDetails!.comments.isNotEmpty)
+                FadeIn(
+                  child: GestureDetector(
+                    onTap: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
+                    child: SizedBox(
+                      height: UIConfig.detailsPageCommentsRegionHeight,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: EdgeInsets.zero,
+                        itemExtent: UIConfig.detailsPageCommentsWidth,
+                        children: state.galleryDetails!.comments
+                            .map(
+                              (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ).marginSymmetric(horizontal: UIConfig.detailPagePadding);
+        },
+      ),
+    );
+  }
+
+  Widget buildThumbnails() {
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
+      builder: (_) => GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.thumbnailsId,
+        global: false,
+        init: logic,
+        builder: (_) => SliverPadding(
+          padding: const EdgeInsets.only(top: 36, left: UIConfig.detailPagePadding, right: UIConfig.detailPagePadding),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index == state.galleryDetails!.thumbnails.length - 1 && state.loadingThumbnailsState == LoadingState.idle) {
+                  /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
+                  /// that hints circular build.
+                  /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
+                  /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
+                  /// the callback is added once.
+                  SchedulerBinding.instance.addPostFrameCallback((_) {
+                    logic.loadMoreThumbnails();
+                  });
+                }
+
+                GalleryImage? downloadedImage = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.images[index];
+
+                return KeepAliveWrapper(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: GestureDetector(
+                            onTap: () => logic.goToReadPage(index),
+                            child: LayoutBuilder(
+                              builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
+                                  ? EHImage(
+                                      galleryImage: downloadedImage!,
+                                      containerHeight: constraints.maxHeight,
+                                      containerWidth: constraints.maxWidth,
+                                      borderRadius: BorderRadius.circular(8),
+                                    )
+                                  : EHThumbnail(
+                                      thumbnail: state.galleryDetails!.thumbnails[index],
+                                      containerHeight: constraints.maxHeight,
+                                      containerWidth: constraints.maxWidth,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
+                    ],
+                  ),
+                );
+              },
+              childCount: state.galleryDetails?.thumbnails.length ?? 0,
+            ),
+            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+              mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
+              maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
+              mainAxisSpacing: 20,
+              crossAxisSpacing: 5,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildLoadingThumbnailIndicator(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: GetBuilder<DetailsPageLogic>(
+        id: DetailsPageLogic.detailsId,
+        global: false,
+        init: logic,
+        builder: (_) {
+          if (state.galleryDetails == null) {
+            return const SizedBox();
+          }
+
+          return GetBuilder<DetailsPageLogic>(
+            id: DetailsPageLogic.loadingThumbnailsStateId,
+            global: false,
+            init: logic,
+            builder: (_) => LoadingStateIndicator(
+              loadingState: state.loadingThumbnailsState,
+              errorTapCallback: logic.loadMoreThumbnails,
+            ),
+          ).marginOnly(bottom: 40, top: 20);
+        },
+      ),
     );
   }
 }
@@ -930,9 +1148,14 @@ class _GalleryTags extends StatelessWidget {
             (entry) => Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCategoryTag(entry.key).marginOnly(right: 10),
+                _buildCategoryTag(entry.key),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: Wrap(spacing: 5, runSpacing: 5, children: _buildTags(entry.value)),
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: _buildTags(entry.value),
+                  ),
                 ),
               ],
             ).marginOnly(top: 10),
@@ -965,108 +1188,5 @@ class _GalleryTags extends StatelessWidget {
               forceNewRoute: true,
             ))
         .toList();
-  }
-}
-
-class _Comments extends StatelessWidget {
-  final List<GalleryComment> comments;
-
-  const _Comments({Key? key, required this.comments}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    bool disableButtons = comments.any((comment) => comment.fromMe);
-
-    return FadeIn(
-      child: GestureDetector(
-        onTap: () => toRoute(Routes.comment, arguments: comments),
-        child: SizedBox(
-          height: UIConfig.detailsPageCommentsRegionHeight,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.zero,
-            itemExtent: UIConfig.detailsPageCommentsWidth,
-            children: comments
-                .map(
-                  (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
-                )
-                .toList(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Thumbnails extends StatelessWidget {
-  final DetailsPageLogic logic;
-  final DetailsPageState state;
-
-  const _Thumbnails({Key? key, required this.logic, required this.state}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<DetailsPageLogic>(
-      id: DetailsPageLogic.thumbnailsId,
-      tag: logic.tag,
-      builder: (_) => SliverGrid(
-        delegate: SliverChildBuilderDelegate(
-          (_, index) {
-            if (index == state.galleryDetails!.thumbnails.length - 1 && state.loadingThumbnailsState == LoadingState.idle) {
-              /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
-              /// that hints circular build.
-              /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
-              /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-              /// the callback is added once.
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                logic.loadMoreThumbnails();
-              });
-            }
-
-            GalleryImage? downloadedImage = logic.galleryDownloadService.galleryDownloadInfos[state.gallery!.gid]?.images[index];
-
-            return KeepAliveWrapper(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: () => logic.goToReadPage(index),
-                        child: LayoutBuilder(
-                          builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
-                              ? EHImage(
-                                  galleryImage: downloadedImage!,
-                                  containerHeight: constraints.maxHeight,
-                                  containerWidth: constraints.maxWidth,
-                                  borderRadius: BorderRadius.circular(8),
-                                )
-                              : EHThumbnail(
-                                  thumbnail: state.galleryDetails!.thumbnails[index],
-                                  containerHeight: constraints.maxHeight,
-                                  containerWidth: constraints.maxWidth,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Text(
-                    (index + 1).toString(),
-                    style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
-                  ).paddingOnly(top: 3),
-                ],
-              ),
-            );
-          },
-          childCount: state.galleryDetails!.thumbnails.length,
-        ),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
-          maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
-          mainAxisSpacing: 20,
-          crossAxisSpacing: 5,
-        ),
-      ),
-    );
   }
 }

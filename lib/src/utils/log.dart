@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -268,7 +269,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
   try {
     return func.call();
   } on Exception catch (e) {
-    if (e is DioError) {
+    if (e is DioError || e is EHException) {
       rethrow;
     }
 

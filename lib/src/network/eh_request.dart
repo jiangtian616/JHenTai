@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
@@ -20,15 +21,12 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:system_network_proxy/system_network_proxy.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import '../setting/network_setting.dart';
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
-
-typedef EHHtmlParser<T> = T Function(Response response);
 
 class EHRequest {
   static late final Dio _dio;
@@ -40,7 +38,7 @@ class EHRequest {
       receiveTimeout: NetworkSetting.receiveTimeout.value,
     ));
 
-    _initErrorHandler();
+    _init404Handler();
 
     _initDomainFronting();
 
@@ -56,52 +54,18 @@ class EHRequest {
   }
 
   /// error handler
-  static void _initErrorHandler() {
+  static void _init404Handler() {
     _dio.interceptors.add(
       InterceptorsWrapper(
-        onResponse: (response, handler) {
-          if ((response.data.toString()).isEmpty) {
-            return handler.reject(
-              DioError(
-                requestOptions: response.requestOptions,
-                error: EHException(type: EHExceptionType.blankBody, msg: "sadPanda".tr),
-              ),
-            );
-          }
-          if (response.data.toString().startsWith('Your IP address')) {
-            return handler.reject(
-              DioError(
-                requestOptions: response.requestOptions,
-                response: response,
-                error: EHException(type: EHExceptionType.banned, msg: response.data),
-              ),
-            );
-          }
-          if (response.data.toString().startsWith('You have exceeded your image')) {
-            return handler.reject(
-              DioError(
-                requestOptions: response.requestOptions,
-                error: EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr),
-              ),
-            );
-          }
-          handler.next(response);
-        },
         onError: (e, ErrorInterceptorHandler handler) {
-          if (e.response?.statusCode != 404) {
-            handler.next(e);
-            return;
+          if (e.response?.statusCode == 404 &&
+              (NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) || NetworkSetting.allIPs.contains(e.requestOptions.uri.host))) {
+            e.error = EHException(
+              type: EHExceptionType.galleryDeleted,
+              msg: EHSpiderParser.galleryDeletedPage2Hint(e.response!.headers, e.response!.data),
+              shouldPauseAllDownloadTasks: false,
+            );
           }
-          if (!NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) && !NetworkSetting.allIPs.contains(e.requestOptions.uri.host)) {
-            handler.next(e);
-            return;
-          }
-
-          e.error = EHException(
-            type: EHExceptionType.galleryDeleted,
-            msg: EHSpiderParser.galleryDeletedPage2Hint(e.response!),
-            shouldPauseAllDownloadTasks: false,
-          );
           handler.next(e);
         },
       ),
@@ -228,7 +192,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {'act': 'Login', 'CODE': '01'},
@@ -241,7 +205,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'CookieDate': 365,
       },
     );
-    return parser(response);
+    return _parseResponse(response, parser);
   }
 
   static Future<void> requestLogout() async {
@@ -253,19 +217,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<T> requestHomePage<T>({EHHtmlParser<T>? parser}) async {
-    Response<String> response = await _dio.get(EHConsts.EHome);
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    Response response = await _getWithErrorHandler(EHConsts.EHome);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestForum<T>(int ipbMemberId, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       EHConsts.EForums,
       queryParameters: {
         'showuser': ipbMemberId,
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   /// [url]: used for file search
@@ -277,7 +240,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     SearchConfig? searchConfig,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       url ?? searchConfig!.toPath(),
       queryParameters: {
         if (prevGid != null) 'prev': prevGid,
@@ -286,7 +249,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         ...?searchConfig?.toQueryParameters(),
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestDetailPage<T>({
@@ -296,7 +259,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     CancelToken? cancelToken,
     required EHHtmlParser<T> parser,
   }) async {
-    Response response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       galleryUrl,
       queryParameters: {
         'p': thumbnailsPageIndex,
@@ -307,14 +270,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
-  static Future<T> requestRanklistPage<T>({
-    required RanklistType ranklistType,
-    required int pageNo,
-    required EHHtmlParser<T> parser,
-  }) async {
+  static Future<T> requestRanklistPage<T>({required RanklistType ranklistType, required int pageNo, required EHHtmlParser<T> parser}) async {
     int tl;
 
     switch (ranklistType) {
@@ -334,12 +293,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         tl = 15;
     }
 
-    Response<String> response = await _dio.get('${EHConsts.ERanklist}?tl=$tl&p=$pageNo');
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    Response response = await _getWithErrorHandler('${EHConsts.ERanklist}?tl=$tl&p=$pageNo');
+    return _parseResponse(response, parser);
   }
 
-  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating, {EHHtmlParser<T>? parser}) async {
-    Response<String> response = await _dio.post(
+  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating, EHHtmlParser<T> parser) async {
+    Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
         'apikey': apikey,
@@ -350,13 +309,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'token': token,
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestPopupPage<T>(int gid, String token, String act, EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       EHConsts.EPopup,
       queryParameters: {
         'gid': gid,
@@ -364,20 +322,20 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'act': act,
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await _dio.get(EHConsts.EFavorite);
+    Response response = await _getWithErrorHandler(EHConsts.EFavorite);
 
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response.data);
+    return _parseResponse(response, parser);
   }
 
   /// favcat: the favorite tag index
   static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, {EHHtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
@@ -392,13 +350,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'update': 1,
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestRemoveFavorite<T>(int gid, String token, {EHHtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EPopup,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       queryParameters: {
@@ -413,8 +370,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'update': 1,
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestImagePage<T>(
@@ -423,16 +379,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     bool useCacheIfAvailable = true,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       href,
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       EHConsts.ETorrent,
       queryParameters: {
         'gid': gid,
@@ -440,16 +396,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       },
       options: EHCacheInterceptor.cacheOption.toOptions(),
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.get(EHConsts.EUconfig);
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    Response response = await _getWithErrorHandler(EHConsts.EUconfig);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> createProfile<T>({EHHtmlParser<T>? parser}) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EUconfig,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       data: {
@@ -458,28 +414,23 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'profile_set': '616',
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required EHHtmlParser<T> parser}) async {
-    Response response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       EHConsts.EMyTags,
       queryParameters: {'tagset': tagSetNo},
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
-  static Future<T> requestStatPage<T>({
-    required int gid,
-    required String token,
-    required EHHtmlParser<T> parser,
-  }) async {
-    Response<String> response = await _dio.get(
+  static Future<T> requestStatPage<T>({required int gid, required String token, required EHHtmlParser<T> parser}) async {
+    Response response = await _getWithErrorHandler(
       '${EHConsts.EStat}?gid=$gid&t=$token',
       options: EHCacheInterceptor.cacheOption.toOptions(),
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestAddTagSet<T>({
@@ -507,33 +458,26 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
     Response response;
     try {
-      response = await _dio.post(
+      response = await _postWithErrorHandler(
         EHConsts.EMyTags,
         options: Options(contentType: Headers.formUrlEncodedContentType),
         data: data,
       );
     } on DioError catch (e) {
-      if (e.response?.statusCode != 302) {
+      if (e.response?.statusCode == 302) {
+        response = e.response!;
+      } else {
         rethrow;
       }
-      response = e.response!;
     }
 
-    if (response.data.contains('No more tags can be added to this tagset')) {
-      throw EHException(type: EHExceptionType.tagSetExceedLimit, msg: 'tagSetExceedLimit'.tr);
-    }
-
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
-  static Future<T> requestDeleteTagSet<T>({
-    required int tagSetId,
-    EHHtmlParser<T>? parser,
-  }) async {
+  static Future<T> requestDeleteTagSet<T>({required int tagSetId, EHHtmlParser<T>? parser}) async {
     Response response;
     try {
-      response = await _dio.post(
+      response = await _postWithErrorHandler(
         EHConsts.EMyTags,
         options: Options(contentType: Headers.formUrlEncodedContentType),
         data: {
@@ -552,8 +496,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       response = e.response!;
     }
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestUpdateTagSet<T>({
@@ -566,7 +509,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required bool hidden,
     EHHtmlParser<T>? parser,
   }) async {
-    Response response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EHApi,
       options: Options(contentType: Headers.jsonContentType),
       data: {
@@ -580,8 +523,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'tagweight': tagWeight.toString(),
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> download<T>({
@@ -610,13 +552,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         headers: range == null ? null : {'Range': range},
       ),
     );
-    parser ??= noOpParser;
-    return parser(response);
+    
+    if (parser == null) {
+      return response as T;
+    }
+    return parser(response.headers, response.data);
   }
 
   static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String namespace, String tagName, bool isVotingUp,
       {EHHtmlParser<T>? parser}) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
         'apikey': apikey,
@@ -628,12 +573,11 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'tags': '$namespace:$tagName',
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp, {EHHtmlParser<T>? parser}) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
         'apikey': apikey,
@@ -645,19 +589,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'comment_id': commentId,
       },
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestTagSuggestion<T>(String keyword, EHHtmlParser<T> parser) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
         'method': "tagsuggest",
         'text': keyword,
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestSendComment<T>({
@@ -665,14 +608,14 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required String content,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       galleryUrl,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       data: {
         'commenttext_new': content,
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestUpdateComment<T>({
@@ -681,7 +624,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required int commentId,
     required EHHtmlParser<T> parser,
   }) async {
-    Response<String> response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       galleryUrl,
       options: Options(contentType: Headers.formUrlEncodedContentType),
       data: {
@@ -689,7 +632,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'commenttext_edit': content,
       },
     );
-    return callWithParamsUploadIfErrorOccurs(() => parser(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestLookup<T>({
@@ -697,9 +640,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required String imageName,
     required EHHtmlParser<T> parser,
   }) async {
-    Response? response;
     try {
-      await _dio.post(
+      await _postWithErrorHandler(
         EHConsts.ELookup,
         data: FormData.fromMap({
           'sfile': MultipartFile.fromFileSync(
@@ -717,14 +659,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         rethrow;
       }
 
-      CheckUtil.build(() => e.response != null, errorMsg: "Lookup response shouldn't be null!")
-          .withUploadParam(e)
-          .onFailed(() => toast('systemError'.tr))
-          .check();
-
-      response = e.response;
+      return _parseResponse(e.response!, parser);
     }
-    return callWithParamsUploadIfErrorOccurs(() => parser(response!), params: response);
+
+    throw EHException(msg: 'Look up response error', type: EHExceptionType.intelNelError);
   }
 
   static Future<T> requestUnlockArchive<T>({
@@ -733,7 +671,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     CancelToken? cancelToken,
     EHHtmlParser<T>? parser,
   }) async {
-    Response response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       url,
       data: FormData.fromMap({
         'dltype': isOriginal ? 'org' : 'res',
@@ -742,18 +680,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       cancelToken: cancelToken,
     );
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestCancelUnlockArchive<T>({required String url, EHHtmlParser<T>? parser}) async {
-    Response response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       url,
       data: FormData.fromMap({'invalidate_sessions': 1}),
     );
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestHHDownload<T>({
@@ -761,24 +697,22 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required String resolution,
     EHHtmlParser<T>? parser,
   }) async {
-    Response response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       url,
       data: FormData.fromMap({'hathdl_xres': resolution}),
     );
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestExchangePage<T>({EHHtmlParser<T>? parser}) async {
-    Response response = await _dio.get(EHConsts.EExchange);
+    Response response = await _getWithErrorHandler(EHConsts.EExchange);
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> requestResetImageLimit<T>({EHHtmlParser<T>? parser}) async {
-    Response response = await _dio.post(
+    Response response = await _postWithErrorHandler(
       EHConsts.EHome,
       data: FormData.fromMap({
         'act': 'limits',
@@ -786,8 +720,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       }),
     );
 
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+    return _parseResponse(response, parser);
   }
 
   static Future<T> request<T>({
@@ -796,12 +729,79 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     CancelToken? cancelToken,
     EHHtmlParser<T>? parser,
   }) async {
-    Response? response = await _dio.get(
+    Response response = await _getWithErrorHandler(
       url,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
       cancelToken: cancelToken,
     );
-    parser ??= noOpParser;
-    return callWithParamsUploadIfErrorOccurs(() => parser!(response), params: response);
+
+    return _parseResponse(response, parser);
+  }
+
+  static Future<T> _parseResponse<T>(Response response, EHHtmlParser<T>? parser) async {
+    if (parser == null) {
+      return response as T;
+    }
+    return compute((list) => parser(list[0], list[1]), [response.headers, response.data]);
+  }
+
+  static Future<Response> _getWithErrorHandler<T>(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    Response response = await _dio.get(
+      url,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    _handleResponseError(response);
+    return response;
+  }
+
+  static Future<Response> _postWithErrorHandler<T>(
+    String url, {
+    data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    Response response = await _dio.post(
+      url,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+    );
+
+    _handleResponseError(response);
+    return response;
+  }
+
+  static void _handleResponseError(Response response) {
+    if (response.data is String) {
+      String data = response.data.toString();
+
+      if (data.isEmpty) {
+        throw EHException(type: EHExceptionType.blankBody, msg: 'sadPanda'.tr);
+      }
+
+      if (data.startsWith('Your IP address')) {
+        throw EHException(type: EHExceptionType.banned, msg: response.data);
+      }
+
+      if (data.startsWith('You have exceeded your image')) {
+        throw EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr);
+      }
+    }
   }
 }

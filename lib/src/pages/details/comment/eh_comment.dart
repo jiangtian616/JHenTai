@@ -453,7 +453,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         detailsPageState.gallery!.gid,
         detailsPageState.gallery!.token,
         UserSetting.ipbMemberId.value!,
-        detailsPageState.apikey,
+        detailsPageState.apikey!,
         widget.commentId,
         isVotingUp,
         parser: EHSpiderParser.votingCommentResponse2Score,

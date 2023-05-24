@@ -11,4 +11,4 @@ class EHException implements Exception {
   }
 }
 
-enum EHExceptionType { blankBody, banned, exceedLimit, unsupportedImagePageStyle, tagSetExceedLimit, galleryDeleted }
+enum EHExceptionType { blankBody, banned, exceedLimit, unsupportedImagePageStyle, tagSetExceedLimit, galleryDeleted, intelNelError }
