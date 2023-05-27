@@ -143,10 +143,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             height: UIConfig.detailsPageCoverHeight,
             width: UIConfig.detailsPageCoverWidth,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
-              border: Border.all(color: UIConfig.detailsPageActionDisabledIconColor(context), width: 1),
-              borderRadius: BorderRadius.circular(UIConfig.detailsPageCoverBorderRadius),
-            ),
             child: UIConfig.loadingAnimation(context),
           );
         }

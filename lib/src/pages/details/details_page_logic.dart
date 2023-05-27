@@ -159,7 +159,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     _dealWithMissingField(updateIds, galleryAndDetailAndApikey['gallery']! as Gallery);
     updateSafely(updateIds);
 
-    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.idle);
+    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.animation);
   }
 
   Future<void> loadMoreThumbnails() async {
