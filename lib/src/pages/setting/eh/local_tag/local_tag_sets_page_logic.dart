@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import '../../../../mixin/animation_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import 'local_tag_sets_page_state.dart';
 
