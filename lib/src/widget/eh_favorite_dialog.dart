@@ -27,10 +27,13 @@ class EHFavoriteDialog extends StatelessWidget {
                     selected: selectedIndex == index,
                     selectedTileColor: UIConfig.favoriteDialogTileColor(context),
                     visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
-                    leading: Text(tagName),
+                    leading: Text(
+                      tagName,
+                      style: const TextStyle(fontSize: UIConfig.favoriteDialogLeadingTextSize),
+                    ),
                     trailing: Text(
                       FavoriteSetting.favoriteCounts[index].toString(),
-                      style: TextStyle(fontSize: UIConfig.favoriteDialogCountTextSize, color: UIConfig.favoriteDialogCountTextColor(context)),
+                      style: TextStyle(fontSize: UIConfig.favoriteDialogTrailingTextSize, color: UIConfig.favoriteDialogCountTextColor(context)),
                     ),
                     onTap: () => backRoute(result: index),
                   ),

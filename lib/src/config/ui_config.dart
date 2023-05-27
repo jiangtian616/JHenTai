@@ -421,7 +421,8 @@ class UIConfig {
 
   /// Favorite dialog
   static const double favoriteDialogHeight = 400;
-  static const double favoriteDialogCountTextSize = 12;
+  static const double favoriteDialogLeadingTextSize = 13;
+  static const double favoriteDialogTrailingTextSize = 12;
 
   static Color favoriteDialogCountTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
