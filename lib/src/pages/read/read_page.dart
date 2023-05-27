@@ -261,7 +261,13 @@ class ReadPage extends StatelessWidget {
             ),
             ElevatedButton(
               child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
-              onPressed: () => toRoute(Routes.settingRead, id: fullScreen)?.then((_) => state.focusNode.requestFocus()),
+              onPressed: () {
+                logic.restoreImmersiveMode();
+                toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+                  logic.toggleCurrentImmersiveMode();
+                  state.focusNode.requestFocus();
+                });
+              },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 padding: const EdgeInsets.all(0),

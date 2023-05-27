@@ -133,7 +133,7 @@ class ReadPageLogic extends GetxController {
     volumeService.cancelListen();
     volumeService.setInterceptVolumeEvent(false);
 
-    restoreSystemBar();
+    restoreImmersiveMode();
 
     storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentIndex);
 
@@ -261,7 +261,7 @@ class ReadPageLogic extends GetxController {
     }
   }
 
-  void restoreSystemBar() {
+  void restoreImmersiveMode() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
