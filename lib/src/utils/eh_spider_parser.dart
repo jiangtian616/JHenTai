@@ -697,15 +697,17 @@ class EHSpiderParser {
     return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }
 
-  static String galleryDeletedPage2Hint(Headers headers, dynamic data) {
+  static String detailPage2GalleryDeletedHint(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    String hint = document.querySelector('.d > p')!.text;
-    if (hint.contains('removed')) {
+    String hint = document.querySelector('.d > p')!.nodes.first.text!;
+
+    if (hint.contains('This gallery has been removed')) {
       return 'invisibleHints'.tr;
     }
 
-    String copyRighter = hint.split(' ').last;
+    Match match = RegExp(r'This gallery is unavailable due to a copyright claim by (.*).$').firstMatch(hint)!;
+    String copyRighter = match.group(1)!;
     return 'copyRightHints'.tr + copyRighter;
   }
 

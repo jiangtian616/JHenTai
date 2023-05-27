@@ -62,7 +62,7 @@ class EHRequest {
               (NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) || NetworkSetting.allIPs.contains(e.requestOptions.uri.host))) {
             e.error = EHException(
               type: EHExceptionType.galleryDeleted,
-              msg: EHSpiderParser.galleryDeletedPage2Hint(e.response!.headers, e.response!.data),
+              msg: EHSpiderParser.detailPage2GalleryDeletedHint(e.response!.headers, e.response!.data),
               shouldPauseAllDownloadTasks: false,
             );
           }
