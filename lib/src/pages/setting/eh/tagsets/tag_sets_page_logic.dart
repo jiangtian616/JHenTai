@@ -12,6 +12,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../model/tag_set.dart';
 import '../../../../service/tag_translation_service.dart';
 import '../../../../utils/color_util.dart';
@@ -27,9 +28,11 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   static const String loadingStateId = 'loadingStateId';
   static const String tagId = 'tagId';
 
-  @override
   final TagSetsState state = TagSetsState();
 
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
+  
   final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
 
   @override

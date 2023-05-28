@@ -8,7 +8,9 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
+import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_page_mixin.dart';
+import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../widget/eh_gallery_collection.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
@@ -33,11 +35,15 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     this.name,
   }) : super(key: key);
 
-  @override
   L get logic;
 
-  @override
   S get state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   @override
   Widget build(BuildContext context) {

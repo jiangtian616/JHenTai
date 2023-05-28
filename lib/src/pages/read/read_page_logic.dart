@@ -34,7 +34,6 @@ import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
-import '../details/details_page_logic.dart';
 
 class ReadPageLogic extends GetxController {
   final String onlineImageId = 'onlineImageId';

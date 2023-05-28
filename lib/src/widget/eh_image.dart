@@ -241,7 +241,7 @@ class EHImage extends StatelessWidget {
   Widget _buildExtendedRawImage(ExtendedImageState state) {
     FittedSizes fittedSizes = applyBoxFit(
       fit,
-      Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble() ?? 0),
+      Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
 

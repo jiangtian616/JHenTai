@@ -29,6 +29,8 @@ import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';
+import '../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/local_gallery_service.dart';
 import '../../setting/preference_setting.dart';
@@ -42,10 +44,14 @@ import 'details_page_state.dart';
 class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   final String tag = UniqueKey().toString();
 
-  @override
   late final DetailsPageLogic logic;
-  @override
   late final DetailsPageState state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   DetailsPage({super.key}) {
     logic = Get.put(DetailsPageLogic(), tag: tag);

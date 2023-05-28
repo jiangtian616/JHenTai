@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
@@ -40,6 +39,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery.dart';
 import '../../model/gallery_image.dart';
@@ -79,9 +79,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   static DetailsPageLogic? get current => _stack.isEmpty ? null : _stack.last;
 
-  @override
   final DetailsPageState state = DetailsPageState();
 
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
+  
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final LocalGalleryService localGalleryService = Get.find();

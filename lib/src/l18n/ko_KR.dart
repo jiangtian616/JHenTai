@@ -228,7 +228,8 @@ class ko_KR {
       'myTagsHint': '강조하거나 숨기고 싶은 태그를 관리',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'localTagsHint2':
+          'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
       'hidden': '숨김',
       'nope': '없음',
       'getTagSetFailed': '태그 목록 불러오기 실패',
@@ -236,7 +237,7 @@ class ko_KR {
       'deleteTagSetSuccess': '태그 목록 삭제 성공',
       'deleteTagSetFailed': '태그 목록 삭제 실패',
       'addLocalTagHint': 'Search to add new tag',
-      
+
       /// Layout
       'layoutMode': '레이아웃 모드',
       'mobileLayoutV2Name': '모바일',
@@ -413,7 +414,8 @@ class ko_KR {
       'reUnlockHint': '주의! 다시 잠금 해제하려면 이 파일을 다시 구입해야 합니다.',
       'downloadHelpInfo': '다운로드 할 수 없고 로그에 DB 테이블이 없다면 앱을 삭제하고 다시 설치하세요.',
       'localGalleryHelpInfo': 'JHenTai에서 다운로드하지 않은 갤러리를 불러옵니다. 다운로드 설정 → 추가 갤러리 스캔 경로를 추가하고 새로고침하세요.',
-      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo4iOSAndMacOS':
+          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': '사용자의 로컬 파일을 삭제합니다.',
       'priority': '우선순위',
       'highest': '높음',
@@ -428,12 +430,17 @@ class ko_KR {
       'drag2sort': '드래그로 정렬',
       'switch2GridMode': '그리드 모드로 전환',
       'switch2ListMode': '리스트 모드로 전환',
+      'multiSelect': 'Multi-Select',
+      'multiSelectHint': 'Tap to select',
       'resumeAllTasks': '모든 작업 이어서 시작',
       'pauseAllTasks': '모든 작업 일시 정지',
       'requireDownloadComplete': '다운로드가 완료되어야 합니다',
       'operationHasCompleted': '작업이 완료되었습니다',
       'operationInProgress': '작업이 진행 중입니다',
       'startProcess': '작업을 시작합니다',
+      'multiReDownloadHint': 'You will re-download all selected gallerys',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys',
+      'multiDeleteHint': 'You will delete all selected gallerys',
 
       /// search dialog
       'searchConfig': '검색 설정',

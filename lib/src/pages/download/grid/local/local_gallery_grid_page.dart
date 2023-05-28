@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:path/path.dart';
 
-import '../../../../setting/style_setting.dart';
 import '../../../../utils/toast_util.dart';
-import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
-import '../base/grid_base_page.dart';
+import '../mixin/grid_download_page_mixin.dart';
 import 'local_gallery_grid_page_logic.dart';
 import 'local_gallery_grid_page_state.dart';
 
-class LocalGalleryGridPage extends GridBasePage {
+class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, GridBasePage {
   LocalGalleryGridPage({Key? key}) : super(key: key);
 
   @override
@@ -29,7 +27,8 @@ class LocalGalleryGridPage extends GridBasePage {
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.help),
-        onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
+        onPressed: () =>
+            toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
@@ -52,7 +51,8 @@ class LocalGalleryGridPage extends GridBasePage {
         ? logic.localGalleryService.rootDirectories.map((dir) => DraggableGridItem(child: groupBuilder(context, dir, false))).toList()
         : [
             DraggableGridItem(child: ReturnWidget(onTap: logic.backRoute)),
-            ...?logic.localGalleryService.path2SubDir[logic.currentPath]?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
+            ...?logic.localGalleryService.path2SubDir[logic.currentPath]
+                ?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
             ...state.currentGalleryObjects.map((gallery) => DraggableGridItem(child: galleryBuilder(context, gallery, false))),
           ];
   }

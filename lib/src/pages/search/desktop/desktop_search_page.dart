@@ -7,18 +7,24 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/fade_shrink_widget.dart';
 
 import '../../../config/ui_config.dart';
+import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../mixin/scroll_to_top_state_mixin.dart';
 import 'desktop_search_page_logic.dart';
 import 'desktop_search_page_state.dart';
 
 class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
   const DesktopSearchPage({Key? key}) : super(key: key);
 
-  @override
   DesktopSearchPageLogic get logic => Get.put<DesktopSearchPageLogic>(DesktopSearchPageLogic(), permanent: true);
 
-  @override
   DesktopSearchPageState get state => Get.find<DesktopSearchPageLogic>().state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   @override
   Widget build(BuildContext context) {

@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart';
 
+import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_thumbnail.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
@@ -18,8 +19,11 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
   static const String thumbnailsId = 'thumbnailsId';
   static const String loadingStateId = 'loadingStateId';
 
-  @override
   ThumbnailsPageState state = ThumbnailsPageState();
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
+
   DetailsPageLogic detailsPageLogic = DetailsPageLogic.current!;
   DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
 

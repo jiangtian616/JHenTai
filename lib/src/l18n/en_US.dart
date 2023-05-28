@@ -398,7 +398,7 @@ class en_US {
 
       /// download page
       'local': 'Local',
-      'reDownload': 'Re-download',
+      'reDownload': 'Re-Download',
       'delete': 'Delete',
       'deleteTask': 'Delete Task Only',
       'deleteTaskAndImages': 'Delete Task And Images',
@@ -431,12 +431,17 @@ class en_US {
       'drag2sort': 'Drag to Sort',
       'switch2GridMode': 'Switch to Grid Mode',
       'switch2ListMode': 'Switch to List Mode',
+      'multiSelect': 'Multi-Select',
+      'multiSelectHint': 'Tap to select',
       'resumeAllTasks': 'Resume All Tasks',
       'pauseAllTasks': 'Pause All Tasks',
       'requireDownloadComplete': 'Require download complete',
       'operationHasCompleted': 'The operation has completed',
       'operationInProgress': 'The operation is in progress',
       'startProcess': 'Start Process',
+      'multiReDownloadHint': 'You will re-download all selected gallerys',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys',
+      'multiDeleteHint': 'You will delete all selected gallerys',
 
       /// search dialog
       'searchConfig': 'Search Config',

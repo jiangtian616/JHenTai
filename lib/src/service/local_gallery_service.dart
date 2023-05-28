@@ -10,7 +10,7 @@ import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 
 import '../model/gallery_image.dart';
-import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
+import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../pages/download/list/local/local_gallery_list_page_logic.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';

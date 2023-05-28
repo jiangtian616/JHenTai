@@ -20,7 +20,7 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../model/gallery_image.dart';
-import '../pages/download/grid/base/grid_base_page_service_mixin.dart';
+import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
 import '../utils/log.dart';
@@ -40,6 +40,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
+
+  List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
   static void init() {
     Get.put(ArchiveDownloadService(), permanent: true);
@@ -106,6 +108,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     _saveArchiveInfoInDisk(archive);
   }
 
+  Future<void> deleteArchiveByGid(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
+    if (archive != null) {
+      return deleteArchive(archive);
+    }
+  }
+  
   Future<void> deleteArchive(ArchiveDownloadedData archive) async {
     Log.info('Delete archive: ${archive.title}, original: ${archive.isOriginal}');
 
@@ -124,6 +133,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> pauseAllDownloadArchive() async {
     await Future.wait(archives.map((a) => pauseDownloadArchive(a)).toList());
+  }
+
+  Future<void> pauseDownloadArchiveByGid(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
+    if (archive != null) {
+      return pauseDownloadArchive(archive);
+    }
   }
 
   Future<void> pauseDownloadArchive(ArchiveDownloadedData archive, {bool needReUnlock = false}) async {
@@ -146,6 +162,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> resumeAllDownloadArchive() async {
     await Future.wait(archives.map((a) => resumeDownloadArchive(a)).toList());
+  }
+
+  Future<void> resumeDownloadArchiveByGid(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
+    if (archive != null) {
+      return resumeDownloadArchive(archive);
+    }
   }
 
   Future<void> resumeDownloadArchive(ArchiveDownloadedData archive) async {
@@ -192,6 +215,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     downloadArchive(archive, resume: true);
+  }
+
+  Future<bool> updateArchiveGroupByGid(int gid, String group) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
+    if (archive != null) {
+      return updateArchiveGroup(archive, group);
+    }
+    return false;
   }
 
   Future<bool> updateArchiveGroup(ArchiveDownloadedData archive, String group) async {

@@ -15,7 +15,7 @@ class DesktopSearchPageState with Scroll2TopStateMixin {
   ScrollController tabController = ScrollController();
 
   @override
-  ScrollController get scrollController => tabLogics[currentTabIndex].state.scrollController;
+  ScrollController get scrollController => tabLogics[currentTabIndex].scroll2TopState.scrollController;
 
   DesktopSearchPageState() {
     DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic();

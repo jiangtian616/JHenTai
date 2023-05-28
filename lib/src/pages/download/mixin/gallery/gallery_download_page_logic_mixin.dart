@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
@@ -15,8 +16,9 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_download_dialog.dart';
+import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
-mixin GalleryDownloadPageLogicMixin on GetxController {
+mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData> {
   final String bodyId = 'bodyId';
   final String groupId = 'groupId';
 
@@ -92,6 +94,24 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
     update([bodyId]);
   }
 
+  @override
+  void handleTapItem(GalleryDownloadedData item) {
+    if (multiSelectDownloadPageState.inMultiSelectMode) {
+      toggleSelectItem(item.gid);
+    } else {
+      goToReadPage(item);
+    }
+  }
+
+  @override
+  void handleLongPressOrSecondaryTapItem(GalleryDownloadedData item, BuildContext context) {
+    if (multiSelectDownloadPageState.inMultiSelectMode) {
+      toggleSelectItem(item.gid);
+    } else {
+      showBottomSheet(item, context);
+    }
+  }
+
   void handleResumeAllTasks() {
     downloadService.resumeAllDownloadGallery();
   }
@@ -109,7 +129,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
     updateSafely([bodyId]);
   }
 
-  void handleReDownloadItem(BuildContext context, GalleryDownloadedData gallery) {
+  void handleReDownloadItem(GalleryDownloadedData gallery) {
     downloadService.reDownloadGallery(gallery);
   }
 
@@ -189,7 +209,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
           CupertinoActionSheetAction(
             child: Text('reDownload'.tr),
             onPressed: () {
-              handleReDownloadItem(context, gallery);
+              handleReDownloadItem(gallery);
               backRoute();
             },
           ),
@@ -262,5 +282,72 @@ mixin GalleryDownloadPageLogicMixin on GetxController {
         ),
       ),
     );
+  }
+
+  Future<void> handleMultiResumeTasks() async {
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      downloadService.resumeDownloadGalleryByGid(gid);
+    }
+
+    exitSelectMode();
+  }
+
+  Future<void> handleMultiPauseTasks() async {
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      downloadService.pauseDownloadGalleryByGid(gid);
+    }
+
+    exitSelectMode();
+  }
+
+  Future<void> handleMultiReDownloadItems() async {
+    bool? result = await Get.dialog(
+      EHAlertDialog(title: 'reDownload'.tr, content: 'multiReDownloadHint'.tr),
+    );
+
+    if (result == true) {
+      for (int gid in multiSelectDownloadPageState.selectedGids) {
+        downloadService.reDownloadGalleryByGid(gid);
+      }
+
+      exitSelectMode();
+    }
+  }
+
+  Future<void> handleMultiChangeGroup() async {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        candidates: downloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    String newGroup = result['group'] ?? 'default'.tr;
+
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      await downloadService.updateGroupByGid(gid, newGroup);
+    }
+
+    multiSelectDownloadPageState.inMultiSelectMode = false;
+    multiSelectDownloadPageState.selectedGids.clear();
+    updateSafely([bottomAppbarId, bodyId]);
+  }
+
+  Future<void> handleMultiDelete() async {
+    bool? result = await Get.dialog(
+      EHAlertDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
+    );
+
+    if (result == true) {
+      for (int gid in multiSelectDownloadPageState.selectedGids) {
+        downloadService.deleteGalleryByGid(gid);
+      }
+
+      exitSelectMode();
+    }
   }
 }

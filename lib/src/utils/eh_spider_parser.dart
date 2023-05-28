@@ -4,8 +4,6 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';

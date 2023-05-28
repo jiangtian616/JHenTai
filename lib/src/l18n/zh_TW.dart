@@ -427,12 +427,17 @@ class zh_TW {
       'drag2sort': '拖拽以排序',
       'switch2GridMode': '切換至網格模式',
       'switch2ListMode': '切換至列表模式',
+      'multiSelect': '多選模式',
+      'multiSelectHint': '點擊以選中',
       'resumeAllTasks': '恢複所有任務',
       'pauseAllTasks': '恢複所有任務',
       'requireDownloadComplete': '需要等待下載完成',
       'operationHasCompleted': '操作已經結束',
       'operationInProgress': '操作正在進行中',
       'startProcess': '開始處理',
+      'multiReDownloadHint': '你將會重新下載所有選中的畫廊',
+      'multiChangeGroupHint': '你將會改變所有選中畫廊的分組',
+      'multiDeleteHint': '你將會刪除所有選中的畫廊',
 
       /// search dialog
       'searchConfig': '搜尋設定',

@@ -192,6 +192,8 @@ class UIConfig {
 
   static Color downloadPageCardColor(BuildContext context) => Theme.of(context).colorScheme.surface;
 
+  static Color downloadPageCardSelectedColor(BuildContext context) => Theme.of(context).colorScheme.primaryContainer;
+
   static BoxShadow downloadPageCardShadow(BuildContext context) => BoxShadow(
         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
         blurRadius: 2,
@@ -213,6 +215,8 @@ class UIConfig {
 
   static Color downloadPageLoadingIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
+  static Duration downloadPageAnimationDuration = const Duration(milliseconds: 300);
+
   /// download page with gridview
   static Color downloadPageGridViewGroupBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6);
 
@@ -226,6 +230,9 @@ class UIConfig {
   static const double downloadPageGridViewCircularProgressSize = 40;
 
   static Color downloadPageGridViewCardDragBorderColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
+
+  static const Color downloadPageGridViewSelectIconColor = Colors.white;
+  static const Color downloadPageGridViewSelectIconBackGroundColor = Colors.black;
 
   /// Search page
   static const double desktopSearchBarHeight = 32;

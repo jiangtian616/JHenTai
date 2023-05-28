@@ -2,6 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../model/jh_layout.dart';
 import '../model/search_config.dart';
@@ -33,7 +34,7 @@ void newSearch(String? keyword, [bool forceNewRoute = false]) {
     return;
   }
 
-  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
+  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadingState.loading) {
     return;
   }
 
@@ -66,7 +67,7 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     return;
   }
 
-  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadState.loading) {
+  if (SearchPageMobileV2Logic.current!.state.loadingState == LoadingState.loading) {
     return;
   }
 

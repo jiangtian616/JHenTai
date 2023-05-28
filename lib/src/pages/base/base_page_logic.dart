@@ -8,6 +8,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
 import '../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
@@ -22,8 +23,10 @@ import '../../widget/loading_state_indicator.dart';
 import 'base_page_state.dart';
 
 abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
-  @override
   BasePageState get state;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   final String appBarId = 'appBarId';
   final String bodyId = 'bodyId';

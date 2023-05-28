@@ -9,24 +9,28 @@ import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 
+import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
-import 'grid_base_page_logic.dart';
-import 'grid_base_page_service_mixin.dart';
-import 'grid_base_page_state.dart';
+import 'grid_download_page_logic_mixin.dart';
+import 'grid_download_page_service_mixin.dart';
+import 'grid_download_page_state_mixin.dart';
 
-abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
-  const GridBasePage({Key? key}) : super(key: key);
-
+mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
   DownloadPageGalleryType get galleryType;
 
-  @override
   GridBasePageLogic get logic;
 
-  @override
   GridBasePageState get state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   @override
   Widget build(BuildContext context) {
@@ -34,66 +38,19 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
+      bottomNavigationBar: buildGridBottomAppBar(context),
     );
   }
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context)) : null,
+      leading: StyleSetting.isInV2Layout
+          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+          : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
-      actions: [
-        GetBuilder<GridBasePageLogic>(
-          global: false,
-          init: logic,
-          id: logic.editButtonId,
-          builder: (_) => IconButton(
-            icon: const Icon(Icons.sort),
-            selectedIcon: const Icon(Icons.save),
-            onPressed: logic.toggleEditMode,
-            isSelected: state.inEditMode,
-          ),
-        ),
-        PopupMenuButton(
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                value: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
-                ),
-              ),
-              PopupMenuItem(
-                value: 1,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
-                ),
-              ),
-              PopupMenuItem(
-                value: 2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
-                ),
-              ),
-            ];
-          },
-          onSelected: (value) {
-            if (value == 0) {
-              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
-            }
-            if (value == 1) {
-              logic.handleResumeAllTasks();
-            }
-            if (value == 2) {
-              logic.handlePauseAllTasks();
-            }
-          },
-        ),
-      ],
+      actions: buildAppBarActions(context),
     );
   }
 
@@ -173,6 +130,64 @@ abstract class GridBasePage extends StatelessWidget with Scroll2TopPageMixin {
         ),
       ),
     );
+  }
+
+  List<Widget> buildAppBarActions(BuildContext context) {
+    return [
+      GetBuilder<GridBasePageLogic>(
+        global: false,
+        init: logic,
+        id: logic.editButtonId,
+        builder: (_) => IconButton(
+          icon: const Icon(Icons.sort),
+          selectedIcon: const Icon(Icons.save),
+          onPressed: logic.toggleEditMode,
+          isSelected: state.inEditMode,
+        ),
+      ),
+      PopupMenuButton(
+        itemBuilder: (context) {
+          return [
+            PopupMenuItem(
+              value: 0,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
+              ),
+            ),
+            PopupMenuItem(
+              value: 1,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
+              ),
+            ),
+            PopupMenuItem(
+              value: 2,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
+              ),
+            ),
+          ];
+        },
+        onSelected: (value) {
+          if (value == 0) {
+            DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
+          }
+          if (value == 2) {
+            logic.handleResumeAllTasks();
+          }
+          if (value == 3) {
+            logic.handlePauseAllTasks();
+          }
+        },
+      ),
+    ];
+  }
+
+  Widget? buildGridBottomAppBar(BuildContext context) {
+    return null;
   }
 
   List<DraggableGridItem> getChildren(BuildContext context) {

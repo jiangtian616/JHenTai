@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
+import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
 import '../../utils/log.dart';
 import '../../utils/snack_util.dart';
@@ -16,6 +17,9 @@ import 'old_base_page_state.dart';
 abstract class OldBasePageLogic extends BasePageLogic {
   @override
   OldBasePageState get state;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   /// pull-down
   @override

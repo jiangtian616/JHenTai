@@ -1,12 +1,22 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
-import '../../common/archive/archive_download_page_logic_mixin.dart';
+import '../../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../mixin/archive/archive_download_page_logic_mixin.dart';
+import '../../mixin/archive/archive_download_page_state_mixin.dart';
+import '../../mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
 import 'archive_list_download_page_state.dart';
 
-class ArchiveListDownloadPageLogic extends GetxController with Scroll2TopLogicMixin, ArchiveDownloadPageLogicMixin {
-  @override
+class ArchiveListDownloadPageLogic extends GetxController
+    with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData>, ArchiveDownloadPageLogicMixin {
   ArchiveListDownloadPageState state = ArchiveListDownloadPageState();
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
+
+  @override
+  ArchiveDownloadPageStateMixin get archiveDownloadPageState => state;
 
   @override
   void onInit() {
@@ -40,5 +50,16 @@ class ArchiveListDownloadPageLogic extends GetxController with Scroll2TopLogicMi
   @override
   void handleResumeAllTasks() {
     archiveDownloadService.resumeAllDownloadArchive();
+  }
+
+  @override
+  void selectAllItem() {
+    List<ArchiveDownloadedData> archives = [];
+    for (String group in state.displayGroups) {
+      archives.addAll(archiveDownloadService.archivesWithGroup(group));
+    }
+    
+    multiSelectDownloadPageState.selectedGids.addAll(archives.map((archive) => archive.gid));
+    updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }
 }

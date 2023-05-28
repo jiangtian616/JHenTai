@@ -230,7 +230,8 @@ class pt_BR {
       'myTagsHint': 'gerenciar tags assistidas e ocultas',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'localTagsHint2':
+          'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',
       'getTagSetFailed': 'Falha ao obter conjunto de tags',
@@ -238,7 +239,7 @@ class pt_BR {
       'deleteTagSetSuccess': 'Falha na atualização do conjunto de tags',
       'deleteTagSetFailed': 'Falha ao excluir conjunto de tags',
       'addLocalTagHint': 'Search to add new tag',
-      
+
       /// Layout
       'layoutMode': 'Modo de layout',
       'mobileLayoutV2Name': 'Celular',
@@ -412,9 +413,12 @@ class pt_BR {
       'needReUnlock': 'Precisa de novo desbloqueio',
       'reUnlock': 'Desbloquear novamente',
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
-      'downloadHelpInfo': 'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
-      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
-      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'downloadHelpInfo':
+          'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
+      'localGalleryHelpInfo':
+          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo4iOSAndMacOS':
+          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Prioridade',
       'highest': 'Alta',
@@ -429,12 +433,17 @@ class pt_BR {
       'drag2sort': 'Drag to Sort',
       'switch2GridMode': 'Switch to Grid Mode',
       'switch2ListMode': 'Switch to List Mode',
+      'multiSelect': 'Multi-Select',
+      'multiSelectHint': 'Tap to select',
       'resumeAllTasks': 'Resume All Tasks',
       'pauseAllTasks': 'Pause All Tasks',
       'requireDownloadComplete': 'Require download complete',
       'operationHasCompleted': 'The operation has completed',
       'operationInProgress': 'The operation is in progress',
       'startProcess': 'Start Process',
+      'multiReDownloadHint': 'You will re-download all selected gallerys',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys',
+      'multiDeleteHint': 'You will delete all selected gallerys',
 
       /// search dialog
       'searchConfig': 'Opções de pesquisa',

@@ -7,6 +7,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_state.dart';
 
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../../mixin/scroll_to_top_state_mixin.dart';
 import 'desktop_search_page_tab_logic.dart';
 import 'desktop_search_page_tab_view.dart';
 
@@ -15,9 +16,11 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
   final String tabBarId = 'tabBarId';
   final String tabViewId = 'tabViewId';
 
-  @override
   final DesktopSearchPageState state = DesktopSearchPageState();
 
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
+  
   DesktopSearchPageTabLogic get currentTabLogic => state.tabLogics[state.currentTabIndex];
 
   void handleClearAndRefresh() {

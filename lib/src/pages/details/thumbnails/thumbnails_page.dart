@@ -10,16 +10,22 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 
 import '../../../config/ui_config.dart';
+import '../../../mixin/scroll_to_top_logic_mixin.dart';
+import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_image.dart';
 import '../../../widget/eh_thumbnail.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
-  @override
   final ThumbnailsPageLogic logic = Get.put<ThumbnailsPageLogic>(ThumbnailsPageLogic());
-  @override
   final ThumbnailsPageState state = Get.find<ThumbnailsPageLogic>().state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   ThumbnailsPage({Key? key}) : super(key: key);
 

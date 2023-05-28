@@ -10,23 +10,23 @@ mixin Scroll2TopLogicMixin on GetxController {
 
   bool inForwardScroll = PreferenceSetting.alwaysShowScroll2TopButton.isFalse;
 
-  Scroll2TopStateMixin get state;
+  Scroll2TopStateMixin get scroll2TopState;
 
   @override
   void onClose() {
     super.dispose();
-    state.scrollController.dispose();
+    scroll2TopState.scrollController.dispose();
   }
 
   void jump2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.jumpTo(0);
+    if (scroll2TopState.scrollController.hasClients) {
+      scroll2TopState.scrollController.jumpTo(0);
     }
   }
 
   void scroll2Top() {
-    if (state.scrollController.hasClients) {
-      state.scrollController.animateTo(
+    if (scroll2TopState.scrollController.hasClients) {
+      scroll2TopState.scrollController.animateTo(
         0,
         duration: const Duration(milliseconds: 400),
         curve: Curves.ease,

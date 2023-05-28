@@ -235,7 +235,7 @@ class zh_CN {
       'deleteTagSetSuccess': '删除标签数据成功',
       'deleteTagSetFailed': '删除标签数据失败',
       'addLocalTagHint': '搜索添加新标签',
-      
+
       /// Layout
       'mobileLayoutV2Name': '手机模式',
       'mobileLayoutV2Desc': '单列',
@@ -428,12 +428,17 @@ class zh_CN {
       'drag2sort': '拖拽以排序',
       'switch2GridMode': '切换至网格模式',
       'switch2ListMode': '切换至列表模式',
+      'multiSelect': '多选模式',
+      'multiSelectHint': '点击以选中',
       'resumeAllTasks': '恢复所有任务',
       'pauseAllTasks': '暂停所有任务',
       'requireDownloadComplete': '需要等待下载完成',
       'operationHasCompleted': '操作已经结束',
       'operationInProgress': '操作正在进行中',
       'startProcess': '开始处理',
+      'multiReDownloadHint': '你将会重新下载所有选中的画廊',
+      'multiChangeGroupHint': '你将会改变所有选中画廊的分组',
+      'multiDeleteHint': '你将会删除所有选中的画廊',
 
       /// search dialog
       'searchConfig': '搜索配置',

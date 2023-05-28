@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 
 import '../../../../database/database.dart';
 import '../../../../model/gallery_image.dart';
@@ -16,10 +18,18 @@ import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../../../../widget/re_unlock_dialog.dart';
+import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
+import '../basic/multi_select/multi_select_download_page_state_mixin.dart';
+import 'archive_download_page_state_mixin.dart';
 
-mixin ArchiveDownloadPageLogicMixin on GetxController {
+mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData> {
   final String bodyId = 'bodyId';
   final String groupId = 'groupId';
+
+  ArchiveDownloadPageStateMixin get archiveDownloadPageState;
+
+  @override
+  MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => archiveDownloadPageState;
 
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final StorageService storageService = Get.find();
@@ -46,6 +56,24 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
 
     await archiveDownloadService.updateArchiveGroup(archive, newGroup);
     update([bodyId]);
+  }
+
+  @override
+  void handleTapItem(ArchiveDownloadedData item) {
+    if (multiSelectDownloadPageState.inMultiSelectMode) {
+      toggleSelectItem(item.gid);
+    } else {
+      goToReadPage(item);
+    }
+  }
+
+  @override
+  void handleLongPressOrSecondaryTapItem(ArchiveDownloadedData item, BuildContext context) {
+    if (multiSelectDownloadPageState.inMultiSelectMode) {
+      toggleSelectItem(item.gid);
+    } else {
+      showBottomSheet(item, context);
+    }
   }
 
   Future<void> handleLongPressGroup(String groupName) {
@@ -135,7 +163,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
     }
   }
 
-  void showArchiveBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+  void showBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
     SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
 
     showCupertinoModalPopup(
@@ -195,6 +223,59 @@ mixin ArchiveDownloadPageLogicMixin on GetxController {
     bool? ok = await Get.dialog(const ReUnlockDialog());
     if (ok ?? false) {
       archiveDownloadService.cancelUnlockArchiveAndDownload(archive);
+    }
+  }
+
+  Future<void> handleMultiResumeTasks() async {
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      archiveDownloadService.resumeDownloadArchiveByGid(gid);
+    }
+
+    exitSelectMode();
+  }
+
+  Future<void> handleMultiPauseTasks() async {
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      archiveDownloadService.pauseDownloadArchiveByGid(gid);
+    }
+
+    exitSelectMode();
+  }
+
+  Future<void> handleMultiChangeGroup() async {
+    Map<String, dynamic>? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        candidates: archiveDownloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    String newGroup = result['group'] ?? 'default'.tr;
+
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      await archiveDownloadService.updateArchiveGroupByGid(gid, newGroup);
+    }
+
+    multiSelectDownloadPageState.inMultiSelectMode = false;
+    multiSelectDownloadPageState.selectedGids.clear();
+    updateSafely([bottomAppbarId, bodyId]);
+  }
+
+  Future<void> handleMultiDelete() async {
+    bool? result = await Get.dialog(
+      EHAlertDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
+    );
+
+    if (result == true) {
+      for (int gid in multiSelectDownloadPageState.selectedGids) {
+        archiveDownloadService.deleteArchiveByGid(gid);
+      }
+
+      exitSelectMode();
     }
   }
 }

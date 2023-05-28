@@ -6,7 +6,9 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../config/ui_config.dart';
+import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
+import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/eh_wheel_speed_controller.dart';
@@ -18,10 +20,14 @@ import 'local_gallery_list_page_state.dart';
 class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
   LocalGalleryListPage({Key? key}) : super(key: key);
 
-  @override
   final LocalGalleryListPageLogic logic = Get.find<LocalGalleryListPageLogic>();
-  @override
   final LocalGalleryListPageState state = Get.find<LocalGalleryListPageLogic>().state;
+
+  @override
+  Scroll2TopLogicMixin get scroll2TopLogic => logic;
+
+  @override
+  Scroll2TopStateMixin get scroll2TopState => state;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +45,8 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.local),
       leading: IconButton(
         icon: const Icon(Icons.help),
-        onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
+        onPressed: () =>
+            toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       actions: [
         IconButton(
@@ -193,13 +200,8 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => logic.goToReadPage(gallery),
-      child: Container(
+      child: SizedBox(
         height: UIConfig.downloadPageCardHeight,
-        decoration: BoxDecoration(
-          color: UIConfig.downloadPageCardColor(context),
-          boxShadow: [UIConfig.downloadPageCardShadow(context)],
-          borderRadius: BorderRadius.circular(15),
-        ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: Row(
@@ -231,12 +233,15 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(gallery.title, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
+        Text(gallery.title,
+            maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
         const Expanded(child: SizedBox()),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (gallery.isFromEHViewer) Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context))).marginOnly(right: 8),
+            if (gallery.isFromEHViewer)
+              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)))
+                  .marginOnly(right: 8),
           ],
         ),
       ],
