@@ -808,8 +808,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           task: _parseImageUrlTask(gallery, serialNo, reParse: true),
         );
       } on EHException catch (e) {
-        Log.download('Download Error, reason: ${e.msg}');
-        snack('error'.tr, e.msg, longDuration: true);
+        Log.download('Download Error, reason: ${e.msg.tr}');
+        snack('error'.tr, e.msg.tr, longDuration: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();

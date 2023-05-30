@@ -273,7 +273,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       }
       return;
     } on EHException catch (e) {
-      toast(e.toString(), isShort: false);
+      toast(e.msg.tr, isShort: false);
       if (watch) {
         addWatchedTagState = LoadingState.error;
       } else {

@@ -104,7 +104,7 @@ class LoginPageLogic extends GetxController {
 
     if (userInfoOrErrorMsg['errorMsg'] != null) {
       Log.info('Login failed by password.');
-      snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg'], longDuration: true);
+      snack('loginFail'.tr, userInfoOrErrorMsg['errorMsg'].tr, longDuration: true);
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);

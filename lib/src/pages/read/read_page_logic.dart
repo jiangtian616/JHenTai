@@ -238,7 +238,7 @@ class ReadPageLogic extends GetxController {
       return;
     } on EHException catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
-      state.parseImageUrlErrorMsg[index] = e.msg;
+      state.parseImageUrlErrorMsg[index] = e.msg.tr;
       update(['$parseImageUrlStateId::$index']);
       if (e.type == EHExceptionType.exceedLimit) {
         ehCacheInterceptor.removeCacheByUrl(state.thumbnails[index]!.href);
