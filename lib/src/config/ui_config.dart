@@ -194,6 +194,8 @@ class UIConfig {
 
   static Color downloadPageCardSelectedColor(BuildContext context) => Theme.of(context).colorScheme.primaryContainer;
 
+  static const double downloadPageCardBorderRadius = 12;
+
   static BoxShadow downloadPageCardShadow(BuildContext context) => BoxShadow(
         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.1),
         blurRadius: 2,

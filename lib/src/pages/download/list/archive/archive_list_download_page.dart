@@ -207,10 +207,16 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildCard(BuildContext context, ArchiveDownloadedData archive) {
-    return SizedBox(
-      height: UIConfig.downloadPageCardHeight,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+    return GetBuilder<ArchiveListDownloadPageLogic>(
+      id: '${logic.itemCardId}::${archive.gid}',
+      builder: (_) => Container(
+        decoration: state.selectedGids.contains(archive.gid)
+            ? BoxDecoration(
+                color: UIConfig.downloadPageCardSelectedColor(context),
+                borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              )
+            : null,
+        height: UIConfig.downloadPageCardHeight,
         child: Row(
           children: [
             _buildCover(archive),
@@ -229,6 +235,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         galleryImage: GalleryImage(url: archive.coverUrl),
         containerWidth: UIConfig.downloadPageCoverWidth,
         containerHeight: UIConfig.downloadPageCoverHeight,
+        borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
         fit: BoxFit.fitWidth,
         maxBytes: 2 * 1024 * 1024,
       ),
@@ -240,34 +247,23 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => logic.handleTapItem(archive),
-        child: GetBuilder<ArchiveListDownloadPageLogic>(
-          id: '${logic.itemCardId}::${archive.gid}',
-          builder: (_) {
-            return Container(
-              padding: const EdgeInsets.only(left: 6, right: 10, bottom: 6, top: 6),
-              decoration: state.selectedGids.contains(archive.gid)
-                  ? BoxDecoration(
-                      color: UIConfig.downloadPageCardSelectedColor(context),
-                      borderRadius: const BorderRadius.only(topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
-                    )
-                  : null,
-              child: Stack(
+        child: Container(
+          padding: const EdgeInsets.only(left: 6, right: 10, bottom: 6, top: 6),
+          child: Stack(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildInfoHeader(context, archive),
-                      const Expanded(child: SizedBox()),
-                      _buildInfoCenter(context, archive),
-                      const Expanded(child: SizedBox()),
-                      _buildInfoFooter(context, archive),
-                    ],
-                  ),
-                  if (state.selectedGids.contains(archive.gid)) const Positioned(child: Center(child: Icon(Icons.check_circle))),
+                  _buildInfoHeader(context, archive),
+                  const Expanded(child: SizedBox()),
+                  _buildInfoCenter(context, archive),
+                  const Expanded(child: SizedBox()),
+                  _buildInfoFooter(context, archive),
                 ],
               ),
-            );
-          },
+              if (state.selectedGids.contains(archive.gid)) const Positioned(child: Center(child: Icon(Icons.check_circle))),
+            ],
+          ),
         ),
       ),
     );

@@ -222,10 +222,16 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildCard(BuildContext context, GalleryDownloadedData gallery) {
-    return SizedBox(
-      height: UIConfig.downloadPageCardHeight,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+    return GetBuilder<GalleryListDownloadPageLogic>(
+      id: '${logic.itemCardId}::${gallery.gid}',
+      builder: (_) => Container(
+        height: UIConfig.downloadPageCardHeight,
+        decoration: state.selectedGids.contains(gallery.gid)
+            ? BoxDecoration(
+                color: UIConfig.downloadPageCardSelectedColor(context),
+                borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              )
+            : null,
         child: Row(
           children: [
             _buildCover(context, gallery),
@@ -258,6 +264,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             galleryImage: image!,
             containerWidth: UIConfig.downloadPageCoverWidth,
             containerHeight: UIConfig.downloadPageCoverHeight,
+            borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
             fit: BoxFit.fitWidth,
             maxBytes: 2 * 1024 * 1024,
           );
@@ -271,34 +278,23 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => logic.handleTapItem(gallery),
-        child: GetBuilder<GalleryListDownloadPageLogic>(
-          id: '${logic.itemCardId}::${gallery.gid}',
-          builder: (_) {
-            return Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.only(left: 6, right: 10, bottom: 6, top: 6),
-                  decoration: state.selectedGids.contains(gallery.gid)
-                      ? BoxDecoration(
-                          color: UIConfig.downloadPageCardSelectedColor(context),
-                          borderRadius: const BorderRadius.only(topRight: Radius.circular(15), bottomRight: Radius.circular(15)),
-                        )
-                      : null,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildInfoHeader(context, gallery),
-                      const Expanded(child: SizedBox()),
-                      _buildInfoCenter(context, gallery),
-                      const Expanded(child: SizedBox()),
-                      _buildInfoFooter(context, gallery),
-                    ],
-                  ),
-                ),
-                if (state.selectedGids.contains(gallery.gid)) const Positioned(child: Center(child: Icon(Icons.check_circle))),
-              ],
-            );
-          },
+        child: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.only(left: 6, right: 10, bottom: 6, top: 6),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildInfoHeader(context, gallery),
+                  const Expanded(child: SizedBox()),
+                  _buildInfoCenter(context, gallery),
+                  const Expanded(child: SizedBox()),
+                  _buildInfoFooter(context, gallery),
+                ],
+              ),
+            ),
+            if (state.selectedGids.contains(gallery.gid)) const Positioned(child: Center(child: Icon(Icons.check_circle))),
+          ],
         ),
       ),
     );
