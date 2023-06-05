@@ -176,11 +176,12 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
           onLongPress: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
           child: FadeShrinkWidget(
-            show: state.displayGroups.contains(group),
-            child: FadeShrinkWidget(
-              show: !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
-              child: _buildCard(context, gallery).marginAll(5),
-              afterDisappear: () {
+            show: state.displayGroups.contains(group) &&
+                !state.removedGids.contains(gallery.gid) &&
+                !state.removedGidsWithoutImages.contains(gallery.gid),
+            child: _buildCard(context, gallery).marginAll(5),
+            afterDisappear: () {
+              if (state.removedGids.contains(gallery.gid) || state.removedGidsWithoutImages.contains(gallery.gid)) {
                 Get.engine.addPostFrameCallback(
                   (_) {
                     logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid));
@@ -188,8 +189,8 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     state.removedGidsWithoutImages.remove(gallery.gid);
                   },
                 );
-              },
-            ),
+              }
+            },
           ),
         ),
       ),

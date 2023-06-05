@@ -3,13 +3,17 @@ import 'package:simple_animations/animation_controller_extension/animation_contr
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
 class FadeShrinkWidget extends StatefulWidget {
-  final bool show;
   final Widget child;
+
+  final bool show;
   final bool animateWhenInitialization;
   final Duration duration;
 
+  final bool enableOpacityTransition;
   final double opacityFrom;
   final double opacityTo;
+
+  final bool enableSizeTransition;
   final double sizeFrom;
   final double sizeTo;
   final Axis sizeAxis;
@@ -22,6 +26,8 @@ class FadeShrinkWidget extends StatefulWidget {
     required this.child,
     this.animateWhenInitialization = false,
     this.duration = const Duration(milliseconds: 150),
+    this.enableOpacityTransition = true,
+    this.enableSizeTransition = true,
     this.opacityFrom = 0,
     this.opacityTo = 1,
     this.sizeFrom = 0,
@@ -78,13 +84,23 @@ class _FadeShrinkWidgetState extends State<FadeShrinkWidget> with AnimationMixin
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: fadeAnimation,
-      child: SizeTransition(
+    Widget child = widget.child;
+
+    if (widget.enableOpacityTransition) {
+      child = FadeTransition(
+        opacity: fadeAnimation,
+        child: child,
+      );
+    }
+
+    if (widget.enableSizeTransition) {
+      child = SizeTransition(
         sizeFactor: sizeAnimation,
         axis: widget.sizeAxis,
-        child: widget.child,
-      ),
-    );
+        child: child,
+      );
+    }
+
+    return child;
   }
 }

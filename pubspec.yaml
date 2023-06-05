@@ -61,7 +61,7 @@ dependencies:
   animate_do: ^2.1.0
   share_plus: 4.5.3
   syncfusion_flutter_charts: ^20.2.36
-  sentry_flutter: 7.6.1
+  sentry_flutter: 7.6.3
   archive: 3.3.6
   fluttertoast: 8.1.2
   battery_plus: 3.0.2
@@ -76,7 +76,7 @@ dependencies:
   resizable_widget:
     git: https://github.com/eurisit/resizable_widget
   loading_animation_widget: ^1.2.0+3
-  simple_animations: 5.0.0+3
+  simple_animations: 5.0.1
   animated_flip_counter: ^0.2.5
   image_save: 5.0.0
   system_network_proxy: 1.0.2

@@ -160,26 +160,25 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   Widget _itemBuilder(BuildContext context, ArchiveDownloadedData archive) {
     String? group = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group;
 
-    return GetBuilder<ArchiveListDownloadPageLogic>(
-      id: '${logic.groupId}::$group',
-      builder: (_) => Slidable(
-        key: Key(archive.gid.toString()),
-        endActionPane: _buildEndActionPane(context, archive),
-        child: GestureDetector(
-          onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
-          onLongPress: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
-          child: FadeShrinkWidget(
-            show: state.displayGroups.contains(group),
-            child: FadeShrinkWidget(
-              show: !state.removedGids.contains(archive.gid),
-              child: _buildCard(context, archive).marginAll(5),
-              afterDisappear: () {
+    return Slidable(
+      key: Key(archive.gid.toString()),
+      endActionPane: _buildEndActionPane(context, archive),
+      child: GestureDetector(
+        onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
+        onLongPress: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
+        child: GetBuilder<ArchiveListDownloadPageLogic>(
+          id: '${logic.groupId}::$group',
+          builder: (_) => FadeShrinkWidget(
+            show: state.displayGroups.contains(group) && !state.removedGids.contains(archive.gid),
+            child: _buildCard(context, archive).marginAll(5),
+            afterDisappear: () {
+              if (state.removedGids.contains(archive.gid)) {
                 Get.engine.addPostFrameCallback(
                   (_) => logic.archiveDownloadService.deleteArchive(archive),
                 );
                 state.removedGids.remove(archive.gid);
-              },
-            ),
+              }
+            },
           ),
         ),
       ),
