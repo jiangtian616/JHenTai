@@ -12,11 +12,7 @@ import '../utils/log.dart';
 
 class MyTagsSetting {
   static List<TagSet> onlineTagSets = [];
-  static List<TagData> localTagSets = [
-    TagData(namespace: 'artist', key: 'hibiki'),
-    TagData(namespace: 'artist', key: 'hibiki2'),
-    TagData(namespace: 'artist', key: 'hibiki3'),
-  ];
+  static List<TagData> localTagSets = [];
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
@@ -69,11 +65,19 @@ class MyTagsSetting {
   }
 
   static void addLocalTagSet(TagData tagData) {
+    Log.debug('addLocalTagSet:$tagData');
     localTagSets.add(tagData);
     _saveLocalTagSets();
   }
 
+  static void removeLocalTagSetByIndex(int index) {
+    Log.debug('removeLocalTagSetByIndex:$index');
+    localTagSets.removeAt(index);
+    _saveLocalTagSets();
+  }
+
   static void removeLocalTagSet(TagData tagData) {
+    Log.debug('removeLocalTagSet:$tagData');
     localTagSets.remove(tagData);
     _saveLocalTagSets();
   }

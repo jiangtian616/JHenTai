@@ -232,6 +232,7 @@ class pt_BR {
       'localTagsHint': 'Extra filter tags',
       'localTagsHint2':
           'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'addLocalTags': 'Add Tags',
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',
       'getTagSetFailed': 'Falha ao obter conjunto de tags',

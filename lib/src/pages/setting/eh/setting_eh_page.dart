@@ -60,7 +60,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
             _buildImageLimit(),
             _buildAssets(),
             _buildMyTags(),
-            // _buildLocalTags(),
+            _buildLocalTags(),
           ],
         ).withListTileTheme(context),
       ),

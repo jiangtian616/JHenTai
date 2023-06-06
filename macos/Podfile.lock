@@ -16,13 +16,13 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Sentry/HybridSDK (8.7.1):
-    - SentryPrivate (= 8.7.1)
+  - Sentry/HybridSDK (8.7.3):
+    - SentryPrivate (= 8.7.3)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.7.1)
-  - SentryPrivate (8.7.1)
+    - Sentry/HybridSDK (= 8.7.3)
+  - SentryPrivate (8.7.3)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - smart_auth (0.0.1):
@@ -115,9 +115,9 @@ SPEC CHECKSUMS:
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
-  Sentry: 11776f6a25a128808d793d0d41bb7ad873b5ae4f
-  sentry_flutter: 886dbeb2674ba1232f540c54311a774bb50fda42
-  SentryPrivate: b3c448eacdabe9eab7679a2e0af609c608f91572
+  Sentry: c7a86f43510a7d5678d4de28d78c28ab351d295b
+  sentry_flutter: f2710a4f537e9a7143b02562b8754ccdc8224751
+  SentryPrivate: 2eaabf598a46d4b9b8822aef766df2a84caf2e6f
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea

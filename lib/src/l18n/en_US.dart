@@ -230,6 +230,7 @@ class en_US {
       'localTagsHint': 'Extra filter tags',
       'localTagsHint2':
           'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'addLocalTags': 'Add Tags',
       'hidden': 'Hidden',
       'nope': 'Nope',
       'getTagSetFailed': 'Get Tag Set Failed',
