@@ -26,6 +26,8 @@ class Gallery {
   String publishTime;
   bool isExpunged;
 
+  bool isFilteredByLocalTag;
+
   GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(
       gid: gid,
@@ -89,6 +91,7 @@ class Gallery {
     this.uploader,
     required this.publishTime,
     required this.isExpunged,
+    this.isFilteredByLocalTag = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -110,6 +113,7 @@ class Gallery {
       'uploader': uploader,
       'publishTime': publishTime,
       'isExpunged': isExpunged,
+      'isFilteredByLocalTag': isFilteredByLocalTag,
     };
   }
 
@@ -139,13 +143,13 @@ class Gallery {
       uploader: map['uploader'],
       publishTime: map['publishTime'],
       isExpunged: map['isExpunged'] ?? false,
+      isFilteredByLocalTag: map['isFilteredByLocalTag'] ?? false,
     );
   }
 
-
   @override
   String toString() {
-    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged}';
+    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, isFilteredByLocalTag: $isFilteredByLocalTag}';
   }
 
   Gallery copyWith({
@@ -166,6 +170,7 @@ class Gallery {
     String? uploader,
     String? publishTime,
     bool? isExpunged,
+    bool? isFilteredByLocalTag,
   }) {
     return Gallery(
       gid: gid ?? this.gid,
@@ -185,6 +190,7 @@ class Gallery {
       uploader: uploader ?? this.uploader,
       publishTime: publishTime ?? this.publishTime,
       isExpunged: isExpunged ?? this.isExpunged,
+      isFilteredByLocalTag: isFilteredByLocalTag ?? this.isFilteredByLocalTag,
     );
   }
 }

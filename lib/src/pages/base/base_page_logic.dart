@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,6 +6,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
 import '../../mixin/scroll_to_top_logic_mixin.dart';
@@ -95,6 +97,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
+    filterGalleryByLocalTags(galleryPage.gallerys);
+
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
     state.gallerys = galleryPage.gallerys;
@@ -164,6 +168,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     cleanDuplicateGallery(galleryPage.gallerys);
 
+    filterGalleryByLocalTags(galleryPage.gallerys);
+
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
     state.gallerys.insertAll(0, galleryPage.gallerys);
@@ -196,6 +202,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     cleanDuplicateGallery(galleryPage.gallerys);
+
+    filterGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -237,6 +245,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       updateSafely([loadingStateId]);
       return;
     }
+
+    filterGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -331,5 +341,15 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   /// deal with the first and last page
   void cleanDuplicateGallery(List<Gallery> newGallerys) {
     newGallerys.removeWhere((newGallery) => state.gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
+  }
+
+  void filterGalleryByLocalTags(List<Gallery> newGallerys) {
+    if (MyTagsSetting.localTagSets.isEmpty) {
+      return;
+    }
+    
+    newGallerys.where((newGallery) => newGallery.tags.values.flattened.any((tag) => MyTagsSetting.containLocalTag(tag.tagData))).forEach((gallery) {
+      gallery.isFilteredByLocalTag = true;
+    });
   }
 }

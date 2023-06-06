@@ -64,6 +64,10 @@ class MyTagsSetting {
     return onlineTagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
   }
 
+  static bool containLocalTag(TagData tagData) {
+    return localTagSets.any((localTag) => localTag.namespace == tagData.namespace && localTag.key == tagData.key);
+  }
+
   static void addLocalTagSet(TagData tagData) {
     Log.debug('addLocalTagSet:$tagData');
     localTagSets.add(tagData);

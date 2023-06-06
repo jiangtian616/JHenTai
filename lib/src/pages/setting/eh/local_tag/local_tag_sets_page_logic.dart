@@ -75,7 +75,7 @@ class LocalTagSetsLogic extends GetxController with GetTickerProviderStateMixin,
   }
 
   void toggleLocalTag(TagData tag) {
-    if (hasBeenAdded(tag)) {
+    if (MyTagsSetting.containLocalTag(tag)) {
       deleteLocalTag(tag);
     } else {
       addLocalTag(tag);
@@ -90,9 +90,5 @@ class LocalTagSetsLogic extends GetxController with GetTickerProviderStateMixin,
   void deleteLocalTag(TagData tag) {
     MyTagsSetting.removeLocalTagSet(tag);
     updateSafely(['$tagId::${tag.namespace}::${tag.key}']);
-  }
-
-  bool hasBeenAdded(TagData tag) {
-    return MyTagsSetting.localTagSets.any((element) => element.namespace == tag.namespace && element.key == tag.key);
   }
 }

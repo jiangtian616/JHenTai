@@ -1045,11 +1045,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             delegate: SliverChildBuilderDelegate(
               (context, index) {
                 if (index == state.galleryDetails!.thumbnails.length - 1 && state.loadingThumbnailsState == LoadingState.idle) {
-                  /// 1. shouldn't call directly, because SliverGrid is building, if we call [setState] here will cause a exception
-                  /// that hints circular build.
-                  /// 2. when callback is called, the SliverGrid's state will call [setState], it'll rebuild all child by index, it means
-                  /// that this callback will be added again and again! so add a condition to check loadingState so that make sure
-                  /// the callback is added once.
                   SchedulerBinding.instance.addPostFrameCallback((_) {
                     logic.loadMoreThumbnails();
                   });

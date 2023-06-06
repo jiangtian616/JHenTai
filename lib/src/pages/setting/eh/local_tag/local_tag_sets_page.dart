@@ -145,7 +145,7 @@ class LocalTagSetsPage extends StatelessWidget {
                                 true,
                               ),
                             ),
-                      trailing: logic.hasBeenAdded(state.tags[index]) ? const Icon(Icons.check, color: Colors.green) : const Icon(Icons.add, color: Colors.grey),
+                      trailing: MyTagsSetting.containLocalTag(state.tags[index]) ? const Icon(Icons.check, color: Colors.green) : const Icon(Icons.add, color: Colors.grey),
                       dense: true,
                       minLeadingWidth: 20,
                       onTap: () => logic.toggleLocalTag(state.tags[index]),
