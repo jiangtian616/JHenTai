@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
@@ -136,10 +137,26 @@ class _FlatGalleryCard extends StatelessWidget {
       children = children.reversed.toList();
     }
 
-    return ColoredBox(
+    Widget child = ColoredBox(
       color: UIConfig.backGroundColor(context),
       child: Row(children: children),
     );
+
+    if (gallery.hasLocalFilteredTag) {
+      child = Blur(
+        blur: 8,
+        colorOpacity: 0.7,
+        child: child,
+        overlay: Column(
+          children: [
+            Icon(Icons.face),
+            Text('data')
+          ],
+        ),
+      );
+    }
+
+    return child;
   }
 }
 
@@ -256,8 +273,7 @@ class _GalleryInfoFooter extends StatelessWidget {
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
-            if (gallery.isFavorite)
-              EHGalleryFavoriteTag(name: gallery.favoriteTagName!, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]),
+            if (gallery.isFavorite) EHGalleryFavoriteTag(name: gallery.favoriteTagName!, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]),
             if (gallery.language != null)
               Text(
                 LocaleConsts.language2Abbreviation[gallery.language] ?? '',
@@ -278,10 +294,7 @@ class _GalleryInfoFooter extends StatelessWidget {
             _buildRatingBar(context),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(
-                  fontSize: UIConfig.galleryCardTextSize,
-                  color: UIConfig.galleryCardTextColor(context),
-                  decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
+              style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context), decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
             ),
           ],
         ),

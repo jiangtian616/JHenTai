@@ -230,8 +230,7 @@ class pt_BR {
       'myTagsHint': 'gerenciar tags assistidas e ocultas',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2':
-          'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'localTagsHint2': 'Gallerys with these tags will be blurred',
       'addLocalTags': 'Add Tags',
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',

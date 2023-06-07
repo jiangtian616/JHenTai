@@ -26,7 +26,7 @@ class Gallery {
   String publishTime;
   bool isExpunged;
 
-  bool isFilteredByLocalTag;
+  bool hasLocalFilteredTag;
 
   GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(
@@ -91,7 +91,7 @@ class Gallery {
     this.uploader,
     required this.publishTime,
     required this.isExpunged,
-    this.isFilteredByLocalTag = false,
+    this.hasLocalFilteredTag = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -113,7 +113,7 @@ class Gallery {
       'uploader': uploader,
       'publishTime': publishTime,
       'isExpunged': isExpunged,
-      'isFilteredByLocalTag': isFilteredByLocalTag,
+      'isFilteredByLocalTag': hasLocalFilteredTag,
     };
   }
 
@@ -143,13 +143,13 @@ class Gallery {
       uploader: map['uploader'],
       publishTime: map['publishTime'],
       isExpunged: map['isExpunged'] ?? false,
-      isFilteredByLocalTag: map['isFilteredByLocalTag'] ?? false,
+      hasLocalFilteredTag: map['isFilteredByLocalTag'] ?? false,
     );
   }
 
   @override
   String toString() {
-    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, isFilteredByLocalTag: $isFilteredByLocalTag}';
+    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, isFilteredByLocalTag: $hasLocalFilteredTag}';
   }
 
   Gallery copyWith({
@@ -190,7 +190,7 @@ class Gallery {
       uploader: uploader ?? this.uploader,
       publishTime: publishTime ?? this.publishTime,
       isExpunged: isExpunged ?? this.isExpunged,
-      isFilteredByLocalTag: isFilteredByLocalTag ?? this.isFilteredByLocalTag,
+      hasLocalFilteredTag: isFilteredByLocalTag ?? this.hasLocalFilteredTag,
     );
   }
 }

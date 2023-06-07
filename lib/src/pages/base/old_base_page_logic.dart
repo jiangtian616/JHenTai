@@ -74,7 +74,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    filterGalleryByLocalTags(gallerysAndPageInfo[0]);
+    handleGalleryByLocalTags(gallerysAndPageInfo[0]);
     
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
@@ -125,7 +125,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
 
-    filterGalleryByLocalTags(gallerysAndPageInfo[0]);
+    handleGalleryByLocalTags(gallerysAndPageInfo[0]);
     
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
@@ -168,7 +168,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
 
-    filterGalleryByLocalTags(gallerysAndPageInfo[0]);
+    handleGalleryByLocalTags(gallerysAndPageInfo[0]);
     
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 

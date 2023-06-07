@@ -228,8 +228,7 @@ class ko_KR {
       'myTagsHint': '강조하거나 숨기고 싶은 태그를 관리',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2':
-          'Local tags will work in conjunction with EHentai\'s own tag system. Besides, EHentai\'s tags do not take effect on the galleries in the ranking list, while local tags can do this.',
+      'localTagsHint2': 'Gallerys with these tags will be blurred',
       'addLocalTags': 'Add Tags',
       'hidden': '숨김',
       'nope': '없음',

@@ -17,6 +17,7 @@ import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/download/extra_gallery_scan_path/extra_gallery_scan_path_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
+import 'package:jhentai/src/pages/setting/eh/local_tag/add_local_tag/add_local_tag_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
@@ -99,7 +100,8 @@ class Routes {
 
   static const String tagSets = "/setting_EH/tagSets";
   static const String localTagSets = "/setting_EH/localTagSets";
-  
+  static const String addLocalTag = "/setting_EH/addLocalTag";
+
   static const String hostMapping = "/setting_network/hostMapping";
   static const String proxy = "/setting_network/proxy";
 
@@ -109,8 +111,7 @@ class Routes {
   static const String logList = "/setting_advanced/logList";
   static const String log = "/setting_advanced/logList/log";
 
-  static final Transition defaultTransition =
-      PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
+  static final Transition defaultTransition = PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
 
   static List<EHPage> pages = <EHPage>[
     EHPage(
@@ -315,6 +316,12 @@ class Routes {
     EHPage(
       name: localTagSets,
       page: () => LocalTagSetsPage(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: addLocalTag,
+      page: () => AddLocalTagPage(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

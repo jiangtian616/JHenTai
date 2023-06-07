@@ -462,7 +462,17 @@ class UIConfig {
 
   /// Tag sets page
   static Color tagSetsPageIconColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  
+  /// Add local tag page
+  static const double addLocalTagPageSuggestionTitleTextSize = 14;
+  static const double addLocalTagPageSuggestionSubTitleTextSize = 11;
 
+  static Color addLocalTagPageSuggestionTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
+
+  static Color addLocalTagPageSuggestionSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withOpacity(0.5);
+
+  static const Color addLocalTagPageSuggestionHighlightColor = Colors.red;
+  
   /// auth dialog
   static const double authDialogPinWidth = 300;
   static const double authDialogPinHeight = 120;

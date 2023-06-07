@@ -97,7 +97,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    filterGalleryByLocalTags(galleryPage.gallerys);
+    handleGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -168,7 +168,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     cleanDuplicateGallery(galleryPage.gallerys);
 
-    filterGalleryByLocalTags(galleryPage.gallerys);
+    handleGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -203,7 +203,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     cleanDuplicateGallery(galleryPage.gallerys);
 
-    filterGalleryByLocalTags(galleryPage.gallerys);
+    handleGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -246,7 +246,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    filterGalleryByLocalTags(galleryPage.gallerys);
+    handleGalleryByLocalTags(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(galleryPage.gallerys);
 
@@ -343,13 +343,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     newGallerys.removeWhere((newGallery) => state.gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
   }
 
-  void filterGalleryByLocalTags(List<Gallery> newGallerys) {
+  void handleGalleryByLocalTags(List<Gallery> newGallerys) {
     if (MyTagsSetting.localTagSets.isEmpty) {
       return;
     }
     
     newGallerys.where((newGallery) => newGallery.tags.values.flattened.any((tag) => MyTagsSetting.containLocalTag(tag.tagData))).forEach((gallery) {
-      gallery.isFilteredByLocalTag = true;
+      gallery.hasLocalFilteredTag = true;
     });
   }
 }
