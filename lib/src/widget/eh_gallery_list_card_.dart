@@ -127,7 +127,7 @@ class _FlatGalleryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      _GalleryCardCover(image: gallery.cover, withTags: withTags),
+      _GalleryCardCover(image: gallery.cover, withTags: withTags, withHeroTag: !gallery.hasLocalFilteredTag),
       Expanded(
         child: _GalleryCardInfo(gallery: gallery, withTags: withTags).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
       ),
@@ -145,12 +145,14 @@ class _FlatGalleryCard extends StatelessWidget {
     if (gallery.hasLocalFilteredTag) {
       child = Blur(
         blur: 8,
+        blurColor: UIConfig.backGroundColor(context),
         colorOpacity: 0.7,
         child: child,
         overlay: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.face),
-            Text('data')
+            Icon(Icons.cancel_outlined, size: UIConfig.galleryCardFilteredIconSize, color: UIConfig.onBackGroundColor(context)),
+            Text('filtered'.tr, style: TextStyle(color: UIConfig.onBackGroundColor(context))),
           ],
         ),
       );
@@ -163,8 +165,14 @@ class _FlatGalleryCard extends StatelessWidget {
 class _GalleryCardCover extends StatelessWidget {
   final GalleryImage image;
   final bool withTags;
+  final bool withHeroTag;
 
-  const _GalleryCardCover({Key? key, required this.image, required this.withTags}) : super(key: key);
+  const _GalleryCardCover({
+    Key? key,
+    required this.image,
+    required this.withTags,
+    required this.withHeroTag,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +181,7 @@ class _GalleryCardCover extends StatelessWidget {
       containerColor: UIConfig.galleryCardBackGroundColor(context),
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
-      heroTag: image,
+      heroTag: withHeroTag ? image : null,
       fit: BoxFit.fitWidth,
     );
   }

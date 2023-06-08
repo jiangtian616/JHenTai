@@ -73,6 +73,9 @@ class ko_KR {
       /// request
       'sadPanda': '슬픈 판다: 데이터 없음',
 
+      /// gallery card
+      'filtered': 'Filtered',
+
       /// gallery page
       'getGallerysFailed': "갤러리 가져오기 실패",
       'refreshGalleryFailed': '갤러리 새로고침 실패',
@@ -414,8 +417,7 @@ class ko_KR {
       'reUnlockHint': '주의! 다시 잠금 해제하려면 이 파일을 다시 구입해야 합니다.',
       'downloadHelpInfo': '다운로드 할 수 없고 로그에 DB 테이블이 없다면 앱을 삭제하고 다시 설치하세요.',
       'localGalleryHelpInfo': 'JHenTai에서 다운로드하지 않은 갤러리를 불러옵니다. 다운로드 설정 → 추가 갤러리 스캔 경로를 추가하고 새로고침하세요.',
-      'localGalleryHelpInfo4iOSAndMacOS':
-          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': '사용자의 로컬 파일을 삭제합니다.',
       'priority': '우선순위',
       'highest': '높음',

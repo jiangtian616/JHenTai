@@ -74,6 +74,9 @@ class pt_BR {
       /// request
       'sadPanda': 'Panda triste: Sem dados',
 
+      /// gallery card
+      'filtered': 'Filtered',
+      
       /// gallery page
       'getGallerysFailed': "Falha ao obter galerias",
       'refreshGalleryFailed': 'Falha ao Atualizar galerias',

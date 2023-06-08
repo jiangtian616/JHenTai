@@ -73,6 +73,9 @@ class zh_CN {
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',
 
+      /// gallery card
+      'filtered': '已过滤',
+      
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',

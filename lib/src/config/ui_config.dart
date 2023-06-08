@@ -110,6 +110,8 @@ class UIConfig {
   static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) =>
       backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
 
+  static const double galleryCardFilteredIconSize = 24;
+  
   /// Login page
   static Color loginPageForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 

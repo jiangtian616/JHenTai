@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:animate_do/animate_do.dart';
+import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
@@ -34,20 +35,39 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => handleTapCard(gallery),
-      child: FadeIn(
-        child: Card(
-          child: Column(
-            children: [
-              if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium)
-                Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
-              if (listMode == ListMode.waterfallFlowBig) _buildCover(),
-              if (listMode == ListMode.waterfallFlowMedium) _buildMediumInfo(context),
-              if (listMode == ListMode.waterfallFlowBig) _buildBigInfo(context),
-            ],
-          ),
-        ),
+      child: FadeIn(child: _buildCard(context)),
+    );
+  }
+
+  Widget _buildCard(BuildContext context) {
+    Widget child = Card(
+      child: Column(
+        children: [
+          if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium) Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
+          if (listMode == ListMode.waterfallFlowBig) _buildCover(),
+          if (listMode == ListMode.waterfallFlowMedium) _buildMediumInfo(context),
+          if (listMode == ListMode.waterfallFlowBig) _buildBigInfo(context),
+        ],
       ),
     );
+
+    if (gallery.hasLocalFilteredTag) {
+      child = Blur(
+        blur: 8,
+        blurColor: UIConfig.backGroundColor(context),
+        colorOpacity: 0.7,
+        child: child,
+        overlay: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.cancel_outlined, size: UIConfig.galleryCardFilteredIconSize, color: UIConfig.onBackGroundColor(context)),
+            Text('filtered'.tr, style: TextStyle(color: UIConfig.onBackGroundColor(context))),
+          ],
+        ),
+      );
+    }
+
+    return child;
   }
 
   Widget _buildCover() {
@@ -64,7 +84,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
           containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
-          heroTag: gallery.cover,
+          heroTag: gallery.hasLocalFilteredTag ? null : gallery.cover,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
             topRight: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
@@ -132,8 +152,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ).marginOnly(right: 4),
-        if (gallery.language != null)
-          Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
+        if (gallery.language != null) Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
         if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
       ],
     );
@@ -147,8 +166,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       allowHalfRating: true,
       itemSize: 12,
       ignoreGestures: true,
-      itemBuilder: (context, _) =>
-          Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
+      itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
       onRatingUpdate: (_) {},
     );
   }
