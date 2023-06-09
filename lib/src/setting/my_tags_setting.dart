@@ -64,6 +64,16 @@ class MyTagsSetting {
     return onlineTagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
   }
 
+  static bool containWatchedOnlineLocalTag(TagData tagData) {
+    TagSet? tagSet = getOnlineTagSetByTagData(tagData);
+    return tagSet?.watched == true;
+  }
+
+  static bool containHiddenOnlineLocalTag(TagData tagData) {
+    TagSet? tagSet = getOnlineTagSetByTagData(tagData);
+    return tagSet?.hidden == true;
+  }
+
   static bool containLocalTag(TagData tagData) {
     return localTagSets.any((localTag) => localTag.namespace == tagData.namespace && localTag.key == tagData.key);
   }

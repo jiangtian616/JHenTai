@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -75,6 +76,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
             _buildVoteDownButton(),
             _buildWatchTagButton(),
             _buildHideTagButton(),
+            _buildFilterLocalTagButton(),
             if (UserSetting.hasLoggedIn()) _buildGoToTagSetsButton(),
           ],
         ).marginOnly(top: 12),
@@ -141,6 +143,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
   Widget _buildWatchTagButton() {
     return LikeButton(
+      isLiked: MyTagsSetting.containWatchedOnlineLocalTag(widget.tagData),
       likeBuilder: (bool liked) => Icon(
         Icons.favorite,
         size: UIConfig.tagDialogButtonSize,
@@ -152,12 +155,33 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
   Widget _buildHideTagButton() {
     return LikeButton(
+      isLiked: MyTagsSetting.containHiddenOnlineLocalTag(widget.tagData),
       likeBuilder: (bool liked) => Icon(
         Icons.visibility_off,
         size: UIConfig.tagDialogButtonSize,
         color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
       onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(false),
+    );
+  }
+
+  Widget _buildFilterLocalTagButton() {
+    return LikeButton(
+      isLiked: MyTagsSetting.containLocalTag(widget.tagData),
+      likeBuilder: (bool liked) => Icon(
+        Icons.cancel_outlined,
+        size: UIConfig.tagDialogButtonSize,
+        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
+      ),
+      onTap: (bool liked) {
+        if (liked) {
+          MyTagsSetting.removeLocalTagSet(widget.tagData);
+          return Future.value(false);
+        } else {
+          MyTagsSetting.addLocalTagSet(widget.tagData);
+          return Future.value(true);
+        }
+      },
     );
   }
 
