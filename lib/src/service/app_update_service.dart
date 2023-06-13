@@ -15,7 +15,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 4;
+  static const int appVersion = 5;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -139,6 +139,12 @@ class AppUpdateService extends GetxService {
             });
           });
         });
+      }
+      
+      if (oldVersion <= 4) {
+        Log.info('update local gallery path');
+        
+        DownloadSetting.removeExtraGalleryScanPath(DownloadSetting.defaultDownloadPath);
       }
     });
   }

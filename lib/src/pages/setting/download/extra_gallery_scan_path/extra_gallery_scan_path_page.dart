@@ -18,9 +18,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text('extraGalleryScanPath'.tr),
-        actions: [
-          IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
-        ],
+        actions: GetPlatform.isIOS || GetPlatform.isMacOS ? null : [IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add))],
       ),
       body: Obx(
         () => ListView(
@@ -61,7 +59,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
     bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
 
     if (result == true) {
-      DownloadSetting.extraGalleryScanPath.remove(path);
+      DownloadSetting.removeExtraGalleryScanPath(path);
     }
   }
 }

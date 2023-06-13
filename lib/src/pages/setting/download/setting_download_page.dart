@@ -57,7 +57,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             children: [
               _buildDownloadPath(),
               if (!GetPlatform.isIOS && !GetPlatform.isMacOS) _buildResetDownloadPath(),
-              if (!GetPlatform.isIOS && !GetPlatform.isMacOS) _buildExtraGalleryScanPath(),
+              _buildExtraGalleryScanPath(),
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
               _buildDownloadConcurrency(),
