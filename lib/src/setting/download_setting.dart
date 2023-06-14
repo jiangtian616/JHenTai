@@ -137,7 +137,9 @@ class DownloadSetting {
     if (!GetPlatform.isIOS) {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
     }
-    extraGalleryScanPath.value = map['extraGalleryScanPath']?.cast<String>() ?? extraGalleryScanPath.value;
+    if (map['extraGalleryScanPath'] != null) {
+      extraGalleryScanPath.addAll(map['extraGalleryScanPath']?.cast<String>());
+    }
     singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
