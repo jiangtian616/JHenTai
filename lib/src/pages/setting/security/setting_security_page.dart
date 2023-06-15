@@ -19,7 +19,7 @@ class SettingSecurityPage extends StatelessWidget {
             if (GetPlatform.isMobile) _buildEnableBlurBackgroundApp(),
             _buildEnablePasswordAuth(),
             if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricAuth(),
-            if (SecuritySetting.supportBiometricAuth) _buildEnableAuthOnResume(),
+            if (GetPlatform.isMobile) _buildEnableAuthOnResume(),
           ],
         ).withListTileTheme(context),
       ),
