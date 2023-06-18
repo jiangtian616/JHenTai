@@ -242,8 +242,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       snack('updateGalleryError'.tr, e.message, longDuration: true);
       return;
     } on EHException catch (e) {
-      Log.info('${'updateGalleryError'.tr}, reason: ${e.msg}');
-      snack('updateGalleryError'.tr, e.msg, longDuration: true);
+      Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
+      snack('updateGalleryError'.tr, e.message, longDuration: true);
       pauseAllDownloadGallery();
       return;
     }
@@ -733,8 +733,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           task: _parseImageHrefTask(gallery, serialNo),
         );
       } on EHException catch (e) {
-        Log.download('Download error, reason: ${e.msg}');
-        snack('error'.tr, e.msg, longDuration: true);
+        Log.download('Download error, reason: ${e.message}');
+        snack('error'.tr, e.message, longDuration: true);
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
         } else {
@@ -808,8 +808,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           task: _parseImageUrlTask(gallery, serialNo, reParse: true),
         );
       } on EHException catch (e) {
-        Log.download('Download Error, reason: ${e.msg.tr}');
-        snack('error'.tr, e.msg.tr, longDuration: true);
+        Log.download('Download Error, reason: ${e.message.tr}');
+        snack('error'.tr, e.message.tr, longDuration: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
@@ -884,8 +884,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         Log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.message}. Url:${image.url}');
         return _reParseImageUrlAndDownload(gallery, serialNo);
       } on EHException catch (e) {
-        Log.download('Download Error, reason: ${e.msg}');
-        snack('error'.tr, e.msg, longDuration: true);
+        Log.download('Download Error, reason: ${e.message}');
+        snack('error'.tr, e.message, longDuration: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();

@@ -11,6 +11,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../database/database.dart';
+import '../../../../exception/eh_exception.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../model/tag_set.dart';
@@ -32,7 +33,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
-  
+
   final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
 
   @override
@@ -52,6 +53,12 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
       );
     } on DioError catch (e) {
+      Log.error('getTagSetFailed'.tr, e.message);
+      snack('getTagSetFailed'.tr, e.message, longDuration: true);
+      state.loadingState = LoadingState.error;
+      updateSafely([bodyId]);
+      return;
+    } on EHException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
       snack('getTagSetFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
@@ -185,6 +192,12 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
+    } on EHException catch (e) {
+      Log.error('updateTagSetFailed'.tr, e.message);
+      snack('updateTagSetFailed'.tr, e.message, longDuration: true);
+      state.updateTagState = LoadingState.error;
+      updateSafely(['$tagId::${tag.tagId}']);
+      return;
     }
 
     int tagIndex = state.tagSets.indexWhere((element) => element.tagId == tag.tagId);
@@ -205,6 +218,12 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       await EHRequest.requestDeleteTagSet(tagSetId: state.tagSets[tagSetIndex].tagId);
     } on DioError catch (e) {
+      Log.error('deleteTagSetFailed'.tr, e.message);
+      snack('deleteTagSetFailed'.tr, e.message, longDuration: true);
+      state.updateTagState = LoadingState.error;
+      updateSafely(['$tagId::${tag.tagId}']);
+      return;
+    } on EHException catch (e) {
       Log.error('deleteTagSetFailed'.tr, e.message);
       snack('deleteTagSetFailed'.tr, e.message, longDuration: true);
       state.updateTagState = LoadingState.error;

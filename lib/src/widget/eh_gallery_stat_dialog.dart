@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -11,6 +12,8 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../exception/eh_exception.dart';
 
 enum GraphType { allTime, year, month, day }
 
@@ -95,10 +98,13 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
 
       Log.error('getGalleryStatisticsFailed'.tr, e.message);
       snack('getGalleryStatisticsFailed'.tr, e.message);
-      if (mounted) {
-        setState(() => loadingState = LoadingState.error);
-      }
+      setStateSafely(() => loadingState = LoadingState.error);
 
+      return;
+    } on EHException catch (e) {
+      Log.error('getGalleryStatisticsFailed'.tr, e.message);
+      snack('getGalleryStatisticsFailed'.tr, e.message);
+      setStateSafely(() => loadingState = LoadingState.error);
       return;
     }
 

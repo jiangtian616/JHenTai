@@ -388,7 +388,7 @@ class EHSpiderParser {
     Document document = parse(html);
     Element? img = document.querySelector('#img');
     if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, msg: 'unsupportedImagePageStyle'.tr);
+      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
     Element a = document.querySelector('#i6 > a')!;
 
@@ -397,7 +397,7 @@ class EHSpiderParser {
     String url = img.attributes['src']!;
 
     if (url.contains('509.gif')) {
-      throw EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr);
+      throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
 
     Element? originalImg = document.querySelector('#i7 > a');
@@ -421,7 +421,7 @@ class EHSpiderParser {
     Document document = parse(data as String);
     Element? img = document.querySelector('#img');
     if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, msg: 'unsupportedImagePageStyle'.tr);
+      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
     Element a = document.querySelector('#i6 > a')!;
 
@@ -430,7 +430,7 @@ class EHSpiderParser {
     String url = img.attributes['src']!;
 
     if (url.contains('509.gif')) {
-      throw EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr);
+      throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
 
     Element? originalImg = document.querySelector('#i7 > a');
@@ -624,7 +624,7 @@ class EHSpiderParser {
 
   static void addTagSetResponse2Result(Headers headers, dynamic data) {
     if (data is String && data.contains('No more tags can be added to this tagset')) {
-      throw EHException(type: EHExceptionType.tagSetExceedLimit, msg: 'tagSetExceedLimit'.tr);
+      throw EHException(type: EHExceptionType.tagSetExceedLimit, message: 'tagSetExceedLimit'.tr);
     }
   }
 

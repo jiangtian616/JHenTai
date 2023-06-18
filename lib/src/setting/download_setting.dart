@@ -47,9 +47,6 @@ class DownloadSetting {
 
   static addExtraGalleryScanPath(String newPath) {
     Log.debug('addExtraGalleryScanPath:$newPath');
-    if (extraGalleryScanPath.contains(newPath)) {
-      return;
-    }
     extraGalleryScanPath.add(newPath);
     _save();
   }
@@ -138,7 +135,8 @@ class DownloadSetting {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
     }
     if (map['extraGalleryScanPath'] != null) {
-      extraGalleryScanPath.addAll(map['extraGalleryScanPath']?.cast<String>());
+      extraGalleryScanPath.addAll(map['extraGalleryScanPath'].cast<String>());
+      extraGalleryScanPath.value = extraGalleryScanPath.toSet().toList();
     }
     singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;

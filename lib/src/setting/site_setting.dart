@@ -8,6 +8,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:retry/retry.dart';
 
+import '../exception/eh_exception.dart';
 import '../service/storage_service.dart';
 import '../utils/log.dart';
 
@@ -54,6 +55,9 @@ class SiteSetting {
         maxAttempts: 3,
       );
     } on DioError catch (e) {
+      Log.error('refresh SiteSetting fail', e.message);
+      return;
+    } on EHException catch (e) {
       Log.error('refresh SiteSetting fail', e.message);
       return;
     }

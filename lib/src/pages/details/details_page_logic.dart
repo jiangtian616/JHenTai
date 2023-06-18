@@ -38,6 +38,7 @@ import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../exception/eh_exception.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../mixin/update_global_gallery_status_logic_mixin.dart';
@@ -83,7 +84,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
-  
+
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final LocalGalleryService localGalleryService = Get.find();
@@ -146,6 +147,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         updateSafely([loadingStateId]);
       }
       return;
+    } on EHException catch (e) {
+      Log.error('Get Gallery Detail Failed', e.message);
+      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      state.loadingState = LoadingState.error;
+      if (!refresh) {
+        updateSafely([loadingStateId]);
+      }
+      return;
     }
 
     state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
@@ -187,6 +196,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
     } on DioError catch (e) {
+      Log.error('failToGetThumbnails'.tr, e.message);
+      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
+      state.loadingThumbnailsState = LoadingState.error;
+      updateSafely([loadingThumbnailsStateId]);
+      return;
+    } on EHException catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
       snack('failToGetThumbnails'.tr, e.message, longDuration: true);
       state.loadingThumbnailsState = LoadingState.error;
@@ -306,6 +321,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       state.favoriteState = LoadingState.error;
       updateSafely([addFavoriteStateId]);
       return;
+    } on EHException catch (e) {
+      Log.error('favoriteGalleryFailed'.tr, e.message);
+      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      state.favoriteState = LoadingState.error;
+      updateSafely([addFavoriteStateId]);
+      return;
     }
 
     _removeCache();
@@ -353,6 +374,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         EHSpiderParser.galleryRatingResponse2RatingInfo,
       );
     } on DioError catch (e) {
+      Log.error('ratingFailed'.tr, e.message);
+      snack('ratingFailed'.tr, e.message);
+      state.ratingState = LoadingState.error;
+      updateSafely([ratingStateId]);
+      return;
+    } on EHException catch (e) {
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message);
       state.ratingState = LoadingState.error;
@@ -468,6 +495,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.downloadHHPage2Result,
       );
     } on DioError catch (e) {
+      Log.error('H@H download error', e.message);
+      snack('failed'.tr, e.message);
+      return;
+    } on EHException catch (e) {
       Log.error('H@H download error', e.message);
       snack('failed'.tr, e.message);
       return;

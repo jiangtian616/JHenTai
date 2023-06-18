@@ -7,6 +7,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 
+import '../exception/eh_exception.dart';
 import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 
@@ -55,6 +56,10 @@ class EHSetting {
         maxAttempts: 3,
       );
     } on DioError catch (e) {
+      Log.error('refresh EHSetting fail', e.message);
+      refreshState.value = LoadingState.error;
+      return;
+    } on EHException catch (e) {
       Log.error('refresh EHSetting fail', e.message);
       refreshState.value = LoadingState.error;
       return;

@@ -18,6 +18,7 @@ import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../../exception/eh_exception.dart';
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/check_util.dart';
@@ -189,7 +190,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'strong') {
       return TextSpan(
         style: const TextStyle(fontWeight: FontWeight.bold),
-        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context, childTag)).toList(),
       );
     }
 
@@ -197,7 +198,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'em') {
       return TextSpan(
         style: const TextStyle(fontStyle: FontStyle.italic),
-        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context, childTag)).toList(),
       );
     }
 
@@ -205,7 +206,7 @@ class _EHCommentTextBody extends StatelessWidget {
     if (node.localName == 'del') {
       return TextSpan(
         style: const TextStyle(decoration: TextDecoration.lineThrough),
-        children: node.nodes.map((childTag) => buildTag(context,childTag)).toList(),
+        children: node.nodes.map((childTag) => buildTag(context, childTag)).toList(),
       );
     }
 
@@ -234,7 +235,7 @@ class _EHCommentTextBody extends StatelessWidget {
         text: node.text,
         style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(node.attributes['href'] ?? node.text)),
-        children: node.children.map((childTag) => buildTag(context,childTag)).toList(),
+        children: node.children.map((childTag) => buildTag(context, childTag)).toList(),
       );
     }
 
@@ -257,14 +258,14 @@ class _EHCommentTextBody extends StatelessWidget {
         text: match.group(0),
         style: const TextStyle(color: UIConfig.commentLinkColor),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
-        children: [_buildText(context,text.substring(match.end))],
+        children: [_buildText(context, text.substring(match.end))],
       );
     }
 
     return TextSpan(
       text: text.substring(0, match.start),
       style: TextStyle(color: UIConfig.commentBodyTextColor(context)),
-      children: [_buildText(context,text.substring(match.start))],
+      children: [_buildText(context, text.substring(match.start))],
     );
   }
 
@@ -459,6 +460,10 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         parser: EHSpiderParser.votingCommentResponse2Score,
       );
     } on DioError catch (e) {
+      Log.error('voteCommentFailed'.tr, e.message);
+      toast('${'voteCommentFailed'.tr}: ${e.message}');
+      return;
+    } on EHException catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
       toast('${'voteCommentFailed'.tr}: ${e.message}');
       return;

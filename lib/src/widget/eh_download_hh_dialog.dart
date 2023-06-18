@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
 import '../config/ui_config.dart';
+import '../exception/eh_exception.dart';
 import '../exception/upload_exception.dart';
 import '../model/gallery_hh_archive.dart';
 import '../model/gallery_hh_info.dart';
@@ -81,9 +83,12 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     } on DioError catch (e) {
       Log.error('Get H@H download info failed', e.message);
       snack('failed'.tr, e.message);
-      if (mounted) {
-        setState(() => loadingState = LoadingState.error);
-      }
+      setStateSafely(() => loadingState = LoadingState.error);
+      return;
+    } on EHException catch (e) {
+      Log.error('Get H@H download info failed', e.message);
+      snack('failed'.tr, e.message);
+      setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on NotUploadException catch (_) {
       snack('Get H@H download info failed', 'parseGalleryArchiveFailed'.tr);

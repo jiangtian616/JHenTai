@@ -1,13 +1,13 @@
 class EHException implements Exception {
   EHExceptionType type;
-  String msg;
+  String message;
   bool shouldPauseAllDownloadTasks;
 
-  EHException({required this.type, required this.msg, this.shouldPauseAllDownloadTasks = true});
+  EHException({required this.type, required this.message, this.shouldPauseAllDownloadTasks = true});
 
   @override
   String toString() {
-    return msg;
+    return message;
   }
 }
 

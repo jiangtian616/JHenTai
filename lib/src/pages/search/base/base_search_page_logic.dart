@@ -113,8 +113,8 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
       update([loadingStateId]);
       return;
     } on EHException catch (e) {
-      Log.error('fileSearchFailed'.tr, e.msg);
-      snack('fileSearchFailed'.tr, e.msg);
+      Log.error('fileSearchFailed'.tr, e.message);
+      snack('fileSearchFailed'.tr, e.message);
       state.loadingState = LoadingState.idle;
       update([loadingStateId]);
       return;

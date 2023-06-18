@@ -480,8 +480,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       return await _requestUnlock(archive);
     } on EHException catch (e) {
-      Log.download('Download error, reason: ${e.msg}');
-      snack('error'.tr, e.msg, longDuration: true);
+      Log.download('Download error, reason: ${e.message}');
+      snack('error'.tr, e.message, longDuration: true);
       pauseAllDownloadArchive();
       return;
     }
@@ -534,8 +534,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
       return await _getDownloadUrl(archive);
     } on EHException catch (e) {
-      Log.download('Download error, reason: ${e.msg}');
-      snack('error'.tr, e.msg, longDuration: true);
+      Log.download('Download error, reason: ${e.message}');
+      snack('error'.tr, e.message, longDuration: true);
       pauseAllDownloadArchive();
       return;
     }

@@ -12,6 +12,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../exception/eh_exception.dart';
 import '../utils/snack_util.dart';
 import '../utils/toast_util.dart';
 
@@ -76,6 +77,13 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
         setState(() => loadingState = LoadingState.error);
       }
       return;
+    } on EHException catch (e) {
+      Log.error('getGalleryTorrentsFailed'.tr, e.message);
+      snack('getGalleryTorrentsFailed'.tr, e.message);
+      if (mounted) {
+        setState(() => loadingState = LoadingState.error);
+      }
+      return;
     }
 
     if (mounted) {
@@ -102,7 +110,8 @@ class _TorrentList extends StatelessWidget {
                   torrent.torrentUrl.replaceFirst('https://exhentai.org/torrent', 'https://ehtracker.org/get'),
                   mode: LaunchMode.externalApplication,
                 ),
-                child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumePauseButtonColor(context))),
+                child:
+                    Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumePauseButtonColor(context))),
               ),
               subtitle: Row(
                 children: [

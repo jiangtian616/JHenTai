@@ -5,6 +5,7 @@ import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
 import '../../../consts/eh_consts.dart';
+import '../../../exception/eh_exception.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
@@ -64,6 +65,12 @@ class DashboardPageLogic extends BasePageLogic {
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
       return;
+    } on EHException catch (e) {
+      Log.error('getRanklistFailed'.tr, e.message);
+      snack('getRanklistFailed'.tr, e.message, longDuration: true);
+      state.ranklistLoadingState = LoadingState.error;
+      update([ranklistId]);
+      return;
     }
 
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
@@ -90,6 +97,12 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
     } on DioError catch (e) {
+      Log.error('getPopularListFailed'.tr, e.message);
+      snack('getPopularListFailed'.tr, e.message, longDuration: true);
+      state.popularLoadingState = LoadingState.error;
+      update([popularListId]);
+      return;
+    } on EHException catch (e) {
       Log.error('getPopularListFailed'.tr, e.message);
       snack('getPopularListFailed'.tr, e.message, longDuration: true);
       state.popularLoadingState = LoadingState.error;

@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart';
 
+import '../../../exception/eh_exception.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_thumbnail.dart';
 import '../../../network/eh_request.dart';
@@ -56,6 +57,12 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
         parser: EHSpiderParser.detailPage2RangeAndThumbnails,
       );
     } on DioError catch (e) {
+      Log.error('failToGetThumbnails'.tr, e.message);
+      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
+      state.loadingState = LoadingState.error;
+      updateSafely([loadingStateId]);
+      return;
+    } on EHException catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
       snack('failToGetThumbnails'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;

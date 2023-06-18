@@ -17,6 +17,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../../exception/eh_exception.dart';
 import '../../../setting/eh_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
@@ -210,6 +211,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
         assetsLoadingState = LoadingState.error;
       });
       return;
+    } on EHException catch (e) {
+      Log.error('Get assets failed', e.message);
+      snack('Get assets failed'.tr, e.message, longDuration: true);
+      setStateSafely(() {
+        assetsLoadingState = LoadingState.error;
+      });
+      return;
     }
 
     setStateSafely(() {
@@ -231,6 +239,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       await EHRequest.requestResetImageLimit();
     } on DioError catch (e) {
+      Log.error('Reset limit failed', e.message);
+      snack('Reset limit failed'.tr, e.message, longDuration: true);
+      setStateSafely(() {
+        resetLimitLoadingState = LoadingState.error;
+      });
+      return;
+    } on EHException catch (e) {
       Log.error('Reset limit failed', e.message);
       snack('Reset limit failed'.tr, e.message, longDuration: true);
       setStateSafely(() {

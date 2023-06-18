@@ -60,7 +60,7 @@ class EHRequest {
               (NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) || NetworkSetting.allIPs.contains(e.requestOptions.uri.host))) {
             e.error = EHException(
               type: EHExceptionType.galleryDeleted,
-              msg: EHSpiderParser.detailPage2GalleryDeletedHint(e.response!.headers, e.response!.data),
+              message: EHSpiderParser.detailPage2GalleryDeletedHint(e.response!.headers, e.response!.data),
               shouldPauseAllDownloadTasks: false,
             );
           }
@@ -550,7 +550,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         headers: range == null ? null : {'Range': range},
       ),
     );
-    
+
     if (parser == null) {
       return response as T;
     }
@@ -660,7 +660,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return _parseResponse(e.response!, parser);
     }
 
-    throw EHException(msg: 'Look up response error', type: EHExceptionType.intelNelError);
+    throw EHException(message: 'Look up response error', type: EHExceptionType.intelNelError);
   }
 
   static Future<T> requestUnlockArchive<T>({
@@ -790,15 +790,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       String data = response.data.toString();
 
       if (data.isEmpty) {
-        throw EHException(type: EHExceptionType.blankBody, msg: 'sadPanda'.tr);
+        throw EHException(type: EHExceptionType.blankBody, message: 'sadPanda'.tr);
       }
 
       if (data.startsWith('Your IP address')) {
-        throw EHException(type: EHExceptionType.banned, msg: response.data);
+        throw EHException(type: EHExceptionType.banned, message: response.data);
       }
 
       if (data.startsWith('You have exceeded your image')) {
-        throw EHException(type: EHExceptionType.exceedLimit, msg: 'exceedImageLimits'.tr);
+        throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
       }
     }
   }

@@ -243,6 +243,15 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       Log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message);
       return;
+    } on EHException catch (e) {
+      if (isVotingUp) {
+        voteUpState = LoadingState.error;
+      } else {
+        voteDownState = LoadingState.error;
+      }
+      Log.error('voteTagFailed'.tr, e.message);
+      snack('voteTagFailed'.tr, e.message);
+      return;
     }
 
     if (isVotingUp) {
@@ -297,7 +306,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       }
       return;
     } on EHException catch (e) {
-      toast(e.msg.tr, isShort: false);
+      toast(e.message.tr, isShort: false);
       if (watch) {
         addWatchedTagState = LoadingState.error;
       } else {
