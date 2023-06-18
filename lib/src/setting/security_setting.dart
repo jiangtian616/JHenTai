@@ -27,7 +27,7 @@ class SecuritySetting {
 
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
-      supportBiometricAuth = types.contains(BiometricType.fingerprint) || types.contains(BiometricType.face);
+      supportBiometricAuth = types.isNotEmpty;
       Log.debug('supportBiometricAuth:$supportBiometricAuth');
     }
   }
