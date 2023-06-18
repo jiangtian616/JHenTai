@@ -25,10 +25,10 @@ body:
   - type: textarea
     id: impl
     attributes:
-      label: 建议实现 / Suggested implements
+      label: 建议实现 / Suggested implemention
       description: |
         在此处表述您建议的实现方式。如有可能，UI 类功能请求还请尽量附上图示
-        Describe your suggested implements here, It's recommend to add a photo if you are making a UI feature request.
+        Describe your suggested implemention here, It's recommend to add a photo if you are making a UI feature request.
       placeholder: |
         建议在 XX 处添加 XX ...
         I recommend add ABC feature to DEF...
