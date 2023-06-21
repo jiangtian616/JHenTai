@@ -16,7 +16,8 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
   String packageName = '';
   String version = '';
   String buildNumber = '';
-  String author = 'JTMonster <jiangtian616@qq.com>';
+  String author = 'JTMonster';
+  String telegram = 'https://t.me/+PindoE9yvIpmOWI9';
   String gitRepo = 'https://github.com/jiangtian616/JHenTai';
   String helpPage = 'https://github.com/jiangtian616/JHenTai/wiki';
 
@@ -46,6 +47,11 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
             title: const Text('Github'),
             subtitle: SelectableText(gitRepo),
             onTap: () => launchUrlString(gitRepo, mode: LaunchMode.externalApplication),
+          ),
+          ListTile(
+            title: const Text('Telegram'),
+            subtitle: SelectableText(telegram),
+            onTap: () => launchUrlString(telegram, mode: LaunchMode.externalApplication),
           ),
           ListTile(
             title: Text('Q&A'.tr),
