@@ -385,6 +385,8 @@ class pt_BR {
       'continuousScroll': 'Rolagem contínua',
       'continuousScrollHint': 'Junte várias imagens',
       'doubleColumn': 'Duas Colunas',
+      'displayFirstPageAlone': 'Display First Page Alone',
+      'displayFirstPageAloneGlobally': 'Display First Page Alone(Globally)',
       'enableAutoScaleUp': 'Ativar dimensionamento automático de imagens grandes',
       'enableAutoScaleUpHints': 'Tornar a largura da imagem igual à largura da tela',
 

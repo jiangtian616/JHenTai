@@ -384,6 +384,8 @@ class en_US {
       'continuousScroll': 'Continuous Scroll',
       'continuousScrollHint': 'Splice multiple images',
       'doubleColumn': 'Double Column',
+      'displayFirstPageAlone': 'Display First Page Alone',
+      'displayFirstPageAloneGlobally': 'Display First Page Alone(Globally)',
       'enableAutoScaleUp': 'Enable Auto Scale up Long Image',
       'enableAutoScaleUpHints': 'Make image width same as screen width',
 

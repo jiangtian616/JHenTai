@@ -313,7 +313,11 @@ class ReadPageLogic extends GetxController {
   void toNext() {
     layoutLogic.toNext();
   }
-
+  
+  void handleM(){
+    layoutLogic.handleM();
+  }
+  
   void jump2PageIndex(int pageIndex) {
     layoutLogic.jump2PageIndex(pageIndex);
   }

@@ -42,6 +42,7 @@ class ReadSetting {
   static RxBool enableContinuousHorizontalScroll = GetPlatform.isMobile ? false.obs : true.obs;
   static RxBool enableAutoScaleUp = false.obs;
   static RxBool enableDoubleColumn = false.obs;
+  static RxBool displayFirstPageAlone = true.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -161,6 +162,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveDisplayFirstPageAlone(bool value) {
+    Log.debug('saveDisplayFirstPageAlone:$value');
+    displayFirstPageAlone.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -185,6 +192,7 @@ class ReadSetting {
       'enableContinuousHorizontalScroll': enableContinuousHorizontalScroll.value,
       'enableDoubleColumn': enableDoubleColumn.value,
       'enableAutoScaleUp': enableAutoScaleUp.value,
+      'displayFirstPageAlone': displayFirstPageAlone.value,
     };
   }
 
@@ -207,5 +215,6 @@ class ReadSetting {
     enableContinuousHorizontalScroll.value = map['enableContinuousHorizontalScroll'] ?? enableContinuousHorizontalScroll.value;
     enableDoubleColumn.value = map['enableDoubleColumn'] ?? enableDoubleColumn.value;
     enableAutoScaleUp.value = map['enableAutoScaleUp'];
+    displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
   }
 }

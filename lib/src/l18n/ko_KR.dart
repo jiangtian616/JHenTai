@@ -384,6 +384,8 @@ class ko_KR {
       'continuousScroll': '길게 이어진 스크롤',
       'continuousScrollHint': '여러 이미지가 가로로 연결됨',
       'doubleColumn': '두 쪽으로 보기',
+      'displayFirstPageAlone': 'Display First Page Alone',
+      'displayFirstPageAloneGlobally': 'Display First Page Alone(Globally)',
       'enableAutoScaleUp': '긴 이미지 자동 확대 사용',
       'enableAutoScaleUpHints': '이미지 너비를 화면 너비와 동일하게 함',
 

@@ -59,6 +59,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   /// to next image or screen
   void toNext();
 
+  void handleM() {}
+
   void toPageIndex(int pageIndex) {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
       jump2PageIndex(pageIndex);

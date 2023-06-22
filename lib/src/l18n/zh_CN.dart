@@ -384,6 +384,8 @@ class zh_CN {
       'continuousScroll': '连续滚动',
       'continuousScrollHint': '拼接多个图片',
       'doubleColumn': '双列模式',
+      'displayFirstPageAlone': '单独展示首页',
+      'displayFirstPageAloneGlobally': '单独展示首页(全局)',
       'enableAutoScaleUp': '自动放大长图片',
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
 

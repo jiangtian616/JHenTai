@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
@@ -62,6 +63,7 @@ class ReadPage extends StatelessWidget {
           handleArrowLeft: logic.toLeft,
           handleA: logic.toLeft,
           handleD: logic.toRight,
+          handleM: logic.handleM,
           handleEnd: backRoute,
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
@@ -212,7 +214,9 @@ class ReadPage extends StatelessWidget {
                   '\n'
                   'Esc、End  :  ${'back'.tr}'
                   '\n'
-                  'Space  :  ${'toggleMenu'.tr}',
+                  'Space  :  ${'toggleMenu'.tr}'
+                  '\n'
+                  'M  :  ${'displayFirstPageAlone'.tr}',
                   isShort: false,
                 ),
                 style: ElevatedButton.styleFrom(
@@ -244,6 +248,28 @@ class ReadPage extends StatelessWidget {
                   minimumSize: const Size(56, 56),
                 ),
               ),
+            Obx(() {
+              if (ReadSetting.enableDoubleColumn.isFalse || logic.layoutLogic is! HorizontalDoubleColumnLayoutLogic) {
+                return const SizedBox();
+              }
+              return ElevatedButton(
+                child: Icon(
+                  Icons.looks_one,
+                  color: (logic.layoutLogic as HorizontalDoubleColumnLayoutLogic).state.displayFirstPageAlone
+                      ? UIConfig.readPageActiveButtonColor(context)
+                      : UIConfig.readPageButtonColor,
+                ),
+                onPressed: (logic.layoutLogic as HorizontalDoubleColumnLayoutLogic).toggleDisplayFirstPageAlone,
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(56, 56),
+                ),
+              );
+            }),
             GetBuilder<ReadPageLogic>(
               id: logic.autoModeId,
               builder: (_) => ElevatedButton(
@@ -294,7 +320,9 @@ class ReadPage extends StatelessWidget {
           bottom: state.isMenuOpen
               ? 0
               : ReadSetting.showThumbnails.isTrue
-                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight + UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
+                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight +
+                      UIConfig.readPageBottomSliderHeight +
+                      max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
                   : -(UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
@@ -340,7 +368,9 @@ class ReadPage extends StatelessWidget {
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => logic.jump2PageIndex(index),
-                        child: state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(context, index) : _buildThumbnailInLocalMode(context, index),
+                        child: state.readPageInfo.mode == ReadMode.online
+                            ? _buildThumbnailInOnlineMode(context, index)
+                            : _buildThumbnailInLocalMode(context, index),
                       ),
                     ),
                     GetBuilder<ReadPageLogic>(
@@ -348,7 +378,9 @@ class ReadPage extends StatelessWidget {
                         child: Container(
                           width: 24,
                           decoration: BoxDecoration(
-                            color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context) : Colors.transparent,
+                            color: state.readPageInfo.currentIndex == index
+                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           alignment: Alignment.center,
@@ -356,7 +388,9 @@ class ReadPage extends StatelessWidget {
                             (index + 1).toString(),
                             style: TextStyle(
                               fontSize: 9,
-                              color: state.readPageInfo.currentIndex == index ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context) : null,
+                              color: state.readPageInfo.currentIndex == index
+                                  ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
+                                  : null,
                             ),
                           ),
                         ),

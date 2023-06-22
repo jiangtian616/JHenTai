@@ -20,7 +20,7 @@ class SettingReadPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 16),
             children: [
-              _buildEnableImmersiveMode().center(), 
+              _buildEnableImmersiveMode().center(),
               _buildKeepScreenAwake().center(),
               _buildShowThumbnails().center(),
               _buildImageSpace().center(),
@@ -46,6 +46,7 @@ class SettingReadPage extends StatelessWidget {
                   ReadSetting.enableContinuousHorizontalScroll.isFalse &&
                   ReadSetting.enableDoubleColumn.isFalse)
                 _buildEnableAutoScaleUp().fadeIn(const Key('enableAutoScaleUp')).center(),
+              if (ReadSetting.enableDoubleColumn.isTrue) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               // _buildAutoModeInterval().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
                 _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
@@ -65,8 +66,8 @@ class SettingReadPage extends StatelessWidget {
       trailing: Switch(value: ReadSetting.enableImmersiveMode.value, onChanged: ReadSetting.saveEnableImmersiveMode),
     );
   }
-  
-  Widget _buildKeepScreenAwake(){
+
+  Widget _buildKeepScreenAwake() {
     return ListTile(
       title: Text('keepScreenAwakeWhenReading'.tr),
       trailing: Switch(value: ReadSetting.keepScreenAwakeWhenReading.value, onChanged: ReadSetting.saveKeepScreenAwakeWhenReading),
@@ -291,6 +292,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('doubleColumn'.tr),
       trailing: Switch(value: ReadSetting.enableDoubleColumn.value, onChanged: ReadSetting.saveEnableDoubleColumn),
+    );
+  }
+
+  Widget _buildDisplayFirstPageAlone() {
+    return ListTile(
+      title: Text('displayFirstPageAloneGlobally'.tr),
+      trailing: Switch(value: ReadSetting.displayFirstPageAlone.value, onChanged: ReadSetting.saveDisplayFirstPageAlone),
     );
   }
 

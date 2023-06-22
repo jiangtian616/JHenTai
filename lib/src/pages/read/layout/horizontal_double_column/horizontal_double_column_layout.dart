@@ -19,7 +19,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
   @override
   Widget buildBody(BuildContext context) {
     return PhotoViewGallery.builder(
-      itemCount: (readPageState.readPageInfo.pageCount + 1) ~/ 2,
+      itemCount: (logic.itemCount + 1) ~/ 2,
       scrollPhysics: const ClampingScrollPhysics(),
       pageController: logic.pageController,
       cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
@@ -39,34 +39,76 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
   }
 
   Widget _buildDoubleColumnItemInOnlineMode(BuildContext context, int pageIndex) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (ReadSetting.readDirection.value == ReadDirection.left2right) buildItemInOnlineMode(context, pageIndex * 2),
-        if (ReadSetting.readDirection.value == ReadDirection.right2left && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
-          buildItemInOnlineMode(context, pageIndex * 2 + 1),
-        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-        if (ReadSetting.readDirection.value == ReadDirection.left2right && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
-          buildItemInOnlineMode(context, pageIndex * 2 + 1),
-        if (ReadSetting.readDirection.value == ReadDirection.right2left) buildItemInOnlineMode(context, pageIndex * 2),
-      ],
-    );
+    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildItemInOnlineMode(context, pageIndex * 2),
+          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInOnlineMode(context, pageIndex * 2 + 1),
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInOnlineMode(context, pageIndex * 2 + 1),
+          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+          buildItemInOnlineMode(context, pageIndex * 2),
+        ],
+      );
+    }
   }
 
   Widget _buildDoubleColumnItemInLocalMode(BuildContext context, int pageIndex) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (ReadSetting.readDirection.value == ReadDirection.left2right) buildItemInLocalMode(context, pageIndex * 2),
-        if (ReadSetting.readDirection.value == ReadDirection.right2left && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
-          buildItemInLocalMode(context, pageIndex * 2 + 1),
-        if (pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-        if (ReadSetting.readDirection.value == ReadDirection.left2right && pageIndex * 2 + 1 < readPageState.readPageInfo.pageCount)
-          buildItemInLocalMode(context, pageIndex * 2 + 1),
-        if (ReadSetting.readDirection.value == ReadDirection.right2left) buildItemInLocalMode(context, pageIndex * 2),
-      ],
-    );
+    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          buildItemInLocalMode(context, pageIndex * 2),
+          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInLocalMode(context, pageIndex * 2 + 1),
+        ],
+      );
+    } else {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInLocalMode(context, pageIndex * 2 + 1),
+          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+          buildItemInLocalMode(context, pageIndex * 2),
+        ],
+      );
+    }
+  }
+
+  @override
+  Widget buildItemInOnlineMode(BuildContext context, int index) {
+    if (!state.displayFirstPageAlone) {
+      return super.buildItemInOnlineMode(context, index);
+    }
+
+    if (index == 0) {
+      return const SizedBox();
+    } else {
+      return super.buildItemInOnlineMode(context, index - 1);
+    }
+  }
+
+  @override
+  Widget buildItemInLocalMode(BuildContext context, int index) {
+    if (!state.displayFirstPageAlone) {
+      return super.buildItemInLocalMode(context, index);
+    }
+
+    if (index == 0) {
+      return const SizedBox();
+    } else {
+      return super.buildItemInLocalMode(context, index - 1);
+    }
   }
 }

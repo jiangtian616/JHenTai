@@ -383,6 +383,8 @@ class zh_TW {
       'continuousScroll': '連續滾動',
       'continuousScrollHint': '拼接多個圖片',
       'doubleColumn': '雙列模式',
+      'displayFirstPageAlone': '單獨展示首頁',
+      'displayFirstPageAloneGlobally': '單獨展示首頁(全局)',
       'enableAutoScaleUp': '自動放大長圖片',
       'enableAutoScaleUpHints': '優先使圖片寬度占滿螢幕',
 

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:photo_view/photo_view.dart';
 
@@ -15,16 +16,34 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   late PageController pageController;
 
+  Worker? displayFirstPageAloneListener;
+
+  int get itemCount => readPageState.readPageInfo.pageCount + (state.displayFirstPageAlone ? 1 : 0);
+
   @override
   void onInit() {
     super.onInit();
 
     state.photoViewControllers = List.generate((readPageState.readPageInfo.pageCount + 1) ~/ 2, (index) => PhotoViewController());
-    
+
     pageController = PageController(initialPage: readPageState.readPageInfo.initialIndex ~/ 2);
 
     /// record reading progress and sync thumbnails list index
     pageController.addListener(_readProgressListener);
+
+    displayFirstPageAloneListener = ever(ReadSetting.displayFirstPageAlone, (value) {
+      if (state.displayFirstPageAlone != value) {
+        state.displayFirstPageAlone = value;
+        updateSafely([BaseLayoutLogic.pageId]);
+        readPageLogic.updateSafely([readPageLogic.topMenuId]);
+      }
+    });
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    displayFirstPageAloneListener?.disposed;
   }
 
   @override
@@ -55,6 +74,11 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void toNext() {
     int targetIndex = ((pageController.page! + 1) * 2).toInt();
     toPageIndex(min(targetIndex, readPageState.readPageInfo.pageCount));
+  }
+
+  @override
+  void handleM() {
+    toggleDisplayFirstPageAlone();
   }
 
   @override
@@ -127,5 +151,11 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
       Size(imageSize.width, imageSize.height),
       Size((fullScreenWidth - 6) / 2, screenHeight),
     );
+  }
+
+  void toggleDisplayFirstPageAlone() {
+    state.displayFirstPageAlone = !state.displayFirstPageAlone;
+    updateSafely([BaseLayoutLogic.pageId]);
+    readPageLogic.updateSafely([readPageLogic.topMenuId]);
   }
 }
