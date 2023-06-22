@@ -36,21 +36,14 @@ class EHCookieManager extends CookieManager {
       }
     } on Exception catch (_) {
       Log.warning('cookieJar init failed, use default setting');
-      Set<String> defaultHostSet = NetworkSetting.currentHost2IP.entries.fold<Set<String>>(
-        <String>{},
-        (previousValue, entry) => previousValue..addAll([entry.key, entry.value]),
-      );
-      await _cookieJar.storage.write(_cookieJar.IndexKey, json.encode(defaultHostSet.toList()));
+      await _cookieJar.storage.write(_cookieJar.IndexKey, json.encode(NetworkSetting.allHostAndIPs.toList()));
     }
 
     await _cookieJar.forceInit();
 
     /// eagerly load cookie into memory
     await Future.wait(
-      NetworkSetting.host2IPs.keys.map((host) => _cookieJar.loadForRequest(Uri.parse('https://$host'))),
-    );
-    await Future.wait(
-      NetworkSetting.allIPs.map((ip) => _cookieJar.loadForRequest(Uri.parse('https://$ip'))),
+      NetworkSetting.allHostAndIPs.map((ip) => _cookieJar.loadForRequest(Uri.parse('https://$ip'))),
     );
 
     Get.put<EHCookieManager>(EHCookieManager(_cookieJar));
@@ -103,12 +96,7 @@ class EHCookieManager extends CookieManager {
 
     /// host
     await Future.wait(
-      NetworkSetting.host2IPs.keys.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),
-    );
-
-    /// ip
-    await Future.wait(
-      NetworkSetting.allIPs.map((ip) => cookieJar.saveFromResponse(Uri.parse('https://$ip'), cookies)),
+      NetworkSetting.allHostAndIPs.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),
     );
 
     cookieJar.loadForRequest(Uri.parse(EHConsts.EXIndex)).then((v) {
@@ -141,7 +129,7 @@ class EHCookieManager extends CookieManager {
       return;
     }
 
-    if (NetworkSetting.host2IPs.containsKey(response.requestOptions.uri.host) || NetworkSetting.allIPs.contains(response.requestOptions.uri.host)) {
+    if (NetworkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
       await storeEhCookiesForAllUri(
         cookies.map((str) => Cookie.fromSetCookieValue(str)).map((cookie) => Cookie(cookie.name, cookie.value)).toList(),
       );

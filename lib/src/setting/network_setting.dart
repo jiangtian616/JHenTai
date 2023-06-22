@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 
@@ -24,7 +25,7 @@ class NetworkSetting {
   static RxString forumsIP = '94.100.18.243'.obs;
 
   static const Map<String, List<String>> host2IPs = {
-    'e-hentai.org': ['172.67.0.127', '104.20.135.21', '104.20.134.21', '178.162.147.246', '81.171.10.55', '178.162.139.18', '37.48.89.16'],
+    'e-hentai.org': ['172.67.0.127', '104.20.135.21', '104.20.134.21'],
     'exhentai.org': ['178.175.129.254', '178.175.132.20', '178.175.132.22', '178.175.128.252', '178.175.128.254', '178.175.129.252'],
     'upld.e-hentai.org': ['94.100.18.249', '94.100.18.247'],
     'api.e-hentai.org': ['178.162.147.246', '81.171.10.55', '178.162.139.18', '37.48.89.16'],
@@ -39,27 +40,9 @@ class NetworkSetting {
         'forums.e-hentai.org': forumsIP.value,
       };
 
-  static List<String> allIPs = [
-    '172.67.0.127',
-    '104.20.135.21',
-    '104.20.134.21',
-    '178.175.129.254',
-    '178.175.132.20',
-    '178.175.132.22',
-    '178.175.128.252',
-    '178.175.128.254',
-    '178.175.129.252',
-    '94.100.18.249',
-    '94.100.18.247',
-    '178.162.147.246',
-    '81.171.10.55',
-    '178.162.139.18',
-    '37.48.89.16',
-    '94.100.18.243',
-    '104.20.134.21',
-    '104.20.135.21',
-    '172.67.0.127'
-  ];
+  static Set<String> get allHostAndIPs => host2IPs.keys.toSet()..addAll(allIPs);
+
+  static Set<String> get allIPs => host2IPs.values.flattened.toSet()..addAll(currentHost2IP.values);
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('networkSetting');

@@ -76,7 +76,7 @@ class pt_BR {
 
       /// gallery card
       'filtered': 'Filtered',
-      
+
       /// gallery page
       'getGallerysFailed': "Falha ao obter galerias",
       'refreshGalleryFailed': 'Falha ao Atualizar galerias',
@@ -242,6 +242,9 @@ class pt_BR {
       'deleteTagSetSuccess': 'Falha na atualização do conjunto de tags',
       'deleteTagSetFailed': 'Falha ao excluir conjunto de tags',
       'addLocalTagHint': 'Search to add new tag',
+
+      /// add host mapping dialog
+      'addHostMapping': 'Add Host Mapping',
 
       /// Layout
       'layoutMode': 'Modo de layout',

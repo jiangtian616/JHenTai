@@ -56,8 +56,7 @@ class EHRequest {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onError: (e, ErrorInterceptorHandler handler) {
-          if (e.response?.statusCode == 404 &&
-              (NetworkSetting.host2IPs.containsKey(e.requestOptions.uri.host) || NetworkSetting.allIPs.contains(e.requestOptions.uri.host))) {
+          if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
             e.error = EHException(
               type: EHExceptionType.galleryDeleted,
               message: EHSpiderParser.detailPage2GalleryDeletedHint(e.response!.headers, e.response!.data),

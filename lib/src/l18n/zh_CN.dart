@@ -75,7 +75,7 @@ class zh_CN {
 
       /// gallery card
       'filtered': '已过滤',
-      
+
       /// gallery page
       'getGallerysFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',
@@ -239,6 +239,9 @@ class zh_CN {
       'deleteTagSetSuccess': '删除标签数据成功',
       'deleteTagSetFailed': '删除标签数据失败',
       'addLocalTagHint': '搜索添加新标签',
+
+      /// add host mapping dialog
+      'addHostMapping': '添加自定义Host',
 
       /// Layout
       'mobileLayoutV2Name': '手机模式',
