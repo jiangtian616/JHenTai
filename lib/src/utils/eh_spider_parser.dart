@@ -24,6 +24,7 @@ import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/color_util.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 
 import '../database/database.dart';
 import '../model/gallery.dart';
@@ -695,16 +696,24 @@ class EHSpiderParser {
     return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
   }
 
-  static String detailPage2GalleryDeletedHint(Headers headers, dynamic data) {
+  static String? a404Page2GalleryDeletedHint(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    String hint = document.querySelector('.d > p')!.nodes.first.text!;
+    List<Node>? nodes = document.querySelector('.d > p')?.nodes;
+    if (nodes == null || nodes.isEmpty) {
+      return null;
+    }
+    
+    String? detailPageHint = nodes.first.text;
+    if (isEmptyOrNull(detailPageHint)) {
+      return null;
+    }
 
-    if (hint.contains('This gallery has been removed')) {
+    if (detailPageHint!.contains('This gallery has been removed')) {
       return 'invisibleHints'.tr;
     }
 
-    Match match = RegExp(r'This gallery is unavailable due to a copyright claim by (.*).$').firstMatch(hint)!;
+    Match match = RegExp(r'This gallery is unavailable due to a copyright claim by (.*).$').firstMatch(detailPageHint)!;
     String copyRighter = match.group(1)!;
     return 'copyRightHints'.tr + copyRighter;
   }

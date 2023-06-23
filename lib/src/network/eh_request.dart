@@ -57,12 +57,16 @@ class EHRequest {
       InterceptorsWrapper(
         onError: (e, ErrorInterceptorHandler handler) {
           if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
-            e.error = EHException(
-              type: EHExceptionType.galleryDeleted,
-              message: EHSpiderParser.detailPage2GalleryDeletedHint(e.response!.headers, e.response!.data),
-              shouldPauseAllDownloadTasks: false,
-            );
+            String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
+            if (!isEmptyOrNull(errMessage)) {
+              e.error = EHException(
+                type: EHExceptionType.galleryDeleted,
+                message: errMessage!,
+                shouldPauseAllDownloadTasks: false,
+              );
+            }
           }
+
           handler.next(e);
         },
       ),
