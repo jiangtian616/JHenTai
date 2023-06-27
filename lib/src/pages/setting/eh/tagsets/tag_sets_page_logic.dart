@@ -76,6 +76,16 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([titleId, bodyId]);
   }
 
+  Future<void> handleUpdateColor(int tagSetIndex, Color? newColor) async {
+    if (newColor == state.tagSets[tagSetIndex].backgroundColor) {
+      return;
+    }
+
+    TagSet tagSet = state.tagSets[tagSetIndex].copyWith();
+    tagSet.backgroundColor = newColor;
+    _updateTagSet(tagSet);
+  }
+
   Future<void> handleUpdateWeight(int tagSetIndex, String value) async {
     int? newValue = int.tryParse(value);
     if (newValue == null || newValue == state.tagSets[tagSetIndex].weight) {
@@ -116,7 +126,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconColor(context)).marginOnly(right: 4),
+                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
                 SizedBox(width: 56, child: Text('favorite'.tr)),
               ],
             ),
@@ -129,7 +139,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconColor(context)).marginOnly(right: 4),
+                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
                 SizedBox(width: 56, child: Text('hidden'.tr)),
               ],
             ),
@@ -142,7 +152,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconColor(context)),
+                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconDefaultColor(context)),
                 SizedBox(width: 56, child: Text('nope'.tr)),
               ],
             ),

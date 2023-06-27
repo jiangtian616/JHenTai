@@ -463,7 +463,7 @@ class UIConfig {
   static const double tagDialogButtonSize = 20;
 
   /// Tag sets page
-  static Color tagSetsPageIconColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color tagSetsPageIconDefaultColor(BuildContext context) => Theme.of(context).colorScheme.primary;
   
   /// Add local tag page
   static const double addLocalTagPageSuggestionTitleTextSize = 14;

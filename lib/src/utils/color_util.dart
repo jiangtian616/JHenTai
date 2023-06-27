@@ -13,5 +13,5 @@ String? color2aRGBString(Color? color) {
   if (color == null) {
     return null;
   }
-  return color.value.toRadixString(16).substring(4);
+  return '#' + color.value.toRadixString(16).substring(2);
 }
