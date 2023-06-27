@@ -83,11 +83,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     super.onInit();
   }
 
-  Future<void> rebootExecutor() async {
-    await _shutdownExecutor();
-    _startExecutor();
-  }
-
   Future<void> downloadGallery(GalleryDownloadedData gallery, {bool resume = false}) async {
     if (!resume && galleryDownloadInfos.containsKey(gallery.gid)) {
       return;
@@ -231,7 +226,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDownloadedData newGallery;
     try {
       Map<String, dynamic> map = await retry(
-            () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioError && e.error,
         maxAttempts: _retryTimes,
       );
@@ -465,6 +460,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  void updateExecutor() {
+    executor.concurrency = DownloadSetting.downloadTaskConcurrency.value;
+    executor.rate = Rate(DownloadSetting.maximum.value, DownloadSetting.period.value);
+  }
+
   /// start executor
   void _startExecutor() {
     Log.debug('start download executor');
@@ -579,9 +579,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   String _computeImageDownloadAbsolutePath(String title, int gid, String imageUrl, int serialNo) {
     /// original image's url doesn't has an ext
-    String? ext = imageUrl.contains('fullimg.php') ? 'jpg' : imageUrl
-        .split('.')
-        .last;
+    String? ext = imageUrl.contains('fullimg.php') ? 'jpg' : imageUrl.split('.').last;
 
     return path.join(
       computeGalleryDownloadPath(title, gid),
@@ -592,16 +590,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   String _computeImageDownloadRelativePath(String title, int gid, String imageUrl, int serialNo) {
     return path.relative(
       _computeImageDownloadAbsolutePath(title, gid, imageUrl, serialNo),
-      from: PathSetting
-          .getVisibleDir()
-          .path,
+      from: PathSetting.getVisibleDir().path,
     );
   }
 
   static String computeImageDownloadAbsolutePathFromRelativePath(String imageRelativePath) {
-    String path = join(PathSetting
-        .getVisibleDir()
-        .path, imageRelativePath);
+    String path = join(PathSetting.getVisibleDir().path, imageRelativePath);
 
     /// I don't know why some images can't be loaded on Windows... If you knows, please tell me
     if (!GetPlatform.isWindows) {
@@ -639,9 +633,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
       DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime!);
 
-      return bTime
-          .difference(aTime)
-          .inMilliseconds;
+      return bTime.difference(aTime).inMilliseconds;
     });
   }
 
@@ -712,13 +704,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       Map<String, dynamic> rangeAndThumbnails;
       try {
         rangeAndThumbnails = await retry(
-              () =>
-              EHRequest.requestDetailPage(
-                galleryUrl: gallery.galleryUrl,
-                thumbnailsPageIndex: serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage,
-                cancelToken: galleryDownloadInfo.cancelToken,
-                parser: EHSpiderParser.detailPage2RangeAndThumbnails,
-              ),
+          () => EHRequest.requestDetailPage(
+            galleryUrl: gallery.galleryUrl,
+            thumbnailsPageIndex: serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage,
+            cancelToken: galleryDownloadInfo.cancelToken,
+            parser: EHSpiderParser.detailPage2RangeAndThumbnails,
+          ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
           maxAttempts: _retryTimes,
@@ -785,15 +776,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       GalleryImage image;
       try {
         image = await retry(
-              () =>
-              EHRequest.requestImagePage(
-                galleryDownloadInfo.imageHrefs[serialNo]!.href,
-                cancelToken: galleryDownloadInfo.cancelToken,
-                useCacheIfAvailable: !reParse,
-                parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
-                    ? EHSpiderParser.imagePage2OriginalGalleryImage
-                    : EHSpiderParser.imagePage2GalleryImage,
-              ),
+          () => EHRequest.requestImagePage(
+            galleryDownloadInfo.imageHrefs[serialNo]!.href,
+            cancelToken: galleryDownloadInfo.cancelToken,
+            useCacheIfAvailable: !reParse,
+            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
+                ? EHSpiderParser.imagePage2OriginalGalleryImage
+                : EHSpiderParser.imagePage2GalleryImage,
+          ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
           maxAttempts: _retryTimes,
@@ -861,13 +851,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       Response response;
       try {
         response = await retry(
-              () =>
-              EHRequest.download(
-                url: image.url,
-                path: _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, serialNo),
-                cancelToken: galleryDownloadInfo.cancelToken,
-                onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
-              ),
+          () => EHRequest.download(
+            url: image.url,
+            path: _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, serialNo),
+            cancelToken: galleryDownloadInfo.cancelToken,
+            onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
+          ),
           maxAttempts: _retryTimes,
 
           /// 403 is due to token error(maybe... I forgot the reason)
@@ -957,12 +946,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryImage newImage = galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!;
 
-    io.File oldFile = io.File(path.join(PathSetting
-        .getVisibleDir()
-        .path, oldImage.path!));
-    oldFile.copySync(path.join(PathSetting
-        .getVisibleDir()
-        .path, newImage.path!));
+    io.File oldFile = io.File(path.join(PathSetting.getVisibleDir().path, oldImage.path!));
+    oldFile.copySync(path.join(PathSetting.getVisibleDir().path, newImage.path!));
 
     await _updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 
@@ -1106,13 +1091,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
         hasDownloaded:
-        images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),
       speedComputer: GalleryDownloadSpeedComputer(
         gallery.pageCount,
-            () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
+        () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
       ),
       priority: gallery.priority ?? defaultDownloadGalleryPriority,
       sortOrder: gallery.sortOrder,
@@ -1142,34 +1127,34 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         Log.debug(e);
       }
       return await appDb.insertGallery(
-        gallery.gid,
-        gallery.token,
-        gallery.title,
-        gallery.category,
-        gallery.pageCount,
-        gallery.galleryUrl,
-        gallery.oldVersionGalleryUrl,
-        gallery.uploader,
-        gallery.publishTime,
-        gallery.downloadStatusIndex,
-        gallery.insertTime ?? DateTime.now().toString(),
-        gallery.downloadOriginalImage,
-        gallery.priority ?? defaultDownloadGalleryPriority,
-        gallery.groupName,
-      ) >
+            gallery.gid,
+            gallery.token,
+            gallery.title,
+            gallery.category,
+            gallery.pageCount,
+            gallery.galleryUrl,
+            gallery.oldVersionGalleryUrl,
+            gallery.uploader,
+            gallery.publishTime,
+            gallery.downloadStatusIndex,
+            gallery.insertTime ?? DateTime.now().toString(),
+            gallery.downloadOriginalImage,
+            gallery.priority ?? defaultDownloadGalleryPriority,
+            gallery.groupName,
+          ) >
           0;
     });
   }
 
   Future<bool> _saveNewImageInfoInDatabase(GalleryImage image, int serialNo, int gid) async {
     return await appDb.insertImage(
-      image.url,
-      serialNo,
-      gid,
-      image.path!,
-      image.imageHash!,
-      image.downloadStatus.index,
-    ) >
+          image.url,
+          serialNo,
+          gid,
+          image.path!,
+          image.imageHash!,
+          image.downloadStatus.index,
+        ) >
         0;
   }
 
@@ -1242,10 +1227,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     Map<String, Object> metadata = {
       'gallery': gallery
           .copyWith(
-        downloadStatusIndex: galleryDownloadInfo.downloadProgress.downloadStatus.index,
-        priority: galleryDownloadInfo.priority,
-        groupName: galleryDownloadInfo.group,
-      )
+            downloadStatusIndex: galleryDownloadInfo.downloadProgress.downloadStatus.index,
+            priority: galleryDownloadInfo.priority,
+            groupName: galleryDownloadInfo.group,
+          )
           .toJson(),
       'images': jsonEncode(galleryDownloadInfo.images),
     };

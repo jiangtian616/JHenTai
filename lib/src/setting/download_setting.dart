@@ -75,7 +75,7 @@ class DownloadSetting {
     DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
     _save();
 
-    Get.find<GalleryDownloadService>().rebootExecutor();
+    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   static saveMaximum(int maximum) {
@@ -83,7 +83,7 @@ class DownloadSetting {
     DownloadSetting.maximum.value = maximum;
     _save();
 
-    Get.find<GalleryDownloadService>().rebootExecutor();
+    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   static savePeriod(Duration period) {
@@ -91,7 +91,7 @@ class DownloadSetting {
     DownloadSetting.period.value = period;
     _save();
 
-    Get.find<GalleryDownloadService>().rebootExecutor();
+    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   static saveTimeout(int value) {
