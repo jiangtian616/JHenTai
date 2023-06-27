@@ -232,7 +232,7 @@ class _TagFooter extends StatelessWidget {
         decoration: const InputDecoration(isDense: true),
         textAlign: TextAlign.center,
         inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
           NumberRangeTextInputFormatter(minValue: -99, maxValue: 99),
         ],
         onSubmitted: onWeightUpdated,
