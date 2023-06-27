@@ -18,7 +18,9 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text('extraGalleryScanPath'.tr),
-        actions: GetPlatform.isIOS || GetPlatform.isMacOS ? null : [IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add))],
+        actions: [
+          IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
+        ],
       ),
       body: Obx(
         () => ListView(

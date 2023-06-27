@@ -547,7 +547,8 @@ class zh_TW {
       'restoredGalleryCount': '恢復畫廊數目',
       'restoredArchiveCount': '恢復歸檔數目',
       'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
-
+      'brokenExtraScanPathHint': '似乎你的默認本地畫廊路徑已經損壞，本地畫廊可能無法被識別',
+      
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',
       'confirmPasswordHint': '請再次輸入您的密碼',

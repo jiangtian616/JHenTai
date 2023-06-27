@@ -11,7 +11,8 @@ class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
   static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
-  static RxList<String> extraGalleryScanPath = <String>[join(PathSetting.getVisibleDir().path, 'local_gallery')].obs;
+  static String defaultExtraGalleryScanPath = join(PathSetting.getVisibleDir().path, 'local_gallery');
+  static RxList<String> extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
   static RxString singleImageSavePath = join(PathSetting.getVisibleDir().path, 'save').obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;

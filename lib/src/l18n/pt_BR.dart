@@ -553,7 +553,8 @@ class pt_BR {
       'restoredGalleryCount': 'Contagem de galerias restaurada',
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
       'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
-
+      'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',

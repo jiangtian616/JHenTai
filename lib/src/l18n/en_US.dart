@@ -551,7 +551,8 @@ class en_US {
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
       'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
-
+      'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',

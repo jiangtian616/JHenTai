@@ -549,7 +549,8 @@ class ko_KR {
       'restoredGalleryCount': '복원된 갤러리 수',
       'restoredArchiveCount': '복원된 아카이브 수',
       'brokenDownloadPathHint': '다운로드 경로가 손상된 것 같습니다. 다운로드 기능이 낮아질 수 있습니다.',
-
+      'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      
       /// password setting dialog
       'setPasswordHint': '비밀번호를 넣어주세요.',
       'confirmPasswordHint': '비밀번호를 다시 넣어주세요.',

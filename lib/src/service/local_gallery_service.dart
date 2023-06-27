@@ -14,6 +14,7 @@ import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../pages/download/list/local/local_gallery_list_page_logic.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';
+import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
@@ -68,6 +69,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   @override
   void onInit() {
     super.onInit();
+    _createDefaultScanDirectory();
     refreshLocalGallerys();
   }
 
@@ -258,5 +260,21 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
       return null;
     });
+  }
+
+  void _createDefaultScanDirectory() {
+    try {
+      Directory(DownloadSetting.defaultExtraGalleryScanPath).createSync(recursive: true);
+    } on Exception catch (e) {
+      toast('brokenExtraScanPathHint'.tr);
+      Log.error(e);
+      Log.upload(
+        e,
+        extraInfos: {
+          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
+          'downloadPath': DownloadSetting.downloadPath.value,
+        },
+      );
+    }
   }
 }
