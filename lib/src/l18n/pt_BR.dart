@@ -381,7 +381,7 @@ class pt_BR {
       'screen': 'Tela',
       'preloadDistanceInOnlineMode': 'Distância de pré-carregamento (online)',
       'ScreenHeight': 'Tela',
-      'preloadPageCount': 'Contagem de páginas de pré-carregamento (online)',
+      'preloadPageCount': 'Contagem de páginas de pré-carregamento',
       'continuousScroll': 'Rolagem contínua',
       'continuousScrollHint': 'Junte várias imagens',
       'doubleColumn': 'Duas Colunas',

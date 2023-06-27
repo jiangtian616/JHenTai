@@ -380,7 +380,7 @@ class en_US {
       'screen': 'Screen',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
       'ScreenHeight': 'Screen',
-      'preloadPageCount': 'Preload Page Count(Online)',
+      'preloadPageCount': 'Preload Page Count',
       'continuousScroll': 'Continuous Scroll',
       'continuousScrollHint': 'Splice multiple images',
       'doubleColumn': 'Double Column',

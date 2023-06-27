@@ -206,12 +206,12 @@ abstract class BaseLayout extends StatelessWidget {
         if (readPageState.images[index] == null) {
           return _buildWaitParsingUrlIndicator(context, index);
         }
-      
+
         /// step 3: check if we are using super resolution
         if (logic.readPageState.useSuperResolution) {
           return _buildLocalSuperResolutionImage(context, index);
         }
-        
+
         /// step 4: wait for downloading or display it
         return _buildLocalImage(context, index);
       },
@@ -300,6 +300,7 @@ abstract class BaseLayout extends StatelessWidget {
         loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
         failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
         completedWidgetBuilder: (state) => _completedWidgetBuilderForLocalMode(index, state),
+        maxBytes: GetPlatform.isMobile ? 1024 * 1024 * 5 : null,
       ),
     );
   }

@@ -380,7 +380,7 @@ class zh_CN {
       'screen': '屏幕',
       'preloadDistanceInOnlineMode': '在线模式预载距离',
       'ScreenHeight': '屏幕',
-      'preloadPageCount': '在线模式预载图片数量',
+      'preloadPageCount': '预载图片数量',
       'continuousScroll': '连续滚动',
       'continuousScrollHint': '拼接多个图片',
       'doubleColumn': '双列模式',

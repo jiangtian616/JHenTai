@@ -444,6 +444,7 @@ class ReadPage extends StatelessWidget {
             containerHeight: constraints.maxHeight,
             containerWidth: constraints.maxWidth,
             borderRadius: BorderRadius.circular(8),
+            maxBytes: 1024 * 50,
           ),
         );
       },

@@ -379,7 +379,7 @@ class zh_TW {
       'screen': '螢幕',
       'preloadDistanceInOnlineMode': '在線模式預載距離',
       'ScreenHeight': '屏幕',
-      'preloadPageCount': '在線模式預載圖片數量',
+      'preloadPageCount': '預載圖片數量',
       'continuousScroll': '連續滾動',
       'continuousScrollHint': '拼接多個圖片',
       'doubleColumn': '雙列模式',

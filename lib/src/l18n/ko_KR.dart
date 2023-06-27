@@ -380,7 +380,7 @@ class ko_KR {
       'screen': '화면 기준',
       'preloadDistanceInOnlineMode': '미리 불러올 거리(온라인)',
       'ScreenHeight': '장 거리',
-      'preloadPageCount': '미리 불러올 쪽수(온라인)',
+      'preloadPageCount': '미리 불러올 쪽수',
       'continuousScroll': '길게 이어진 스크롤',
       'continuousScrollHint': '여러 이미지가 가로로 연결됨',
       'doubleColumn': '두 쪽으로 보기',
