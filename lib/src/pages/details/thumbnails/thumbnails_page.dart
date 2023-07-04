@@ -101,6 +101,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                                         containerHeight: constraints.maxHeight,
                                         containerWidth: constraints.maxWidth,
                                         borderRadius: BorderRadius.circular(8),
+                                        maxBytes: 1024 * 1024,
                                       )
                                     : EHThumbnail(
                                         thumbnail: state.thumbnails[index],

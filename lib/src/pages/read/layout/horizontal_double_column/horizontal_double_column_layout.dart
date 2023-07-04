@@ -1,10 +1,14 @@
+import 'package:collection/collection.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
-import 'package:photo_view/photo_view_gallery.dart';
+import 'package:photo_view/photo_view.dart';
 
 import '../../../../setting/read_setting.dart';
+import '../../../../widget/cached_page_view.dart';
 import '../base/base_layout.dart';
 import 'horizontal_double_column_layout_logic.dart';
 
@@ -18,97 +22,141 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
 
   @override
   Widget buildBody(BuildContext context) {
-    return PhotoViewGallery.builder(
-      itemCount: (logic.itemCount + 1) ~/ 2,
-      scrollPhysics: const ClampingScrollPhysics(),
-      pageController: logic.pageController,
+    return CachedPageView.builder(
+      physics: const ClampingScrollPhysics(),
+      controller: state.pageController,
       cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
-      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewControllers[index],
-        initialScale: 1.0,
-        minScale: 1.0,
-        maxScale: 2.5,
-        scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-        enableDoubleTapZoom: ReadSetting.enableDoubleTapToScaleUp.isTrue,
-        child: readPageState.readPageInfo.mode == ReadMode.online
-            ? _buildDoubleColumnItemInOnlineMode(context, index)
-            : _buildDoubleColumnItemInLocalMode(context, index),
-      ),
+      itemCount: state.pageCount,
+      itemBuilder: (BuildContext context, int index) {
+        if (index < 0 || index >= state.pageCount) {
+          return null;
+        }
+
+        return PhotoView.customChild(
+          key: ObjectKey(index),
+          child: readPageState.readPageInfo.mode == ReadMode.online
+              ? _buildDoubleColumnItemInOnlineMode(context, index)
+              : _buildDoubleColumnItemInLocalMode(context, index),
+          initialScale: 1.0,
+          minScale: 1.0,
+          maxScale: 2.5,
+          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableDoubleTapZoom: ReadSetting.enableDoubleTapToScaleUp.isTrue,
+        );
+      },
     );
   }
 
-  Widget _buildDoubleColumnItemInOnlineMode(BuildContext context, int pageIndex) {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          buildItemInOnlineMode(context, pageIndex * 2),
-          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInOnlineMode(context, pageIndex * 2 + 1),
-        ],
-      );
-    } else {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInOnlineMode(context, pageIndex * 2 + 1),
-          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-          buildItemInOnlineMode(context, pageIndex * 2),
-        ],
-      );
+  Widget? _buildDoubleColumnItemInOnlineMode(BuildContext context, int pageIndex) {
+    List<int> displayImageIndexes = logic.computeImagesInPageIndex(pageIndex);
+    if (displayImageIndexes.isEmpty) {
+      return null;
     }
+
+    if (ReadSetting.readDirection.value == ReadDirection.right2left) {
+      displayImageIndexes.reverseRange(0, displayImageIndexes.length);
+    }
+
+    if (displayImageIndexes.length == 1) {
+      return Center(child: buildItemInOnlineMode(context, displayImageIndexes[0]));
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        buildItemInOnlineMode(context, displayImageIndexes[0]),
+        SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+        buildItemInOnlineMode(context, displayImageIndexes[1]),
+      ],
+    );
   }
 
-  Widget _buildDoubleColumnItemInLocalMode(BuildContext context, int pageIndex) {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          buildItemInLocalMode(context, pageIndex * 2),
-          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInLocalMode(context, pageIndex * 2 + 1),
-        ],
-      );
-    } else {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (pageIndex * 2 + 1 < logic.itemCount) buildItemInLocalMode(context, pageIndex * 2 + 1),
-          if (pageIndex * 2 + 1 < logic.itemCount) SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
-          buildItemInLocalMode(context, pageIndex * 2),
-        ],
-      );
+  Widget? _buildDoubleColumnItemInLocalMode(BuildContext context, int pageIndex) {
+    List<int> displayImageIndexes = logic.computeImagesInPageIndex(pageIndex);
+    if (displayImageIndexes.isEmpty) {
+      return null;
     }
-  }
 
+    if (ReadSetting.readDirection.value == ReadDirection.right2left) {
+      displayImageIndexes.reverseRange(0, displayImageIndexes.length);
+    }
+
+    if (displayImageIndexes.length == 1) {
+      return Center(child: buildItemInLocalMode(context, displayImageIndexes[0]));
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        buildItemInLocalMode(context, displayImageIndexes[0]),
+        SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+        buildItemInLocalMode(context, displayImageIndexes[1]),
+      ],
+    );
+  }
+  
   @override
-  Widget buildItemInOnlineMode(BuildContext context, int index) {
-    if (!state.displayFirstPageAlone) {
-      return super.buildItemInOnlineMode(context, index);
+  Widget? completedWidgetBuilder(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      return null;
     }
 
-    if (index == 0) {
-      return const SizedBox();
-    } else {
-      return super.buildItemInOnlineMode(context, index - 1);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+        return;
+      }
+
+      bool isSpreadPage = state.extendedImageInfo!.image.width > state.extendedImageInfo!.image.height;
+
+      if (isSpreadPage) {
+        logic.readPageState.imageSizes[index] = Size(
+          state.extendedImageInfo!.image.width.toDouble(),
+          state.extendedImageInfo!.image.height.toDouble(),
+        );
+        logic.updateSpreadPage(index);
+      } else {
+        FittedSizes fittedSizes = logic.getImageFittedSize(
+          Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
+        );
+        logic.readPageState.imageSizes[index] = fittedSizes.destination;
+        logic.readPageLogic.updateSafely(['${readPageLogic.onlineImageId}::$index']);
+      }
+    });
+
+    return null;
   }
-
+  
   @override
-  Widget buildItemInLocalMode(BuildContext context, int index) {
-    if (!state.displayFirstPageAlone) {
-      return super.buildItemInLocalMode(context, index);
+  Widget? completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      return null;
     }
 
-    if (index == 0) {
-      return const SizedBox();
-    } else {
-      return super.buildItemInLocalMode(context, index - 1);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+        return;
+      }
+
+      bool isSpreadPage = state.extendedImageInfo!.image.width > state.extendedImageInfo!.image.height;
+
+      if (isSpreadPage) {
+        logic.readPageState.imageSizes[index] = Size(
+          state.extendedImageInfo!.image.width.toDouble(),
+          state.extendedImageInfo!.image.height.toDouble(),
+        );
+        logic.updateSpreadPage(index);
+      } else {
+        FittedSizes fittedSizes = logic.getImageFittedSize(
+          Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
+        );
+        logic.readPageState.imageSizes[index] = fittedSizes.destination;
+        logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
+      }
+    });
+
+    return null;
   }
 }

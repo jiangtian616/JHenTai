@@ -137,7 +137,7 @@ abstract class BaseLayout extends StatelessWidget {
         clearMemoryCacheWhenDispose: true,
         loadingProgressWidgetBuilder: (double progress) => _loadingProgressWidgetBuilder(index, progress),
         failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(index, state),
-        completedWidgetBuilder: (state) => _completedWidgetBuilder(index, state),
+        completedWidgetBuilder: (state) => completedWidgetBuilder(index, state),
       ),
     );
   }
@@ -172,7 +172,7 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// completed for online mode
-  Widget? _completedWidgetBuilder(int index, ExtendedImageState state) {
+  Widget? completedWidgetBuilder(int index, ExtendedImageState state) {
     if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
       return null;
     }
@@ -299,7 +299,7 @@ abstract class BaseLayout extends StatelessWidget {
         pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
         loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
         failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
-        completedWidgetBuilder: (state) => _completedWidgetBuilderForLocalMode(index, state),
+        completedWidgetBuilder: (state) => completedWidgetBuilderForLocalMode(index, state),
         maxBytes: GetPlatform.isMobile ? 1024 * 1024 * 5 : null,
       ),
     );
@@ -367,7 +367,7 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// completed for local mode
-  Widget? _completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
+  Widget? completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
     if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
       return null;
     }

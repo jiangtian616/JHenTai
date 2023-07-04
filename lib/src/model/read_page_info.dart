@@ -14,7 +14,7 @@ class ReadPageInfo {
 
   int initialIndex;
 
-  int currentIndex;
+  int currentImageIndex;
 
   int pageCount;
 
@@ -35,7 +35,7 @@ class ReadPageInfo {
     required this.galleryTitle,
     this.galleryUrl,
     required this.initialIndex,
-    required this.currentIndex,
+    required this.currentImageIndex,
     required this.pageCount,
     this.isOriginal = false,
     required this.readProgressRecordStorageKey,

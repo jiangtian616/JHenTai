@@ -149,7 +149,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           galleryTitle: gallery.title,
           galleryUrl: gallery.galleryUrl,
           initialIndex: readIndexRecord,
-          currentIndex: readIndexRecord,
+          currentImageIndex: readIndexRecord,
           readProgressRecordStorageKey: storageKey,
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,

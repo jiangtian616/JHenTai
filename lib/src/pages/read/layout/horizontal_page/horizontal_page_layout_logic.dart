@@ -18,9 +18,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   void onInit() {
     super.onInit();
 
-    state.photoViewControllers = List.generate(readPageState.readPageInfo.pageCount, (index) => PhotoViewController());
-
-    pageController = PageController(initialPage: readPageState.readPageInfo.currentIndex);
+    pageController = PageController(initialPage: readPageState.readPageInfo.currentImageIndex);
 
     /// record reading progress and sync thumbnails list index
     pageController.addListener(_readProgressListener);
@@ -47,29 +45,29 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   @override
   void toPrev() {
     int targetIndex = (pageController.page! - 1).toInt();
-    toPageIndex(max(targetIndex, 0));
+    toImageIndex(max(targetIndex, 0));
   }
 
   @override
   void toNext() {
     int targetIndex = (pageController.page! + 1).toInt();
-    toPageIndex(min(targetIndex, readPageState.readPageInfo.pageCount));
+    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount));
   }
 
   @override
-  void jump2PageIndex(int pageIndex) {
+  void jump2ImageIndex(int pageIndex) {
     pageController.jumpToPage(pageIndex);
-    super.jump2PageIndex(pageIndex);
+    super.jump2ImageIndex(pageIndex);
   }
 
   @override
-  void scroll2PageIndex(int pageIndex, [Duration? duration]) {
+  void scroll2ImageIndex(int pageIndex, [Duration? duration]) {
     pageController.animateToPage(
       pageIndex,
       duration: duration ?? const Duration(milliseconds: 200),
       curve: Curves.ease,
     );
-    super.scroll2PageIndex(pageIndex, duration);
+    super.scroll2ImageIndex(pageIndex, duration);
   }
 
   @override
@@ -95,7 +93,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
         }
 
         /// stop when at last
-        if (readPageState.readPageInfo.currentIndex == readPageState.readPageInfo.pageCount - 1) {
+        if (readPageState.readPageInfo.currentImageIndex == readPageState.readPageInfo.pageCount - 1) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

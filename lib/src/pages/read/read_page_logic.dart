@@ -134,7 +134,7 @@ class ReadPageLogic extends GetxController {
 
     restoreImmersiveMode();
 
-    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentIndex);
+    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
 
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
@@ -313,22 +313,22 @@ class ReadPageLogic extends GetxController {
   void toNext() {
     layoutLogic.toNext();
   }
-  
-  void handleM(){
+
+  void handleM() {
     layoutLogic.handleM();
   }
-  
-  void jump2PageIndex(int pageIndex) {
-    layoutLogic.jump2PageIndex(pageIndex);
+
+  void jump2ImageIndex(int pageIndex) {
+    layoutLogic.jump2ImageIndex(pageIndex);
   }
 
   void handleSlide(double pageNo) {
-    state.readPageInfo.currentIndex = (pageNo - 1).toInt();
+    state.readPageInfo.currentImageIndex = (pageNo - 1).toInt();
     update([sliderId, pageNoId]);
   }
 
   void handleSlideEnd(double pageNo) {
-    jump2PageIndex((pageNo - 1).toInt());
+    jump2ImageIndex((pageNo - 1).toInt());
   }
 
   /// Sync thumbnails after user scrolling to image whose index is [targetImageIndex]
@@ -404,7 +404,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void recordReadProgress(int index) {
-    state.readPageInfo.currentIndex = index;
+    state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
   }
 }

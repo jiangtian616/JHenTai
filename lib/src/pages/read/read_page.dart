@@ -157,7 +157,7 @@ class ReadPage extends StatelessWidget {
   Widget _buildPageNoInfo() {
     return GetBuilder<ReadPageLogic>(
       id: logic.pageNoId,
-      builder: (_) => Text('${state.readPageInfo.currentIndex + 1}/${state.readPageInfo.pageCount}'),
+      builder: (_) => Text('${state.readPageInfo.currentImageIndex + 1}/${state.readPageInfo.pageCount}'),
     );
   }
 
@@ -367,7 +367,7 @@ class ReadPage extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => logic.jump2PageIndex(index),
+                        onTap: () => logic.jump2ImageIndex(index),
                         child: state.readPageInfo.mode == ReadMode.online
                             ? _buildThumbnailInOnlineMode(context, index)
                             : _buildThumbnailInLocalMode(context, index),
@@ -378,7 +378,7 @@ class ReadPage extends StatelessWidget {
                         child: Container(
                           width: 24,
                           decoration: BoxDecoration(
-                            color: state.readPageInfo.currentIndex == index
+                            color: state.readPageInfo.currentImageIndex == index
                                 ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
                                 : Colors.transparent,
                             borderRadius: BorderRadius.circular(4),
@@ -388,7 +388,7 @@ class ReadPage extends StatelessWidget {
                             (index + 1).toString(),
                             style: TextStyle(
                               fontSize: 9,
-                              color: state.readPageInfo.currentIndex == index
+                              color: state.readPageInfo.currentImageIndex == index
                                   ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
                                   : null,
                             ),
@@ -459,7 +459,7 @@ class ReadPage extends StatelessWidget {
         width: fullScreenWidth,
         child: Row(
           children: [
-            Text((state.readPageInfo.currentIndex + 1).toString()).marginOnly(left: 36, right: 4),
+            Text((state.readPageInfo.currentImageIndex + 1).toString()).marginOnly(left: 36, right: 4),
             Expanded(
               child: ExcludeFocus(
                 child: Material(
@@ -469,7 +469,7 @@ class ReadPage extends StatelessWidget {
                     child: Slider(
                       min: 1,
                       max: state.readPageInfo.pageCount.toDouble(),
-                      value: state.readPageInfo.currentIndex + 1.0,
+                      value: state.readPageInfo.currentImageIndex + 1.0,
                       thumbColor: UIConfig.readPageForeGroundColor,
                       onChanged: logic.handleSlide,
                       onChangeEnd: logic.handleSlideEnd,

@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
-import 'package:photo_view/photo_view.dart';
 
 class HorizontalDoubleColumnLayoutState {
-  late final List<PhotoViewController> photoViewControllers;
-
+  late PageController pageController;
+  
   bool displayFirstPageAlone = ReadSetting.displayFirstPageAlone.value;
+
+  late int pageCount;
+  late List<bool> isSpreadPage;
 }

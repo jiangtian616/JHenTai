@@ -61,22 +61,22 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   void handleM() {}
 
-  void toPageIndex(int pageIndex) {
+  void toImageIndex(int imageIndex) {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
-      jump2PageIndex(pageIndex);
+      jump2ImageIndex(imageIndex);
     } else {
-      scroll2PageIndex(pageIndex);
+      scroll2ImageIndex(imageIndex);
     }
   }
 
   @mustCallSuper
-  void scroll2PageIndex(int pageIndex, [Duration? duration]) {
+  void scroll2ImageIndex(int imageIndex, [Duration? duration]) {
     readPageLogic.update([readPageLogic.sliderId]);
   }
 
   @mustCallSuper
-  void jump2PageIndex(int pageIndex) {
-    readPageLogic.syncThumbnails(pageIndex);
+  void jump2ImageIndex(int imageIndex) {
+    readPageLogic.syncThumbnails(imageIndex);
     readPageLogic.update([readPageLogic.sliderId]);
   }
 

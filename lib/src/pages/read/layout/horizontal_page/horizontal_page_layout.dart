@@ -25,7 +25,6 @@ class HorizontalPageLayout extends BaseLayout {
       cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewControllers[index],
         initialScale: 1.0,
         minScale: 1.0,
         maxScale: 2.5,

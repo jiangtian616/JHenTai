@@ -76,8 +76,8 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   /// jump to a certain image
   @override
-  void jump2PageIndex(int imageIndex) {
-    super.jump2PageIndex(imageIndex);
+  void jump2ImageIndex(int imageIndex) {
+    super.jump2ImageIndex(imageIndex);
 
     /// Method [jumpTo] leads to redrawing, so wo use scrollTo
     state.itemScrollController.scrollTo(index: imageIndex, duration: const Duration(milliseconds: 1));
@@ -85,12 +85,12 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   /// scroll to a certain image
   @override
-  void scroll2PageIndex(int imageIndex, [Duration? duration]) {
+  void scroll2ImageIndex(int imageIndex, [Duration? duration]) {
     state.itemScrollController.scrollTo(
       index: imageIndex,
       duration: duration ?? const Duration(milliseconds: 200),
     );
-    super.scroll2PageIndex(imageIndex, duration);
+    super.scroll2ImageIndex(imageIndex, duration);
   }
 
   /// scroll or jump until one image in viewport currently reach top
@@ -101,7 +101,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     }
 
     int targetIndex = firstPosition.itemLeadingEdge < 0 ? firstPosition.index : firstPosition.index - 1;
-    toPageIndex(max(targetIndex, 0));
+    toImageIndex(max(targetIndex, 0));
   }
 
   /// scroll or jump until last image in viewport currently reach top
@@ -111,7 +111,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
       return;
     }
 
-    toPageIndex(min(firstPosition.index + 1, readPageState.readPageInfo.pageCount));
+    toImageIndex(min(firstPosition.index + 1, readPageState.readPageInfo.pageCount));
   }
 
   void _toPrevScreen() {
@@ -152,7 +152,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   }
 
   void _enterAutoModeByScroll() {
-    int restPageCount = readPageState.readPageInfo.pageCount - readPageState.readPageInfo.currentIndex - 1;
+    int restPageCount = readPageState.readPageInfo.pageCount - readPageState.readPageInfo.currentImageIndex - 1;
     double offset = restPageCount * screenHeight;
     double totalTime = restPageCount * ReadSetting.autoModeInterval.value;
 
