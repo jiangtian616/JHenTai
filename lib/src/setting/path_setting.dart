@@ -36,7 +36,7 @@ class PathSetting {
       return appSupportDir!;
     }
     if (GetPlatform.isLinux && appSupportDir != null) {
-      return Directory(join(appSupportDir!.path, 'jhentai'));
+      return appSupportDir!;
     }
     return appDocDir ?? appSupportDir ?? systemDownloadDir!;
   }
