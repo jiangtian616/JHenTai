@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PathSetting {
@@ -33,6 +34,9 @@ class PathSetting {
     }
     if (GetPlatform.isWindows && appSupportDir != null) {
       return appSupportDir!;
+    }
+    if (GetPlatform.isLinux && appSupportDir != null) {
+      return Directory(join(appSupportDir!.path, 'jhentai'));
     }
     return appDocDir ?? appSupportDir ?? systemDownloadDir!;
   }
