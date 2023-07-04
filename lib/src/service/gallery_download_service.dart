@@ -7,6 +7,7 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
@@ -848,12 +849,19 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
       }
 
+      String path = _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, serialNo);
+
+      await _tryLoadFromCacheInsteadDownload(gallery, image, serialNo, path);
+      if (image.downloadStatus == DownloadStatus.downloaded) {
+        return;
+      }
+
       Response response;
       try {
         response = await retry(
           () => EHRequest.download(
             url: image.url,
-            path: _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, serialNo),
+            path: path,
             cancelToken: galleryDownloadInfo.cancelToken,
             onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
           ),
@@ -952,6 +960,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     await _updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 
     _updateProgressAfterImageDownloaded(newGallery, newImageSerialNo);
+  }
+
+  Future<void> _tryLoadFromCacheInsteadDownload(GalleryDownloadedData gallery, GalleryImage image, int serialNo, String path) async {
+    io.File? cachedImageFile = await getCachedImageFile(image.url);
+    if (cachedImageFile != null && cachedImageFile.existsSync()) {
+      Log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
+      cachedImageFile.copySync(path);
+      await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
+      _updateProgressAfterImageDownloaded(gallery, serialNo);
+    }
   }
 
   Future<void> _updateProgressAfterImageDownloaded(GalleryDownloadedData gallery, int serialNo) async {
