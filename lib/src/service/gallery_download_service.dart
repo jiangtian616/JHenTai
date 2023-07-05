@@ -545,7 +545,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   ///
   /// Because a gallery has most 2000 images, we assign 10000 numbers to each gallery
   int _computeGalleryTaskPriority(GalleryDownloadedData gallery) {
-    if (galleryDownloadInfos[gallery.gid]?.priority == null) {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return 0;
+    }
+
+    if (galleryDownloadInfos[gallery.gid]!.priority == null) {
       galleryDownloadInfos[gallery.gid]!.priority = gallery.priority ?? defaultDownloadGalleryPriority;
     }
 
@@ -973,6 +977,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _updateProgressAfterImageDownloaded(GalleryDownloadedData gallery, int serialNo) async {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return;
+    }
+
     GalleryDownloadProgress downloadProgress = galleryDownloadInfos[gallery.gid]!.downloadProgress;
     downloadProgress.curCount++;
     downloadProgress.hasDownloaded[serialNo] = true;
