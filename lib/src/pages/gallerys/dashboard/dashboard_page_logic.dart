@@ -76,6 +76,8 @@ class DashboardPageLogic extends BasePageLogic {
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     state.ranklistGallerys = gallerysAndPageInfo[0];
 
+    handleGalleryByLocalTags(state.ranklistGallerys);
+    
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
   }
@@ -114,6 +116,8 @@ class DashboardPageLogic extends BasePageLogic {
 
     state.popularGallerys = gallerysPage.gallerys;
 
+    handleGalleryByLocalTags(state.popularGallerys);
+    
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);
   }

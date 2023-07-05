@@ -376,5 +376,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     newGallerys.where((newGallery) => newGallery.tags.values.flattened.any((tag) => MyTagsSetting.containLocalTag(tag.tagData))).forEach((gallery) {
       gallery.hasLocalFilteredTag = true;
     });
+
+    // if all gallerys are filtered, we keep the first one to indicate
+    if (newGallerys.every((gallery) => gallery.hasLocalFilteredTag)) {
+      newGallerys.removeRange(1, newGallerys.length);
+    } else {
+      newGallerys.removeWhere((gallery) => gallery.hasLocalFilteredTag);
+    }
   }
 }
