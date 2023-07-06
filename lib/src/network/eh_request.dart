@@ -9,8 +9,8 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:http_proxy/http_proxy.dart';
+import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
-import 'package:isolate_manager/isolate_manager.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
@@ -30,7 +30,8 @@ import 'eh_cookie_manager.dart';
 class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
-  
+  static late final StatefulIsolate isolate;
+
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
       connectTimeout: NetworkSetting.connectTimeout.value,
@@ -49,9 +50,11 @@ class EHRequest {
 
     _dio.interceptors.add(Get.find<EHCacheInterceptor>());
 
+    isolate = StatefulIsolate();
+
     Log.debug('init EHRequest success');
   }
-  
+
   /// error handler
   static void _init404Handler() {
     _dio.interceptors.add(
@@ -744,12 +747,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (parser == null) {
       return response as T;
     }
-    return compute((list) => parser(list[0], list[1]), [response.headers, response.data]);
-  }
-
-  @pragma('vm:entry-point')
-  static Future<T> _parseResponseEntry<T>(dynamic params) async {
-    return params[0](params[1], params[2]);
+    return isolate.isolate((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
   static Future<Response> _getWithErrorHandler<T>(
