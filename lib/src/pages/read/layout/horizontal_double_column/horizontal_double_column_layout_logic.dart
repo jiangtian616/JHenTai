@@ -160,15 +160,20 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   FittedSizes getImageFittedSize(Size imageSize) {
-    /// 6 is the width of divider
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size((fullScreenWidth - 6) / 2, screenHeight),
+      Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, screenHeight),
     );
   }
 
   void updateSpreadPage(int imageIndex) {
+    /// has recognized from cache
+    if (state.isSpreadPage[imageIndex]) {
+      galleryDownloadService.updateSafely(['${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$imageIndex']);
+      return;
+    }
+
     state.isSpreadPage[imageIndex] = true;
     state.pageCount = computePageCount();
 
