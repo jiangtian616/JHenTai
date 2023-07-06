@@ -30,7 +30,6 @@ import 'eh_cookie_manager.dart';
 class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
-  static late final IsolateManager isolateManager;
   
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -50,8 +49,6 @@ class EHRequest {
 
     _dio.interceptors.add(Get.find<EHCacheInterceptor>());
 
-    isolateManager = IsolateManager.create(_parseResponseEntry, concurrent: 2)..start();
-    
     Log.debug('init EHRequest success');
   }
   
@@ -747,7 +744,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (parser == null) {
       return response as T;
     }
-    return isolateManager.compute([parser, response.headers, response.data]).then((value) => value as T);
+    return compute((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
   @pragma('vm:entry-point')
