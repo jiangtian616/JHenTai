@@ -72,21 +72,23 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toPrev() {
-    if (state.pageController.page! == 0) {
+    int currentPage = state.pageController.page!.toInt();
+    if (currentPage <= 0) {
       return;
     }
 
-    int targetIndex = computeImagesInPageIndex(state.pageController.page!.toInt() - 1).first;
+    int targetIndex = computeImagesInPageIndex(currentPage - 1).first;
     toImageIndex(targetIndex);
   }
 
   @override
   void toNext() {
-    if (state.pageController.page! == state.pageCount - 1) {
+    int currentPage = state.pageController.page!.toInt();
+    if (currentPage >= state.pageCount - 1) {
       return;
     }
 
-    int targetIndex = computeImagesInPageIndex(state.pageController.page!.toInt() + 1).first;
+    int targetIndex = computeImagesInPageIndex(currentPage + 1).first;
     toImageIndex(targetIndex);
   }
 

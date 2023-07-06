@@ -881,6 +881,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.0.4"
+  isolate_contactor:
+    dependency: transitive
+    description:
+      name: isolate_contactor
+      sha256: b3579eb4d576e1664c5c42f7ad4aaaa8569091bbdbecddf5774f13d802c994fe
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
+  isolate_manager:
+    dependency: "direct main"
+    description:
+      name: isolate_manager
+      sha256: d829a8aa77b685371d126c512bdca7d4f6a00b5bcd754a2696bd31d3fbb0bb4e
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.0.0"
   js:
     dependency: transitive
     description:
