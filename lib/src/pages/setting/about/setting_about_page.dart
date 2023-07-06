@@ -50,7 +50,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
           ),
           ListTile(
             title: const Text('Telegram'),
-            subtitle: SelectableText('telegramHint'.tr + '\n' + telegram),
+            subtitle: Text('telegramHint'.tr + '\n' + telegram),
             onTap: () => launchUrlString(telegram, mode: LaunchMode.externalApplication),
           ),
           ListTile(
