@@ -510,7 +510,8 @@ class zh_TW {
       /// about page
       'author': '創作者',
       'Q&A': '常見問題',
-
+      'telegramHint': '所有問題到Github Issue詢問，電報群不負責回答問題',
+      
       /// download setting page
       'downloadPath': '下載路徑',
       'changeDownloadPathHint': '長按來改變下載路徑(請不要使用SD卡或系統路徑)。會自動複制已下載的畫廊到新路徑，並保留原文件。如果妳遇到相關錯誤，請嘗試重置路徑',

@@ -511,7 +511,8 @@ class zh_CN {
       /// about page
       'author': '创作者',
       'Q&A': '常见问题',
-
+      'telegramHint': '所有问题到Github Issue询问，电报群不负责回答问题',
+      
       /// download setting page
       'downloadPath': '下载路径',
       'changeDownloadPathHint': '长按来改变下载路径(请不要使用SD卡或系统路径)。会自动复制已下载的画廊到新路径，并保留原文件。如果你遇到相关错误，请尝试重置路径',

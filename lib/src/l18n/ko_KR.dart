@@ -512,7 +512,8 @@ class ko_KR {
       /// about page
       'author': '제작자',
       'Q&A': 'Q&A',
-
+      'telegramHint': 'Ask your questions in github',
+      
       /// download setting page
       'downloadPath': '다운로드 경로',
       'changeDownloadPathHint': '길게 눌러 변경(SD 카드 또는 시스템 경로는 사용하지 마세요). 다운로드한 갤러리를 자동으로 복사하고 오래된 파일은 보관합니다. 오류가 발생하면 초기화해 보세요.',
