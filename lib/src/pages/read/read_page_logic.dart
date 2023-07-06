@@ -95,7 +95,7 @@ class ReadPageLogic extends GetxController {
     toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
 
     /// Listen to layout change
-    readDirectionLister = ever(ReadSetting.readDirection, (_) => state.imageSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
+    readDirectionLister = ever(ReadSetting.readDirection, (_) => state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -376,7 +376,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void resetImageSize() {
-    state.imageSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
+    state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
   }
 
   String getSuperResolutionProgress() {

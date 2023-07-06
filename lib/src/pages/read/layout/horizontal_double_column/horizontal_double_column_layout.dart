@@ -97,62 +97,64 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       ],
     );
   }
-  
+
   @override
-  Widget? completedWidgetBuilder(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+  Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
 
       bool isSpreadPage = state.extendedImageInfo!.image.width > state.extendedImageInfo!.image.height;
 
-      if (isSpreadPage) {
-        logic.readPageState.imageSizes[index] = Size(
+      FittedSizes fittedSizes = logic.getImageFittedSizeIncludeSpread(
+        Size(
           state.extendedImageInfo!.image.width.toDouble(),
           state.extendedImageInfo!.image.height.toDouble(),
-        );
+        ),
+        isSpreadPage,
+      );
+      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
+
+      if (isSpreadPage && !this.state.isSpreadPage[index]) {
         logic.updateSpreadPage(index);
       } else {
-        FittedSizes fittedSizes = logic.getImageFittedSize(
-          Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
-        );
-        logic.readPageState.imageSizes[index] = fittedSizes.destination;
         logic.readPageLogic.updateSafely(['${readPageLogic.onlineImageId}::$index']);
       }
     });
 
     return null;
   }
-  
+
   @override
-  Widget? completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+  Widget? completedWidgetBuilderForLocalModeCallBack(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
 
       bool isSpreadPage = state.extendedImageInfo!.image.width > state.extendedImageInfo!.image.height;
 
-      if (isSpreadPage) {
-        logic.readPageState.imageSizes[index] = Size(
+      FittedSizes fittedSizes = logic.getImageFittedSizeIncludeSpread(
+        Size(
           state.extendedImageInfo!.image.width.toDouble(),
           state.extendedImageInfo!.image.height.toDouble(),
-        );
+        ),
+        isSpreadPage,
+      );
+      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
+
+      if (isSpreadPage && !this.state.isSpreadPage[index]) {
         logic.updateSpreadPage(index);
       } else {
-        FittedSizes fittedSizes = logic.getImageFittedSize(
-          Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
-        );
-        logic.readPageState.imageSizes[index] = fittedSizes.destination;
         logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
       }
     });

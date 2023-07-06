@@ -132,12 +132,12 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
       child: EHImage(
         galleryImage: readPageState.images[index]!,
-        containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-        containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
+        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
         clearMemoryCacheWhenDispose: true,
         loadingProgressWidgetBuilder: (double progress) => _loadingProgressWidgetBuilder(index, progress),
         failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(index, state),
-        completedWidgetBuilder: (state) => completedWidgetBuilder(index, state),
+        completedWidgetBuilder: (state) => completedWidgetBuilderCallBack(index, state),
       ),
     );
   }
@@ -172,19 +172,19 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// completed for online mode
-  Widget? completedWidgetBuilder(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+  Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
-      logic.readPageState.imageSizes[index] = fittedSizes.destination;
+      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       logic.readPageLogic.updateSafely(['${readPageLogic.onlineImageId}::$index']);
     });
 
@@ -235,8 +235,8 @@ abstract class BaseLayout extends StatelessWidget {
             galleryImage: readPageState.images[index]!.copyWith(
               path: logic.readPageLogic.superResolutionService.computeImageOutputPath(readPageState.images[index]!.path!),
             ),
-            containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-            containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+            containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
+            containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
             clearMemoryCacheWhenDispose: true,
             loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
             failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
@@ -292,14 +292,14 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
       child: EHImage(
         galleryImage: readPageState.images[index]!,
-        containerWidth: logic.readPageState.imageSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-        containerHeight: logic.readPageState.imageSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
+        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
         clearMemoryCacheWhenDispose: true,
         downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
         pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
         loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
         failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
-        completedWidgetBuilder: (state) => completedWidgetBuilderForLocalMode(index, state),
+        completedWidgetBuilder: (state) => completedWidgetBuilderForLocalModeCallBack(index, state),
         maxBytes: GetPlatform.isMobile ? 1024 * 1024 * 5 : null,
       ),
     );
@@ -367,19 +367,19 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// completed for local mode
-  Widget? completedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+  Widget? completedWidgetBuilderForLocalModeCallBack(int index, ExtendedImageState state) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
-      logic.readPageState.imageSizes[index] = fittedSizes.destination;
+      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
     });
 
@@ -388,18 +388,18 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for local mode
   Widget? _completedWidgetBuilderForLocalModeWithSuperResolution(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageSizes[index] != null) {
+      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
-      logic.readPageState.imageSizes[index] = fittedSizes.destination;
+      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
     });
 

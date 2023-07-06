@@ -160,12 +160,11 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     return Size((fullScreenWidth - 6) / 2, double.infinity);
   }
 
-  @override
-  FittedSizes getImageFittedSize(Size imageSize) {
+  FittedSizes getImageFittedSizeIncludeSpread(Size imageSize, bool isSpreadPage) {
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, screenHeight),
+      Size(isSpreadPage ? fullScreenWidth : (fullScreenWidth - ReadSetting.imageSpace.value) / 2, screenHeight),
     );
   }
 
