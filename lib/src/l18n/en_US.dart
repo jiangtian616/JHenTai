@@ -513,7 +513,7 @@ class en_US {
       /// about page
       'author': 'Author',
       'Q&A': 'Q&A',
-      'telegramHint': 'Ask your questions in github',
+      'telegramHint': 'You can ask your questions in github first',
 
       /// download setting page
       'downloadPath': 'Download Path',

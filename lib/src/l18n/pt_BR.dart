@@ -515,7 +515,7 @@ class pt_BR {
       /// about page
       'author': 'Autor',
       'Q&A': 'Q&A',
-      'telegramHint': 'Ask your questions in github',
+      'telegramHint': 'You can ask your questions in github first',
       
       /// download setting page
       'downloadPath': 'Caminho de download',

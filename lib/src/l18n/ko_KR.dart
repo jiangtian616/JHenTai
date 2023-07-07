@@ -512,7 +512,7 @@ class ko_KR {
       /// about page
       'author': '제작자',
       'Q&A': 'Q&A',
-      'telegramHint': 'Ask your questions in github',
+      'telegramHint': 'You can ask your questions in github first',
       
       /// download setting page
       'downloadPath': '다운로드 경로',
