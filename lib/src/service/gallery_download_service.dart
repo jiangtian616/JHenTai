@@ -14,6 +14,7 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -785,9 +786,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
-                ? EHSpiderParser.imagePage2OriginalGalleryImage
-                : EHSpiderParser.imagePage2GalleryImage,
+            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
@@ -944,13 +943,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     String newImageHash = galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.imageHash!;
-
-    GalleryImage? oldImage = galleryDownloadInfos[oldGallery.gid]?.images.firstWhereOrNull((e) => e?.imageHash == newImageHash);
-    if (oldImage == null) {
+    int? oldImageSerialNo = galleryDownloadInfos[oldGallery.gid]?.images.firstIndexWhereOrNull((e) => e?.imageHash == newImageHash);
+    if (oldImageSerialNo == null) {
       return;
     }
 
-    return await _copyImageInfo(oldImage, newGallery, newImageSerialNo);
+    GalleryImage oldImage = galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!;
+
+    await _copyImageInfo(oldImage, newGallery, newImageSerialNo);
+    await Get.find<SuperResolutionService>().copyImageInfo(oldGallery, newGallery, oldImageSerialNo, newImageSerialNo);
   }
 
   Future<void> _copyImageInfo(GalleryImage oldImage, GalleryDownloadedData newGallery, int newImageSerialNo) async {
@@ -1116,8 +1117,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         curCount: images?.fold<int>(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded:
-            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded: images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),

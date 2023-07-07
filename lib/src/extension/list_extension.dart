@@ -52,4 +52,13 @@ extension ListExtension<E> on List<E> {
       add(element);
     }
   }
+
+  int? firstIndexWhereOrNull(bool Function(E element) test) {
+    for (int i = 0; i < length; i++) {
+      if (test(this[i])) {
+        return i;
+      }
+    }
+    return null;
+  }
 }

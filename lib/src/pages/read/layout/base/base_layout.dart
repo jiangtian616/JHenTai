@@ -220,7 +220,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalSuperResolutionImage(BuildContext context, int index) {
     return GetBuilder<SuperResolutionService>(
-      id: '${SuperResolutionService.superResolutionImageId}::$index',
+      id: '${SuperResolutionService.superResolutionImageId}::${readPageState.readPageInfo.gid!}::$index',
       builder: (_) {
         int gid = readPageState.readPageInfo.gid!;
         SuperResolutionType type = readPageState.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;

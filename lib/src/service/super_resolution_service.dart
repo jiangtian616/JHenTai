@@ -62,22 +62,14 @@ class SuperResolutionService extends GetxController {
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses
-              .split(SuperResolutionInfo.imageStatusesSeparator)
-              .map((e) => int.parse(e))
-              .map((index) => SuperResolutionStatus.values[index])
-              .toList(),
+          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
         ),
       );
     }
 
     _checkInfoSourceExists();
 
-    Future.wait(superResolutionInfoTable
-        .entries()
-        .where((e) => e.value.status == SuperResolutionStatus.running)
-        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
-        .toList());
+    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
     super.onInit();
   }
 
@@ -201,9 +193,7 @@ class SuperResolutionService extends GetxController {
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null ||
-        superResolutionInfo.status == SuperResolutionStatus.success ||
-        superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -220,6 +210,40 @@ class SuperResolutionService extends GetxController {
     }
     await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
     updateSafely(['$superResolutionId::$gid']);
+  }
+
+  /// when we update a gallery, if this gallery is in super-resolution process, we need to copy current product
+  Future<void> copyImageInfo(GalleryDownloadedData oldGallery, GalleryDownloadedData newGallery, int oldImageSerialNo, int newImageSerialNo) async {
+    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(oldGallery.gid, SuperResolutionType.gallery);
+    if (oldGallerySuperResolutionInfo == null) {
+      return;
+    }
+
+    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] != SuperResolutionStatus.success) {
+      return;
+    }
+
+    SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
+
+    if (newGallerySuperResolutionInfo == null) {
+      newGallerySuperResolutionInfo = SuperResolutionInfo(
+        SuperResolutionType.gallery,
+        SuperResolutionStatus.paused,
+        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images.length, (_) => SuperResolutionStatus.running),
+      );
+      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
+      await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
+      updateSafely(['$superResolutionId::${newGallery.gid}']);
+    }
+
+    String oldPath = computeImageOutputPath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
+    String newPath = computeImageOutputPath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
+    File imageFile = File(oldPath);
+    imageFile.copySync(newPath);
+
+    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
+    await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
+    updateSafely(['$superResolutionId::${newGallery.gid}', '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo']);
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
@@ -318,7 +342,7 @@ class SuperResolutionService extends GetxController {
       if (get(gid, type) != null) {
         await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       }
-      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$i']);
+      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId:$gid::$i']);
     }
   }
 
