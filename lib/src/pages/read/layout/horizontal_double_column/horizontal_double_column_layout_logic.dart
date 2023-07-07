@@ -156,8 +156,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   Size getPlaceHolderSize() {
-    /// 6 is the width of divider
-    return Size((fullScreenWidth - 6) / 2, double.infinity);
+    return Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, double.infinity);
   }
 
   FittedSizes getImageFittedSizeIncludeSpread(Size imageSize, bool isSpreadPage) {

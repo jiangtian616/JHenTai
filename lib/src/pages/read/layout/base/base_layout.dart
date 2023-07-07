@@ -233,14 +233,14 @@ abstract class BaseLayout extends StatelessWidget {
           onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
           child: EHImage(
             galleryImage: readPageState.images[index]!.copyWith(
-              path: logic.readPageLogic.superResolutionService.computeImageOutputPath(readPageState.images[index]!.path!),
+              path: logic.readPageLogic.superResolutionService.computeImageOutputRelativePath(readPageState.images[index]!.path!),
             ),
             containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
             containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
             clearMemoryCacheWhenDispose: true,
             loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
             failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
-            completedWidgetBuilder: (state) => _completedWidgetBuilderForLocalModeWithSuperResolution(index, state),
+            completedWidgetBuilder: (state) => completedWidgetBuilderForLocalModeCallBack(index, state),
           ),
         );
       },
@@ -368,26 +368,6 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for local mode
   Widget? completedWidgetBuilderForLocalModeCallBack(int index, ExtendedImageState state) {
-    if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
-      return null;
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
-        return;
-      }
-      FittedSizes fittedSizes = logic.getImageFittedSize(
-        Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
-      );
-      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
-      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
-    });
-
-    return null;
-  }
-
-  /// completed for local mode
-  Widget? _completedWidgetBuilderForLocalModeWithSuperResolution(int index, ExtendedImageState state) {
     if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }

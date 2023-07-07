@@ -62,14 +62,22 @@ class SuperResolutionService extends GetxController {
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
+          data.imageStatuses
+              .split(SuperResolutionInfo.imageStatusesSeparator)
+              .map((e) => int.parse(e))
+              .map((index) => SuperResolutionStatus.values[index])
+              .toList(),
         ),
       );
     }
 
     _checkInfoSourceExists();
 
-    Future.wait(superResolutionInfoTable.entries().where((e) => e.value.status == SuperResolutionStatus.running).map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2))).toList());
+    Future.wait(superResolutionInfoTable
+        .entries()
+        .where((e) => e.value.status == SuperResolutionStatus.running)
+        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
+        .toList());
     super.onInit();
   }
 
@@ -193,7 +201,9 @@ class SuperResolutionService extends GetxController {
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null ||
+        superResolutionInfo.status == SuperResolutionStatus.success ||
+        superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -223,7 +233,11 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
+    Log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
+
     SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
+    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
+    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
 
     if (newGallerySuperResolutionInfo == null) {
       newGallerySuperResolutionInfo = SuperResolutionInfo(
@@ -233,13 +247,17 @@ class SuperResolutionService extends GetxController {
       );
       superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
       await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
+      File(newPath).parent.createSync(recursive: true);
       updateSafely(['$superResolutionId::${newGallery.gid}']);
     }
 
-    String oldPath = computeImageOutputPath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
-    String newPath = computeImageOutputPath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
-    File imageFile = File(oldPath);
-    imageFile.copySync(newPath);
+    try {
+      File imageFile = File(oldPath);
+      imageFile.copySync(newPath);
+    } on Exception catch (e) {
+      Log.error('copy super resolution image failed', e);
+      Log.upload(e);
+    }
 
     newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
     await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
@@ -342,14 +360,14 @@ class SuperResolutionService extends GetxController {
       if (get(gid, type) != null) {
         await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       }
-      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId:$gid::$i']);
+      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
     }
   }
 
   Future<Process?> _callProcess(GalleryImage rawImage) {
     Log.download('start to super resolve image ${rawImage.path}');
 
-    String outputPath = computeImageOutputPath(rawImage.path!);
+    String outputPath = computeImageOutputRelativePath(rawImage.path!);
 
     if (extension(rawImage.path!) == '.gif') {
       File(rawImage.path!).copySync(outputPath);
@@ -395,7 +413,11 @@ class SuperResolutionService extends GetxController {
     }
   }
 
-  String computeImageOutputPath(String rawImagePath) {
+  String computeImageOutputAbsolutePath(String rawImagePath) {
+    return join(PathSetting.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
+  }
+
+  String computeImageOutputRelativePath(String rawImagePath) {
     return join(dirname(rawImagePath), imageDirName, basenameWithoutExtension(rawImagePath) + '.png');
   }
 
