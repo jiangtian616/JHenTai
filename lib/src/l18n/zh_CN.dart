@@ -511,7 +511,7 @@ class zh_CN {
       /// about page
       'author': '创作者',
       'Q&A': '常见问题',
-      'telegramHint': '所有使用相关的问题到Github Issue询问',
+      'telegramHint': '账号登录、里站、网络等基础问题请自行搜索解决',
       
       /// download setting page
       'downloadPath': '下载路径',

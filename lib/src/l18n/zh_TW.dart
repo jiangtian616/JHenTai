@@ -510,7 +510,7 @@ class zh_TW {
       /// about page
       'author': '創作者',
       'Q&A': '常見問題',
-      'telegramHint': '所有使用相關的問題到Github Issue詢問',
+      'telegramHint': '問題可優先在Github上提問',
       
       /// download setting page
       'downloadPath': '下載路徑',
