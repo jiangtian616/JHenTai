@@ -156,12 +156,12 @@ Future<void> init() async {
 
   DownloadSetting.init();
   await EHRequest.init();
-
+  
+  PreferenceSetting.init();
+  
   TagTranslationService.init();
 
   MouseSetting.init();
-
-  PreferenceSetting.init();
 
   QuickSearchService.init();
 
