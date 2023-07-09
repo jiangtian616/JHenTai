@@ -5,10 +5,12 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import '../../../consts/locale_consts.dart';
 import '../../../l18n/locale_text.dart';
 import '../../../model/jh_layout.dart';
+import '../../../routes/routes.dart';
 import '../../../service/tag_translation_service.dart';
 import '../../../setting/preference_setting.dart';
 import '../../../setting/style_setting.dart';
 import '../../../utils/locale_util.dart';
+import '../../../utils/route_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 class SettingPreferencePage extends StatelessWidget {
@@ -33,6 +35,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(),
+              _buildLocalTags(),
             ],
           ).withListTileTheme(context),
         ),
@@ -147,6 +150,15 @@ class SettingPreferencePage extends StatelessWidget {
         value: PreferenceSetting.showR18GImageDirectly.value,
         onChanged: PreferenceSetting.saveShowR18GImageDirectly,
       ),
+    );
+  }
+
+  Widget _buildLocalTags() {
+    return ListTile(
+      title: Text('localTags'.tr),
+      subtitle: Text('localTagsHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.localTagSets),
     );
   }
 }

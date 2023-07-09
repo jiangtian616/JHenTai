@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
-import 'package:jhentai/src/pages/setting/eh/local_tag/add_local_tag/add_local_tag_page_state.dart';
 
 import '../../../../../database/database.dart';
 import '../../../../../network/eh_request.dart';
@@ -11,6 +10,7 @@ import '../../../../../utils/eh_spider_parser.dart';
 import '../../../../../utils/log.dart';
 import '../../../../../utils/string_uril.dart';
 import '../../../../../widget/loading_state_indicator.dart';
+import 'add_local_tag_page_state.dart';
 
 class AddLocalTagPageLogic extends GetxController {
   final String searchFieldId = 'searchFieldId';
