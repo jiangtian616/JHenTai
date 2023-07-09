@@ -289,6 +289,9 @@ class ko_KR {
       'enableLeftMenuDrawerGesture': '좌측 서랍 메뉴 제스처로 열기 활성화',
       'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화',
       'alwaysShowScroll2TopButton': '맨 위로 가기 버튼 항상 보이기',
+      'showComments': 'Show Comments',
+      'showAllComments': 'Show All Comments',
+      'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
 
       /// theme color setting page
       'preset': '프리셋',
@@ -513,7 +516,7 @@ class ko_KR {
       'author': '제작자',
       'Q&A': 'Q&A',
       'telegramHint': 'You can ask your questions in github first',
-      
+
       /// download setting page
       'downloadPath': '다운로드 경로',
       'changeDownloadPathHint': '길게 눌러 변경(SD 카드 또는 시스템 경로는 사용하지 마세요). 다운로드한 갤러리를 자동으로 복사하고 오래된 파일은 보관합니다. 오류가 발생하면 초기화해 보세요.',
@@ -551,7 +554,7 @@ class ko_KR {
       'restoredArchiveCount': '복원된 아카이브 수',
       'brokenDownloadPathHint': '다운로드 경로가 손상된 것 같습니다. 다운로드 기능이 낮아질 수 있습니다.',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
-      
+
       /// password setting dialog
       'setPasswordHint': '비밀번호를 넣어주세요.',
       'confirmPasswordHint': '비밀번호를 다시 넣어주세요.',

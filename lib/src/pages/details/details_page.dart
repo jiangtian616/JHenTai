@@ -113,7 +113,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             buildActions(context),
             buildLoadingDetailsIndicator(),
             buildTags(),
-            buildComments(),
+            if (PreferenceSetting.showComments.isTrue) buildComments(),
             buildThumbnails(),
             buildLoadingThumbnailIndicator(context),
           ],

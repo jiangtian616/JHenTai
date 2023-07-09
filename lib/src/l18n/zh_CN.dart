@@ -289,6 +289,9 @@ class zh_CN {
       'enableLeftMenuDrawerGesture': '允许通过手势唤起左侧菜单',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
+      'showComments': '显示画廊评论',
+      'showAllComments': '显示画廊所有评论',
+      'showAllCommentsHint': '默认只会展示45个最高分评论和5个最新评论，低分评论也会被自动隐藏',
 
       /// theme color setting page
       'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',
@@ -512,7 +515,7 @@ class zh_CN {
       'author': '创作者',
       'Q&A': '常见问题',
       'telegramHint': '账号登录、里站、网络等基础问题请自行搜索解决',
-      
+
       /// download setting page
       'downloadPath': '下载路径',
       'changeDownloadPathHint': '长按来改变下载路径(请不要使用SD卡或系统路径)。会自动复制已下载的画廊到新路径，并保留原文件。如果你遇到相关错误，请尝试重置路径',
@@ -550,7 +553,7 @@ class zh_CN {
       'restoredArchiveCount': '恢复归档数目',
       'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默认本地画廊路径已经损坏，本地画廊可能无法被识别',
-      
+
       /// password setting dialog
       'setPasswordHint': '请输入您的密码',
       'confirmPasswordHint': '请再次输入您的密码',

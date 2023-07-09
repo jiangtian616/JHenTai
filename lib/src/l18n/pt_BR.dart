@@ -290,6 +290,9 @@ class pt_BR {
       'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Ativar pesquisa rápida com gesto de gaveta',
       'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
+      'showComments': 'Show Comments',
+      'showAllComments': 'Show All Comments',
+      'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
 
       /// theme color setting page
       'themeColorSettingHint': 'Assign different color for light and dark theme',
@@ -516,7 +519,7 @@ class pt_BR {
       'author': 'Autor',
       'Q&A': 'Q&A',
       'telegramHint': 'You can ask your questions in github first',
-      
+
       /// download setting page
       'downloadPath': 'Caminho de download',
       'changeDownloadPathHint':
@@ -555,7 +558,7 @@ class pt_BR {
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
       'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
-      
+
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',

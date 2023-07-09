@@ -15,6 +15,8 @@ class PreferenceSetting {
   static RxBool enableSwipeBackGesture = true.obs;
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
+  static RxBool showComments = true.obs;
+  static RxBool showAllComments = false.obs;
   static RxBool showR18GImageDirectly = false.obs;
 
   static void init() {
@@ -52,7 +54,7 @@ class PreferenceSetting {
     PreferenceSetting.enableSwipeBackGesture.value = enableSwipeBackGesture;
     _save();
   }
-  
+
   static saveEnableLeftMenuDrawerGesture(bool enableLeftMenuDrawerGesture) {
     Log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
     PreferenceSetting.enableLeftMenuDrawerGesture.value = enableLeftMenuDrawerGesture;
@@ -71,6 +73,18 @@ class PreferenceSetting {
     _save();
   }
 
+  static saveShowComments(bool showComments) {
+    Log.debug('saveShowComments:$showComments');
+    PreferenceSetting.showComments.value = showComments;
+    _save();
+  }
+
+  static saveShowAllComments(bool showAllComments) {
+    Log.debug('saveShowAllComments:$showAllComments');
+    PreferenceSetting.showAllComments.value = showAllComments;
+    _save();
+  }
+  
   static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
     Log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
     PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
@@ -91,6 +105,8 @@ class PreferenceSetting {
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
       'hideBottomBar': hideBottomBar.value,
       'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
+      'showComments': showComments.value,
+      'showAllComments': showAllComments.value,
     };
   }
 
@@ -105,5 +121,7 @@ class PreferenceSetting {
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
     alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
+    showComments.value = map['showComments'] ?? showComments.value;
+    showAllComments.value = map['showAllComments'] ?? showAllComments.value;
   }
 }

@@ -16,6 +16,7 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -270,7 +271,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'p': thumbnailsPageIndex,
 
         /// show all comments
-        'hc': 1,
+        'hc': PreferenceSetting.showAllComments.isTrue ? 1 : 0,
       },
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),

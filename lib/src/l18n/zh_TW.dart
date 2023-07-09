@@ -288,6 +288,9 @@ class zh_TW {
       'enableLeftMenuDrawerGesture': '允許通過手勢喚起左側菜單',
       'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',
       'alwaysShowScroll2TopButton': '總是展示快速回頂按鈕',
+      'showComments': '顯示畫廊評論',
+      'showAllComments': '顯示畫廊所有評論',
+      'showAllCommentsHint': '默認只會展示45個最高分評論和5個最新評論，低分評論也會被自動隱藏',
 
       /// theme color setting page
       'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',
@@ -511,7 +514,7 @@ class zh_TW {
       'author': '創作者',
       'Q&A': '常見問題',
       'telegramHint': '問題可優先在Github上提問',
-      
+
       /// download setting page
       'downloadPath': '下載路徑',
       'changeDownloadPathHint': '長按來改變下載路徑(請不要使用SD卡或系統路徑)。會自動複制已下載的畫廊到新路徑，並保留原文件。如果妳遇到相關錯誤，請嘗試重置路徑',
@@ -549,7 +552,7 @@ class zh_TW {
       'restoredArchiveCount': '恢復歸檔數目',
       'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默認本地畫廊路徑已經損壞，本地畫廊可能無法被識別',
-      
+
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',
       'confirmPasswordHint': '請再次輸入您的密碼',

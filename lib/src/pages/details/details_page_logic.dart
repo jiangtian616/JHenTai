@@ -726,6 +726,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void _removeCache() {
+    Get.find<EHCacheInterceptor>().removeCacheByUrl('${state.galleryUrl}?p=0&hc=0');
     Get.find<EHCacheInterceptor>().removeCacheByUrl('${state.galleryUrl}?p=0&hc=1');
   }
 }

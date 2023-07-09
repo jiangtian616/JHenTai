@@ -34,7 +34,9 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
-              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(),
+              _buildShowComments(),
+              if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
+              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildLocalTags(),
             ],
           ).withListTileTheme(context),
@@ -140,6 +142,23 @@ class SettingPreferencePage extends StatelessWidget {
       title: Text('alwaysShowScroll2TopButton'.tr),
       value: PreferenceSetting.alwaysShowScroll2TopButton.value,
       onChanged: PreferenceSetting.saveAlwaysShowScroll2TopButton,
+    );
+  }
+
+  Widget _buildShowComments() {
+    return SwitchListTile(
+      title: Text('showComments'.tr),
+      value: PreferenceSetting.showComments.value,
+      onChanged: PreferenceSetting.saveShowComments,
+    );
+  }
+
+  Widget _buildShowAllComments() {
+    return SwitchListTile(
+      title: Text('showAllComments'.tr),
+      subtitle: Text('showAllCommentsHint'.tr),
+      value: PreferenceSetting.showAllComments.value,
+      onChanged: PreferenceSetting.saveShowAllComments,
     );
   }
 

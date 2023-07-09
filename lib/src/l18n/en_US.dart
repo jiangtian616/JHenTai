@@ -289,6 +289,9 @@ class en_US {
       'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
+      'showComments': 'Show Comments',
+      'showAllComments':'Show All Comments',
+      'showAllCommentsHint':'By default only the 45 highest scoring and 5 most recent comments will be shown',
 
       /// theme color setting page
       'themeColorSettingHint': 'Assign different color for light and dark theme',
@@ -553,7 +556,7 @@ class en_US {
       'restoredArchiveCount': 'Restored archive count',
       'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
-      
+
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',
