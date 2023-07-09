@@ -5,7 +5,6 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
-import '../../../../config/ui_config.dart';
 import '../../../../setting/my_tags_setting.dart';
 import '../../../../utils/toast_util.dart';
 import 'local_tag_sets_page_logic.dart';
