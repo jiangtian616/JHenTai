@@ -336,7 +336,8 @@ class zh_TW {
       'superResolveOriginalImageHint': '處理原圖會耗費更多的時間、空間和性能，確定繼續？',
       'verityAppLinks4Android12': '驗證應用鏈接（安卓12+）',
       'verityAppLinks4Android12Hint': '對於Android 12+，您需要手動將鏈接添加到已驗證的鏈接中，才能在其他應用程式中喚醒 JHenTai',
-
+      'noImageMode': '無圖模式',
+      
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
 

@@ -1,9 +1,11 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
@@ -86,7 +88,11 @@ class EHImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = galleryImage.path == null ? buildNetworkImage(context) : buildFileImage(context);
+    Widget child = AdvancedSetting.inNoImageMode.isTrue
+        ? const SizedBox()
+        : galleryImage.path == null
+            ? buildNetworkImage(context)
+            : buildFileImage(context);
 
     if (heroTag != null && StyleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);

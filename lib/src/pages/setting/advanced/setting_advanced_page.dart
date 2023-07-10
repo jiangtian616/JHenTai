@@ -42,6 +42,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildCheckUpdate(),
             _buildCheckClipboard(),
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
+            _buildInNoImageMode(),
           ],
         ).withListTileTheme(context),
       ),
@@ -152,6 +153,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           toast('error'.tr);
         }
       },
+    );
+  }
+  
+  Widget _buildInNoImageMode(){
+    return ListTile(
+      title: Text('noImageMode'.tr),
+      trailing: Switch(value: AdvancedSetting.inNoImageMode.value, onChanged: AdvancedSetting.saveInNoImageMode),
     );
   }
 
