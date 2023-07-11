@@ -44,8 +44,7 @@ class EHSpiderParser {
       map['ipbMemberId'] = int.parse(
         RegExp(r'ipb_member_id=(\d+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!.group(1)!,
       );
-      map['ipbPassHash'] =
-          RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
+      map['ipbPassHash'] = RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
     } else {
       map['errorMsg'] = _parseLoginErrorMsg(data);
     }
@@ -510,8 +509,7 @@ class EHSpiderParser {
     }
 
     Element thumbnailSetting = items[19];
-    map['isLargeThumbnail'] =
-        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    map['isLargeThumbnail'] = thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
     map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
     return map;
   }
@@ -631,9 +629,9 @@ class EHSpiderParser {
 
   static String _parseLoginErrorMsg(String html) {
     if (html.contains('The captcha was not entered correctly')) {
-      return 'needCaptcha'.tr;
+      return 'needCaptcha';
     }
-    return 'userNameOrPasswordMismatch'.tr;
+    return 'userNameOrPasswordMismatch';
   }
 
   static GalleryArchive archivePage2Archive(Headers headers, dynamic data) {
@@ -703,7 +701,7 @@ class EHSpiderParser {
     if (nodes == null || nodes.isEmpty) {
       return null;
     }
-    
+
     String? detailPageHint = nodes.first.text;
     if (isEmptyOrNull(detailPageHint)) {
       return null;
