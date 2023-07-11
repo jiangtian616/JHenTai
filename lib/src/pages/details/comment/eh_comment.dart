@@ -469,7 +469,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       return;
     } on CheckException catch (_) {
       /// expired apikey
-      await DetailsPageLogic.current!.handleRefresh();
+      await DetailsPageLogic.current?.handleRefresh();
       return _doVoteComment(isVotingUp);
     }
 
