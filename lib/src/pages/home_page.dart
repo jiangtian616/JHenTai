@@ -10,6 +10,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/utils/version_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 import 'package:jhentai/src/widget/window_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -149,7 +150,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     String currentVersion = 'v${packageInfo.version}'.trim();
     Log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
 
-    if (latestVersion == currentVersion) {
+    if (compareVersion(currentVersion, latestVersion) >= 0) {
       return;
     }
 
@@ -215,7 +216,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     if (match == null) {
       return;
     }
-    
+
     String url = match.group(0)!;
 
     /// show snack only once
