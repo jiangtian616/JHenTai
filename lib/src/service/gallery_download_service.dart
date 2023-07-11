@@ -613,8 +613,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   void _sortGallerys() {
     gallerys.sort((a, b) {
-      GalleryDownloadInfo aInfo = galleryDownloadInfos[a.gid]!;
-      GalleryDownloadInfo bInfo = galleryDownloadInfos[b.gid]!;
+      GalleryDownloadInfo? aInfo = galleryDownloadInfos[a.gid];
+      GalleryDownloadInfo? bInfo = galleryDownloadInfos[b.gid];
+      if (aInfo == null || bInfo == null) {
+        return 0;
+      }
 
       if (!(aInfo.group == 'default'.tr && bInfo.group == 'default'.tr)) {
         if (aInfo.group == 'default'.tr) {
