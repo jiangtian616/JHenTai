@@ -1117,7 +1117,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               loadingState: state.loadingThumbnailsState,
               errorTapCallback: logic.loadMoreThumbnails,
             ),
-          ).marginOnly(bottom: 40, top: 20);
+          ).marginOnly(bottom: 200, top: 20);
         },
       ),
     );
