@@ -112,6 +112,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
+    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
     state.galleryCollectionKey = UniqueKey();
 
     state.refreshState = LoadingState.idle;
@@ -144,6 +145,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.nextGid = null;
     state.seek = DateTime.now();
     state.totalCount = null;
+    state.favoriteSortOrder = null;
 
     jump2Top();
 
@@ -188,6 +190,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.gallerys.insertAll(0, galleryPage.gallerys);
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
+    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
 
     state.loadingState = prevState;
 
@@ -229,6 +232,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.gallerys.addAll(galleryPage.gallerys);
     state.totalCount = galleryPage.totalCount;
     state.nextGid = galleryPage.nextGid;
+    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
 
     if (state.nextGid == null && state.prevGid == null && state.gallerys.isEmpty) {
       state.loadingState = LoadingState.noData;
@@ -279,6 +283,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
+    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
     state.galleryCollectionKey = UniqueKey();
 
     state.seek = dateTime;

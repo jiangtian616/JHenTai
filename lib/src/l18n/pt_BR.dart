@@ -339,7 +339,7 @@ class pt_BR {
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
-      
+
       /// host mapping page
       'hostDataSource': 'Não há necessidade de alterar por padrão.\nFonte de dados: https://dns.google/',
 
@@ -475,6 +475,9 @@ class pt_BR {
       'watched': 'Assistido',
       'history': 'História',
       'keyword': 'Palavra-chave',
+      'orderBy': 'Order by',
+      'favoritedTime':'Favorited Time',
+      'publishedTime':'Published Time',
       'backspace2DeleteTag': 'Backspace para excluir tag',
       'searchGalleryName': 'Pesquisar nome da galeria',
       'searchGalleryTags': 'Pesquisar tags da galeria',

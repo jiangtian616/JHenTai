@@ -3,6 +3,7 @@ import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 import 'package:jhentai/src/model/search_config.dart';
 
 import '../../model/gallery.dart';
+import '../../model/gallery_page.dart';
 import '../../widget/loading_state_indicator.dart';
 
 abstract class BasePageState with Scroll2TopStateMixin {
@@ -22,6 +23,8 @@ abstract class BasePageState with Scroll2TopStateMixin {
   DateTime seek = DateTime.now();
 
   String? totalCount;
+
+  FavoriteSortOrder? favoriteSortOrder;
 
   LoadingState refreshState = LoadingState.idle;
   LoadingState loadingState = LoadingState.idle;

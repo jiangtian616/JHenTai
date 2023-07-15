@@ -44,7 +44,8 @@ class EHSpiderParser {
       map['ipbMemberId'] = int.parse(
         RegExp(r'ipb_member_id=(\d+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!.group(1)!,
       );
-      map['ipbPassHash'] = RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
+      map['ipbPassHash'] =
+          RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
     } else {
       map['errorMsg'] = _parseLoginErrorMsg(data);
     }
@@ -78,6 +79,7 @@ class EHSpiderParser {
 
   static GalleryPageInfo _minimalGalleryPageDocument2GalleryPageInfo(Document document) {
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltm > tbody > tr');
+    String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
       gallerys: galleryListElements
@@ -88,11 +90,17 @@ class EHSpiderParser {
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
+      favoriteSortOrder: sortOrderText == 'Published Time'
+          ? FavoriteSortOrder.publishedTime
+          : sortOrderText == 'Favorited Time'
+              ? FavoriteSortOrder.favoritedTime
+              : null,
     );
   }
 
   static GalleryPageInfo _extendedGalleryPageDocument2GalleryListAndPageInfo(Document document) {
     List<Element> galleryListElements = document.querySelectorAll('.itg.glte > tbody > tr');
+    String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
       gallerys: galleryListElements
@@ -103,11 +111,17 @@ class EHSpiderParser {
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
+      favoriteSortOrder: sortOrderText == 'Published Time'
+          ? FavoriteSortOrder.publishedTime
+          : sortOrderText == 'Favorited Time'
+              ? FavoriteSortOrder.favoritedTime
+              : null,
     );
   }
 
   static GalleryPageInfo _compactGalleryPageDocument2GalleryPageInfo(Document document) {
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
+    String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
       gallerys: galleryListElements
@@ -118,16 +132,27 @@ class EHSpiderParser {
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
+      favoriteSortOrder: sortOrderText == 'Published Time'
+          ? FavoriteSortOrder.publishedTime
+          : sortOrderText == 'Favorited Time'
+              ? FavoriteSortOrder.favoritedTime
+              : null,
     );
   }
 
   static GalleryPageInfo _thumbnailGalleryPageDocument2GalleryListAndPageInfo(Document document) {
     List<Element> galleryListElements = document.querySelectorAll('.itg.gld > div');
+    String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
       gallerys: galleryListElements.map((e) => _parseThumbnailGallery(e)).toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
+      favoriteSortOrder: sortOrderText == 'Published Time'
+          ? FavoriteSortOrder.publishedTime
+          : sortOrderText == 'Favorited Time'
+              ? FavoriteSortOrder.favoritedTime
+              : null,
     );
   }
 
@@ -509,7 +534,8 @@ class EHSpiderParser {
     }
 
     Element thumbnailSetting = items[19];
-    map['isLargeThumbnail'] = thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    map['isLargeThumbnail'] =
+        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
     map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
     return map;
   }

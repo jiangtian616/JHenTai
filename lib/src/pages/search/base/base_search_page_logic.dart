@@ -95,6 +95,7 @@ mixin BaseSearchPageLogicMixin on BasePageLogic {
     state.prevGid = null;
     state.nextGid = null;
     state.totalCount = null;
+    state.favoriteSortOrder = null;
 
     state.loadingState = LoadingState.loading;
     state.searchConfig.keyword = null;

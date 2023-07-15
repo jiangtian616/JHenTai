@@ -338,7 +338,7 @@ class ko_KR {
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
-      
+
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
 
@@ -472,6 +472,9 @@ class ko_KR {
       'watched': '시청 기록',
       'history': '방문 기록',
       'keyword': '키워드',
+      'orderBy': 'Order by',
+      'favoritedTime': 'Favorited Time',
+      'publishedTime': 'Published Time',
       'backspace2DeleteTag': '백스페이스로 태그 삭제',
       'searchGalleryName': '갤러리 이름 검색',
       'searchGalleryTags': '갤러리 태그 검색',

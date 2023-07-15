@@ -290,8 +290,8 @@ class en_US {
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
       'showComments': 'Show Comments',
-      'showAllComments':'Show All Comments',
-      'showAllCommentsHint':'By default only the 45 highest scoring and 5 most recent comments will be shown',
+      'showAllComments': 'Show All Comments',
+      'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
 
       /// theme color setting page
       'themeColorSettingHint': 'Assign different color for light and dark theme',
@@ -473,6 +473,9 @@ class en_US {
       'watched': 'Watched',
       'history': 'History',
       'keyword': 'Keyword',
+      'orderBy': 'Order by',
+      'favoritedTime':'Favorited Time',
+      'publishedTime':'Published Time',
       'backspace2DeleteTag': 'Backspace to Delete Tag',
       'searchGalleryName': 'Search Gallery Name',
       'searchGalleryTags': 'Search Gallery Tags',

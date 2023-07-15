@@ -13,6 +13,7 @@ import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -334,6 +335,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _getWithErrorHandler(EHConsts.EFavorite);
+
+    return _parseResponse(response, parser);
+  }
+
+  static Future<T> requestChangeFavoriteSortOrder<T>(FavoriteSortOrder sortOrder, {EHHtmlParser<T>? parser}) async {
+    /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
+    Response response = await _getWithErrorHandler(
+      EHConsts.EFavorite,
+      queryParameters: {
+        'inline_set': sortOrder == FavoriteSortOrder.publishedTime ? 'fs_p' : 'fs_f',
+      },
+    );
 
     return _parseResponse(response, parser);
   }
