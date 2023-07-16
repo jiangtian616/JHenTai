@@ -80,6 +80,18 @@ class UIConfig {
 
   static Color mobileDrawerSelectedTileColor(BuildContext context) => Theme.of(context).colorScheme.primaryContainer;
 
+  static ScrollBehavior leftDrawerPhysicsBehaviour = const MaterialScrollBehavior().copyWith(
+    dragDevices: {
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.touch,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.unknown,
+    },
+    scrollbars: false,
+    overscroll: false,
+  );
+
   /// Gallery card
   static const double galleryCardHeight = 200;
   static const double galleryCardHeightWithoutTags = 125;
@@ -111,7 +123,7 @@ class UIConfig {
       backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
 
   static const double galleryCardFilteredIconSize = 24;
-  
+
   /// Login page
   static Color loginPageForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -464,7 +476,7 @@ class UIConfig {
 
   /// Tag sets page
   static Color tagSetsPageIconDefaultColor(BuildContext context) => Theme.of(context).colorScheme.primary;
-  
+
   /// Add local tag page
   static const double addLocalTagPageSuggestionTitleTextSize = 14;
   static const double addLocalTagPageSuggestionSubTitleTextSize = 11;
@@ -474,7 +486,7 @@ class UIConfig {
   static Color addLocalTagPageSuggestionSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withOpacity(0.5);
 
   static const Color addLocalTagPageSuggestionHighlightColor = Colors.red;
-  
+
   /// auth dialog
   static const double authDialogPinWidth = 300;
   static const double authDialogPinHeight = 120;

@@ -46,9 +46,15 @@ class MobileLayoutPageV2 extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const EHUserAvatar(),
-              ...state.icons
-                  .mapIndexed(
-                    (index, icon) => ListTile(
+              Expanded(
+                child: ScrollConfiguration(
+                  behavior: UIConfig.leftDrawerPhysicsBehaviour,
+                  child: ListView.builder(
+                    key: const PageStorageKey('leftDrawer'),
+                    controller: state.scrollController,
+                    itemCount: state.icons.length,
+                    cacheExtent: 1000,
+                    itemBuilder: (context, index) => ListTile(
                       dense: true,
                       title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       selected: state.selectedDrawerTabIndex == index,
@@ -59,8 +65,9 @@ class MobileLayoutPageV2 extends StatelessWidget {
                       ),
                       onTap: () => logic.handleTapTabBarButton(index),
                     ).marginOnly(right: 8, top: 2),
-                  )
-                  .toList()
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -130,29 +137,29 @@ class EHUserAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 120,
+      alignment: Alignment.center,
       child: Obx(
-        () => Align(
-          child: ListTile(
-            leading: GestureDetector(
-              child: CircleAvatar(
-                radius: 32,
-                backgroundColor: UIConfig.loginAvatarBackGroundColor(context),
-                foregroundImage:
-                    UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
-                child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor(context), size: 32),
-              ),
+        () => ListTile(
+          leading: GestureDetector(
+            child: CircleAvatar(
+              radius: 32,
+              backgroundColor: UIConfig.loginAvatarBackGroundColor(context),
+              foregroundImage:
+                  UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
+              child: Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face,
+                  color: UIConfig.loginAvatarForeGroundColor(context), size: 32),
             ),
-            title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),
-            onTap: () {
-              if (!UserSetting.hasLoggedIn()) {
-                toRoute(Routes.login);
-                return;
-              }
-              Get.dialog(const LogoutDialog());
-            },
           ),
+          title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),
+          onTap: () {
+            if (!UserSetting.hasLoggedIn()) {
+              toRoute(Routes.login);
+              return;
+            }
+            Get.dialog(const LogoutDialog());
+          },
         ),
       ),
     );
