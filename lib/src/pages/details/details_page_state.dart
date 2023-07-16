@@ -4,6 +4,7 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class DetailsPageState with Scroll2TopStateMixin {
+  int? gid;
   late String galleryUrl;
   Gallery? gallery;
   GalleryDetail? galleryDetails;

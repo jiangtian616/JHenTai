@@ -30,10 +30,14 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
       borderRadius: BorderRadius.circular(6),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () => toRoute(Routes.details, arguments: {
-          'galleryUrl': widget.gallery.galleryUrl,
-          'gallery': widget.gallery,
-        }),
+        onTap: () => toRoute(
+          Routes.details,
+          arguments: {
+            'gid': widget.gallery.gid,
+            'galleryUrl': widget.gallery.galleryUrl,
+            'gallery': widget.gallery,
+          },
+        ),
 
         /// show info after image load success
         child: Stack(

@@ -246,7 +246,10 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   Widget _buildCover(BuildContext context, GalleryDownloadedData gallery) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl}),
+      onTap: () => toRoute(
+        Routes.details,
+        arguments: {'gid': gallery.gid, 'galleryUrl': gallery.galleryUrl},
+      ),
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {

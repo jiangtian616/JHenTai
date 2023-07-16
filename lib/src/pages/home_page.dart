@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/version_util.dart';
@@ -177,7 +178,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         } else {
           toRoute(
             Routes.details,
-            arguments: {'galleryUrl': match.group(0)},
+            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         } else {
           toRoute(
             Routes.details,
-            arguments: {'galleryUrl': match.group(0)},
+            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -236,7 +237,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         }
         toRoute(
           Routes.details,
-          arguments: {'galleryUrl': url},
+          arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
           offAllBefore: false,
           preventDuplicates: false,
         );

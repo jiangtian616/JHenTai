@@ -108,7 +108,10 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
   }
 
   void goToDetailPage(LocalGallery gallery) {
-    route.toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl});
+    route.toRoute(
+      Routes.details,
+      arguments: {'galleryUrl': gallery.galleryUrl},
+    );
   }
 
   Future<void> handleRefreshLocalGallery() async {

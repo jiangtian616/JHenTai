@@ -229,7 +229,10 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   Widget _buildCover(ArchiveDownloadedData archive) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl}),
+      onTap: () => toRoute(
+        Routes.details,
+        arguments: {'gid': archive.gid, 'galleryUrl': archive.galleryUrl},
+      ),
       child: EHImage(
         galleryImage: GalleryImage(url: archive.coverUrl),
         containerWidth: UIConfig.downloadPageCoverWidth,

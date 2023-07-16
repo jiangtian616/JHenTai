@@ -48,7 +48,10 @@ class GalleryGridDownloadPageLogic extends GetxController
   }
 
   void goToDetailPage(GalleryDownloadedData gallery) {
-    toRoute(Routes.details, arguments: {'galleryUrl': gallery.galleryUrl});
+    toRoute(
+      Routes.details,
+      arguments: {'gid': gallery.gid, 'galleryUrl': gallery.galleryUrl},
+    );
   }
 
   @override
@@ -78,7 +81,7 @@ class GalleryGridDownloadPageLogic extends GetxController
       GalleryDownloadInfo galleryDownloadInfo = downloadService.galleryDownloadInfos[gallery.gid]!;
       galleryDownloadInfo.sortOrder = i;
     }
-    
+
     int head = min(beforeIndex, afterIndex);
     int tail = max(beforeIndex, afterIndex);
 

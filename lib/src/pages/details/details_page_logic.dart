@@ -16,10 +16,12 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
 import 'package:jhentai/src/widget/eh_favorite_dialog.dart';
@@ -106,6 +108,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     }
 
+    state.gid = Get.arguments['gid'];
     state.galleryUrl = Get.arguments['galleryUrl'];
     state.gallery = Get.arguments['gallery'];
 
@@ -556,6 +559,25 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       state.galleryUrl,
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
+  }
+
+  Future<void> handleTapDeleteDownload(BuildContext context, int gid, DownloadPageGalleryType downloadPageGalleryType) async {
+    bool? result = await showDialog(
+      context: context,
+      builder: (_) => EHAlertDialog(title: 'delete'.tr + '?'),
+    );
+
+    if (result == null || !result) {
+      return;
+    }
+
+    if (downloadPageGalleryType == DownloadPageGalleryType.download) {
+      galleryDownloadService.deleteGalleryByGid(gid);
+    }
+
+    if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
+      archiveDownloadService.deleteArchiveByGid(gid);
+    }
   }
 
   void goToReadPage([int? forceIndex]) {

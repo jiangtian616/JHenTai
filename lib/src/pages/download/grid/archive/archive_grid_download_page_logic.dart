@@ -51,7 +51,13 @@ class ArchiveGridDownloadPageLogic extends GetxController
   }
 
   void goToDetailPage(ArchiveDownloadedData archive) {
-    toRoute(Routes.details, arguments: {'galleryUrl': archive.galleryUrl});
+    toRoute(
+      Routes.details,
+      arguments: {
+        'gid': archive.gid,
+        'galleryUrl': archive.galleryUrl,
+      },
+    );
   }
 
   @override

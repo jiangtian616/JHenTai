@@ -18,8 +18,10 @@ import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
@@ -66,14 +68,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) => Scaffold(
-        appBar: buildAppBar(),
+        appBar: buildAppBar(context),
         body: buildBody(context),
         floatingActionButton: buildFloatingActionButton(),
       ),
     );
   }
 
-  AppBar buildAppBar() {
+  AppBar buildAppBar(BuildContext context) {
     return AppBar(
       title: GetBuilder<DetailsPageLogic>(
         id: DetailsPageLogic.galleryId,
@@ -87,6 +89,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         },
       ),
       actions: [
+        _buildDeleteDownloadButton(context),
         IconButton(
           icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
           visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
@@ -135,6 +138,34 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDeleteDownloadButton(BuildContext context) {
+    return GetBuilder<GalleryDownloadService>(
+      id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
+      builder: (_) {
+        return GetBuilder<ArchiveDownloadService>(
+          id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
+          builder: (_) {
+            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
+            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
+
+            if (downloadProgress == null && archiveStatus == null) {
+              return const SizedBox();
+            }
+
+            return IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => logic.handleTapDeleteDownload(
+                context,
+                state.gallery!.gid,
+                downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -569,7 +600,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 child: Text('thisGalleryHasANewVersion'.tr),
                 onPressed: () => toRoute(
                   Routes.details,
-                  arguments: {'galleryUrl': state.galleryDetails!.newVersionGalleryUrl},
+                  arguments: {
+                    'gid': parseGalleryUrl2Gid(state.galleryDetails!.newVersionGalleryUrl!),
+                    'galleryUrl': state.galleryDetails!.newVersionGalleryUrl!
+                  },
                   offAllBefore: false,
                   preventDuplicates: false,
                 ),

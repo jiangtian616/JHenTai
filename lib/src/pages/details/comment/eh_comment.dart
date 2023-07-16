@@ -12,6 +12,7 @@ import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
@@ -326,7 +327,11 @@ class _EHCommentTextBody extends StatelessWidget {
 
   Future<bool> _handleTapUrl(String url) async {
     if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
-      toRoute(Routes.details, arguments: {'galleryUrl': url}, offAllBefore: false);
+      toRoute(
+        Routes.details,
+        arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
+        offAllBefore: false,
+      );
       return true;
     }
 
