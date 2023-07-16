@@ -222,9 +222,11 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  Size getPlaceHolderSize() {
-    /// 6 is the width of divider
-    return Size((fullScreenWidth - 6) / 2, double.infinity);
+  Size getPlaceHolderSize(int imageIndex) {
+    if (readPageState.imageContainerSizes[imageIndex] != null) {
+      return readPageState.imageContainerSizes[imageIndex]!;
+    }
+    return Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, double.infinity);
   }
 
   @override

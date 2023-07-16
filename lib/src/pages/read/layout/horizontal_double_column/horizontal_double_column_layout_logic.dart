@@ -155,7 +155,10 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  Size getPlaceHolderSize() {
+  Size getPlaceHolderSize(int imageIndex) {
+    if (readPageState.imageContainerSizes[imageIndex] != null) {
+      return readPageState.imageContainerSizes[imageIndex]!;
+    }
     return Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, double.infinity);
   }
 

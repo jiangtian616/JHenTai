@@ -275,7 +275,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   /// Compute image container size when we haven't parsed image's size
-  Size getPlaceHolderSize() {
+  Size getPlaceHolderSize(int imageIndex) {
+    if (readPageState.imageContainerSizes[imageIndex] != null) {
+      return readPageState.imageContainerSizes[imageIndex]!;
+    }
     return Size(double.infinity, screenHeight / 2);
   }
 

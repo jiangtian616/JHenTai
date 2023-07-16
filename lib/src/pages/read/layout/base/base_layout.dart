@@ -68,7 +68,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [readPageLogic] to parse image href in online mode
   Widget _buildParsingHrefsIndicator(BuildContext context, int index) {
-    Size placeHolderSize = logic.getPlaceHolderSize();
+    Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return GestureDetector(
       onTap: () => readPageLogic.beginToParseImageHref(index),
@@ -98,7 +98,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [readPageLogic] to parse image url in online mode
   Widget _buildParsingUrlIndicator(BuildContext context, int index) {
-    Size placeHolderSize = logic.getPlaceHolderSize();
+    Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return GestureDetector(
       onTap: () => readPageLogic.beginToParseImageUrl(index, true),
@@ -132,8 +132,8 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
       child: EHImage(
         galleryImage: readPageState.images[index]!,
-        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
+        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,
         clearMemoryCacheWhenDispose: true,
         loadingProgressWidgetBuilder: (double progress) => _loadingProgressWidgetBuilder(index, progress),
         failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(index, state),
@@ -235,8 +235,8 @@ abstract class BaseLayout extends StatelessWidget {
             galleryImage: readPageState.images[index]!.copyWith(
               path: logic.readPageLogic.superResolutionService.computeImageOutputRelativePath(readPageState.images[index]!.path!),
             ),
-            containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-            containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+            containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
+            containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,
             clearMemoryCacheWhenDispose: true,
             loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
             failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
@@ -250,7 +250,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
     DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
-    Size placeHolderSize = logic.getPlaceHolderSize();
+    Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return SizedBox(
       height: placeHolderSize.height,
@@ -270,7 +270,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
     DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
-    Size placeHolderSize = logic.getPlaceHolderSize();
+    Size placeHolderSize = logic.getPlaceHolderSize(index);
     return SizedBox(
       height: placeHolderSize.height,
       width: placeHolderSize.width,
@@ -292,8 +292,8 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
       child: EHImage(
         galleryImage: readPageState.images[index]!,
-        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize().width,
-        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize().height,
+        containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
+        containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,
         clearMemoryCacheWhenDispose: true,
         downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
         pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
