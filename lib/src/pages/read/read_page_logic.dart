@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -95,7 +96,8 @@ class ReadPageLogic extends GetxController {
     toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
 
     /// Listen to layout change
-    readDirectionLister = ever(ReadSetting.readDirection, (_) => state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
+    readDirectionLister =
+        ever(ReadSetting.readDirection, (_) => state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -249,6 +251,15 @@ class ReadPageLogic extends GetxController {
     state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
     update(['$onlineImageId::$index']);
+  }
+
+  Future<void> reloadImage(int index) async {
+    if (state.images[index] != null) {
+      clearDiskCachedImage(state.images[index]!.url);
+    }
+    state.images[index] = null;
+    beginToParseImageUrl(index, true);
+    updateSafely(['$onlineImageId::$index']);
   }
 
   /// If [enableImmersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]

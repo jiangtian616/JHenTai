@@ -102,6 +102,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
+            child: Text('reload'.tr),
+            onPressed: () {
+              backRoute();
+              readPageLogic.reloadImage(index);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: Text('share'.tr),
             onPressed: () async {
               backRoute();

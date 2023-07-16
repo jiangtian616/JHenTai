@@ -165,6 +165,15 @@ class EHCacheInterceptor extends Interceptor {
     handler.next(err);
   }
 
+  Future<void> removeGalleryDetailPageCache(String galleryUrl) {
+    return Future.wait(
+      [
+        removeCacheByUrl('$galleryUrl?p=0&hc=0'),
+        removeCacheByUrl('$galleryUrl?p=0&hc=1'),
+      ],
+    );
+  }
+
   Future<void> removeCacheByUrl(String url) async {
     RequestOptions request = RequestOptions(path: url);
     CacheOptions cacheOptions = _getCacheOptions(request);
