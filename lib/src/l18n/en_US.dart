@@ -571,7 +571,7 @@ class en_US {
 
       /// dashboard page
       'seeAll': 'All',
-      'newest': 'Newest',
+      'newest': 'Latest',
 
       /// tag dialog
       'warningImageHint': 'R18G image, Tap to view',
