@@ -15,6 +15,7 @@ class PreferenceSetting {
   static RxBool enableSwipeBackGesture = true.obs;
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
+  static RxInt drawerGestureEdgeWidth = 20.obs;
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool showR18GImageDirectly = false.obs;
@@ -67,6 +68,12 @@ class PreferenceSetting {
     _save();
   }
 
+  static saveDrawerGestureEdgeWidth(int drawerGestureEdgeWidth) {
+    Log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
+    PreferenceSetting.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
+    _save();
+  }
+  
   static saveAlwaysShowScroll2TopButton(bool alwaysShowScroll2TopButton) {
     Log.debug('saveAlwaysShowScroll2TopButton:$alwaysShowScroll2TopButton');
     PreferenceSetting.alwaysShowScroll2TopButton.value = alwaysShowScroll2TopButton;
@@ -84,7 +91,7 @@ class PreferenceSetting {
     PreferenceSetting.showAllComments.value = showAllComments;
     _save();
   }
-  
+
   static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
     Log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
     PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
@@ -103,6 +110,7 @@ class PreferenceSetting {
       'enableSwipeBackGesture': enableSwipeBackGesture.value,
       'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
+      'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
       'hideBottomBar': hideBottomBar.value,
       'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
       'showComments': showComments.value,
@@ -119,6 +127,7 @@ class PreferenceSetting {
     enableTagZHTranslation.value = map['enableTagZHTranslation'] ?? enableTagZHTranslation.value;
     enableLeftMenuDrawerGesture.value = map['enableLeftMenuDrawerGesture'] ?? enableLeftMenuDrawerGesture.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
+    drawerGestureEdgeWidth.value = map['drawerGestureEdgeWidth'] ?? drawerGestureEdgeWidth.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
     alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
     showComments.value = map['showComments'] ?? showComments.value;

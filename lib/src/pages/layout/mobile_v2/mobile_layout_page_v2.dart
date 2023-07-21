@@ -26,6 +26,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
     return Obx(
       () => Scaffold(
         key: MobileLayoutPageV2State.scaffoldKey,
+        drawerEdgeDragWidth: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
         drawer: buildLeftDrawer(context),
         drawerEnableOpenDragGesture: PreferenceSetting.enableLeftMenuDrawerGesture.isTrue,
         endDrawer: buildRightDrawer(),

@@ -288,6 +288,7 @@ class zh_CN {
       'enableSwipeBackGesture': '允许通过左滑手势返回',
       'enableLeftMenuDrawerGesture': '允许通过手势唤起左侧菜单',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
+      'drawerGestureEdgeWidth': '抽屉菜单手势区域宽度',
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
       'showComments': '显示画廊评论',
       'showAllComments': '显示画廊所有评论',

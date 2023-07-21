@@ -287,6 +287,7 @@ class zh_TW {
       'enableSwipeBackGesture': '允許通過左滑手勢返回',
       'enableLeftMenuDrawerGesture': '允許通過手勢喚起左側菜單',
       'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',
+      'drawerGestureEdgeWidth': '抽屜菜單手勢區域寬度',
       'alwaysShowScroll2TopButton': '總是展示快速回頂按鈕',
       'showComments': '顯示畫廊評論',
       'showAllComments': '顯示畫廊所有評論',

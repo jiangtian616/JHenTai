@@ -33,6 +33,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildEnableSwipeBackGesture(),
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
+              if (StyleSetting.isInV2Layout) _buildDrawerGestureEdgeWidth(context),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
@@ -134,6 +135,34 @@ class SettingPreferencePage extends StatelessWidget {
         value: PreferenceSetting.enableQuickSearchDrawerGesture.value,
         onChanged: PreferenceSetting.saveEnableQuickSearchDrawerGesture,
       ),
+    );
+  }
+
+  Widget _buildDrawerGestureEdgeWidth(BuildContext context) {
+    return ListTile(
+      title: Text('drawerGestureEdgeWidth'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 20,
+                max: 200,
+                label: PreferenceSetting.drawerGestureEdgeWidth.value.toString(),
+                value: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+                onChanged: (value) {
+                  PreferenceSetting.drawerGestureEdgeWidth.value = value.toInt();
+                },
+                onChangeEnd: (value) {
+                  PreferenceSetting.saveDrawerGestureEdgeWidth(value.toInt());
+                },
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 

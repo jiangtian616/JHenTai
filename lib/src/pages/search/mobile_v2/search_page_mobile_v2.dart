@@ -37,6 +37,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
         () => Scaffold(
           key: scaffoldKey,
           appBar: buildAppBar(context),
+          drawerEdgeDragWidth: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
           endDrawer: Drawer(width: 278, child: QuickSearchPage()),
           endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
@@ -52,7 +53,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
     return AppBar(
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
       bottom: PreferredSize(child: buildSearchField(), preferredSize: const Size(double.infinity, UIConfig.mobileV2SearchBarHeight)),
-      actions: buildActionButtons(visualDensity:const VisualDensity(horizontal: -4)),
+      actions: buildActionButtons(visualDensity: const VisualDensity(horizontal: -4)),
     );
   }
 
