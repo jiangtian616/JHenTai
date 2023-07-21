@@ -379,6 +379,7 @@ class ko_KR {
       'top2bottom': '위에서 아래로',
       'left2right': '왼쪽에서 오른쪽으로',
       'right2left': '오른쪽에서 왼쪽으로',
+      'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnAnime': '페이지 넘기기 애니메이션 사용',
       'enableDoubleTapToScaleUp': '두 번 터치해 확대 사용',
       'turnPageMode': '페이지 넘기기 모드',

@@ -380,6 +380,7 @@ class pt_BR {
       'top2bottom': 'De cima para baixo',
       'left2right': 'Da esquerda para direita',
       'right2left': 'Da direita para esquerda',
+      'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnAnime': 'Ativar animação de virada',
       'enableDoubleTapToScaleUp': 'Ativar toque duplo para aumentar a escala',
       'turnPageMode': 'Modo de virar página',

@@ -31,6 +31,7 @@ class ReadSetting {
   static RxInt imageSpace = 6.obs;
   static RxBool showThumbnails = true.obs;
   static RxBool showStatusInfo = true.obs;
+  static RxBool enablePageTurnByVolumeKeys = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.system.obs;
@@ -104,7 +105,7 @@ class ReadSetting {
     deviceDirection.value = value;
     _save();
   }
-  
+
   static saveReadDirection(ReadDirection value) {
     Log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
@@ -120,6 +121,12 @@ class ReadSetting {
   static saveThirdPartyViewerPath(String? value) {
     Log.debug('saveThirdPartyViewerPath:$value');
     thirdPartyViewerPath.value = value;
+    _save();
+  }
+  
+  static saveEnablePageTurnByVolumeKeys(bool value) {
+    Log.debug('saveEnablePageTurnByVolumeKeys:$value');
+    enablePageTurnByVolumeKeys.value = value;
     _save();
   }
 
@@ -188,6 +195,7 @@ class ReadSetting {
       'imageSpace': imageSpace.value,
       'showThumbnails': showThumbnails.value,
       'showStatusInfo': showStatusInfo.value,
+      'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'autoModeInterval': autoModeInterval.value,
@@ -212,6 +220,7 @@ class ReadSetting {
     imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
+    enablePageTurnByVolumeKeys.value = map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;

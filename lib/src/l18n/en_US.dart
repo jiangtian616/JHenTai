@@ -379,6 +379,7 @@ class en_US {
       'top2bottom': 'Top to Bottom',
       'left2right': 'Left to Right',
       'right2left': 'Right to Left',
+      'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnAnime': 'Enable Turn Page Animation',
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
       'turnPageMode': 'Turn Page Mode',

@@ -379,6 +379,7 @@ class zh_CN {
       'top2bottom': '从上至下',
       'left2right': '从左至右',
       'right2left': '从右至左',
+      'enablePageTurnByVolumeKeys': '使用音量键翻页',
       'enablePageTurnAnime': '开启翻页动画',
       'enableDoubleTapToScaleUp': '双击放大图片',
       'turnPageMode': '翻页模式',

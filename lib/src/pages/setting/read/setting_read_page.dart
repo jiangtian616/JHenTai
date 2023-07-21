@@ -25,6 +25,7 @@ class SettingReadPage extends StatelessWidget {
               _buildShowThumbnails().center(),
               _buildImageSpace().center(),
               _buildShowStatusInfo().center(),
+              if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
@@ -125,6 +126,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('showStatusInfo'.tr),
       trailing: Switch(value: ReadSetting.showStatusInfo.value, onChanged: ReadSetting.saveShowStatusInfo),
+    );
+  }
+
+  Widget _buildEnablePageTurnByVolumeKeys() {
+    return ListTile(
+      title: Text('enablePageTurnByVolumeKeys'.tr),
+      trailing: Switch(value: ReadSetting.enablePageTurnByVolumeKeys.value, onChanged: ReadSetting.saveEnablePageTurnByVolumeKeys),
     );
   }
 

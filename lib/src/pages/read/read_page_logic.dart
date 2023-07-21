@@ -67,6 +67,8 @@ class ReadPageLogic extends GetxController {
   final EHCacheInterceptor ehCacheInterceptor = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
+
+  late Worker toggleTurnPageByVolumeKeyLister;
   late Worker toggleCurrentImmersiveModeLister;
   late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
@@ -82,18 +84,14 @@ class ReadPageLogic extends GetxController {
     super.onReady();
 
     /// Turn page by volume keys. The reason for not use [KeyboardListener]: https://github.com/flutter/flutter/issues/71144
-    volumeService.listen((VolumeEventType type) {
-      if (type == VolumeEventType.volumeUp) {
-        layoutLogic.toPrev();
-      } else if (type == VolumeEventType.volumeDown) {
-        layoutLogic.toNext();
-      }
-    });
-    volumeService.setInterceptVolumeEvent(true);
+    listen2VolumeKeys();
 
     toggleCurrentImmersiveMode();
 
     updateDeviceOrientation();
+
+    /// Listen to turn page by volume key change
+    toggleTurnPageByVolumeKeyLister = ever(ReadSetting.enablePageTurnByVolumeKeys, (_) => listen2VolumeKeys());
 
     /// Listen to immersive mode change
     toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
@@ -137,8 +135,7 @@ class ReadPageLogic extends GetxController {
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
 
-    volumeService.cancelListen();
-    volumeService.setInterceptVolumeEvent(false);
+    restoreVolumeListener();
 
     restoreImmersiveMode();
 
@@ -270,6 +267,22 @@ class ReadPageLogic extends GetxController {
     updateSafely(['$onlineImageId::$index']);
   }
 
+  void listen2VolumeKeys() {
+    volumeService.listen((VolumeEventType type) {
+      if (type == VolumeEventType.volumeUp) {
+        layoutLogic.toPrev();
+      } else if (type == VolumeEventType.volumeDown) {
+        layoutLogic.toNext();
+      }
+    });
+    volumeService.setInterceptVolumeEvent(ReadSetting.enablePageTurnByVolumeKeys.value);
+  }
+
+  void restoreVolumeListener() {
+    volumeService.cancelListen();
+    volumeService.setInterceptVolumeEvent(false);
+  }
+
   /// If [enableImmersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
   void toggleCurrentImmersiveMode() {
     if (ReadSetting.enableImmersiveMode.isTrue) {
@@ -287,7 +300,7 @@ class ReadPageLogic extends GetxController {
     if (!GetPlatform.isMobile) {
       return;
     }
-    
+
     if (ReadSetting.deviceDirection.value == DeviceDirection.system) {
       restoreDeviceOrientation();
     }
