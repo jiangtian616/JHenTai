@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import '../../../setting/preference_setting.dart';
 import '../../../widget/eh_log_out_dialog.dart';
+import 'notification/tap_tab_bat_button_notification.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
   final MobileLayoutPageV2Logic logic = Get.put(MobileLayoutPageV2Logic(), permanent: true);
@@ -99,19 +100,25 @@ class MobileLayoutPageV2 extends StatelessWidget {
   }
 
   Widget buildBody() {
-    return NotificationListener<TapMenuButtonNotification>(
-      child: GetBuilder<MobileLayoutPageV2Logic>(
-        id: logic.bodyId,
-        builder: (_) => Stack(
-          children: [
-            Offstage(offstage: state.selectedNavigationIndex != 0, child: buildHomeBody()),
-            Offstage(offstage: state.selectedNavigationIndex != 1, child: const DownloadPage()),
-            Offstage(offstage: state.selectedNavigationIndex != 2, child: const SettingPage()),
-          ],
+    return NotificationListener<TapTabBarButtonNotification>(
+      child: NotificationListener<TapMenuButtonNotification>(
+        child: GetBuilder<MobileLayoutPageV2Logic>(
+          id: logic.bodyId,
+          builder: (_) => Stack(
+            children: [
+              Offstage(offstage: state.selectedNavigationIndex != 0, child: buildHomeBody()),
+              Offstage(offstage: state.selectedNavigationIndex != 1, child: const DownloadPage()),
+              Offstage(offstage: state.selectedNavigationIndex != 2, child: const SettingPage()),
+            ],
+          ),
         ),
+        onNotification: (_) {
+          MobileLayoutPageV2State.scaffoldKey.currentState?.openDrawer();
+          return true;
+        },
       ),
-      onNotification: (_) {
-        MobileLayoutPageV2State.scaffoldKey.currentState?.openDrawer();
+      onNotification: (notification) {
+        logic.handleTapTabBarButtonByRouteName(notification.routeName);
         return true;
       },
     );

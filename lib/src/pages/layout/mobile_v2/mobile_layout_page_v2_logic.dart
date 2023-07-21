@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
@@ -55,6 +56,15 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
       MobileLayoutPageV2State.scaffoldKey.currentState?.closeDrawer();
       update([bodyId]);
     }
+  }
+
+  void handleTapTabBarButtonByRouteName(String routeName) {
+    int? index = state.icons.firstIndexWhereOrNull((icon) => icon.routeName == routeName);
+    if (index == null) {
+      return;
+    }
+
+    handleTapTabBarButton(index);
   }
 
   void handleTapNavigationBarButton(int index) {

@@ -12,6 +12,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../config/ui_config.dart';
 import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
+import '../../layout/mobile_v2/notification/tap_tab_bat_button_notification.dart';
 import 'dashboard_page_logic.dart';
 
 /// For mobile v2 layout
@@ -208,7 +209,7 @@ class _RankListDesc extends StatelessWidget {
         const Expanded(child: SizedBox()),
         TextButton(
           style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
-          onPressed: () => toRoute(Routes.ranklist),
+          onPressed: () => const TapTabBarButtonNotification(Routes.ranklist).dispatch(context),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -242,7 +243,7 @@ class _PopularListDesc extends StatelessWidget {
         const Expanded(child: SizedBox()),
         TextButton(
           style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
-          onPressed: () => toRoute(Routes.popular),
+          onPressed: () => const TapTabBarButtonNotification(Routes.popular).dispatch(context),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
