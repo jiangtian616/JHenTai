@@ -26,6 +26,7 @@ class ko_KR {
       'retryHint': '새로고침 후 다시 시도하세요.',
       'stop': '멈춤',
       'attention': '경고',
+      'jump': 'Jump',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -287,7 +288,7 @@ class ko_KR {
       'hideBottomBar': '하단 메뉴 숨기기',
       'enableSwipeBackGesture': '스와이프 제스처로 뒤로 가기 활성화',
       'enableLeftMenuDrawerGesture': '좌측 서랍 메뉴 제스처로 열기 활성화',
-      'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화', 
+      'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화',
       'drawerGestureEdgeWidth': 'Drawer Gesture Edge Width',
       'alwaysShowScroll2TopButton': '맨 위로 가기 버튼 항상 보이기',
       'showComments': 'Show Comments',

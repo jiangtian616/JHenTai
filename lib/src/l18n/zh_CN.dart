@@ -26,6 +26,7 @@ class zh_CN {
       'retryHint': '请刷新后重试',
       'stop': '停止',
       'attention': '注意',
+      'jump': '跳转',
 
       'home': "主页",
       'gallery': "画廊",
@@ -339,7 +340,7 @@ class zh_CN {
       'verityAppLinks4Android12': '验证应用链接（安卓12+）',
       'verityAppLinks4Android12Hint': '对于Android 12+，您需要手动添加链接到已验证链接才能在其他应用中唤起JHenTai',
       'noImageMode': '无图模式',
-      
+
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
 
@@ -477,8 +478,8 @@ class zh_CN {
       'history': '历史',
       'keyword': '关键词',
       'orderBy': '排序',
-      'favoritedTime':'收藏时间',
-      'publishedTime':'发布时间',
+      'favoritedTime': '收藏时间',
+      'publishedTime': '发布时间',
       'backspace2DeleteTag': '双击退格来删除标签',
       'searchGalleryName': '搜索画廊名字',
       'searchGalleryTags': '搜索画廊标签',

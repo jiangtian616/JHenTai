@@ -26,6 +26,7 @@ class en_US {
       'retryHint': 'Please retry after refresh',
       'stop': 'Stop',
       'attention': 'Attention',
+      'jump': 'Jump',
 
       'home': "Home",
       'gallery': "Gallery",

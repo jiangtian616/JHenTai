@@ -26,6 +26,7 @@ class zh_TW {
       'retryHint': '請刷新后重試',
       'stop': '停止',
       'attention': '注意',
+      'jump': '跳轉',
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -338,7 +339,7 @@ class zh_TW {
       'verityAppLinks4Android12': '驗證應用鏈接（安卓12+）',
       'verityAppLinks4Android12Hint': '對於Android 12+，您需要手動將鏈接添加到已驗證的鏈接中，才能在其他應用程式中喚醒 JHenTai',
       'noImageMode': '無圖模式',
-      
+
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n數據來源: https://dns.google/',
 
@@ -476,8 +477,8 @@ class zh_TW {
       'history': '歷史',
       'keyword': '關鍵詞',
       'orderBy': '排序',
-      'favoritedTime':'收藏時間',
-      'publishedTime':'發布時間',
+      'favoritedTime': '收藏時間',
+      'publishedTime': '發布時間',
       'backspace2DeleteTag': '雙擊退格來刪除標簽',
       'searchGalleryName': '搜尋畫廊名字',
       'searchGalleryTags': '搜尋畫廊標籤',

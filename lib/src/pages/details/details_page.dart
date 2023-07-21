@@ -89,14 +89,66 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         },
       ),
       actions: [
-        _buildDeleteDownloadButton(context),
-        IconButton(
-          icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
-          visualDensity: const VisualDensity(vertical: -2, horizontal: -2),
-          onPressed: logic.handleTapJumpButton,
-        ),
-        IconButton(icon: const Icon(Icons.share), onPressed: logic.shareGallery),
+        _buildMenuButton(context),
       ],
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context) {
+    return GetBuilder<ArchiveDownloadService>(
+      builder: (_) {
+        return GetBuilder<GalleryDownloadService>(
+          id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
+          builder: (_) {
+            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
+            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
+
+            return PopupMenuButton(
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    value: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('jump'.tr), const Icon(FontAwesomeIcons.paperPlane)],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('share'.tr), const Icon(Icons.share)],
+                    ),
+                  ),
+                  if (downloadProgress != null || archiveStatus != null)
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('delete'.tr), const Icon(Icons.delete)],
+                      ),
+                    ),
+                ];
+              },
+              onSelected: (value) {
+                if (value == 0) {
+                  logic.handleTapJumpButton();
+                }
+                if (value == 1) {
+                  logic.shareGallery();
+                }
+                if (value == 2) {
+                  logic.handleTapDeleteDownload(
+                    context,
+                    state.gallery!.gid,
+                    downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
+                  );
+                }
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -138,34 +190,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildDeleteDownloadButton(BuildContext context) {
-    return GetBuilder<GalleryDownloadService>(
-      id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
-      builder: (_) {
-        return GetBuilder<ArchiveDownloadService>(
-          id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
-          builder: (_) {
-            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
-            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
-
-            if (downloadProgress == null && archiveStatus == null) {
-              return const SizedBox();
-            }
-
-            return IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => logic.handleTapDeleteDownload(
-                context,
-                state.gallery!.gid,
-                downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
