@@ -3,6 +3,8 @@ import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';
 
+enum DeviceDirection { system, landscape, portrait }
+
 enum ReadDirection {
   top2bottom,
   left2right,
@@ -31,6 +33,7 @@ class ReadSetting {
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
+  static Rx<DeviceDirection> deviceDirection = DeviceDirection.system.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottom.obs : ReadDirection.left2right.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
@@ -96,6 +99,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveDeviceDirection(DeviceDirection value) {
+    Log.debug('saveDeviceDirection:${value.name}');
+    deviceDirection.value = value;
+    _save();
+  }
+  
   static saveReadDirection(ReadDirection value) {
     Log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
@@ -183,6 +192,7 @@ class ReadSetting {
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
+      'deviceDirection': deviceDirection.value.index,
       'readDirection': readDirection.value.index,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
@@ -206,6 +216,7 @@ class ReadSetting {
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
+    deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.system.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];

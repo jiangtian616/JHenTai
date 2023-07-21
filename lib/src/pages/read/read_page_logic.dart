@@ -68,6 +68,7 @@ class ReadPageLogic extends GetxController {
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Worker toggleCurrentImmersiveModeLister;
+  late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
 
   final EHExecutor executor = EHExecutor(
@@ -92,8 +93,13 @@ class ReadPageLogic extends GetxController {
 
     toggleCurrentImmersiveMode();
 
+    updateDeviceOrientation();
+
     /// Listen to immersive mode change
     toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
+
+    /// Listen to device orientation change
+    toggleDeviceOrientationLister = ever(ReadSetting.deviceDirection, (_) => updateDeviceOrientation());
 
     /// Listen to layout change
     readDirectionLister =
@@ -135,6 +141,8 @@ class ReadPageLogic extends GetxController {
     volumeService.setInterceptVolumeEvent(false);
 
     restoreImmersiveMode();
+
+    restoreDeviceOrientation();
 
     storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
 
@@ -273,6 +281,30 @@ class ReadPageLogic extends GetxController {
 
   void restoreImmersiveMode() {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
+
+  void updateDeviceOrientation() {
+    if (!GetPlatform.isMobile) {
+      return;
+    }
+    
+    if (ReadSetting.deviceDirection.value == DeviceDirection.system) {
+      restoreDeviceOrientation();
+    }
+    if (ReadSetting.deviceDirection.value == DeviceDirection.landscape) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    }
+    if (ReadSetting.deviceDirection.value == DeviceDirection.portrait) {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    }
+  }
+
+  void restoreDeviceOrientation() {
+    if (!GetPlatform.isMobile) {
+      return;
+    }
+
+    SystemChrome.setPreferredOrientations([]);
   }
 
   void toggleMenu() {

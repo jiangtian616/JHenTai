@@ -29,6 +29,7 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableDoubleTapToScaleUp().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
+              if (GetPlatform.isMobile) _buildDeviceDirection().center(),
               _buildReadDirection().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
                 _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
@@ -138,6 +139,22 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('enableDoubleTapToScaleUp'.tr),
       trailing: Switch(value: ReadSetting.enableDoubleTapToScaleUp.value, onChanged: ReadSetting.saveEnableDoubleTapToScaleUp),
+    );
+  }
+
+  Widget _buildDeviceDirection() {
+    return ListTile(
+      title: Text('deviceOrientation'.tr),
+      trailing: DropdownButton<DeviceDirection>(
+        value: ReadSetting.deviceDirection.value,
+        elevation: 4,
+        onChanged: (DeviceDirection? newValue) => ReadSetting.saveDeviceDirection(newValue!),
+        items: [
+          DropdownMenuItem(child: Text('followSystem'.tr), value: DeviceDirection.system),
+          DropdownMenuItem(child: Text('landscape'.tr), value: DeviceDirection.landscape),
+          DropdownMenuItem(child: Text('portrait'.tr), value: DeviceDirection.portrait),
+        ],
+      ).marginOnly(right: 12),
     );
   }
 
