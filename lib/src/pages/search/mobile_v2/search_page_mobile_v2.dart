@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -9,11 +8,12 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
 import '../../base/base_page.dart';
-import '../base/base_search_page_state.dart';
+import '../mixin/search_page_mixin.dart';
+import '../mixin/search_page_state_mixin.dart';
 import '../quick_search/quick_search_page.dart';
 
 class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMobileV2State>
-    with BaseSearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
+    with SearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
   final String tag = UniqueKey().toString();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 

@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/pages/search/mixin/search_page_logic_mixin.dart';
+import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/search_util.dart';
 
@@ -18,7 +18,7 @@ import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
-mixin BaseSearchPageMixin<L extends BaseSearchPageLogicMixin, S extends BaseSearchPageStateMixin> on BasePage<L, S> {
+mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateMixin> on BasePage<L, S> {
   @override
   L get logic;
 

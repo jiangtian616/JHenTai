@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_tab_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_tab_state.dart';
 
 import '../../../config/ui_config.dart';
 import '../../base/base_page.dart';
-import '../base/base_search_page_state.dart';
+import '../mixin/search_page_mixin.dart';
+import '../mixin/search_page_state_mixin.dart';
 
 class DesktopSearchPageTabView extends BasePage<DesktopSearchPageTabLogic, DesktopSearchPageTabState>
-    with BaseSearchPageMixin<DesktopSearchPageTabLogic, DesktopSearchPageTabState> {
+    with SearchPageMixin<DesktopSearchPageTabLogic, DesktopSearchPageTabState> {
   const DesktopSearchPageTabView({Key? key, required this.logic}) : super(key: key, showJumpButton: true, showScroll2TopButton: true);
 
   @override

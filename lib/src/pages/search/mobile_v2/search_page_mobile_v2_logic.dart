@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 
 import '../../../model/search_config.dart';
 import '../../base/base_page_logic.dart';
+import '../mixin/search_page_logic_mixin.dart';
 
-class SearchPageMobileV2Logic extends BasePageLogic with BaseSearchPageLogicMixin {
+class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
   @override
   bool get useSearchConfig => true;
 

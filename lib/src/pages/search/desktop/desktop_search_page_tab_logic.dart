@@ -1,10 +1,10 @@
-import 'package:jhentai/src/pages/search/base/base_search_page_logic.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_tab_state.dart';
 
 import '../../../model/search_config.dart';
 import '../../base/base_page_logic.dart';
+import '../mixin/search_page_logic_mixin.dart';
 
-class DesktopSearchPageTabLogic extends BasePageLogic with BaseSearchPageLogicMixin {
+class DesktopSearchPageTabLogic extends BasePageLogic with SearchPageLogicMixin {
   @override
   bool get useSearchConfig => true;
 

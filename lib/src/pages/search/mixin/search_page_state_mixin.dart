@@ -5,7 +5,7 @@ import '../../../database/database.dart';
 
 enum SearchPageBodyType { gallerys, suggestionAndHistory }
 
-mixin BaseSearchPageStateMixin on BasePageState {
+mixin SearchPageStateMixin on BasePageState {
   /// used to init body
   bool hasSearched = false;
 

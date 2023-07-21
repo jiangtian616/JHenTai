@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
-import 'package:jhentai/src/pages/search/base/base_search_page_state.dart';
+import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
@@ -25,9 +25,9 @@ import '../../../utils/snack_util.dart';
 import '../../../widget/eh_alert_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
 
-mixin BaseSearchPageLogicMixin on BasePageLogic {
+mixin SearchPageLogicMixin on BasePageLogic {
   @override
-  BaseSearchPageStateMixin get state;
+  SearchPageStateMixin get state;
 
   final String suggestionBodyId = 'suggestionBodyId';
   final String galleryBodyId = 'galleryBodyId';
