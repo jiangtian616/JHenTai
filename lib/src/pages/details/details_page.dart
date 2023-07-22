@@ -96,6 +96,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildMenuButton(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
+      id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
       builder: (_) {
         return GetBuilder<GalleryDownloadService>(
           id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
@@ -110,7 +111,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                     value: 0,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text('jump'.tr), const Icon(FontAwesomeIcons.paperPlane)],
+                      children: [Text('jump'.tr), const Icon(FontAwesomeIcons.paperPlane, size: 20)],
                     ),
                   ),
                   PopupMenuItem(
@@ -120,9 +121,16 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                       children: [Text('share'.tr), const Icon(Icons.share)],
                     ),
                   ),
+                  PopupMenuItem(
+                    value: 2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('addTag'.tr), const Icon(Icons.bookmark_border)],
+                    ),
+                  ),
                   if (downloadProgress != null || archiveStatus != null)
                     PopupMenuItem(
-                      value: 2,
+                      value: 3,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [Text('delete'.tr), const Icon(Icons.delete)],
@@ -138,6 +146,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   logic.shareGallery();
                 }
                 if (value == 2) {
+                  logic.handleAddTag(context);
+                }
+                if (value == 3) {
                   logic.handleTapDeleteDownload(
                     context,
                     state.gallery!.gid,
@@ -1031,7 +1042,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             gid: state.gallery!.gid,
             token: state.gallery!.token,
             apikey: state.apikey!,
-          ).marginSymmetric(horizontal: UIConfig.detailPagePadding);
+          ).fadeIn().marginSymmetric(horizontal: UIConfig.detailPagePadding);
         },
       ),
     );
@@ -1060,29 +1071,27 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                     onPressed: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
                     child: Text(state.galleryDetails!.comments.isEmpty ? 'noComments'.tr : 'allComments'.tr),
                   ),
-                ).fadeIn(),
+                ),
               ),
               if (state.galleryDetails!.comments.isNotEmpty)
-                FadeIn(
-                  child: GestureDetector(
-                    onTap: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
-                    child: SizedBox(
-                      height: UIConfig.detailsPageCommentsRegionHeight,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: EdgeInsets.zero,
-                        itemExtent: UIConfig.detailsPageCommentsWidth,
-                        children: state.galleryDetails!.comments
-                            .map(
-                              (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
-                            )
-                            .toList(),
-                      ),
+                GestureDetector(
+                  onTap: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
+                  child: SizedBox(
+                    height: UIConfig.detailsPageCommentsRegionHeight,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.zero,
+                      itemExtent: UIConfig.detailsPageCommentsWidth,
+                      children: state.galleryDetails!.comments
+                          .map(
+                            (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
+                          )
+                          .toList(),
                     ),
                   ),
                 ),
             ],
-          ).marginSymmetric(horizontal: UIConfig.detailPagePadding);
+          ).fadeIn().marginSymmetric(horizontal: UIConfig.detailPagePadding);
         },
       ),
     );

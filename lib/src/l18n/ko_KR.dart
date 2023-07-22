@@ -152,6 +152,9 @@ class ko_KR {
       'getGalleryTorrentsFailed': '토렌트 불러오기 실패',
       'chooseArchive': '아카이브 선택',
       'tagSetExceedLimit': '저장된 태그 수가 최대치에 도달해서 더 추가할 수 없습니다.',
+      'useTranslation': 'Use Translation',
+      'addTagSuccess': 'Add Tag Success',
+      'addTagFailed': 'Add Tag Failed',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',
@@ -294,6 +297,8 @@ class ko_KR {
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
       'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
+      'addTag': 'Add Tag',
+      'addTagHint': 'Enter new tags, separated with comma',
 
       /// theme color setting page
       'preset': '프리셋',

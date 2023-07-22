@@ -21,6 +21,7 @@ import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/widget/eh_add_tag_dialog.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_gallery_torrents_dialog.dart';
 import 'package:jhentai/src/widget/eh_archive_dialog.dart';
@@ -564,7 +565,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   Future<void> handleTapDeleteDownload(BuildContext context, int gid, DownloadPageGalleryType downloadPageGalleryType) async {
     bool? result = await showDialog(
       context: context,
-      builder: (_) => EHAlertDialog(title: 'delete'.tr + '?'),
+      builder: (_) => EHDialog(title: 'delete'.tr + '?'),
     );
 
     if (result == null || !result) {
@@ -577,6 +578,53 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
       archiveDownloadService.deleteArchiveByGid(gid);
+    }
+  }
+
+  Future<void> handleAddTag(BuildContext context) async {
+    if (state.galleryDetails == null) {
+      return;
+    }
+
+    if (!checkLogin()) {
+      return;
+    }
+
+    String? newTag = await showDialog(context: context, builder: (_) => EHAddTagDialog());
+    if (newTag == null) {
+      return;
+    }
+
+    Log.info('Add tag:$newTag');
+
+    toast('${'addTag'.tr}: $newTag');
+
+    String? errMsg;
+    try {
+      errMsg = await EHRequest.voteTag(
+        state.gallery!.gid,
+        state.gallery!.token,
+        UserSetting.ipbMemberId.value!,
+        state.apikey!,
+        newTag,
+        true,
+        parser: EHSpiderParser.voteTagResponse2ErrorMessage,
+      );
+    } on DioError catch (e) {
+      Log.error('addTagFailed'.tr, e.message);
+      snack('addTagFailed'.tr, e.message);
+      return;
+    } on EHException catch (e) {
+      Log.error('addTagFailed'.tr, e.message);
+      snack('addTagFailed'.tr, e.message);
+      return;
+    }
+
+    if (!isEmptyOrNull(errMsg)) {
+      snack('addTagFailed'.tr, errMsg!, longDuration: true);
+      return;
+    } else {
+      toast('addTagSuccess'.tr);
     }
   }
 

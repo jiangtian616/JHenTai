@@ -58,7 +58,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
   }
 
   Future<void> _handleDelete(String path) async {
-    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
 
     if (result == true) {
       DownloadSetting.removeExtraGalleryScanPath(path);

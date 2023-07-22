@@ -151,7 +151,10 @@ class zh_TW {
       'getGalleryTorrentsFailed': '獲取種子失敗',
       'chooseArchive': '選擇歸檔',
       'tagSetExceedLimit': '标签数量已达到上限',
-
+      'useTranslation': '使用翻譯標簽',
+      'addTagSuccess': '添加標簽成功',
+      'addTagFailed': '添加標簽失敗',
+      
       /// detail dialog
       'galleryUrl': '畫廊鏈接',
       'title': '標題',
@@ -293,6 +296,8 @@ class zh_TW {
       'showComments': '顯示畫廊評論',
       'showAllComments': '顯示畫廊所有評論',
       'showAllCommentsHint': '默認只會展示45個最高分評論和5個最新評論，低分評論也會被自動隱藏',
+      'addTag': '添加標簽',
+      'addTagHint': '输入新标签，逗号分隔',
 
       /// theme color setting page
       'themeColorSettingHint': '你可以为明亮和黑暗主题分配不同的主题色',

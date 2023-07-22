@@ -53,7 +53,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
   }
 
   Future<void> handleRemoveItem(LocalGallery gallery) async {
-    bool? result = await Get.dialog(EHAlertDialog(title: 'deleteLocalGalleryHint'.tr + '?'));
+    bool? result = await Get.dialog(EHDialog(title: 'deleteLocalGalleryHint'.tr + '?'));
     if (result == true) {
       doRemoveItem(gallery);
     }

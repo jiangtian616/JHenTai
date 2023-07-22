@@ -154,6 +154,9 @@ class pt_BR {
       'getGalleryTorrentsFailed': 'Falha ao obter torrents',
       'chooseArchive': 'Escolher Arquivo',
       'tagSetExceedLimit': 'No more tags can be added because you have reach the limit',
+      'useTranslation': 'Use Translation',
+      'addTagSuccess': 'Add Tag Success',
+      'addTagFailed': 'Add Tag Failed',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',
@@ -295,6 +298,8 @@ class pt_BR {
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
       'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
+      'addTag': 'Add Tag',
+      'addTagHint': 'Enter new tags, separated with comma',
 
       /// theme color setting page
       'themeColorSettingHint': 'Assign different color for light and dark theme',

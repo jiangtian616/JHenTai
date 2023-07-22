@@ -110,7 +110,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   Future<void> handleDeleteGroup(String oldGroup) async {
-    bool? success = await Get.dialog(EHAlertDialog(title: 'deleteGroup'.tr + '?'));
+    bool? success = await Get.dialog(EHDialog(title: 'deleteGroup'.tr + '?'));
     if (success == null || !success) {
       return;
     }
@@ -187,7 +187,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
                   superResolutionService.deleteSuperResolutionInfo(archive.gid, SuperResolutionType.archive);
                 } else {
                   if (archive.isOriginal) {
-                    bool? result = await Get.dialog(EHAlertDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                    bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
                     if (result == false) {
                       return;
                     }
@@ -267,7 +267,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   Future<void> handleMultiDelete() async {
     bool? result = await Get.dialog(
-      EHAlertDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
+      EHDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
     );
 
     if (result == true) {

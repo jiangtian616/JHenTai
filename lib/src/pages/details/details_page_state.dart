@@ -4,9 +4,15 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class DetailsPageState with Scroll2TopStateMixin {
+  /// initial param
   int? gid;
+
+  /// initial param
   late String galleryUrl;
+
+  /// initial param and may be updated after we get the gallery details
   Gallery? gallery;
+  
   GalleryDetail? galleryDetails;
 
   /// used for rating

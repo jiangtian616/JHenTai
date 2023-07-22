@@ -584,7 +584,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Future<void> _handleDeleteConfig() async {
-    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
 
     if (result == true) {
       quickSearchService.removeQuickSearch(quickSearchName!);

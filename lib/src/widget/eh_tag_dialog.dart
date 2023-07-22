@@ -22,6 +22,7 @@ import '../network/eh_request.dart';
 import '../setting/user_setting.dart';
 import '../utils/log.dart';
 import '../utils/snack_util.dart';
+import '../utils/string_uril.dart';
 import 'loading_state_indicator.dart';
 
 class EHTagDialog extends StatefulWidget {
@@ -224,15 +225,16 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   Future<void> _doVote({required bool isVotingUp}) async {
     Log.info('Vote for tag:${widget.tagData.key}, isVotingUp: $isVotingUp');
 
+    String? errMsg;
     try {
-      await EHRequest.voteTag(
+      errMsg = await EHRequest.voteTag(
         widget.gid,
         widget.token,
         UserSetting.ipbMemberId.value!,
         widget.apikey,
-        widget.tagData.namespace,
-        widget.tagData.key,
+        '${widget.tagData.namespace}:${widget.tagData.key}',
         isVotingUp,
+        parser: EHSpiderParser.voteTagResponse2ErrorMessage,
       );
     } on DioError catch (e) {
       if (isVotingUp) {
@@ -253,14 +255,19 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       snack('voteTagFailed'.tr, e.message);
       return;
     }
-
+    
     if (isVotingUp) {
       voteUpState = LoadingState.success;
     } else {
       voteDownState = LoadingState.success;
     }
-
-    toast('success'.tr);
+    
+    if (!isEmptyOrNull(errMsg)) {
+      snack('voteTagFailed'.tr, errMsg!, longDuration: true);
+      return;
+    } else {
+      toast('success'.tr);
+    }
   }
 
   Future<bool> addNewTagSet(bool watch) async {

@@ -13,7 +13,7 @@ class LocalTagSetsLogic extends GetxController with GetTickerProviderStateMixin,
 
   Future<void> handleDeleteLocalTag(int index) async {
     bool? success = await Get.dialog(
-      EHAlertDialog(
+      EHDialog(
         title: 'delete'.tr + '?',
         content: '${MyTagsSetting.localTagSets[index].namespace}:${MyTagsSetting.localTagSets[index].key}',
       ),

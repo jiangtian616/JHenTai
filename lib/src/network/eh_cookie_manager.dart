@@ -94,6 +94,8 @@ class EHCookieManager extends CookieManager {
     /// https://github.com/Ehviewer-Overhauled/Ehviewer/issues/873
     cookies.removeWhere((cookie) => cookie.name == '__utmp');
 
+    cookies.removeWhere((cookie) => cookie.name == 'igneous' && cookie.value == 'mystery');
+
     /// host
     await Future.wait(
       NetworkSetting.allHostAndIPs.map((host) => cookieJar.saveFromResponse(Uri.parse('https://$host'), cookies)),

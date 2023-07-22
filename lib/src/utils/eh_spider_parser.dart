@@ -638,7 +638,17 @@ class EHSpiderParser {
       'rating_avg': double.parse(respMap['rating_avg'].toString()),
     };
   }
+  
+  static String? voteTagResponse2ErrorMessage(Headers headers, dynamic data) {
+    Map<String, dynamic> respMap = jsonDecode(data as String);
 
+    if (respMap['error'] != null) {
+      return respMap['error'];
+    }
+
+    return null;
+  }
+  
   static int? votingCommentResponse2Score(Headers headers, dynamic data) {
     int? score = jsonDecode(data)['comment_score'];
 

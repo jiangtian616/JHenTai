@@ -144,7 +144,7 @@ class SuperResolutionService extends GetxController {
   }
 
   Future<void> deleteModelFile() async {
-    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
     if (result == true) {
       downloadState = LoadingState.idle;
       Directory(modelSavePath).delete(recursive: true);

@@ -211,7 +211,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
   }
 
   Future<void> handleTapClearSearchHistoryButton() async {
-    bool? result = await Get.dialog(EHAlertDialog(title: 'delete'.tr + '?'));
+    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
 
     if (result == true) {
       await searchHistoryService.clearHistory();

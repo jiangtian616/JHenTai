@@ -84,7 +84,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   Future<void> handleDeleteGroup(String oldGroup) async {
-    bool? success = await Get.dialog(EHAlertDialog(title: 'deleteGroup'.tr + '?'));
+    bool? success = await Get.dialog(EHDialog(title: 'deleteGroup'.tr + '?'));
     if (success == null || !success) {
       return;
     }
@@ -183,7 +183,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
                   superResolutionService.deleteSuperResolutionInfo(gallery.gid, SuperResolutionType.gallery);
                 } else {
                   if (gallery.downloadOriginalImage) {
-                    bool? result = await Get.dialog(EHAlertDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                    bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
                     if (result == false) {
                       return;
                     }
@@ -302,7 +302,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   Future<void> handleMultiReDownloadItems() async {
     bool? result = await Get.dialog(
-      EHAlertDialog(title: 'reDownload'.tr, content: 'multiReDownloadHint'.tr),
+      EHDialog(title: 'reDownload'.tr, content: 'multiReDownloadHint'.tr),
     );
 
     if (result == true) {
@@ -339,7 +339,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   Future<void> handleMultiDelete() async {
     bool? result = await Get.dialog(
-      EHAlertDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
+      EHDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
     );
 
     if (result == true) {

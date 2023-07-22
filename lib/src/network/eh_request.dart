@@ -578,7 +578,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return parser(response.headers, response.data);
   }
 
-  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String namespace, String tagName, bool isVotingUp,
+  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String tag, bool isVotingUp,
       {EHHtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
@@ -589,7 +589,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'method': "taggallery",
         'token': token,
         'vote': isVotingUp ? 1 : -1,
-        'tags': '$namespace:$tagName',
+        'tags': tag,
       },
     );
     return _parseResponse(response, parser);
