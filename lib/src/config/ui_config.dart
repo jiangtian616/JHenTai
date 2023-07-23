@@ -336,8 +336,8 @@ class UIConfig {
 
   static Color detailPageCoverShadowColor(BuildContext context) => Theme.of(context).colorScheme.primary.withOpacity(0.3);
 
-  static const double addTagDialogWidth = 400;
-  static const double addTagDialogHeight = 400;
+  static const double addTagDialogWidth = 350;
+  static const double addTagDialogHeight = 250;
 
   /// Comment
   static const double commentAuthorTextSizeInDetailPage = 12;

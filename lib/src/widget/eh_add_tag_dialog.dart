@@ -83,7 +83,8 @@ class EHAddTagDialog extends StatelessWidget {
           },
           decoration: InputDecoration(
             isDense: true,
-            hintText: 'addTag'.tr,
+            hintText: 'addTagHint'.tr,
+            hintStyle: const TextStyle(fontSize: 14),
             contentPadding: EdgeInsets.zero,
             prefixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
