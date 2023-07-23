@@ -407,6 +407,7 @@ class en_US {
 
       /// preference setting page
       'showR18GImageDirectly': 'Show R18G Image Directly',
+      'defaultTab': 'Default Tab',
 
       /// log page
       'logList': 'Log List',

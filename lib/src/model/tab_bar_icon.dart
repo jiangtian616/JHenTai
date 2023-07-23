@@ -1,7 +1,19 @@
 import 'package:flutter/widgets.dart';
 
+enum TabBarIconNameEnum {
+  home,
+  search,
+  popular,
+  ranklist,
+  watched,
+  favorite,
+  history,
+  download,
+  setting,
+}
+
 class TabBarIcon {
-  final String name;
+  final TabBarIconNameEnum name;
   final String routeName;
   final Icon selectedIcon;
   final Icon unselectedIcon;

@@ -78,9 +78,8 @@ class DesktopLayoutPage extends StatelessWidget {
             child: Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border: state.selectedTabIndex == index
-                      ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context)))
-                      : null,
+                  border:
+                      state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context))) : null,
                 ),
                 child: IconButton(
                   onPressed: () => logic.handleTapTabBarButton(index),
@@ -99,7 +98,7 @@ class DesktopLayoutPage extends StatelessWidget {
                 child: state.hoveringTabIndex != index
                     ? null
                     : Text(
-                        state.icons[index].name.tr,
+                        state.icons[index].name.name.tr,
                         style: const TextStyle(fontSize: 12),
                         maxLines: 2,
                         overflow: TextOverflow.visible,

@@ -58,7 +58,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
                     cacheExtent: 1000,
                     itemBuilder: (context, index) => ListTile(
                       dense: true,
-                      title: Text(state.icons[index].name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      title: Text(state.icons[index].name.name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                       selected: state.selectedDrawerTabIndex == index,
                       selectedTileColor: UIConfig.mobileDrawerSelectedTileColor(context),
                       leading: state.icons[index].unselectedIcon,

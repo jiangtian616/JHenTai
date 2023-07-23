@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 
 import '../../../mixin/double_tap_to_refresh_state_mixin.dart';
 import '../../../model/tab_bar_icon.dart';
 import '../../../routes/routes.dart';
+import '../../../setting/preference_setting.dart';
 import '../../download/download_base_page.dart';
 import '../../favorite/favorite_page.dart';
 import '../../favorite/favorite_page_logic.dart';
@@ -37,16 +39,16 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
   MobileLayoutPageV2State() {
     icons = [
       TabBarIcon(
-        name: 'home',
+        name: TabBarIconNameEnum.home,
         routeName: Routes.dashboard,
         selectedIcon: const Icon(Icons.home),
         unselectedIcon: const Icon(Icons.home_outlined),
         page: () => const DashboardPage(),
         scrollController: () => Get.find<DashboardPageLogic>().scroll2TopState.scrollController,
-        shouldRender: true,
+        shouldRender: false,
       ),
       TabBarIcon(
-        name: 'search',
+        name: TabBarIconNameEnum.search,
         routeName: Routes.mobileV2Search,
         selectedIcon: const Icon(Icons.search, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.search),
@@ -55,7 +57,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         enterNewRoute: true,
       ),
       TabBarIcon(
-        name: 'popular',
+        name: TabBarIconNameEnum.popular,
         routeName: Routes.popular,
         selectedIcon: const Icon(Icons.whatshot),
         unselectedIcon: const Icon(Icons.whatshot_outlined),
@@ -64,7 +66,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'ranklist',
+        name: TabBarIconNameEnum.ranklist,
         routeName: Routes.ranklist,
         selectedIcon: const Icon(Icons.bar_chart_rounded, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.bar_chart_outlined),
@@ -73,7 +75,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'favorite',
+        name: TabBarIconNameEnum.favorite,
         routeName: Routes.favorite,
         selectedIcon: const Icon(Icons.favorite),
         unselectedIcon: const Icon(Icons.favorite_outline),
@@ -82,7 +84,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'watched',
+        name: TabBarIconNameEnum.watched,
         routeName: Routes.watched,
         selectedIcon: const Icon(Icons.visibility),
         unselectedIcon: const Icon(Icons.visibility_outlined),
@@ -91,7 +93,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'history',
+        name: TabBarIconNameEnum.history,
         routeName: Routes.history,
         selectedIcon: const Icon(Icons.history, shadows: [Shadow(blurRadius: 2)]),
         unselectedIcon: const Icon(Icons.history_outlined),
@@ -100,7 +102,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'download',
+        name: TabBarIconNameEnum.download,
         routeName: Routes.download,
         selectedIcon: const Icon(Icons.download),
         unselectedIcon: const Icon(Icons.download_outlined),
@@ -108,7 +110,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         shouldRender: false,
       ),
       TabBarIcon(
-        name: 'setting',
+        name: TabBarIconNameEnum.setting,
         routeName: Routes.setting,
         selectedIcon: const Icon(Icons.settings),
         unselectedIcon: const Icon(Icons.settings_outlined),
@@ -117,5 +119,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         enterNewRoute: true,
       ),
     ];
+
+    selectedDrawerTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == PreferenceSetting.defaultTab.value) ?? 0;
+    icons[selectedDrawerTabIndex].shouldRender = true;
   }
 }

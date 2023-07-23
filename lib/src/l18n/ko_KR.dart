@@ -407,6 +407,7 @@ class ko_KR {
 
       /// preference setting page
       'showR18GImageDirectly': 'R18G 이미지 표시',
+      'defaultTab': 'Default Tab',
 
       /// log page
       'logList': '로그 리스트',

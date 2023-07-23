@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
 import '../service/storage_service.dart';
@@ -10,6 +11,7 @@ import '../utils/log.dart';
 class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
+  static Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
   static RxBool hideBottomBar = false.obs;
   static RxBool alwaysShowScroll2TopButton = false.obs;
   static RxBool enableSwipeBackGesture = true.obs;
@@ -36,6 +38,12 @@ class PreferenceSetting {
     _save();
     Get.updateLocale(locale);
     TabBarSetting.reset();
+  }
+
+  static saveDefaultTab(TabBarIconNameEnum defaultTab) {
+    Log.debug('saveDefaultTab:$defaultTab');
+    PreferenceSetting.defaultTab.value = defaultTab;
+    _save();
   }
 
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
@@ -73,7 +81,7 @@ class PreferenceSetting {
     PreferenceSetting.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
     _save();
   }
-  
+
   static saveAlwaysShowScroll2TopButton(bool alwaysShowScroll2TopButton) {
     Log.debug('saveAlwaysShowScroll2TopButton:$alwaysShowScroll2TopButton');
     PreferenceSetting.alwaysShowScroll2TopButton.value = alwaysShowScroll2TopButton;
@@ -107,6 +115,7 @@ class PreferenceSetting {
       'locale': locale.value.toString(),
       'showR18GImageDirectly': showR18GImageDirectly.value,
       'enableTagZHTranslation': enableTagZHTranslation.value,
+      'defaultTab': defaultTab.value.index, // 'home
       'enableSwipeBackGesture': enableSwipeBackGesture.value,
       'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
@@ -125,6 +134,7 @@ class PreferenceSetting {
     showR18GImageDirectly.value = map['showR18GImageDirectly'] ?? showR18GImageDirectly.value;
     enableSwipeBackGesture.value = map['enableSwipeBackGesture'] ?? enableSwipeBackGesture.value;
     enableTagZHTranslation.value = map['enableTagZHTranslation'] ?? enableTagZHTranslation.value;
+    defaultTab.value = TabBarIconNameEnum.values[map['defaultTab'] ?? TabBarIconNameEnum.home.index];
     enableLeftMenuDrawerGesture.value = map['enableLeftMenuDrawerGesture'] ?? enableLeftMenuDrawerGesture.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     drawerGestureEdgeWidth.value = map['drawerGestureEdgeWidth'] ?? drawerGestureEdgeWidth.value;

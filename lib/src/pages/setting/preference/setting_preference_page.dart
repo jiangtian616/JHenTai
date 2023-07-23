@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/model/tab_bar_icon.dart';
 
 import '../../../consts/locale_consts.dart';
 import '../../../l18n/locale_text.dart';
@@ -29,6 +30,7 @@ class SettingPreferencePage extends StatelessWidget {
             children: [
               _buildLanguage(),
               _buildTagTranslate(),
+              _buildDefaultTab(),
               if (StyleSetting.isInV2Layout) _buildShowBottomNavigation(),
               _buildEnableSwipeBackGesture(),
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
@@ -98,6 +100,40 @@ class SettingPreferencePage extends StatelessWidget {
               }
             },
           )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDefaultTab() {
+    return ListTile(
+      title: Text('defaultTab'.tr),
+      trailing: DropdownButton<TabBarIconNameEnum>(
+        value: PreferenceSetting.defaultTab.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (TabBarIconNameEnum? newValue) => PreferenceSetting.saveDefaultTab(newValue!),
+        items: [
+          DropdownMenuItem(
+            child: Text(TabBarIconNameEnum.home.name.tr),
+            value: TabBarIconNameEnum.home,
+          ),
+          DropdownMenuItem(
+            child: Text(TabBarIconNameEnum.popular.name.tr),
+            value: TabBarIconNameEnum.popular,
+          ),
+          DropdownMenuItem(
+            child: Text(TabBarIconNameEnum.ranklist.name.tr),
+            value: TabBarIconNameEnum.ranklist,
+          ),
+          DropdownMenuItem(
+            child: Text(TabBarIconNameEnum.favorite.name.tr),
+            value: TabBarIconNameEnum.favorite,
+          ),
+          DropdownMenuItem(
+            child: Text(TabBarIconNameEnum.watched.name.tr),
+            value: TabBarIconNameEnum.watched,
+          ),
         ],
       ),
     );

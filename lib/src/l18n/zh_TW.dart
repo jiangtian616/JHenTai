@@ -154,7 +154,7 @@ class zh_TW {
       'useTranslation': '使用翻譯標簽',
       'addTagSuccess': '添加標簽成功',
       'addTagFailed': '添加標簽失敗',
-      
+
       /// detail dialog
       'galleryUrl': '畫廊鏈接',
       'title': '標題',
@@ -409,6 +409,7 @@ class zh_TW {
 
       /// log page
       'logList': '日誌列表',
+      'defaultTab': '啓動時默認菜單',
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': '從Github下載模型',

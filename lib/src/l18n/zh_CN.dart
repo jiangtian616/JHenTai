@@ -407,6 +407,7 @@ class zh_CN {
 
       /// preference setting page
       'showR18GImageDirectly': '标签数据中直接显示R18G图片',
+      'defaultTab': '启动时默认菜单',
 
       /// log page
       'logList': '日志列表',
