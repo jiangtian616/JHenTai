@@ -5,10 +5,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
-import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../../setting/read_setting.dart';
-import '../../../../widget/cached_page_view.dart';
 import '../base/base_layout.dart';
 import 'horizontal_double_column_layout_logic.dart';
 
@@ -22,29 +21,24 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
 
   @override
   Widget buildBody(BuildContext context) {
-    return CachedPageView.builder(
-      physics: const ClampingScrollPhysics(),
-      controller: state.pageController,
+    return PhotoViewGallery.builder(
+      scrollPhysics: const ClampingScrollPhysics(),
+      pageController: state.pageController,
       cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
       reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
       itemCount: state.pageCount,
-      itemBuilder: (BuildContext context, int index) {
-        if (index < 0 || index >= state.pageCount) {
-          return null;
-        }
-
-        return PhotoView.customChild(
-          key: ObjectKey(index),
-          child: readPageState.readPageInfo.mode == ReadMode.online
-              ? _buildDoubleColumnItemInOnlineMode(context, index)
-              : _buildDoubleColumnItemInLocalMode(context, index),
-          initialScale: 1.0,
-          minScale: 1.0,
-          maxScale: 2.5,
-          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
-        );
-      },
+      builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+        initialScale: 1.0,
+        minScale: 1.0,
+        maxScale: 2.5,
+        scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+        enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+        child: index < 0 || index >= state.pageCount
+            ? null
+            : readPageState.readPageInfo.mode == ReadMode.online
+                ? _buildDoubleColumnItemInOnlineMode(context, index)
+                : _buildDoubleColumnItemInLocalMode(context, index),
+      ),
     );
   }
 
