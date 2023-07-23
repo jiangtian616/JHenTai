@@ -34,6 +34,7 @@ class ReadSetting {
   static RxBool enablePageTurnByVolumeKeys = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
+  static RxBool enableTapDragToScaleUp = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.system.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottom.obs : ReadDirection.left2right.obs;
   static RxBool useThirdPartyViewer = false.obs;
@@ -141,6 +142,12 @@ class ReadSetting {
     enableDoubleTapToScaleUp.value = value;
     _save();
   }
+  
+  static saveEnableTapDragToScaleUp(bool value) {
+    Log.debug('saveEnableTapDragToScaleUp:$value');
+    enableTapDragToScaleUp.value = value;
+    _save();
+  }
 
   static saveTurnPageMode(TurnPageMode value) {
     Log.debug('saveTurnPageMode:${value.name}');
@@ -198,6 +205,7 @@ class ReadSetting {
       'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
+      'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
       'deviceDirection': deviceDirection.value.index,
@@ -223,6 +231,7 @@ class ReadSetting {
     enablePageTurnByVolumeKeys.value = map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
+    enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.system.index];

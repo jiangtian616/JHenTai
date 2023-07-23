@@ -33,10 +33,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   Timer? autoModeTimer;
   Worker? doubleTapGestureSwitcherListener;
+  Worker? tapDragGestureSwitcherListener;
 
   @override
   void onInit() {
     doubleTapGestureSwitcherListener = ever(ReadSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
+    tapDragGestureSwitcherListener = ever(ReadSetting.enableTapDragToScaleUp, (value) => updateSafely([pageId]));
     super.onInit();
   }
 

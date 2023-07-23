@@ -389,6 +389,7 @@ class en_US {
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnAnime': 'Enable Turn Page Animation',
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
+      'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'turnPageMode': 'Turn Page Mode',
       'turnPageModeHint': 'To next screen or next image',
       'image': 'Image',

@@ -52,7 +52,7 @@ dependencies:
   photo_view:
     git: 
       url: https://github.com/jiangtian616/photo_view
-      branch: main
+      ref: separate
   package_info_plus: 4.0.0
   file_picker: 5.3.0
   local_auth: 2.1.6

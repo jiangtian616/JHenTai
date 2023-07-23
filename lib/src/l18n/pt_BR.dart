@@ -390,6 +390,7 @@ class pt_BR {
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnAnime': 'Ativar animação de virada',
       'enableDoubleTapToScaleUp': 'Ativar toque duplo para aumentar a escala',
+      'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'turnPageMode': 'Modo de virar página',
       'turnPageModeHint': 'Para a próxima tela ou próxima imagem',
       'image': 'Imagem',

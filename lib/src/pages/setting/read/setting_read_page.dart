@@ -28,6 +28,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
+              _buildEnableTapDragToScaleUp().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -147,6 +148,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('enableDoubleTapToScaleUp'.tr),
       trailing: Switch(value: ReadSetting.enableDoubleTapToScaleUp.value, onChanged: ReadSetting.saveEnableDoubleTapToScaleUp),
+    );
+  }
+
+  Widget _buildEnableTapDragToScaleUp() {
+    return ListTile(
+      title: Text('enableTapDragToScaleUp'.tr),
+      trailing: Switch(value: ReadSetting.enableTapDragToScaleUp.value, onChanged: ReadSetting.saveEnableTapDragToScaleUp),
     );
   }
 
