@@ -6,6 +6,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:throttling/throttling.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../database/database.dart';
 import '../network/eh_request.dart';
@@ -55,6 +56,10 @@ class EHAddTagDialog extends StatelessWidget {
         ),
       ),
       actions: [
+        IconButton(
+          icon: Icon(Icons.help, color: UIConfig.primaryColor(context)),
+          onPressed: () => launchUrlString('https://ehwiki.org/wiki/Gallery_Tagging', mode: LaunchMode.externalApplication),
+        ),
         TextButton(child: Text('OK'.tr), onPressed: () => backRoute(result: state.keyword)),
       ],
       actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
