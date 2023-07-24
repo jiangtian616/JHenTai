@@ -303,7 +303,20 @@ class EHSpiderParser {
                     ? EHTagStatus.incorrect
                     : EHTagStatus.confidence;
 
-        tags.putIfAbsent(namespace, () => []).add(GalleryTag(tagData: TagData(namespace: namespace, key: key), tagStatus: tagStatus));
+        String? tagVoteClass = tagDiv.querySelector('a')?.attributes['class'];
+        EHTagVoteStatus voteStatus = tagVoteClass == 'tup'
+            ? EHTagVoteStatus.up
+            : tagVoteClass == 'tdn'
+                ? EHTagVoteStatus.down
+                : EHTagVoteStatus.none;
+
+        tags.putIfAbsent(namespace, () => []).add(
+              GalleryTag(
+                tagData: TagData(namespace: namespace, key: key),
+                tagStatus: tagStatus,
+                voteStatus: voteStatus,
+              ),
+            );
       }
     }
     return tags;
@@ -638,7 +651,7 @@ class EHSpiderParser {
       'rating_avg': double.parse(respMap['rating_avg'].toString()),
     };
   }
-  
+
   static String? voteTagResponse2ErrorMessage(Headers headers, dynamic data) {
     Map<String, dynamic> respMap = jsonDecode(data as String);
 
@@ -648,7 +661,7 @@ class EHSpiderParser {
 
     return null;
   }
-  
+
   static int? votingCommentResponse2Score(Headers headers, dynamic data) {
     int? score = jsonDecode(data)['comment_score'];
 

@@ -50,7 +50,12 @@ class _EHTagState extends State<EHTag> {
         widthFactor: 1.0,
         alignment: Alignment.center,
         child: Text(
-          widget.tag.tagData.tagName ?? widget.tag.tagData.key,
+          (widget.tag.tagData.tagName ?? widget.tag.tagData.key) +
+              (widget.tag.voteStatus == EHTagVoteStatus.up
+                  ? '↑'
+                  : widget.tag.voteStatus == EHTagVoteStatus.down
+                      ? '↓'
+                      : ''),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(

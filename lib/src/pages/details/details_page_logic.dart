@@ -625,6 +625,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     } else {
       toast('addTagSuccess'.tr);
+      _removeCache();
     }
   }
 
