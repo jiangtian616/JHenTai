@@ -35,7 +35,7 @@ class HorizontalListLayout extends BaseLayout {
           scrollController: state.itemScrollController,
           child: EHScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
-            reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+            reverse: ReadSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online ? ReadSetting.preloadDistance * screenHeight * 1 : 3 * fullScreenWidth,
             initialScrollIndex: readPageState.readPageInfo.initialIndex,

@@ -54,19 +54,19 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      toPrev();
-    } else {
+    if (ReadSetting.isInRight2LeftDirection) {
       toNext();
+    } else {
+      toPrev();
     }
   }
 
   @override
   void toRight() {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      toNext();
-    } else {
+    if (ReadSetting.isInRight2LeftDirection) {
       toPrev();
+    } else {
+      toNext();
     }
   }
 
@@ -124,8 +124,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     autoModeTimer = Timer.periodic(
       Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
-        /// changed read setting
-        if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableDoubleColumn.isFalse) {
+        /// changed read direction
+        if (!ReadSetting.isInDoubleColumnReadDirection) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

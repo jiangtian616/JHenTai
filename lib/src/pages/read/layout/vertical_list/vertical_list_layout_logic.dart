@@ -164,7 +164,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
       Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read direction
-        if (ReadSetting.readDirection.value != ReadDirection.top2bottom) {
+        if (ReadSetting.readDirection.value != ReadDirection.top2bottomList) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

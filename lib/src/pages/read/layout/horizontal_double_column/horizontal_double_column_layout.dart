@@ -25,7 +25,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       scrollPhysics: const ClampingScrollPhysics(),
       pageController: state.pageController,
       cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
-      reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+      reverse: ReadSetting.isInRight2LeftDirection,
       itemCount: state.pageCount,
       builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
         initialScale: 1.0,
@@ -48,7 +48,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (ReadSetting.readDirection.value == ReadDirection.right2left) {
+    if (ReadSetting.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 
@@ -73,7 +73,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (ReadSetting.readDirection.value == ReadDirection.right2left) {
+    if (ReadSetting.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 

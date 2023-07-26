@@ -6,9 +6,13 @@ import '../service/storage_service.dart';
 enum DeviceDirection { system, landscape, portrait }
 
 enum ReadDirection {
-  top2bottom,
-  left2right,
-  right2left,
+  top2bottomList,
+  left2rightSinglePage,
+  left2rightDoubleColumn,
+  left2rightList,
+  right2leftSinglePage,
+  right2leftDoubleColumn,
+  right2leftList,
 }
 
 enum TurnPageMode {
@@ -36,7 +40,7 @@ class ReadSetting {
   static RxBool enableDoubleTapToScaleUp = false.obs;
   static RxBool enableTapDragToScaleUp = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.system.obs;
-  static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottom.obs : ReadDirection.left2right.obs;
+  static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
   static RxDouble autoModeInterval = 2.0.obs;
@@ -44,10 +48,32 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
-  static RxBool enableContinuousHorizontalScroll = GetPlatform.isMobile ? false.obs : true.obs;
-  static RxBool enableAutoScaleUp = false.obs;
-  static RxBool enableDoubleColumn = false.obs;
+
   static RxBool displayFirstPageAlone = true.obs;
+
+  static bool get isInListReadDirection =>
+      readDirection.value == ReadDirection.top2bottomList ||
+      readDirection.value == ReadDirection.left2rightList ||
+      readDirection.value == ReadDirection.right2leftList;
+
+  static bool get isInHorizontalReadDirection =>
+      readDirection.value == ReadDirection.left2rightSinglePage ||
+      readDirection.value == ReadDirection.right2leftSinglePage ||
+      readDirection.value == ReadDirection.left2rightDoubleColumn ||
+      readDirection.value == ReadDirection.right2leftDoubleColumn ||
+      readDirection.value == ReadDirection.left2rightList ||
+      readDirection.value == ReadDirection.right2leftList;
+
+  static bool get isInSinglePageReadDirection =>
+      readDirection.value == ReadDirection.left2rightSinglePage || readDirection.value == ReadDirection.right2leftSinglePage;
+
+  static bool get isInDoubleColumnReadDirection =>
+      readDirection.value == ReadDirection.left2rightDoubleColumn || readDirection.value == ReadDirection.right2leftDoubleColumn;
+
+  static bool get isInRight2LeftDirection =>
+      readDirection.value == ReadDirection.right2leftSinglePage ||
+      readDirection.value == ReadDirection.right2leftDoubleColumn ||
+      readDirection.value == ReadDirection.right2leftList;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
@@ -124,7 +150,7 @@ class ReadSetting {
     thirdPartyViewerPath.value = value;
     _save();
   }
-  
+
   static saveEnablePageTurnByVolumeKeys(bool value) {
     Log.debug('saveEnablePageTurnByVolumeKeys:$value');
     enablePageTurnByVolumeKeys.value = value;
@@ -142,7 +168,7 @@ class ReadSetting {
     enableDoubleTapToScaleUp.value = value;
     _save();
   }
-  
+
   static saveEnableTapDragToScaleUp(bool value) {
     Log.debug('saveEnableTapDragToScaleUp:$value');
     enableTapDragToScaleUp.value = value;
@@ -164,24 +190,6 @@ class ReadSetting {
   static savePreloadPageCount(int value) {
     Log.debug('savePreloadPageCount:$value');
     preloadPageCount.value = value;
-    _save();
-  }
-
-  static saveEnableAutoScaleUp(bool value) {
-    Log.debug('saveEnableAutoScaleUp:$value');
-    enableAutoScaleUp.value = value;
-    _save();
-  }
-
-  static saveEnableContinuousHorizontalScroll(bool value) {
-    Log.debug('saveEnableContinuousHorizontalScroll:$value');
-    enableContinuousHorizontalScroll.value = value;
-    _save();
-  }
-
-  static saveEnableDoubleColumn(bool value) {
-    Log.debug('saveEnableDoubleColumn:$value');
-    enableDoubleColumn.value = value;
     _save();
   }
 
@@ -215,9 +223,6 @@ class ReadSetting {
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
-      'enableContinuousHorizontalScroll': enableContinuousHorizontalScroll.value,
-      'enableDoubleColumn': enableDoubleColumn.value,
-      'enableAutoScaleUp': enableAutoScaleUp.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
     };
   }
@@ -241,9 +246,6 @@ class ReadSetting {
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
-    enableContinuousHorizontalScroll.value = map['enableContinuousHorizontalScroll'] ?? enableContinuousHorizontalScroll.value;
-    enableDoubleColumn.value = map['enableDoubleColumn'] ?? enableDoubleColumn.value;
-    enableAutoScaleUp.value = map['enableAutoScaleUp'];
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
   }
 }

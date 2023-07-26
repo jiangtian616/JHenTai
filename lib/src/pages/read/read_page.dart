@@ -95,13 +95,13 @@ class ReadPage extends StatelessWidget {
     return Obx(() {
       logic.resetImageSize();
 
-      if (ReadSetting.readDirection.value == ReadDirection.top2bottom) {
+      if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
         return VerticalListLayout();
       }
-      if (ReadSetting.enableContinuousHorizontalScroll.isTrue) {
+      if (ReadSetting.isInListReadDirection) {
         return HorizontalListLayout();
       }
-      if (ReadSetting.enableDoubleColumn.isTrue) {
+      if (ReadSetting.isInDoubleColumnReadDirection) {
         return HorizontalDoubleColumnLayout();
       }
       return HorizontalPageLayout();
@@ -249,7 +249,7 @@ class ReadPage extends StatelessWidget {
                 ),
               ),
             Obx(() {
-              if (ReadSetting.enableDoubleColumn.isFalse || logic.layoutLogic is! HorizontalDoubleColumnLayoutLogic) {
+              if (!ReadSetting.isInDoubleColumnReadDirection) {
                 return const SizedBox();
               }
               return ElevatedButton(
@@ -350,7 +350,7 @@ class ReadPage extends StatelessWidget {
           scrollController: state.thumbnailsScrollController,
           child: EHScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
-            reverse: ReadSetting.readDirection.value == ReadDirection.right2left,
+            reverse: ReadSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: 1 * fullScreenWidth,
             initialScrollIndex: state.readPageInfo.initialIndex,
@@ -459,13 +459,16 @@ class ReadPage extends StatelessWidget {
         width: fullScreenWidth,
         child: Row(
           children: [
-            Text((state.readPageInfo.currentImageIndex + 1).toString()).marginOnly(left: 36, right: 4),
+            Text(ReadSetting.isInRight2LeftDirection
+                    ? state.readPageInfo.pageCount.toString()
+                    : (state.readPageInfo.currentImageIndex + 1).toString())
+                .marginOnly(left: 36, right: 4),
             Expanded(
               child: ExcludeFocus(
                 child: Material(
                   color: Colors.transparent,
                   child: RotatedBox(
-                    quarterTurns: ReadSetting.readDirection.value == ReadDirection.right2left ? 2 : 0,
+                    quarterTurns: ReadSetting.isInRight2LeftDirection ? 2 : 0,
                     child: Slider(
                       min: 1,
                       max: state.readPageInfo.pageCount.toDouble(),
@@ -478,7 +481,10 @@ class ReadPage extends StatelessWidget {
                 ),
               ),
             ),
-            Text(state.readPageInfo.pageCount.toString()).marginOnly(right: 36, left: 4),
+            Text(ReadSetting.isInRight2LeftDirection
+                    ? (state.readPageInfo.currentImageIndex + 1).toString()
+                    : state.readPageInfo.pageCount.toString())
+                .marginOnly(right: 36, left: 4),
           ],
         ),
       ),

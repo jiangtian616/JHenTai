@@ -52,11 +52,11 @@ class ReadPageLogic extends GetxController {
 
   ReadPageState state = ReadPageState();
 
-  BaseLayoutLogic get layoutLogic => ReadSetting.readDirection.value == ReadDirection.top2bottom
+  BaseLayoutLogic get layoutLogic => ReadSetting.readDirection.value == ReadDirection.top2bottomList
       ? Get.find<VerticalListLayoutLogic>()
-      : ReadSetting.enableContinuousHorizontalScroll.isTrue
+      : ReadSetting.isInListReadDirection
           ? Get.find<HorizontalListLayoutLogic>()
-          : ReadSetting.enableDoubleColumn.isTrue
+          : ReadSetting.isInDoubleColumnReadDirection
               ? Get.find<HorizontalDoubleColumnLayoutLogic>()
               : Get.find<HorizontalPageLayoutLogic>();
 

@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
-import 'package:photo_view/photo_view.dart';
 
 import '../base/base_layout_logic.dart';
 import 'horizontal_page_layout_state.dart';
@@ -26,19 +25,19 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      toPrev();
-    } else {
+    if (ReadSetting.isInRight2LeftDirection) {
       toNext();
+    } else {
+      toPrev();
     }
   }
 
   @override
   void toRight() {
-    if (ReadSetting.readDirection.value == ReadDirection.left2right) {
-      toNext();
+    if (ReadSetting.isInRight2LeftDirection) {
+       toPrev();
     } else {
-      toPrev();
+      toNext();
     }
   }
 
@@ -82,9 +81,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
       Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read setting
-        if (ReadSetting.readDirection.value == ReadDirection.top2bottom ||
-            ReadSetting.enableContinuousHorizontalScroll.isTrue ||
-            ReadSetting.enableDoubleColumn.isTrue) {
+        if (!ReadSetting.isInSinglePageReadDirection) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

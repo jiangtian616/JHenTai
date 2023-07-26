@@ -33,28 +33,13 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
               _buildReadDirection().center(),
-              if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
+              if (ReadSetting.isInListReadDirection)
                 _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
-              if (ReadSetting.readDirection.value != ReadDirection.top2bottom && ReadSetting.enableContinuousHorizontalScroll.isFalse)
-                _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
-              if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
-                  ReadSetting.enableAutoScaleUp.isFalse &&
-                  ReadSetting.enableDoubleColumn.isFalse)
-                _buildContinuousScroll().fadeIn(const Key('continuousScroll')).center(),
-              if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
-                  ReadSetting.enableContinuousHorizontalScroll.isFalse &&
-                  ReadSetting.enableAutoScaleUp.isFalse)
-                _buildDoubleColumn().fadeIn(const Key('doubleColumn')).center(),
-              if (ReadSetting.readDirection.value != ReadDirection.top2bottom &&
-                  ReadSetting.enableContinuousHorizontalScroll.isFalse &&
-                  ReadSetting.enableDoubleColumn.isFalse)
-                _buildEnableAutoScaleUp().fadeIn(const Key('enableAutoScaleUp')).center(),
-              if (ReadSetting.enableDoubleColumn.isTrue) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
-              // _buildAutoModeInterval().center(),
-              if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
-                _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
-              if (ReadSetting.readDirection.value == ReadDirection.top2bottom || ReadSetting.enableContinuousHorizontalScroll.isTrue)
-                _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
+              if (!ReadSetting.isInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
+              if (ReadSetting.isInDoubleColumnReadDirection)
+                _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
+              if (ReadSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
+              if (ReadSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -181,11 +166,7 @@ class SettingReadPage extends StatelessWidget {
         value: ReadSetting.readDirection.value,
         elevation: 4,
         onChanged: (ReadDirection? newValue) => ReadSetting.saveReadDirection(newValue!),
-        items: [
-          DropdownMenuItem(child: Text('top2bottom'.tr), value: ReadDirection.top2bottom),
-          DropdownMenuItem(child: Text('left2right'.tr), value: ReadDirection.left2right),
-          DropdownMenuItem(child: Text('right2left'.tr), value: ReadDirection.right2left),
-        ],
+        items: ReadDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
       ).marginOnly(right: 12),
     );
   }
@@ -305,47 +286,10 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnableAutoScaleUp() {
-    return ListTile(
-      title: Text('enableAutoScaleUp'.tr),
-      subtitle: Text('enableAutoScaleUpHints'.tr),
-      trailing: Switch(value: ReadSetting.enableAutoScaleUp.value, onChanged: ReadSetting.saveEnableAutoScaleUp),
-    );
-  }
-
-  Widget _buildContinuousScroll() {
-    return ListTile(
-      title: Text('continuousScroll'.tr),
-      subtitle: Text('continuousScrollHint'.tr),
-      trailing: Switch(value: ReadSetting.enableContinuousHorizontalScroll.value, onChanged: ReadSetting.saveEnableContinuousHorizontalScroll),
-    );
-  }
-
-  Widget _buildDoubleColumn() {
-    return ListTile(
-      title: Text('doubleColumn'.tr),
-      trailing: Switch(value: ReadSetting.enableDoubleColumn.value, onChanged: ReadSetting.saveEnableDoubleColumn),
-    );
-  }
-
   Widget _buildDisplayFirstPageAlone() {
     return ListTile(
       title: Text('displayFirstPageAloneGlobally'.tr),
       trailing: Switch(value: ReadSetting.displayFirstPageAlone.value, onChanged: ReadSetting.saveDisplayFirstPageAlone),
-    );
-  }
-
-  Widget _buildAutoModeInterval() {
-    return ListTile(
-      title: Text('autoModeInterval'.tr),
-      onTap: () => Get.dialog(const AutoModeIntervalDialog()),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('${ReadSetting.autoModeInterval.value}s'),
-          const Icon(Icons.keyboard_arrow_right),
-        ],
-      ).marginOnly(right: 4),
     );
   }
 
