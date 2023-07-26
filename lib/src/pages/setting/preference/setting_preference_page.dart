@@ -39,6 +39,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
+              _buildEnableDefaultFavorite(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildLocalTags(),
             ],
@@ -233,6 +234,17 @@ class SettingPreferencePage extends StatelessWidget {
       trailing: Switch(
         value: PreferenceSetting.showR18GImageDirectly.value,
         onChanged: PreferenceSetting.saveShowR18GImageDirectly,
+      ),
+    );
+  }
+
+  Widget _buildEnableDefaultFavorite() {
+    return ListTile(
+      title: Text('enableDefaultFavorite'.tr),
+      subtitle: Text(PreferenceSetting.enableDefaultFavorite.isTrue ? 'enableDefaultFavoriteHint'.tr : 'disableDefaultFavoriteHint'.tr),
+      trailing: Switch(
+        value: PreferenceSetting.enableDefaultFavorite.value,
+        onChanged: PreferenceSetting.saveEnableDefaultFavorite,
       ),
     );
   }

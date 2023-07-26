@@ -275,7 +275,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
-  Future<void> handleTapFavorite() async {
+  Future<void> handleTapFavorite({required bool useDefault}) async {
     if (!UserSetting.hasLoggedIn()) {
       showLoginToast();
       return;
@@ -289,10 +289,18 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       FavoriteSetting.refresh();
     }
 
-    int? favIndex = await Get.dialog(EHFavoriteDialog(selectedIndex: state.gallery?.favoriteTagIndex));
-
-    if (favIndex == null) {
-      return;
+    int favIndex;
+    if (useDefault && UserSetting.defaultFavoriteIndex.value != null) {
+      favIndex = UserSetting.defaultFavoriteIndex.value!;
+    } else {
+      ({int favIndex, bool remember})? result = await Get.dialog(EHFavoriteDialog(selectedIndex: state.gallery?.favoriteTagIndex));
+      if (result == null) {
+        return;
+      }
+      if (result.remember == true) {
+        UserSetting.saveDefaultFavoriteIndex(result.favIndex);
+      }
+      favIndex = result.favIndex;
     }
 
     Log.info('Favorite gallery: ${state.gallery!.gid}');

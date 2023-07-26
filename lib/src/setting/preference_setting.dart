@@ -20,6 +20,7 @@ class PreferenceSetting {
   static RxInt drawerGestureEdgeWidth = 20.obs;
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
+  static RxBool enableDefaultFavorite = false.obs;
   static RxBool showR18GImageDirectly = false.obs;
 
   static void init() {
@@ -99,6 +100,12 @@ class PreferenceSetting {
     PreferenceSetting.showAllComments.value = showAllComments;
     _save();
   }
+  
+  static saveEnableDefaultFavorite(bool enableDefaultFavorite) {
+    Log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
+    PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
+    _save();
+  }
 
   static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
     Log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
@@ -124,6 +131,7 @@ class PreferenceSetting {
       'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
+      'enableDefaultFavorite': enableDefaultFavorite.value,
     };
   }
 
@@ -142,5 +150,6 @@ class PreferenceSetting {
     alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
+    enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
   }
 }
