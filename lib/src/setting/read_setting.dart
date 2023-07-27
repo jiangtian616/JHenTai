@@ -3,7 +3,7 @@ import 'package:jhentai/src/utils/log.dart';
 
 import '../service/storage_service.dart';
 
-enum DeviceDirection { system, landscape, portrait }
+enum DeviceDirection { followSystem, landscape, portrait }
 
 enum ReadDirection {
   top2bottomList,
@@ -39,7 +39,7 @@ class ReadSetting {
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
   static RxBool enableTapDragToScaleUp = false.obs;
-  static Rx<DeviceDirection> deviceDirection = DeviceDirection.system.obs;
+  static Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
@@ -239,7 +239,7 @@ class ReadSetting {
     enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
-    deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.system.index];
+    deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];

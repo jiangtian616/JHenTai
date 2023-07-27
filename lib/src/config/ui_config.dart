@@ -290,21 +290,23 @@ class UIConfig {
   /// Read page
   static const Color readPageForeGroundColor = Colors.white;
 
-  static Color get readPageMenuColor => Colors.black.withOpacity(0.8);
+  static Color get readPageMenuColor => Colors.black.withOpacity(0.85);
 
   static const Color readPageButtonColor = Colors.white;
 
   static Color readPageActiveButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
-  static const double readPageBottomThumbnailsRegionHeight = 134;
-  static const double readPageThumbnailHeight = 102;
+  static const double readPageBottomThumbnailsRegionHeight = 156;
+  static const double readPageThumbnailHeight = 120;
   static const double readPageThumbnailWidth = 80;
 
   static Color readPageBottomCurrentImageHighlightBackgroundColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
   static Color readPageBottomCurrentImageHighlightForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onPrimary;
 
-  static const double readPageBottomSliderHeight = 56;
+  static const double readPageBottomSliderHeight = 54;
   static const double readPageBottomSpacingHeight = 36;
+
+  static const double readPageBottomActionHeight = 52;
 
   static const Color readPageWarningButtonColor = Colors.yellow;
 

@@ -37,6 +37,7 @@ import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 
 class ReadPageLogic extends GetxController {
+  final String layoutId = 'layoutId';
   final String onlineImageId = 'onlineImageId';
   final String parseImageHrefsStateId = 'parseImageHrefsStateId';
   final String parseImageUrlStateId = 'parseImageUrlStateId';
@@ -86,7 +87,7 @@ class ReadPageLogic extends GetxController {
     /// Turn page by volume keys. The reason for not use [KeyboardListener]: https://github.com/flutter/flutter/issues/71144
     listen2VolumeKeys();
 
-    toggleCurrentImmersiveMode();
+    applyCurrentImmersiveMode();
 
     updateDeviceOrientation();
 
@@ -94,14 +95,17 @@ class ReadPageLogic extends GetxController {
     toggleTurnPageByVolumeKeyLister = ever(ReadSetting.enablePageTurnByVolumeKeys, (_) => listen2VolumeKeys());
 
     /// Listen to immersive mode change
-    toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => toggleCurrentImmersiveMode());
+    toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => applyCurrentImmersiveMode());
 
     /// Listen to device orientation change
     toggleDeviceOrientationLister = ever(ReadSetting.deviceDirection, (_) => updateDeviceOrientation());
 
-    /// Listen to layout change
-    readDirectionLister =
-        ever(ReadSetting.readDirection, (_) => state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null));
+    /// Listen to read direction change
+    readDirectionLister = ever(ReadSetting.readDirection, (_) {
+      state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
+      state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
+      updateSafely([layoutId]);
+    });
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -283,8 +287,8 @@ class ReadPageLogic extends GetxController {
     volumeService.setInterceptVolumeEvent(false);
   }
 
-  /// If [enableImmersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
-  void toggleCurrentImmersiveMode() {
+  /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
+  void applyCurrentImmersiveMode() {
     if (ReadSetting.enableImmersiveMode.isTrue) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     } else {
@@ -301,7 +305,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    if (ReadSetting.deviceDirection.value == DeviceDirection.system) {
+    if (ReadSetting.deviceDirection.value == DeviceDirection.followSystem) {
       restoreDeviceOrientation();
     }
     if (ReadSetting.deviceDirection.value == DeviceDirection.landscape) {
@@ -429,10 +433,6 @@ class ReadPageLogic extends GetxController {
     Log.info('toggle super resolution mode: ${state.useSuperResolution}');
     updateSafely([topMenuId]);
     layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
-  }
-
-  void resetImageSize() {
-    state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
   }
 
   String getSuperResolutionProgress() {

@@ -6,7 +6,6 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../../../utils/log.dart';
-import '../../../widget/auto_mode_interval_dialog.dart';
 
 class SettingReadPage extends StatelessWidget {
   const SettingReadPage({Key? key}) : super(key: key);
@@ -151,7 +150,7 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (DeviceDirection? newValue) => ReadSetting.saveDeviceDirection(newValue!),
         items: [
-          DropdownMenuItem(child: Text('followSystem'.tr), value: DeviceDirection.system),
+          DropdownMenuItem(child: Text('followSystem'.tr), value: DeviceDirection.followSystem),
           DropdownMenuItem(child: Text('landscape'.tr), value: DeviceDirection.landscape),
           DropdownMenuItem(child: Text('portrait'.tr), value: DeviceDirection.portrait),
         ],

@@ -13,6 +13,7 @@ import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 
 import '../../config/ui_config.dart';
@@ -92,20 +93,21 @@ class ReadPage extends StatelessWidget {
 
   /// Main region to display images
   Widget buildLayout() {
-    return Obx(() {
-      logic.resetImageSize();
-
-      if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
-        return VerticalListLayout();
-      }
-      if (ReadSetting.isInListReadDirection) {
-        return HorizontalListLayout();
-      }
-      if (ReadSetting.isInDoubleColumnReadDirection) {
-        return HorizontalDoubleColumnLayout();
-      }
-      return HorizontalPageLayout();
-    });
+    return GetBuilder<ReadPageLogic>(
+      id: logic.layoutId,
+      builder: (_) {
+        if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
+          return VerticalListLayout();
+        }
+        if (ReadSetting.isInListReadDirection) {
+          return HorizontalListLayout();
+        }
+        if (ReadSetting.isInDoubleColumnReadDirection) {
+          return HorizontalDoubleColumnLayout();
+        }
+        return HorizontalPageLayout();
+      },
+    );
   }
 
   /// right-bottom info
@@ -285,24 +287,25 @@ class ReadPage extends StatelessWidget {
                 ),
               ),
             ),
-            ElevatedButton(
-              child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
-              onPressed: () {
-                logic.restoreImmersiveMode();
-                toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
-                  logic.toggleCurrentImmersiveMode();
-                  state.focusNode.requestFocus();
-                });
-              },
-              style: ElevatedButton.styleFrom(
-                elevation: 0,
-                padding: const EdgeInsets.all(0),
-                surfaceTintColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-                shadowColor: Colors.transparent,
-                minimumSize: const Size(56, 56),
+            if (StyleSetting.isInDesktopLayout)
+              ElevatedButton(
+                child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+                onPressed: () {
+                  logic.restoreImmersiveMode();
+                  toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+                    logic.applyCurrentImmersiveMode();
+                    state.focusNode.requestFocus();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  minimumSize: const Size(56, 56),
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -319,11 +322,10 @@ class ReadPage extends StatelessWidget {
           curve: Curves.ease,
           bottom: state.isMenuOpen
               ? 0
-              : ReadSetting.showThumbnails.isTrue
-                  ? -(UIConfig.readPageBottomThumbnailsRegionHeight +
-                      UIConfig.readPageBottomSliderHeight +
-                      max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight))
-                  : -(UIConfig.readPageBottomSliderHeight + max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
+              : (ReadSetting.showThumbnails.isTrue ? -UIConfig.readPageBottomThumbnailsRegionHeight : 0) -
+                  UIConfig.readPageBottomSliderHeight -
+                  (StyleSetting.isInDesktopLayout ? 0 : UIConfig.readPageBottomActionHeight) -
+                  max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
             child: Column(
@@ -331,6 +333,7 @@ class ReadPage extends StatelessWidget {
               children: [
                 if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(context),
                 _buildSlider(),
+                if (!StyleSetting.isInDesktopLayout) _buildBottomAction(),
                 SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
               ],
             ),
@@ -341,10 +344,9 @@ class ReadPage extends StatelessWidget {
   }
 
   Widget _buildThumbnails(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: fullScreenWidth,
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
-      padding: const EdgeInsets.only(top: 10),
       child: Obx(
         () => EHWheelSpeedControllerForReadPage(
           scrollController: state.thumbnailsScrollController,
@@ -359,45 +361,47 @@ class ReadPage extends StatelessWidget {
             itemPositionsListener: state.thumbnailPositionsListener,
             itemBuilder: (_, index) => GetBuilder<ReadPageLogic>(
               id: logic.thumbnailNoId,
-              builder: (_) => SizedBox(
-                width: UIConfig.readPageThumbnailWidth,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => logic.jump2ImageIndex(index),
-                        child: state.readPageInfo.mode == ReadMode.online
-                            ? _buildThumbnailInOnlineMode(context, index)
-                            : _buildThumbnailInLocalMode(context, index),
-                      ),
+              builder: (_) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 6),
+                  SizedBox(
+                    height: UIConfig.readPageThumbnailHeight,
+                    width: UIConfig.readPageThumbnailWidth,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => logic.jump2ImageIndex(index),
+                      child: state.readPageInfo.mode == ReadMode.online
+                          ? _buildThumbnailInOnlineMode(context, index)
+                          : _buildThumbnailInLocalMode(context, index),
                     ),
-                    GetBuilder<ReadPageLogic>(
-                      builder: (_) => Center(
-                        child: Container(
-                          width: 24,
-                          decoration: BoxDecoration(
+                  ),
+                  const SizedBox(height: 4),
+                  GetBuilder<ReadPageLogic>(
+                    builder: (_) => Center(
+                      child: Container(
+                        width: 24,
+                        decoration: BoxDecoration(
+                          color: state.readPageInfo.currentImageIndex == index
+                              ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          (index + 1).toString(),
+                          style: TextStyle(
+                            fontSize: 9,
                             color: state.readPageInfo.currentImageIndex == index
-                                ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(context)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            (index + 1).toString(),
-                            style: TextStyle(
-                              fontSize: 9,
-                              color: state.readPageInfo.currentImageIndex == index
-                                  ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
-                                  : null,
-                            ),
+                                ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
+                                : null,
                           ),
                         ),
                       ),
-                    ).marginOnly(top: 4),
-                  ],
-                ),
+                    ),
+                  ),
+                  const Expanded(child: SizedBox()),
+                ],
               ),
             ),
             separatorBuilder: (_, __) => const SizedBox(width: 6),
@@ -458,27 +462,33 @@ class ReadPage extends StatelessWidget {
         height: UIConfig.readPageBottomSliderHeight,
         width: fullScreenWidth,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(ReadSetting.isInRight2LeftDirection
                     ? state.readPageInfo.pageCount.toString()
                     : (state.readPageInfo.currentImageIndex + 1).toString())
                 .marginOnly(left: 36, right: 4),
             Expanded(
-              child: ExcludeFocus(
-                child: Material(
-                  color: Colors.transparent,
-                  child: RotatedBox(
-                    quarterTurns: ReadSetting.isInRight2LeftDirection ? 2 : 0,
-                    child: Slider(
-                      min: 1,
-                      max: state.readPageInfo.pageCount.toDouble(),
-                      value: state.readPageInfo.currentImageIndex + 1.0,
-                      thumbColor: UIConfig.readPageForeGroundColor,
-                      onChanged: logic.handleSlide,
-                      onChangeEnd: logic.handleSlideEnd,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ExcludeFocus(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: RotatedBox(
+                        quarterTurns: ReadSetting.isInRight2LeftDirection ? 2 : 0,
+                        child: Slider(
+                          min: 1,
+                          max: state.readPageInfo.pageCount.toDouble(),
+                          value: state.readPageInfo.currentImageIndex + 1.0,
+                          thumbColor: UIConfig.readPageForeGroundColor,
+                          onChanged: logic.handleSlide,
+                          onChangeEnd: logic.handleSlideEnd,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
             Text(ReadSetting.isInRight2LeftDirection
@@ -487,6 +497,62 @@ class ReadPage extends StatelessWidget {
                 .marginOnly(right: 36, left: 4),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBottomAction() {
+    return SizedBox(
+      height: UIConfig.readPageBottomActionHeight,
+      width: fullScreenWidth,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Material(
+            color: Colors.transparent,
+            child: PopupMenuButton<ReadDirection>(
+              initialValue: ReadSetting.readDirection.value,
+              icon: const Icon(Icons.height, color: UIConfig.readPageButtonColor),
+              itemBuilder: (_) => ReadDirection.values
+                  .map(
+                    (e) => PopupMenuItem<ReadDirection>(child: Text(e.name.tr), value: e),
+                  )
+                  .toList(),
+              onSelected: (ReadDirection value) => ReadSetting.saveReadDirection(value),
+            ),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: PopupMenuButton<DeviceDirection>(
+              initialValue: ReadSetting.deviceDirection.value,
+              icon: const Icon(Icons.screen_rotation, color: UIConfig.readPageButtonColor),
+              itemBuilder: (_) => DeviceDirection.values
+                  .map(
+                    (e) => PopupMenuItem<DeviceDirection>(child: Text(e.name.tr), value: e),
+                  )
+                  .toList(),
+              onSelected: (DeviceDirection value) => ReadSetting.saveDeviceDirection(value),
+            ),
+          ),
+          GestureDetector(
+            child: AbsorbPointer(
+              child: Material(
+                color: Colors.transparent,
+                child: PopupMenuButton(
+                  icon: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+                  itemBuilder: (_) => [],
+                ),
+              ),
+            ),
+            onTap: () {
+              logic.restoreImmersiveMode();
+              toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+                logic.applyCurrentImmersiveMode();
+                state.focusNode.requestFocus();
+              });
+            },
+          ),
+        ],
       ),
     );
   }
