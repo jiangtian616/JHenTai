@@ -22,12 +22,12 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableImmersiveMode().center(),
               _buildKeepScreenAwake().center(),
               _buildShowThumbnails().center(),
-              _buildImageSpace().center(),
               _buildShowStatusInfo().center(),
               if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
               _buildEnableTapDragToScaleUp().center(),
+              _buildEnableBottomMenu().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -39,6 +39,7 @@ class SettingReadPage extends StatelessWidget {
                 _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               if (ReadSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (ReadSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
+              _buildImageSpace().center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -139,6 +140,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('enableTapDragToScaleUp'.tr),
       trailing: Switch(value: ReadSetting.enableTapDragToScaleUp.value, onChanged: ReadSetting.saveEnableTapDragToScaleUp),
+    );
+  }
+  
+  Widget _buildEnableBottomMenu(){
+    return ListTile(
+      title: Text('enableBottomMenu'.tr),
+      trailing: Switch(value: ReadSetting.enableBottomMenu.value, onChanged: ReadSetting.saveEnableBottomMenu),
     );
   }
 

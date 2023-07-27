@@ -39,6 +39,7 @@ class ReadSetting {
   static RxBool enablePageTurnAnime = true.obs;
   static RxBool enableDoubleTapToScaleUp = false.obs;
   static RxBool enableTapDragToScaleUp = false.obs;
+  static RxBool enableBottomMenu = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
   static RxBool useThirdPartyViewer = false.obs;
@@ -174,6 +175,12 @@ class ReadSetting {
     enableTapDragToScaleUp.value = value;
     _save();
   }
+  
+  static saveEnableBottomMenu(bool value) {
+    Log.debug('saveEnableBottomMenu:$value');
+    enableBottomMenu.value = value;
+    _save();
+  }
 
   static saveTurnPageMode(TurnPageMode value) {
     Log.debug('saveTurnPageMode:${value.name}');
@@ -214,6 +221,7 @@ class ReadSetting {
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
+      'enableBottomMenu': enableBottomMenu.value,
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
       'deviceDirection': deviceDirection.value.index,
@@ -237,6 +245,7 @@ class ReadSetting {
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
+    enableBottomMenu.value = map['enableBottomMenu'] ?? enableBottomMenu.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];

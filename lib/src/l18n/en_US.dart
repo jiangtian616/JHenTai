@@ -398,6 +398,7 @@ class en_US {
       'enablePageTurnAnime': 'Enable Turn Page Animation',
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
+      'enableBottomMenu': 'Enable Bottom Menu',
       'turnPageMode': 'Turn Page Mode',
       'turnPageModeHint': 'To next screen or next image',
       'image': 'Image',

@@ -398,6 +398,7 @@ class ko_KR {
       'enablePageTurnAnime': '페이지 넘기기 애니메이션 사용',
       'enableDoubleTapToScaleUp': '두 번 터치해 확대 사용',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
+      'enableBottomMenu': 'Enable Bottom Menu',
       'turnPageMode': '페이지 넘기기 모드',
       'turnPageModeHint': '화면 기준 혹은 이미지 기준',
       'image': '이미지 기준',

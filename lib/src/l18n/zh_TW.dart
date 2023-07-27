@@ -397,6 +397,7 @@ class zh_TW {
       'turnPageMode': '翻頁模式',
       'enableDoubleTapToScaleUp': '雙擊放大圖片',
       'enableTapDragToScaleUp': '允許單擊後拖拽放大圖片',
+      'enableBottomMenu': '開啓底部菜單',
       'turnPageModeHint': '移動至下一螢幕還是下一圖片',
       'image': '圖片',
       'screen': '螢幕',

@@ -287,7 +287,7 @@ class ReadPage extends StatelessWidget {
                 ),
               ),
             ),
-            if (StyleSetting.isInDesktopLayout)
+            if (ReadSetting.enableBottomMenu.isFalse)
               ElevatedButton(
                 child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
                 onPressed: () {
@@ -324,7 +324,7 @@ class ReadPage extends StatelessWidget {
               ? 0
               : (ReadSetting.showThumbnails.isTrue ? -UIConfig.readPageBottomThumbnailsRegionHeight : 0) -
                   UIConfig.readPageBottomSliderHeight -
-                  (StyleSetting.isInDesktopLayout ? 0 : UIConfig.readPageBottomActionHeight) -
+                  (ReadSetting.enableBottomMenu.isTrue ? UIConfig.readPageBottomActionHeight : 0) -
                   max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
@@ -333,7 +333,7 @@ class ReadPage extends StatelessWidget {
               children: [
                 if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(context),
                 _buildSlider(),
-                if (!StyleSetting.isInDesktopLayout) _buildBottomAction(),
+                if (ReadSetting.enableBottomMenu.isTrue) _buildBottomAction(),
                 SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
               ],
             ),
