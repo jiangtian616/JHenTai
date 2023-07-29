@@ -71,7 +71,7 @@ Linux(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 해제�
 
 ### 태블릿 레이아웃
 
-<img width="770" src="screenshot/tabletV2_en.png"/>
+<img width="770" src="screenshot/tabletV2_zh.png"/>
 
 ### 데스크톱 레이아웃
 

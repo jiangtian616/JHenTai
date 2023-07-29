@@ -93,7 +93,7 @@ mush thanks to these projects and people🙇‍
 
 ### Tablet Layout
 
-<img width="770" src="screenshot/tabletV2_en.png"/>
+<img width="770" src="screenshot/tabletV2_zh.png"/>
 
 ### Desktop Layout
 
@@ -111,7 +111,7 @@ mush thanks to these projects and people🙇‍
 
 ### Setting & Download
 
-<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
+<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
 
 ### Read
 
