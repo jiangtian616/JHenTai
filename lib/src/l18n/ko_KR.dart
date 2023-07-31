@@ -236,7 +236,7 @@ class ko_KR {
       'myTagsHint': '강조하거나 숨기고 싶은 태그를 관리',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Gallerys with these tags will be blurred',
+      'localTagsHint2': 'Gallerys with these tags will be hidden',
       'addLocalTags': 'Add Tags',
       'hidden': '숨김',
       'nope': '없음',

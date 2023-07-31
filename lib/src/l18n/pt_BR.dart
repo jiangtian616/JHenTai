@@ -238,7 +238,7 @@ class pt_BR {
       'myTagsHint': 'gerenciar tags assistidas e ocultas',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Gallerys with these tags will be blurred',
+      'localTagsHint2': 'Gallerys with these tags will be hidden',
       'addLocalTags': 'Add Tags',
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',

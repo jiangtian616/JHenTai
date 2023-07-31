@@ -16,7 +16,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
   String packageName = '';
   String version = '';
   String buildNumber = '';
-  String author = 'JTMonster';
+  String author = '酱天小禽兽(JTMonster)';
   String telegram = 'https://t.me/+PindoE9yvIpmOWI9';
   String gitRepo = 'https://github.com/jiangtian616/JHenTai';
   String helpPage = 'https://github.com/jiangtian616/JHenTai/wiki';

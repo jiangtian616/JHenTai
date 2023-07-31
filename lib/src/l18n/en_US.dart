@@ -236,7 +236,7 @@ class en_US {
       'myTagsHint': 'Manage watched and hidden tags online',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Gallerys with these tags will be blurred',
+      'localTagsHint2': 'Gallerys with these tags will be hidden',
       'addLocalTags': 'Add Tags',
       'hidden': 'Hidden',
       'nope': 'Nope',

@@ -235,7 +235,7 @@ class zh_CN {
       'myTagsHint': '管理关注和隐藏的标签',
       'localTags': '本地标签屏蔽',
       'localTagsHint': '额外的屏蔽标签',
-      'localTagsHint2': '含有屏蔽标签的画廊会被模糊处理',
+      'localTagsHint2': '含有屏蔽标签的画廊会被隐藏',
       'addLocalTags': '添加标签',
       'hidden': '屏蔽',
       'nope': '无',
