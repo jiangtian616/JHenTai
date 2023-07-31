@@ -8,12 +8,14 @@ import '../service/storage_service.dart';
 import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
+enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never }
+
 class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
   static RxBool hideBottomBar = false.obs;
-  static RxBool alwaysShowScroll2TopButton = false.obs;
+  static Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
   static RxBool enableSwipeBackGesture = true.obs;
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
@@ -83,9 +85,9 @@ class PreferenceSetting {
     _save();
   }
 
-  static saveAlwaysShowScroll2TopButton(bool alwaysShowScroll2TopButton) {
-    Log.debug('saveAlwaysShowScroll2TopButton:$alwaysShowScroll2TopButton');
-    PreferenceSetting.alwaysShowScroll2TopButton.value = alwaysShowScroll2TopButton;
+  static saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) {
+    Log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
+    PreferenceSetting.hideScroll2TopButton.value = hideScroll2TopButton;
     _save();
   }
 
@@ -100,7 +102,7 @@ class PreferenceSetting {
     PreferenceSetting.showAllComments.value = showAllComments;
     _save();
   }
-  
+
   static saveEnableDefaultFavorite(bool enableDefaultFavorite) {
     Log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
     PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
@@ -128,7 +130,7 @@ class PreferenceSetting {
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
       'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
       'hideBottomBar': hideBottomBar.value,
-      'alwaysShowScroll2TopButton': alwaysShowScroll2TopButton.value,
+      'hideScroll2TopButton': hideScroll2TopButton.value.index, // 'scrollDown
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
       'enableDefaultFavorite': enableDefaultFavorite.value,
@@ -147,7 +149,7 @@ class PreferenceSetting {
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     drawerGestureEdgeWidth.value = map['drawerGestureEdgeWidth'] ?? drawerGestureEdgeWidth.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
-    alwaysShowScroll2TopButton.value = map['alwaysShowScroll2TopButton'] ?? alwaysShowScroll2TopButton.value;
+    hideScroll2TopButton.value = Scroll2TopButtonModeEnum.values[map['hideScroll2TopButton'] ?? Scroll2TopButtonModeEnum.scrollDown.index];
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;

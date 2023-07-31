@@ -32,11 +32,11 @@ class SettingPreferencePage extends StatelessWidget {
               _buildTagTranslate(),
               _buildDefaultTab(),
               if (StyleSetting.isInV2Layout) _buildShowBottomNavigation(),
+              if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildHideScroll2TopButton(),
               _buildEnableSwipeBackGesture(),
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
               if (StyleSetting.isInV2Layout) _buildDrawerGestureEdgeWidth(context),
-              if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildAlwaysShowScroll2TopButton(),
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
               _buildEnableDefaultFavorite(),
@@ -148,6 +148,32 @@ class SettingPreferencePage extends StatelessWidget {
     );
   }
 
+  Widget _buildHideScroll2TopButton(){
+    return ListTile(
+      title: Text('hideScroll2TopButton'.tr),
+      trailing: DropdownButton<Scroll2TopButtonModeEnum>(
+        value: PreferenceSetting.hideScroll2TopButton.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (Scroll2TopButtonModeEnum? newValue) => PreferenceSetting.saveHideScroll2TopButton(newValue!),
+        items: [
+          DropdownMenuItem(
+            child: Text('whenScrollUp'.tr),
+            value: Scroll2TopButtonModeEnum.scrollUp,
+          ),
+          DropdownMenuItem(
+            child: Text('whenScrollDown'.tr),
+            value: Scroll2TopButtonModeEnum.scrollDown,
+          ),
+          DropdownMenuItem(
+            child: Text('never'.tr),
+            value: Scroll2TopButtonModeEnum.never,
+          ),
+        ],
+      ),
+    );
+  }
+  
   Widget _buildEnableSwipeBackGesture() {
     return SwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),
@@ -200,14 +226,6 @@ class SettingPreferencePage extends StatelessWidget {
           ],
         );
       }),
-    );
-  }
-
-  Widget _buildAlwaysShowScroll2TopButton() {
-    return SwitchListTile(
-      title: Text('alwaysShowScroll2TopButton'.tr),
-      value: PreferenceSetting.alwaysShowScroll2TopButton.value,
-      onChanged: PreferenceSetting.saveAlwaysShowScroll2TopButton,
     );
   }
 

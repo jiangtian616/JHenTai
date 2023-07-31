@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
 import '../setting/preference_setting.dart';
@@ -8,14 +9,26 @@ import '../setting/preference_setting.dart';
 mixin Scroll2TopLogicMixin on GetxController {
   final String scroll2TopButtonId = 'scroll2TopButtonId';
 
-  bool inForwardScroll = PreferenceSetting.alwaysShowScroll2TopButton.isFalse;
+  Worker? scroll2TopSettingWorker;
 
   Scroll2TopStateMixin get scroll2TopState;
+
+  bool get shouldDisplayFAB =>
+      PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never ||
+      (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollDown && scroll2TopState.isScrollingDown) ||
+      (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollUp && !scroll2TopState.isScrollingDown);
+
+  @override
+  void onInit() {
+    super.onInit();
+    scroll2TopSettingWorker = ever(PreferenceSetting.hideScroll2TopButton, (_) => updateSafely([scroll2TopButtonId]));
+  }
 
   @override
   void onClose() {
     super.dispose();
     scroll2TopState.scrollController.dispose();
+    scroll2TopSettingWorker?.dispose();
   }
 
   void jump2Top() {
@@ -35,26 +48,22 @@ mixin Scroll2TopLogicMixin on GetxController {
   }
 
   bool onUserScroll(UserScrollNotification notification) {
-    bool oldValue = inForwardScroll;
+    bool oldValue = scroll2TopState.isScrollingDown;
 
     if (notification.direction == ScrollDirection.forward) {
-      inForwardScroll = true;
+      scroll2TopState.isScrollingDown = true;
     } else if (notification.direction == ScrollDirection.reverse) {
-      inForwardScroll = false;
+      scroll2TopState.isScrollingDown = false;
     }
 
-    // if always show FAB, update at most once to make sure we display the button actually.
-    if (PreferenceSetting.alwaysShowScroll2TopButton.isTrue) {
-      inForwardScroll = false;
-      if (!oldValue && inForwardScroll) {
-        update([scroll2TopButtonId]);
-      }
+    // if always show FAB, we don't need to update
+    if (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never) {
       return false;
     }
 
     // update only when scroll direction changed, toggle FAB.
-    if (oldValue != inForwardScroll) {
-      update([scroll2TopButtonId]);
+    if (oldValue != scroll2TopState.isScrollingDown) {
+      updateSafely([scroll2TopButtonId]);
     }
 
     return false;

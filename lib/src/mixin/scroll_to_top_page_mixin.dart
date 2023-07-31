@@ -16,7 +16,7 @@ mixin Scroll2TopPageMixin on Widget {
       builder: (_) {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 200),
-          child: !scroll2TopLogic.inForwardScroll
+          child: scroll2TopLogic.shouldDisplayFAB
               ? FloatingActionButton(
                   child: const Icon(Icons.arrow_upward),
                   heroTag: null,

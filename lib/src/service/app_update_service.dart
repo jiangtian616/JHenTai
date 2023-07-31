@@ -105,9 +105,6 @@ class AppUpdateService extends GetxService {
         if (styleSettingMap?['hideBottomBar'] != null) {
           PreferenceSetting.saveHideBottomBar(styleSettingMap!['hideBottomBar']);
         }
-        if (styleSettingMap?['alwaysShowScroll2TopButton'] != null) {
-          PreferenceSetting.saveAlwaysShowScroll2TopButton(styleSettingMap!['alwaysShowScroll2TopButton']);
-        }
       }
 
       if (oldVersion <= 3) {
