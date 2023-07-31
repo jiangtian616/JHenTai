@@ -30,7 +30,16 @@ class HorizontalPageLayout extends BaseLayout {
         maxScale: 2.5,
         scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
         enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
-        child: readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+        child: Obx(() {
+          Widget item =
+              readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
+
+          if (ReadSetting.isInFitWidthReadDirection) {
+            item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
+          }
+
+          return item;
+        }),
       ),
     );
   }

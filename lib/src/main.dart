@@ -173,6 +173,8 @@ Future<void> init() async {
   LocalGalleryService.init();
   SuperResolutionSetting.init();
   SuperResolutionService.init();
+
+  ReadSetting.init();
 }
 
 Future<void> onReady() async {
@@ -181,8 +183,6 @@ Future<void> onReady() async {
   EHSetting.refresh();
   MyTagsSetting.refreshOnlineTagSets();
 
-  ReadSetting.init();
-  
   VolumeService.init();
 }
 

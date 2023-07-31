@@ -6,6 +6,7 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
@@ -15,7 +16,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 5;
+  static const int appVersion = 6;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -137,11 +138,27 @@ class AppUpdateService extends GetxService {
           });
         });
       }
-      
+
       if (oldVersion <= 4) {
         Log.info('update local gallery path');
-        
+
         DownloadSetting.removeExtraGalleryScanPath(DownloadSetting.defaultDownloadPath);
+      }
+
+      if (oldVersion <= 5) {
+        Log.info('update read direction setting');
+
+        if (ReadSetting.readDirection.value == ReadDirection.left2rightSinglePageFitWidth) {
+          ReadSetting.saveReadDirection(ReadDirection.left2rightDoubleColumn);
+        } else if (ReadSetting.readDirection.value == ReadDirection.left2rightDoubleColumn) {
+          ReadSetting.saveReadDirection(ReadDirection.left2rightList);
+        } else if (ReadSetting.readDirection.value == ReadDirection.left2rightList) {
+          ReadSetting.saveReadDirection(ReadDirection.right2leftSinglePage);
+        } else if (ReadSetting.readDirection.value == ReadDirection.right2leftSinglePage) {
+          ReadSetting.saveReadDirection(ReadDirection.right2leftDoubleColumn);
+        } else if (ReadSetting.readDirection.value == ReadDirection.right2leftSinglePageFitWidth) {
+          ReadSetting.saveReadDirection(ReadDirection.right2leftList);
+        }
       }
     });
   }

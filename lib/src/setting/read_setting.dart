@@ -8,9 +8,11 @@ enum DeviceDirection { followSystem, landscape, portrait }
 enum ReadDirection {
   top2bottomList,
   left2rightSinglePage,
+  left2rightSinglePageFitWidth,
   left2rightDoubleColumn,
   left2rightList,
   right2leftSinglePage,
+  right2leftSinglePageFitWidth,
   right2leftDoubleColumn,
   right2leftList,
 }
@@ -60,19 +62,28 @@ class ReadSetting {
   static bool get isInHorizontalReadDirection =>
       readDirection.value == ReadDirection.left2rightSinglePage ||
       readDirection.value == ReadDirection.right2leftSinglePage ||
+      readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
+      readDirection.value == ReadDirection.right2leftSinglePageFitWidth ||
       readDirection.value == ReadDirection.left2rightDoubleColumn ||
       readDirection.value == ReadDirection.right2leftDoubleColumn ||
       readDirection.value == ReadDirection.left2rightList ||
       readDirection.value == ReadDirection.right2leftList;
 
   static bool get isInSinglePageReadDirection =>
-      readDirection.value == ReadDirection.left2rightSinglePage || readDirection.value == ReadDirection.right2leftSinglePage;
+      readDirection.value == ReadDirection.left2rightSinglePage ||
+      readDirection.value == ReadDirection.right2leftSinglePage ||
+      readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
+      readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
+
+  static bool get isInFitWidthReadDirection =>
+      readDirection.value == ReadDirection.left2rightSinglePageFitWidth || readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
 
   static bool get isInDoubleColumnReadDirection =>
       readDirection.value == ReadDirection.left2rightDoubleColumn || readDirection.value == ReadDirection.right2leftDoubleColumn;
 
   static bool get isInRight2LeftDirection =>
       readDirection.value == ReadDirection.right2leftSinglePage ||
+      readDirection.value == ReadDirection.right2leftSinglePageFitWidth ||
       readDirection.value == ReadDirection.right2leftDoubleColumn ||
       readDirection.value == ReadDirection.right2leftList;
 
@@ -175,7 +186,7 @@ class ReadSetting {
     enableTapDragToScaleUp.value = value;
     _save();
   }
-  
+
   static saveEnableBottomMenu(bool value) {
     Log.debug('saveEnableBottomMenu:$value');
     enableBottomMenu.value = value;
