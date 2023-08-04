@@ -9,6 +9,7 @@ body:
         提交功能请求前，请首先完成文末的自查步骤
         Please finish verify steps which list in the end first before Suggest an idea
 
+
   - type: textarea
     id: request
     attributes:
@@ -22,6 +23,19 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: reason
+    attributes:
+      label: 原因 / Reason
+      description: |
+        在此处描述您的想要这个功能的原因。如现有功能不方便、可以优化体验等
+        Describe why you need this feature here.
+      placeholder: |
+        这可以帮助我更好地 ...
+        It will help me to ...
+    validations:
+      required: true
+      
   - type: textarea
     id: impl
     attributes:
