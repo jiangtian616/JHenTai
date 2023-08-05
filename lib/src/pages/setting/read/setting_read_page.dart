@@ -142,8 +142,8 @@ class SettingReadPage extends StatelessWidget {
       trailing: Switch(value: ReadSetting.enableTapDragToScaleUp.value, onChanged: ReadSetting.saveEnableTapDragToScaleUp),
     );
   }
-  
-  Widget _buildEnableBottomMenu(){
+
+  Widget _buildEnableBottomMenu() {
     return ListTile(
       title: Text('enableBottomMenu'.tr),
       trailing: Switch(value: ReadSetting.enableBottomMenu.value, onChanged: ReadSetting.saveEnableBottomMenu),

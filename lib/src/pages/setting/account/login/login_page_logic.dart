@@ -31,6 +31,8 @@ class LoginPageLogic extends GetxController {
   final LoginPageState state = LoginPageState();
   final EHCookieManager cookieManager = Get.find<EHCookieManager>();
 
+  LoadingState cookieLoginLoadingState = LoadingState.idle;
+
   void toggleLoginType() {
     state.loginType = (state.loginType == LoginType.cookie ? LoginType.password : LoginType.cookie);
     update([formId]);
@@ -232,41 +234,52 @@ class LoginPageLogic extends GetxController {
       arguments: {
         'title': 'login'.tr,
         'url': EHConsts.ELogin,
-        'onPageStarted': onLogin,
+        'onPageStarted': _onPageStarted,
       },
     );
   }
 
-  Future<void> onLogin(String url, WebViewController controller) async {
-    String cookieString = await controller.runJavascriptReturningResult('document.cookie');
+  Future<void> _onPageStarted(String url, WebViewController controller) async {
+    if (cookieLoginLoadingState != LoadingState.idle) {
+      return;
+    }
+
+    String cookieString = await controller.runJavaScriptReturningResult('document.cookie') as String;
     cookieString = cookieString.replaceAll('"', '');
     if (!CookieUtil.validateCookiesString(cookieString)) {
       return;
     }
 
     Log.info('Login success by web.');
+    cookieLoginLoadingState = LoadingState.loading;
 
-    List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
-    await cookieManager.storeEhCookiesForAllUri(cookies);
+    try {
+      List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
+      await cookieManager.storeEhCookiesForAllUri(cookies);
 
-    int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
-    String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
+      int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
+      String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
-    /// temporary name
-    UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+      /// temporary name
+      UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
-    toast('loginSuccess'.tr);
-    untilRoute(
-      currentRoute: Routes.webview,
-      predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.home,
-    );
+      toast('loginSuccess'.tr);
+      untilRoute(
+        currentRoute: Routes.webview,
+        predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.home,
+      );
 
-    /// get username and avatar
-    Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-    UserSetting.saveUserNameAndAvatarAndNickName(
-      userName: userInfo!['userName']!,
-      avatarImgUrl: userInfo['avatarImgUrl'],
-      nickName: userInfo['nickName']!,
-    );
+      /// get username and avatar
+      Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      UserSetting.saveUserNameAndAvatarAndNickName(
+        userName: userInfo!['userName']!,
+        avatarImgUrl: userInfo['avatarImgUrl'],
+        nickName: userInfo['nickName']!,
+      );
+
+      cookieLoginLoadingState = LoadingState.success;
+    } finally {
+      cookieLoginLoadingState = LoadingState.idle;
+    }
   }
 }

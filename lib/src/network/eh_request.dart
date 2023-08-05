@@ -23,8 +23,8 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:system_network_proxy/system_network_proxy.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
+import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../setting/network_setting.dart';
 import 'eh_cache_interceptor.dart';
 import 'eh_cookie_manager.dart';
@@ -219,7 +219,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     cookieManager.removeAllCookies();
     UserSetting.clear();
     if (!GetPlatform.isDesktop) {
-      CookieManager().clearCookies();
+      WebViewCookieManager().clearCookies();
     }
   }
 

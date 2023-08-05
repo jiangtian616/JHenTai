@@ -44,16 +44,16 @@ dependencies:
   sqlite3_flutter_libs: 0.5.8
   path_provider: ^2.0.9
   flutter_slidable: ^2.0.0
-  flutter_widget_from_html: 0.9.1
+  flutter_widget_from_html: 0.10.3
   url_launcher: 6.1.8
   like_button: 2.0.5
-  webview_flutter: ^3.0.4
+  webview_flutter: 4.2.2
   # rewrite double tap & tap drag gesture
   photo_view:
-    git: 
+    git:
       url: https://github.com/jiangtian616/photo_view
       ref: separate
-  package_info_plus: 4.0.0
+  package_info_plus: 4.0.2
   file_picker: 5.3.0
   local_auth: 2.1.6
   blur: ^3.1.0
@@ -68,7 +68,7 @@ dependencies:
   throttling: ^1.0.0
   receive_sharing_intent: ^1.4.5
   bitsdojo_window:
-    git: 
+    git:
       url: https://github.com/bitsdojo/bitsdojo_window
       path: bitsdojo_window
   permission_handler: 9.2.0
@@ -87,7 +87,7 @@ dependencies:
     git: https://github.com/jiangtian616/flutter_draggable_gridview
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
-  wakelock: 0.6.2
+  wakelock_plus: 1.1.1
   material_color_utilities: 0.2.0
   flex_color_picker: 3.1.0
   zoom_widget: 2.0.1
@@ -101,17 +101,12 @@ dependency_overrides:
       path: dio
   test_api: 0.6.0
   matcher: 0.12.16
-  # Can be removed when https://github.com/creativecreatorormaybenot/wakelock/pull/203 is merged.
-  wakelock_windows:
-    git:
-      url: https://github.com/timsneath/wakelock
-      ref: win32-v5
-      path: wakelock_windows
   bitsdojo_window_windows:
-    git: 
+    git:
       url: https://github.com/bitsdojo/bitsdojo_window
       path: bitsdojo_window_windows
-      
+  chewie: 1.7.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

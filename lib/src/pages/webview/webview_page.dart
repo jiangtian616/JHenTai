@@ -16,11 +16,7 @@ class WebviewPage extends StatefulWidget {
 
 class _WebviewPageState extends State<WebviewPage> {
   late final String title;
-  late final String initialUrl;
-  late final List<WebViewCookie> initialCookies;
   late final Function? pageStartedCallback;
-  late final PageStartedCallback onPageStarted;
-
   late final WebViewController controller;
 
   LoadingState loadingState = LoadingState.loading;
@@ -28,21 +24,37 @@ class _WebviewPageState extends State<WebviewPage> {
   @override
   void initState() {
     super.initState();
+
     title = Get.arguments['title'];
-    initialUrl = Get.arguments['url'];
-    initialCookies = CookieUtil.parse2Cookies(Get.arguments['cookies'])
-        .map(
-          (cookie) => WebViewCookie(
-            name: cookie.name,
-            value: cookie.value,
-            domain: Uri.parse(Get.arguments['url']).host,
-          ),
-        )
-        .toList();
-    pageStartedCallback = Get.arguments['onPageStarted'];
-    onPageStarted = (url) {
-      pageStartedCallback?.call(url, controller);
-    };
+
+    if (Get.arguments is Map && Get.arguments['onPageStarted'] is Function) {
+      pageStartedCallback = Get.arguments['onPageStarted'];
+    } else {
+      pageStartedCallback = null;
+    }
+
+    CookieUtil.parse2Cookies(Get.arguments['cookies']).forEach((cookie) {
+      WebViewCookieManager().setCookie(
+        WebViewCookie(
+          name: cookie.name,
+          value: cookie.value,
+          domain: Uri.parse(Get.arguments['url']).host,
+        ),
+      );
+    });
+
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (String url) {
+            pageStartedCallback?.call(url, controller);
+          },
+          onPageFinished: (_) => setStateSafely(() => loadingState = LoadingState.success),
+          onWebResourceError: (_) => setStateSafely(() => loadingState = LoadingState.success),
+        ),
+      )
+      ..loadRequest(Uri.parse(Get.arguments['url']));
   }
 
   @override
@@ -55,15 +67,7 @@ class _WebviewPageState extends State<WebviewPage> {
           successWidgetBuilder: () => Text(title),
         ).paddingOnly(right: 40),
       ),
-      body: WebView(
-        initialUrl: initialUrl,
-        onWebViewCreated: (controller) => this.controller = controller,
-        javascriptMode: JavascriptMode.unrestricted,
-        initialCookies: initialCookies,
-        onPageStarted: onPageStarted,
-        onPageFinished: (_) => setStateSafely(() => loadingState = LoadingState.success),
-        onWebResourceError: (_) => setStateSafely(() => loadingState = LoadingState.success),
-      ),
+      body: WebViewWidget(controller: controller),
     );
   }
 }

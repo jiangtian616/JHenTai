@@ -268,13 +268,13 @@ packages:
     source: hosted
     version: "2.0.2"
   chewie:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: chewie
-      sha256: e9da4898ee4859825404f507969f57113c04ca0060e152b95c9afd73934126ad
+      sha256: "60701da1f22ed20cd2d40e856fd1f2249dacf5b629d9fa50676443a18a4857b8"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.4.0"
+    version: "1.7.0"
   cli_util:
     dependency: transitive
     description:
@@ -643,10 +643,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_svg
-      sha256: "6ff9fa12892ae074092de2fa6a9938fb21dbabfdaa2ff57dc697ff912fc8d4b2"
+      sha256: f991fdb1533c3caeee0cdc14b04f50f0c3916f0dbcbc05237ccbe4e3c6b93f3f
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.1.6"
+    version: "2.0.5"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -661,18 +661,18 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_widget_from_html
-      sha256: bc92fa62986a1d14bec92d26225bb7b37d581bd91efdad55158efa2eeb200b85
+      sha256: "6c2e29e9b44a1afe3a21bf4feb47ed67e9aef43c303e7888131842fbcbb7fd37"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.1"
+    version: "0.10.3"
   flutter_widget_from_html_core:
     dependency: transitive
     description:
       name: flutter_widget_from_html_core
-      sha256: "296485e685b44ad7c6883372aebc56038a28b84f75e7a668bcd8bf01de881739"
+      sha256: b733a240388736fcf40692920033dc3a749155dc49c840f6c0e4a732f553908b
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.1"
+    version: "0.10.3"
   flutter_windowmanager:
     dependency: "direct main"
     description:
@@ -709,34 +709,34 @@ packages:
     dependency: transitive
     description:
       name: fwfh_cached_network_image
-      sha256: "2b6b1f07ce04f52dbaa84258c5c613f1862e81d501cdf0b9208ddd6f7100d6b2"
+      sha256: "396ebb3a01978aa75cad416656abef6ffa31e12de71cf2ccf5ff4173bd35a3eb"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.7.0+3"
+    version: "0.7.0+5"
   fwfh_chewie:
     dependency: transitive
     description:
       name: fwfh_chewie
-      sha256: "5bcde9d3534ee386ed4ee7bbe2b0306c328097e710516555eb18ea65e208a9d6"
+      sha256: "6474630c084cc90fbd348cea007d3cb41d62478460f75364e591f2baf26abccd"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.7.1"
+    version: "0.7.1+2"
   fwfh_just_audio:
     dependency: transitive
     description:
       name: fwfh_just_audio
-      sha256: e2721732cfb8d3da0d5e74bc82af48100312fd4edc305567f2b9b85d53b63a1c
+      sha256: "7b97696c264f36f7921c2f94e95c1d4186021699d85ca19aaa280f6b9700fb35"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.0+2"
   fwfh_svg:
     dependency: transitive
     description:
       name: fwfh_svg
-      sha256: "556df67faf76b98c76dba144daf9fa9b3e874670e35b0a02d918402f8b8e98f5"
+      sha256: "398e8eec980e7b2868481489fd423634f7e337bc04c37508db6f84868b982120"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.7.2+1"
+    version: "0.8.0+2"
   fwfh_text_style:
     dependency: transitive
     description:
@@ -749,18 +749,18 @@ packages:
     dependency: transitive
     description:
       name: fwfh_url_launcher
-      sha256: cf3a537d74bf01b65d91dc8eac8c889d94b4176002fdc7069138f166f22d3411
+      sha256: ff7f7a877c20fdbea24b453a0cd846a03ef1ea6b933943a7d37082388c27e849
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.9.0"
+    version: "0.9.0+2"
   fwfh_webview:
     dependency: transitive
     description:
       name: fwfh_webview
-      sha256: "987ebaf94f3c42cddb6e0dbac6720a9cfc55c3510b770e925334373d91a12795"
+      sha256: "7ebd3dff551d7281dd3fbb9f5523a8455592665ff75459ca84871ebbebe864a8"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.6.2+5"
+    version: "0.7.0+2"
   get:
     dependency: "direct main"
     description:
@@ -1077,10 +1077,10 @@ packages:
     dependency: "direct main"
     description:
       name: package_info_plus
-      sha256: d39e8fbff4c5aef4592737e25ad6ac500df006ce7a7a8e1f838ce1256e167542
+      sha256: ceb027f6bc6a60674a233b4a90a7658af1aebdea833da0b5b53c1e9821a78c7b
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.2"
   package_info_plus_platform_interface:
     dependency: transitive
     description:
@@ -1097,14 +1097,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.8.3"
-  path_drawing:
-    dependency: transitive
-    description:
-      name: path_drawing
-      sha256: bbb1934c0cbb03091af082a6389ca2080345291ef07a5fa6d6e078ba8682f977
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "1.0.1"
   path_parsing:
     dependency: transitive
     description:
@@ -1784,6 +1776,30 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "3.0.7"
+  vector_graphics:
+    dependency: transitive
+    description:
+      name: vector_graphics
+      sha256: ea8d3fc7b2e0f35de38a7465063ecfcf03d8217f7962aa2a6717132cb5d43a79
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.5"
+  vector_graphics_codec:
+    dependency: transitive
+    description:
+      name: vector_graphics_codec
+      sha256: a5eaa5d19e123ad4f61c3718ca1ed921c4e6254238d9145f82aa214955d9aced
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.5"
+  vector_graphics_compiler:
+    dependency: transitive
+    description:
+      name: vector_graphics_compiler
+      sha256: "15edc42f7eaa478ce854eaf1fbb9062a899c0e4e56e775dd73b7f4709c97c4ca"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.5"
   vector_math:
     dependency: transitive
     description:
@@ -1796,10 +1812,10 @@ packages:
     dependency: transitive
     description:
       name: video_player
-      sha256: "59f7f31c919c59cbedd37c617317045f5f650dc0eeb568b0b0de9a36472bdb28"
+      sha256: "3fd106c74da32f336dc7feb65021da9b0207cb3124392935f1552834f7cce822"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.5.1"
+    version: "2.7.0"
   video_player_android:
     dependency: transitive
     description:
@@ -1820,10 +1836,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_platform_interface
-      sha256: "42bb75de5e9b79e1f20f1d95f688fac0f95beac4d89c6eb2cd421724d4432dae"
+      sha256: "1ca9acd7a0fb15fb1a990cb554e6f004465c6f37c99d2285766f08a4b2802988"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.0.1"
+    version: "6.2.0"
   video_player_web:
     dependency: transitive
     description:
@@ -1848,47 +1864,22 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "9.4.0"
-  wakelock:
+  wakelock_plus:
     dependency: "direct main"
     description:
-      name: wakelock
-      sha256: "769ecf42eb2d07128407b50cb93d7c10bd2ee48f0276ef0119db1d25cc2f87db"
+      name: wakelock_plus
+      sha256: aac3f3258f01781ec9212df94eecef1eb9ba9350e106728def405baa096ba413
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.6.2"
-  wakelock_macos:
+    version: "1.1.1"
+  wakelock_plus_platform_interface:
     dependency: transitive
     description:
-      name: wakelock_macos
-      sha256: "047c6be2f88cb6b76d02553bca5a3a3b95323b15d30867eca53a19a0a319d4cd"
+      name: wakelock_plus_platform_interface
+      sha256: "40fabed5da06caff0796dc638e1f07ee395fb18801fbff3255a2372db2d80385"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.4.0"
-  wakelock_platform_interface:
-    dependency: transitive
-    description:
-      name: wakelock_platform_interface
-      sha256: "1f4aeb81fb592b863da83d2d0f7b8196067451e4df91046c26b54a403f9de621"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.0"
-  wakelock_web:
-    dependency: transitive
-    description:
-      name: wakelock_web
-      sha256: "1b256b811ee3f0834888efddfe03da8d18d0819317f20f6193e2922b41a501b5"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.4.0"
-  wakelock_windows:
-    dependency: "direct overridden"
-    description:
-      path: wakelock_windows
-      ref: win32-v5
-      resolved-ref: "2a9bca63a540771f241d688562351482b2cf234c"
-      url: "https://github.com/timsneath/wakelock"
-    source: git
-    version: "0.2.2"
+    version: "1.1.0"
   watcher:
     dependency: transitive
     description:
@@ -1925,34 +1916,34 @@ packages:
     dependency: "direct main"
     description:
       name: webview_flutter
-      sha256: "392c1d83b70fe2495de3ea2c84531268d5b8de2de3f01086a53334d8b6030a88"
+      sha256: "789d52bd789373cc1e100fb634af2127e86c99cf9abde09499743270c5de8d00"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.0.4"
+    version: "4.2.2"
   webview_flutter_android:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: "8b3b2450e98876c70bfcead876d9390573b34b9418c19e28168b74f6cb252dbd"
+      sha256: d936a09fbfd08cb78f7329e0bbacf6158fbdfe24ffc908b22444c07d295eb193
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.10.4"
+    version: "3.9.2"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
       name: webview_flutter_platform_interface
-      sha256: "812165e4e34ca677bdfbfa58c01e33b27fd03ab5fa75b70832d4b7d4ca1fa8cf"
+      sha256: "564ef378cafc1a0e29f1d76ce175ef517a0a6115875dff7b43fccbef2b0aeb30"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.9.5"
+    version: "2.4.0"
   webview_flutter_wkwebview:
     dependency: transitive
     description:
       name: webview_flutter_wkwebview
-      sha256: a5364369c758892aa487cbf59ea41d9edd10f9d9baf06a94e80f1bd1b4c7bbc0
+      sha256: "5fa098f28b606f699e8ca52d9e4e11edbbfef65189f5f77ae92703ba5408fd25"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.9.5"
+    version: "3.7.2"
   win32:
     dependency: transitive
     description:
