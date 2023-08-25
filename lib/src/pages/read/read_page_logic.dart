@@ -171,15 +171,17 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> _parseImageHref(int index) async {
-    Log.verbose('Begin to load Thumbnail $index', false);
+    Log.verbose('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
     update(['$parseImageHrefsStateId::$index']);
+
+    int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
 
     Map<String, dynamic> rangeAndThumbnails;
     try {
       rangeAndThumbnails = await retry(
         () => EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
-          thumbnailsPageIndex: index ~/ state.thumbnailsCountPerPage,
+          thumbnailsPageIndex: requestPageIndex,
           parser: EHSpiderParser.detailPage2RangeAndThumbnails,
         ),
         maxAttempts: 3,
@@ -204,11 +206,17 @@ class ReadPageLogic extends GetxController {
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
     /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-    state.thumbnailsCountPerPage = (newThumbnails.length / 20).ceil() * 20;
+    if (state.readPageInfo.pageCount != rangeTo - 1) {
+      state.thumbnailsCountPerPage = (newThumbnails.length / 20).ceil() * 20;
+    }
 
     state.parseImageHrefsStates[index] = LoadingState.idle;
     for (int i = rangeFrom; i <= rangeTo; i++) {
       state.thumbnails[i] = newThumbnails[i - rangeFrom];
+    }
+
+    if (index < rangeFrom || index > rangeTo) {
+      Get.find<EHCacheInterceptor>().removeGalleryDetailPageCache(state.readPageInfo.galleryUrl!, requestPageIndex);
     }
 
     update(['$onlineImageId::$index']);

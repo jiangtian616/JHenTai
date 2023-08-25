@@ -165,11 +165,11 @@ class EHCacheInterceptor extends Interceptor {
     handler.next(err);
   }
 
-  Future<void> removeGalleryDetailPageCache(String galleryUrl) {
+  Future<void> removeGalleryDetailPageCache(String galleryUrl, [int pageIndex = 0]) {
     return Future.wait(
       [
-        removeCacheByUrl('$galleryUrl?p=0&hc=0'),
-        removeCacheByUrl('$galleryUrl?p=0&hc=1'),
+        removeCacheByUrl('$galleryUrl?p=$pageIndex&hc=0'),
+        removeCacheByUrl('$galleryUrl?p=$pageIndex&hc=1'),
       ],
     );
   }
