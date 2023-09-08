@@ -167,18 +167,18 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
     }
 
     ReceiveSharingIntent.getInitialText().then(
-      (String? url) {
-        if (isEmptyOrNull(url)) {
+      (String? rawText) {
+        if (isEmptyOrNull(rawText)) {
           return;
         }
 
-        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(url!);
+        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(rawText!);
         if (match == null) {
           toast('Invalid jump link', isShort: false);
         } else {
           toRoute(
             Routes.details,
-            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
+            arguments: {'gid': parseGalleryUrl2Gid(rawText), 'galleryUrl': match.group(0)},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -194,7 +194,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         } else {
           toRoute(
             Routes.details,
-            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
+            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': match.group(0)},
             offAllBefore: false,
             preventDuplicates: false,
           );
