@@ -87,7 +87,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     update([galleryCountChangedId]);
 
     DateTime start = DateTime.now();
-    return _loadGalleriesFromDisk().then((_) {
+    return _loadGalleriesFromDisk().whenComplete(() {
       Log.info(
         'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
@@ -140,7 +140,10 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   Future<void> _loadGalleriesFromDisk() {
     List<Future> futures = DownloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
 
-    return Future.wait(futures).then((_) {
+    return Future.wait(futures).onError((error, stackTrace) {
+      Log.error('_loadGalleriesFromDisk failed, path: ${DownloadSetting.extraGalleryScanPath}', error, stackTrace);
+      return [];
+    }).whenComplete(() {
       allGallerys.sort((a, b) => a.title.compareTo(b.title));
       for (List<LocalGallery> dirs in path2GalleryDir.values) {
         dirs.sort((a, b) => a.title.compareTo(b.title));
