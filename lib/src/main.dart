@@ -157,9 +157,9 @@ Future<void> init() async {
 
   DownloadSetting.init();
   await EHRequest.init();
-  
+
   PreferenceSetting.init();
-  
+
   TagTranslationService.init();
 
   MouseSetting.init();
@@ -201,7 +201,10 @@ void _doForDesktop() {
     }
     // https://github.com/bitsdojo/bitsdojo_window/issues/193
     else if (GetPlatform.isWindows && kDebugMode) {
-      WidgetsBinding.instance.scheduleFrameCallback((_) => appWindow.size += const Offset(1, 0));
+      WidgetsBinding.instance.scheduleFrameCallback((_) {
+        appWindow.size += const Offset(1, 0);
+        appWindow.size += const Offset(-1, 0);
+      });
     }
 
     appWindow.show();

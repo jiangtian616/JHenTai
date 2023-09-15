@@ -114,7 +114,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return deleteArchive(archive);
     }
   }
-  
+
   Future<void> deleteArchive(ArchiveDownloadedData archive) async {
     Log.info('Delete archive: ${archive.title}, original: ${archive.isOriginal}');
 
@@ -350,7 +350,18 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     List<io.File> imageFiles;
     try {
       imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-        ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+        ..sort((a, b) {
+          String aName = basenameWithoutExtension(a.path);
+          String bName = basenameWithoutExtension(b.path);
+
+          int? aIndex = int.tryParse(aName);
+          int? bIndex = int.tryParse(bName);
+
+          if (aIndex != null && bIndex != null) {
+            return aIndex - bIndex;
+          }
+          return aName.compareTo(bName);
+        });
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});

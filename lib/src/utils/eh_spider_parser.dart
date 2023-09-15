@@ -497,6 +497,8 @@ class EHSpiderParser {
     Document document = parse(data as String);
 
     List<Element> torrentForms = document.querySelectorAll('#torrentinfo > div > form');
+
+    /// expunged
     torrentForms.removeWhere((form) => form.querySelector('div > table > tbody > tr:nth-child(4) > td > a') == null);
 
     return torrentForms.map(
