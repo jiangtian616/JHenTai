@@ -68,6 +68,7 @@ class ReadPageLogic extends GetxController {
   final EHCacheInterceptor ehCacheInterceptor = Get.find();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
+  late Timer flushReadProgressTimer;
 
   late Worker toggleTurnPageByVolumeKeyLister;
   late Worker toggleCurrentImmersiveModeLister;
@@ -125,6 +126,8 @@ class ReadPageLogic extends GetxController {
       },
     );
 
+    flushReadProgressTimer = Timer.periodic(const Duration(seconds: 5), (_) => _flushReadProgress());
+
     if (ReadSetting.keepScreenAwakeWhenReading.isTrue) {
       WakelockPlus.enable();
     }
@@ -138,14 +141,15 @@ class ReadPageLogic extends GetxController {
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
-
+    flushReadProgressTimer.cancel();
+    
     restoreVolumeListener();
 
     restoreImmersiveMode();
 
     restoreDeviceOrientation();
 
-    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
+    _flushReadProgress();
 
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
@@ -468,5 +472,9 @@ class ReadPageLogic extends GetxController {
   void recordReadProgress(int index) {
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
+  }
+
+  void _flushReadProgress() {
+    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
   }
 }
