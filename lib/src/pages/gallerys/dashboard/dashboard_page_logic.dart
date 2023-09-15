@@ -26,6 +26,9 @@ class DashboardPageLogic extends BasePageLogic {
   bool get useSearchConfig => true;
 
   @override
+  String get searchConfigKey => 'DashboardPageLogic';
+  
+  @override
   DashboardPageState state = DashboardPageState();
 
   @override
@@ -77,7 +80,7 @@ class DashboardPageLogic extends BasePageLogic {
     state.ranklistGallerys = gallerysAndPageInfo[0];
 
     handleGalleryByLocalTags(state.ranklistGallerys);
-    
+
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
   }
@@ -87,8 +90,11 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
+    LoadingState prevState = state.ranklistLoadingState;
     state.popularLoadingState = LoadingState.loading;
-    update([popularListId]);
+    if (prevState == LoadingState.error || prevState == LoadingState.noData) {
+      update([popularListId]);
+    }
 
     Log.info('Get popular list data');
 
@@ -117,7 +123,7 @@ class DashboardPageLogic extends BasePageLogic {
     state.popularGallerys = gallerysPage.gallerys;
 
     handleGalleryByLocalTags(state.popularGallerys);
-    
+
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);
   }
@@ -128,13 +134,12 @@ class DashboardPageLogic extends BasePageLogic {
     state.loadingState = LoadingState.loading;
     update([loadingStateId]);
 
-    await Future.any([
-      super.handleRefresh(updateId: galleryListId).then((_) {
-        state.loadingState = state.refreshState;
-        update([loadingStateId]);
-      }),
-      loadRanklist(),
-      loadPopular(),
-    ]);
+    loadRanklist();
+    loadPopular();
+
+    await super.handleRefresh(updateId: galleryListId);
+
+    state.loadingState = state.refreshState;
+    update([loadingStateId]);
   }
 }

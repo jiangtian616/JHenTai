@@ -31,6 +31,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildLanguage(),
               _buildTagTranslate(),
               _buildDefaultTab(),
+              if (StyleSetting.isInV2Layout) _buildSimpleDashboardMode(),
               if (StyleSetting.isInV2Layout) _buildShowBottomNavigation(),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildHideScroll2TopButton(),
               _buildEnableSwipeBackGesture(),
@@ -140,6 +141,17 @@ class SettingPreferencePage extends StatelessWidget {
     );
   }
 
+  Widget _buildSimpleDashboardMode() {
+    return ListTile(
+      title: Text('simpleDashboardMode'.tr),
+      subtitle: Text('simpleDashboardModeHint'.tr),
+      trailing: Switch(
+        value: PreferenceSetting.simpleDashboardMode.value,
+        onChanged: PreferenceSetting.saveSimpleDashboardMode,
+      ),
+    );
+  }
+
   Widget _buildShowBottomNavigation() {
     return SwitchListTile(
       title: Text('hideBottomBar'.tr),
@@ -148,7 +160,7 @@ class SettingPreferencePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHideScroll2TopButton(){
+  Widget _buildHideScroll2TopButton() {
     return ListTile(
       title: Text('hideScroll2TopButton'.tr),
       trailing: DropdownButton<Scroll2TopButtonModeEnum>(
@@ -173,7 +185,7 @@ class SettingPreferencePage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildEnableSwipeBackGesture() {
     return SwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),

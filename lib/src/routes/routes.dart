@@ -99,8 +99,9 @@ class Routes {
   static const String pageListStyle = "/setting_style/pageListStyle";
 
   static const String tagSets = "/setting_EH/tagSets";
-  static const String localTagSets = "/setting_EH/localTagSets";
   static const String addLocalTag = "/setting_EH/addLocalTag";
+
+  static const String localTagSets = "/setting_preference/localTagSets";
 
   static const String hostMapping = "/setting_network/hostMapping";
   static const String proxy = "/setting_network/proxy";

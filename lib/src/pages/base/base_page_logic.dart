@@ -38,6 +38,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   bool get useSearchConfig => false;
 
+  String get searchConfigKey => runtimeType.toString();
+
   bool get autoLoadForFirstTime => true;
 
   bool get autoLoadNeedLogin => false;
@@ -50,7 +52,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     super.onInit();
 
     if (useSearchConfig) {
-      Map<String, dynamic>? map = storageService.read('searchConfig: $runtimeType');
+      Map<String, dynamic>? map = storageService.read('searchConfig: $searchConfigKey');
       if (map != null) {
         state.searchConfig = SearchConfig.fromJson(map);
       }
@@ -362,7 +364,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('searchConfig: $runtimeType', searchConfig.toJson());
+    storageService.write('searchConfig: $searchConfigKey', searchConfig.toJson());
   }
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {

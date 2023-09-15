@@ -288,6 +288,8 @@ class zh_TW {
       'coverStyle': '封面圖片樣式',
       'cover': '覆蓋',
       'adaptive': '自適應',
+      'simpleDashboardMode': '精簡主頁面',
+      'simpleDashboardModeHint': '隱藏排行榜和熱門模塊',
       'hideBottomBar': '隱藏底部導航欄',
       'hideScroll2TopButton': '隱藏快速回頂按鈕',
       'whenScrollUp': '向上滾動時',

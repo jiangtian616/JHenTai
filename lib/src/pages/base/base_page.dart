@@ -144,7 +144,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
 
   Widget buildLoadMoreIndicator() {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 8, bottom: 40),
+      padding: const EdgeInsets.only(top: 16, bottom: 40),
       sliver: SliverToBoxAdapter(
         child: GetBuilder<L>(
           id: logic.loadingStateId,

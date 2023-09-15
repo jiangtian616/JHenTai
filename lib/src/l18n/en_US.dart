@@ -289,6 +289,8 @@ class en_US {
       'coverStyle': 'Cover Style',
       'cover': 'Cover',
       'adaptive': 'Adaptive',
+      'simpleDashboardMode': 'Simple Home Page', 
+      'simpleDashboardModeHint': 'Hide Ranklist and Popular',
       'hideBottomBar': 'Hide Bottom Bar',
       'hideScroll2TopButton': 'Hide Scroll to Top Button',
       'whenScrollUp': 'When Scroll Up',

@@ -291,6 +291,8 @@ class pt_BR {
       'coverStyle': 'Estilo da tampa',
       'cover': 'Tampa',
       'adaptive': 'Adaptativo',
+      'simpleDashboardMode': 'Simple Home Page',
+      'simpleDashboardModeHint': 'Hide Ranklist and Popular',
       'hideBottomBar': 'Ocultar barra inferior',
       'hideScroll2TopButton': 'Hide Scroll to Top Button',
       'whenScrollUp': 'When Scroll Up',

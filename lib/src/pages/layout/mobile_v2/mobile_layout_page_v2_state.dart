@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
+import 'package:jhentai/src/pages/gallerys/dashboard/simple/simple_dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 
 import '../../../mixin/double_tap_to_refresh_state_mixin.dart';
@@ -12,6 +13,7 @@ import '../../download/download_base_page.dart';
 import '../../favorite/favorite_page.dart';
 import '../../favorite/favorite_page_logic.dart';
 import '../../gallerys/dashboard/dashboard_page.dart';
+import '../../gallerys/dashboard/simple/simple_dashboard_page.dart';
 import '../../history/history_page.dart';
 import '../../history/history_page_logic.dart';
 import '../../popular/popular_page.dart';
@@ -43,8 +45,10 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         routeName: Routes.dashboard,
         selectedIcon: const Icon(Icons.home),
         unselectedIcon: const Icon(Icons.home_outlined),
-        page: () => const DashboardPage(),
-        scrollController: () => Get.find<DashboardPageLogic>().scroll2TopState.scrollController,
+        page: () => PreferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : const DashboardPage(),
+        scrollController: () => PreferenceSetting.simpleDashboardMode.isTrue
+            ? Get.find<SimpleDashboardPageLogic>().scroll2TopState.scrollController
+            : Get.find<DashboardPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(

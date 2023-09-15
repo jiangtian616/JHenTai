@@ -289,6 +289,8 @@ class ko_KR {
       'coverStyle': '커버 스타일',
       'cover': '커버',
       'adaptive': '적응형',
+      'simpleDashboardMode': 'Simple Home Page',
+      'simpleDashboardModeHint': 'Hide Ranklist and Popular',
       'hideBottomBar': '하단 메뉴 숨기기',
       'hideScroll2TopButton': 'Hide Scroll to Top Button',
       'whenScrollUp': 'When Scroll Up',

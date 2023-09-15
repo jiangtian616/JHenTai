@@ -14,6 +14,7 @@ class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
   static Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
+  static RxBool simpleDashboardMode = false.obs;
   static RxBool hideBottomBar = false.obs;
   static Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
   static RxBool enableSwipeBackGesture = true.obs;
@@ -52,6 +53,12 @@ class PreferenceSetting {
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
     Log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
     PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
+    _save();
+  }
+  
+  static saveSimpleDashboardMode(bool simpleDashboardMode) {
+    Log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
+    PreferenceSetting.simpleDashboardMode.value = simpleDashboardMode;
     _save();
   }
 
@@ -124,11 +131,12 @@ class PreferenceSetting {
       'locale': locale.value.toString(),
       'showR18GImageDirectly': showR18GImageDirectly.value,
       'enableTagZHTranslation': enableTagZHTranslation.value,
-      'defaultTab': defaultTab.value.index, // 'home
+      'defaultTab': defaultTab.value.index,
       'enableSwipeBackGesture': enableSwipeBackGesture.value,
       'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
       'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
+      'simpleDashboardMode': simpleDashboardMode.value,
       'hideBottomBar': hideBottomBar.value,
       'hideScroll2TopButton': hideScroll2TopButton.value.index, // 'scrollDown
       'showComments': showComments.value,
@@ -148,6 +156,7 @@ class PreferenceSetting {
     enableLeftMenuDrawerGesture.value = map['enableLeftMenuDrawerGesture'] ?? enableLeftMenuDrawerGesture.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     drawerGestureEdgeWidth.value = map['drawerGestureEdgeWidth'] ?? drawerGestureEdgeWidth.value;
+    simpleDashboardMode.value = map['simpleDashboardMode'] ?? simpleDashboardMode.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
     hideScroll2TopButton.value = Scroll2TopButtonModeEnum.values[map['hideScroll2TopButton'] ?? Scroll2TopButtonModeEnum.scrollDown.index];
     showComments.value = map['showComments'] ?? showComments.value;

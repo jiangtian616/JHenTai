@@ -289,6 +289,8 @@ class zh_CN {
       'coverStyle': '封面图片样式',
       'cover': '覆盖',
       'adaptive': '自适应',
+      'simpleDashboardMode': '精简主页面',
+      'simpleDashboardModeHint': '隐藏排行榜和热门模块',
       'hideBottomBar': '隐藏底部导航栏',
       'hideScroll2TopButton': '隐藏快速回顶按钮',
       'whenScrollUp': '向上滚动时',

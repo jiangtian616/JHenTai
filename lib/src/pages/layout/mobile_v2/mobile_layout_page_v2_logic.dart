@@ -17,6 +17,7 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
   final MobileLayoutPageV2State state = MobileLayoutPageV2State();
 
   Worker? hideBottomBarLister;
+  Worker? simpleModeLister;
 
   @override
   void onReady() {
@@ -27,6 +28,10 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
       if (PreferenceSetting.hideBottomBar.isTrue) {
         handleTapNavigationBarButton(0);
       }
+    });
+
+    simpleModeLister = ever(PreferenceSetting.simpleDashboardMode, (_) {
+      update([bodyId]);
     });
   }
 

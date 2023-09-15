@@ -16,6 +16,6 @@ class DesktopSearchPageTabLogic extends BasePageLogic with SearchPageLogicMixin 
 
   @override
   void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('searchConfig: $runtimeType', searchConfig.copyWith(keyword: '', tags: []).toJson());
+    storageService.write('searchConfig: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
   }
 }
