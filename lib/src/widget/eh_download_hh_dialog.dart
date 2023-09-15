@@ -54,7 +54,7 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        if (hhInfo.creditCount != null && hhInfo.gpCount != null) EHAsset(gpCount: hhInfo.creditCount!, creditCount: hhInfo.gpCount!),
+        if (hhInfo.creditCount != null && hhInfo.gpCount != null) EHAsset(gpCount: hhInfo.gpCount!, creditCount: hhInfo.creditCount!),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [_HHDownloadButtonSet(archive: hhInfo.archives[0]), _HHDownloadButtonSet(archive: hhInfo.archives[1])],
