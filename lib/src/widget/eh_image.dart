@@ -26,7 +26,7 @@ class EHImage extends StatelessWidget {
   final Color? containerColor;
   final BoxFit fit;
   final bool enableSlideOutPage;
-  final BorderRadius? borderRadius;
+  final BorderRadius borderRadius;
   final Object? heroTag;
   final bool clearMemoryCacheWhenDispose;
   final List<BoxShadow>? shadows;
@@ -49,7 +49,7 @@ class EHImage extends StatelessWidget {
     this.containerColor,
     this.fit = BoxFit.contain,
     this.enableSlideOutPage = false,
-    this.borderRadius,
+    this.borderRadius = BorderRadius.zero,
     this.heroTag,
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,
@@ -72,7 +72,7 @@ class EHImage extends StatelessWidget {
     this.containerColor,
     this.fit = BoxFit.contain,
     this.enableSlideOutPage = false,
-    this.borderRadius,
+    this.borderRadius = BorderRadius.zero,
     this.heroTag,
     this.clearMemoryCacheWhenDispose = false,
     this.shadows,

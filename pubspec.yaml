@@ -30,10 +30,10 @@ dependencies:
   logger: ^1.1.0
   flutter_rating_bar: ^4.0.0
   waterfall_flow: ^3.0.2
-  extended_image: 8.0.1
+  extended_image: 8.1.0
   font_awesome_flutter: ^9.2.0
-  intl: 0.18.0
-  collection: 1.17.1
+  intl: 0.18.1
+  collection: 1.17.2
   clipboard: ^0.1.3
   scrollable_positioned_list: 0.3.5
   flutter_list_view: 1.1.21
@@ -61,7 +61,7 @@ dependencies:
   animate_do: ^2.1.0
   share_plus: 4.5.3
   syncfusion_flutter_charts: ^20.2.36
-  sentry_flutter: 7.6.3
+  sentry_flutter: 7.9.0
   archive: 3.3.6
   fluttertoast: 8.1.2
   battery_plus: 3.0.2
@@ -76,19 +76,19 @@ dependencies:
   resizable_widget:
     git: https://github.com/eurisit/resizable_widget
   loading_animation_widget: ^1.2.0+3
-  simple_animations: 5.0.1
+  simple_animations: 5.0.2
   animated_flip_counter: ^0.2.5
   image_save: 5.0.0
   system_network_proxy: 1.0.2
   http_proxy: 1.2.1
-  flutter_socks_proxy: 0.0.2
+  flutter_socks_proxy: 0.0.3
   flutter_draggable_gridview:
     # remove assert
     git: https://github.com/jiangtian616/flutter_draggable_gridview
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
   wakelock_plus: 1.1.1
-  material_color_utilities: 0.2.0
+  material_color_utilities: 0.5.0
   flex_color_picker: 3.1.0
   zoom_widget: 2.0.1
   android_intent_plus: 3.1.7
@@ -106,6 +106,7 @@ dependency_overrides:
       url: https://github.com/bitsdojo/bitsdojo_window
       path: bitsdojo_window_windows
   chewie: 1.7.0
+  http: 1.1.0
   
 dev_dependencies:
   flutter_test:

@@ -9,14 +9,14 @@ class EHThumbnail extends StatelessWidget {
   final GalleryThumbnail thumbnail;
   final double? containerHeight;
   final double? containerWidth;
-  final BorderRadius? borderRadius;
+  final BorderRadius borderRadius;
 
   const EHThumbnail({
     Key? key,
     required this.thumbnail,
     this.containerHeight,
     this.containerWidth,
-    this.borderRadius,
+    this.borderRadius = BorderRadius.zero,
   }) : super(key: key);
 
   @override
