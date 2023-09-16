@@ -10,6 +10,8 @@ import '../utils/log.dart';
 
 enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never }
 
+enum TagSearchBehaviour { inheritAll, inheritPartially, none }
+
 class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
@@ -24,6 +26,7 @@ class PreferenceSetting {
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool enableDefaultFavorite = false.obs;
+  static Rx<TagSearchBehaviour> tagSearchBehaviour = TagSearchBehaviour.inheritAll.obs;
   static RxBool showR18GImageDirectly = false.obs;
 
   static void init() {
@@ -55,7 +58,7 @@ class PreferenceSetting {
     PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
     _save();
   }
-  
+
   static saveSimpleDashboardMode(bool simpleDashboardMode) {
     Log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
     PreferenceSetting.simpleDashboardMode.value = simpleDashboardMode;
@@ -116,6 +119,12 @@ class PreferenceSetting {
     _save();
   }
 
+  static saveTagSearchConfig(TagSearchBehaviour tagSearchConfig) {
+    Log.debug('saveTagSearchConfig:$tagSearchConfig');
+    PreferenceSetting.tagSearchBehaviour.value = tagSearchConfig;
+    _save();
+  }
+
   static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
     Log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
     PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
@@ -138,9 +147,10 @@ class PreferenceSetting {
       'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
       'simpleDashboardMode': simpleDashboardMode.value,
       'hideBottomBar': hideBottomBar.value,
-      'hideScroll2TopButton': hideScroll2TopButton.value.index, // 'scrollDown
+      'hideScroll2TopButton': hideScroll2TopButton.value.index,
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
+      'tagSearchConfig': tagSearchBehaviour.value.index,
       'enableDefaultFavorite': enableDefaultFavorite.value,
     };
   }
@@ -161,6 +171,7 @@ class PreferenceSetting {
     hideScroll2TopButton.value = Scroll2TopButtonModeEnum.values[map['hideScroll2TopButton'] ?? Scroll2TopButtonModeEnum.scrollDown.index];
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
+    tagSearchBehaviour.value = TagSearchBehaviour.values[map['tagSearchConfig'] ?? TagSearchBehaviour.inheritAll.index];
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
   }
 }

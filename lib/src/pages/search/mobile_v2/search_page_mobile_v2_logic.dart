@@ -7,12 +7,6 @@ import '../mixin/search_page_logic_mixin.dart';
 
 class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
   @override
-  bool get useSearchConfig => true;
-
-  @override
-  bool get autoLoadForFirstTime => false;
-
-  @override
   final SearchPageMobileV2State state = SearchPageMobileV2State();
 
   /// there may be more than one DetailsPages in route stack at same time, eg: tag a link in a comment.

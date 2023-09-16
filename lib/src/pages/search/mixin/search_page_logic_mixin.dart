@@ -29,6 +29,17 @@ mixin SearchPageLogicMixin on BasePageLogic {
   @override
   SearchPageStateMixin get state;
 
+  @override
+  bool get autoLoadForFirstTime => false;
+
+  @override
+  bool get useSearchConfig => true;
+
+  @override
+  String get searchConfigKey => searchPageConfigKey;
+
+  static const searchPageConfigKey = 'search';
+
   final String suggestionBodyId = 'suggestionBodyId';
   final String galleryBodyId = 'galleryBodyId';
   final String searchFieldId = 'searchFieldId';

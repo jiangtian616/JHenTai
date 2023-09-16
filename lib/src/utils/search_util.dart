@@ -7,10 +7,21 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../model/jh_layout.dart';
 import '../model/search_config.dart';
 import '../pages/search/desktop/desktop_search_page_logic.dart';
+import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import '../routes/routes.dart';
+import '../service/storage_service.dart';
 import '../setting/style_setting.dart';
 import '../widget/eh_search_config_dialog.dart';
+
+SearchConfig? loadSearchPageConfig() {
+  Map<String, dynamic>? map = Get.find<StorageService>().read('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}');
+  if (map != null) {
+    return SearchConfig.fromJson(map);
+  }
+
+  return null;
+}
 
 void newSearch(String? keyword, [bool forceNewRoute = false]) {
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
@@ -48,14 +59,20 @@ void newSearch(String? keyword, [bool forceNewRoute = false]) {
   toRoute(Routes.mobileV2Search, arguments: keyword);
 }
 
-void newSearchWithConfig(SearchConfig searchConfig) {
+void newSearchWithConfig(SearchConfig searchConfig, [bool forceNewRoute = false]) {
   if (StyleSetting.actualLayout == LayoutMode.desktop) {
     if (!isRouteAtTop(Routes.desktopSearch)) {
       toRoute(Routes.desktopSearch);
     }
 
     DesktopSearchPageLogic desktopSearchPageLogic = Get.find<DesktopSearchPageLogic>();
-    desktopSearchPageLogic.addNewTab(searchConfig: searchConfig, loadImmediately: true);
+    if (forceNewRoute) {
+      desktopSearchPageLogic.addNewTab(searchConfig: searchConfig, loadImmediately: true);
+    } else {
+      desktopSearchPageLogic.currentTabLogic.state.searchConfig = searchConfig.copyWith();
+      desktopSearchPageLogic.handleClearAndRefresh();
+    }
+
     return;
   }
 
@@ -71,6 +88,12 @@ void newSearchWithConfig(SearchConfig searchConfig) {
     return;
   }
 
+  if (!forceNewRoute && isRouteAtTop(Routes.mobileV2Search)) {
+    SearchPageMobileV2Logic.current!.state.searchConfig = searchConfig.copyWith();
+    SearchPageMobileV2Logic.current!.handleClearAndRefresh();
+    return;
+  }
+  
   toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith(), preventDuplicates: false);
 }
 

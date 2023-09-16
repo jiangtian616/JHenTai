@@ -39,7 +39,7 @@ class QuickSearchPage extends StatelessWidget {
                   title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   trailing: IconButton(icon: const Icon(Icons.settings), onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]))
                       .marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
-                  onTap: () => newSearchWithConfig(entries[index].value),
+                  onTap: () => newSearchWithConfig(entries[index].value, true),
                 ),
                 const Divider(thickness: 0.7, height: 2),
               ],

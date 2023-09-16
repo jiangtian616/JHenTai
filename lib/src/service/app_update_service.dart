@@ -10,13 +10,15 @@ import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
+import '../model/search_config.dart';
+import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
 import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 6;
+  static const int appVersion = 7;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -158,6 +160,17 @@ class AppUpdateService extends GetxService {
           ReadSetting.saveReadDirection(ReadDirection.right2leftDoubleColumn);
         } else if (ReadSetting.readDirection.value == ReadDirection.right2leftSinglePageFitWidth) {
           ReadSetting.saveReadDirection(ReadDirection.right2leftList);
+        }
+      }
+
+      if (oldVersion <= 6) {
+        Log.info('migrate search config');
+
+        StorageService storageService = Get.find<StorageService>();
+
+        Map<String, dynamic>? map = storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
+        if (map != null) {
+          storageService.write('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
       }
     });

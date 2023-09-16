@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
@@ -85,7 +87,30 @@ class _EHTagState extends State<EHTag> {
   }
 
   void _searchTag() {
-    newSearch('${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"', widget.forceNewRoute);
+    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritAll) {
+      return newSearch('${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"', widget.forceNewRoute);
+    }
+
+    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritPartially) {
+      SearchConfig searchConfig = loadSearchPageConfig() ?? SearchConfig();
+      searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
+      searchConfig.language = null;
+      searchConfig.includeDoujinshi = true;
+      searchConfig.includeManga = true;
+      searchConfig.includeArtistCG = true;
+      searchConfig.includeGameCg = true;
+      searchConfig.includeWestern = true;
+      searchConfig.includeNonH = true;
+      searchConfig.includeImageSet = true;
+      searchConfig.includeCosplay = true;
+      searchConfig.includeAsianPorn = true;
+      searchConfig.includeMisc = true;
+      return newSearchWithConfig(searchConfig, widget.forceNewRoute);
+    }
+
+    SearchConfig searchConfig = SearchConfig();
+    searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
+    return newSearchWithConfig(searchConfig, widget.forceNewRoute);
   }
 
   void _showDialog() {

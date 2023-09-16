@@ -41,6 +41,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
               _buildEnableDefaultFavorite(),
+              _buildTagSearchConfig(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildLocalTags(),
             ],
@@ -275,6 +276,39 @@ class SettingPreferencePage extends StatelessWidget {
       trailing: Switch(
         value: PreferenceSetting.enableDefaultFavorite.value,
         onChanged: PreferenceSetting.saveEnableDefaultFavorite,
+      ),
+    );
+  }
+
+  Widget _buildTagSearchConfig() {
+    return ListTile(
+      title: Text('tagSearchBehaviour'.tr),
+      subtitle: Text(
+        PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritAll
+            ? 'inheritAllHint'.tr
+            : PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritPartially
+                ? 'inheritPartiallyHint'.tr
+                : 'noneHint'.tr,
+      ),
+      trailing: DropdownButton<TagSearchBehaviour>(
+        value: PreferenceSetting.tagSearchBehaviour.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (TagSearchBehaviour? newValue) => PreferenceSetting.saveTagSearchConfig(newValue!),
+        items: [
+          DropdownMenuItem(
+            child: Text('inheritAll'.tr),
+            value: TagSearchBehaviour.inheritAll,
+          ),
+          DropdownMenuItem(
+            child: Text('inheritPartially'.tr),
+            value: TagSearchBehaviour.inheritPartially,
+          ),
+          DropdownMenuItem(
+            child: Text('none'.tr),
+            value: TagSearchBehaviour.none,
+          ),
+        ],
       ),
     );
   }
