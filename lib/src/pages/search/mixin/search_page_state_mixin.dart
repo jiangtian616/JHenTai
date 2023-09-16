@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/base/base_page_state.dart';
 
 import '../../../database/database.dart';
@@ -18,6 +19,8 @@ mixin SearchPageStateMixin on BasePageState {
 
   bool hideSearchHistory = false;
 
+  GalleryUrl? inputGalleryUrl;
+  
   List<TagData> suggestions = <TagData>[];
 
   ScrollController suggestionBodyController = ScrollController();

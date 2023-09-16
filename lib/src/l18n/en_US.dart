@@ -308,7 +308,7 @@ class en_US {
       'inheritAllHint': 'Use last search options for tag search',
       'inheritPartially': 'Inherit Partially',
       'inheritPartiallyHint': 'Use last search options for tag search(except language and category)',
-      'none': 'None', 
+      'none': 'None',
       'noneHint': 'Use default search options for tag search',
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
@@ -552,6 +552,7 @@ class en_US {
       'searchFailed': 'Search Failed',
       'fileSearchFailed': 'File Search Failed',
       'tab': 'Tab',
+      'openGallery': 'Open Gallery',
 
       /// about page
       'author': 'Author',

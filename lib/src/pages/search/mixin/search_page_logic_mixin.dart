@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
@@ -138,6 +139,19 @@ mixin SearchPageLogicMixin on BasePageLogic {
 
     Log.info('Get redirect url success:${state.redirectUrl}');
     loadMore(checkLoadingState: false);
+  }
+
+  void onInputChanged(String text) {
+    state.searchConfig.keyword = text;
+
+    GalleryUrl? galleryUrl = GalleryUrl.tryParse(text);
+    if (galleryUrl != null) {
+      state.inputGalleryUrl = galleryUrl;
+      updateSafely([suggestionBodyId]);
+    } else {
+      state.inputGalleryUrl = null;
+      waitAndSearchTags();
+    }
   }
 
   /// search only if there's no timer active (300ms)

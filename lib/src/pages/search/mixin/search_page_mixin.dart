@@ -106,11 +106,30 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               logic.toggleBodyType();
             }
           },
-          onChanged: (value) {
-            state.searchConfig.keyword = value;
-            logic.waitAndSearchTags();
-          },
+          onChanged: logic.onInputChanged,
           onSubmitted: (_) => logic.handleClearAndRefresh(),
+        ),
+      ),
+    );
+  }
+
+  Widget buildOpenGalleryArea() {
+    if (state.inputGalleryUrl == null) {
+      return const SizedBox();
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(top: 8),
+      child: ListTile(
+        title: Text('openGallery'.tr),
+        subtitle: Text(state.inputGalleryUrl!.url, maxLines: 1, overflow: TextOverflow.ellipsis),
+        leading: const Icon(Icons.open_in_new),
+        onTap: () => toRoute(
+          Routes.details,
+          arguments: {
+            'gid': state.inputGalleryUrl!.gid,
+            'galleryUrl': state.inputGalleryUrl!.url,
+          },
         ),
       ),
     );
@@ -214,19 +233,19 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     );
   }
 
-  Widget buildButtons(
-    BuildContext context,
-  ) {
+  Widget buildButtons(BuildContext context) {
     return SliverToBoxAdapter(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          IconButton(
-            onPressed: toggleEnableSearchHistoryTranslation,
-            icon: AnimatedSwitcher(
-              duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory || !showTranslateButton ? null : Icon(Icons.translate, size: 20, color: UIConfig.primaryColor((context))),
-            ),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+            child: hideSearchHistory || !showTranslateButton
+                ? null
+                : IconButton(
+                    onPressed: toggleEnableSearchHistoryTranslation,
+                    icon: Icon(Icons.translate, size: 20, color: UIConfig.primaryColor((context))),
+                  ),
           ),
           IconButton(
             onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
@@ -240,9 +259,7 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     );
   }
 
-  Widget buildSuggestions(
-    BuildContext context,
-  ) {
+  Widget buildSuggestions(BuildContext context) {
     return SliverPadding(
       padding: const EdgeInsets.only(top: 16, bottom: 600),
       sliver: SliverList(

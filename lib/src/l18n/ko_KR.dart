@@ -551,6 +551,7 @@ class ko_KR {
       'searchFailed': '검색 실패',
       'fileSearchFailed': '파일 검색 실패',
       'tab': '탭',
+      'openGallery': 'Open Gallery',
 
       /// about page
       'author': '제작자',

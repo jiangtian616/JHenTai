@@ -403,7 +403,7 @@ class zh_CN {
       'left2rightSinglePage': '从左至右(单页)',
       'left2rightSinglePageFitWidth': '从左至右(适配宽度)',
       'right2leftSinglePage': '从右至左(单页)',
-      'right2leftSinglePageFitWidth':'从右至左(适配宽度)',
+      'right2leftSinglePageFitWidth': '从右至左(适配宽度)',
       'left2rightDoubleColumn': '从左至右(双列)',
       'right2leftDoubleColumn': '从右至左(双列)',
       'left2rightList': '从左至右(连续)',
@@ -550,6 +550,7 @@ class zh_CN {
       'searchFailed': '搜索失败',
       'fileSearchFailed': '以图搜图失败',
       'tab': '标签页',
+      'openGallery': '打开画廊',
 
       /// about page
       'author': '创作者',

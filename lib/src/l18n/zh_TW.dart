@@ -548,7 +548,8 @@ class zh_TW {
       'searchFailed': '搜尋失敗',
       'fileSearchFailed': '以圖搜圖失敗',
       'tab': '標簽頁',
-
+      'openGallery': '打开画廊',
+      
       /// about page
       'author': '創作者',
       'Q&A': '常見問題',

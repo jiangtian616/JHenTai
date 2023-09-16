@@ -555,6 +555,7 @@ class pt_BR {
       'searchFailed': 'Falha ao pesquisar',
       'fileSearchFailed': 'Falha ao pesquisr arquivo',
       'tab': 'Tab',
+      'openGallery': 'Open Gallery',
 
       /// about page
       'author': 'Autor',

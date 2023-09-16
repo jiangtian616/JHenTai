@@ -1021,7 +1021,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         builder: (_) => LoadingStateIndicator(
           indicatorRadius: 16,
           loadingState: state.loadingState,
-          errorTapCallback: logic.getDetails,
+          errorTapCallback: () => logic.getDetails(useCacheIfAvailable: false),
         ),
       ),
     );

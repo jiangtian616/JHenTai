@@ -62,13 +62,11 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
     return Column(
       children: [
         if (state.bodyType == SearchPageBodyType.suggestionAndHistory)
-          Expanded(
-            child: GetBuilder<SearchPageMobileV2Logic>(
-              id: logic.suggestionBodyId,
-              global: false,
-              init: logic,
-              builder: (_) => buildSuggestionAndHistoryBody(),
-            ),
+          GetBuilder<SearchPageMobileV2Logic>(
+            id: logic.suggestionBodyId,
+            global: false,
+            init: logic,
+            builder: (_) => state.inputGalleryUrl == null ? Expanded(child: buildSuggestionAndHistoryBody()) : buildOpenGalleryArea(),
           )
         else if (state.hasSearched)
           Expanded(
