@@ -63,7 +63,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildTimeout(),
-              _buildDownloadInOrder(),
+              _buildDownloadAllGallerysOfSamePriority(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
             ],
@@ -208,10 +208,22 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     );
   }
 
-  Widget _buildDownloadInOrder() {
+  Widget _buildDownloadAllGallerysOfSamePriority() {
     return ListTile(
-      title: Text('downloadInOrder'.tr),
-      trailing: Switch(value: DownloadSetting.downloadInOrderOfInsertTime.value, onChanged: DownloadSetting.saveDownloadInOrderOfInsertTime),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('downloadAllGallerysOfSamePriority'.tr),
+          const SizedBox(width: 2),
+          const Icon(Icons.help, size: 18),
+        ],
+      ),
+      subtitle: Text('needRestart'.tr),
+      trailing: Switch(
+        value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
+        onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
+      ),
+      onTap: () => toast('downloadAllGallerysOfSamePriorityHint'.tr, isShort: false),
     );
   }
 

@@ -338,8 +338,8 @@ class SuperResolutionService extends GetxController {
       }
 
       if (exitCode != 0) {
-        toast('${'internalError'.tr} exitCode:$exitCode}', isShort: false);
-        Log.error('${'internalError'.tr} exitCode:$exitCode}');
+        toast('${'internalError'.tr} exitCode:$exitCode', isShort: false);
+        Log.error('${'internalError'.tr} exitCode:$exitCode');
         Log.upload(
           Exception('Process Error'),
           extraInfos: {'rawImage': rawImages[i], 'exitCode': exitCode},
@@ -373,6 +373,15 @@ class SuperResolutionService extends GetxController {
       File(rawImage.path!).copySync(outputPath);
       return Future.value(null);
     }
+
+    Log.verbose(
+      'Run: ${join(SuperResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows ? 'realesrgan-ncnn-vulkan.exe' : 'realesrgan-ncnn-vulkan')} '
+      '-i "${rawImage.path!}" '
+      '-o "$outputPath" '
+      '-n ${SuperResolutionSetting.modelType.value} '
+      '-f png '
+      '-m "${join(SuperResolutionSetting.modelDirectoryPath.value!, 'models')}"',
+    );
 
     return Process.start(
       join(SuperResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows ? 'realesrgan-ncnn-vulkan.exe' : 'realesrgan-ncnn-vulkan'),

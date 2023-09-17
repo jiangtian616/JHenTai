@@ -17,8 +17,8 @@ class DownloadSetting {
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
-  static RxInt timeout = 20.obs;
-  static RxBool downloadInOrderOfInsertTime = true.obs;
+  static RxInt timeout = 60.obs;
+  static RxBool downloadAllGallerysOfSamePriority = false.obs;
   static RxBool deleteArchiveFileAfterDownload = true.obs;
 
   static void init() {
@@ -100,9 +100,9 @@ class DownloadSetting {
     _save();
   }
 
-  static saveDownloadInOrderOfInsertTime(bool value) {
-    Log.debug('saveDownloadInOrderOfInsertTime:$value');
-    downloadInOrderOfInsertTime.value = value;
+  static saveDownloadAllGallerysOfSamePriority(bool value) {
+    Log.debug('saveDownloadAllGallerysOfSamePriority:$value');
+    downloadAllGallerysOfSamePriority.value = value;
     _save();
   }
 
@@ -126,7 +126,7 @@ class DownloadSetting {
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
       'timeout': timeout.value,
-      'downloadInOrderOfInsertTime': downloadInOrderOfInsertTime.value,
+      'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
     };
   }
@@ -145,7 +145,7 @@ class DownloadSetting {
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
     timeout.value = map['timeout'];
-    downloadInOrderOfInsertTime.value = map['downloadInOrderOfInsertTime'] ?? downloadInOrderOfInsertTime.value;
+    downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
   }
 }

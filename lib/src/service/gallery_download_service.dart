@@ -223,7 +223,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   /// Update local downloaded gallery if there's a new version.
   Future<void> updateGallery(GalleryDownloadedData oldGallery, String newVersionGalleryUrl) async {
-    Log.info('ReDownload gallery: ${oldGallery.title}');
+    Log.info('update gallery: ${oldGallery.title}');
 
     GalleryDownloadedData newGallery;
     try {
@@ -267,7 +267,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: null));
 
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
+    update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   Future<void> reDownloadImage(int gid, int serialNo) async {
@@ -531,20 +531,20 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   /// Rules:
-  /// 1. If [downloadInOrderOfInsertTime] is false
+  /// 1. If [downloadAllGallerysOfSamePriority] is false
   ///   1.1 Galleries download order:
   ///     1.1.1 gallery with high priority
   ///     1.1.2 gallery with low priority
-  ///     1.1.3 if priority is same, download in the order of insert time DESC
+  ///     1.1.3 if priority is same, download only 1 gallery simultaneously in the order of insert time ASC
   ///   1.2 For each gallery, previous image should be downloaded earlier
-  /// 2. If [downloadInOrderOfInsertTime] is true
+  /// 2. If [downloadAllGallerysOfSamePriority] is true
   ///   2.1 Galleries download order:
   ///     2.1.1 gallery with high priority
   ///     2.1.2 gallery with low priority
-  ///     2.1.3 if priority is same, download in the order of insert time
-  ///   2.2 For each gallery, previous image should be downloaded earlier
+  ///     2.1.3 if priority is same, download all gallerys simultaneously
+  ///   2.2 For each gallery, previous image should be downloaded earlier and images with same [serialNo] has the same priority no matter which gallery they belong to
   ///
-  /// Because a gallery has most 2000 images, we assign 10000 numbers to each gallery
+  /// Because a gallery has most 2000 images, we assign 2000 numbers to each gallery
   int _computeGalleryTaskPriority(GalleryDownloadedData gallery) {
     if (_taskHasBeenPausedOrRemoved(gallery)) {
       return 0;
@@ -554,14 +554,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       galleryDownloadInfos[gallery.gid]!.priority = gallery.priority ?? defaultDownloadGalleryPriority;
     }
 
-    /// priority is same, order by insert time
-    DateTime insertTime = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(gallery.insertTime!);
-    int timePriority = int.parse(DateFormat('dHHmmss').format(insertTime));
-    if (DownloadSetting.downloadInOrderOfInsertTime.isFalse) {
-      timePriority = _priorityBase - timePriority;
+    int groupPriority = galleryDownloadInfos[gallery.gid]!.priority! * _priorityBase;
+
+    if (DownloadSetting.downloadAllGallerysOfSamePriority.isTrue) {
+      return groupPriority;
     }
 
-    return galleryDownloadInfos[gallery.gid]!.priority! * _priorityBase + timePriority;
+    /// priority is same, order by insert time
+    DateTime insertTime = gallery.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(gallery.insertTime!);
+    int timePriority = int.parse(DateFormat('MMddHHmmss').format(insertTime)) * 2000;
+
+    return groupPriority + timePriority;
   }
 
   int _computeImageTaskPriority(GalleryDownloadedData gallery, int serialNo) {
@@ -789,7 +792,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
+            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
+                ? EHSpiderParser.imagePage2OriginalGalleryImage
+                : EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
@@ -1120,7 +1125,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         curCount: images?.fold<int>(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded: images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded:
+            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),
