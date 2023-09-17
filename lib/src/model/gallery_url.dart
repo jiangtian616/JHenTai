@@ -21,5 +21,5 @@ class GalleryUrl {
     );
   }
 
-  String get url => isEH ? 'https://e-hentai.org/g/$gid/$token' : 'https://exhentai.org/g/$gid/$token';
+  String get url => isEH ? 'https://e-hentai.org/g/$gid/$token/' : 'https://exhentai.org/g/$gid/$token/';
 }
