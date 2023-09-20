@@ -82,7 +82,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
             labelStyle: const TextStyle(fontSize: 15),
             floatingLabelStyle: const TextStyle(fontSize: 10),
             labelText:
-            state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+                state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
             prefixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
@@ -247,11 +247,12 @@ class SuggestionAndHistoryBody extends StatelessWidget {
                     icon: Icon(Icons.translate, size: 20, color: UIConfig.primaryColor((context))),
                   ),
           ),
-          IconButton(
-            onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
-            icon: AnimatedSwitcher(
-              duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-              child: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+            child: IconButton(
+              key: ValueKey(hideSearchHistory),
+              onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
+              icon: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
             ),
           ),
         ],
