@@ -145,9 +145,8 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       histories: logic.searchHistoryService.histories,
       scrollController: state.scrollController,
       onTapChip: (String keyword) => newSearch(keyword + ' '),
-      onLongPressChip: (String keyword) {
-        state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + keyword;
-        logic.update([logic.searchFieldId]);
+      onLongPressChip: (String keyword) async {
+        logic.handleTapClearHistoryByKeyword(keyword);
       },
       onTapSuggestion: (TagData tagData) {
         List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];

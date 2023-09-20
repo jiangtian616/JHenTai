@@ -244,6 +244,15 @@ mixin SearchPageLogicMixin on BasePageLogic {
     }
   }
 
+  Future<void> handleTapClearHistoryByKeyword(String keyword) async {
+    bool? result = await Get.dialog(EHDialog(title: 'delete $keyword'.tr + '?'));
+    
+    if (result == true) {
+      searchHistoryService.clearHistoryByKeyword(keyword);
+    }
+    update([suggestionBodyId]);
+  }
+
   void writeHistory() {
     /// do not record file search
     if (state.redirectUrl != null) {

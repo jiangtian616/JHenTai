@@ -57,6 +57,17 @@ class SearchHistoryService extends GetxService {
     );
   }
 
+  //Clear History by keyword
+  Future<void> clearHistoryByKeyword(String keyword) async {
+    List history = storageService.read('searchHistory') ?? <String>[];
+
+    history.remove(keyword);
+
+    storageService.write('searchHistory', history);
+
+    histories.removeWhere((history) => history.rawKeyword == keyword);
+  }
+
   Future<void> clearHistory() async {
     histories.clear();
     await storageService.remove('searchHistory');
