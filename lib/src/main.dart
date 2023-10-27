@@ -29,7 +29,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -87,7 +86,7 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
-      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
+      navigatorObservers: [SentryNavigatorObserver()],
       builder: (context, child) => AppManager(child: child!),
 
       /// enable swipe back feature
