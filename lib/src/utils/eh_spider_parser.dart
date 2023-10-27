@@ -428,17 +428,20 @@ class EHSpiderParser {
     if (img == null && document.querySelector('#pane_images') != null) {
       throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
-    Element a = document.querySelector('#i6 a')!;
 
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
-
     if (url.contains('509.gif')) {
       throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
+    double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
+    double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
 
-    Element? originalImg = document.querySelector('#i7 > a');
+    Element hashElement = document.querySelector('#i6 div a')!;
+    String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
+
+    Element? originalImg = document.querySelector('#i6:nth-child(3) a');
     String? originalImgHref = originalImg?.attributes['href'];
     RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
@@ -446,12 +449,12 @@ class EHSpiderParser {
 
     return GalleryImage(
       url: url,
-      height: double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
-      width: double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
+      height: height,
+      width: width,
       originalImageUrl: originalImgHref,
       originalImageWidth: originalImgWidth,
       originalImageHeight: originalImgHeight,
-      imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
+      imageHash: imageHash,
     );
   }
 
@@ -461,17 +464,20 @@ class EHSpiderParser {
     if (img == null && document.querySelector('#pane_images') != null) {
       throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
-    Element a = document.querySelector('#i6 > a')!;
 
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
-
     if (url.contains('509.gif')) {
       throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
+    double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
+    double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
 
-    Element? originalImg = document.querySelector('#i7 > a');
+    Element hashElement = document.querySelector('#i6 div a')!;
+    String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
+
+    Element? originalImg = document.querySelector('#i6:nth-child(3) a');
     String? originalImgHref = originalImg?.attributes['href'];
     RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
@@ -479,9 +485,9 @@ class EHSpiderParser {
 
     return GalleryImage(
       url: originalImgHref ?? url,
-      height: originalImgHeight ?? double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!),
-      width: originalImgWidth ?? double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!),
-      imageHash: RegExp(r'f_shash=(\w+)').firstMatch(a.attributes['href']!)!.group(1)!,
+      height: originalImgHeight ?? height,
+      width: originalImgWidth ?? width,
+      imageHash: imageHash,
     );
   }
 
