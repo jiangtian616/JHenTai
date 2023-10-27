@@ -98,7 +98,18 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
   List<GalleryImage> getGalleryImages(LocalGallery gallery) {
     List<File> imageFiles = Directory(gallery.path).listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-      ..sort((a, b) => basename(a.path).compareTo(basename(b.path)));
+      ..sort((a, b) {
+        String aName = basenameWithoutExtension(a.path);
+        String bName = basenameWithoutExtension(b.path);
+
+        int? aIndex = int.tryParse(aName);
+        int? bIndex = int.tryParse(bName);
+
+        if (aIndex != null && bIndex != null) {
+          return aIndex - bIndex;
+        }
+        return aName.compareTo(bName);
+      });
 
     return imageFiles
         .map(
