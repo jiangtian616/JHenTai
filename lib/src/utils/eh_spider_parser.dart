@@ -527,7 +527,7 @@ class EHSpiderParser {
     List<Element> profiles = document.querySelectorAll('#profile_form > select > option');
     map['jHenTaiProfileNo'] = profiles.singleWhereOrNull((profile) => profile.text == 'JHenTai')?.attributes['value'];
 
-    Element frontPageSetting = items[6];
+    Element frontPageSetting = items[8];
     String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
 
     switch (type) {
@@ -548,10 +548,8 @@ class EHSpiderParser {
         break;
     }
 
-    Element thumbnailSetting = items[19];
-    map['isLargeThumbnail'] =
-        thumbnailSetting.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
-    map['thumbnailRows'] = int.parse(thumbnailSetting.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
+    map['isLargeThumbnail'] = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    map['thumbnailRows'] = int.parse(document.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
     return map;
   }
 
