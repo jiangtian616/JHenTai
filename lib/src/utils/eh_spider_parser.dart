@@ -428,7 +428,7 @@ class EHSpiderParser {
     if (img == null && document.querySelector('#pane_images') != null) {
       throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
-    Element a = document.querySelector('#i6 > a')!;
+    Element a = document.querySelector('#i6 a')!;
 
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
