@@ -120,8 +120,14 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       snack('getGalleryArchiveFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
       return;
-    } on NotUploadException catch (_) {
-      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr);
+    } on Exception catch (_) {
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, longDuration: true);
+      if (mounted) {
+        setState(() => loadingState = LoadingState.error);
+      }
+      return;
+    } on Error catch (_) {
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, longDuration: true);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }
