@@ -27,6 +27,8 @@ import '../../../setting/user_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
 
+const double imageMinHeight = 100;
+
 class EHComment extends StatefulWidget {
   final GalleryComment comment;
   final bool inDetailPage;
@@ -217,13 +219,32 @@ class _EHCommentTextBody extends StatelessWidget {
       if (inDetailPage) {
         return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: UIConfig.commentLinkColor));
       }
-
+      
+      String url = node.attributes['src']!.replaceAll('s.exhentai.org', 'ehgt.org');
       return WidgetSpan(
         child: LayoutBuilder(
           builder: (context, constraints) {
             return ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: _computeImageMaxWidth(constraints, node)),
-              child: ExtendedImage.network(node.attributes['src']!),
+              constraints: BoxConstraints(
+                minHeight: imageMinHeight,
+                maxWidth: _computeImageMaxWidth(constraints, node),
+              ),
+              child: ExtendedImage.network(
+                url,
+                handleLoadingProgress: true,
+                loadStateChanged: (ExtendedImageState state) {
+                  switch (state.extendedImageLoadState) {
+                    case LoadState.loading:
+                      return Center(child: UIConfig.loadingAnimation(context));
+                    case LoadState.failed:
+                      return Center(
+                        child: GestureDetector(child: const Icon(Icons.sentiment_very_dissatisfied), onTap: state.reLoadImage),
+                      );
+                    default:
+                      return null;
+                  }
+                },
+              ),
             );
           },
         ),

@@ -83,7 +83,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         toast('clearSuccess'.tr, isCenter: false);
         Future.delayed(
           const Duration(milliseconds: 600),
-          () => setState(() {}),
+          () => setStateSafely(() {}),
         );
       },
     );
