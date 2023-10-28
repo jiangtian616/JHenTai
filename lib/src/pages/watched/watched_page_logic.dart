@@ -4,6 +4,9 @@ import '../base/base_page_logic.dart';
 
 class WatchedPageLogic extends BasePageLogic {
   @override
+  bool get useSearchConfig => true;
+
+  @override
   bool get autoLoadNeedLogin => true;
 
   @override

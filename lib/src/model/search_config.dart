@@ -103,7 +103,7 @@ class SearchConfig {
       params['f_search'] = (params['f_search'] ?? '') + ' language:"$language"';
     }
 
-    if (searchType == SearchType.gallery) {
+    if (searchType == SearchType.gallery || searchType == SearchType.watched) {
       params['f_cats'] = _computeFCats();
 
       if (onlySearchExpungedGalleries) {

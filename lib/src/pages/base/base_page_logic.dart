@@ -36,7 +36,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   final String refreshStateId = 'refreshStateId';
   final String loadingStateId = 'loadingStateId';
 
-  bool get useSearchConfig => false;
+  bool get useSearchConfig;
 
   String get searchConfigKey => runtimeType.toString();
 

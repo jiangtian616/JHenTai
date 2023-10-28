@@ -18,6 +18,9 @@ class HistoryPageLogic extends OldBasePageLogic {
   final HistoryService historyService = Get.find();
 
   @override
+  bool get useSearchConfig => false;
+  
+  @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get history by page index $pageIndex');
 

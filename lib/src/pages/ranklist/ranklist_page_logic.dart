@@ -12,6 +12,9 @@ class RanklistPageLogic extends OldBasePageLogic {
   @override
   final RanklistPageState state = RanklistPageState();
 
+  @override
+  bool get useSearchConfig => false;
+
   Future<void> handleChangeRanklist(RanklistType newType) async {
     if (state.loadingState == LoadingState.loading) {
       return;

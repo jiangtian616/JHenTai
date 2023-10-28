@@ -4,4 +4,7 @@ import 'popular_page_state.dart';
 class PopularPageLogic extends BasePageLogic {
   @override
   final PopularPageState state = PopularPageState();
+
+  @override
+  bool get useSearchConfig => false;
 }
