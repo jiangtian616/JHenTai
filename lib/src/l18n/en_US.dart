@@ -381,6 +381,8 @@ class en_US {
       'enableAuthOnResume': 'Enable Auth on Resume',
       'enableAuthOnResumeHints': '3 seconds delay',
       'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
+      'hideImagesInAlbum': 'Hide Images in Album',
+      'hideImagesInAlbumHints': 'If you changed default download path, you need to create .nomedia manually',
 
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',

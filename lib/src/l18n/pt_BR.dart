@@ -383,6 +383,8 @@ class pt_BR {
       'enableAuthOnResume': 'Enable Auth on Resume',
       'enableAuthOnResumeHints': '3 segundos de atraso',
       'enableBlurBackgroundApp': 'Ative a página de desfoque ao alternar para o plano de fundo',
+      'hideImagesInAlbum': 'Hide Images in Album',
+      'hideImagesInAlbumHints': 'If you changed default download path, you need to create .nomedia manually',
 
       /// read setting page
       'enableImmersiveMode': 'Habilitar modo imersivo',

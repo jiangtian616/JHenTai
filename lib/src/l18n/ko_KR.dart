@@ -381,6 +381,8 @@ class ko_KR {
       'enableAuthOnResume': '앱 다시 열 때 인증 사용',
       'enableAuthOnResumeHints': '3초 후 인증 요구',
       'enableBlurBackgroundApp': '백그라운드로 전환할 때 페이지 블러 사용',
+      'hideImagesInAlbum': 'Hide Images in Album',
+      'hideImagesInAlbumHints': 'If you changed default download path, you need to create .nomedia manually',
 
       /// read setting page
       'enableImmersiveMode': '몰입형 모드 사용',

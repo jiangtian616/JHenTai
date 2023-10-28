@@ -380,6 +380,8 @@ class zh_TW {
       'enableAuthOnResume': '切換至後台後重新認證',
       'enableAuthOnResumeHints': '需要切換至後台超過3s',
       'enableBlurBackgroundApp': '在任務欄中模糊應用頁面',
+      'hideImagesInAlbum': '在相冊應用用隱藏圖片',
+      'hideImagesInAlbumHints': '如果你更改過默認下載路徑，你需要自己手動創建.nomedia文件',
 
       /// read setting page
       'enableImmersiveMode': '開啟沉浸模式',
@@ -401,7 +403,7 @@ class zh_TW {
       'left2rightSinglePage': '從左至右(單頁)',
       'left2rightSinglePageFitWidth': '從左至右(適配寬度)',
       'right2leftSinglePage': '從右至左(單頁)',
-      'right2leftSinglePageFitWidth':'從右至左(適配寬度)',
+      'right2leftSinglePageFitWidth': '從右至左(適配寬度)',
       'left2rightDoubleColumn': '從左至右(雙列)',
       'right2leftDoubleColumn': '從右至左(雙列)',
       'left2rightList': '從左至右(連續)',
@@ -549,7 +551,7 @@ class zh_TW {
       'fileSearchFailed': '以圖搜圖失敗',
       'tab': '標簽頁',
       'openGallery': '打开画廊',
-      
+
       /// about page
       'author': '創作者',
       'Q&A': '常見問題',

@@ -20,6 +20,7 @@ class SettingSecurityPage extends StatelessWidget {
             _buildEnablePasswordAuth(),
             if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricAuth(),
             if (GetPlatform.isMobile) _buildEnableAuthOnResume(),
+            if (GetPlatform.isAndroid) _buildHideImagesInAlbum(),
           ],
         ).withListTileTheme(context),
       ),
@@ -69,6 +70,15 @@ class SettingSecurityPage extends StatelessWidget {
       subtitle: Text('enableAuthOnResumeHints'.tr),
       value: SecuritySetting.enableAuthOnResume.value,
       onChanged: SecuritySetting.saveEnableAuthOnResume,
+    );
+  }
+
+  Widget _buildHideImagesInAlbum() {
+    return SwitchListTile(
+      title: Text('hideImagesInAlbum'.tr),
+      subtitle: Text('hideImagesInAlbumHints'.tr),
+      value: SecuritySetting.hideImagesInAlbum.value,
+      onChanged: SecuritySetting.saveHideImagesInAlbum,
     );
   }
 }
