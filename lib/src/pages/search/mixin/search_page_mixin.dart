@@ -135,76 +135,15 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
     );
   }
 
-  Widget buildSuggestionAndHistoryBody() {
-    return SuggestionAndHistoryBody(
-      currentKeyword: state.searchConfig.keyword?.split(' ').last ?? '',
-      suggestions: state.suggestions,
-      hideSearchHistory: state.hideSearchHistory,
-      showTranslateButton: logic.tagTranslationService.isReady,
-      enableSearchHistoryTranslation: state.enableSearchHistoryTranslation,
-      histories: logic.searchHistoryService.histories,
-      scrollController: state.scrollController,
-      onTapChip: (String keyword) => newSearch(keyword + ' '),
-      onLongPressChip: (String keyword) {
-        state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + keyword;
-        logic.update([logic.searchFieldId]);
-      },
-      onTapSuggestion: (TagData tagData) {
-        List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
-        segments.removeLast();
-        segments.add('${tagData.namespace}:"${tagData.key}\$"');
-        state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
-        logic.update([logic.searchFieldId]);
-      },
-      toggleEnableSearchHistoryTranslation: logic.toggleEnableSearchHistoryTranslation,
-      onTapClearSearchHistory: logic.handleTapClearSearchHistoryButton,
-      toggleHideSearchHistory: logic.toggleHideSearchHistory,
-    );
-  }
-}
-
-class SuggestionAndHistoryBody extends StatelessWidget {
-  final String currentKeyword;
-  final bool hideSearchHistory;
-  final bool showTranslateButton;
-  final bool enableSearchHistoryTranslation;
-  final List<SearchHistory> histories;
-  final List<TagData> suggestions;
-  final ScrollController scrollController;
-  final ValueChanged<String> onTapChip;
-  final ValueChanged<String> onLongPressChip;
-  final ValueChanged<TagData> onTapSuggestion;
-  final VoidCallback toggleEnableSearchHistoryTranslation;
-  final VoidCallback onTapClearSearchHistory;
-  final VoidCallback toggleHideSearchHistory;
-
-  const SuggestionAndHistoryBody({
-    Key? key,
-    required this.currentKeyword,
-    required this.hideSearchHistory,
-    required this.showTranslateButton,
-    required this.enableSearchHistoryTranslation,
-    required this.histories,
-    required this.suggestions,
-    required this.scrollController,
-    required this.onTapChip,
-    required this.onLongPressChip,
-    required this.onTapSuggestion,
-    required this.toggleEnableSearchHistoryTranslation,
-    required this.onTapClearSearchHistory,
-    required this.toggleHideSearchHistory,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget buildSuggestionAndHistoryBody(BuildContext context) {
     return EHWheelSpeedController(
-      controller: scrollController,
+      controller: state.scrollController,
       child: CustomScrollView(
         key: const PageStorageKey('suggestionBody'),
-        controller: scrollController,
+        controller: state.scrollController,
         slivers: [
-          if (histories.isNotEmpty) buildSearchHistory(),
-          if (histories.isNotEmpty) buildButtons(context),
+          if (logic.searchHistoryService.histories.isNotEmpty) buildSearchHistory(),
+          if (logic.searchHistoryService.histories.isNotEmpty) buildButtons(context),
           buildSuggestions(context),
         ],
       ),
@@ -220,14 +159,46 @@ class SuggestionAndHistoryBody extends StatelessWidget {
           switchInCurve: Curves.easeIn,
           switchOutCurve: Curves.easeOut,
           transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
-          child: hideSearchHistory
-              ? const SizedBox()
-              : HistoryChips(
-                  histories: histories,
-                  onTapChip: onTapChip,
-                  onLongPressChip: onLongPressChip,
-                  enableSearchHistoryTranslation: enableSearchHistoryTranslation,
-                ),
+          child: state.hideSearchHistory ? const SizedBox() : buildHistoryChips(),
+        ),
+      ),
+    );
+  }
+
+  Widget buildHistoryChips() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 7,
+            children: logic.searchHistoryService.histories.map((history) => buildHistoryChip(history)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildHistoryChip(SearchHistory history) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => newSearch(history.rawKeyword + ' '),
+        onLongPress: () {
+          state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
+          logic.update([logic.searchFieldId]);
+        },
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
+          child: EHTag(
+            tag: GalleryTag(
+              tagData: TagData(
+                namespace: '',
+                key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -240,19 +211,21 @@ class SuggestionAndHistoryBody extends StatelessWidget {
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-            child: hideSearchHistory || !showTranslateButton
+            child: state.hideSearchHistory || !logic.tagTranslationService.isReady
                 ? null
                 : IconButton(
-                    onPressed: toggleEnableSearchHistoryTranslation,
+                    onPressed: logic.toggleEnableSearchHistoryTranslation,
                     icon: Icon(Icons.translate, size: 20, color: UIConfig.primaryColor((context))),
                   ),
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
             child: IconButton(
-              key: ValueKey(hideSearchHistory),
-              onPressed: hideSearchHistory ? toggleHideSearchHistory : onTapClearSearchHistory,
-              icon: hideSearchHistory ? const Icon(Icons.visibility, size: 20) : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
+              key: ValueKey(state.hideSearchHistory),
+              onPressed: state.hideSearchHistory ? logic.toggleHideSearchHistory : logic.handleTapClearSearchHistoryButton,
+              icon: state.hideSearchHistory
+                  ? const Icon(Icons.visibility, size: 20)
+                  : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
             ),
           ),
         ],
@@ -265,21 +238,30 @@ class SuggestionAndHistoryBody extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16, bottom: 600),
       sliver: SliverList(
         delegate: SliverChildListDelegate(
-          suggestions
+          state.suggestions
               .map((tagData) => FadeIn(
                     duration: const Duration(milliseconds: 500),
                     child: ListTile(
-                      title: RichText(text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', currentKeyword, false)),
+                      title: RichText(
+                          text: highlightKeyword(
+                              context, '${tagData.namespace} : ${tagData.key}', state.searchConfig.keyword?.split(' ').last ?? '', false)),
                       subtitle: tagData.tagName == null
                           ? null
                           : RichText(
-                              text: highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
+                              text: highlightKeyword(
+                                  context, '${tagData.namespace.tr} : ${tagData.tagName}', state.searchConfig.keyword?.split(' ').last ?? '', true),
                             ),
                       leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
                       dense: true,
                       minLeadingWidth: 20,
                       visualDensity: const VisualDensity(vertical: -1),
-                      onTap: () => onTapSuggestion(tagData),
+                      onTap: () {
+                        List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
+                        segments.removeLast();
+                        segments.add('${tagData.namespace}:"${tagData.key}\$"');
+                        state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
+                        logic.update([logic.searchFieldId]);
+                      },
                     ),
                   ))
               .toList(),
@@ -334,82 +316,5 @@ class SuggestionAndHistoryBody extends StatelessWidget {
     }
 
     return TextSpan(children: children);
-  }
-}
-
-class HistoryChips extends StatelessWidget {
-  final List<SearchHistory> histories;
-  final ValueChanged<String> onTapChip;
-  final ValueChanged<String> onLongPressChip;
-  final bool enableSearchHistoryTranslation;
-
-  const HistoryChips({
-    Key? key,
-    required this.histories,
-    required this.onTapChip,
-    required this.onLongPressChip,
-    required this.enableSearchHistoryTranslation,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 7,
-            children: histories
-                .map(
-                  (history) => HistoryChip(
-                    history: history,
-                    onTapChip: onTapChip,
-                    onLongPressChip: onLongPressChip,
-                    enableSearchHistoryTranslation: enableSearchHistoryTranslation,
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class HistoryChip extends StatelessWidget {
-  final SearchHistory history;
-  final ValueChanged<String> onTapChip;
-  final ValueChanged<String> onLongPressChip;
-  final bool enableSearchHistoryTranslation;
-
-  const HistoryChip({
-    Key? key,
-    required this.history,
-    required this.onTapChip,
-    required this.onLongPressChip,
-    required this.enableSearchHistoryTranslation,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => onTapChip(history.rawKeyword),
-        onLongPress: () => onLongPressChip(history.rawKeyword),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-          child: EHTag(
-            tag: GalleryTag(
-              tagData: TagData(
-                namespace: '',
-                key: enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

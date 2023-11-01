@@ -31,7 +31,7 @@ class DesktopSearchPageTabView extends BasePage<DesktopSearchPageTabLogic, Deskt
             global: false,
             init: logic,
             id: logic.suggestionBodyId,
-            builder: (_) => state.inputGalleryUrl == null ? Expanded(child: buildSuggestionAndHistoryBody()) : buildOpenGalleryArea(),
+            builder: (_) => state.inputGalleryUrl == null ? Expanded(child: buildSuggestionAndHistoryBody(context)) : buildOpenGalleryArea(),
           )
         else if (state.hasSearched)
           Expanded(
