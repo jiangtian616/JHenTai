@@ -381,7 +381,7 @@ class zh_TW {
       'enableAuthOnResume': '切換至後台後重新認證',
       'enableAuthOnResumeHints': '需要切換至後台超過3s',
       'enableBlurBackgroundApp': '在任務欄中模糊應用頁面',
-      'hideImagesInAlbum': '在相冊應用用隱藏圖片',
+      'hideImagesInAlbum': '在相冊應用隱藏圖片',
       'hideImagesInAlbumHints': '如果你更改過默認下載路徑，你需要自己手動創建.nomedia文件',
 
       /// read setting page

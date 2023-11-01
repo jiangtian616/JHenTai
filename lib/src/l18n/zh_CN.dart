@@ -382,7 +382,7 @@ class zh_CN {
       'enableAuthOnResume': '切换至后台后重新认证',
       'enableAuthOnResumeHints': '需要切换至后台超过3s',
       'enableBlurBackgroundApp': '在任务栏中模糊应用页面',
-      'hideImagesInAlbum': '在相册应用用隐藏图片',
+      'hideImagesInAlbum': '在相册应用隐藏图片',
       'hideImagesInAlbumHints': '如果你更改过默认下载路径，你需要自己手动创建.nomedia文件',
 
       /// read setting page
