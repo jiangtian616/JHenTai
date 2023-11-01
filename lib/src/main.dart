@@ -202,8 +202,8 @@ void _doForDesktop() {
     // https://github.com/bitsdojo/bitsdojo_window/issues/193
     else if (GetPlatform.isWindows && kDebugMode) {
       WidgetsBinding.instance.scheduleFrameCallback((_) {
-        appWindow.size += const Offset(1, 0);
-        appWindow.size += const Offset(-1, 0);
+        appWindow.size += const Offset(0.001, 0);
+        appWindow.size += const Offset(-0.001, 0);
       });
     }
 
