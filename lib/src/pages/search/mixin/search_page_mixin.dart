@@ -184,21 +184,39 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => newSearch(history.rawKeyword + ' '),
-        onLongPress: () {
-          state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
-          logic.update([logic.searchFieldId]);
+        onTap: () {
+          if (state.inDeleteSearchHistoryMode) {
+            logic.handleDeleteSearchHistory(history);
+          } else {
+            newSearch(history.rawKeyword + ' ');
+          }
         },
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-          child: EHTag(
-            tag: GalleryTag(
-              tagData: TagData(
-                namespace: '',
-                key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
+        onLongPress: state.inDeleteSearchHistoryMode
+            ? null
+            : () {
+                state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
+                logic.update([logic.searchFieldId]);
+              },
+        child: Stack(
+          children: [
+            EHTag(
+              tag: GalleryTag(
+                tagData: TagData(
+                  namespace: '',
+                  key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
+                ),
               ),
             ),
-          ),
+            if (state.inDeleteSearchHistoryMode)
+              Positioned(
+                right: 0,
+                child: Center(
+                  child: Container(
+                    child: const Icon(Icons.close, size: 12),
+                  ),
+                ),
+              )
+          ],
         ),
       ),
     );
@@ -220,12 +238,17 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
           ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-            child: IconButton(
-              key: ValueKey(state.hideSearchHistory),
-              onPressed: state.hideSearchHistory ? logic.toggleHideSearchHistory : logic.handleTapClearSearchHistoryButton,
-              icon: state.hideSearchHistory
-                  ? const Icon(Icons.visibility, size: 20)
-                  : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
+            child: GestureDetector(
+              onLongPress: state.hideSearchHistory ? null : logic.handleClearAllSearchHistories,
+              child: IconButton(
+                key: ValueKey(state.hideSearchHistory),
+                onPressed: state.hideSearchHistory ? logic.toggleHideSearchHistory : logic.toggleDeleteSearchHistoryMode,
+                icon: state.hideSearchHistory
+                    ? const Icon(Icons.visibility, size: 20)
+                    : state.inDeleteSearchHistoryMode
+                        ? const Icon(Icons.close, size: 20)
+                        : Icon(Icons.delete, size: 20, color: UIConfig.alertColor(context)),
+              ),
             ),
           ),
         ],

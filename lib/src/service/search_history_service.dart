@@ -36,17 +36,6 @@ class SearchHistoryService extends GetxService {
   }
 
   Future<void> writeHistory(String searchHistory) async {
-    List history = storageService.read('searchHistory') ?? <String>[];
-
-    history.remove(searchHistory);
-    history.insert(0, searchHistory);
-
-    if (history.length > _maxLength) {
-      history = history.sublist(0, _maxLength);
-    }
-    
-    storageService.write('searchHistory', history);
-
     histories.removeWhere((history) => history.rawKeyword == searchHistory);
     histories.insert(
       0,
@@ -55,6 +44,18 @@ class SearchHistoryService extends GetxService {
         translatedKeyword: tagTranslationService.isReady ? await translateSearchHistory(searchHistory) : null,
       ),
     );
+
+    if (histories.length > _maxLength) {
+      histories = histories.sublist(0, _maxLength);
+    }
+
+    storageService.write('searchHistory', histories.map((history) => history.rawKeyword).toList());
+  }
+
+  Future<void> deleteHistory(SearchHistory searchHistory) async {
+    if (histories.remove(searchHistory)) {
+      storageService.write('searchHistory', histories.map((history) => history.rawKeyword).toList());
+    }
   }
 
   Future<void> clearHistory() async {

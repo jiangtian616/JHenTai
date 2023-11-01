@@ -27,6 +27,7 @@ class zh_CN {
       'stop': '停止',
       'attention': '注意',
       'jump': '跳转',
+      'deleteAll': '删除全部',
 
       'home': "主页",
       'gallery': "画廊",
@@ -554,6 +555,7 @@ class zh_CN {
       'fileSearchFailed': '以图搜图失败',
       'tab': '标签页',
       'openGallery': '打开画廊',
+      'tapChip2Delete': '点击小标签删除',
 
       /// about page
       'author': '创作者',

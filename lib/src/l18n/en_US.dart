@@ -27,6 +27,7 @@ class en_US {
       'stop': 'Stop',
       'attention': 'Attention',
       'jump': 'Jump',
+      'deleteAll': 'Delete All',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -556,6 +557,7 @@ class en_US {
       'fileSearchFailed': 'File Search Failed',
       'tab': 'Tab',
       'openGallery': 'Open Gallery',
+      'tapChip2Delete': 'Tap chip to delete',
 
       /// about page
       'author': 'Author',

@@ -19,8 +19,10 @@ mixin SearchPageStateMixin on BasePageState {
 
   bool hideSearchHistory = false;
 
+  bool inDeleteSearchHistoryMode = false;
+
   GalleryUrl? inputGalleryUrl;
-  
+
   List<TagData> suggestions = <TagData>[];
 
   ScrollController suggestionBodyController = ScrollController();

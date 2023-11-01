@@ -27,6 +27,7 @@ class ko_KR {
       'stop': '멈춤',
       'attention': '경고',
       'jump': 'Jump',
+      'deleteAll': 'Delete All',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -555,6 +556,7 @@ class ko_KR {
       'fileSearchFailed': '파일 검색 실패',
       'tab': '탭',
       'openGallery': 'Open Gallery',
+      'tapChip2Delete': 'Tap chip to delete',
 
       /// about page
       'author': '제작자',

@@ -27,6 +27,7 @@ class zh_TW {
       'stop': '停止',
       'attention': '注意',
       'jump': '跳轉',
+      'deleteAll': '刪除全部',
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -552,6 +553,7 @@ class zh_TW {
       'fileSearchFailed': '以圖搜圖失敗',
       'tab': '標簽頁',
       'openGallery': '打开画廊',
+      'tapChip2Delete': '點擊小標簽刪除',
 
       /// about page
       'author': '創作者',

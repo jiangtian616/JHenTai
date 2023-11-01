@@ -27,6 +27,7 @@ class pt_BR {
       'stop': 'Stop',
       'attention': 'Attention',
       'jump': 'Jump',
+      'deleteAll': 'Delete All',
 
       'home': "Home",
       'gallery': "Galeria",
@@ -559,6 +560,7 @@ class pt_BR {
       'fileSearchFailed': 'Falha ao pesquisr arquivo',
       'tab': 'Tab',
       'openGallery': 'Open Gallery',
+      'tapChip2Delete': 'Tap chip to delete',
 
       /// about page
       'author': 'Autor',

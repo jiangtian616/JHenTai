@@ -8,11 +8,13 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/model/search_history.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/utils/check_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:throttling/throttling.dart';
 
 import '../../../exception/eh_exception.dart';
@@ -235,13 +237,32 @@ mixin SearchPageLogicMixin on BasePageLogic {
     update([searchFieldId]);
   }
 
-  Future<void> handleTapClearSearchHistoryButton() async {
-    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
+  void toggleDeleteSearchHistoryMode() {
+    state.inDeleteSearchHistoryMode = !state.inDeleteSearchHistoryMode;
+    update([suggestionBodyId]);
+
+    if (state.inDeleteSearchHistoryMode) {
+      toast('tapChip2Delete'.tr);
+    }
+  }
+
+  Future<void> handleClearAllSearchHistories() async {
+    bool? result = await Get.dialog(EHDialog(title: 'deleteAll'.tr + '?'));
 
     if (result == true) {
       await searchHistoryService.clearHistory();
       update([suggestionBodyId]);
     }
+  }
+
+  Future<void> handleDeleteSearchHistory(SearchHistory history) async {
+    await searchHistoryService.deleteHistory(history);
+    
+    /// exit delete mode if there's no history
+    if (searchHistoryService.histories.isEmpty) {
+      state.inDeleteSearchHistoryMode = false;
+    }
+    update([suggestionBodyId]);
   }
 
   void writeHistory() {
