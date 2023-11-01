@@ -10,6 +10,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
 import '../../../config/ui_config.dart';
@@ -24,6 +25,15 @@ class SettingAdvancedPage extends StatefulWidget {
 }
 
 class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
+  LoadingState _logLoadingState = LoadingState.idle;
+  String _logSize = '0B';
+
+  @override
+  void initState() {
+    super.initState();
+    loadingLogSize();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,23 +87,52 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('clearLogs'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(Log.getSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
-      onLongPress: () {
-        Log.clear();
-        toast('clearSuccess'.tr, isCenter: false);
-        Future.delayed(
-          const Duration(milliseconds: 600),
-          () => setStateSafely(() {}),
-        );
-      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _logLoadingState,
+            useCupertinoIndicator: true,
+            successWidgetBuilder: () => Text(
+              _logSize,
+              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
+            ),
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onLongPress: clearAndLoadingLogSize,
     );
+  }
+
+  Future<void> loadingLogSize() async {
+    if (_logLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() => _logLoadingState = LoadingState.loading);
+    _logSize = await Log.getSize();
+    setStateSafely(() => _logLoadingState = LoadingState.success);
+  }
+
+  Future<void> clearAndLoadingLogSize() async {
+    if (_logLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() => _logLoadingState = LoadingState.loading);
+    await Log.clear();
+    _logSize = await Log.getSize();
+    setStateSafely(() => _logLoadingState = LoadingState.success);
+
+    toast('clearSuccess'.tr, isCenter: false);
   }
 
   Widget _buildClearImageCache(BuildContext context) {
     return ListTile(
       title: Text('clearImagesCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
+      trailing: Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500))
+          .marginOnly(right: 8),
       onLongPress: () async {
         await clearDiskCachedImages();
         setState(() {
@@ -155,8 +194,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       },
     );
   }
-  
-  Widget _buildInNoImageMode(){
+
+  Widget _buildInNoImageMode() {
     return ListTile(
       title: Text('noImageMode'.tr),
       trailing: Switch(value: AdvancedSetting.inNoImageMode.value, onChanged: AdvancedSetting.saveInNoImageMode),

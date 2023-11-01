@@ -16,6 +16,7 @@ import 'package:path/path.dart' as path;
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../exception/upload_exception.dart';
+import 'byte_util.dart';
 
 class Log {
   static Logger? _consoleLogger;
@@ -151,29 +152,27 @@ class Log {
     );
   }
 
-  static String getSize() {
+  static Future<String> getSize() async {
     Directory logDirectory = Directory(logDirPath);
-    if (!logDirectory.existsSync()) {
-      return '0KB';
-    }
 
-    int totalBytes = -1;
-    try {
-      totalBytes = logDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
-    } on Exception catch (e) {
-      Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
-    }
+    return logDirectory
+        .exists()
+        .then<int>((exist) {
+          if (!exist) {
+            return 0;
+          }
 
-    if (totalBytes < 1024) {
-      return '${totalBytes}B';
-    }
-    if (totalBytes < 1024 * 1024) {
-      return '${(totalBytes / 1024).toStringAsFixed(2)}KB';
-    }
-    return '${(totalBytes / 1024 / 1024).toStringAsFixed(2)}MB';
+          return logDirectory.list().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
+        })
+        .then<String>((totalBytes) => byte2String(totalBytes.toDouble()))
+        .onError((e, stackTrace) {
+          Log.error('getSizeFailed'.tr, error, stackTrace);
+          Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
+          return '-1B';
+        });
   }
 
-  static void clear() {
+  static Future<void> clear() {
     _verboseFileLogger?.close();
     _warningFileLogger?.close();
     _downloadFileLogger?.close();
@@ -183,7 +182,7 @@ class Log {
     _downloadFileLogger = null;
 
     /// need to wait for log file close
-    Future.delayed(
+    return Future.delayed(
       const Duration(milliseconds: 500),
       () {
         if (Directory(logDirPath).existsSync()) {
