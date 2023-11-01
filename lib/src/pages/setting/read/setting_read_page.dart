@@ -28,6 +28,7 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableDoubleTapToScaleUp().center(),
               _buildEnableTapDragToScaleUp().center(),
               _buildEnableBottomMenu().center(),
+              _buildReverseTurnPageDirection().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -147,6 +148,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('enableBottomMenu'.tr),
       trailing: Switch(value: ReadSetting.enableBottomMenu.value, onChanged: ReadSetting.saveEnableBottomMenu),
+    );
+  }
+
+  Widget _buildReverseTurnPageDirection() {
+    return ListTile(
+      title: Text('reverseTurnPageDirection'.tr),
+      trailing: Switch(value: ReadSetting.reverseTurnPageDirection.value, onChanged: ReadSetting.saveReverseTurnPageDirection),
     );
   }
 

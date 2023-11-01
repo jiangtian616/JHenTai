@@ -142,7 +142,7 @@ class ReadPageLogic extends GetxController {
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
     flushReadProgressTimer.cancel();
-    
+
     restoreVolumeListener();
 
     restoreImmersiveMode();
@@ -365,13 +365,21 @@ class ReadPageLogic extends GetxController {
   }
 
   /// Tap left region or click right arrow key. If read direction is right-to-left, we should call [toNext], otherwise [toPrev]
-  void toLeft() {
-    layoutLogic.toLeft();
+  void tapLeftRegion() {
+    if (ReadSetting.reverseTurnPageDirection.isTrue) {
+      layoutLogic.toRight();
+    } else {
+      layoutLogic.toLeft();
+    }
   }
 
   /// Tap right region or click right arrow key. If read direction is right-to-left, we should call [toPrev], otherwise [toNext]
-  void toRight() {
-    layoutLogic.toRight();
+  void tapRightRegion() {
+    if (ReadSetting.reverseTurnPageDirection.isTrue) {
+      layoutLogic.toLeft();
+    } else {
+      layoutLogic.toRight();
+    }
   }
 
   /// to prev image or screen

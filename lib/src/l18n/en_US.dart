@@ -415,6 +415,7 @@ class en_US {
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',
+      'reverseTurnPageDirection': 'Reverse Page Turning Direction',
       'turnPageMode': 'Turn Page Mode',
       'turnPageModeHint': 'To next screen or next image',
       'image': 'Image',

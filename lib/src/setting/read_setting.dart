@@ -51,8 +51,8 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadPageCount = 1.obs;
-
   static RxBool displayFirstPageAlone = true.obs;
+  static RxBool reverseTurnPageDirection = false.obs;
 
   static bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
@@ -217,6 +217,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveReverseTurnPageDirection(bool value) {
+    Log.debug('saveReverseTurnPageDirection:$value');
+    reverseTurnPageDirection.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -243,6 +249,7 @@ class ReadSetting {
       'preloadDistance': preloadDistance.value,
       'preloadPageCount': preloadPageCount.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
+      'reverseTurnPageDirection': reverseTurnPageDirection.value,
     };
   }
 
@@ -267,5 +274,6 @@ class ReadSetting {
     preloadDistance.value = map['preloadDistance'];
     preloadPageCount.value = map['preloadPageCount'];
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
+    reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
   }
 }

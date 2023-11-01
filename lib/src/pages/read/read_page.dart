@@ -60,10 +60,10 @@ class ReadPage extends StatelessWidget {
           handlePageUp: logic.toPrev,
           handleArrowDown: logic.toNext,
           handleArrowUp: logic.toPrev,
-          handleArrowRight: logic.toRight,
-          handleArrowLeft: logic.toLeft,
-          handleA: logic.toLeft,
-          handleD: logic.toRight,
+          handleArrowRight: logic.tapRightRegion,
+          handleArrowLeft: logic.tapLeftRegion,
+          handleA: logic.tapLeftRegion,
+          handleD: logic.tapRightRegion,
           handleM: logic.handleM,
           handleEnd: backRoute,
           child: DefaultTextStyle(
@@ -182,13 +182,13 @@ class ReadPage extends StatelessWidget {
     return Row(
       children: [
         /// left region
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.toLeft, behavior: HitTestBehavior.opaque)),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque)),
 
         /// center region
         Expanded(flex: 3, child: GestureDetector(onTap: logic.toggleMenu, behavior: HitTestBehavior.opaque)),
 
         /// right region: toRight
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.toRight, behavior: HitTestBehavior.opaque)),
+        Expanded(flex: 1, child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
       ],
     );
   }

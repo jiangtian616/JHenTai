@@ -417,6 +417,7 @@ class pt_BR {
       'enableDoubleTapToScaleUp': 'Ativar toque duplo para aumentar a escala',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',
+      'reverseTurnPageDirection': 'Reverse Page Turning Direction',
       'turnPageMode': 'Modo de virar página',
       'turnPageModeHint': 'Para a próxima tela ou próxima imagem',
       'image': 'Imagem',
