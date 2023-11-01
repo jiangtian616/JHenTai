@@ -207,10 +207,9 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    Log.info('pause super resolution: $gid');
     toast('cancel'.tr);
-
-    superResolutionInfo.currentProcess?.kill();
+    bool? success = superResolutionInfo.currentProcess?.kill();
+    Log.info('pause super resolution: $gid $success');
 
     superResolutionInfo.status = SuperResolutionStatus.paused;
     for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
@@ -334,6 +333,7 @@ class SuperResolutionService extends GetxController {
 
       /// pause and kill the process
       if (exitCode == -1 || exitCode == -15 || exitCode == 15) {
+        pauseSuperResolve(gid, type);
         return;
       }
 
@@ -380,6 +380,7 @@ class SuperResolutionService extends GetxController {
       '-o "$outputPath" '
       '-n ${SuperResolutionSetting.modelType.value} '
       '-f png '
+      '-g ${SuperResolutionSetting.gpuId.value} '
       '-m "${join(SuperResolutionSetting.modelDirectoryPath.value!, 'models')}"',
     );
 
@@ -394,6 +395,8 @@ class SuperResolutionService extends GetxController {
         SuperResolutionSetting.modelType.value,
         '-f',
         'png',
+        '-g',
+        SuperResolutionSetting.gpuId.value.toString(),
         '-m',
         join(SuperResolutionSetting.modelDirectoryPath.value!, 'models'),
       ],

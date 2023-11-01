@@ -41,6 +41,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
             _buildModelDirectoryPath(),
             _buildDownload(),
             _buildModelType(),
+            _buildGpuId(),
           ],
         ).withListTileTheme(context),
       ),
@@ -111,11 +112,25 @@ class SettingSuperResolutionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnable4OnlineReading() {
-    return SwitchListTile(
-      title: Text('enable4OnlineReading'.tr),
-      value: SuperResolutionSetting.enable4OnlineReading.value,
-      onChanged: SuperResolutionSetting.saveEnable4OnlineReading,
+  Widget _buildGpuId() {
+    return ListTile(
+      title: const Text('GPU-id'),
+      trailing: DropdownButton<int>(
+        value: SuperResolutionSetting.gpuId.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (int? newValue) => SuperResolutionSetting.saveGpuId(newValue!),
+        items: const [
+          DropdownMenuItem(child: Text('0'), value: 0),
+          DropdownMenuItem(child: Text('1'), value: 1),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('3'), value: 3),
+          DropdownMenuItem(child: Text('4'), value: 4),
+          DropdownMenuItem(child: Text('5'), value: 5),
+          DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('7'), value: 7),
+        ],
+      ),
     );
   }
 }
