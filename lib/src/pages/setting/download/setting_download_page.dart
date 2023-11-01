@@ -56,7 +56,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
             padding: const EdgeInsets.only(top: 16),
             children: [
               _buildDownloadPath(),
-              if (!GetPlatform.isIOS && !GetPlatform.isMacOS) _buildResetDownloadPath(),
+              if (!GetPlatform.isIOS) _buildResetDownloadPath(),
               _buildExtraGalleryScanPath(),
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
