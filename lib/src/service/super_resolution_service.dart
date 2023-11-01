@@ -26,8 +26,6 @@ class SuperResolutionService extends GetxController {
   static const String superResolutionId = 'superResolutionId';
   static const String superResolutionImageId = 'superResolutionImageId';
 
-  final String modelDownloadPath = join(PathSetting.getVisibleDir().path, 'realesrgan.zip');
-  final String modelSavePath = join(PathSetting.getVisibleDir().path, 'realesrgan');
   LoadingState downloadState = LoadingState.idle;
   String downloadProgress = '0%';
 
@@ -83,15 +81,15 @@ class SuperResolutionService extends GetxController {
 
   SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
 
-  Future<void> downloadModelFile() async {
+  Future<void> downloadModelFile(ModelType model) async {
     String downloadUrl;
 
     if (GetPlatform.isWindows) {
-      downloadUrl = 'https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-windows.zip';
+      downloadUrl = model.windowsDownloadUrl;
     } else if (GetPlatform.isMacOS) {
-      downloadUrl = 'https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-macos.zip';
+      downloadUrl = model.macDownloadUrl;
     } else if (GetPlatform.isLinux) {
-      downloadUrl = 'https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-ubuntu.zip';
+      downloadUrl = model.linuxDownloadUrl;
     } else {
       toast('error'.tr);
       return;
@@ -100,6 +98,9 @@ class SuperResolutionService extends GetxController {
     downloadProgress = '0%';
     downloadState = LoadingState.loading;
     updateSafely([downloadId]);
+
+    final String modelDownloadPath = join(PathSetting.getVisibleDir().path, '${model.type}.zip');
+    final String extractPath = join(PathSetting.getVisibleDir().path, model.type);
 
     try {
       await retry(
@@ -122,9 +123,9 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    Log.info('Super-resolution model downloaded');
+    Log.info('Super-resolution model downloaded, model: ${model.subType}');
 
-    bool success = await extractArchive(modelDownloadPath, modelSavePath);
+    bool success = await extractArchive(modelDownloadPath, extractPath);
 
     if (!success) {
       Log.error('Unpacking Super-resolution model error!');
@@ -137,19 +138,22 @@ class SuperResolutionService extends GetxController {
 
     File(modelDownloadPath).delete();
 
-    SuperResolutionSetting.saveModelDirectoryPath(modelSavePath);
+    String dirPath;
+    if (GetPlatform.isWindows) {
+      dirPath = join(extractPath, model.windowsModelExtractPath);
+    } else if (GetPlatform.isMacOS) {
+      dirPath = join(extractPath, model.macOSModelExtractPath);
+    } else if (GetPlatform.isLinux) {
+      dirPath = join(extractPath, model.linuxModelExtractPath);
+    } else {
+      toast('error'.tr);
+      return;
+    }
+
+    SuperResolutionSetting.saveModelDirectoryPath(dirPath);
 
     downloadState = LoadingState.success;
     updateSafely([downloadId]);
-  }
-
-  Future<void> deleteModelFile() async {
-    bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
-    if (result == true) {
-      downloadState = LoadingState.idle;
-      Directory(modelSavePath).delete(recursive: true);
-      SuperResolutionSetting.saveModelDirectoryPath(null);
-    }
   }
 
   Future<bool> superResolve(int gid, SuperResolutionType type) async {
@@ -190,6 +194,9 @@ class SuperResolutionService extends GetxController {
       );
       superResolutionInfoTable.put(gid, type, superResolutionInfo);
       await _insertSuperResolutionInfo(gid, superResolutionInfo);
+
+      Directory(dirname(computeImageOutputAbsolutePath(rawImages[0].path!))).createSync(recursive: true);
+
       updateSafely(['$superResolutionId::$gid']);
     }
 
@@ -374,31 +381,50 @@ class SuperResolutionService extends GetxController {
       return Future.value(null);
     }
 
+    ModelType modelType = SuperResolutionSetting.model.value;
+
     Log.verbose(
-      'Run: ${join(SuperResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows ? 'realesrgan-ncnn-vulkan.exe' : 'realesrgan-ncnn-vulkan')} '
-      '-i "${rawImage.path!}" '
-      '-o "$outputPath" '
-      '-n ${SuperResolutionSetting.modelType.value} '
+      'Run: ${join(
+        SuperResolutionSetting.modelDirectoryPath.value!,
+        GetPlatform.isWindows
+            ? modelType.windowsExecutableName
+            : GetPlatform.isMacOS
+                ? modelType.macOSExecutableName
+                : modelType.linuxExecutableName,
+      )} '
+      '-i ${rawImage.path!} '
+      '-o $outputPath '
+      '-n ${SuperResolutionSetting.model.value.subType} '
       '-f png '
+      '-s 4 '
       '-g ${SuperResolutionSetting.gpuId.value} '
-      '-m "${join(SuperResolutionSetting.modelDirectoryPath.value!, 'models')}"',
+      '-m "${join(SuperResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath)}"',
     );
 
     return Process.start(
-      join(SuperResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows ? 'realesrgan-ncnn-vulkan.exe' : 'realesrgan-ncnn-vulkan'),
+      join(
+        SuperResolutionSetting.modelDirectoryPath.value!,
+        GetPlatform.isWindows
+            ? modelType.windowsExecutableName
+            : GetPlatform.isMacOS
+                ? modelType.macOSExecutableName
+                : modelType.linuxExecutableName,
+      ),
       [
         '-i',
         rawImage.path!,
         '-o',
         outputPath,
         '-n',
-        SuperResolutionSetting.modelType.value,
+        SuperResolutionSetting.model.value.subType,
         '-f',
         'png',
+        '-s',
+        '4',
         '-g',
         SuperResolutionSetting.gpuId.value.toString(),
         '-m',
-        join(SuperResolutionSetting.modelDirectoryPath.value!, 'models'),
+        join(SuperResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
       ],
       workingDirectory: PathSetting.getVisibleDir().path,
       runInShell: true,
@@ -430,7 +456,11 @@ class SuperResolutionService extends GetxController {
   }
 
   String computeImageOutputRelativePath(String rawImagePath) {
-    return join(dirname(rawImagePath), imageDirName, basenameWithoutExtension(rawImagePath) + '.png');
+    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + '.png');
+  }
+
+  String computeImageOutputDirPath(String rawImagePath) {
+    return join(dirname(rawImagePath), imageDirName);
   }
 
   /// db

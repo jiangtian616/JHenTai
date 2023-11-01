@@ -1094,7 +1094,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       return (await appDb.insertGalleryGroup(group) > 0);
     } on SqliteException catch (e) {
-      Log.debug(e);
       return false;
     }
   }

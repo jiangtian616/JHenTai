@@ -39,7 +39,6 @@ class SettingSuperResolutionPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildModelDirectoryPath(),
-            _buildDownload(),
             _buildModelType(),
             _buildGpuId(),
           ],
@@ -72,41 +71,46 @@ class SettingSuperResolutionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDownload() {
-    return GetBuilder<SuperResolutionService>(
-      id: SuperResolutionService.downloadId,
-      builder: (superResolutionService) => ListTile(
-        title: superResolutionService.downloadState == LoadingState.loading ? Text('downloading'.tr) : Text('downloadSuperResolutionModelHint'.tr),
-        subtitle: superResolutionService.downloadState == LoadingState.loading
-            ? Text(superResolutionService.downloadProgress)
-            : superResolutionService.downloadState == LoadingState.success
-                ? Text('downloaded'.tr)
-                : null,
-        trailing: superResolutionService.downloadState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
-        onTap: () {
-          if (superResolutionService.downloadState == LoadingState.idle || superResolutionService.downloadState == LoadingState.error) {
-            superResolutionService.downloadModelFile();
-          } else if (superResolutionService.downloadState == LoadingState.success) {
-            superResolutionService.deleteModelFile();
-          } else {
-            return;
-          }
-        },
-      ),
-    );
-  }
-
   Widget _buildModelType() {
     return ListTile(
       title: Text('modelType'.tr),
-      subtitle: Text(SuperResolutionSetting.modelType.value == 'realesrgan-x4plus' ? 'x4plusHint'.tr : 'x4plusAnimeHint'.tr),
-      trailing: DropdownButton<String>(
-        value: SuperResolutionSetting.modelType.value,
-        elevation: 4,
-        onChanged: (String? newValue) => SuperResolutionSetting.saveModelType(newValue!),
-        items: const [
-          DropdownMenuItem(child: Text('realesrgan-x4plus'), value: 'realesrgan-x4plus'),
-          DropdownMenuItem(child: Text('realesrgan-x4plus-anime'), value: 'realesrgan-x4plus-anime'),
+      subtitle: GetBuilder<SuperResolutionService>(
+        id: SuperResolutionService.downloadId,
+        builder: (superResolutionService) => superResolutionService.downloadState == LoadingState.loading
+            ? Text('${'downloading'.tr} ${superResolutionService.downloadProgress}')
+            : superResolutionService.downloadState == LoadingState.success
+                ? Text('downloaded'.tr)
+                : const SizedBox(),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GetBuilder<SuperResolutionService>(
+            id: SuperResolutionService.downloadId,
+            builder: (superResolutionService) => superResolutionService.downloadState == LoadingState.loading
+                ? IconButton(icon: const CupertinoActivityIndicator(), onPressed: () {}, enableFeedback: false)
+                : IconButton(
+                    icon: const Icon(Icons.download),
+                    padding: EdgeInsets.zero,
+                    onPressed: () {
+                      if (superResolutionService.downloadState == LoadingState.loading) {
+                        return;
+                      }
+                      superResolutionService.downloadModelFile(SuperResolutionSetting.model.value);
+                    },
+                  ),
+          ),
+          const SizedBox(width: 8),
+          DropdownButton<ModelType>(
+            value: SuperResolutionSetting.model.value,
+            elevation: 4,
+            onChanged: (ModelType? newValue) => SuperResolutionSetting.saveModel(newValue!),
+            items: [
+              DropdownMenuItem(child: Text(ModelType.CUGAN.subType), value: ModelType.CUGAN),
+              DropdownMenuItem(child: Text(ModelType.ESRGAN.subType), value: ModelType.ESRGAN),
+              DropdownMenuItem(child: Text(ModelType.ESRGAN_ANIME.subType), value: ModelType.ESRGAN_ANIME),
+            ],
+          )
         ],
       ),
     );
@@ -121,6 +125,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (int? newValue) => SuperResolutionSetting.saveGpuId(newValue!),
         items: const [
+          DropdownMenuItem(child: Text('-1'), value: -1),
           DropdownMenuItem(child: Text('0'), value: 0),
           DropdownMenuItem(child: Text('1'), value: 1),
           DropdownMenuItem(child: Text('2'), value: 2),

@@ -716,8 +716,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     try {
       return (await appDb.insertArchiveGroup(group) > 0);
-    } on SqliteException catch (e) {
-      Log.debug(e);
+    } on SqliteException catch (_) {
       return false;
     }
   }
