@@ -7,10 +7,10 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
-import '../model/search_config.dart';
 import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
@@ -18,7 +18,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 7;
+  static const int appVersion = 8;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -172,6 +172,11 @@ class AppUpdateService extends GetxService {
         if (map != null) {
           storageService.write('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
+      }
+      
+      if (oldVersion <= 7) {
+        Log.info('Clear super-resulotion setting');
+        SuperResolutionSetting.saveModelDirectoryPath(null);
       }
     });
   }
