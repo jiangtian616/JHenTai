@@ -417,6 +417,7 @@ class zh_CN {
       'enableTapDragToScaleUp': '允许单击后拖拽放大图片',
       'enableBottomMenu': '开启底部菜单',
       'reverseTurnPageDirection': '反转翻页方向',
+      'disableGestureWhenScrolling': '滚动时禁用手势',
       'turnPageMode': '翻页模式',
       'turnPageModeHint': '移动至下一屏幕还是下一图片',
       'image': '图片',

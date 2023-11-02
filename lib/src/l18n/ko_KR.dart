@@ -417,6 +417,7 @@ class ko_KR {
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',
       'reverseTurnPageDirection': 'Reverse Page Turning Direction',
+      'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
       'turnPageMode': '페이지 넘기기 모드',
       'turnPageModeHint': '화면 기준 혹은 이미지 기준',
       'image': '이미지 기준',

@@ -29,6 +29,7 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableTapDragToScaleUp().center(),
               _buildEnableBottomMenu().center(),
               _buildReverseTurnPageDirection().center(),
+              _buildDisableGestureWhenScrolling().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -155,6 +156,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('reverseTurnPageDirection'.tr),
       trailing: Switch(value: ReadSetting.reverseTurnPageDirection.value, onChanged: ReadSetting.saveReverseTurnPageDirection),
+    );
+  }
+
+  Widget _buildDisableGestureWhenScrolling() {
+    return ListTile(
+      title: Text('disableGestureWhenScrolling'.tr),
+      trailing: Switch(value: ReadSetting.disableGestureWhenScrolling.value, onChanged: ReadSetting.saveDisableGestureWhenScrolling),
     );
   }
 

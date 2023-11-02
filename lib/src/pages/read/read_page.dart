@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/mixin/scroll_status_listener.dart';
+import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
@@ -13,7 +15,6 @@ import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
-import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 
 import '../../config/ui_config.dart';
@@ -33,9 +34,12 @@ import '../home_page.dart';
 import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
 import 'layout/vertical_list/vertical_list_layout.dart';
 
-class ReadPage extends StatelessWidget {
+class ReadPage extends StatelessWidget with ScrollStatusListener {
   final ReadPageLogic logic = Get.put<ReadPageLogic>(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
+
+  @override
+  ScrollStatusListerState get scrollStatusListerState => state;
 
   ReadPage({Key? key}) : super(key: key);
 
@@ -60,10 +64,10 @@ class ReadPage extends StatelessWidget {
           handlePageUp: logic.toPrev,
           handleArrowDown: logic.toNext,
           handleArrowUp: logic.toPrev,
-          handleArrowRight: logic.tapRightRegion,
-          handleArrowLeft: logic.tapLeftRegion,
-          handleA: logic.tapLeftRegion,
-          handleD: logic.tapRightRegion,
+          handleArrowRight: logic.toRight,
+          handleArrowLeft: logic.toLeft,
+          handleA: logic.toLeft,
+          handleD: logic.toRight,
           handleM: logic.handleM,
           handleEnd: backRoute,
           child: DefaultTextStyle(
@@ -93,7 +97,7 @@ class ReadPage extends StatelessWidget {
 
   /// Main region to display images
   Widget buildLayout() {
-    return GetBuilder<ReadPageLogic>(
+    Widget child = GetBuilder<ReadPageLogic>(
       id: logic.layoutId,
       builder: (_) {
         if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
@@ -108,6 +112,7 @@ class ReadPage extends StatelessWidget {
         return HorizontalPageLayout();
       },
     );
+    return wrapScrollListener(child);
   }
 
   /// right-bottom info
@@ -185,7 +190,7 @@ class ReadPage extends StatelessWidget {
         Expanded(flex: 1, child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque)),
 
         /// center region
-        Expanded(flex: 3, child: GestureDetector(onTap: logic.toggleMenu, behavior: HitTestBehavior.opaque)),
+        Expanded(flex: 3, child: GestureDetector(onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque)),
 
         /// right region: toRight
         Expanded(flex: 1, child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),

@@ -417,6 +417,7 @@ class en_US {
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',
       'reverseTurnPageDirection': 'Reverse Page Turning Direction',
+      'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
       'turnPageMode': 'Turn Page Mode',
       'turnPageModeHint': 'To next screen or next image',
       'image': 'Image',

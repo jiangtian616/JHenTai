@@ -53,7 +53,8 @@ class ReadSetting {
   static RxInt preloadPageCount = 1.obs;
   static RxBool displayFirstPageAlone = true.obs;
   static RxBool reverseTurnPageDirection = false.obs;
-
+  static RxBool disableGestureWhenScrolling = true.obs;
+  
   static bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
       readDirection.value == ReadDirection.left2rightList ||
@@ -222,6 +223,12 @@ class ReadSetting {
     reverseTurnPageDirection.value = value;
     _save();
   }
+  
+  static saveDisableGestureWhenScrolling(bool value) {
+    Log.debug('saveDisableGestureWhenScrolling:$value');
+    disableGestureWhenScrolling.value = value;
+    _save();
+  }
 
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
@@ -250,6 +257,7 @@ class ReadSetting {
       'preloadPageCount': preloadPageCount.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'reverseTurnPageDirection': reverseTurnPageDirection.value,
+      'disableGestureWhenScrolling': disableGestureWhenScrolling.value,
     };
   }
 
@@ -275,5 +283,6 @@ class ReadSetting {
     preloadPageCount.value = map['preloadPageCount'];
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
+    disableGestureWhenScrolling.value = map['disableGestureWhenScrolling'] ?? disableGestureWhenScrolling.value;
   }
 }

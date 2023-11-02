@@ -364,22 +364,46 @@ class ReadPageLogic extends GetxController {
     layoutLogic.closeAutoMode();
   }
 
-  /// Tap left region or click right arrow key. If read direction is right-to-left, we should call [toNext], otherwise [toPrev]
   void tapLeftRegion() {
+    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+      return;
+    }
+
     if (ReadSetting.reverseTurnPageDirection.isTrue) {
-      layoutLogic.toRight();
+      toRight();
     } else {
-      layoutLogic.toLeft();
+      toLeft();
     }
   }
 
-  /// Tap right region or click right arrow key. If read direction is right-to-left, we should call [toPrev], otherwise [toNext]
   void tapRightRegion() {
-    if (ReadSetting.reverseTurnPageDirection.isTrue) {
-      layoutLogic.toLeft();
-    } else {
-      layoutLogic.toRight();
+    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+      return;
     }
+
+    if (ReadSetting.reverseTurnPageDirection.isTrue) {
+      toLeft();
+    } else {
+      toRight();
+    }
+  }
+
+  void tapCenterRegion() {
+    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+      return;
+    }
+
+    toggleMenu();
+  }
+
+  /// click right arrow key
+  void toLeft() {
+    layoutLogic.toLeft();
+  }
+
+  /// click right arrow key
+  void toRight() {
+    layoutLogic.toRight();
   }
 
   /// to prev image or screen

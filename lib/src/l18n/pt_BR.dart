@@ -417,6 +417,7 @@ class pt_BR {
       'enablePageTurnAnime': 'Ativar animação de virada',
       'enableDoubleTapToScaleUp': 'Ativar toque duplo para aumentar a escala',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
+      'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
       'enableBottomMenu': 'Enable Bottom Menu',
       'reverseTurnPageDirection': 'Reverse Page Turning Direction',
       'turnPageMode': 'Modo de virar página',

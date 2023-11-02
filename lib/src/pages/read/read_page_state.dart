@@ -1,6 +1,7 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -11,7 +12,7 @@ import '../../model/gallery_thumbnail.dart';
 import '../../service/gallery_download_service.dart';
 import '../../widget/loading_state_indicator.dart';
 
-class ReadPageState {
+class ReadPageState with ScrollStatusListerState {
   /// gallery info
   final ReadPageInfo readPageInfo = Get.arguments;
 
