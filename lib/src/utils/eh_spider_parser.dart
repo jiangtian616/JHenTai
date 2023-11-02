@@ -611,13 +611,14 @@ class EHSpiderParser {
   static GalleryStats statPage2GalleryStats(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    Element rankScoreTbody = document.querySelector('.stuffbox > div > div > table > tbody')!;
-    Element yearlyStatTbody = document.querySelector('.stuffbox > div > div:nth-child(1) > table > tbody')!;
-    Element monthlyStatTbody = document.querySelector('.stuffbox > div > div:nth-child(2) > table > tbody')!;
-    Element dailyStatTbody = document.querySelector('.stuffbox > table > tbody')!;
+    Element rankScoreTbody = document.querySelector('.stuffbox > table > tbody')!;
+    List<Element> graphs = document.querySelectorAll('#graphs > div');
+    Element yearlyStatTbody = graphs[2].querySelector('table > tbody')!;
+    Element monthlyStatTbody = graphs[1].querySelector('table > tbody')!;
+    Element dailyStatTbody = graphs[0].querySelector('table > tbody')!;
 
     return GalleryStats(
-      totalVisits: int.parse(document.querySelector('.stuffbox > div > div > p:nth-child(3) > strong')!.text.replaceAll(',', '')),
+      totalVisits: int.parse(document.querySelector('.stuffbox > p > strong')!.text.replaceAll(',', '')),
       allTimeRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
       allTimeScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
       yearRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
