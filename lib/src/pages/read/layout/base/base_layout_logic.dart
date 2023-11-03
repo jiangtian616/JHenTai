@@ -228,13 +228,18 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
+    String fileName = basename(readPageState.images[index]!.url);
+    if (readPageState.readPageInfo.gid != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
+    }
+
     if (GetPlatform.isDesktop) {
-      File file = File(join(DownloadSetting.singleImageSavePath.value, basename(readPageState.images[index]!.url)));
+      File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
       file.create(recursive: true).then((_) => file.writeAsBytesSync(data)).then((_) => toast('success'.tr));
       return;
     }
 
-    _saveImage2Album(data, basename(readPageState.images[index]!.url)).then((_) => toast('success'.tr));
+    _saveImage2Album(data, fileName).then((_) => toast('success'.tr));
   }
 
   Future<void> saveOriginalOnlineImage(int index) async {
@@ -246,8 +251,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return saveOnlineImage(index);
     }
 
-    String downloadPath = join(DownloadSetting.singleImageSavePath.value, basename(readPageState.images[index]!.url));
-
+    String fileName = basename(readPageState.images[index]!.url);
+    if (readPageState.readPageInfo.gid != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
+    }
+    
+    String downloadPath = join(DownloadSetting.singleImageSavePath.value, fileName);
     toast('downloading'.tr);
     await EHRequest.download(
       url: readPageState.images[index]!.originalImageUrl!,
@@ -258,7 +267,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (GetPlatform.isDesktop) {
       toast('success'.tr);
     } else {
-      _saveImage2Album(File(downloadPath).readAsBytesSync(), basename(readPageState.images[index]!.url)).then((_) => toast('success'.tr));
+      _saveImage2Album(File(downloadPath).readAsBytesSync(), fileName).then((_) => toast('success'.tr));
     }
   }
 
@@ -269,10 +278,15 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       ),
     );
 
+    String fileName = basename(image.path);
+    if (readPageState.readPageInfo.gid != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
+    }
+
     if (GetPlatform.isDesktop) {
-      image.copy(join(DownloadSetting.singleImageSavePath.value, basename(image.path))).then((_) => toast('success'.tr));
+      image.copy(join(DownloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
     } else {
-      image.readAsBytes().then((bytes) => _saveImage2Album(bytes, basename(image.path))).then((_) => toast('success'.tr));
+      image.readAsBytes().then((bytes) => _saveImage2Album(bytes, fileName)).then((_) => toast('success'.tr));
     }
   }
 
@@ -298,10 +312,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
-    if (readPageState.readPageInfo.gid != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
-    }
-
     return await ImageSave.saveImage(imageData, fileName, albumName: EHConsts.appName) == true;
   }
 }
