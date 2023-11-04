@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -17,6 +18,8 @@ class WindowWidget extends StatefulWidget {
 class _WindowWidgetState extends State<WindowWidget> with WindowListener {
   final WindowService windowService = Get.find<WindowService>();
 
+  final FocusNode focusNode = FocusNode();
+
   @override
   void initState() {
     windowManager.addListener(this);
@@ -26,6 +29,7 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
   @override
   void dispose() {
     windowManager.removeListener(this);
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -60,75 +64,106 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
   }
 
   @override
+  void onWindowEnterFullScreen() {
+    setState(() {
+      windowService.saveFullScreen(true);
+    });
+  }
+
+  @override
+  void onWindowLeaveFullScreen() {
+    setState(() {
+      windowService.saveFullScreen(false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!GetPlatform.isWindows) {
+    if (!GetPlatform.isDesktop) {
       return widget.child;
     }
 
-    return Column(
-      children: [
-        ColoredBox(
-          color: UIConfig.backGroundColor(context),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onPanStart: (_) {
-                    windowManager.startDragging();
-                  },
-                  onDoubleTap: () async {
-                    bool isMaximized = await windowManager.isMaximized();
-                    if (!isMaximized) {
-                      windowManager.maximize();
-                    } else {
-                      windowManager.unmaximize();
-                    }
-                  },
-                  child: Container(constraints: const BoxConstraints(minHeight: 32)),
-                ),
-              ),
-              WindowCaptionButton.minimize(
-                brightness: Theme.of(context).brightness,
-                onPressed: () async {
-                  bool isMinimized = await windowManager.isMinimized();
-                  if (isMinimized) {
-                    windowManager.restore();
-                  } else {
-                    windowManager.minimize();
-                  }
-                },
-              ),
-              FutureBuilder<bool>(
-                future: windowManager.isMaximized(),
-                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  if (snapshot.data == true) {
-                    return WindowCaptionButton.unmaximize(
-                      brightness: Theme.of(context).brightness,
-                      onPressed: () {
-                        windowManager.unmaximize();
-                      },
-                    );
-                  }
-                  return WindowCaptionButton.maximize(
-                    brightness: Theme.of(context).brightness,
-                    onPressed: () {
-                      windowManager.maximize();
-                    },
-                  );
-                },
-              ),
-              WindowCaptionButton.close(
-                brightness: Theme.of(context).brightness,
-                onPressed: () {
-                  windowManager.close();
-                },
-              ),
-            ],
+    Widget child;
+    if (!GetPlatform.isWindows) {
+      child = widget.child;
+    } else {
+      child = Column(
+        children: [
+          ColoredBox(
+            color: UIConfig.backGroundColor(context),
+            child: windowService.isFullScreen
+                ? Container(height: 12, color: UIConfig.backGroundColor(context))
+                : Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onPanStart: (_) {
+                            windowManager.startDragging();
+                          },
+                          onDoubleTap: () async {
+                            bool isMaximized = await windowManager.isMaximized();
+                            if (!isMaximized) {
+                              windowManager.maximize();
+                            } else {
+                              windowManager.unmaximize();
+                            }
+                          },
+                          child: Container(constraints: const BoxConstraints(minHeight: 32)),
+                        ),
+                      ),
+                      WindowCaptionButton.minimize(
+                        brightness: Theme.of(context).brightness,
+                        onPressed: () async {
+                          bool isMinimized = await windowManager.isMinimized();
+                          if (isMinimized) {
+                            windowManager.restore();
+                          } else {
+                            windowManager.minimize();
+                          }
+                        },
+                      ),
+                      if (windowService.isMaximized)
+                        WindowCaptionButton.unmaximize(
+                          brightness: Theme.of(context).brightness,
+                          onPressed: () {
+                            windowManager.unmaximize();
+                          },
+                        ),
+                      if (!windowService.isMaximized)
+                        WindowCaptionButton.maximize(
+                          brightness: Theme.of(context).brightness,
+                          onPressed: () {
+                            windowManager.maximize();
+                          },
+                        ),
+                      WindowCaptionButton.close(
+                        brightness: Theme.of(context).brightness,
+                        onPressed: () {
+                          windowManager.close();
+                        },
+                      ),
+                    ],
+                  ),
           ),
-        ),
-        Expanded(child: widget.child),
-      ],
+          Expanded(child: widget.child),
+        ],
+      );
+    }
+
+    return KeyboardListener(
+      focusNode: focusNode,
+      onKeyEvent: (KeyEvent event) async {
+        if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.f11) {
+          bool isFullScreen = await windowManager.isFullScreen();
+          if (isFullScreen) {
+            windowManager.setFullScreen(false);
+          } else {
+            windowManager.setFullScreen(true);
+          }
+        }
+      },
+      child: child,
     );
   }
 }
