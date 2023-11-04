@@ -67,7 +67,11 @@ dependencies:
   battery_plus: 3.0.2
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
-  window_manager: 0.3.7
+  window_manager:
+    # https://github.com/leanflutter/window_manager/pull/409
+    git: 
+      url: https://github.com/damywise/window_manager
+      branch: fullscreen-events
   permission_handler: 9.2.0
   grouped_list: 5.1.2
   resizable_widget:
@@ -90,7 +94,7 @@ dependencies:
   zoom_widget: 2.0.1
   android_intent_plus: 3.1.7
   integral_isolates: 0.4.1
-  
+
 dependency_overrides:
   dio:
     git:
@@ -104,7 +108,7 @@ dependency_overrides:
       path: bitsdojo_window_windows
   chewie: 1.7.0
   http: 1.1.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

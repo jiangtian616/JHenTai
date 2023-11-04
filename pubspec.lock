@@ -1946,11 +1946,12 @@ packages:
   window_manager:
     dependency: "direct main"
     description:
-      name: window_manager
-      sha256: dcc865277f26a7dad263a47d0e405d77e21f12cb71f30333a52710a408690bd7
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.3.7"
+      path: "."
+      ref: HEAD
+      resolved-ref: "64c058e59e993042f05fbde4dc8ad22435b6a0a8"
+      url: "https://github.com/damywise/window_manager"
+    source: git
+    version: "0.3.4"
   xdg_directories:
     dependency: transitive
     description:
