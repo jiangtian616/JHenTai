@@ -55,7 +55,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   List<GalleryDownloadedData> gallerysWithGroup(String group) => gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == group).toList();
 
-  static const int _retryTimes = 3;
+  static const int _maxRetryTimes = 3;
   static const String metadataFileName = 'metadata';
   static const int _maxTitleLength = 85;
 
@@ -230,7 +230,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       Map<String, dynamic> map = await retry(
         () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioError && e.error,
-        maxAttempts: _retryTimes,
+        maxAttempts: _maxRetryTimes,
       );
       Gallery gallery = map['gallery'];
       newGallery = gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
@@ -724,7 +724,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
-          maxAttempts: _retryTimes,
+          maxAttempts: _maxRetryTimes,
         );
       } on DioError catch (e) {
         if (e.type == DioErrorType.cancel) {
@@ -798,7 +798,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           ),
           retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
           onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
-          maxAttempts: _retryTimes,
+          maxAttempts: _maxRetryTimes,
         );
       } on DioError catch (e) {
         if (e.type == DioErrorType.cancel) {
@@ -876,10 +876,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             cancelToken: galleryDownloadInfo.cancelToken,
             onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
           ),
-          maxAttempts: _retryTimes,
+          maxAttempts: _maxRetryTimes,
 
           /// 403 is due to token error(maybe... I forgot the reason)
-          retryIf: (e) => e is DioError && e.type != DioErrorType.cancel && (e.response == null || e.response!.statusCode != 403),
+          /// If we have not downloaded any bytes, we should re-parse because we might encounter a death H@H node
+          retryIf: (e) =>
+              e is DioError &&
+              e.type != DioErrorType.cancel &&
+              (e.response == null || e.response!.statusCode != 403) &&
+              galleryDownloadInfo.speedComputer.getImageDownloadedBytes(serialNo) > 0,
           onRetry: (e) {
             Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${image.url}');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
@@ -1422,5 +1427,9 @@ class GalleryDownloadSpeedComputer extends SpeedComputer {
   void resetProgress(int serialNo) {
     downloadedBytes -= imageDownloadedBytes[serialNo];
     imageDownloadedBytes[serialNo] = 0;
+  }
+
+  int getImageDownloadedBytes(int serialNo) {
+    return imageDownloadedBytes[serialNo];
   }
 }

@@ -164,7 +164,7 @@ abstract class BaseLayout extends StatelessWidget {
         IconTextButton(
           icon: const Icon(Icons.error, color: UIConfig.readPageButtonColor),
           text: Text('networkError'.tr, style: const TextStyle(color: UIConfig.readPageButtonColor)),
-          onPressed: state.reLoadImage,
+          onPressed: () => logic.readPageLogic.reloadImage(index),
         ),
         Text((index + 1).toString()),
       ],
