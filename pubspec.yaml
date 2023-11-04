@@ -24,26 +24,26 @@ dependencies:
   dio_cache_interceptor_db_store: 4.1.1
   get: 4.6.5
   get_storage: 2.0.3
-  extended_nested_scroll_view: ^5.0.0
-  flukit: ^3.0.1
+  extended_nested_scroll_view: 6.1.1
+  flukit: 3.0.1
   html: 0.15.1
-  logger: ^1.1.0
-  flutter_rating_bar: ^4.0.0
-  waterfall_flow: ^3.0.2
+  logger: 1.1.0
+  flutter_rating_bar: 4.0.1
+  waterfall_flow: 3.0.2
   extended_image: 8.1.0
-  font_awesome_flutter: ^9.2.0
+  font_awesome_flutter: 9.2.0
   intl: 0.18.1
   collection: 1.17.2
-  clipboard: ^0.1.3
+  clipboard: 0.1.3
   scrollable_positioned_list: 0.3.5
   flutter_list_view: 1.1.21
-  executor: ^2.2.2
-  retry: ^3.1.0
-  path: ^1.8.0
+  executor: 2.2.2
+  retry: 3.1.2
+  path: 1.8.3
   drift: 1.7.1
   sqlite3_flutter_libs: 0.5.8
-  path_provider: ^2.0.9
-  flutter_slidable: ^2.0.0
+  path_provider: 2.0.15
+  flutter_slidable: 3.0.0
   flutter_widget_from_html: 0.10.3
   url_launcher: 6.1.8
   like_button: 2.0.5
@@ -56,28 +56,28 @@ dependencies:
   package_info_plus: 4.0.2
   file_picker: 5.3.0
   local_auth: 2.1.6
-  blur: ^3.1.0
-  flutter_windowmanager: ^0.2.0
-  animate_do: ^2.1.0
+  blur: 3.1.0
+  flutter_windowmanager: 0.2.0
+  animate_do: 2.1.0
   share_plus: 4.5.3
-  syncfusion_flutter_charts: ^20.2.36
+  syncfusion_flutter_charts: 22.2.11
   sentry_flutter: 7.9.0
   archive: 3.3.6
   fluttertoast: 8.1.2
   battery_plus: 3.0.2
-  throttling: ^1.0.0
-  receive_sharing_intent: ^1.4.5
+  throttling: 1.0.0
+  receive_sharing_intent: 1.4.5
   bitsdojo_window:
     git:
       url: https://github.com/bitsdojo/bitsdojo_window
       path: bitsdojo_window
   permission_handler: 9.2.0
-  grouped_list: ^5.1.2
+  grouped_list: 5.1.2
   resizable_widget:
     git: https://github.com/eurisit/resizable_widget
-  loading_animation_widget: ^1.2.0+3
+  loading_animation_widget: 1.2.0+4
   simple_animations: 5.0.2
-  animated_flip_counter: ^0.2.5
+  animated_flip_counter: 0.2.6
   image_save: 5.0.0
   system_network_proxy: 1.0.2
   http_proxy: 1.2.1

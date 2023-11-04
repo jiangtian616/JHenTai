@@ -45,10 +45,10 @@ packages:
     dependency: "direct main"
     description:
       name: animated_flip_counter
-      sha256: abbb8368bf30cb027af59a1ed3747868790070d70c24405ce39dcd65fd3eba33
+      sha256: "2c25ace054ac3932a3f203875a90ddae760ba7016cb9233573067a12ae51e3c6"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.2.5"
+    version: "0.2.6"
   archive:
     dependency: "direct main"
     description:
@@ -472,10 +472,10 @@ packages:
     dependency: "direct main"
     description:
       name: extended_nested_scroll_view
-      sha256: "45df3e6e68ada3ccd8cc88961d1bccb0b32cfa8e2f202e8258069ed5f22a91b3"
+      sha256: "49c0de4f648a7ed4dc5501db7855aec38582d076ef61bb1708ba73d58f0f2525"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "5.1.3"
+    version: "6.1.1"
   fake_async:
     dependency: transitive
     description:
@@ -1109,10 +1109,10 @@ packages:
     dependency: "direct main"
     description:
       name: path_provider
-      sha256: dcea5feb97d8abf90cab9e9030b497fb7c3cbf26b7a1fe9e3ef7dcb0a1ddec95
+      sha256: "3087813781ab814e4157b172f1a11c46be20179fcc9bea043e0fba36bc0acaa2"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.15"
   path_provider_android:
     dependency: transitive
     description:
@@ -1319,10 +1319,10 @@ packages:
     dependency: "direct main"
     description:
       name: retry
-      sha256: "45dfeebaf095b606fdb9dbfb4c114cc204449bc274783b452658365e03afdbab"
+      sha256: "822e118d5b3aafed083109c72d5f484c6dc66707885e07c0fbcb8b986bba7efc"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.2"
   rxdart:
     dependency: transitive
     description:
@@ -1564,18 +1564,18 @@ packages:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_charts
-      sha256: fb76374625e5cfa485ed1d2b080f2b5a6722d95b36d8355a4a9bd0567567d769
+      sha256: f5201fea1541cd1cf9a5d6883f74ddc0434e73bbc77ab285e3313b497411afec
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.44"
+    version: "22.2.11"
   syncfusion_flutter_core:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "66529f3f102c6501a75811e8d931a1908ad9865ea4d3416c40ac05cf62fdcd44"
+      sha256: "9f0a4593f7642b2f106e329734d0e5fc746baf8d0a59495eec586cd0d9ba7d02"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "20.4.44"
+    version: "22.2.12"
   synchronized:
     dependency: transitive
     description:
@@ -1852,10 +1852,10 @@ packages:
     dependency: transitive
     description:
       name: visibility_detector
-      sha256: "15c54a459ec2c17b4705450483f3d5a2858e733aee893dcee9d75fd04814940d"
+      sha256: dd5cc11e13494f432d15939c3aa8ae76844c42b723398643ce9addb88a5ed420
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.3.3"
+    version: "0.4.0+2"
   vm_service:
     dependency: transitive
     description:
