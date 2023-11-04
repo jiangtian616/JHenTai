@@ -127,7 +127,7 @@ class SettingStylePage extends StatelessWidget {
         value: StyleSetting.crossAxisCountInGridDownloadPageForGallery.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: StyleSetting.crossAxisCountInGridDownloadPageForGallery,
+        onChanged: StyleSetting.saveCrossAxisCountInGridDownloadPageForGallery,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),
