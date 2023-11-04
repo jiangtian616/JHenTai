@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,6 +24,7 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:window_manager/window_manager.dart';
 import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -52,10 +51,7 @@ import 'network/eh_cookie_manager.dart';
 
 void main() async {
   await init();
-
   runApp(const MyApp());
-
-  _doForDesktop();
 }
 
 class MyApp extends StatelessWidget {
@@ -99,6 +95,7 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await windowManager.ensureInitialized();
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
@@ -175,6 +172,27 @@ Future<void> init() async {
   SuperResolutionService.init();
 
   ReadSetting.init();
+
+  if (GetPlatform.isDesktop) {
+    WindowService windowService = Get.find();
+
+    WindowOptions windowOptions = WindowOptions(
+      center: true,
+      size: Size(windowService.windowWidth, windowService.windowHeight),
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.hidden,
+    );
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+      if (windowService.isMaximized) {
+        await windowManager.maximize();
+      }
+      windowService.inited = true;
+    });
+  }
 }
 
 Future<void> onReady() async {
@@ -184,29 +202,4 @@ Future<void> onReady() async {
   MyTagsSetting.refreshOnlineTagSets();
 
   VolumeService.init();
-}
-
-void _doForDesktop() {
-  if (!GetPlatform.isDesktop) {
-    return;
-  }
-
-  doWhenWindowReady(() {
-    WindowService windowService = Get.find();
-
-    appWindow.title = 'JHenTai';
-    appWindow.size = Size(windowService.windowWidth, windowService.windowHeight);
-    if (windowService.isMaximized) {
-      appWindow.maximize();
-    }
-    // https://github.com/bitsdojo/bitsdojo_window/issues/193
-    else if (GetPlatform.isWindows && kDebugMode) {
-      WidgetsBinding.instance.scheduleFrameCallback((_) {
-        appWindow.size += const Offset(0.001, 0);
-        appWindow.size += const Offset(-0.001, 0);
-      });
-    }
-
-    appWindow.show();
-  });
 }

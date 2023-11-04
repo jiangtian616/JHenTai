@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
@@ -12,6 +11,8 @@ import '../utils/log.dart';
 class WindowService extends GetxService {
   final StorageService storageService = Get.find<StorageService>();
 
+  bool inited = false;
+  
   double windowWidth = 1280;
   double windowHeight = 720;
   bool isMaximized = false;
@@ -59,12 +60,10 @@ class WindowService extends GetxService {
     });
   }
 
-  void handleMaximizeWindow() {
-    appWindow.maximizeOrRestore();
-
-    isMaximized = !isMaximized;
+  void saveMaximizeWindow(bool isMaximized) {
+    this.isMaximized = isMaximized;
 
     Log.info(isMaximized ? 'Maximized window' : 'Restored window');
-    Get.find<StorageService>().write('windowMaximize', isMaximized);
+    storageService.write('windowMaximize', isMaximized);
   }
 }

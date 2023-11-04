@@ -67,10 +67,7 @@ dependencies:
   battery_plus: 3.0.2
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
-  bitsdojo_window:
-    git:
-      url: https://github.com/bitsdojo/bitsdojo_window
-      path: bitsdojo_window
+  window_manager: 0.3.7
   permission_handler: 9.2.0
   grouped_list: 5.1.2
   resizable_widget:

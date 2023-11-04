@@ -83,8 +83,6 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
         child: LayoutBuilder(
           builder: (_, __) => Obx(
             () {
-              windowService.handleWindowResized();
-
               if (StyleSetting.layout.value == LayoutMode.mobileV2 || StyleSetting.layout.value == LayoutMode.mobile) {
                 StyleSetting.actualLayout = LayoutMode.mobileV2;
                 return MobileLayoutPageV2();

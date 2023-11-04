@@ -28,19 +28,7 @@ class DesktopLayoutPage extends StatelessWidget {
         _leftTabBar(context),
         VerticalDivider(width: 1, color: UIConfig.layoutDividerColor(context)),
         Expanded(
-          child: ColoredBox(
-            color: UIConfig.backGroundColor(context),
-            child: ResizableWidget(
-              key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
-              separatorSize: 7.5,
-              separatorColor: UIConfig.layoutDividerColor(context),
-              separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
-              percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
-              onResized: windowService.handleColumnResized,
-              isDisabledSmartHide: true,
-              children: [_leftColumn(), _rightColumn()],
-            ),
-          ),
+          child: _buildDoubleColumn(context),
         ),
       ],
     );
@@ -107,6 +95,22 @@ class DesktopLayoutPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  ColoredBox _buildDoubleColumn(BuildContext context) {
+    return ColoredBox(
+      color: UIConfig.backGroundColor(context),
+      child: ResizableWidget(
+        key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
+        separatorSize: 7.5,
+        separatorColor: UIConfig.layoutDividerColor(context),
+        separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
+        percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
+        onResized: windowService.handleColumnResized,
+        isDisabledSmartHide: true,
+        children: [_leftColumn(), _rightColumn()],
       ),
     );
   }

@@ -97,31 +97,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.2.2"
-  bitsdojo_window:
-    dependency: "direct main"
-    description:
-      path: bitsdojo_window
-      ref: HEAD
-      resolved-ref: "816d217e770303035494653bd80f67484ca159e7"
-      url: "https://github.com/bitsdojo/bitsdojo_window"
-    source: git
-    version: "0.1.5"
-  bitsdojo_window_linux:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_linux
-      sha256: d3804a30315fcbb43b28acc86d1180ce0be22c0c738ad2da9e5ade4d8dbd9655
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.3"
-  bitsdojo_window_macos:
-    dependency: transitive
-    description:
-      name: bitsdojo_window_macos
-      sha256: d2a9886c74516c5b84c1dd65ab8ee5d1c52055b265ebf0e7d664dee28366b521
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "0.1.3"
   bitsdojo_window_platform_interface:
     dependency: transitive
     description:
@@ -627,10 +602,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_slidable
-      sha256: "6c68e1fad129b4b807b2218ef4cf7f7f6f61c5ec8861c990dc2278d9d03cb09f"
+      sha256: cc4231579e3eae41ae166660df717f4bad1359c87f4a4322ad8ba1befeb3d2be
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.0.0"
+    version: "3.0.0"
   flutter_socks_proxy:
     dependency: "direct main"
     description:
@@ -1331,6 +1306,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.27.7"
+  screen_retriever:
+    dependency: transitive
+    description:
+      name: screen_retriever
+      sha256: "6ee02c8a1158e6dae7ca430da79436e3b1c9563c8cf02f524af997c201ac2b90"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.1.9"
   scrollable_positioned_list:
     dependency: "direct main"
     description:
@@ -1960,6 +1943,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "4.1.4"
+  window_manager:
+    dependency: "direct main"
+    description:
+      name: window_manager
+      sha256: dcc865277f26a7dad263a47d0e405d77e21f12cb71f30333a52710a408690bd7
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.7"
   xdg_directories:
     dependency: transitive
     description:
