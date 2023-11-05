@@ -183,7 +183,7 @@ Future<void> init() async {
       size: Size(windowService.windowWidth, windowService.windowHeight),
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
+      titleBarStyle: GetPlatform.isWindows ? TitleBarStyle.hidden : TitleBarStyle.normal,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {

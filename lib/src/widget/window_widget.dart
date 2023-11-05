@@ -170,13 +170,18 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
   }
 
   Widget _buildLinuxTitle() {
-    return _buildWindowsTitle();
+    return Column(
+      children: [
+        Container(height: 8, color: widget.titleBarColor ?? UIConfig.backGroundColor(context)),
+        Expanded(child: widget.child),
+      ],
+    );
   }
 
   Widget _buildMaxOSTitle() {
     return Column(
       children: [
-        Container(height: 12, color: widget.titleBarColor ?? UIConfig.backGroundColor(context)),
+        Container(height: 8, color: widget.titleBarColor ?? UIConfig.backGroundColor(context)),
         Expanded(child: widget.child),
       ],
     );

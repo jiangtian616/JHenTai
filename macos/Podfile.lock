@@ -3,8 +3,6 @@ PODS:
     - FlutterMacOS
   - battery_plus (0.0.1):
     - FlutterMacOS
-  - bitsdojo_window_macos (0.0.1):
-    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
@@ -16,13 +14,15 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Sentry/HybridSDK (8.7.3):
-    - SentryPrivate (= 8.7.3)
+  - screen_retriever (0.0.1):
+    - FlutterMacOS
+  - Sentry/HybridSDK (8.9.1):
+    - SentryPrivate (= 8.9.1)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.7.3)
-  - SentryPrivate (8.7.3)
+    - Sentry/HybridSDK (= 8.9.1)
+  - SentryPrivate (8.9.1)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - smart_auth (0.0.1):
@@ -50,24 +50,27 @@ PODS:
     - sqlite3/rtree
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
-  - wakelock_macos (0.0.1):
+  - wakelock_plus (0.0.1):
+    - FlutterMacOS
+  - window_manager (0.2.0):
     - FlutterMacOS
 
 DEPENDENCIES:
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - battery_plus (from `Flutter/ephemeral/.symlinks/plugins/battery_plus/macos`)
-  - bitsdojo_window_macos (from `Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
   - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
   - smart_auth (from `Flutter/ephemeral/.symlinks/plugins/smart_auth/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
   - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
-  - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
+  - wakelock_plus (from `Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos`)
+  - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 SPEC REPOS:
   trunk:
@@ -81,8 +84,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
   battery_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/battery_plus/macos
-  bitsdojo_window_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/bitsdojo_window_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   just_audio:
@@ -91,6 +92,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  screen_retriever:
+    :path: Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos
   sentry_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus_macos:
@@ -103,28 +106,31 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/macos
   url_launcher_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
-  wakelock_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos
+  wakelock_plus:
+    :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
+  window_manager:
+    :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
   audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
   battery_plus: 906cd081df7f2274f5235581515b59a628dcaec7
-  bitsdojo_window_macos: 44e3b8fe3dd463820e0321f6256c5b1c16bb6a00
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
-  Sentry: c7a86f43510a7d5678d4de28d78c28ab351d295b
-  sentry_flutter: f2710a4f537e9a7143b02562b8754ccdc8224751
-  SentryPrivate: 2eaabf598a46d4b9b8822aef766df2a84caf2e6f
+  screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
+  Sentry: e3203780941722a1fcfee99e351de14244c7f806
+  sentry_flutter: 8f0ffd53088e6a4d50c095852c5cad9e4405025c
+  SentryPrivate: 5e3683390f66611fc7c6215e27645873adb55d13
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
   sqlite3: 401936402fe5aa242c07f87fccfee5fc2b606f45
   sqlite3_flutter_libs: 65803af6a06f8640ec53d0fc100c91164c02e341
   url_launcher_macos: c04e4fa86382d4f94f6b38f14625708be3ae52e2
-  wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
+  wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
+  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
 PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
 
