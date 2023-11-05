@@ -2,7 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/mixin/WindowWidgetMixin.dart';
+import 'package:jhentai/src/mixin/window_widget_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';

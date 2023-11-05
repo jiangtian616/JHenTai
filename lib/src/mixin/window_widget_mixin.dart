@@ -100,7 +100,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
         ColoredBox(
           color: titleBarColor ?? UIConfig.backGroundColor(context),
           child: windowService.isFullScreen
-              ? Container(height: 12, color: titleBarColor ?? UIConfig.backGroundColor(context))
+              ? Container(height: UIConfig.desktopFullScreenTopPadding, color: titleBarColor ?? UIConfig.backGroundColor(context))
               : Row(
                   children: [
                     Expanded(
@@ -108,7 +108,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
                         behavior: HitTestBehavior.translucent,
                         onPanStart: (_) => windowManager.startDragging(),
                         onDoubleTap: toggleMaximize,
-                        child: Container(constraints: const BoxConstraints(minHeight: 32)),
+                        child: Container(constraints: const BoxConstraints(minHeight: UIConfig.desktopTitleBarHeight)),
                       ),
                     ),
                     WindowCaptionButton.minimize(brightness: Theme.of(context).brightness, onPressed: toggleMinimize),

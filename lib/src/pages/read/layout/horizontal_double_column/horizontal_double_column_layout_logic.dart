@@ -16,8 +16,6 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   final StorageService storageService = Get.find<StorageService>();
 
-  Worker? displayFirstPageAloneListener;
-
   @override
   void onInit() {
     super.onInit();
@@ -35,21 +33,6 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
     /// record reading progress and sync thumbnails list index
     state.pageController.addListener(_readProgressListener);
-
-    displayFirstPageAloneListener = ever(ReadSetting.displayFirstPageAlone, (value) {
-      if (state.displayFirstPageAlone != value) {
-        state.displayFirstPageAlone = value;
-        state.pageCount = computePageCount();
-        updateSafely([BaseLayoutLogic.pageId]);
-        readPageLogic.updateSafely([readPageLogic.topMenuId, readPageLogic.bottomMenuId]);
-      }
-    });
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-    displayFirstPageAloneListener?.dispose();
   }
 
   @override
@@ -93,11 +76,6 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void handleM() {
-    toggleDisplayFirstPageAlone();
-  }
-
-  @override
   void jump2ImageIndex(int imageIndex) {
     state.pageController.jumpToPage(computePageIndexOfImage(imageIndex));
     super.jump2ImageIndex(imageIndex);
@@ -113,6 +91,12 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     super.scroll2ImageIndex(imageIndex, duration);
   }
 
+  @override
+  void toggleDisplayFirstPageAlone(){
+    state.pageCount = computePageCount();
+    updateSafely([BaseLayoutLogic.pageId]);
+  }
+  
   @override
   void enterAutoMode() {
     _enterAutoModeByTurnPage();
@@ -166,7 +150,10 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size(isSpreadPage ? fullScreenWidth : (fullScreenWidth - ReadSetting.imageSpace.value) / 2, screenHeight),
+      Size(
+        isSpreadPage ? readPageState.imageRegionSize.width : (readPageState.imageRegionSize.width - ReadSetting.imageSpace.value) / 2,
+        readPageState.imageRegionSize.height,
+      ),
     );
   }
 
@@ -201,7 +188,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     int currentPageIndex = 0;
     bool hasLeftColumn = false;
 
-    if (state.displayFirstPageAlone) {
+    if (readPageState.displayFirstPageAlone) {
       if (pageIndex == 0) {
         return [0];
       }
@@ -261,7 +248,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     int pageIndex = 0;
     bool hasLeftColumn = false;
 
-    if (state.displayFirstPageAlone) {
+    if (readPageState.displayFirstPageAlone) {
       if (imageIndex == 0) {
         return 0;
       }
@@ -297,13 +284,5 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     }
 
     return pageIndex;
-  }
-
-  void toggleDisplayFirstPageAlone() {
-    Log.info('toggleDisplayFirstPageAlone->${!state.displayFirstPageAlone}');
-    state.displayFirstPageAlone = !state.displayFirstPageAlone;
-    state.pageCount = computePageCount();
-    updateSafely([BaseLayoutLogic.pageId]);
-    readPageLogic.updateSafely([readPageLogic.topMenuId, readPageLogic.bottomMenuId]);
   }
 }

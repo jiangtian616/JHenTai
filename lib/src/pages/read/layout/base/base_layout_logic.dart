@@ -61,8 +61,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   /// to next image or screen
   void toNext();
 
-  void handleM() {}
-
   void toImageIndex(int imageIndex) {
     if (ReadSetting.enablePageTurnAnime.isFalse) {
       jump2ImageIndex(imageIndex);
@@ -90,6 +88,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         return PhotoViewScaleState.initial;
     }
   }
+
+  void toggleDisplayFirstPageAlone() {}
 
   void enterAutoMode();
 
@@ -197,7 +197,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
           (_) => Share.shareFiles(
             [path],
             text: '$index${extension(readPageState.images[index]!.url)}',
-            sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+            sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.imageRegionSize.height * 2 / 3),
           ),
         );
   }
@@ -214,7 +214,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
       ],
       text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.imageRegionSize.height * 2 / 3),
     );
   }
 
@@ -255,7 +255,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (readPageState.readPageInfo.gid != null) {
       fileName = '${readPageState.readPageInfo.gid!}_$fileName';
     }
-    
+
     String downloadPath = join(DownloadSetting.singleImageSavePath.value, fileName);
     toast('downloading'.tr);
     await EHRequest.download(
@@ -295,7 +295,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (readPageState.imageContainerSizes[imageIndex] != null) {
       return readPageState.imageContainerSizes[imageIndex]!;
     }
-    return Size(double.infinity, screenHeight / 2);
+    return Size(double.infinity, readPageState.imageRegionSize.height / 2);
   }
 
   /// Compute image container size
@@ -303,7 +303,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size(fullScreenWidth, double.infinity),
+      Size(readPageState.imageRegionSize.width, double.infinity),
     );
   }
 

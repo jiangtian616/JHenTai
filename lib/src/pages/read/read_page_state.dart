@@ -10,6 +10,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../service/gallery_download_service.dart';
+import '../../setting/read_setting.dart';
 import '../../widget/loading_state_indicator.dart';
 
 class ReadPageState with ScrollStatusListerState {
@@ -32,8 +33,11 @@ class ReadPageState with ScrollStatusListerState {
   Battery battery = Battery();
   int batteryLevel = 100;
   bool useSuperResolution = false;
+  bool displayFirstPageAlone = ReadSetting.displayFirstPageAlone.value;
   FocusNode focusNode = FocusNode();
 
+  late Size imageRegionSize;
+  
   final EHItemScrollController thumbnailsScrollController = EHItemScrollController();
   final ItemPositionsListener thumbnailPositionsListener = ItemPositionsListener.create();
 

@@ -5,11 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/mixin/WindowWidgetMixin.dart';
+import 'package:jhentai/src/mixin/window_widget_mixin.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
@@ -132,18 +131,26 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
     Widget child = GetBuilder<ReadPageLogic>(
       id: logic.layoutId,
       builder: (_) {
-        if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
-          return VerticalListLayout();
-        }
-        if (ReadSetting.isInListReadDirection) {
-          return HorizontalListLayout();
-        }
-        if (ReadSetting.isInDoubleColumnReadDirection) {
-          return HorizontalDoubleColumnLayout();
-        }
-        return HorizontalPageLayout();
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            logic.clearImageContainerSized();
+            state.imageRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
+
+            if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
+              return VerticalListLayout();
+            }
+            if (ReadSetting.isInListReadDirection) {
+              return HorizontalListLayout();
+            }
+            if (ReadSetting.isInDoubleColumnReadDirection) {
+              return HorizontalDoubleColumnLayout();
+            }
+            return HorizontalPageLayout();
+          },
+        );
       },
     );
+
     return wrapScrollListener(child);
   }
 
@@ -296,11 +303,9 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
               return ElevatedButton(
                 child: Icon(
                   Icons.looks_one,
-                  color: (logic.layoutLogic as HorizontalDoubleColumnLayoutLogic).state.displayFirstPageAlone
-                      ? UIConfig.readPageActiveButtonColor(context)
-                      : UIConfig.readPageButtonColor,
+                  color: state.displayFirstPageAlone ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
                 ),
-                onPressed: (logic.layoutLogic as HorizontalDoubleColumnLayoutLogic).toggleDisplayFirstPageAlone,
+                onPressed: logic.toggleDisplayFirstPageAlone,
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   padding: const EdgeInsets.all(0),

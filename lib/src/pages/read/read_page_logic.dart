@@ -75,6 +75,7 @@ class ReadPageLogic extends GetxController {
   late Worker toggleCurrentImmersiveModeLister;
   late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
+  late Worker displayFirstPageAloneListener;
 
   final EHExecutor executor = EHExecutor(
     concurrency: 10,
@@ -109,6 +110,14 @@ class ReadPageLogic extends GetxController {
       updateSafely([layoutId]);
     });
 
+    displayFirstPageAloneListener = ever(ReadSetting.displayFirstPageAlone, (value) {
+      if (state.displayFirstPageAlone != value) {
+        state.displayFirstPageAlone = value;
+        layoutLogic.toggleDisplayFirstPageAlone();
+        updateSafely([topMenuId, bottomMenuId]);
+      }
+    });
+    
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
     }
@@ -143,6 +152,7 @@ class ReadPageLogic extends GetxController {
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
     flushReadProgressTimer.cancel();
+    displayFirstPageAloneListener.dispose();
 
     restoreVolumeListener();
 
@@ -425,7 +435,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void handleM() {
-    layoutLogic.handleM();
+    toggleDisplayFirstPageAlone();
   }
 
   void jump2ImageIndex(int pageIndex) {
@@ -495,6 +505,14 @@ class ReadPageLogic extends GetxController {
     }
 
     return '(${superResolutionInfo.imageStatuses.where((status) => status == SuperResolutionStatus.success).length}/${superResolutionInfo.imageStatuses.length})';
+  }
+
+  void toggleDisplayFirstPageAlone() {
+    Log.info('toggleDisplayFirstPageAlone->${!state.displayFirstPageAlone}');
+    state.displayFirstPageAlone = !state.displayFirstPageAlone;
+
+    layoutLogic.toggleDisplayFirstPageAlone();
+    updateSafely([topMenuId, bottomMenuId]);
   }
 
   List<ItemPosition> getCurrentVisibleThumbnails() {

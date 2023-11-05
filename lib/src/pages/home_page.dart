@@ -19,7 +19,7 @@ import 'package:retry/retry.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../consts/eh_consts.dart';
-import '../mixin/WindowWidgetMixin.dart';
+import '../mixin/window_widget_mixin.dart';
 import '../mixin/login_required_logic_mixin.dart';
 import '../model/jh_layout.dart';
 import '../network/eh_request.dart';

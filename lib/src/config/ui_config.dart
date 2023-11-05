@@ -65,10 +65,14 @@ class UIConfig {
   static const double tabBarHeight = 36;
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
+  
 
   static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant;
 
+  
   static Color desktopLeftTabIconColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
+  static const double desktopTitleBarHeight = 32;
+  static const double desktopFullScreenTopPadding = 12;
   static const double desktopLeftTabBarWidth = 56;
   static const double desktopLeftTabBarItemHeight = 60;
   static const double desktopLeftTabBarTextHeight = 18;
