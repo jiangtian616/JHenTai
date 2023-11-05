@@ -159,11 +159,11 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   }
 
   Future<void> toggleMaximize() async {
-    bool isMinimized = await windowManager.isMinimized();
-    if (isMinimized) {
-      windowManager.restore();
+    bool isMaximized = await windowManager.isMaximized();
+    if (!isMaximized) {
+      windowManager.maximize();
     } else {
-      windowManager.minimize();
+      windowManager.unmaximize();
     }
   }
 
