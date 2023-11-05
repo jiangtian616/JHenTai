@@ -134,7 +134,7 @@ class SuperResolutionSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     modelDirectoryPath.value = map['modelDirectoryPath'];
-    model.value = ModelType.values[map['model']];
+    model.value = map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
     gpuId.value = map['gpuId'] ?? gpuId.value;
   }
 }
