@@ -13,18 +13,18 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/version_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
-import 'package:jhentai/src/widget/window_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:retry/retry.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../consts/eh_consts.dart';
+import '../mixin/WindowWidgetMixin.dart';
 import '../mixin/login_required_logic_mixin.dart';
 import '../model/jh_layout.dart';
 import '../network/eh_request.dart';
 import '../routes/routes.dart';
 import '../service/storage_service.dart';
-import '../service/windows_service.dart';
 import '../setting/advanced_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/route_util.dart';
@@ -51,9 +51,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with LoginRequiredMixin {
+class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowListener, WindowWidgetMixin {
   final StorageService storageService = Get.find();
-  final WindowService windowService = Get.find<WindowService>();
 
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedUrl;
@@ -71,13 +70,13 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin {
 
   @override
   void dispose() {
-    _intentDataStreamSubscription?.cancel();
     super.dispose();
+    _intentDataStreamSubscription?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WindowWidget(
+    return buildWindow(
       child: WillPopInterceptor(
         /// Use LayoutBuilder to listen to resize of window.
         child: LayoutBuilder(

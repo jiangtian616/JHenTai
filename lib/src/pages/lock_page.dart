@@ -2,16 +2,17 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/mixin/WindowWidgetMixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
-import 'package:jhentai/src/widget/window_widget.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:local_auth_ios/local_auth_ios.dart';
 import 'package:local_auth_windows/local_auth_windows.dart';
 import 'package:pinput/pinput.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../config/ui_config.dart';
 
@@ -22,7 +23,7 @@ class LockPage extends StatefulWidget {
   State<LockPage> createState() => _LockPageState();
 }
 
-class _LockPageState extends State<LockPage> {
+class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMixin {
   String hintText = 'localizedReason'.tr;
 
   TextEditingController controller = TextEditingController();
@@ -37,7 +38,7 @@ class _LockPageState extends State<LockPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WindowWidget(
+    return buildWindow(
       child: Material(
         child: ColoredBox(
           color: UIConfig.backGroundColor(context),
@@ -93,7 +94,8 @@ class _LockPageState extends State<LockPage> {
                 alignment: Alignment.center,
                 child: Text(hintText),
               ),
-              if (SecuritySetting.enableBiometricAuth.isTrue) IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
+              if (SecuritySetting.enableBiometricAuth.isTrue)
+                IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
             ],
           ),
         ),
@@ -121,7 +123,7 @@ class _LockPageState extends State<LockPage> {
         biometricOnly: true,
       ),
     );
-    
+
     if (!success) {
       return;
     }

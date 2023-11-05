@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/mixin/WindowWidgetMixin.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
@@ -16,7 +17,7 @@ import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
-import 'package:jhentai/src/widget/window_widget.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../../config/ui_config.dart';
 import '../../routes/routes.dart';
@@ -35,14 +36,22 @@ import '../home_page.dart';
 import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
 import 'layout/vertical_list/vertical_list_layout.dart';
 
-class ReadPage extends StatelessWidget with ScrollStatusListener {
+class ReadPage extends StatefulWidget {
+  const ReadPage({super.key});
+
+  @override
+  State<ReadPage> createState() => _ReadPageState();
+}
+
+class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowListener, WindowWidgetMixin {
   final ReadPageLogic logic = Get.put<ReadPageLogic>(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
 
   @override
   ScrollStatusListerState get scrollStatusListerState => state;
 
-  ReadPage({Key? key}) : super(key: key);
+  @override
+  Color? get titleBarColor => Colors.black;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +80,7 @@ class ReadPage extends StatelessWidget with ScrollStatusListener {
           handleD: logic.toRight,
           handleM: logic.handleM,
           handleEnd: backRoute,
+          handleF11: toggleFullScreen,
           child: DefaultTextStyle(
             style: DefaultTextStyle.of(context).style.copyWith(
                   color: UIConfig.readPageForeGroundColor,
@@ -99,11 +109,22 @@ class ReadPage extends StatelessWidget with ScrollStatusListener {
       id: logic.pageId,
       builder: (_) {
         if (ReadSetting.enableImmersiveMode.isFalse) {
-          return WindowWidget(child: child, titleBarColor: Colors.black);
+          return buildWindow(child: child);
         }
         return child;
       },
     );
+  }
+
+  @override
+  Widget buildWindow({required Widget child}) {
+    return GetPlatform.isWindows
+        ? buildWindowsTitle(child)
+        : GetPlatform.isLinux
+            ? buildLinuxTitle(child)
+            : GetPlatform.isMacOS
+                ? buildMaxOSTitle(child)
+                : child;
   }
 
   /// Main region to display images
