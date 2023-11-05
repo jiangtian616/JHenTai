@@ -19,7 +19,7 @@ class SettingReadPage extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.only(top: 16),
             children: [
-              _buildEnableImmersiveMode().center(),
+              if (GetPlatform.isMobile || GetPlatform.isWindows) _buildEnableImmersiveMode().center(),
               _buildKeepScreenAwake().center(),
               _buildShowThumbnails().center(),
               _buildShowStatusInfo().center(),
@@ -52,7 +52,7 @@ class SettingReadPage extends StatelessWidget {
   Widget _buildEnableImmersiveMode() {
     return ListTile(
       title: Text('enableImmersiveMode'.tr),
-      subtitle: Text('enableImmersiveHint'.tr),
+      subtitle: GetPlatform.isMobile ? Text('enableImmersiveHint'.tr) : Text('enableImmersiveHint4Windows'.tr),
       trailing: Switch(value: ReadSetting.enableImmersiveMode.value, onChanged: ReadSetting.saveEnableImmersiveMode),
     );
   }

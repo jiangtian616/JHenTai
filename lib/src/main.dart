@@ -187,6 +187,9 @@ Future<void> init() async {
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
+      if (PreferenceSetting.launchInFullScreen.isTrue) {
+        await windowManager.setFullScreen(true);
+      }
       if (windowService.isMaximized) {
         await windowManager.maximize();
       }

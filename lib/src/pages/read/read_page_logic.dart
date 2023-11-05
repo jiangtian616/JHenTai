@@ -37,6 +37,7 @@ import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 
 class ReadPageLogic extends GetxController {
+  final String pageId = 'pageId';
   final String layoutId = 'layoutId';
   final String onlineImageId = 'onlineImageId';
   final String parseImageHrefsStateId = 'parseImageHrefsStateId';
@@ -299,6 +300,10 @@ class ReadPageLogic extends GetxController {
 
   /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
   void applyCurrentImmersiveMode() {
+    if (GetPlatform.isWindows) {
+      updateSafely([pageId]);
+    }
+
     if (ReadSetting.enableImmersiveMode.isTrue) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     } else {
@@ -307,7 +312,9 @@ class ReadPageLogic extends GetxController {
   }
 
   void restoreImmersiveMode() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    if (GetPlatform.isMobile) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
   }
 
   void updateDeviceOrientation() {

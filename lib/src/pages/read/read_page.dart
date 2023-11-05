@@ -16,6 +16,7 @@ import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
+import 'package:jhentai/src/widget/window_widget.dart';
 
 import '../../config/ui_config.dart';
 import '../../routes/routes.dart';
@@ -45,7 +46,7 @@ class ReadPage extends StatelessWidget with ScrollStatusListener {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    Widget child = AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent,
         systemNavigationBarDividerColor: Colors.transparent,
@@ -92,6 +93,16 @@ class ReadPage extends StatelessWidget with ScrollStatusListener {
           ),
         ),
       ),
+    );
+
+    return GetBuilder<ReadPageLogic>(
+      id: logic.pageId,
+      builder: (_) {
+        if (ReadSetting.enableImmersiveMode.isFalse) {
+          return WindowWidget(child: child, titleBarColor: Colors.black);
+        }
+        return child;
+      },
     );
   }
 
@@ -223,7 +234,9 @@ class ReadPage extends StatelessWidget with ScrollStatusListener {
                   '\n'
                   'Space  :  ${'toggleMenu'.tr}'
                   '\n'
-                  'M  :  ${'displayFirstPageAlone'.tr}',
+                  'M  :  ${'displayFirstPageAlone'.tr}'
+                  '\n'
+                  'F11  :  ${'toggleFullScreen'.tr}',
                   isShort: false,
                 ),
                 style: ElevatedButton.styleFrom(

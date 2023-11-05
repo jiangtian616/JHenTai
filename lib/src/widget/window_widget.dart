@@ -8,8 +8,9 @@ import '../service/windows_service.dart';
 
 class WindowWidget extends StatefulWidget {
   final Widget child;
+  final Color? titleBarColor;
 
-  const WindowWidget({Key? key, required this.child}) : super(key: key);
+  const WindowWidget({Key? key, required this.child, this.titleBarColor}) : super(key: key);
 
   @override
   State<WindowWidget> createState() => _WindowWidgetState();
@@ -90,9 +91,9 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
       child = Column(
         children: [
           ColoredBox(
-            color: UIConfig.backGroundColor(context),
+            color: widget.titleBarColor ?? UIConfig.backGroundColor(context),
             child: windowService.isFullScreen
-                ? Container(height: 12, color: UIConfig.backGroundColor(context))
+                ? Container(height: 12, color: widget.titleBarColor ?? UIConfig.backGroundColor(context))
                 : Row(
                     children: [
                       Expanded(
