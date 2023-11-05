@@ -95,7 +95,9 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
+  if (GetPlatform.isDesktop) {
+    await windowManager.ensureInitialized();
+  }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
