@@ -50,7 +50,13 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
   ScrollStatusListerState get scrollStatusListerState => state;
 
   @override
+  Brightness? get titleBarBrightness => Brightness.dark;
+
+  @override
   Color? get titleBarColor => Colors.black;
+
+  @override
+  double get fullScreenTopPadding => 0;
 
   @override
   Widget build(BuildContext context) {

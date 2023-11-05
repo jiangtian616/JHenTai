@@ -11,7 +11,11 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
 
   final FocusNode focusNode = FocusNode();
 
+  Brightness? get titleBarBrightness => null;
+
   Color? get titleBarColor => null;
+
+  double? get fullScreenTopPadding => null;
 
   @override
   void initState() {
@@ -100,7 +104,8 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
         ColoredBox(
           color: titleBarColor ?? UIConfig.backGroundColor(context),
           child: windowService.isFullScreen
-              ? Container(height: UIConfig.desktopFullScreenTopPadding, color: titleBarColor ?? UIConfig.backGroundColor(context))
+              ? Container(
+                  height: fullScreenTopPadding ?? UIConfig.desktopFullScreenTopPadding, color: titleBarColor ?? UIConfig.backGroundColor(context))
               : Row(
                   children: [
                     Expanded(
@@ -111,12 +116,13 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
                         child: Container(constraints: const BoxConstraints(minHeight: UIConfig.desktopTitleBarHeight)),
                       ),
                     ),
-                    WindowCaptionButton.minimize(brightness: Theme.of(context).brightness, onPressed: toggleMinimize),
+                    WindowCaptionButton.minimize(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: toggleMinimize),
                     if (windowService.isMaximized)
-                      WindowCaptionButton.unmaximize(brightness: Theme.of(context).brightness, onPressed: windowManager.unmaximize),
+                      WindowCaptionButton.unmaximize(
+                          brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.unmaximize),
                     if (!windowService.isMaximized)
-                      WindowCaptionButton.maximize(brightness: Theme.of(context).brightness, onPressed: windowManager.maximize),
-                    WindowCaptionButton.close(brightness: Theme.of(context).brightness, onPressed: windowManager.close),
+                      WindowCaptionButton.maximize(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.maximize),
+                    WindowCaptionButton.close(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.close),
                   ],
                 ),
         ),
