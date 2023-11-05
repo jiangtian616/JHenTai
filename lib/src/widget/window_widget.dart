@@ -84,74 +84,6 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
       return widget.child;
     }
 
-    Widget child;
-    if (!GetPlatform.isWindows) {
-      child = widget.child;
-    } else {
-      child = Column(
-        children: [
-          ColoredBox(
-            color: widget.titleBarColor ?? UIConfig.backGroundColor(context),
-            child: windowService.isFullScreen
-                ? Container(height: 12, color: widget.titleBarColor ?? UIConfig.backGroundColor(context))
-                : Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onPanStart: (_) {
-                            windowManager.startDragging();
-                          },
-                          onDoubleTap: () async {
-                            bool isMaximized = await windowManager.isMaximized();
-                            if (!isMaximized) {
-                              windowManager.maximize();
-                            } else {
-                              windowManager.unmaximize();
-                            }
-                          },
-                          child: Container(constraints: const BoxConstraints(minHeight: 32)),
-                        ),
-                      ),
-                      WindowCaptionButton.minimize(
-                        brightness: Theme.of(context).brightness,
-                        onPressed: () async {
-                          bool isMinimized = await windowManager.isMinimized();
-                          if (isMinimized) {
-                            windowManager.restore();
-                          } else {
-                            windowManager.minimize();
-                          }
-                        },
-                      ),
-                      if (windowService.isMaximized)
-                        WindowCaptionButton.unmaximize(
-                          brightness: Theme.of(context).brightness,
-                          onPressed: () {
-                            windowManager.unmaximize();
-                          },
-                        ),
-                      if (!windowService.isMaximized)
-                        WindowCaptionButton.maximize(
-                          brightness: Theme.of(context).brightness,
-                          onPressed: () {
-                            windowManager.maximize();
-                          },
-                        ),
-                      WindowCaptionButton.close(
-                        brightness: Theme.of(context).brightness,
-                        onPressed: () {
-                          windowManager.close();
-                        },
-                      ),
-                    ],
-                  ),
-          ),
-          Expanded(child: widget.child),
-        ],
-      );
-    }
-
     return KeyboardListener(
       focusNode: focusNode,
       onKeyEvent: (KeyEvent event) async {
@@ -164,7 +96,89 @@ class _WindowWidgetState extends State<WindowWidget> with WindowListener {
           }
         }
       },
-      child: child,
+      child: GetPlatform.isWindows
+          ? _buildWindowsTitle()
+          : GetPlatform.isLinux
+              ? _buildLinuxTitle()
+              : _buildMaxOSTitle(),
+    );
+  }
+
+  Widget _buildWindowsTitle() {
+    return Column(
+      children: [
+        ColoredBox(
+          color: widget.titleBarColor ?? UIConfig.backGroundColor(context),
+          child: windowService.isFullScreen
+              ? Container(height: 12, color: widget.titleBarColor ?? UIConfig.backGroundColor(context))
+              : Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onPanStart: (_) {
+                          windowManager.startDragging();
+                        },
+                        onDoubleTap: () async {
+                          bool isMaximized = await windowManager.isMaximized();
+                          if (!isMaximized) {
+                            windowManager.maximize();
+                          } else {
+                            windowManager.unmaximize();
+                          }
+                        },
+                        child: Container(constraints: const BoxConstraints(minHeight: 32)),
+                      ),
+                    ),
+                    WindowCaptionButton.minimize(
+                      brightness: Theme.of(context).brightness,
+                      onPressed: () async {
+                        bool isMinimized = await windowManager.isMinimized();
+                        if (isMinimized) {
+                          windowManager.restore();
+                        } else {
+                          windowManager.minimize();
+                        }
+                      },
+                    ),
+                    if (windowService.isMaximized)
+                      WindowCaptionButton.unmaximize(
+                        brightness: Theme.of(context).brightness,
+                        onPressed: () {
+                          windowManager.unmaximize();
+                        },
+                      ),
+                    if (!windowService.isMaximized)
+                      WindowCaptionButton.maximize(
+                        brightness: Theme.of(context).brightness,
+                        onPressed: () {
+                          windowManager.maximize();
+                        },
+                      ),
+                    WindowCaptionButton.close(
+                      brightness: Theme.of(context).brightness,
+                      onPressed: () {
+                        windowManager.close();
+                      },
+                    ),
+                  ],
+                ),
+        ),
+        Expanded(child: widget.child),
+      ],
+    );
+  }
+
+  Widget _buildLinuxTitle() {
+    return _buildWindowsTitle();
+  }
+
+  Widget _buildMaxOSTitle() {
+    return Column(
+      children: [
+        Container(height: 12, color: widget.titleBarColor ?? UIConfig.backGroundColor(context)),
+        Expanded(child: widget.child),
+      ],
     );
   }
 }
