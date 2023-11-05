@@ -34,7 +34,7 @@ Install for Windows: download Windows_xxx.zip, then unpack it.
 - If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode. 
 - If it's blocked by Windows Defender, Please trust it.
 
-Install for MacOS: download .dmg. 
+Install for MacOS(No maintenance): download .dmg. 
 - Trust it in system setting.
 - If you use a proxy server, set proxy address at network setting page.
 
