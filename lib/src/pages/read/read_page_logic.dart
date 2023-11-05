@@ -104,7 +104,7 @@ class ReadPageLogic extends GetxController {
 
     /// Listen to read direction change
     readDirectionLister = ever(ReadSetting.readDirection, (_) {
-      state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
+      clearImageContainerSized();
       state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
       updateSafely([layoutId]);
     });
@@ -301,6 +301,7 @@ class ReadPageLogic extends GetxController {
   /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
   void applyCurrentImmersiveMode() {
     if (GetPlatform.isWindows) {
+      clearImageContainerSized();
       updateSafely([pageId]);
     }
 
@@ -515,5 +516,9 @@ class ReadPageLogic extends GetxController {
 
   void _flushReadProgress() {
     storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
+  }
+
+  void clearImageContainerSized() {
+    state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
   }
 }
