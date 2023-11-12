@@ -183,6 +183,7 @@ Future<void> init() async {
       size: Size(windowService.windowWidth, windowService.windowHeight),
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
+      title: 'JHenTai',
       titleBarStyle: GetPlatform.isWindows ? TitleBarStyle.hidden : TitleBarStyle.normal,
     );
 
