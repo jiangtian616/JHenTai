@@ -441,7 +441,7 @@ class EHSpiderParser {
     Element hashElement = document.querySelector('#i6 div a')!;
     String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
 
-    Element? originalImg = document.querySelector('#i6:nth-child(3) a');
+    Element? originalImg = document.querySelector('#i6 a[id]')?.parent?.nextElementSibling?.querySelector('a');
     String? originalImgHref = originalImg?.attributes['href'];
     RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
@@ -477,7 +477,7 @@ class EHSpiderParser {
     Element hashElement = document.querySelector('#i6 div a')!;
     String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
 
-    Element? originalImg = document.querySelector('#i6:nth-child(3) a');
+    Element? originalImg = document.querySelector('#i6 a[id]')?.parent?.nextElementSibling?.querySelector('a');
     String? originalImgHref = originalImg?.attributes['href'];
     RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
