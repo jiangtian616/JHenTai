@@ -1032,7 +1032,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// Instantiate [Gallery]
       if (gallerys.firstWhereOrNull((g) => g.gid == gallery.gid) == null) {
-        _initGalleryInfoInMemory(gallery);
+        // avoid sorting in every iteration!!!
+        _initGalleryInfoInMemory(gallery, sort: false);
       }
 
       /// Current image has not been parsed, no need to instantiate GalleryImage
@@ -1054,6 +1055,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         galleryDownloadInfos[gallery.gid]!.downloadProgress.hasDownloaded[record.serialNo!] = true;
       }
     }
+    // sort after instantiated
+    _sortGallerys();
   }
 
   Future<bool> _initGalleryInfo(GalleryDownloadedData gallery) async {
@@ -1116,7 +1119,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images}) {
+  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images, bool sort = true}){
     if (!allGroups.contains(gallery.groupName ?? 'default'.tr)) {
       allGroups.add(gallery.groupName ?? 'default'.tr);
     }
@@ -1143,7 +1146,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       group: gallery.groupName ?? 'default'.tr,
     );
 
-    _sortGallerys();
+    if (sort) {
+      _sortGallerys();
+    }
 
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
