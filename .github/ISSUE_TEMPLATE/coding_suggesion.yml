@@ -1,0 +1,57 @@
+name: Coding Suggestion
+description: 提出一个代码优化建议 / Propose a code optimization suggestion
+labels:
+  - "enhancement"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        由于本项目本质上仍是一个练手项目，几乎所有代码在目前看来均有一定的设计问题，如果您有任何代码优化建议，欢迎在此处提出，或者提交 PR。
+        Due to the nature of this project as primarily a learning exercise, there are currently design issues present in almost all of the code. If you have any suggestions for code optimization, please feel free to provide them here or submit a PR.
+
+
+  - type: textarea
+    id: request
+    attributes:
+      label: 代码出处 / Code source
+      description: |
+        代码的文件名、类名、行数等信息。
+        The information about the filename, class name, line count, and other details of the code.
+      placeholder: |
+        你也可以直接粘贴代码。
+        You can also directly paste the code.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 原因 / Reason
+      description: |
+        在此处描述您觉得这段代码不好的原因。如程序执行性能太低、代码耦合性高等。
+        Describe here the reasons you believe this code segment is not good, such as low program execution performance, high code coupling, and so on.
+    validations:
+      required: true
+      
+  - type: textarea
+    id: impl
+    attributes:
+      label: 建议实现 / Suggested implemention
+      description: |
+        在此处表述您建议的实现方式。你可以描述一种思路，或者给出示例代码，如果你有足够的精力，你也可以直接提交 [PR](https://github.com/jiangtian616/JHenTai/pulls)。
+        Provide your proposed implementation here. You can describe a conceptual approach, provide example code, and you can also submit a [PR](https://github.com/jiangtian616/JHenTai/pulls) directly.
+    validations:
+      required: true
+
+  - type: textarea
+    id: more
+    attributes:
+      label: 备注 / Addition details
+      description: |
+        在此处写下其他您想说的内容
+        Describe addition details here
+      placeholder: |
+        其他有用的信息与附件
+        Additional details and attachments
+    validations:
+      required: false
