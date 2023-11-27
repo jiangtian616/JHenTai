@@ -245,6 +245,21 @@ class EHItemScrollController {
     );
   }
 
+  Future<void> scrollToEnd({
+    required Duration duration,
+    Curve curve = Curves.linear,
+    List<double> opacityAnimationWeights = const [40, 20, 40],
+  }) {
+    assert(_scrollableListState != null);
+    assert(opacityAnimationWeights.length == 3);
+    assert(duration > Duration.zero);
+    return _scrollableListState!._scrollToEnd(
+      duration: duration,
+      curve: curve,
+      opacityAnimationWeights: opacityAnimationWeights,
+    );
+  }
+
   void _attach(_EHScrollablePositionedListState scrollableListState) {
     assert(_scrollableListState == null);
     _scrollableListState = scrollableListState;
@@ -480,6 +495,33 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
     }
   }
 
+  Future<void> _scrollToEnd({
+    required Duration duration,
+    Curve curve = Curves.linear,
+    required List<double> opacityAnimationWeights,
+  }) async {
+    if (_isTransitioning) {
+      _stopScroll(canceled: true);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        _startScrollOffset(
+          offset: primary.scrollController.position.maxScrollExtent - primary.scrollController.position.pixels,
+          alignment: 0,
+          duration: duration,
+          curve: curve,
+          opacityAnimationWeights: opacityAnimationWeights,
+        );
+      });
+    } else {
+      await _startScrollOffset(
+        offset: primary.scrollController.position.maxScrollExtent - primary.scrollController.position.pixels,
+        alignment: 0,
+        duration: duration,
+        curve: curve,
+        opacityAnimationWeights: opacityAnimationWeights,
+      );
+    }
+  }
+
   Future<void> _startScroll({
     required int index,
     required double alignment,
@@ -488,15 +530,13 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
     required List<double> opacityAnimationWeights,
   }) async {
     final direction = index > primary.target ? 1 : -1;
-    final itemPosition = primary.itemPositionsNotifier.itemPositions.value
-        .firstWhereOrNull((ItemPosition itemPosition) => itemPosition.index == index);
+    final itemPosition =
+        primary.itemPositionsNotifier.itemPositions.value.firstWhereOrNull((ItemPosition itemPosition) => itemPosition.index == index);
     if (itemPosition != null) {
       // Scroll directly.
       final localScrollAmount = itemPosition.itemLeadingEdge * primary.scrollController.position.viewportDimension;
       await primary.scrollController.animateTo(
-          primary.scrollController.offset +
-              localScrollAmount -
-              alignment * primary.scrollController.position.viewportDimension,
+          primary.scrollController.offset + localScrollAmount - alignment * primary.scrollController.position.viewportDimension,
           duration: duration,
           curve: curve);
     } else {
@@ -507,14 +547,13 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
         SchedulerBinding.instance.addPostFrameCallback((_) {
           startAnimationCallback = () {};
 
-          opacity.parent = _opacityAnimation(opacityAnimationWeights)
-              .animate(AnimationController(vsync: this, duration: duration)..forward());
+          opacity.parent = _opacityAnimation(opacityAnimationWeights).animate(AnimationController(vsync: this, duration: duration)..forward());
           secondary.scrollController.jumpTo(-direction *
               (_screenScrollCount * primary.scrollController.position.viewportDimension -
                   alignment * secondary.scrollController.position.viewportDimension));
 
-          startCompleter.complete(primary.scrollController
-              .animateTo(primary.scrollController.offset + direction * scrollAmount, duration: duration, curve: curve));
+          startCompleter.complete(
+              primary.scrollController.animateTo(primary.scrollController.offset + direction * scrollAmount, duration: duration, curve: curve));
           endCompleter.complete(secondary.scrollController.animateTo(0, duration: duration, curve: curve));
         });
       };
@@ -576,8 +615,7 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
     const endOpacity = 1.0;
     return TweenSequence<double>(<TweenSequenceItem<double>>[
       TweenSequenceItem<double>(tween: ConstantTween<double>(startOpacity), weight: opacityAnimationWeights[0]),
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: startOpacity, end: endOpacity), weight: opacityAnimationWeights[1]),
+      TweenSequenceItem<double>(tween: Tween<double>(begin: startOpacity, end: endOpacity), weight: opacityAnimationWeights[1]),
       TweenSequenceItem<double>(tween: ConstantTween<double>(endOpacity), weight: opacityAnimationWeights[2]),
     ]);
   }
@@ -586,8 +624,8 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
     final itemPositions = primary.itemPositionsNotifier.itemPositions.value
         .where((ItemPosition position) => position.itemLeadingEdge < 1 && position.itemTrailingEdge > 0);
     if (itemPositions.isNotEmpty) {
-      PageStorage.of(context).writeState(context,
-          itemPositions.reduce((value, element) => value.itemLeadingEdge < element.itemLeadingEdge ? value : element));
+      PageStorage.of(context)
+          .writeState(context, itemPositions.reduce((value, element) => value.itemLeadingEdge < element.itemLeadingEdge ? value : element));
     }
     widget.itemPositionsNotifier?.itemPositions.value = itemPositions;
   }

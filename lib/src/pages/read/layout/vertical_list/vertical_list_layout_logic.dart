@@ -144,14 +144,12 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
   void _enterAutoModeByScroll() {
     int restPageCount = readPageState.readPageInfo.pageCount - readPageState.readPageInfo.currentImageIndex - 1;
-    double offset = restPageCount * screenHeight;
     double totalTime = restPageCount * ReadSetting.autoModeInterval.value;
 
     readPageLogic.toggleMenu();
 
     state.itemScrollController
-        .scrollOffset(
-          offset: offset,
+        .scrollToEnd(
           duration: Duration(milliseconds: (totalTime * 1000).toInt()),
         )
         .then((_) => readPageLogic.closeAutoMode());
