@@ -316,8 +316,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.favoriteState = LoadingState.loading;
     updateSafely([addFavoriteStateId]);
 
+    bool isRemoveFavorite = favIndex == state.gallery?.favoriteTagIndex;
     try {
-      if (favIndex == state.gallery?.favoriteTagIndex) {
+      if (isRemoveFavorite) {
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
         FavoriteSetting.decrementFavByIndex(favIndex);
         state.gallery!
@@ -336,14 +337,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
       FavoriteSetting.save();
     } on DioError catch (e) {
-      Log.error('favoriteGalleryFailed'.tr, e.message);
-      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
+      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([addFavoriteStateId]);
       return;
     } on EHException catch (e) {
-      Log.error('favoriteGalleryFailed'.tr, e.message);
-      snack('favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
+      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([addFavoriteStateId]);
       return;
@@ -356,7 +357,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     updateGlobalGalleryStatus();
 
-    toast('favoriteGallerySuccess'.tr, isCenter: false);
+    toast(
+      isRemoveFavorite ? 'removeFavoriteSuccess'.tr : 'favoriteGallerySuccess'.tr,
+      isCenter: false,
+    );
   }
 
   Future<void> handleTapRating() async {

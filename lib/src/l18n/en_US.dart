@@ -117,6 +117,8 @@ class en_US {
       'failToGetThumbnails': "Fail To Get Thumbnails",
       'favoriteGallerySuccess': "Favorite Gallery Success",
       'favoriteGalleryFailed': "Favorite Gallery Failed",
+      'removeFavoriteSuccess': "Remove Favorite Success",
+      'removeFavoriteFailed': "Remove Favorite Failed",
       'ratingSuccess': 'Rating Success',
       'ratingFailed': 'Rating Failed',
       'voteTagFailed': 'Vote Tag Failed',

@@ -117,6 +117,8 @@ class ko_KR {
       'failToGetThumbnails': "섬네일 가져오기 실패",
       'favoriteGallerySuccess': "즐겨찾기 저장 성공",
       'favoriteGalleryFailed': "즐겨찾기 저장 실패",
+      'removeFavoriteSuccess': "Remove Favorite Success",
+      'removeFavoriteFailed': "Remove Favorite Failed",
       'ratingSuccess': '평가 성공',
       'ratingFailed': '평가 실패',
       'voteTagFailed': '태그 투표 실패',

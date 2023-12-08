@@ -118,6 +118,8 @@ class pt_BR {
       'failToGetThumbnails': "Falha ao obter miniaturas",
       'favoriteGallerySuccess': "Favorite Gallery Success",
       'favoriteGalleryFailed': "Falha na galeria Favorita",
+      'removeFavoriteSuccess': "Remove Favorite Success",
+      'removeFavoriteFailed': "Remove Favorite Failed",
       'ratingSuccess': 'Rating Success',
       'ratingFailed': 'Falha na avaliação',
       'voteTagFailed': 'Falha na tag de votação',
