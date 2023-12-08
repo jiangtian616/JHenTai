@@ -228,10 +228,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    String fileName = basename(readPageState.images[index]!.url);
-    if (readPageState.readPageInfo.gid != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
-    }
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
 
     if (GetPlatform.isDesktop) {
       File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
@@ -251,10 +248,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return saveOnlineImage(index);
     }
 
-    String fileName = basename(readPageState.images[index]!.url);
-    if (readPageState.readPageInfo.gid != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
-    }
+    String fileName =
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.originalImageUrl!)}';
 
     String downloadPath = join(DownloadSetting.singleImageSavePath.value, fileName);
     toast('downloading'.tr);
@@ -279,8 +274,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
 
     String fileName = basename(image.path);
-    if (readPageState.readPageInfo.gid != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_$fileName';
+    if (readPageState.readPageInfo.gid != null && readPageState.readPageInfo.token != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
     }
 
     if (GetPlatform.isDesktop) {

@@ -146,6 +146,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
         arguments: ReadPageInfo(
           mode: ReadMode.downloaded,
           gid: gallery.gid,
+          token: gallery.token,
           galleryTitle: gallery.title,
           galleryUrl: gallery.galleryUrl,
           initialIndex: readIndexRecord,

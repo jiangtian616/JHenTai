@@ -4,9 +4,12 @@ enum ReadMode { downloaded, online, archive, local }
 
 class ReadPageInfo {
   ReadMode mode;
-  
+
   /// null for local gallery
   int? gid;
+
+  /// null for local gallery
+  String? token;
 
   String galleryTitle;
 
@@ -25,13 +28,14 @@ class ReadPageInfo {
 
   /// used for archive&local
   List<GalleryImage>? images;
-    
+
   /// used for initialize
   bool useSuperResolution;
-  
+
   ReadPageInfo({
     required this.mode,
     this.gid,
+    this.token,
     required this.galleryTitle,
     this.galleryUrl,
     required this.initialIndex,
