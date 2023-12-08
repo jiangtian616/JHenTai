@@ -271,7 +271,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                           ? Icons.play_arrow
                           : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
                               ? Icons.done
-                              : Icons.pause,
+                              : Icons.file_open,
                   color: UIConfig.downloadPageGridTextColor,
                 ),
         ),
