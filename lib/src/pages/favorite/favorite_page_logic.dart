@@ -8,6 +8,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/widget/eh_favorite_sort_order_dialog.dart';
 
 import '../../exception/eh_exception.dart';
+import '../../model/search_config.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
 import '../../utils/snack_util.dart';
@@ -99,5 +100,10 @@ class FavoritePageLogic extends BasePageLogic {
     }
 
     updateSafely();
+  }
+
+  @override
+  void saveSearchConfig(SearchConfig searchConfig) {
+    storageService.write('searchConfig: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
   }
 }
