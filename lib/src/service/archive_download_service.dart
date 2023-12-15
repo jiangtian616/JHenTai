@@ -335,11 +335,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         continue;
       }
 
-      _initArchiveInMemory(archive);
+      _initArchiveInMemory(archive, sort: false);
 
       restoredCount++;
     }
-
+    _sortArchives();
     return restoredCount;
   }
 
@@ -697,8 +697,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
 
     for (ArchiveDownloadedData archive in archives) {
-      _initArchiveInMemory(archive);
+      _initArchiveInMemory(archive, sort: false);
     }
+    _sortArchives();
   }
 
   Future<bool> _initArchiveInfo(ArchiveDownloadedData archive) async {
@@ -775,7 +776,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initArchiveInMemory(ArchiveDownloadedData archive) {
+  void _initArchiveInMemory(ArchiveDownloadedData archive, {bool sort = true}) {
     if (!allGroups.contains(archive.groupName ?? 'default'.tr)) {
       allGroups.add(archive.groupName ?? 'default'.tr);
     }
@@ -794,7 +795,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       group: archive.groupName ?? 'default'.tr,
     );
 
-    _sortArchives();
+    if (sort) _sortArchives();
     update([galleryCountChangedId, '$archiveStatusId::::${archive.gid}']);
   }
 

@@ -431,11 +431,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         continue;
       }
 
-      _initGalleryInfoInMemory(gallery, images: images);
+      _initGalleryInfoInMemory(gallery, images: images, sort: false);
 
       restoredCount++;
     }
-
+    _sortGallerys();
     return restoredCount;
   }
 
