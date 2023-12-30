@@ -9,7 +9,7 @@ class SimpleDashboardPageLogic extends BasePageLogic {
 
   @override
   String get searchConfigKey => 'DashboardPageLogic';
-  
+
   @override
   SimpleDashboardPageState state = SimpleDashboardPageState();
 

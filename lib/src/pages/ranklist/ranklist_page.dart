@@ -4,7 +4,6 @@ import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
-
 class RanklistPage extends BasePage {
   const RanklistPage({
     Key? key,

@@ -24,7 +24,7 @@ mixin ArchiveDownloadPageMixin on StatelessWidget implements Scroll2TopPageMixin
   MultiSelectDownloadPageLogicMixin get multiSelectDownloadPageLogic => archiveDownloadPageLogic;
 
   @override
-  MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState =>archiveDownloadPageState;
+  MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => archiveDownloadPageState;
 
   @override
   List<Widget> buildBottomAppBarButtons() {

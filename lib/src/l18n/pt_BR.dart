@@ -142,8 +142,7 @@ class pt_BR {
       'score': 'Pontuação',
       'NotOnTheList': 'Não está na lista',
       'getGalleryArchiveFailed': 'Falha ao obter arquivo da galeria',
-      'parseGalleryArchiveFailed':
-          'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
+      'parseGalleryArchiveFailed': 'Falha na análise, certifique-se de que seu [Archiver Settings] em e-hentai é [Manual Select, Manual Start (Default)]',
       'original': 'Original',
       'resample': 'Redimensionamento',
       'beginToDownloadArchive': 'Começar a baixar o arquivo',
@@ -399,6 +398,7 @@ class pt_BR {
       /// read setting page
       'enableImmersiveMode': 'Habilitar modo imersivo',
       'keepScreenAwakeWhenReading': 'Keep Screen Awake When Reading',
+      'enableCustomReadBrightness': 'Enable Custom Brightness When Reading',
       'spaceBetweenImages': 'Space Between Images',
       'enableImmersiveHint': 'Esconder barra do sistema',
       'enableImmersiveHint4Windows': 'Hide Title Bar',
@@ -480,10 +480,8 @@ class pt_BR {
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
       'downloadHelpInfo':
           'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
-      'localGalleryHelpInfo':
-          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
-      'localGalleryHelpInfo4iOSAndMacOS':
-          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Prioridade',
       'highest': 'Alta',

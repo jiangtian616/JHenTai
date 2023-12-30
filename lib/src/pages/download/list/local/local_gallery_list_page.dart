@@ -45,8 +45,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.local),
       leading: IconButton(
         icon: const Icon(Icons.help),
-        onPressed: () =>
-            toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
+        onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       actions: [
         IconButton(
@@ -233,8 +232,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(gallery.title,
-            maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
+        Text(gallery.title, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
         const Expanded(child: SizedBox()),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,

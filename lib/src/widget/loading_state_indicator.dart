@@ -69,7 +69,8 @@ class LoadingStateIndicator extends StatelessWidget {
       case LoadingState.loading:
         child = loadingWidget ??
             (useCupertinoIndicator
-                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
+                ? CupertinoActivityIndicator(
+                    radius: indicatorRadius, color: indicatorColor)
                 : Center(child: UIConfig.loadingAnimation(context)));
         break;
       case LoadingState.error:
@@ -78,17 +79,24 @@ class LoadingStateIndicator extends StatelessWidget {
                 ? idleWidget!
                 : GestureDetector(
                     onTap: errorTapCallback,
-                    child: Icon(FontAwesomeIcons.redoAlt, size: indicatorRadius * 2, color: UIConfig.loadingStateIndicatorButtonColor(context)),
+                    child: Icon(FontAwesomeIcons.redoAlt,
+                        size: indicatorRadius * 2,
+                        color:
+                            UIConfig.loadingStateIndicatorButtonColor(context)),
                   ));
         break;
       case LoadingState.idle:
         child = idleWidget ??
             (useCupertinoIndicator
-                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
+                ? CupertinoActivityIndicator(
+                    radius: indicatorRadius, color: indicatorColor)
                 : Center(child: UIConfig.loadingAnimation(context)));
         break;
       case LoadingState.noMore:
-        child = noMoreWidget ?? Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context)));
+        child = noMoreWidget ??
+            Text('noMoreData'.tr,
+                style: TextStyle(
+                    color: UIConfig.loadingStateIndicatorButtonColor(context)));
         break;
       case LoadingState.success:
         if (successWidgetSameWithIdle == true) {
@@ -102,7 +110,11 @@ class LoadingStateIndicator extends StatelessWidget {
       case LoadingState.noData:
         child = GestureDetector(
           onTap: noDataTapCallback,
-          child: noDataWidget ?? Text('noData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
+          child: noDataWidget ??
+              Text('noData'.tr,
+                  style: TextStyle(
+                      color:
+                          UIConfig.loadingStateIndicatorButtonColor(context))),
         );
         break;
     }

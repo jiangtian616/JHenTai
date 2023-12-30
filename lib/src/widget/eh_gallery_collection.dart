@@ -108,10 +108,7 @@ Widget EHGalleryCollection({
     );
   }
 
-  if (listMode == ListMode.flat ||
-      listMode == ListMode.flatWithoutTags ||
-      listMode == ListMode.listWithoutTags ||
-      listMode == ListMode.listWithTags) {
+  if (listMode == ListMode.flat || listMode == ListMode.flatWithoutTags || listMode == ListMode.listWithoutTags || listMode == ListMode.listWithTags) {
     return _buildGalleryList();
   }
 

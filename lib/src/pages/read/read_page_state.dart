@@ -37,7 +37,7 @@ class ReadPageState with ScrollStatusListerState {
   FocusNode focusNode = FocusNode();
 
   late Size imageRegionSize;
-  
+
   final EHItemScrollController thumbnailsScrollController = EHItemScrollController();
   final ItemPositionsListener thumbnailPositionsListener = ItemPositionsListener.create();
 

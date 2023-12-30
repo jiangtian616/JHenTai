@@ -16,7 +16,6 @@ import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
-import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -102,8 +101,7 @@ class EHRequest {
       if (isEmptyOrNull(NetworkSetting.proxyUsername.value) && isEmptyOrNull(NetworkSetting.proxyPassword.value)) {
         configAddress = NetworkSetting.proxyAddress.value;
       } else {
-        configAddress =
-            '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
+        configAddress = '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
       }
       return configAddress;
     }
@@ -760,7 +758,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     emitEHExceptionIfFailed(response);
-    
+
     return response;
   }
 
@@ -789,7 +787,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     emitEHExceptionIfFailed(response);
-    
+
     return response;
   }
 
@@ -804,7 +802,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         );
       }
     }
-    
+
     return e;
   }
 

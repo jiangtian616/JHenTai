@@ -34,6 +34,8 @@ enum AutoModeStyle {
 class ReadSetting {
   static RxBool enableImmersiveMode = true.obs;
   static RxBool keepScreenAwakeWhenReading = true.obs;
+  static RxBool enableCustomReadBrightness = false.obs;
+  static RxInt customBrightness = 50.obs;
   static RxInt imageSpace = 6.obs;
   static RxBool showThumbnails = true.obs;
   static RxBool showStatusInfo = true.obs;
@@ -54,7 +56,7 @@ class ReadSetting {
   static RxBool displayFirstPageAlone = true.obs;
   static RxBool reverseTurnPageDirection = false.obs;
   static RxBool disableGestureWhenScrolling = true.obs;
-  
+
   static bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
       readDirection.value == ReadDirection.left2rightList ||
@@ -107,6 +109,18 @@ class ReadSetting {
   static saveKeepScreenAwakeWhenReading(bool value) {
     Log.debug('saveKeepScreenAwakeWhenReading:$value');
     keepScreenAwakeWhenReading.value = value;
+    _save();
+  }
+
+  static saveEnableCustomReadBrightness(bool value) {
+    Log.debug('saveEnableCustomReadBrightness:$value');
+    enableCustomReadBrightness.value = value;
+    _save();
+  }
+
+  static saveCustomBrightness(int value) {
+    Log.debug('saveCustomBrightness:$value');
+    customBrightness.value = value;
     _save();
   }
 
@@ -223,7 +237,7 @@ class ReadSetting {
     reverseTurnPageDirection.value = value;
     _save();
   }
-  
+
   static saveDisableGestureWhenScrolling(bool value) {
     Log.debug('saveDisableGestureWhenScrolling:$value');
     disableGestureWhenScrolling.value = value;
@@ -238,6 +252,8 @@ class ReadSetting {
     return {
       'enableImmersiveMode': enableImmersiveMode.value,
       'keepScreenAwakeWhenReading': keepScreenAwakeWhenReading.value,
+      'enableCustomReadBrightness': enableCustomReadBrightness.value,
+      'customBrightness': customBrightness.value,
       'imageSpace': imageSpace.value,
       'showThumbnails': showThumbnails.value,
       'showStatusInfo': showStatusInfo.value,
@@ -264,6 +280,8 @@ class ReadSetting {
   static _initFromMap(Map<String, dynamic> map) {
     enableImmersiveMode.value = map['enableImmersiveMode'];
     keepScreenAwakeWhenReading.value = map['keepScreenAwakeWhenReading'] ?? keepScreenAwakeWhenReading.value;
+    enableCustomReadBrightness.value = map['enableCustomReadBrightness'] ?? enableCustomReadBrightness.value;
+    customBrightness.value = map['customBrightness'] ?? customBrightness.value;
     imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;

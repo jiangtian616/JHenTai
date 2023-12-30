@@ -5,7 +5,6 @@ import '../../base/base_page_logic.dart';
 import '../mixin/search_page_logic_mixin.dart';
 
 class DesktopSearchPageTabLogic extends BasePageLogic with SearchPageLogicMixin {
-
   @override
   final DesktopSearchPageTabState state = DesktopSearchPageTabState();
 

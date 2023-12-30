@@ -1,4 +1,3 @@
-import 'package:extended_image/extended_image.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -93,7 +92,7 @@ void newSearchWithConfig(SearchConfig searchConfig, [bool forceNewRoute = false]
     SearchPageMobileV2Logic.current!.handleClearAndRefresh();
     return;
   }
-  
+
   toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith(), preventDuplicates: false);
 }
 

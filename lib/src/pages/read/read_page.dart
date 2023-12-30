@@ -421,9 +421,8 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => logic.jump2ImageIndex(index),
-                      child: state.readPageInfo.mode == ReadMode.online
-                          ? _buildThumbnailInOnlineMode(context, index)
-                          : _buildThumbnailInLocalMode(context, index),
+                      child:
+                          state.readPageInfo.mode == ReadMode.online ? _buildThumbnailInOnlineMode(context, index) : _buildThumbnailInLocalMode(context, index),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -442,9 +441,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                           (index + 1).toString(),
                           style: TextStyle(
                             fontSize: 9,
-                            color: state.readPageInfo.currentImageIndex == index
-                                ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context)
-                                : null,
+                            color: state.readPageInfo.currentImageIndex == index ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(context) : null,
                           ),
                         ),
                       ),
@@ -514,9 +511,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(ReadSetting.isInRight2LeftDirection
-                    ? state.readPageInfo.pageCount.toString()
-                    : (state.readPageInfo.currentImageIndex + 1).toString())
+            Text(ReadSetting.isInRight2LeftDirection ? state.readPageInfo.pageCount.toString() : (state.readPageInfo.currentImageIndex + 1).toString())
                 .marginOnly(left: 36, right: 4),
             Expanded(
               child: Column(
@@ -541,9 +536,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ],
               ),
             ),
-            Text(ReadSetting.isInRight2LeftDirection
-                    ? (state.readPageInfo.currentImageIndex + 1).toString()
-                    : state.readPageInfo.pageCount.toString())
+            Text(ReadSetting.isInRight2LeftDirection ? (state.readPageInfo.currentImageIndex + 1).toString() : state.readPageInfo.pageCount.toString())
                 .marginOnly(right: 36, left: 4),
           ],
         ),

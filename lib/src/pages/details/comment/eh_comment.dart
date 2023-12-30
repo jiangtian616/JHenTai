@@ -219,7 +219,7 @@ class _EHCommentTextBody extends StatelessWidget {
       if (inDetailPage) {
         return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: UIConfig.commentLinkColor));
       }
-      
+
       String url = node.attributes['src']!.replaceAll('s.exhentai.org', 'ehgt.org');
       return WidgetSpan(
         child: LayoutBuilder(

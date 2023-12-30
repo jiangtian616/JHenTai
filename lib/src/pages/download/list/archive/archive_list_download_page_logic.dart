@@ -58,7 +58,7 @@ class ArchiveListDownloadPageLogic extends GetxController
     for (String group in state.displayGroups) {
       archives.addAll(archiveDownloadService.archivesWithGroup(group));
     }
-    
+
     multiSelectDownloadPageState.selectedGids.addAll(archives.map((archive) => archive.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }

@@ -29,12 +29,11 @@ class StyleSetting {
   static RxnInt crossAxisCountInDetailPage = RxnInt(null);
   static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
-  static Rx<LayoutMode> layout =
-      PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-          ? LayoutMode.mobileV2.obs
-          : GetPlatform.isDesktop
-              ? LayoutMode.desktop.obs
-              : LayoutMode.tabletV2.obs;
+  static Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+      ? LayoutMode.mobileV2.obs
+      : GetPlatform.isDesktop
+          ? LayoutMode.desktop.obs
+          : LayoutMode.tabletV2.obs;
 
   static bool get isInWaterFlowListMode =>
       listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
@@ -111,7 +110,7 @@ class StyleSetting {
     StyleSetting.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
     _save();
   }
-  
+
   static saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) {
     Log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
     StyleSetting.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;

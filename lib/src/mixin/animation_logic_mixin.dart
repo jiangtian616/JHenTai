@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 /// Copied from [AnimationMixin]
-mixin AnimationLogicMixin on GetTickerProviderStateMixin  {
+mixin AnimationLogicMixin on GetTickerProviderStateMixin {
   final _controllerInstances = <AnimationController>[];
 
   AnimationController createController({bool unbounded = false, int? fps, String? updateId}) {
@@ -21,7 +21,7 @@ mixin AnimationLogicMixin on GetTickerProviderStateMixin  {
         controller.addListener(() => update([updateId]));
       }
     } else {
-      _addFrameLimitingUpdater(controller, fps,updateId);
+      _addFrameLimitingUpdater(controller, fps, updateId);
     }
 
     return controller;

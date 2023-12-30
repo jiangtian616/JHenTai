@@ -397,6 +397,7 @@ class en_US {
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',
       'keepScreenAwakeWhenReading': 'Keep Screen Awake When Reading',
+      'enableCustomReadBrightness': 'Enable Custom Brightness When Reading',
       'spaceBetweenImages': 'Space Between Images',
       'enableImmersiveHint': 'Hide System Bar',
       'enableImmersiveHint4Windows': 'Hide Title Bar',
@@ -477,10 +478,8 @@ class en_US {
       'reUnlock': 'Re-Unlock',
       'reUnlockHint': 'Attention! Re-unlock need to buy this archive again.',
       'downloadHelpInfo': 'If you can\'t download and find errors like table doesn\'t exist in logs, please uninstall current app and re-install.',
-      'localGalleryHelpInfo':
-          'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
-      'localGalleryHelpInfo4iOSAndMacOS':
-          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Priority',
       'highest': 'Highest',

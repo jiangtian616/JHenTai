@@ -81,8 +81,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
             contentPadding: EdgeInsets.zero,
             labelStyle: const TextStyle(fontSize: 15),
             floatingLabelStyle: const TextStyle(fontSize: 10),
-            labelText:
-                state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
             prefixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
@@ -266,8 +265,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
                     duration: const Duration(milliseconds: 500),
                     child: ListTile(
                       title: RichText(
-                          text: highlightKeyword(
-                              context, '${tagData.namespace} : ${tagData.key}', state.searchConfig.keyword?.split(' ').last ?? '', false)),
+                          text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', state.searchConfig.keyword?.split(' ').last ?? '', false)),
                       subtitle: tagData.tagName == null
                           ? null
                           : RichText(

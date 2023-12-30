@@ -35,7 +35,7 @@ class RenderEHReadPageStack extends RenderStack {
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
     bool hit = false;
-    
+
     RenderBox? child = lastChild;
     while (child != null) {
       final ContainerBoxParentData<RenderBox> childParentData = child.parentData! as ContainerBoxParentData<RenderBox>;

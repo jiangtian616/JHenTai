@@ -35,7 +35,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   @override
   void toRight() {
     if (ReadSetting.isInRight2LeftDirection) {
-       toPrev();
+      toPrev();
     } else {
       toNext();
     }

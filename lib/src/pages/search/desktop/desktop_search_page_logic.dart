@@ -20,7 +20,7 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
 
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
-  
+
   DesktopSearchPageTabLogic get currentTabLogic => state.tabLogics[state.currentTabIndex];
 
   void handleClearAndRefresh() {

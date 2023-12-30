@@ -7,7 +7,6 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/table.dart';
-import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 

@@ -168,12 +168,13 @@ class AppUpdateService extends GetxService {
 
         StorageService storageService = Get.find<StorageService>();
 
-        Map<String, dynamic>? map = storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
+        Map<String, dynamic>? map =
+            storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
         if (map != null) {
           storageService.write('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
       }
-      
+
       if (oldVersion <= 7) {
         Log.info('Clear super-resulotion setting');
         SuperResolutionSetting.saveModelDirectoryPath(null);

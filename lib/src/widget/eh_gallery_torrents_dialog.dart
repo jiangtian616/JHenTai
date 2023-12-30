@@ -110,8 +110,7 @@ class _TorrentList extends StatelessWidget {
                   torrent.torrentUrl.replaceFirst('https://exhentai.org/torrent', 'https://ehtracker.org/get'),
                   mode: LaunchMode.externalApplication,
                 ),
-                child:
-                    Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumePauseButtonColor(context))),
+                child: Text(torrent.title, style: TextStyle(fontSize: UIConfig.torrentDialogTitleSize, color: UIConfig.resumePauseButtonColor(context))),
               ),
               subtitle: Row(
                 children: [

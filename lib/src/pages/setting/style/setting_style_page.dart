@@ -140,7 +140,7 @@ class SettingStylePage extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildCrossAxisCountInDetailPage() {
     return ListTile(
       title: Text('crossAxisCountInDetailPage'.tr),

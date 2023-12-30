@@ -117,7 +117,7 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
         shouldRender: true,
       ),
     ];
-    
+
     selectedTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == PreferenceSetting.defaultTab.value) ?? 0;
     icons[selectedTabIndex].shouldRender = true;
   }

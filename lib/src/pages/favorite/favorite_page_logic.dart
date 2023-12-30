@@ -53,7 +53,7 @@ class FavoritePageLogic extends BasePageLogic {
     jump2Top();
 
     updateSafely();
-    
+
     GalleryPageInfo galleryPage;
     try {
       galleryPage = await EHRequest.requestChangeFavoriteSortOrder(

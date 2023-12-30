@@ -121,8 +121,7 @@ class UIConfig {
 
   static Color waterFallFlowCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.05);
 
-  static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) =>
-      backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
+  static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) => backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
 
   static const double galleryCardFilteredIconSize = 24;
 

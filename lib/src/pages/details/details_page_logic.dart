@@ -31,7 +31,6 @@ import 'package:jhentai/src/widget/eh_gallery_stat_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';

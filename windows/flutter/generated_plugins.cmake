@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   local_auth_windows
   permission_handler_windows
+  screen_brightness_windows
   screen_retriever
   sentry_flutter
   smart_auth

@@ -49,7 +49,9 @@ class LocalTagSetsPage extends StatelessWidget {
               title: Text(MyTagsSetting.localTagSets[index].translatedNamespace == null
                   ? '${MyTagsSetting.localTagSets[index].namespace}:${MyTagsSetting.localTagSets[index].key}'
                   : '${MyTagsSetting.localTagSets[index].translatedNamespace}:${MyTagsSetting.localTagSets[index].tagName}'),
-              subtitle: MyTagsSetting.localTagSets[index].translatedNamespace == null ? null : Text('${MyTagsSetting.localTagSets[index].namespace}:${MyTagsSetting.localTagSets[index].key}'),
+              subtitle: MyTagsSetting.localTagSets[index].translatedNamespace == null
+                  ? null
+                  : Text('${MyTagsSetting.localTagSets[index].namespace}:${MyTagsSetting.localTagSets[index].key}'),
               onTap: () => logic.handleDeleteLocalTag(index),
             ),
           ),

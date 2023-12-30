@@ -1,13 +1,9 @@
-import 'dart:io';
-
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
 

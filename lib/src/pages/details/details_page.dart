@@ -878,8 +878,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
             Icon icon = archiveStatus == null
-                ? Icon(Icons.archive,
-                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
                 : archiveStatus == ArchiveStatus.paused
                     ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
                     : archiveStatus == ArchiveStatus.completed
@@ -916,8 +915,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.cloud_download,
-              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon:
+              Icon(Icons.cloud_download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'H@H',
             style: TextStyle(
@@ -942,8 +941,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.saved_search,
-              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.saved_search, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'similar'.tr,
             style: TextStyle(
@@ -970,8 +968,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.file_present,
-              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.file_present, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             text,
             style: TextStyle(
@@ -996,8 +993,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.analytics,
-              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.analytics, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'statistic'.tr,
             style: TextStyle(

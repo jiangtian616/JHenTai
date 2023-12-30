@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 
 import '../../../../setting/read_setting.dart';
@@ -92,11 +91,11 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void toggleDisplayFirstPageAlone(){
+  void toggleDisplayFirstPageAlone() {
     state.pageCount = computePageCount();
     updateSafely([BaseLayoutLogic.pageId]);
   }
-  
+
   @override
   void enterAutoMode() {
     _enterAutoModeByTurnPage();

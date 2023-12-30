@@ -257,7 +257,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
 
   Future<void> handleDeleteSearchHistory(SearchHistory history) async {
     await searchHistoryService.deleteHistory(history);
-    
+
     /// exit delete mode if there's no history
     if (searchHistoryService.histories.isEmpty) {
       state.inDeleteSearchHistoryMode = false;

@@ -302,7 +302,10 @@ class _GalleryInfoFooter extends StatelessWidget {
             _buildRatingBar(context),
             Text(
               DateUtil.transform2LocalTimeString(gallery.publishTime),
-              style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context), decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
+              style: TextStyle(
+                  fontSize: UIConfig.galleryCardTextSize,
+                  color: UIConfig.galleryCardTextColor(context),
+                  decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
             ),
           ],
         ),

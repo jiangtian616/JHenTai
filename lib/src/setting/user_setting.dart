@@ -48,7 +48,7 @@ class UserSetting {
     UserSetting.nickName.value = nickName;
     save();
   }
-  
+
   static Future<void> saveDefaultFavoriteIndex(int? index) async {
     Log.debug('saveDefaultFavoriteIndex: $index');
     UserSetting.defaultFavoriteIndex.value = index;

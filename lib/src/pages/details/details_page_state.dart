@@ -12,7 +12,7 @@ class DetailsPageState with Scroll2TopStateMixin {
 
   /// initial param and may be updated after we get the gallery details
   Gallery? gallery;
-  
+
   GalleryDetail? galleryDetails;
 
   /// used for rating

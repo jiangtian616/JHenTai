@@ -15,10 +15,10 @@ class WindowService extends GetxService {
 
   double windowWidth = 1280;
   double windowHeight = 720;
-  
+
   bool isMaximized = false;
   bool isFullScreen = false;
-  
+
   double leftColumnWidthRatio = 1 - 0.618;
 
   final Debouncing windowResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
@@ -66,14 +66,14 @@ class WindowService extends GetxService {
 
   void saveMaximizeWindow(bool isMaximized) {
     Log.info(isMaximized ? 'Maximized window' : 'Restored window');
-    
+
     this.isMaximized = isMaximized;
     storageService.write('windowMaximize', isMaximized);
   }
 
   void saveFullScreen(bool isFullScreen) {
     Log.info(isFullScreen ? 'Enter full screen' : 'Leave full screen');
-    
+
     this.isFullScreen = isFullScreen;
     storageService.write('windowFullScreen', isFullScreen);
   }

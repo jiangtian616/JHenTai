@@ -27,8 +27,7 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.help),
-        onPressed: () =>
-            toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
+        onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
@@ -51,8 +50,7 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
         ? logic.localGalleryService.rootDirectories.map((dir) => DraggableGridItem(child: groupBuilder(context, dir, false))).toList()
         : [
             DraggableGridItem(child: ReturnWidget(onTap: logic.backRoute)),
-            ...?logic.localGalleryService.path2SubDir[logic.currentPath]
-                ?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
+            ...?logic.localGalleryService.path2SubDir[logic.currentPath]?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
             ...state.currentGalleryObjects.map((gallery) => DraggableGridItem(child: galleryBuilder(context, gallery, false))),
           ];
   }

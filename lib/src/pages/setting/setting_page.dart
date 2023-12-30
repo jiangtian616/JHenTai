@@ -64,12 +64,11 @@ class SettingPage extends StatelessWidget {
               title: Text('download'.tr),
               onTap: () => toRoute(Routes.settingPrefix + 'download'),
             ),
-            if (StyleSetting.actualLayout == LayoutMode.desktop && GetPlatform.isDesktop)
-              ListTile(
-                leading: const Icon(Icons.mouse),
-                title: Text('mouseWheel'.tr),
-                onTap: () => toRoute(Routes.settingPrefix + 'mouse_wheel'),
-              ),
+            ListTile(
+              leading: const Icon(Icons.mouse),
+              title: Text('mouseWheel'.tr),
+              onTap: () => toRoute(Routes.settingPrefix + 'mouse_wheel'),
+            ),
             ListTile(
               leading: const Icon(Icons.settings_suggest),
               title: Text('advanced'.tr),

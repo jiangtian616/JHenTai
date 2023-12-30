@@ -159,12 +159,14 @@ class _EHExecutor implements EHExecutor {
         streamController.close();
       }
     }
+
     completeWithError(e, st) {
       if (!streamController.isClosed) {
         streamController.addError(e as Object, st as StackTrace);
       }
       complete();
     }
+
     streamController
       ..onCancel = complete
       ..onPause = (() => streamSubscription?.pause())

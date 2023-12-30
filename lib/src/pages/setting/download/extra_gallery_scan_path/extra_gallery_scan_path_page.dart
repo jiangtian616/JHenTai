@@ -27,7 +27,8 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: DownloadSetting.extraGalleryScanPath
               .map(
-                (path) => ListTile(title: Text(path), onTap: () => _handleDelete(path)),
+                (path) => ListTile(
+                    title: Text(path), onTap: () => _handleDelete(path)),
               )
               .toList(),
         ),

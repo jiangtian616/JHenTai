@@ -75,7 +75,9 @@ class AddLocalTagPage extends StatelessWidget {
             onTap: () => logic.toggleLocalTag(state.tags[index]),
             title: highlightKeyword(
               context,
-              state.tags[index].translatedNamespace == null ? '${state.tags[index].namespace}:${state.tags[index].key}' : '${state.tags[index].translatedNamespace}:${state.tags[index].tagName}',
+              state.tags[index].translatedNamespace == null
+                  ? '${state.tags[index].namespace}:${state.tags[index].key}'
+                  : '${state.tags[index].translatedNamespace}:${state.tags[index].tagName}',
               state.keyword ?? '',
               false,
             ),

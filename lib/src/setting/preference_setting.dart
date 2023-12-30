@@ -119,7 +119,7 @@ class PreferenceSetting {
     PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
     _save();
   }
-  
+
   static saveLaunchInFullScreen(bool launchInFullScreen) {
     Log.debug('saveLaunchInFullScreen:$launchInFullScreen');
     PreferenceSetting.launchInFullScreen.value = launchInFullScreen;

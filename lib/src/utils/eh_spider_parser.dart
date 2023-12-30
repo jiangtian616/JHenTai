@@ -45,8 +45,7 @@ class EHSpiderParser {
       map['ipbMemberId'] = int.parse(
         RegExp(r'ipb_member_id=(\d+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_member_id')))!.group(1)!,
       );
-      map['ipbPassHash'] =
-          RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
+      map['ipbPassHash'] = RegExp(r'ipb_pass_hash=(\w+);').firstMatch(cookieHeaders.firstWhere((header) => header.contains('ipb_pass_hash')))!.group(1)!;
     } else {
       map['errorMsg'] = _parseLoginErrorMsg(data);
     }

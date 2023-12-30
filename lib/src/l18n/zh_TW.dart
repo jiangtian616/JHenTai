@@ -396,6 +396,7 @@ class zh_TW {
       /// read setting page
       'enableImmersiveMode': '開啟沉浸模式',
       'keepScreenAwakeWhenReading': '閱讀時屏幕不自動鎖定',
+      'enableCustomReadBrightness': '閱讀頁自定義亮度',
       'spaceBetweenImages': '圖片間隔',
       'enableImmersiveHint': '隱藏系統狀態欄和底部導航列',
       'enableImmersiveHint4Windows': '隱藏頂部標題欄',

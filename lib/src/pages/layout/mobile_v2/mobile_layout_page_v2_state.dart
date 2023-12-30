@@ -33,8 +33,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
   ScrollController scrollController = ScrollController();
 
   /// selectedNavigationIndex's order in [shouldRender] tabs
-  int get selectedDrawerTabOrder =>
-      icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedDrawerTabIndex].name);
+  int get selectedDrawerTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedDrawerTabIndex].name);
 
   static GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 

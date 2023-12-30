@@ -5,7 +5,7 @@ import '../../widget/eh_scrollable_positioned_list.dart';
 
 class HorizontalListLayoutState {
   final PhotoViewController photoViewController = PhotoViewController();
-  
+
   final EHItemScrollController itemScrollController = EHItemScrollController();
   final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
 }

@@ -21,6 +21,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:throttling/throttling.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -76,6 +77,8 @@ class ReadPageLogic extends GetxController {
   late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
   late Worker displayFirstPageAloneListener;
+  late Worker enableCustomBrightnessListener;
+  late Worker customBrightnessListener;
 
   final EHExecutor executor = EHExecutor(
     concurrency: 10,
@@ -117,7 +120,7 @@ class ReadPageLogic extends GetxController {
         updateSafely([topMenuId, bottomMenuId]);
       }
     });
-    
+
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
     }
@@ -141,6 +144,20 @@ class ReadPageLogic extends GetxController {
     if (ReadSetting.keepScreenAwakeWhenReading.isTrue) {
       WakelockPlus.enable();
     }
+
+    if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
+      applyCurrentBrightness();
+    }
+    enableCustomBrightnessListener = ever(ReadSetting.enableCustomReadBrightness, (_) {
+      if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
+        applyCurrentBrightness();
+      } else {
+        resetBrightness();
+      }
+    });
+    customBrightnessListener = ever(ReadSetting.customBrightness, (_) {
+      applyCurrentBrightness();
+    });
   }
 
   @override
@@ -153,6 +170,8 @@ class ReadPageLogic extends GetxController {
     readDirectionLister.dispose();
     flushReadProgressTimer.cancel();
     displayFirstPageAloneListener.dispose();
+    enableCustomBrightnessListener.dispose();
+    customBrightnessListener.dispose();
 
     restoreVolumeListener();
 
@@ -161,6 +180,10 @@ class ReadPageLogic extends GetxController {
     restoreDeviceOrientation();
 
     _flushReadProgress();
+
+    if (ReadSetting.enableCustomReadBrightness.isTrue) {
+      resetBrightness();
+    }
 
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
@@ -325,6 +348,18 @@ class ReadPageLogic extends GetxController {
   void restoreImmersiveMode() {
     if (GetPlatform.isMobile) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+  }
+
+  void applyCurrentBrightness() {
+    if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
+      ScreenBrightness().setScreenBrightness(ReadSetting.customBrightness.value.toDouble() / 100);
+    }
+  }
+
+  void resetBrightness() {
+    if (GetPlatform.isMobile) {
+      ScreenBrightness().resetScreenBrightness();
     }
   }
 

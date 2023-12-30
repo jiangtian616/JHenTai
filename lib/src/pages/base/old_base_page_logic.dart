@@ -75,7 +75,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     }
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
-    
+
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
     state.gallerys = gallerysAndPageInfo[0];
@@ -126,7 +126,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
-    
+
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
     state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
@@ -169,7 +169,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
-    
+
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
 
     state.gallerys.addAll(gallerysAndPageInfo[0]);

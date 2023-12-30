@@ -21,6 +21,8 @@ class SettingReadPage extends StatelessWidget {
             children: [
               if (GetPlatform.isMobile || GetPlatform.isWindows) _buildEnableImmersiveMode().center(),
               _buildKeepScreenAwake().center(),
+              if (GetPlatform.isMobile) _buildEnableCustomReadBrightness().center(),
+              if (GetPlatform.isMobile) _buildCustomReadBrightness().center(),
               _buildShowThumbnails().center(),
               _buildShowStatusInfo().center(),
               if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
@@ -34,11 +36,9 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
               _buildReadDirection().center(),
-              if (ReadSetting.isInListReadDirection)
-                _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
+              if (ReadSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
               if (!ReadSetting.isInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
-              if (ReadSetting.isInDoubleColumnReadDirection)
-                _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
+              if (ReadSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               if (ReadSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (ReadSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
               _buildImageSpace().center(),
@@ -61,6 +61,33 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('keepScreenAwakeWhenReading'.tr),
       trailing: Switch(value: ReadSetting.keepScreenAwakeWhenReading.value, onChanged: ReadSetting.saveKeepScreenAwakeWhenReading),
+    );
+  }
+
+  Widget _buildEnableCustomReadBrightness() {
+    return ListTile(
+      title: Text('enableCustomReadBrightness'.tr),
+      trailing: Switch(value: ReadSetting.enableCustomReadBrightness.value, onChanged: ReadSetting.saveEnableCustomReadBrightness),
+    );
+  }
+
+  Widget _buildCustomReadBrightness() {
+    return Row(
+      children: [
+        const SizedBox(width: 16),
+        const Icon(Icons.brightness_6),
+        const SizedBox(width: 16),
+        Text(ReadSetting.customBrightness.value.toString()),
+        Expanded(
+          child: Slider(
+            value: ReadSetting.customBrightness.value.toDouble(),
+            onChanged: (double value) => ReadSetting.saveCustomBrightness(value.toInt()),
+            min: 0,
+            max: 100,
+          ),
+        ),
+        const SizedBox(width: 16),
+      ],
     );
   }
 

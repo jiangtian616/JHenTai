@@ -43,7 +43,8 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     Widget child = Card(
       child: Column(
         children: [
-          if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium) Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
+          if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium)
+            Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
           if (listMode == ListMode.waterfallFlowBig) _buildCover(),
           if (listMode == ListMode.waterfallFlowMedium) _buildMediumInfo(context),
           if (listMode == ListMode.waterfallFlowBig) _buildBigInfo(context),
@@ -152,7 +153,8 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
         ).marginOnly(right: 4),
-        if (gallery.language != null) Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
+        if (gallery.language != null)
+          Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
         if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
       ],
     );

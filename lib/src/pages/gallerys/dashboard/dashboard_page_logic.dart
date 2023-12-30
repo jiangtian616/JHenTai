@@ -27,7 +27,7 @@ class DashboardPageLogic extends BasePageLogic {
 
   @override
   String get searchConfigKey => 'DashboardPageLogic';
-  
+
   @override
   DashboardPageState state = DashboardPageState();
 

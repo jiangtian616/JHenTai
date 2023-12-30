@@ -104,8 +104,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
         ColoredBox(
           color: titleBarColor ?? UIConfig.backGroundColor(context),
           child: windowService.isFullScreen
-              ? Container(
-                  height: fullScreenTopPadding ?? UIConfig.desktopFullScreenTopPadding, color: titleBarColor ?? UIConfig.backGroundColor(context))
+              ? Container(height: fullScreenTopPadding ?? UIConfig.desktopFullScreenTopPadding, color: titleBarColor ?? UIConfig.backGroundColor(context))
               : Row(
                   children: [
                     Expanded(
@@ -118,8 +117,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
                     ),
                     WindowCaptionButton.minimize(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: toggleMinimize),
                     if (windowService.isMaximized)
-                      WindowCaptionButton.unmaximize(
-                          brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.unmaximize),
+                      WindowCaptionButton.unmaximize(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.unmaximize),
                     if (!windowService.isMaximized)
                       WindowCaptionButton.maximize(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.maximize),
                     WindowCaptionButton.close(brightness: titleBarBrightness ?? Theme.of(context).brightness, onPressed: windowManager.close),

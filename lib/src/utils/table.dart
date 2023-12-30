@@ -27,7 +27,7 @@ class Table<K1, K2, V> {
   }
 
   Iterable<TableEntry<K1, K2, V>> entries() {
-    return data.entries.mapMany((entry){
+    return data.entries.mapMany((entry) {
       return entry.value.entries.map((e) => TableEntry(entry.key, e.key, e.value));
     });
   }

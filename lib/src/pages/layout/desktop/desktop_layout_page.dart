@@ -66,8 +66,7 @@ class DesktopLayoutPage extends StatelessWidget {
             child: Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  border:
-                      state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context))) : null,
+                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context))) : null,
                 ),
                 child: IconButton(
                   onPressed: () => logic.handleTapTabBarButton(index),
