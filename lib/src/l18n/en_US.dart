@@ -286,6 +286,7 @@ class en_US {
       'pageListStyle': 'Gallery List Style (Page)',
       'crossAxisCountInGridDownloadPageForGroup': 'Download Page Grid Column Count(Group)',
       'crossAxisCountInGridDownloadPageForGallery': 'Download Page Grid Column Count(Gallery)',
+      'crossAxisCountInDetailPage': 'Detail Page Thumbnail Column Count',
       'global': 'Global',
       'auto': 'Auto',
       'moveCover2RightSide': 'Move Cover to Right Side',

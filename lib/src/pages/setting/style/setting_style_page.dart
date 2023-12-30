@@ -26,6 +26,7 @@ class SettingStylePage extends StatelessWidget {
             _buildPageListMode(),
             _buildCrossAxisCountInGridDownloadPageForGroup(),
             _buildCrossAxisCountInGridDownloadPageForGallery(),
+            _buildCrossAxisCountInDetailPage(),
             if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildLayout(context),
           ],
@@ -128,6 +129,26 @@ class SettingStylePage extends StatelessWidget {
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: StyleSetting.saveCrossAxisCountInGridDownloadPageForGallery,
+        items: [
+          DropdownMenuItem(child: Text('auto'.tr), value: null),
+          DropdownMenuItem(child: Text('2'.tr), value: 2),
+          DropdownMenuItem(child: Text('3'.tr), value: 3),
+          DropdownMenuItem(child: Text('4'.tr), value: 4),
+          DropdownMenuItem(child: Text('5'.tr), value: 5),
+          DropdownMenuItem(child: Text('6'.tr), value: 6),
+        ],
+      ),
+    );
+  }
+  
+  Widget _buildCrossAxisCountInDetailPage() {
+    return ListTile(
+      title: Text('crossAxisCountInDetailPage'.tr),
+      trailing: DropdownButton<int?>(
+        value: StyleSetting.crossAxisCountInDetailPage.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: StyleSetting.saveCrossAxisCountInDetailPage,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),

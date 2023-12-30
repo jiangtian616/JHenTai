@@ -286,6 +286,7 @@ class ko_KR {
       'pageListStyle': '갤러리 리스트 스타일 (개별)',
       'crossAxisCountInGridDownloadPageForGroup': '다운로드 페이지 그리드 정렬 세로줄 개수(폴더)',
       'crossAxisCountInGridDownloadPageForGallery': '다운로드 페이지 그리드 정렬 세로줄 개수(폴더 내부)',
+      'crossAxisCountInDetailPage': 'Detail Page Thumbnail Column Count',
       'global': '기본값',
       'auto': '자동',
       'moveCover2RightSide': '섬네일을 오른쪽으로 배치',

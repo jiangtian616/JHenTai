@@ -286,6 +286,7 @@ class zh_CN {
       'crossAxisCountInGridDownloadPage': '下载页网格布局列数',
       'crossAxisCountInGridDownloadPageForGroup': '下载页网格布局列数(分组)',
       'crossAxisCountInGridDownloadPageForGallery': '下载页网格布局列数(画廊)',
+      'crossAxisCountInDetailPage': '详情页缩略图列数',
       'global': '全局',
       'auto': '自动',
       'moveCover2RightSide': '移动封面图至右侧',

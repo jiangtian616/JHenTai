@@ -285,6 +285,7 @@ class zh_TW {
       'pageListStyle': '畫廊列表樣式(頁面)',
       'crossAxisCountInGridDownloadPageForGroup': '下載頁網格布局列數(分組)',
       'crossAxisCountInGridDownloadPageForGallery': '下載頁網格布局列數(畫廊)',
+      'crossAxisCountInDetailPage': '詳情頁縮略圖列數',
       'global': '全局',
       'auto': '自動',
       'moveCover2RightSide': '移動封面圖至右側',

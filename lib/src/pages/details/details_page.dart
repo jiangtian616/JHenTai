@@ -1154,12 +1154,19 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               },
               childCount: state.galleryDetails?.thumbnails.length ?? 0,
             ),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
-              maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 5,
-            ),
+            gridDelegate: StyleSetting.crossAxisCountInDetailPage.value == null
+                ? const SliverGridDelegateWithMaxCrossAxisExtent(
+                    mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
+                    maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 5,
+                  )
+                : SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: StyleSetting.crossAxisCountInDetailPage.value!,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 5,
+                    childAspectRatio: UIConfig.detailsPageGridViewCardAspectRatio,
+                  ),
           ),
         ),
       ),

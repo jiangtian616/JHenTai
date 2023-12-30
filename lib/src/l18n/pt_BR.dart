@@ -288,6 +288,7 @@ class pt_BR {
       'pageListStyle': 'Gallery List Style (Page)',
       'crossAxisCountInGridDownloadPageForGroup': 'Download Page Grid Column Count(Group)',
       'crossAxisCountInGridDownloadPageForGallery': 'Download Page Grid Column Count(Gallery)',
+      'crossAxisCountInDetailPage': 'Detail Page Thumbnail Column Count',
       'global': 'Global',
       'auto': 'Auto',
       'moveCover2RightSide': 'Mover a tampa para o lado direito',

@@ -26,6 +26,7 @@ class StyleSetting {
   static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
   static RxnInt crossAxisCountInGridDownloadPageForGroup = RxnInt(null);
   static RxnInt crossAxisCountInGridDownloadPageForGallery = RxnInt(null);
+  static RxnInt crossAxisCountInDetailPage = RxnInt(null);
   static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   static RxBool moveCover2RightSide = false.obs;
   static Rx<LayoutMode> layout =
@@ -110,6 +111,12 @@ class StyleSetting {
     StyleSetting.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
     _save();
   }
+  
+  static saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) {
+    Log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
+    StyleSetting.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
+    _save();
+  }
 
   static savePageListMode(String routeName, ListMode? listMode) {
     Log.debug('savePageListMode:$routeName, $listMode');
@@ -146,6 +153,7 @@ class StyleSetting {
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
       'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,
       'crossAxisCountInGridDownloadPageForGallery': crossAxisCountInGridDownloadPageForGallery.value,
+      'crossAxisCountInDetailPage': crossAxisCountInDetailPage.value,
       'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
@@ -160,6 +168,7 @@ class StyleSetting {
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
     crossAxisCountInGridDownloadPageForGroup.value = map['crossAxisCountInGridDownloadPageForGroup'];
     crossAxisCountInGridDownloadPageForGallery.value = map['crossAxisCountInGridDownloadPageForGallery'];
+    crossAxisCountInDetailPage.value = map['crossAxisCountInDetailPage'];
     pageListMode.value = Map.from(map['pageListMode']?.map((route, listModeIndex) => MapEntry(route, ListMode.values[listModeIndex])) ?? {});
     moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];

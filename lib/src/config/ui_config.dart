@@ -65,11 +65,9 @@ class UIConfig {
   static const double tabBarHeight = 36;
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
-  
 
   static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant;
 
-  
   static Color desktopLeftTabIconColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
   static const double desktopTitleBarHeight = 32;
   static const double desktopFullScreenTopPadding = 12;
@@ -186,6 +184,7 @@ class UIConfig {
 
   static const double detailsPageThumbnailHeight = 200;
   static const double detailsPageThumbnailWidth = 150;
+  static const double detailsPageGridViewCardAspectRatio = 0.75;
 
   static const int detailsPageAnimationDuration = 150;
 
