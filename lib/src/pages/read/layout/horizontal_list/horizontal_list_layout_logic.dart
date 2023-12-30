@@ -232,7 +232,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size(double.infinity, readPageState.imageRegionSize.height),
+      Size(double.infinity, readPageState.displayRegionSize.height),
     );
   }
 }

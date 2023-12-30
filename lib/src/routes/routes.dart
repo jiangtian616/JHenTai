@@ -248,7 +248,7 @@ class Routes {
     ),
     EHPage(
       name: settingRead,
-      page: () => const SettingReadPage(),
+      page: () => SettingReadPage(),
       transition: defaultTransition,
     ),
     EHPage(

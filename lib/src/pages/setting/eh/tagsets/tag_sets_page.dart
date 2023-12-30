@@ -12,6 +12,7 @@ import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../../utils/route_util.dart';
+import '../../../../utils/text_input_formatter.dart';
 import '../../../../widget/loading_state_indicator.dart';
 
 class TagSetsPage extends StatelessWidget {
@@ -181,7 +182,7 @@ class _Tag extends StatelessWidget {
         textAlign: TextAlign.center,
         inputFormatters: [
           FilteringTextInputFormatter.allow(RegExp(r'[\d-]')),
-          NumberRangeTextInputFormatter(minValue: -99, maxValue: 99),
+          IntRangeTextInputFormatter(minValue: -99, maxValue: 99),
         ],
         onSubmitted: onWeightUpdated,
       ),
@@ -190,31 +191,6 @@ class _Tag extends StatelessWidget {
 }
 
 enum TagSetStatus { watched, hidden, nope }
-
-class NumberRangeTextInputFormatter extends TextInputFormatter {
-  double? minValue;
-  double? maxValue;
-
-  NumberRangeTextInputFormatter({this.minValue, this.maxValue});
-
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.text.isEmpty || (minValue != null && minValue! < 0 && newValue.text == '-')) {
-      return newValue;
-    }
-
-    double newNum = double.tryParse(newValue.text) ?? -100;
-
-    if (minValue != null && newNum < minValue!) {
-      return oldValue;
-    }
-    if (maxValue != null && newNum > maxValue!) {
-      return oldValue;
-    }
-
-    return newValue;
-  }
-}
 
 class _ColorSettingDialog extends StatefulWidget {
   final Color initialColor;

@@ -150,8 +150,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
       Size(
-        isSpreadPage ? readPageState.imageRegionSize.width : (readPageState.imageRegionSize.width - ReadSetting.imageSpace.value) / 2,
-        readPageState.imageRegionSize.height,
+        isSpreadPage ? readPageState.displayRegionSize.width : (readPageState.displayRegionSize.width - ReadSetting.imageSpace.value) / 2,
+        readPageState.displayRegionSize.height,
       ),
     );
   }

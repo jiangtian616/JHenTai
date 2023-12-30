@@ -5,8 +5,8 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 
+import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
-import '../eh/tagsets/tag_sets_page.dart';
 
 class SettingMouseWheelPage extends StatelessWidget {
   const SettingMouseWheelPage({Key? key}) : super(key: key);
@@ -32,7 +32,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                       controller: wheelScrollSpeedController,
                       decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
                       textAlign: TextAlign.center,
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d|\.')), NumberRangeTextInputFormatter(minValue: 0)],
+                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d|\.')), DoubleRangeTextInputFormatter(minValue: 0)],
                       onSubmitted: (_) {
                         double? value = double.tryParse(wheelScrollSpeedController.value.text);
                         if (value == null) {

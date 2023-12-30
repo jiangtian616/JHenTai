@@ -406,6 +406,7 @@ class pt_BR {
       'landscape': 'Landscape',
       'portrait': 'Portrait',
       'readDirection': 'Direção da leitura',
+      'imageRegionWidthRatio': 'Image Region Width Ratio',
       'useThirdPartyViewer': 'Usar visualizador personaliado',
       'thirdPartyViewerPath': 'Localização do visualizador personalizado(Arquivo executável)',
       'showThumbnails': 'Mostrar miniaturas',

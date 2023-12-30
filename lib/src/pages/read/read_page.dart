@@ -140,7 +140,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
         return LayoutBuilder(
           builder: (context, constraints) {
             logic.clearImageContainerSized();
-            state.imageRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
+            state.displayRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
 
             if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
               return VerticalListLayout();

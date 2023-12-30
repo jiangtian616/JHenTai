@@ -405,6 +405,7 @@ class zh_CN {
       'landscape': '横屏',
       'portrait': '竖屏',
       'readDirection': '阅读方向',
+      'imageRegionWidthRatio': '图片区域宽度比例',
       'useThirdPartyViewer': '使用第三方阅读器',
       'thirdPartyViewerPath': '第三方阅读器路径（可执行文件）',
       'showThumbnails': '显示缩略图',

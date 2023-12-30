@@ -404,6 +404,7 @@ class zh_TW {
       'landscape': '橫屏',
       'portrait': '豎屏',
       'readDirection': '閱讀方向',
+      'imageRegionWidthRatio': '圖片區域寬度比例',
       'useThirdPartyViewer': '使用第三方閱讀器',
       'thirdPartyViewerPath': '第三方閱讀器路徑（可執行文件）',
       'showThumbnails': '顯示快取圖',

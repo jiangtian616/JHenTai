@@ -290,6 +290,7 @@ class UIConfig {
   static const int searchPageAnimationDuration = 250;
 
   /// Read page
+  static const Color readPageBackGroundColor = Colors.black;
   static const Color readPageForeGroundColor = Colors.white;
 
   static Color get readPageMenuColor => Colors.black.withOpacity(0.85);

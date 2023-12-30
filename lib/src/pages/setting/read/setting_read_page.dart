@@ -1,14 +1,19 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../../../utils/log.dart';
+import '../../../utils/text_input_formatter.dart';
+import '../../../utils/toast_util.dart';
 
 class SettingReadPage extends StatelessWidget {
-  const SettingReadPage({Key? key}) : super(key: key);
+  final TextEditingController imageRegionWidthRatioController = TextEditingController(text: ReadSetting.imageRegionWidthRatio.value.toString());
+
+  SettingReadPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +41,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
               _buildReadDirection().center(),
+              if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) _buildImageRegionWidthRatio(context).center(),
               if (ReadSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
               if (!ReadSetting.isInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
               if (ReadSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
@@ -127,7 +133,7 @@ class SettingReadPage extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).marginOnly(right: 12);
   }
 
   Widget _buildShowThumbnails() {
@@ -219,6 +225,47 @@ class SettingReadPage extends StatelessWidget {
         items: ReadDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
       ).marginOnly(right: 12),
     );
+  }
+
+  Widget _buildImageRegionWidthRatio(BuildContext context) {
+    return ListTile(
+      title: Text('imageRegionWidthRatio'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: imageRegionWidthRatioController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 1, maxValue: 100),
+              ],
+              onSubmitted: (_) {
+                _saveImageRegionWidthRatio();
+              },
+            ),
+          ),
+          const Text('%'),
+          IconButton(
+            onPressed: _saveImageRegionWidthRatio,
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    ).marginOnly(right: 12);
+  }
+
+  void _saveImageRegionWidthRatio() {
+    int? value = int.tryParse(imageRegionWidthRatioController.value.text);
+    if (value == null) {
+      return;
+    }
+    ReadSetting.saveImageRegionWidthRatio(value);
+    toast('saveSuccess'.tr);
   }
 
   Widget _buildUseThirdPartyViewer() {

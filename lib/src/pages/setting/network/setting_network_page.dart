@@ -7,8 +7,8 @@ import 'package:jhentai/src/setting/network_setting.dart';
 
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
-import '../eh/tagsets/tag_sets_page.dart';
 
 class SettingNetworkPage extends StatelessWidget {
   final TextEditingController proxyAddressController = TextEditingController(text: NetworkSetting.proxyAddress.value);
@@ -93,11 +93,12 @@ class SettingNetworkPage extends StatelessWidget {
             width: 50,
             child: TextField(
               controller: connectTimeoutController,
+              keyboardType: TextInputType.number,
               decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                NumberRangeTextInputFormatter(minValue: 0),
+                IntRangeTextInputFormatter(minValue: 0),
               ],
             ),
           ),
@@ -133,7 +134,7 @@ class SettingNetworkPage extends StatelessWidget {
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                NumberRangeTextInputFormatter(minValue: 0),
+                IntRangeTextInputFormatter(minValue: 0),
               ],
             ),
           ),

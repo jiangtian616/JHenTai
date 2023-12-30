@@ -46,6 +46,7 @@ class ReadSetting {
   static RxBool enableBottomMenu = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  static RxInt imageRegionWidthRatio = 100.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
   static RxDouble autoModeInterval = 2.0.obs;
@@ -165,6 +166,12 @@ class ReadSetting {
     readDirection.value = value;
     _save();
   }
+  
+  static saveImageRegionWidthRatio(int value) {
+    Log.debug('saveImageRegionWidthRatio:$value');
+    imageRegionWidthRatio.value = value;
+    _save();
+  }
 
   static saveUseThirdPartyViewer(bool value) {
     Log.debug('saveUseThirdPartyViewer:$value');
@@ -266,6 +273,7 @@ class ReadSetting {
       'autoModeStyle': autoModeStyle.value.index,
       'deviceDirection': deviceDirection.value.index,
       'readDirection': readDirection.value.index,
+      'imageRegionWidthRatio': imageRegionWidthRatio.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
@@ -294,6 +302,7 @@ class ReadSetting {
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
+    imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];

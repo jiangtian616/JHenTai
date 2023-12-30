@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -11,7 +13,11 @@ import '../../../../utils/screen_size_util.dart';
 import '../base/base_layout_logic.dart';
 
 class VerticalListLayoutLogic extends BaseLayoutLogic {
+  final String verticalLayoutId = 'verticalLayoutId';
+
   VerticalListLayoutState state = VerticalListLayoutState();
+
+  late Worker imageRegionWidthRatioListener;
 
   @override
   void onInit() {
@@ -19,6 +25,16 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
     /// record reading progress and sync thumbnails list index
     state.itemPositionsListener.itemPositions.addListener(_readProgressListener);
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+
+    imageRegionWidthRatioListener = ever(ReadSetting.imageRegionWidthRatio, (int value) {
+      readPageLogic.clearImageContainerSized();
+      updateSafely([verticalLayoutId]);
+    });
   }
 
   @override
@@ -212,5 +228,24 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
   double _getVisibleHeight() {
     return screenHeight - Get.mediaQuery.padding.bottom - (ReadSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
+  }
+
+  /// Compute image container size when we haven't parsed image's size
+  @override
+  Size getPlaceHolderSize(int imageIndex) {
+    if (readPageState.imageContainerSizes[imageIndex] != null) {
+      return readPageState.imageContainerSizes[imageIndex]!;
+    }
+    return Size(readPageState.displayRegionSize.width * ReadSetting.imageRegionWidthRatio.value / 100, readPageState.displayRegionSize.height / 2);
+  }
+
+  /// Compute image container size
+  @override
+  FittedSizes getImageFittedSize(Size imageSize) {
+    return applyBoxFit(
+      BoxFit.contain,
+      Size(imageSize.width, imageSize.height),
+      Size(readPageState.displayRegionSize.width * ReadSetting.imageRegionWidthRatio.value / 100, double.infinity),
+    );
   }
 }

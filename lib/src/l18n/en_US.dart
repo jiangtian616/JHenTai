@@ -405,6 +405,7 @@ class en_US {
       'landscape': 'Landscape',
       'portrait': 'Portrait',
       'readDirection': 'Read Direction',
+      'imageRegionWidthRatio': 'Image Region Width Ratio',
       'useThirdPartyViewer': 'Use Custom Viewer',
       'thirdPartyViewerPath': 'Custom Viewer Path(Executable file)',
       'showThumbnails': 'Show Thumbnails',

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -20,34 +21,47 @@ class VerticalListLayout extends BaseLayout {
 
   @override
   Widget buildBody(BuildContext context) {
-    /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
-    return PhotoViewGallery.builder(
-      itemCount: 1,
-      builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewController,
-        initialScale: 1.0,
-        minScale: 1.0,
-        maxScale: 2.5,
-        scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-        enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
-        child: EHWheelSpeedControllerForReadPage(
-          scrollController: state.itemScrollController,
-          child: EHScrollablePositionedList.separated(
-            physics: const ClampingScrollPhysics(),
-            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                ? ReadSetting.preloadDistance * screenHeight * 1
-                : GetPlatform.isIOS
-                    ? 3 * screenHeight
-                    : 8 * screenHeight,
-            initialScrollIndex: readPageState.readPageInfo.initialIndex,
-            itemCount: readPageState.readPageInfo.pageCount,
-            itemScrollController: state.itemScrollController,
-            itemPositionsListener: state.itemPositionsListener,
-            itemBuilder: (context, index) =>
-                readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
-            separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
+    return GetBuilder<VerticalListLayoutLogic>(
+      id: logic.verticalLayoutId,
+      builder: (_) => Row(
+        children: [
+          Expanded(flex: 100 - ReadSetting.imageRegionWidthRatio.value, child: Container(color: UIConfig.readPageBackGroundColor)),
+
+          /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
+          Expanded(
+            flex: ReadSetting.imageRegionWidthRatio.value * 2,
+            child: PhotoViewGallery.builder(
+              itemCount: 1,
+              builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
+                controller: state.photoViewController,
+                initialScale: 1.0,
+                minScale: 1.0,
+                maxScale: 2.5,
+                scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+                enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+                child: EHWheelSpeedControllerForReadPage(
+                  scrollController: state.itemScrollController,
+                  child: EHScrollablePositionedList.separated(
+                    physics: const ClampingScrollPhysics(),
+                    minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                        ? ReadSetting.preloadDistance * screenHeight * 1
+                        : GetPlatform.isIOS
+                            ? 3 * screenHeight
+                            : 8 * screenHeight,
+                    initialScrollIndex: readPageState.readPageInfo.initialIndex,
+                    itemCount: readPageState.readPageInfo.pageCount,
+                    itemScrollController: state.itemScrollController,
+                    itemPositionsListener: state.itemPositionsListener,
+                    itemBuilder: (context, index) =>
+                        readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+                    separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
+                  ),
+                ),
+              ),
+            ),
           ),
-        ),
+          Expanded(flex: 100 - ReadSetting.imageRegionWidthRatio.value, child: Container(color: UIConfig.readPageBackGroundColor)),
+        ],
       ),
     );
   }

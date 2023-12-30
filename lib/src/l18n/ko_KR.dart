@@ -405,6 +405,7 @@ class ko_KR {
       'landscape': 'Landscape',
       'portrait': 'Portrait',
       'readDirection': '읽는 방향',
+      'imageRegionWidthRatio': 'Image Region Width Ratio',
       'useThirdPartyViewer': '커스텀 뷰어 사용',
       'thirdPartyViewerPath': '커스텀 뷰어 경로(실행 파일)',
       'showThumbnails': '섬네일 보기',
