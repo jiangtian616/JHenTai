@@ -40,8 +40,6 @@ class EHRequest {
       receiveTimeout: NetworkSetting.receiveTimeout.value,
     ));
 
-    _init404Handler();
-
     _initDomainFronting();
 
     await _initProxy();
@@ -55,28 +53,6 @@ class EHRequest {
     isolate = StatefulIsolate();
 
     Log.debug('init EHRequest success');
-  }
-
-  /// error handler
-  static void _init404Handler() {
-    _dio.interceptors.add(
-      InterceptorsWrapper(
-        onError: (e, ErrorInterceptorHandler handler) {
-          if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
-            String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
-            if (!isEmptyOrNull(errMessage)) {
-              e.error = EHException(
-                type: EHExceptionType.galleryDeleted,
-                message: errMessage!,
-                shouldPauseAllDownloadTasks: false,
-              );
-            }
-          }
-
-          handler.next(e);
-        },
-      ),
-    );
   }
 
   /// domain fronting for dio and proxy
@@ -577,8 +553,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return parser(response.headers, response.data);
   }
 
-  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String tag, bool isVotingUp,
-      {EHHtmlParser<T>? parser}) async {
+  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String tag, bool isVotingUp, {EHHtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
@@ -770,15 +745,22 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
-    Response response = await _dio.get(
-      url,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-      onReceiveProgress: onReceiveProgress,
-    );
+    Response response;
 
-    _handleResponseError(response);
+    try {
+      response = await _dio.get(
+        url,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+      );
+    } on DioError catch (e) {
+      throw _convertExceptionIfGalleryDeleted(e);
+    }
+
+    emitEHExceptionIfFailed(response);
+    
     return response;
   }
 
@@ -791,21 +773,42 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    Response response = await _dio.post(
-      url,
-      data: data,
-      queryParameters: queryParameters,
-      options: options,
-      cancelToken: cancelToken,
-      onSendProgress: onSendProgress,
-      onReceiveProgress: onReceiveProgress,
-    );
+    Response response;
+    try {
+      response = await _dio.post(
+        url,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+        onReceiveProgress: onReceiveProgress,
+      );
+    } on DioError catch (e) {
+      throw _convertExceptionIfGalleryDeleted(e);
+    }
 
-    _handleResponseError(response);
+    emitEHExceptionIfFailed(response);
+    
     return response;
   }
 
-  static void _handleResponseError(Response response) {
+  static Exception _convertExceptionIfGalleryDeleted(DioError e) {
+    if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
+      String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
+      if (!isEmptyOrNull(errMessage)) {
+        throw EHException(
+          type: EHExceptionType.galleryDeleted,
+          message: errMessage!,
+          shouldPauseAllDownloadTasks: false,
+        );
+      }
+    }
+    
+    return e;
+  }
+
+  static void emitEHExceptionIfFailed(Response response) {
     if (response.data is String) {
       String data = response.data.toString();
 

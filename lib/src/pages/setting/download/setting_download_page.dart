@@ -38,6 +38,9 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   final ScrollController scrollController = ScrollController();
 
+  final RegExp _galleryPathPattern = RegExp(r'\d+ - .*');
+  final RegExp _archivePathPattern = RegExp(r'Archive - \d+ - .*');
+
   @override
   void dispose() {
     super.dispose();
@@ -296,17 +299,25 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     /// copy directories first
     for (io.Directory oldDir in oldDirs) {
-      io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
-      futures.add(newDir.create(recursive: true));
+      if (_isJHenTaiGalleryDirectory(oldDir.path)) {
+        io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
+        futures.add(newDir.create(recursive: true));
+      }
     }
     await Future.wait(futures);
     futures.clear();
 
     /// then copy files
     for (io.File oldFile in oldFiles) {
-      futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
+      if (_isJHenTaiGalleryDirectory(oldFile.parent.path)) {
+        futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
+      }
     }
     await Future.wait(futures);
+  }
+
+  bool _isJHenTaiGalleryDirectory(String path) {
+    return _galleryPathPattern.hasMatch(path) || _archivePathPattern.hasMatch(path);
   }
 
   Future<void> _handleChangeSingleImageSavePath() async {
