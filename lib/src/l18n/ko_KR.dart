@@ -223,10 +223,11 @@ class ko_KR {
       /// eh setting page
       'site': '사이트',
       'redirect2Eh': '사용 가능하면 EH로 재요청',
+      'profileSetting': 'Profile Setting',
+      'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': '사이트 내부 설정',
+      'siteSettingHint': 'Edit site setting in e-hentai',
       'showCookie': '쿠키 정보',
-      'useSeparateProfile': '분리된 프로필 사용',
-      'editProfileHint': '프로필 수정',
       'redirect2EH': '사용 가능하면 EH 사이트로 재요청',
       'redirect2Hints': 'EH 사이트 분석을 먼저 합니다.',
       'pleaseLogInToOperate': '실행하려면 로그인하세요',
@@ -248,6 +249,9 @@ class ko_KR {
       'deleteTagSetSuccess': '태그 목록 삭제 성공',
       'deleteTagSetFailed': '태그 목록 삭제 실패',
       'addLocalTagHint': 'Search to add new tag',
+
+      /// Profile Setting page
+      'selectedProfile': 'Selected Profile',
 
       /// add host mapping dialog
       'addHostMapping': 'Add Host Mapping',

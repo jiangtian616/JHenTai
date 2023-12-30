@@ -21,6 +21,7 @@ import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
+import 'package:jhentai/src/model/profile.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/color_util.dart';
@@ -525,38 +526,53 @@ class EHSpiderParser {
     ).toList();
   }
 
-  static Map<String, dynamic> settingPage2SiteSetting(Headers headers, dynamic data) {
+  static ({List<Profile> profiles, FrontPageDisplayType frontPageDisplayType, bool isLargeThumbnail, int thumbnailRows}) settingPage2SiteSetting(
+      Headers headers, dynamic data) {
     Document document = parse(data as String);
     List<Element> items = document.querySelectorAll('.optouter');
-    Map<String, dynamic> map = {};
 
-    List<Element> profiles = document.querySelectorAll('#profile_form > select > option');
-    map['jHenTaiProfileNo'] = profiles.singleWhereOrNull((profile) => profile.text == 'JHenTai')?.attributes['value'];
+    List<Element> profileElements = document.querySelectorAll('#profile_form > select > option');
+    List<Profile> profiles = profileElements
+        .map((e) => Profile(
+              number: int.parse(e.attributes['value']!),
+              name: e.text,
+              selected: e.attributes['selected'] != null,
+            ))
+        .toList();
 
     Element frontPageSetting = items[8];
     String type = frontPageSetting.querySelector('div > p > label > input[checked=checked]')!.parent!.text;
 
+    FrontPageDisplayType frontPageDisplayType;
     switch (type) {
       case ' Minimal':
-        map['frontPageDisplayType'] = FrontPageDisplayType.minimal;
+        frontPageDisplayType = FrontPageDisplayType.minimal;
         break;
       case ' Minimal+':
-        map['frontPageDisplayType'] = FrontPageDisplayType.minimalPlus;
+        frontPageDisplayType = FrontPageDisplayType.minimalPlus;
         break;
       case ' Compact':
-        map['frontPageDisplayType'] = FrontPageDisplayType.compact;
+        frontPageDisplayType = FrontPageDisplayType.compact;
         break;
       case ' Extended':
-        map['frontPageDisplayType'] = FrontPageDisplayType.extended;
+        frontPageDisplayType = FrontPageDisplayType.extended;
         break;
       case ' Thumbnail':
-        map['frontPageDisplayType'] = FrontPageDisplayType.thumbnail;
+        frontPageDisplayType = FrontPageDisplayType.thumbnail;
         break;
+      default:
+        frontPageDisplayType = FrontPageDisplayType.minimal;
     }
 
-    map['isLargeThumbnail'] = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
-    map['thumbnailRows'] = int.parse(document.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
-    return map;
+    bool isLargeThumbnail = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    int thumbnailRows = int.parse(document.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
+
+    return (
+      profiles: profiles,
+      frontPageDisplayType: frontPageDisplayType,
+      isLargeThumbnail: isLargeThumbnail,
+      thumbnailRows: thumbnailRows,
+    );
   }
 
   static Map<String, int> homePage2ImageLimit(Headers headers, dynamic data) {

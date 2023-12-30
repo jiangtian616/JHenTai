@@ -117,8 +117,8 @@ class zh_CN {
       'failToGetThumbnails': "获取画廊缩略图数据失败",
       'favoriteGallerySuccess': "收藏画廊成功",
       'favoriteGalleryFailed': "收藏画廊失败",
-      'removeFavoriteSuccess':  "取消收藏成功",
-      'removeFavoriteFailed':  "取消收藏失败",
+      'removeFavoriteSuccess': "取消收藏成功",
+      'removeFavoriteFailed': "取消收藏失败",
       'ratingSuccess': '评分成功',
       'ratingFailed': '评分失败',
       'voteTagFailed': '投票标签失败',
@@ -222,10 +222,11 @@ class zh_CN {
       /// eh setting page
       'site': '站点',
       'redirect2Eh': '优先重定向至表站',
+      'profileSetting': 'Profile设置',
+      'chooseProfileHint': '选择在JHenTai中使用的Profile',
       'siteSetting': '站点设置',
+      'siteSettingHint': '更改E站个人设置',
       'showCookie': '查看 Cookie',
-      'useSeparateProfile': '使用单独的 Profile',
-      'editProfileHint': '选择并编辑 Profile',
       'redirect2EH': '画廊链接重定向至表站(如果可用)',
       'redirect2Hints': '会先尝试解析表站',
       'pleaseLogInToOperate': '请登陆后操作',
@@ -247,6 +248,9 @@ class zh_CN {
       'deleteTagSetSuccess': '删除标签数据成功',
       'deleteTagSetFailed': '删除标签数据失败',
       'addLocalTagHint': '搜索添加新标签',
+
+      /// Profile Setting page
+      'selectedProfile': '当前使用的Profile',
 
       /// add host mapping dialog
       'addHostMapping': '添加自定义Host',

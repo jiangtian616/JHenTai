@@ -55,7 +55,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildSiteSegmentControl(),
-            _buildUseSeparateProfile(),
+            _buildProfile(),
             _buildSiteSetting(),
             _buildImageLimit(),
             _buildAssets(),
@@ -80,17 +80,19 @@ class _SettingEHPageState extends State<SettingEHPage> {
     );
   }
 
-  Widget _buildUseSeparateProfile() {
+  Widget _buildProfile() {
     return ListTile(
-      title: Text('useSeparateProfile'.tr),
-      trailing: Switch(value: SiteSetting.useSeparateProfile.value, onChanged: SiteSetting.saveUseSeparateProfile),
+      title: Text('profileSetting'.tr),
+      subtitle: Text('chooseProfileHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.profile),
     );
   }
 
   Widget _buildSiteSetting() {
     return ListTile(
       title: Text('siteSetting'.tr),
-      subtitle: Text('editProfileHint'.tr),
+      subtitle: Text('siteSettingHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () async {
         if (GetPlatform.isDesktop) {

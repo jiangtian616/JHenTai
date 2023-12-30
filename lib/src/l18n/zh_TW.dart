@@ -117,8 +117,8 @@ class zh_TW {
       'failToGetThumbnails': "獲取畫廊快取圖數據失敗",
       'favoriteGallerySuccess': "收藏畫廊成功",
       'favoriteGalleryFailed': "收藏畫廊失敗",
-      'removeFavoriteSuccess':  "取消收藏成功",
-      'removeFavoriteFailed':  "取消收藏失敗",
+      'removeFavoriteSuccess': "取消收藏成功",
+      'removeFavoriteFailed': "取消收藏失敗",
       'ratingSuccess': '評分成功',
       'ratingFailed': '評分失敗',
       'voteTagFailed': '投票標籤失敗',
@@ -222,10 +222,11 @@ class zh_TW {
       /// eh setting page
       'site': '站點',
       'redirect2Eh': '優先重定向至表站',
+      'profileSetting': 'Profile設定',
+      'chooseProfileHint': '选择在JHenTai中使用的Profile',
       'siteSetting': '站點設定',
+      'siteSettingHint': '更改E站個人設定',
       'showCookie': '查看 Cookie',
-      'useSeparateProfile': '使用單獨的 Profile',
-      'editProfileHint': '選擇並編輯 Profile',
       'redirect2EH': '畫廊鏈接重新導向至表站(如果可用)',
       'redirect2Hints': '會先嘗試解析表站',
       'pleaseLogInToOperate': '請登入後操作',
@@ -247,6 +248,9 @@ class zh_TW {
       'deleteTagSetSuccess': '刪除標籤數據成功',
       'deleteTagSetFailed': '刪除標籤數據失敗',
       'addLocalTagHint': '搜索添加新标签',
+
+      /// Profile Setting page
+      'selectedProfile': '當前使用的Profile',
 
       /// add host mapping dialog
       'addHostMapping': '添加自定義Host',

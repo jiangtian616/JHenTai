@@ -17,6 +17,7 @@ import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
 import 'package:jhentai/src/pages/setting/download/extra_gallery_scan_path/extra_gallery_scan_path_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
+import 'package:jhentai/src/pages/setting/eh/profile/setting_eh_profile_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
@@ -98,6 +99,7 @@ class Routes {
   static const String themeColor = "/setting_style/themeColor";
   static const String pageListStyle = "/setting_style/pageListStyle";
 
+  static const String profile = "/setting_EH/profile";
   static const String tagSets = "/setting_EH/tagSets";
   static const String addLocalTag = "/setting_EH/addLocalTag";
 
@@ -305,6 +307,12 @@ class Routes {
     EHPage(
       name: pageListStyle,
       page: () => SettingPageListStylePage(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: profile,
+      page: () => SettingEHProfilePage(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

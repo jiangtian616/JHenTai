@@ -225,10 +225,11 @@ class pt_BR {
       /// eh setting page
       'site': 'Site',
       'redirect2Eh': 'Redirecionar para EH, se disponível',
+      'profileSetting': 'Profile Setting',
+      'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': 'Configuração do site',
+      'siteSettingHint': 'Edit site setting in e-hentai',
       'showCookie': 'Cookie',
-      'useSeparateProfile': 'Usar perfil separado',
-      'editProfileHint': 'Editar perfil',
       'redirect2EH': 'Redirecionar para o site EH, se disponível',
       'redirect2Hints': 'Tentar analisar o site EH primeiro',
       'pleaseLogInToOperate': 'Faça login para operar',
@@ -250,6 +251,9 @@ class pt_BR {
       'deleteTagSetSuccess': 'Falha na atualização do conjunto de tags',
       'deleteTagSetFailed': 'Falha ao excluir conjunto de tags',
       'addLocalTagHint': 'Search to add new tag',
+
+      /// Profile Setting page
+      'selectedProfile': 'Selected Profile',
 
       /// add host mapping dialog
       'addHostMapping': 'Add Host Mapping',
