@@ -62,7 +62,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadOriginalImage(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
-              _buildTimeout(),
               _buildDownloadAllGallerysOfSamePriority(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
@@ -183,26 +182,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               DropdownMenuItem(child: Text('3s'), value: Duration(seconds: 3)),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimeout() {
-    return ListTile(
-      title: Text('downloadTimeout'.tr),
-      trailing: DropdownButton<int>(
-        value: DownloadSetting.timeout.value,
-        elevation: 4,
-        onChanged: (int? newValue) => DownloadSetting.saveTimeout(newValue!),
-        items: const [
-          DropdownMenuItem(child: Text('5s'), value: 5),
-          DropdownMenuItem(child: Text('10s'), value: 10),
-          DropdownMenuItem(child: Text('15s'), value: 15),
-          DropdownMenuItem(child: Text('20s'), value: 20),
-          DropdownMenuItem(child: Text('30s'), value: 30),
-          DropdownMenuItem(child: Text('60s'), value: 60),
-          DropdownMenuItem(child: Text('180s'), value: 180),
         ],
       ),
     );

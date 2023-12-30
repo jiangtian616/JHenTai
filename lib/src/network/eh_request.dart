@@ -566,7 +566,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       deleteOnError: deleteOnError,
       options: Options(
         caseInsensitiveHeader: caseInsensitiveHeader,
-        receiveTimeout: receiveTimeout ?? DownloadSetting.timeout.value * 1000,
         extra: EHCacheInterceptor.noCacheOption.toExtra(),
         headers: range == null ? null : {'Range': range},
       ),
