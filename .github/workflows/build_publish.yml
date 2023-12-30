@@ -137,7 +137,7 @@ jobs:
         run: |
           flutter build windows -t lib/src/main.dart --release
           $DestDir = "build\windows\JHenTai_${{ steps.get_version.outputs.version }}"
-          $SrcDir = "build\windows\runner\Release"
+          $SrcDir = "build\windows\x64\runner\Release"
           New-Item -Path $DestDir -ItemType Directory
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
