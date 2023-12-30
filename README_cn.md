@@ -152,6 +152,7 @@ App翻译：
 ## 项目编译相关
 
 1. 你需要自己管理安卓签名文件，见https://docs.flutter.dev/deployment/android#signing-the-app
+2. 使用IDEA或者VSCode直接运行即可
 
 ## 主要dart依赖
 

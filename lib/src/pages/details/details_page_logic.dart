@@ -706,16 +706,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<Map<String, dynamic>> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
-    final String? firstLink;
-    final String? secondLink;
+    final String firstLink;
+    final String secondLink;
 
-    /// 1. if redirect is enabled, try EH site first for EX link
+    /// 1. Try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
-    if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isTrue) {
+    if (state.galleryUrl.contains(EHConsts.EXIndex)) {
       firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-      secondLink = state.galleryUrl;
-    } else if (state.galleryUrl.contains(EHConsts.EXIndex) && EHSetting.redirect2Eh.isFalse) {
-      firstLink = null;
       secondLink = state.galleryUrl;
     } else {
       firstLink = state.galleryUrl;
@@ -726,7 +723,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (!isEmptyOrNull(firstLink)) {
       try {
         Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: firstLink!,
+          galleryUrl: firstLink,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );

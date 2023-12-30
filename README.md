@@ -164,6 +164,7 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 
 1. You need to manage your Android signing by yourself,
    check https://docs.flutter.dev/deployment/android#signing-the-app
+2. Just run this project via IDEA or VSCode simply.
 
 ## Main Dart Dependencies
 

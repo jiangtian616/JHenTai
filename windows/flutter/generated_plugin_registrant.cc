@@ -7,7 +7,6 @@
 #include "generated_plugin_registrant.h"
 
 #include <battery_plus/battery_plus_windows_plugin.h>
-#include <bitsdojo_window_windows/bitsdojo_window_plugin.h>
 #include <local_auth_windows/local_auth_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <screen_retriever/screen_retriever_plugin.h>
@@ -20,8 +19,6 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   BatteryPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("BatteryPlusWindowsPlugin"));
-  BitsdojoWindowPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("BitsdojoWindowPlugin"));
   LocalAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocalAuthPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(
