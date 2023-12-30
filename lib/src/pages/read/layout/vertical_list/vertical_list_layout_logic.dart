@@ -38,6 +38,13 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
+  void onClose() {
+    super.onClose();
+
+    imageRegionWidthRatioListener.dispose();
+  }
+
+  @override
   void toLeft() {
     toPrev();
   }
