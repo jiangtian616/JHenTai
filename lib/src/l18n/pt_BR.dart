@@ -160,6 +160,7 @@ class pt_BR {
       'useTranslation': 'Use Translation',
       'addTagSuccess': 'Add Tag Success',
       'addTagFailed': 'Add Tag Failed',
+      'parentGallery': 'Parent',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',

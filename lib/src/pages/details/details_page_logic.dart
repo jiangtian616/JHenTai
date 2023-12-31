@@ -58,6 +58,7 @@ import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/eh_download_dialog.dart';
 import '../../widget/eh_download_hh_dialog.dart';
+import '../../widget/eh_gallery_history_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
 import '../download/list/local/local_gallery_list_page_logic.dart';
 import 'details_page_state.dart';
@@ -579,6 +580,17 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (pageIndex != null) {
       toRoute(Routes.thumbnails, arguments: pageIndex);
     }
+  }
+
+  void handleTapHistoryButton(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => EHGalleryHistoryDialog(
+        parentUrl: state.galleryDetails?.parentGalleryUrl,
+        gallery: state.gallery!,
+        childrenGallerys: state.galleryDetails?.childrenGallerys,
+      ),
+    );
   }
 
   Future<void> shareGallery() async {

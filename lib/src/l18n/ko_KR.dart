@@ -159,6 +159,7 @@ class ko_KR {
       'useTranslation': 'Use Translation',
       'addTagSuccess': 'Add Tag Success',
       'addTagFailed': 'Add Tag Failed',
+      'parentGallery': 'Parent',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',
@@ -588,8 +589,8 @@ class ko_KR {
       'downloadOriginalImageByDefault': '기본값으로 원본 이미지 선택',
       'originalImage': '원본',
       'resampleImage': '압축',
-      'defaultGalleryGroup':'Default Gallery Group',
-      'defaultArchiveGroup':'Default Archive Group',
+      'defaultGalleryGroup': 'Default Gallery Group',
+      'defaultArchiveGroup': 'Default Archive Group',
       'never': '영원히 안 함',
       'manual': '수동',
       'always': '항상 함',

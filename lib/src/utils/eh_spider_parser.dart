@@ -21,6 +21,7 @@ import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/profile.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -259,7 +260,8 @@ class EHSpiderParser {
       torrentCount: RegExp(r'\d+').firstMatch(document.querySelector('#gd5')?.children[2].querySelector('a')?.text ?? '')?.group(0) ?? '0',
       torrentPageUrl: document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl: document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
-      newVersionGalleryUrl: document.querySelectorAll('#gnd > a').lastOrNull?.attributes['href'],
+      parentGalleryUrl: GalleryUrl.tryParse(document.querySelector('#gdd > table > tbody > tr:nth-child(1) > .gdt2 > a')?.attributes['href'] ?? ''),
+      childrenGallerys: _detailPageDocument2ChildrenGallerys(document),
       fullTags: tags,
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: _detailPageDocument2Thumbnails(document),
@@ -1211,6 +1213,27 @@ class EHSpiderParser {
     } else {
       return int.parse(count.split(' ')[0]);
     }
+  }
+
+  static List<({GalleryUrl galleryUrl, String title, String updateTime})> _detailPageDocument2ChildrenGallerys(Document document) {
+    List<({GalleryUrl galleryUrl, String title, String updateTime})> result = [];
+
+    List<Node>? nodes = document.querySelector('#gnd')?.nodes;
+    if (nodes?.isEmpty ?? true) {
+      return result;
+    }
+
+    RegExp regExp = RegExp(r'added (\d\d\d\d-\d\d-\d\d \d\d:\d\d)');
+    for (int i = 0; i < nodes!.length; i++) {
+      if (nodes[i] is Element && (nodes[i] as Element).localName == 'a') {
+        String href = nodes[i].attributes['href'] ?? '';
+        String title = nodes[i].text ?? '';
+        String updateTime = regExp.firstMatch((nodes[i + 1] as Text).data)?.group(1) ?? '';
+        result.add((galleryUrl: GalleryUrl.tryParse(href)!, title: title, updateTime: updateTime));
+      }
+    }
+
+    return result;
   }
 
   static List<GalleryComment> _parseGalleryDetailsComments(List<Element> commentElements) {

@@ -159,6 +159,7 @@ class zh_CN {
       'useTranslation': '使用翻译标签',
       'addTagSuccess': '添加标签成功',
       'addTagFailed': '添加标签失败',
+      'parentGallery': '父画廊',
 
       /// detail dialog
       'galleryUrl': '画廊链接',
@@ -589,8 +590,8 @@ class zh_CN {
       'downloadOriginalImageByDefault': '默认选中下载原图',
       'originalImage': '原图',
       'resampleImage': '压缩',
-      'defaultGalleryGroup':'默认分组（下载）',
-      'defaultArchiveGroup':'默认分组（归档）',
+      'defaultGalleryGroup': '默认分组（下载）',
+      'defaultArchiveGroup': '默认分组（归档）',
       'never': '从不',
       'manual': '手动',
       'always': '总是',

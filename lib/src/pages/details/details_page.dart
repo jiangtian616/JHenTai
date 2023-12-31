@@ -136,6 +136,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         children: [Text('delete'.tr), const Icon(Icons.delete)],
                       ),
                     ),
+                  if (state.gallery != null && (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGallerys?.isNotEmpty ?? false)))
+                    PopupMenuItem(
+                      value: 4,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('history'.tr), const Icon(Icons.history)],
+                      ),
+                    ),
                 ];
               },
               onSelected: (value) {
@@ -154,6 +162,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                     state.gallery!.gid,
                     downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
                   );
+                }
+                if (value == 4) {
+                  logic.handleTapHistoryButton(context);
                 }
               },
             );

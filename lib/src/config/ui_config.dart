@@ -474,6 +474,12 @@ class UIConfig {
   static const double statisticsDialogColumnWidth = 50;
   static const double statisticsDialogGraphHeight = 300;
 
+  /// Gallery history dialog
+  static Color galleryHistoryDialogTileColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static const double galleryHistoryTitleSize = 14;
+  static const double galleryHistoryDialogSubtitleIconSize = 16;
+  static const double galleryHistoryDialogTrailingTextSize = 9;
+
   static double get statisticsDialogGraphWidth => max(300, fullScreenWidth * 2 / 3);
 
   /// Tag dialog

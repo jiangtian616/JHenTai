@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:blur/blur.dart';
@@ -10,12 +9,10 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/widget/eh_gallery_favorite_tag.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
-import '../model/gallery_image.dart';
 import '../utils/date_util.dart';
 import 'eh_image.dart';
 import 'eh_tag.dart';

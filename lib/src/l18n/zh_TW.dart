@@ -158,6 +158,7 @@ class zh_TW {
       'useTranslation': '使用翻譯標簽',
       'addTagSuccess': '添加標簽成功',
       'addTagFailed': '添加標簽失敗',
+      'parentGallery': '父畫廊',
 
       /// detail dialog
       'galleryUrl': '畫廊鏈接',
@@ -428,7 +429,7 @@ class zh_TW {
       'enableTapDragToScaleUp': '允許單擊後拖拽放大圖片',
       'enableBottomMenu': '開啓底部菜單',
       'reverseTurnPageDirection': '反轉翻頁方向',
-      'disableGestureWhenScrolling': '滾動時禁用手勢', 
+      'disableGestureWhenScrolling': '滾動時禁用手勢',
       'disablePageTurningOnTap': '禁用點擊翻頁手勢',
       'turnPageModeHint': '移動至下一螢幕還是下一圖片',
       'image': '圖片',

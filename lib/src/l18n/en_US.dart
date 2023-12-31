@@ -159,6 +159,7 @@ class en_US {
       'useTranslation': 'Use Translation',
       'addTagSuccess': 'Add Tag Success',
       'addTagFailed': 'Add Tag Failed',
+      'parentGallery': 'Parent',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',
