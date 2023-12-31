@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:clipboard/clipboard.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
 import 'package:image_save/image_save.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -96,6 +97,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   @mustCallSuper
   void closeAutoMode() {
     autoModeTimer?.cancel();
+  }
+
+  void onPointerScroll(PointerScrollEvent value) {
+    if (value.scrollDelta.dy > 0) {
+      toNext();
+    } else if (value.scrollDelta.dy < 0) {
+      toPrev();
+    }
   }
 
   void showBottomMenuInOnlineMode(int index, BuildContext context) {

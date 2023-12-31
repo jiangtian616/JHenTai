@@ -17,10 +17,6 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!GetPlatform.isDesktop) {
-      return child;
-    }
-
     return Listener(
       /// For some reason (probably because of the high resolution monitor), scroll by mouse wheel is very slow,
       /// so i call [animateTo] to simulate a faster scroll speed.

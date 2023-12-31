@@ -76,6 +76,7 @@ class ReadPageLogic extends GetxController {
   late Worker toggleCurrentImmersiveModeLister;
   late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
+  late Worker imageSpaceLister;
   late Worker displayFirstPageAloneListener;
   late Worker enableCustomBrightnessListener;
   late Worker customBrightnessListener;
@@ -110,6 +111,10 @@ class ReadPageLogic extends GetxController {
     readDirectionLister = ever(ReadSetting.readDirection, (_) {
       clearImageContainerSized();
       state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
+      updateSafely([layoutId]);
+    });
+
+    imageSpaceLister = ever(ReadSetting.imageSpace, (_) {
       updateSafely([layoutId]);
     });
 
@@ -168,6 +173,7 @@ class ReadPageLogic extends GetxController {
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
+    imageSpaceLister.dispose();
     flushReadProgressTimer.cancel();
     displayFirstPageAloneListener.dispose();
     enableCustomBrightnessListener.dispose();
