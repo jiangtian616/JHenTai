@@ -137,7 +137,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildDefaultGalleryGroup(BuildContext context) {
     return ListTile(
       title: Text('defaultGalleryGroup'.tr),
-      trailing: Text(DownloadSetting.defaultGalleryGroup.value ?? 'default'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+      subtitle: Text('longPress2Reset'.tr),
+      trailing: Text(DownloadSetting.defaultGalleryGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
       onTap: () async {
         ({String group, bool downloadOriginalImage})? result = await showDialog(
           context: context,
@@ -152,28 +153,34 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
           DownloadSetting.saveDefaultGalleryGroup(result.group);
         }
       },
-    ).marginOnly(right: 12);
-  }
-  
-  Widget _buildDefaultArchiveGroup(BuildContext context) {
-    return ListTile(
-      title: Text('defaultArchiveGroup'.tr),
-      trailing: Text(DownloadSetting.defaultArchiveGroup.value ?? 'default'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)),
-      onTap: () async {
-        ({String group, bool downloadOriginalImage})? result = await showDialog(
-          context: context,
-          builder: (_) => EHDownloadDialog(
-            title: 'chooseGroup'.tr,
-            currentGroup: DownloadSetting.defaultArchiveGroup.value,
-            candidates: archiveDownloadService.allGroups,
-          ),
-        );
-
-        if (result != null) {
-          DownloadSetting.saveDefaultArchiveGroup(result.group);
-        }
+      onLongPress: () {
+        DownloadSetting.saveDefaultGalleryGroup(null);
       },
     ).marginOnly(right: 12);
+  }
+
+  Widget _buildDefaultArchiveGroup(BuildContext context) {
+    return ListTile(
+        title: Text('defaultArchiveGroup'.tr),
+        subtitle: Text('longPress2Reset'.tr),
+        trailing: Text(DownloadSetting.defaultArchiveGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+        onTap: () async {
+          ({String group, bool downloadOriginalImage})? result = await showDialog(
+            context: context,
+            builder: (_) => EHDownloadDialog(
+              title: 'chooseGroup'.tr,
+              currentGroup: DownloadSetting.defaultArchiveGroup.value,
+              candidates: archiveDownloadService.allGroups,
+            ),
+          );
+
+          if (result != null) {
+            DownloadSetting.saveDefaultArchiveGroup(result.group);
+          }
+        },
+        onLongPress: () {
+          DownloadSetting.saveDefaultArchiveGroup(null);
+        }).marginOnly(right: 12);
   }
 
   Widget _buildDownloadConcurrency() {
