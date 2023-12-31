@@ -56,7 +56,7 @@ class ReadSetting {
   static RxInt preloadPageCount = 1.obs;
   static RxBool displayFirstPageAlone = true.obs;
   static RxBool reverseTurnPageDirection = false.obs;
-  static RxBool disableGestureWhenScrolling = true.obs;
+  static RxBool disablePageTurningOnTap = false.obs;
 
   static bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
@@ -166,7 +166,7 @@ class ReadSetting {
     readDirection.value = value;
     _save();
   }
-  
+
   static saveImageRegionWidthRatio(int value) {
     Log.debug('saveImageRegionWidthRatio:$value');
     imageRegionWidthRatio.value = value;
@@ -245,9 +245,9 @@ class ReadSetting {
     _save();
   }
 
-  static saveDisableGestureWhenScrolling(bool value) {
-    Log.debug('saveDisableGestureWhenScrolling:$value');
-    disableGestureWhenScrolling.value = value;
+  static saveDisablePageTurningOnTap(bool value) {
+    Log.debug('saveDisablePageTurningOnTap:$value');
+    disablePageTurningOnTap.value = value;
     _save();
   }
 
@@ -281,7 +281,7 @@ class ReadSetting {
       'preloadPageCount': preloadPageCount.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'reverseTurnPageDirection': reverseTurnPageDirection.value,
-      'disableGestureWhenScrolling': disableGestureWhenScrolling.value,
+      'saveDisablePageTurningOnTap': disablePageTurningOnTap.value,
     };
   }
 
@@ -310,6 +310,6 @@ class ReadSetting {
     preloadPageCount.value = map['preloadPageCount'];
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
-    disableGestureWhenScrolling.value = map['disableGestureWhenScrolling'] ?? disableGestureWhenScrolling.value;
+    disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
   }
 }

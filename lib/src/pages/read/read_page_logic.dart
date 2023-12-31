@@ -424,7 +424,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapLeftRegion() {
-    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+    if (state.isScrolling) {
       return;
     }
 
@@ -436,7 +436,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapRightRegion() {
-    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+    if (state.isScrolling) {
       return;
     }
 
@@ -448,7 +448,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapCenterRegion() {
-    if (ReadSetting.disableGestureWhenScrolling.isTrue && state.isScrolling) {
+    if (state.isScrolling) {
       return;
     }
 
