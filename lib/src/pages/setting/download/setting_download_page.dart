@@ -21,6 +21,7 @@ import '../../../service/gallery_download_service.dart';
 import '../../../utils/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
+import '../../../widget/eh_download_dialog.dart';
 
 class SettingDownloadPage extends StatefulWidget {
   const SettingDownloadPage({Key? key}) : super(key: key);
@@ -63,6 +64,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildExtraGalleryScanPath(),
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
+              _buildDefaultGalleryGroup(context),
+              _buildDefaultArchiveGroup(context),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
@@ -119,7 +122,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
       title: Text('downloadOriginalImageByDefault'.tr),
       trailing: Switch(
-        value: DownloadSetting.downloadOriginalImageByDefault.value ?? false,
+        value: DownloadSetting.downloadOriginalImageByDefault.value,
         onChanged: (value) {
           if (!UserSetting.hasLoggedIn()) {
             toast('needLoginToOperate'.tr);
@@ -129,6 +132,48 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         },
       ),
     );
+  }
+
+  Widget _buildDefaultGalleryGroup(BuildContext context) {
+    return ListTile(
+      title: Text('defaultGalleryGroup'.tr),
+      trailing: Text(DownloadSetting.defaultGalleryGroup.value ?? 'default'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+      onTap: () async {
+        ({String group, bool downloadOriginalImage})? result = await showDialog(
+          context: context,
+          builder: (_) => EHDownloadDialog(
+            title: 'chooseGroup'.tr,
+            currentGroup: DownloadSetting.defaultGalleryGroup.value,
+            candidates: galleryDownloadService.allGroups,
+          ),
+        );
+
+        if (result != null) {
+          DownloadSetting.saveDefaultGalleryGroup(result.group);
+        }
+      },
+    ).marginOnly(right: 12);
+  }
+  
+  Widget _buildDefaultArchiveGroup(BuildContext context) {
+    return ListTile(
+      title: Text('defaultArchiveGroup'.tr),
+      trailing: Text(DownloadSetting.defaultArchiveGroup.value ?? 'default'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+      onTap: () async {
+        ({String group, bool downloadOriginalImage})? result = await showDialog(
+          context: context,
+          builder: (_) => EHDownloadDialog(
+            title: 'chooseGroup'.tr,
+            currentGroup: DownloadSetting.defaultArchiveGroup.value,
+            candidates: archiveDownloadService.allGroups,
+          ),
+        );
+
+        if (result != null) {
+          DownloadSetting.saveDefaultArchiveGroup(result.group);
+        }
+      },
+    ).marginOnly(right: 12);
   }
 
   Widget _buildDownloadConcurrency() {

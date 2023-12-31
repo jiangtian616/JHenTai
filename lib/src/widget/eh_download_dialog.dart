@@ -12,6 +12,7 @@ class EHDownloadDialog extends StatefulWidget {
   final String? currentGroup;
   final List<String> candidates;
   final bool showDownloadOriginalImageCheckBox;
+  final bool downloadOriginalImage;
 
   const EHDownloadDialog({
     Key? key,
@@ -19,6 +20,7 @@ class EHDownloadDialog extends StatefulWidget {
     this.currentGroup,
     required this.candidates,
     this.showDownloadOriginalImageCheckBox = false,
+    this.downloadOriginalImage = false,
   }) : super(key: key);
 
   @override
@@ -28,16 +30,17 @@ class EHDownloadDialog extends StatefulWidget {
 class _EHDownloadDialogState extends State<EHDownloadDialog> {
   late String group;
   late List<String> candidates;
-  bool? downloadOriginalImage = DownloadSetting.downloadOriginalImageByDefault.value;
+  late bool downloadOriginalImage;
 
   @override
   void initState() {
-    group = widget.currentGroup ?? 'default'.tr;
-    candidates = List.of(widget.candidates);
+    super.initState();
 
+    group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
+    candidates = List.of(widget.candidates);
     candidates.remove(group);
     candidates.insert(0, group);
-    super.initState();
+    downloadOriginalImage = widget.downloadOriginalImage;
   }
 
   @override
@@ -56,7 +59,9 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
               backRoute();
               return;
             }
-            backRoute(result: {'group': group, 'downloadOriginalImage': downloadOriginalImage});
+            backRoute(
+              result: (group: group, downloadOriginalImage: downloadOriginalImage),
+            );
           },
           child: Text('OK'.tr),
         ),
@@ -75,7 +80,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
             candidates: candidates,
             listener: (g) => group = g,
           ),
-          if (widget.showDownloadOriginalImageCheckBox && downloadOriginalImage != null) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
+          if (widget.showDownloadOriginalImageCheckBox) _buildDownloadOriginalImageCheckBox().marginOnly(top: 16),
         ],
       ),
     );

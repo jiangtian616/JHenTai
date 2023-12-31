@@ -588,6 +588,8 @@ class en_US {
       'downloadOriginalImageByDefault': 'Choose Original Image By Default',
       'originalImage': 'Original',
       'resampleImage': 'Resample',
+      'defaultGalleryGroup': 'Default Gallery Group',
+      'defaultArchiveGroup': 'Default Archive Group',
       'never': 'Never',
       'manual': 'Manual',
       'always': 'Always',

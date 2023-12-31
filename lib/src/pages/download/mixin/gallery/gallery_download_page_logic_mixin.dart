@@ -28,7 +28,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
 
-    Map<String, dynamic>? result = await Get.dialog(
+    ({String group, bool downloadOriginalImage})? result = await Get.dialog(
       EHDownloadDialog(
         title: 'changeGroup'.tr,
         currentGroup: oldGroup,
@@ -40,7 +40,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       return;
     }
 
-    String newGroup = result['group'] ?? 'default'.tr;
+    String newGroup = result.group;
     if (newGroup == oldGroup) {
       return;
     }
@@ -58,7 +58,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   Future<void> handleRenameGroup(String oldGroup) async {
-    Map<String, dynamic>? result = await Get.dialog(
+    ({String group, bool downloadOriginalImage})? result = await Get.dialog(
       EHDownloadDialog(
         title: 'renameGroup'.tr,
         currentGroup: oldGroup,
@@ -70,7 +70,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       return;
     }
 
-    String newGroup = result['group'] ?? 'default'.tr;
+    String newGroup = result.group;
     if (newGroup == oldGroup) {
       return;
     }
@@ -316,7 +316,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   Future<void> handleMultiChangeGroup() async {
-    Map<String, dynamic>? result = await Get.dialog(
+    ({String group, bool downloadOriginalImage})? result = await Get.dialog(
       EHDownloadDialog(
         title: 'changeGroup'.tr,
         candidates: downloadService.allGroups,
@@ -327,7 +327,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       return;
     }
 
-    String newGroup = result['group'] ?? 'default'.tr;
+    String newGroup = result.group;
 
     for (int gid in multiSelectDownloadPageState.selectedGids) {
       await downloadService.updateGroupByGid(gid, newGroup);

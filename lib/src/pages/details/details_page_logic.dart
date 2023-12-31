@@ -19,6 +19,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_add_tag_dialog.dart';
@@ -246,11 +247,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// new download
     if (galleryDownloadedData == null || downloadProgress == null) {
-      Map<String, dynamic>? result = await Get.dialog(
+      ({String group, bool downloadOriginalImage})? result = await Get.dialog(
         EHDownloadDialog(
           title: 'chooseGroup'.tr,
+          currentGroup: DownloadSetting.defaultGalleryGroup.value,
           candidates: downloadService.allGroups,
-          showDownloadOriginalImageCheckBox: true,
+          showDownloadOriginalImageCheckBox: UserSetting.hasLoggedIn(),
+          downloadOriginalImage: DownloadSetting.downloadOriginalImageByDefault.value,
         ),
       );
 
@@ -259,8 +262,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       downloadService.downloadGallery(gallery.toGalleryDownloadedData(
-        downloadOriginalImage: result['downloadOriginalImage'] ?? false,
-        group: result['group'] ?? 'default'.tr,
+        downloadOriginalImage: result.downloadOriginalImage,
+        group: result.group,
       ));
 
       toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
@@ -440,20 +443,23 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// new download
     if (archiveStatus == null) {
-      Map<String, dynamic>? result = await Get.dialog(EHArchiveDialog(
-        archivePageUrl: state.galleryDetails!.archivePageUrl,
-        candidates: archiveDownloadService.allGroups,
-        currentGroup: 'default'.tr,
-      ));
+      ({bool isOriginal, int size, String group})? result = await Get.dialog(
+        EHArchiveDialog(
+          title: 'chhoseArchive'.tr,
+          archivePageUrl: state.galleryDetails!.archivePageUrl,
+          currentGroup: DownloadSetting.defaultArchiveGroup.value,
+          candidates: archiveDownloadService.allGroups,
+        ),
+      );
       if (result == null) {
         return;
       }
 
       ArchiveDownloadedData archive = state.gallery!.toArchiveDownloadedData(
         archivePageUrl: state.galleryDetails!.archivePageUrl,
-        isOriginal: result['isOriginal'],
-        size: result['size'],
-        group: result['group'] ?? 'default'.tr,
+        isOriginal: result.isOriginal,
+        size: result.size,
+        group: result.group,
       );
 
       archiveDownloadService.downloadArchive(archive);

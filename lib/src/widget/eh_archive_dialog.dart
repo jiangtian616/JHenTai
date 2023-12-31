@@ -17,12 +17,14 @@ import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 
 class EHArchiveDialog extends StatefulWidget {
+  final String title;
   final String? currentGroup;
   final List<String> candidates;
   final String archivePageUrl;
 
   const EHArchiveDialog({
     Key? key,
+    required this.title,
     this.currentGroup,
     required this.candidates,
     required this.archivePageUrl,
@@ -34,15 +36,18 @@ class EHArchiveDialog extends StatefulWidget {
 
 class _EHArchiveDialogState extends State<EHArchiveDialog> {
   late String group;
+  late List<String> candidates;
   late GalleryArchive archive;
   LoadingState loadingState = LoadingState.idle;
 
   @override
   void initState() {
     super.initState();
-    group = widget.currentGroup ?? 'default'.tr;
-    widget.candidates.remove(group);
-    widget.candidates.insert(0, group);
+
+    group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
+    candidates = List.of(widget.candidates);
+    candidates.remove(group);
+    candidates.insert(0, group);
     _getArchiveInfo();
   }
 
@@ -55,7 +60,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
         child: LoadingStateIndicator(
           loadingState: loadingState,
           errorTapCallback: _getArchiveInfo,
-          successWidgetBuilder: () => _buildBody(),
+          successWidgetBuilder: _buildBody,
         ),
       ),
     );
@@ -65,7 +70,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        EHGroupNameSelector(candidates: widget.candidates, currentGroup: 'default'.tr, listener: (g) => group = g),
+        EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 20),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
       ],
@@ -82,7 +87,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'resample'.tr,
           callback: _canAffordDownload(isOriginal: false)
               ? () => backRoute(
-                    result: {'isOriginal': false, 'size': _computeSizeInBytes(isOriginal: false), 'group': group},
+                    result: (isOriginal: false, size: _computeSizeInBytes(isOriginal: false), group: group),
                   )
               : null,
         ),
@@ -92,7 +97,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'original'.tr,
           callback: _canAffordDownload(isOriginal: true)
               ? () => backRoute(
-                    result: {'isOriginal': true, 'size': _computeSizeInBytes(isOriginal: true), 'group': group},
+                    result: (isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
                   )
               : null,
         ),

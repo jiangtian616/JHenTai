@@ -587,6 +587,8 @@ class zh_TW {
       'downloadOriginalImageByDefault': '默認選中下載原圖',
       'originalImage': '原圖',
       'resampleImage': '壓縮',
+      'defaultGalleryGroup':'默認分組（下載）',
+      'defaultArchiveGroup':'默認分組（歸檔）',
       'never': '從不',
       'manual': '手動',
       'always': '總是',

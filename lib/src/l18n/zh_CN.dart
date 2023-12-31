@@ -588,6 +588,8 @@ class zh_CN {
       'downloadOriginalImageByDefault': '默认选中下载原图',
       'originalImage': '原图',
       'resampleImage': '压缩',
+      'defaultGalleryGroup':'默认分组（下载）',
+      'defaultArchiveGroup':'默认分组（归档）',
       'never': '从不',
       'manual': '手动',
       'always': '总是',

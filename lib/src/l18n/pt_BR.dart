@@ -590,6 +590,8 @@ class pt_BR {
       'downloadOriginalImageByDefault': 'Escolher imagem original por padrão',
       'originalImage': 'Original',
       'resampleImage': 'Redimensionada',
+      'defaultGalleryGroup':'Default Gallery Group',
+      'defaultArchiveGroup':'Default Archive Group',
       'never': 'Nunca',
       'manual': 'Manual',
       'always': 'Sempre',

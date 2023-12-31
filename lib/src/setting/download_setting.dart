@@ -10,7 +10,9 @@ import '../service/storage_service.dart';
 class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
-  static RxnBool downloadOriginalImageByDefault = RxnBool(UserSetting.hasLoggedIn() ? false : null);
+  static RxBool downloadOriginalImageByDefault = false.obs;
+  static RxnString defaultGalleryGroup = RxnString();
+  static RxnString defaultArchiveGroup = RxnString();
   static String defaultExtraGalleryScanPath = join(PathSetting.getVisibleDir().path, 'local_gallery');
   static RxList<String> extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
   static RxString singleImageSavePath = join(PathSetting.getVisibleDir().path, 'save').obs;
@@ -28,15 +30,6 @@ class DownloadSetting {
     } else {
       Log.debug('init DownloadSetting success: default', false);
     }
-
-    /// listen to login and logout
-    ever(UserSetting.ipbMemberId, (v) {
-      if (UserSetting.hasLoggedIn()) {
-        saveDownloadOriginalImageByDefault(false);
-      } else {
-        saveDownloadOriginalImageByDefault(null);
-      }
-    });
   }
 
   static saveDownloadPath(String downloadPath) {
@@ -63,9 +56,21 @@ class DownloadSetting {
     _save();
   }
 
-  static saveDownloadOriginalImageByDefault(bool? value) {
+  static saveDownloadOriginalImageByDefault(bool value) {
     Log.debug('saveDownloadOriginalImageByDefault:$value');
     DownloadSetting.downloadOriginalImageByDefault.value = value;
+    _save();
+  }
+
+  static saveDefaultGalleryGroup(String? group) {
+    Log.debug('saveDefaultGalleryGroup:$group');
+    DownloadSetting.defaultGalleryGroup.value = group;
+    _save();
+  }
+
+  static saveDefaultArchiveGroup(String? group) {
+    Log.debug('saveDefaultArchiveGroup:$group');
+    DownloadSetting.defaultArchiveGroup.value = group;
     _save();
   }
 
@@ -115,6 +120,8 @@ class DownloadSetting {
       'extraGalleryScanPath': extraGalleryScanPath.value,
       'singleImageSavePath': singleImageSavePath.value,
       'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
+      'defaultGalleryGroup': defaultGalleryGroup.value,
+      'defaultArchiveGroup': defaultArchiveGroup.value,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
@@ -133,6 +140,8 @@ class DownloadSetting {
     }
     singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
+    defaultGalleryGroup.value = map['defaultGalleryGroup'];
+    defaultArchiveGroup.value = map['defaultArchiveGroup'];
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
