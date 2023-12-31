@@ -1,6 +1,10 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
+import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
+
+import '../utils/route_util.dart';
 
 extension WidgetExtension on Widget {
   Widget center([Key? key]) {
@@ -24,6 +28,16 @@ extension WidgetExtension on Widget {
             ),
       ),
       child: this,
+    );
+  }
+
+  Widget withEscOrFifthButton2BackRightRoute() {
+    return EHKeyboardListener(
+      handleEsc: backRightRoute,
+      child: EHMouseButtonListener(
+        onFifthButtonTapDown: (_) => backRightRoute(),
+        child: this,
+      ),
     );
   }
 }

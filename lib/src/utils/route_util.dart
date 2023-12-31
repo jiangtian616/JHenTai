@@ -107,6 +107,20 @@ void backRoute<T>({
   );
 }
 
+/// pop current right route, it is only used in tablet or desktop layout
+void backRightRoute<T>({
+  T? result,
+  bool closeOverlays = false,
+  bool canPop = true,
+}) {
+  return Get.back(
+    result: result,
+    closeOverlays: closeOverlays,
+    canPop: canPop,
+    id: StyleSetting.isInV2Layout ? rightV2 : right,
+  );
+}
+
 /// pop current route and push a new route
 Future<T?>? offRoute<T>(
   String routeName, {
