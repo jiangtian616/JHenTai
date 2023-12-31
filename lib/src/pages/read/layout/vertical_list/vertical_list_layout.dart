@@ -59,7 +59,7 @@ class VerticalListLayout extends BaseLayout {
       children: [
         Expanded(
           flex: 100 - ReadSetting.imageRegionWidthRatio.value,
-          child: Container(color: UIConfig.readPageBackGroundColor),
+          child: const SizedBox(),
         ),
         Expanded(
           flex: ReadSetting.imageRegionWidthRatio.value * 2,
@@ -67,7 +67,7 @@ class VerticalListLayout extends BaseLayout {
         ),
         Expanded(
           flex: 100 - ReadSetting.imageRegionWidthRatio.value,
-          child: Container(color: UIConfig.readPageBackGroundColor),
+          child: const SizedBox(),
         ),
       ],
     );
