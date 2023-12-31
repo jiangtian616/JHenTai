@@ -754,8 +754,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         );
         state.gallery?.galleryUrl = state.galleryUrl = firstLink;
         return galleryAndDetailAndApikey;
-      } on DioError catch (e) {
-        if (e.response?.statusCode != 404) {
+      } on EHException catch (e) {
+        if (e.type != EHExceptionType.galleryDeleted) {
           rethrow;
         }
         Log.verbose('Can\'t find gallery, firstLink: $firstLink');
@@ -770,7 +770,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
       state.gallery?.galleryUrl = state.galleryUrl = secondLink;
       return galleryAndDetailAndApikey;
-    } on DioError catch (_) {
+    } on EHException catch (_) {
       Log.verbose('Can\'t find gallery, secondLink: $secondLink');
       rethrow;
     }

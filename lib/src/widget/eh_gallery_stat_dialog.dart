@@ -88,20 +88,18 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
         parser: EHSpiderParser.statPage2GalleryStats,
       );
     } on DioError catch (e) {
-      if (e.response?.statusCode == 404) {
-        Log.info('invisible2UserWithoutDonation'.tr);
-        if (mounted) {
-          setState(() => loadingState = LoadingState.noData);
-        }
-        return;
-      }
-
       Log.error('getGalleryStatisticsFailed'.tr, e.message);
       snack('getGalleryStatisticsFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
-
       return;
     } on EHException catch (e) {
+      if (e.type == EHExceptionType.galleryDeleted) {
+        Log.error('invisible2UserWithoutDonation'.tr);
+        snack('invisible2UserWithoutDonation'.tr, e.message);
+        setStateSafely(() => loadingState = LoadingState.noData);
+        return;
+      }
+
       Log.error('getGalleryStatisticsFailed'.tr, e.message);
       snack('getGalleryStatisticsFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
