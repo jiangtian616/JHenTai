@@ -542,6 +542,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         caseInsensitiveHeader: caseInsensitiveHeader,
         extra: EHCacheInterceptor.noCacheOption.toExtra(),
         headers: range == null ? null : {'Range': range},
+        receiveTimeout: receiveTimeout,
       ),
     );
 
