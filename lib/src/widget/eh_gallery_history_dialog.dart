@@ -42,7 +42,12 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 trailing: Text(e.updateTime, style: const TextStyle(fontSize: UIConfig.galleryHistoryDialogTrailingTextSize)),
                 onTap: () {
                   backRoute();
-                  toRoute(Routes.details, arguments: {'gid': e.galleryUrl.gid, 'galleryUrl': e.galleryUrl.url});
+                  toRoute(
+                    Routes.details,
+                    arguments: {'gid': e.galleryUrl.gid, 'galleryUrl': e.galleryUrl.url},
+                    offAllBefore: false,
+                    preventDuplicates: false,
+                  );
                 },
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
@@ -67,7 +72,12 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 trailing: const Icon(Icons.exit_to_app, size: UIConfig.galleryHistoryDialogSubtitleIconSize),
                 onTap: () {
                   backRoute();
-                  toRoute(Routes.details, arguments: {'gid': parentUrl!.gid, 'galleryUrl': parentUrl!.url});
+                  toRoute(
+                    Routes.details,
+                    arguments: {'gid': parentUrl!.gid, 'galleryUrl': parentUrl!.url},
+                    offAllBefore: false,
+                    preventDuplicates: false,
+                  );
                 },
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               ),
