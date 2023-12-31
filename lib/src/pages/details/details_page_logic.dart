@@ -267,7 +267,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       ));
 
       updateGlobalGalleryStatus();
-      
+
       toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
@@ -447,7 +447,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (archiveStatus == null) {
       ({bool isOriginal, int size, String group})? result = await Get.dialog(
         EHArchiveDialog(
-          title: 'chhoseArchive'.tr,
+          title: 'chooseArchive'.tr,
           archivePageUrl: state.galleryDetails!.archivePageUrl,
           currentGroup: DownloadSetting.defaultArchiveGroup.value,
           candidates: archiveDownloadService.allGroups,
@@ -467,7 +467,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       archiveDownloadService.downloadArchive(archive);
 
       updateGlobalGalleryStatus();
-      
+
       Log.info('${'beginToDownloadArchive'.tr}: ${archive.title}');
       toast('${'beginToDownloadArchive'.tr}:  ${archive.title}', isCenter: false);
       return;
@@ -545,11 +545,15 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (state.galleryDetails == null) {
       return;
     }
-    newSearch('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"', true);
+    search('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
   }
 
   void searchUploader() {
-    newSearch('uploader:"${state.gallery!.uploader!}"', true);
+    search('uploader:"${state.gallery!.uploader!}"');
+  }
+
+  void search(String str) {
+    newSearch(str, true);
   }
 
   Future<void> handleTapTorrent() async {

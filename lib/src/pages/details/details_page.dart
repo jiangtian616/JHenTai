@@ -274,7 +274,26 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
             height: UIConfig.detailsPageTitleTextHeight,
           ),
-          onTap: logic.searchSimilar,
+          contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
+            AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
+              buttonItems: editableTextState.contextMenuButtonItems,
+              anchors: editableTextState.contextMenuAnchors,
+            );
+
+            if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
+              toolbar.buttonItems?.add(
+                ContextMenuButtonItem(
+                  label: 'search'.tr,
+                  onPressed: () {
+                    ContextMenuController.removeAny();
+                    logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
+                  },
+                ),
+              );
+            }
+
+            return toolbar;
+          },
         );
       },
     );
