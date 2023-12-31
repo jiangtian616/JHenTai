@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -23,6 +26,9 @@ Widget EHGalleryCollection({
   VoidCallback? handleLoadMore,
   ValueChanged<Gallery>? onScrolled,
 }) {
+  GalleryDownloadService galleryDownloadService = Get.find();
+  ArchiveDownloadService archiveDownloadService = Get.find();
+  
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
     return FlutterSliverList(
@@ -48,6 +54,7 @@ Widget EHGalleryCollection({
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: EHGalleryListCard(
               gallery: gallerys[index],
+              downloaded: galleryDownloadService.containGallery(gallerys[index].gid) || archiveDownloadService.containArchive(gallerys[index].gid),
               listMode: listMode,
               handleTapCard: (gallery) => handleTapCard(gallery),
               handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
@@ -71,7 +78,7 @@ Widget EHGalleryCollection({
       sliver: SliverWaterfallFlow(
         gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? 225 : 150,
+                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? 240 : 150,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
                 collectGarbage: (List<int> garbages) {
@@ -98,6 +105,7 @@ Widget EHGalleryCollection({
 
             return EHGalleryWaterFlowCard(
               gallery: gallerys[index],
+              downloaded: galleryDownloadService.containGallery(gallerys[index].gid) || archiveDownloadService.containArchive(gallerys[index].gid),
               listMode: listMode,
               handleTapCard: handleTapCard,
             );

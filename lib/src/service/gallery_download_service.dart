@@ -85,6 +85,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     super.onInit();
   }
 
+  bool containGallery(int gid) => galleryDownloadInfos.containsKey(gid);
+  
   Future<void> downloadGallery(GalleryDownloadedData gallery, {bool resume = false}) async {
     if (!resume && galleryDownloadInfos.containsKey(gallery.gid)) {
       return;

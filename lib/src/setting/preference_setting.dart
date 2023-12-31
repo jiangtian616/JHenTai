@@ -22,7 +22,7 @@ class PreferenceSetting {
   static RxBool enableSwipeBackGesture = true.obs;
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
-  static RxInt drawerGestureEdgeWidth = 40.obs;
+  static RxInt drawerGestureEdgeWidth = 100.obs;
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool enableDefaultFavorite = false.obs;

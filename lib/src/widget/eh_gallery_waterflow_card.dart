@@ -21,12 +21,14 @@ import 'eh_image.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
+  final bool downloaded;
   final ListMode listMode;
   final CardCallback handleTapCard;
 
   const EHGalleryWaterFlowCard({
     Key? key,
     required this.gallery,
+    required this.downloaded,
     required this.listMode,
     required this.handleTapCard,
   }) : super(key: key);
@@ -41,15 +43,11 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildCard(BuildContext context) {
     Widget child = Card(
-      child: Column(
-        children: [
-          if (listMode == ListMode.waterfallFlowSmall || listMode == ListMode.waterfallFlowMedium)
-            Stack(children: [_buildCover(), Positioned(child: _buildLanguageChip(), bottom: 4, right: 4)]),
-          if (listMode == ListMode.waterfallFlowBig) _buildCover(),
-          if (listMode == ListMode.waterfallFlowMedium) _buildMediumInfo(context),
-          if (listMode == ListMode.waterfallFlowBig) _buildBigInfo(context),
-        ],
-      ),
+      child: listMode == ListMode.waterfallFlowSmall
+          ? _buildSmallCard(context)
+          : listMode == ListMode.waterfallFlowMedium
+              ? _buildMediumCard(context)
+              : _buildBigCard(context),
     );
 
     if (gallery.hasLocalFilteredTag) {
@@ -69,6 +67,64 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     }
 
     return child;
+  }
+
+  Widget _buildSmallCard(BuildContext context) {
+    return Stack(
+      children: [
+        _buildCover(),
+        Positioned(bottom: 4, right: 4, child: _buildLanguageChip()),
+      ],
+    );
+  }
+
+  Widget _buildMediumCard(BuildContext context) {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            _buildCover(),
+            Positioned(bottom: 4, right: 4, child: _buildLanguageChip()),
+          ],
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                _buildRatingBar(context),
+                const Expanded(child: SizedBox()),
+                if (downloaded) _buildDownloadIcon().marginOnly(right: 2),
+                if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 2),
+                if (gallery.pageCount != null) _buildPageCount(),
+              ],
+            ),
+          ],
+        ).paddingOnly(top: 2, bottom: 2, left: 6, right: 6),
+      ],
+    );
+  }
+
+  Widget _buildBigCard(BuildContext context) {
+    return Column(
+      children: [
+        _buildCover(),
+        const SizedBox(height: 6),
+        Row(
+          children: [
+            _buildRatingBar(context),
+            const Expanded(child: SizedBox()),
+            if (downloaded) _buildDownloadIcon(),
+            if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
+            _buildCategory().marginOnly(left: 4, right: 4),
+            if (gallery.language != null) _buildLanguage().marginOnly(right: 2),
+            if (gallery.pageCount != null) _buildPageCount(),
+          ],
+        ),
+        _buildTitle().marginOnly(top: 4, left: 2),
+        if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
+      ],
+    ).paddingOnly(bottom: 6, left: 6, right: 6);
   }
 
   Widget _buildCover() {
@@ -111,54 +167,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     );
   }
 
-  Widget _buildMediumInfo(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            _buildRatingBar(context),
-            const Expanded(child: SizedBox()),
-            if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
-          ],
-        ),
-      ],
-    ).paddingOnly(top: 2, bottom: 2, left: 6, right: 6);
-  }
+  Widget _buildDownloadIcon() => const Icon(Icons.download, size: 10);
 
-  Widget _buildBigInfo(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildBasicInfo(context),
-        _buildTitle().marginOnly(top: 4, left: 2),
-        if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
-      ],
-    ).paddingOnly(top: 6, bottom: 6, left: 6, right: 6);
-  }
+  Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 10, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]);
 
-  Widget _buildBasicInfo(BuildContext context) {
-    return Row(
-      children: [
-        _buildRatingBar(context),
-        const Expanded(child: SizedBox()),
-        if (listMode == ListMode.waterfallFlowBig && gallery.isFavorite)
-          Icon(
-            Icons.favorite,
-            size: 11,
-            color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!],
-          ).marginOnly(right: 4),
-        EHGalleryCategoryTag(
-          category: gallery.category,
-          textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-        ).marginOnly(right: 4),
-        if (gallery.language != null)
-          Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9)).marginOnly(right: 4),
-        if (gallery.pageCount != null) Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9)),
-      ],
-    );
-  }
+  Widget _buildPageCount() => Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9));
+
+  Widget _buildLanguage() => Text(LocaleConsts.language2Abbreviation[gallery.language] ?? '', style: const TextStyle(fontSize: 9));
 
   Widget _buildRatingBar(BuildContext context) {
     return RatingBar.builder(
@@ -166,10 +181,18 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       initialRating: gallery.rating,
       itemCount: 5,
       allowHalfRating: true,
-      itemSize: 12,
+      itemSize: 11,
       ignoreGestures: true,
       itemBuilder: (context, _) => Icon(Icons.star, color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor),
       onRatingUpdate: (_) {},
+    );
+  }
+
+  Widget _buildCategory() {
+    return EHGalleryCategoryTag(
+      category: gallery.category,
+      textStyle: const TextStyle(fontSize: 8, color: UIConfig.galleryCategoryTagTextColor),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
     );
   }
 

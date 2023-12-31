@@ -266,6 +266,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         group: result.group,
       ));
 
+      updateGlobalGalleryStatus();
+      
       toast('${'beginToDownload'.tr}： ${gallery.gid}', isCenter: false);
       return;
     }
@@ -464,6 +466,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
       archiveDownloadService.downloadArchive(archive);
 
+      updateGlobalGalleryStatus();
+      
       Log.info('${'beginToDownloadArchive'.tr}: ${archive.title}');
       toast('${'beginToDownloadArchive'.tr}:  ${archive.title}', isCenter: false);
       return;

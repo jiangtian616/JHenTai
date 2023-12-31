@@ -64,6 +64,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     super.onInit();
   }
 
+  bool containArchive(int gid) {
+    return archiveDownloadInfos.containsKey(gid);
+  }
+
   Future<void> downloadArchive(ArchiveDownloadedData archive, {bool resume = false}) async {
     if (!resume && archiveDownloadInfos.containsKey(archive.gid)) {
       return;
@@ -147,8 +151,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     archiveDownloadInfo.cancelToken.cancel();
     archiveDownloadInfo.speedComputer.pause();
-    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index ||
-        archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
+    if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index || archiveDownloadInfo.archiveStatus.index >= ArchiveStatus.downloaded.index) {
       return;
     }
 
