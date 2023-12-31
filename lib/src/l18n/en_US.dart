@@ -430,6 +430,7 @@ class en_US {
       'enableBottomMenu': 'Enable Bottom Menu',
       'reverseTurnPageDirection': 'Reverse Page Turning Direction',
       'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
+      'disablePageTurningOnTap': 'Disable Page Turning On Tap',
       'turnPageMode': 'Turn Page Mode',
       'turnPageModeHint': 'To next screen or next image',
       'image': 'Image',

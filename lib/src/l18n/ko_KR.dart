@@ -430,6 +430,7 @@ class ko_KR {
       'enableBottomMenu': 'Enable Bottom Menu',
       'reverseTurnPageDirection': 'Reverse Page Turning Direction',
       'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
+      'disablePageTurningOnTap': 'Disable Page Turning On Tap',
       'turnPageMode': '페이지 넘기기 모드',
       'turnPageModeHint': '화면 기준 혹은 이미지 기준',
       'image': '이미지 기준',

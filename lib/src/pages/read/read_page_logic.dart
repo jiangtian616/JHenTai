@@ -424,6 +424,10 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapLeftRegion() {
+    if (ReadSetting.disablePageTurningOnTap.isTrue) {
+      return;
+    }
+
     if (state.isScrolling) {
       return;
     }
@@ -436,6 +440,10 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapRightRegion() {
+    if (ReadSetting.disablePageTurningOnTap.isTrue) {
+      return;
+    }
+    
     if (state.isScrolling) {
       return;
     }

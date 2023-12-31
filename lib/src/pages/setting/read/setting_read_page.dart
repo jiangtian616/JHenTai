@@ -36,6 +36,7 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableTapDragToScaleUp().center(),
               _buildEnableBottomMenu().center(),
               _buildReverseTurnPageDirection().center(),
+              _buildDisableTurnPageOnTap().center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -188,6 +189,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('reverseTurnPageDirection'.tr),
       trailing: Switch(value: ReadSetting.reverseTurnPageDirection.value, onChanged: ReadSetting.saveReverseTurnPageDirection),
+    );
+  }
+
+  Widget _buildDisableTurnPageOnTap() {
+    return ListTile(
+      title: Text('disablePageTurningOnTap'.tr),
+      trailing: Switch(value: ReadSetting.disablePageTurningOnTap.value, onChanged: ReadSetting.saveDisablePageTurningOnTap),
     );
   }
 
