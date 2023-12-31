@@ -50,7 +50,10 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
     }
 
     // make sure we are at the home tab
-    handleTapNavigationBarButton(0);
+    if (state.selectedNavigationIndex != 0) {
+      state.selectedNavigationIndex = 0;
+      updateSafely([bodyId, bottomNavigationBarId]);
+    }
 
     state.icons[index].shouldRender = true;
 

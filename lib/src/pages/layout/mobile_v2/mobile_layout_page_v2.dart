@@ -88,7 +88,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
         data: Theme.of(context).copyWith(splashColor: Colors.transparent),
         child: NavigationBar(
           selectedIndex: state.selectedNavigationIndex,
-          onDestinationSelected: (int index) => logic.handleTapNavigationBarButton(index),
+          onDestinationSelected: logic.handleTapNavigationBarButton,
           destinations: [
             NavigationDestination(icon: const Icon(Icons.home), label: 'home'.tr),
             NavigationDestination(icon: const Icon(Icons.download), label: 'download'.tr),
