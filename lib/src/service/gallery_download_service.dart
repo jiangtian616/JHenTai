@@ -875,6 +875,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           () => EHRequest.download(
             url: image.url,
             path: path,
+            receiveTimeout: 10 * 60 * 1000,
             cancelToken: galleryDownloadInfo.cancelToken,
             onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
           ),

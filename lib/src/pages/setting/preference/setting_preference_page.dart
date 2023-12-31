@@ -226,7 +226,7 @@ class SettingPreferencePage extends StatelessWidget {
               data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
               child: Slider(
                 min: 20,
-                max: 200,
+                max: 300,
                 label: PreferenceSetting.drawerGestureEdgeWidth.value.toString(),
                 value: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
                 onChanged: (value) {
