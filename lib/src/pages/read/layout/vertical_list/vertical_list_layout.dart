@@ -23,46 +23,53 @@ class VerticalListLayout extends BaseLayout {
   Widget buildBody(BuildContext context) {
     return GetBuilder<VerticalListLayoutLogic>(
       id: logic.verticalLayoutId,
-      builder: (_) => Row(
-        children: [
-          Expanded(flex: 100 - ReadSetting.imageRegionWidthRatio.value, child: Container(color: UIConfig.readPageBackGroundColor)),
-
-          /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
-          Expanded(
-            flex: ReadSetting.imageRegionWidthRatio.value * 2,
-            child: PhotoViewGallery.builder(
-              itemCount: 1,
-              builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
-                controller: state.photoViewController,
-                initialScale: 1.0,
-                minScale: 1.0,
-                maxScale: 2.5,
-                scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-                enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
-                child: EHWheelSpeedControllerForReadPage(
-                  scrollController: state.itemScrollController,
-                  child: EHScrollablePositionedList.separated(
-                    physics: const ClampingScrollPhysics(),
-                    minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                        ? ReadSetting.preloadDistance * screenHeight * 1
-                        : GetPlatform.isIOS
-                            ? 3 * screenHeight
-                            : 8 * screenHeight,
-                    initialScrollIndex: readPageState.readPageInfo.initialIndex,
-                    itemCount: readPageState.readPageInfo.pageCount,
-                    itemScrollController: state.itemScrollController,
-                    itemPositionsListener: state.itemPositionsListener,
-                    itemBuilder: (context, index) =>
-                        readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
-                    separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
-                  ),
-                ),
-              ),
+      builder: (_) => PhotoViewGallery.builder(
+        itemCount: 1,
+        builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
+          controller: state.photoViewController,
+          initialScale: 1.0,
+          minScale: 1.0,
+          maxScale: 2.5,
+          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+          child: EHWheelSpeedControllerForReadPage(
+            scrollController: state.itemScrollController,
+            child: EHScrollablePositionedList.separated(
+              physics: const ClampingScrollPhysics(),
+              minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                  ? ReadSetting.preloadDistance * screenHeight * 1
+                  : GetPlatform.isIOS
+                      ? 3 * screenHeight
+                      : 8 * screenHeight,
+              initialScrollIndex: readPageState.readPageInfo.initialIndex,
+              itemCount: readPageState.readPageInfo.pageCount,
+              itemScrollController: state.itemScrollController,
+              itemPositionsListener: state.itemPositionsListener,
+              itemBuilder: _itemBuilder,
+              separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
             ),
           ),
-          Expanded(flex: 100 - ReadSetting.imageRegionWidthRatio.value, child: Container(color: UIConfig.readPageBackGroundColor)),
-        ],
+        ),
       ),
+    );
+  }
+
+  Widget _itemBuilder(context, index) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          child: Container(color: UIConfig.readPageBackGroundColor),
+        ),
+        Expanded(
+          flex: ReadSetting.imageRegionWidthRatio.value * 2,
+          child: readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+        ),
+        Expanded(
+          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          child: Container(color: UIConfig.readPageBackGroundColor),
+        ),
+      ],
     );
   }
 }
