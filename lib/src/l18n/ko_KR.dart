@@ -225,8 +225,8 @@ class ko_KR {
       /// eh setting page
       'site': '사이트',
       'redirect2Eh': '사용 가능하면 EH로 재요청',
-      'imDonor': 'I\'m a Donor',
-      'imDonorHint': 'If you are a donor, you can turn this on to help you access EX site',
+      'redirectAllGallery': 'Redirect all gallery to EH',
+      'imDonorHint': 'If you are a donor, you can turn this on to help you access gallerys in EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': '사이트 내부 설정',
@@ -256,6 +256,7 @@ class ko_KR {
 
       /// Profile Setting page
       'selectedProfile': 'Selected Profile',
+      'resetIfSwitchSite': 'Will be reset if switch site',
 
       /// add host mapping dialog
       'addHostMapping': 'Add Host Mapping',

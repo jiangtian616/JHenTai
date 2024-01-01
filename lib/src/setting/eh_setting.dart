@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -8,6 +10,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 
 import '../exception/eh_exception.dart';
+import '../network/eh_cookie_manager.dart';
 import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 
@@ -78,6 +81,9 @@ class EHSetting {
     Log.debug('saveSite:$site');
     EHSetting.site.value = site;
     _save();
+
+    Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp','1')]);
+    
     SiteSetting.refresh();
   }
 

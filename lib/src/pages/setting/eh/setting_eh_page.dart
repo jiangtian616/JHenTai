@@ -82,7 +82,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
   Widget _buildIsDonor() {
     return ListTile(
-      title: Text('imDonor'.tr),
+      title: Text('redirectAllGallery'.tr),
       subtitle: Text('imDonorHint'.tr),
       trailing: Switch(value: EHSetting.isDonor.value, onChanged: EHSetting.saveIsDonor),
     );

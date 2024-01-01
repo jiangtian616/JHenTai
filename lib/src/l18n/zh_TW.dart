@@ -224,8 +224,8 @@ class zh_TW {
       /// eh setting page
       'site': '站點',
       'redirect2Eh': '優先重定向至表站',
-      'imDonor': 'I\'m a Donor',
-      'imDonorHint': '如果你是捐贈者，你可以打開此項來更容易地訪問部分裏站畫廊',
+      'redirectAllGallery': '重定向所有畫廊至表站',
+      'imDonorHint': '如果你是捐赠者，你可以打開此項來更容易地訪問裏站中的畫廊',
       'profileSetting': 'Profile設定',
       'chooseProfileHint': '选择在JHenTai中使用的Profile',
       'siteSetting': '站點設定',
@@ -255,6 +255,7 @@ class zh_TW {
 
       /// Profile Setting page
       'selectedProfile': '當前使用的Profile',
+      'resetIfSwitchSite': '切換站點後將會自動重置',
 
       /// add host mapping dialog
       'addHostMapping': '添加自定義Host',

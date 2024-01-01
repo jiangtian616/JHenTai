@@ -52,6 +52,7 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
         children: [
           ListTile(
             title: Text('selectedProfile'.tr),
+            subtitle: Text('resetIfSwitchSite'.tr),
             trailing: DropdownButton<int>(
               value: number,
               elevation: 4,

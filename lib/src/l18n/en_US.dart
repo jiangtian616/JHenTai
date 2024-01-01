@@ -225,8 +225,8 @@ class en_US {
       /// eh setting page
       'site': 'Site',
       'redirect2Eh': 'Redirect to EH if available',
-      'imDonor': 'I\'m a Donor',
-      'imDonorHint': 'If you are a donor, you can turn this on to help you access EX site',
+      'redirectAllGallery': 'Redirect all gallery to EH',
+      'imDonorHint': 'If you are a donor, you can turn this on to help you access gallerys in EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': 'Site Setting',
@@ -256,6 +256,7 @@ class en_US {
 
       /// Profile Setting page
       'selectedProfile': 'Selected Profile',
+      'resetIfSwitchSite': 'Will be reset if switch site',
 
       /// add host mapping dialog
       'addHostMapping': 'Add Host Mapping',
