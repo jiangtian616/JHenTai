@@ -23,23 +23,38 @@ Still in development stage, welcome to submit issues or feature requests.
 
 Install for Android: download .apk according to your device architecture and install.
 
--   arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
--   armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
--   x86_64：rare
+- arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
+- armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
+- x86_64：rare
 
 Install for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
 
-Install for Windows: download Windows_xxx.zip, then unpack it. 
-- If you use a proxy server, set proxy address at network setting page. 
-- If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode. 
+Install for Windows: download Windows_xxx.zip, then unpack it.
+
+- If you use a proxy server, set proxy address at network setting page.
+- If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode.
 - If it's blocked by Windows Defender, Please trust it.
 
-Install for MacOS(No maintenance): download .dmg. 
+Install for MacOS(No maintenance): download .dmg.
+
 - Trust it in system setting.
 - If you use a proxy server, set proxy address at network setting page.
 
-Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it. 
+Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it.
+
 - If you use a proxy server, set proxy address at network setting page.
+
+## Update
+
+Update for Android: download .apk according to your device architecture and install.
+
+Update for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
+
+Update for Windows: Delete old unpacked directory directly, then download latest Windows_xxx.zip, unpack it.
+
+Update for MacOS(No maintenance): download .dmg.
+
+Update for Linux(No maintenance): Delete old unpacked directory directly, then download latest Linux_xxx.zip, unpack it.
 
 ## Help With Translation
 
@@ -69,19 +84,19 @@ So updates for JHenTai will be less than previous, but I'll still handle bugs or
 
 Layout and style references:
 
--   [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
--   [EHPanda](https://github.com/tatsuz0u/EhPanda)
--   [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
+- [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
+- [EHPanda](https://github.com/tatsuz0u/EhPanda)
+- [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
 
 Tag translation:
 
--   [EhTagTranslation](https://github.com/EhTagTranslation/Database)
+- [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
 App translation：
 
--   [andyching168](https://github.com/andyching168) 繁體中文(台灣)
--   [lucas-04](https://github.com/lucas-04) Português brasileiro
--   [qlife1146](https://github.com/qlife1146) 한국어
+- [andyching168](https://github.com/andyching168) 繁體中文(台灣)
+- [lucas-04](https://github.com/lucas-04) Português brasileiro
+- [qlife1146](https://github.com/qlife1146) 한국어
 
 mush thanks to these projects and people🙇‍
 
@@ -124,7 +139,7 @@ mush thanks to these projects and people🙇‍
 -   [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
 -   [x] search, search suggestion, tap tag to search, file search, jump to a certain page
 -   [x] online reading and download, support restore download task, support synchronize updates after the uploader has
-        uploaded a new version
+    uploaded a new version
 -   [x] archive download and automatic unpacking and reading
 -   [x] support loading local images and read
 -   [x] support assign priority to download task manually
@@ -168,7 +183,7 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 
 ## Main Dart Dependencies
 
--   [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL
--   [dio](https://pub.flutter-io.cn/packages?q=dio): network
--   [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
--   [drift](https://pub.flutter-io.cn/packages/drift): database
+- [get](https://pub.flutter-io.cn/packages/get): dependency management, state management, l18n, NoSQL
+- [dio](https://pub.flutter-io.cn/packages?q=dio): network
+- [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
+- [drift](https://pub.flutter-io.cn/packages/drift): database
