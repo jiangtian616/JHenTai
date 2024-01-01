@@ -54,6 +54,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildSiteSegmentControl(),
+            _buildIsDonor(),
             _buildProfile(),
             _buildSiteSetting(),
             _buildImageLimit(),
@@ -76,6 +77,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
         },
         onValueChanged: (value) => EHSetting.saveSite(value ?? 'EH'),
       ),
+    );
+  }
+
+  Widget _buildIsDonor() {
+    return ListTile(
+      title: Text('imDonor'.tr),
+      subtitle: Text('imDonorHint'.tr),
+      trailing: Switch(value: EHSetting.isDonor.value, onChanged: EHSetting.saveIsDonor),
     );
   }
 

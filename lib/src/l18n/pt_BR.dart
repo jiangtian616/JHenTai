@@ -226,6 +226,8 @@ class pt_BR {
       /// eh setting page
       'site': 'Site',
       'redirect2Eh': 'Redirecionar para EH, se disponível',
+      'imDonor': 'I\'m a Donor',
+      'imDonorHint': 'If you are a donor, you can turn this on to help you access EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': 'Configuração do site',

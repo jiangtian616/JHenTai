@@ -13,6 +13,8 @@ import '../utils/eh_spider_parser.dart';
 
 class EHSetting {
   static RxString site = 'EH'.obs;
+  static RxBool isDonor = false.obs;
+
   static Rx<LoadingState> refreshState = LoadingState.idle.obs;
   static RxInt currentConsumption = (-1).obs;
   static RxInt totalLimit = 5000.obs;
@@ -79,9 +81,9 @@ class EHSetting {
     SiteSetting.refresh();
   }
 
-  static saveTotalLimit(int totalLimit) {
-    Log.debug('saveTotalLimit:$totalLimit');
-    EHSetting.totalLimit.value = totalLimit;
+  static saveIsDonor(bool isDonor) {
+    Log.debug('saveIsDonor:$isDonor');
+    EHSetting.isDonor.value = isDonor;
     _save();
   }
 

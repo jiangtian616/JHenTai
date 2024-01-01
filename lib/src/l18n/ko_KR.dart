@@ -225,6 +225,8 @@ class ko_KR {
       /// eh setting page
       'site': '사이트',
       'redirect2Eh': '사용 가능하면 EH로 재요청',
+      'imDonor': 'I\'m a Donor',
+      'imDonorHint': 'If you are a donor, you can turn this on to help you access EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': '사이트 내부 설정',

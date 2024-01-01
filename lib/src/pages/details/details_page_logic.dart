@@ -20,6 +20,7 @@ import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_add_tag_dialog.dart';
@@ -736,7 +737,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// 1. Try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
-    if (state.galleryUrl.contains(EHConsts.EXIndex)) {
+    if (state.galleryUrl.contains(EHConsts.EXIndex) && !_galleryOnlyInExSite()) {
       firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
       secondLink = state.galleryUrl;
     } else {
@@ -774,6 +775,22 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.verbose('Can\'t find gallery, secondLink: $secondLink');
       rethrow;
     }
+  }
+
+  bool _galleryOnlyInExSite() {
+    if (state.gallery == null) {
+      return false;
+    }
+
+    if (state.gallery!.tags.isEmpty) {
+      return false;
+    }
+
+    if (EHSetting.isDonor.isTrue) {
+      return false;
+    }
+    
+    return state.gallery!.tags.values.any((tagList) => tagList.any((tag) => tag.tagData.key == 'lolicon'));
   }
 
   /// some field in [gallery] sometimes is null

@@ -224,6 +224,8 @@ class zh_CN {
       /// eh setting page
       'site': '站点',
       'redirect2Eh': '优先重定向至表站',
+      'imDonor': '我是捐赠者',
+      'imDonorHint': '如果你是捐赠者，你可以打开此项来更容易地访问部分里站画廊',
       'profileSetting': 'Profile设置',
       'chooseProfileHint': '选择在JHenTai中使用的Profile',
       'siteSetting': '站点设置',
