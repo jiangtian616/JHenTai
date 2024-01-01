@@ -95,80 +95,90 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildMenuButton(BuildContext context) {
-    return GetBuilder<ArchiveDownloadService>(
-      id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
+    return GetBuilder<DetailsPageLogic>(
+      id: DetailsPageLogic.detailsId,
+      global: false,
+      init: logic,
       builder: (_) {
-        return GetBuilder<GalleryDownloadService>(
-          id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
-          builder: (_) {
-            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
-            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
+        if (state.galleryDetails == null) {
+          return const SizedBox();
+        }
 
-            return PopupMenuButton(
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    value: 0,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text('jump'.tr), const Icon(FontAwesomeIcons.paperPlane, size: 20)],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text('share'.tr), const Icon(Icons.share)],
-                    ),
-                  ),
-                  PopupMenuItem(
-                    value: 2,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Text('addTag'.tr), const Icon(Icons.bookmark_border)],
-                    ),
-                  ),
-                  if (downloadProgress != null || archiveStatus != null)
+        return GetBuilder<ArchiveDownloadService>(
+          id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
+          builder: (_) => GetBuilder<GalleryDownloadService>(
+            id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
+            builder: (_) {
+              GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
+              ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
+
+              return PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
                     PopupMenuItem(
-                      value: 3,
+                      value: 0,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [Text('delete'.tr), const Icon(Icons.delete)],
+                        children: [Text('jump'.tr), const Icon(FontAwesomeIcons.paperPlane, size: 20)],
                       ),
                     ),
-                  if (state.gallery != null && (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGallerys?.isNotEmpty ?? false)))
                     PopupMenuItem(
-                      value: 4,
+                      value: 1,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [Text('history'.tr), const Icon(Icons.history)],
+                        children: [Text('share'.tr), const Icon(Icons.share)],
                       ),
                     ),
-                ];
-              },
-              onSelected: (value) {
-                if (value == 0) {
-                  logic.handleTapJumpButton();
-                }
-                if (value == 1) {
-                  logic.shareGallery();
-                }
-                if (value == 2) {
-                  logic.handleAddTag(context);
-                }
-                if (value == 3) {
-                  logic.handleTapDeleteDownload(
-                    context,
-                    state.gallery!.gid,
-                    downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
-                  );
-                }
-                if (value == 4) {
-                  logic.handleTapHistoryButton(context);
-                }
-              },
-            );
-          },
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('addTag'.tr), const Icon(Icons.bookmark_border)],
+                      ),
+                    ),
+                    if (downloadProgress != null || archiveStatus != null)
+                      PopupMenuItem(
+                        value: 3,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [Text('delete'.tr), const Icon(Icons.delete)],
+                        ),
+                      ),
+                    if (state.gallery != null &&
+                        (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGallerys?.isNotEmpty ?? false)))
+                      PopupMenuItem(
+                        value: 4,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [Text('history'.tr), const Icon(Icons.history)],
+                        ),
+                      ),
+                  ];
+                },
+                onSelected: (value) {
+                  if (value == 0) {
+                    logic.handleTapJumpButton();
+                  }
+                  if (value == 1) {
+                    logic.shareGallery();
+                  }
+                  if (value == 2) {
+                    logic.handleAddTag(context);
+                  }
+                  if (value == 3) {
+                    logic.handleTapDeleteDownload(
+                      context,
+                      state.gallery!.gid,
+                      downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
+                    );
+                  }
+                  if (value == 4) {
+                    logic.handleTapHistoryButton(context);
+                  }
+                },
+              );
+            },
+          ),
         );
       },
     );
