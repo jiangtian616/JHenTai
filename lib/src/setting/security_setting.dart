@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
 
@@ -13,6 +17,7 @@ class SecuritySetting {
   static RxBool enablePasswordAuth = false.obs;
   static RxBool enableBiometricAuth = false.obs;
   static RxBool enableAuthOnResume = false.obs;
+  static RxBool hideImagesInAlbum = false.obs;
 
   static bool supportBiometricAuth = false;
 
@@ -82,6 +87,20 @@ class SecuritySetting {
     }
   }
 
+  static saveHideImagesInAlbum(bool hideImagesInAlbum) {
+    Log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
+    SecuritySetting.hideImagesInAlbum.value = hideImagesInAlbum;
+    _save();
+
+    Directory directory = Directory(DownloadSetting.downloadPath.value);
+    File file = File(join(directory.path, '.nomedia'));
+    if (hideImagesInAlbum) {
+      file.create();
+    } else {
+      file.delete().ignore();
+    }
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('securitySetting', _toMap());
   }
@@ -93,6 +112,7 @@ class SecuritySetting {
       'enablePasswordAuth': enablePasswordAuth.value,
       'enableBiometricAuth': enableBiometricAuth.value,
       'enableAuthOnResume': enableAuthOnResume.value,
+      'hideImagesInAlbum': hideImagesInAlbum.value,
     };
   }
 
@@ -102,5 +122,6 @@ class SecuritySetting {
     enablePasswordAuth.value = map['enablePasswordAuth'] ?? enablePasswordAuth.value;
     enableBiometricAuth.value = map['enableBiometricAuth'] ?? enableBiometricAuth.value;
     enableAuthOnResume.value = map['enableAuthOnResume'] ?? enableAuthOnResume.value;
+    hideImagesInAlbum.value = map['hideImagesInAlbum'] ?? hideImagesInAlbum.value;
   }
 }

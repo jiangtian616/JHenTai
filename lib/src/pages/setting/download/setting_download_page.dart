@@ -10,6 +10,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/file_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -38,9 +39,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   LoadingState changeDownloadPathState = LoadingState.idle;
 
   final ScrollController scrollController = ScrollController();
-
-  final RegExp _galleryPathPattern = RegExp(r'\d+ - .*');
-  final RegExp _archivePathPattern = RegExp(r'Archive - \d+ - .*');
 
   @override
   void dispose() {
@@ -351,7 +349,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     /// copy directories first
     for (io.Directory oldDir in oldDirs) {
-      if (_isJHenTaiGalleryDirectory(oldDir.path)) {
+      if (FileUtil.isJHenTaiGalleryDirectory(oldDir)) {
         io.Directory newDir = io.Directory(join(newDownloadPath, relative(oldDir.path, from: oldDownloadPath)));
         futures.add(newDir.create(recursive: true));
       }
@@ -361,15 +359,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     /// then copy files
     for (io.File oldFile in oldFiles) {
-      if (_isJHenTaiGalleryDirectory(oldFile.parent.path)) {
+      if (FileUtil.isJHenTaiFile(oldFile)) {
         futures.add(oldFile.copy(join(newDownloadPath, relative(oldFile.path, from: oldDownloadPath))));
       }
     }
     await Future.wait(futures);
-  }
-
-  bool _isJHenTaiGalleryDirectory(String path) {
-    return _galleryPathPattern.hasMatch(path) || _archivePathPattern.hasMatch(path);
   }
 
   Future<void> _handleChangeSingleImageSavePath() async {
