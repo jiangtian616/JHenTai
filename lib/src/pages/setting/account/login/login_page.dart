@@ -203,7 +203,7 @@ class LoginPage extends StatelessWidget {
         focusNode: state.igneousFocusNode,
         controller: TextEditingController(text: state.igneous ?? ''),
         decoration: InputDecoration(
-          hintText: 'igneous',
+          hintText: 'igneousHint'.tr,
           hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: UIConfig.loginPageTextHintSize, height: 1),
           prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
         ),

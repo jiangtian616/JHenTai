@@ -71,6 +71,7 @@ class zh_CN {
       'userNameFormHint': '如果无法访问里站，请尝试Cookie登录',
       'tap2Login': '点击登录',
       'parse': '解析',
+      'igneousHint': 'igneous（里站必带）',
 
       /// request
       'sadPanda': 'Sad Panda: 无响应数据',

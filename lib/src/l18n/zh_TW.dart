@@ -71,6 +71,7 @@ class zh_TW {
       'userNameFormHint': '如果無法訪問裏站，請嘗試Cookie登錄',
       'tap2Login': '點擊登錄',
       'parse': '解析',
+      'igneousHint': 'igneous（裏站必帶）',
 
       /// request
       'sadPanda': 'Sad Panda: 無回應數據',

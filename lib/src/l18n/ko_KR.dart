@@ -71,6 +71,7 @@ class ko_KR {
       'userNameFormHint': '슬픈 판다가 나온다면 쿠키로 시도하세요.',
       'tap2Login': '로그인',
       'parse': 'parse',
+      'igneousHint': 'igneous(EX required)',
 
       /// request
       'sadPanda': '슬픈 판다: 데이터 없음',

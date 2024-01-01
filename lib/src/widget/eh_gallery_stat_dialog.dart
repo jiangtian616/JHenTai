@@ -95,7 +95,6 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
     } on EHException catch (e) {
       if (e.type == EHExceptionType.galleryDeleted) {
         Log.error('invisible2UserWithoutDonation'.tr);
-        snack('invisible2UserWithoutDonation'.tr, e.message);
         setStateSafely(() => loadingState = LoadingState.noData);
         return;
       }

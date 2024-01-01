@@ -72,6 +72,7 @@ class pt_BR {
       'userNameFormHint': 'Try with cookie in case of Sad Panda',
       'tap2Login': 'Log In',
       'parse': 'parse',
+      'igneousHint': 'igneous(EX required)',
 
       /// request
       'sadPanda': 'Panda triste: Sem dados',
