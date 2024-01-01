@@ -707,8 +707,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     Response response = await _postWithErrorHandler(
       EHConsts.EHome,
       data: FormData.fromMap({
-        'act': 'limits',
-        'reset': 'Reset Limit',
+        'reset_imagelimit': 'Reset Limit',
       }),
     );
 
