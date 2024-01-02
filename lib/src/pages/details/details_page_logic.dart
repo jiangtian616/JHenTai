@@ -756,9 +756,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         state.gallery?.galleryUrl = state.galleryUrl = firstLink;
         return galleryAndDetailAndApikey;
       } on EHException catch (e) {
-        if (e.type != EHExceptionType.galleryDeleted) {
-          rethrow;
-        }
         Log.verbose('Can\'t find gallery, firstLink: $firstLink');
       }
     }

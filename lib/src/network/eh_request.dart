@@ -795,7 +795,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
       String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
       if (!isEmptyOrNull(errMessage)) {
-        throw EHException(
+        return EHException(
           type: EHExceptionType.galleryDeleted,
           message: errMessage!,
           shouldPauseAllDownloadTasks: false,
