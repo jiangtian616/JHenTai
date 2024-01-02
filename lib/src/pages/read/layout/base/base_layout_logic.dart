@@ -269,9 +269,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
 
     if (GetPlatform.isDesktop) {
-      toast('success'.tr);
+      toast('saveSuccess'.tr);
     } else {
-      _saveImage2Album(File(downloadPath).readAsBytesSync(), fileName).then((_) => toast('success'.tr));
+      _saveImage2Album(File(downloadPath).readAsBytesSync(), fileName).then((_) {
+        toast('saveSuccess'.tr);
+        File(downloadPath).delete();
+      });
     }
   }
 
