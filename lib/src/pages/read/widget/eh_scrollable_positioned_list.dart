@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:flutter/scheduler.dart';
@@ -348,6 +349,14 @@ class _EHScrollablePositionedListState extends State<EHScrollablePositionedList>
         final cacheExtent = _cacheExtent(constraints);
         return GestureDetector(
           onPanDown: (_) => _stopScroll(canceled: true),
+          /// ignore mouse event to handle gesture conflict when drag vertically with enlarged image and horizontal list layout
+          supportedDevices: const <PointerDeviceKind>{
+            PointerDeviceKind.touch,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.invertedStylus,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.unknown,
+          },
           excludeFromSemantics: true,
           child: Stack(
             children: <Widget>[
