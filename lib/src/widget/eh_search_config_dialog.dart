@@ -256,7 +256,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             ),
           ),
           onTap: hideSuggestions,
-          enableSuggestions: false,
           onChanged: (keyword) {
             searchConfig.keyword = keyword;
             waitAndSearchTags(keyword);
