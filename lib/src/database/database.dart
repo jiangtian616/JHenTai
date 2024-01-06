@@ -32,7 +32,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
