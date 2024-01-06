@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
+import '../utils/toast_util.dart';
 
 class DownloadSetting {
   static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
@@ -30,6 +32,8 @@ class DownloadSetting {
     } else {
       Log.debug('init DownloadSetting success: default', false);
     }
+
+    _ensureDownloadDirExists();
   }
 
   static saveDownloadPath(String downloadPath) {
@@ -108,6 +112,25 @@ class DownloadSetting {
     Log.debug('saveDeleteArchiveFileAfterDownload:$value');
     deleteArchiveFileAfterDownload.value = value;
     _save();
+  }
+
+  static void _ensureDownloadDirExists() {
+    try {
+      Directory(downloadPath.value).createSync(recursive: true);
+      Directory(defaultExtraGalleryScanPath).createSync(recursive: true);
+      Directory(singleImageSavePath.value).createSync(recursive: true);
+    } on Exception catch (e) {
+      toast('brokenDownloadPathHint'.tr);
+      Log.error(e);
+      Log.upload(
+        e,
+        extraInfos: {
+          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
+          'downloadPath': DownloadSetting.downloadPath.value,
+          'exists': PathSetting.getVisibleDir().existsSync(),
+        },
+      );
+    }
   }
 
   static Future<void> _save() async {

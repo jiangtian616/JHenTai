@@ -69,7 +69,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   @override
   void onInit() {
     super.onInit();
-    _createDefaultScanDirectory();
+    
     refreshLocalGallerys();
   }
 
@@ -275,21 +275,5 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
       Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
       return null;
     });
-  }
-
-  void _createDefaultScanDirectory() {
-    try {
-      Directory(DownloadSetting.defaultExtraGalleryScanPath).createSync(recursive: true);
-    } on Exception catch (e) {
-      toast('brokenExtraScanPathHint'.tr);
-      Log.error(e);
-      Log.upload(
-        e,
-        extraInfos: {
-          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
-          'downloadPath': DownloadSetting.downloadPath.value,
-        },
-      );
-    }
   }
 }

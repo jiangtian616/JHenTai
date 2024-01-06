@@ -72,8 +72,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   @override
   onInit() async {
-    _ensureDownloadDirExists();
-
     await _instantiateFromDB();
 
     Log.debug('init DownloadService success, download task count: ${gallerys.length}');
