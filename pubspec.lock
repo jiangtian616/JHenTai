@@ -1305,22 +1305,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.3.5"
-  sentry:
-    dependency: transitive
-    description:
-      name: sentry
-      sha256: "39c23342fc96105da449914f7774139a17a0ca8a4e70d9ad5200171f7e47d6ba"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "7.9.0"
-  sentry_flutter:
-    dependency: "direct main"
-    description:
-      name: sentry_flutter
-      sha256: ff68ab31918690da004a42e20204242a3ad9ad57da7e2712da8487060ac9767f
-      url: "https://pub.flutter-io.cn"
-    source: hosted
-    version: "7.9.0"
   share_plus:
     dependency: "direct main"
     description:

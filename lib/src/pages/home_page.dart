@@ -195,7 +195,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       },
       onError: (e) {
         Log.error('ReceiveSharingIntent Error!', e);
-        Log.upload(e);
+        Log.uploadError(e);
       },
     );
   }

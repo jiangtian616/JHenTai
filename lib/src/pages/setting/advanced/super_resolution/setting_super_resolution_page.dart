@@ -58,7 +58,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
           result = await FilePicker.platform.getDirectoryPath();
         } on Exception catch (e) {
           Log.error('Pick executable file path failed', e);
-          Log.upload(e);
+          Log.uploadError(e);
           toast('internalError'.tr);
         }
 

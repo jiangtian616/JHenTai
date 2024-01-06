@@ -13,7 +13,6 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../exception/upload_exception.dart';
 import 'byte_util.dart';
@@ -107,49 +106,45 @@ class Log {
     _downloadFileLogger?.v(msg, null, StackTrace.empty);
   }
 
-  static Future<void> upload(
-    dynamic throwable, {
-    dynamic stackTrace,
-    Map<String, dynamic>? extraInfos,
-  }) async {
+  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
     if (_shouldDismissUpload(throwable)) {
       return;
     }
 
     extraInfos = _extractExtraInfos(throwable, stackTrace, extraInfos);
 
-    /// Wait for full log
-    Future.delayed(const Duration(seconds: 3)).then(
-      (_) => Sentry.captureException(
-        throwable,
-        stackTrace: stackTrace,
-        withScope: (scope) {
-          if (UserSetting.hasLoggedIn()) {
-            if (scope.user != null) {
-              scope.setUser(scope.user!.copyWith(id: UserSetting.userName.value, username: UserSetting.userName.value));
-            } else {
-              scope.setUser(SentryUser(id: UserSetting.userName.value, username: UserSetting.userName.value));
-            }
-          }
-
-          extraInfos?.forEach((key, value) {
-            String cleanedValue = _cleanPrivacy(value.toString());
-            if (cleanedValue.length < 1000) {
-              scope.setExtra(key, cleanedValue);
-            } else {
-              scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
-            }
-          });
-
-          if (_shouldAttachLogFile(stackTrace)) {
-            Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
-            if (verboseAttachment.isNotEmpty) {
-              scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
-            }
-          }
-        },
-      ),
-    );
+    // /// Wait for full log
+    // Future.delayed(const Duration(seconds: 3)).then(
+    //   (_) => Sentry.captureException(
+    //     throwable,
+    //     stackTrace: stackTrace,
+    //     withScope: (scope) {
+    //       if (UserSetting.hasLoggedIn()) {
+    //         if (scope.user != null) {
+    //           scope.setUser(scope.user!.copyWith(id: UserSetting.userName.value, username: UserSetting.userName.value));
+    //         } else {
+    //           scope.setUser(SentryUser(id: UserSetting.userName.value, username: UserSetting.userName.value));
+    //         }
+    //       }
+    //
+    //       extraInfos?.forEach((key, value) {
+    //         String cleanedValue = _cleanPrivacy(value.toString());
+    //         if (cleanedValue.length < 1000) {
+    //           scope.setExtra(key, cleanedValue);
+    //         } else {
+    //           scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
+    //         }
+    //       });
+    //
+    //       if (_shouldAttachLogFile(stackTrace)) {
+    //         Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
+    //         if (verboseAttachment.isNotEmpty) {
+    //           scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
+    //         }
+    //       }
+    //     },
+    //   ),
+    // );
   }
 
   static Future<String> getSize() async {
@@ -167,7 +162,7 @@ class Log {
         .then<String>((totalBytes) => byte2String(totalBytes.toDouble()))
         .onError((e, stackTrace) {
           Log.error('getSizeFailed'.tr, error, stackTrace);
-          Log.upload(e, extraInfos: {'files': logDirectory.listSync()});
+          Log.uploadError(e, extraInfos: {'files': logDirectory.listSync()});
           return '-1B';
         });
   }
@@ -273,14 +268,14 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
     }
 
     Log.error('operationFailed'.tr, e);
-    Log.upload(e, extraInfos: {'params': params});
+    Log.uploadError(e, extraInfos: {'params': params});
     if (defaultValue == null) {
       throw NotUploadException(e);
     }
     return defaultValue;
   } on Error catch (e) {
     Log.error('operationFailed'.tr, e);
-    Log.upload(e, extraInfos: {'params': params});
+    Log.uploadError(e, extraInfos: {'params': params});
     if (defaultValue == null) {
       throw NotUploadException(e);
     }

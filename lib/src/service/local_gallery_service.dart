@@ -131,13 +131,13 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     if (otherFiles.isEmpty) {
       dir.delete(recursive: true).catchError((e) {
         Log.error('Delete local gallery error!', e);
-        Log.upload(e);
+        Log.uploadError(e);
       });
     } else {
       for (File file in otherFiles) {
         file.delete().catchError((e) {
           Log.error('Delete local gallery error!', e);
-          Log.upload(e);
+          Log.uploadError(e);
         });
       }
     }
@@ -272,7 +272,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
       }
     }).catchError((e) {
       Log.error('Parse gallery url from ehv metadata failed!', e);
-      Log.upload(e, extraInfos: {'ehvMetadata': ehvMetadata});
+      Log.uploadError(e, extraInfos: {'ehvMetadata': ehvMetadata});
       return null;
     });
   }

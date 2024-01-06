@@ -13,7 +13,7 @@ class FrameRateSetting {
       await FlutterDisplayMode.setHighRefreshRate();
     } on PlatformException catch (e) {
       Log.error('init FrameRateSetting failed', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
     Log.debug('init FrameRateSetting success');
   }

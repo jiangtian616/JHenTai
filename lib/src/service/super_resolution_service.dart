@@ -128,7 +128,7 @@ class SuperResolutionService extends GetxController {
 
     if (!success) {
       Log.error('Unpacking Super-resolution model error!');
-      Log.upload(Exception('Unpacking Super-resolution model error!'));
+      Log.uploadError(Exception('Unpacking Super-resolution model error!'));
       toast('internalError'.tr);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
@@ -261,7 +261,7 @@ class SuperResolutionService extends GetxController {
       imageFile.copySync(newPath);
     } on Exception catch (e) {
       Log.error('copy super resolution image failed', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
 
     newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
@@ -312,14 +312,14 @@ class SuperResolutionService extends GetxController {
       } on Exception catch (e) {
         toast('internalError'.tr + e.toString(), isShort: false);
         Log.error(e);
-        Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
+        Log.uploadError(e, extraInfos: {'rawImage': rawImages[i]});
 
         pauseSuperResolve(gid, type);
         return;
       } on Error catch (e) {
         toast('internalError'.tr + e.toString(), isShort: false);
         Log.error(e);
-        Log.upload(e, extraInfos: {'rawImage': rawImages[i]});
+        Log.uploadError(e, extraInfos: {'rawImage': rawImages[i]});
 
         pauseSuperResolve(gid, type);
         return;
@@ -346,7 +346,7 @@ class SuperResolutionService extends GetxController {
       if (exitCode != 0) {
         toast('${'internalError'.tr} exitCode:$exitCode', isShort: false);
         Log.error('${'internalError'.tr} exitCode:$exitCode');
-        Log.upload(
+        Log.uploadError(
           Exception('Process Error'),
           extraInfos: {'rawImage': rawImages[i], 'exitCode': exitCode},
         );

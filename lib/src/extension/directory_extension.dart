@@ -15,7 +15,7 @@ extension DirectoryExtension on io.Directory {
       entities = listSync(recursive: true);
     } on Exception catch (e) {
       Log.error(e);
-      Log.upload(e, extraInfos: {'path': path});
+      Log.uploadError(e, extraInfos: {'path': path});
       return;
     }
 
@@ -23,7 +23,7 @@ extension DirectoryExtension on io.Directory {
     for (io.FileSystemEntity file in entities) {
       if (file is! io.File) {
         Log.error('Not a file: ${file.path}');
-        Log.upload(Exception('Not a file'), extraInfos: {'file': file.path});
+        Log.uploadError(Exception('Not a file'), extraInfos: {'file': file.path});
         continue;
       }
 
@@ -36,7 +36,7 @@ extension DirectoryExtension on io.Directory {
         futures.add(file.copy(join(toPath, relative(file.path, from: path))));
       } on Exception catch (e) {
         Log.error(e);
-        Log.upload(e, extraInfos: {
+        Log.uploadError(e, extraInfos: {
           'oldPath': file.path,
           'newPath': join(toPath, relative(file.path, from: path)),
         });

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/sentry_config.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
@@ -23,7 +22,6 @@ import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:window_manager/window_manager.dart';
 import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
@@ -81,7 +79,7 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
-      navigatorObservers: [GetXRouterObserver(), SentryNavigatorObserver()],
+      navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 
       /// enable swipe back feature
@@ -103,17 +101,13 @@ Future<void> init() async {
     statusBarColor: Colors.transparent,
   ));
 
-  if (SentryConfig.dsn.isNotEmpty && !kDebugMode) {
-    await SentryFlutter.init((options) => options.dsn = SentryConfig.dsn);
-  }
-
   PlatformDispatcher.instance.onError = (error, stack) {
     if (error is NotUploadException) {
       return true;
     }
 
     Log.error('Global Error', error, stack);
-    Log.upload(error, stackTrace: stack);
+    Log.uploadError(error, stackTrace: stack);
     return false;
   };
 
@@ -123,7 +117,7 @@ Future<void> init() async {
     }
 
     Log.error(details.exception, null, details.stack);
-    Log.upload(details.exception, stackTrace: details.stack);
+    Log.uploadError(details.exception, stackTrace: details.stack);
   };
 
   await FrameRateSetting.init();

@@ -66,7 +66,7 @@ class AppUpdateService extends GetxService {
 
   void handleAppUpdateWhenInit(int oldVersion) {
     try {} on Exception catch (e) {
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 

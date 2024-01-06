@@ -168,7 +168,7 @@ class _EHCommentTextBody extends StatelessWidget {
     /// unknown node
     if (node is! dom.Element) {
       Log.error('Can not parse html node: $node');
-      Log.upload(Exception('Can not parse html node'), extraInfos: {'node': node});
+      Log.uploadError(Exception('Can not parse html node'), extraInfos: {'node': node});
       return TextSpan(text: node.text);
     }
 
@@ -262,7 +262,7 @@ class _EHCommentTextBody extends StatelessWidget {
     }
 
     Log.error('Can not parse html tag: $node');
-    Log.upload(Exception('Can not parse html tag'), extraInfos: {'node': node});
+    Log.uploadError(Exception('Can not parse html tag'), extraInfos: {'node': node});
     return TextSpan(text: node.text);
   }
 

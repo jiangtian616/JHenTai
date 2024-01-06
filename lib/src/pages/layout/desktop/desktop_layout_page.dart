@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
 import 'package:resizable_widget/resizable_widget.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
@@ -47,7 +46,7 @@ class DesktopLayoutPage extends StatelessWidget {
               controller: state.leftTabBarScrollController,
               itemCount: state.icons.length,
               itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-              itemBuilder: (context, int index) => _tabBarIcon(context, index),
+              itemBuilder: _tabBarIcon,
             ),
           ),
         ),
@@ -132,7 +131,7 @@ class DesktopLayoutPage extends StatelessWidget {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(right),
-      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
+      observers: [GetObserver(null, rightRouting)],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),

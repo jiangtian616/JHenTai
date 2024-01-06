@@ -504,7 +504,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       galleryDownloadInfos[gid]?.tasks.remove(task);
       if (e is! CancelException) {
         Log.error('Executor exception!', e);
-        Log.upload(e);
+        Log.uploadError(e);
       }
     });
   }
@@ -1257,7 +1257,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return true;
     }).catchError((e) {
       Log.error('Restore images into database error}', e);
-      Log.upload(e);
+      Log.uploadError(e);
       return false;
     });
   }
@@ -1302,7 +1302,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       file.deleteSync();
     } on Exception catch (e) {
       Log.error('Delete image in disk error', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 
@@ -1312,7 +1312,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     } on Exception catch (e) {
       toast('brokenDownloadPathHint'.tr);
       Log.error(e);
-      Log.upload(
+      Log.uploadError(
         e,
         extraInfos: {
           'defaultDownloadPath': DownloadSetting.defaultDownloadPath,

@@ -316,7 +316,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         await _copyOldFiles(oldDownloadPath, newDownloadPath);
       } on Exception catch (e) {
         Log.error('Copy files failed!', e);
-        Log.upload(e, extraInfos: {'oldDownloadPath': oldDownloadPath, 'newDownloadPath': newDownloadPath});
+        Log.uploadError(e, extraInfos: {'oldDownloadPath': oldDownloadPath, 'newDownloadPath': newDownloadPath});
         toast('internalError'.tr);
       }
 
@@ -328,7 +328,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       await localGalleryService.refreshLocalGallerys();
     } on Exception catch (e) {
       Log.error('_handleChangeDownloadPath failed!', e);
-      Log.upload(e);
+      Log.uploadError(e);
       toast('internalError'.tr);
     } finally {
       setState(() => changeDownloadPathState = LoadingState.idle);

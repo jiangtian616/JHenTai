@@ -188,7 +188,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           ).launch();
         } on Exception catch (e) {
           Log.error(e);
-          Log.upload(e);
+          Log.uploadError(e);
           toast('error'.tr);
         }
       },
@@ -213,7 +213,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
       return (totalBytes / 1024 / 1024).toStringAsFixed(2) + 'MB';
     } on Exception catch (e) {
-      Log.upload(e);
+      Log.uploadError(e);
       return '0KB';
     }
   }

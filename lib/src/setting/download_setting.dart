@@ -122,7 +122,7 @@ class DownloadSetting {
     } on Exception catch (e) {
       toast('brokenDownloadPathHint'.tr);
       Log.error(e);
-      Log.upload(
+      Log.uploadError(
         e,
         extraInfos: {
           'defaultDownloadPath': DownloadSetting.defaultDownloadPath,

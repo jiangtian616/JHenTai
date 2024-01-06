@@ -287,7 +287,7 @@ class SettingReadPage extends StatelessWidget {
           result = await FilePicker.platform.pickFiles();
         } on Exception catch (e) {
           Log.error('Pick 3-rd party viewer failed', e);
-          Log.upload(e);
+          Log.uploadError(e);
         }
 
         if (result == null || result.files.single.path == null) {

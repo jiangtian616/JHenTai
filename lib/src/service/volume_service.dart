@@ -42,7 +42,7 @@ class VolumeService extends GetxService {
       await methodChannel.invokeMethod('set', value);
     } on PlatformException catch (e) {
       Log.error('Set intercept volume event error!', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 

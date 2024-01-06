@@ -73,7 +73,7 @@ class EHSpiderParser {
 
     if (!html.contains('No hits found')) {
       Log.error('Parse gallery inline type failed');
-      Log.upload(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
+      Log.uploadError(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
     }
     return _compactGalleryPageDocument2GalleryPageInfo(document);
   }
@@ -407,7 +407,7 @@ class EHSpiderParser {
     }
 
     if (favoriteTagNames.length < 10 || favoriteCounts.length < 10) {
-      Log.upload(
+      Log.uploadError(
         Exception('Favorites parsed error!'),
         extraInfos: {
           'html': html,

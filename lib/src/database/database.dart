@@ -94,7 +94,7 @@ class AppDb extends _$AppDb {
           }
         } on Exception catch (e) {
           Log.error(e);
-          Log.upload(e, extraInfos: {'from': from, 'to': to});
+          Log.uploadError(e, extraInfos: {'from': from, 'to': to});
           throw NotUploadException(e);
         }
       },
@@ -112,7 +112,7 @@ class AppDb extends _$AppDb {
       });
     } on Exception catch (e) {
       Log.error('Update archive failed!', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 
@@ -135,7 +135,7 @@ class AppDb extends _$AppDb {
       }
     } on Exception catch (e) {
       Log.error('Update history failed!', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 
@@ -160,7 +160,7 @@ class AppDb extends _$AppDb {
       });
     } on Exception catch (e) {
       Log.error('Create Group Table failed!', e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:resizable_widget/resizable_widget.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
@@ -39,11 +38,11 @@ class TabletLayoutPageV2 extends StatelessWidget {
       key: Get.nestedKey(leftV2),
 
       /// make sure controller is destroyed automatically and route args is passed properly
-      observers: [GetObserver(null, leftRouting), SentryNavigatorObserver()],
+      observers: [GetObserver(null, leftRouting)],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.mobileLayoutV2),
-          page: () => MobileLayoutPageV2(),
+          page: MobileLayoutPageV2.new,
           popGesture: true,
           transition: Transition.fadeIn,
           showCupertinoParallax: false,
@@ -69,7 +68,7 @@ class TabletLayoutPageV2 extends StatelessWidget {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(rightV2),
-      observers: [GetObserver(null, rightRouting), SentryNavigatorObserver()],
+      observers: [GetObserver(null, rightRouting)],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),

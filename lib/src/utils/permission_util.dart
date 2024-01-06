@@ -31,7 +31,7 @@ bool checkPermissionForPath(String path) {
     file.deleteSync();
   } on FileSystemException catch (e) {
     Log.error('${'invalidPath'.tr}:$path', e);
-    Log.upload(e, extraInfos: {'path': path});
+    Log.uploadError(e, extraInfos: {'path': path});
     return false;
   }
 

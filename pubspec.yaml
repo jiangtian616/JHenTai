@@ -58,7 +58,6 @@ dependencies:
   animate_do: 2.1.0
   share_plus: 4.5.3
   syncfusion_flutter_charts: 22.2.11
-  sentry_flutter: 7.9.0
   archive: 3.4.10
   fluttertoast: 8.1.2
   battery_plus: 3.0.2

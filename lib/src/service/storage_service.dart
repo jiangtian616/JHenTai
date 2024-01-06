@@ -54,7 +54,7 @@ class StorageService extends GetxService {
         oldBakFile.delete();
       }
     } on Exception catch (e) {
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 }

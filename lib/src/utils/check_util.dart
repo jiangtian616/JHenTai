@@ -53,7 +53,7 @@ class CheckUtil {
         throw e;
       } else {
         Log.error('Check failed!', e);
-        Log.upload(e);
+        Log.uploadError(e);
       }
     }
   }

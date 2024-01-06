@@ -367,7 +367,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         });
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
-      Log.upload(e, extraInfos: {'dirs': directory.parent.listSync()});
+      Log.uploadError(e, extraInfos: {'dirs': directory.parent.listSync()});
       throw NotUploadException(e);
     }
 
@@ -556,7 +556,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     /// sometimes the download url is invalid(the same as [downloadPageUrl]), retry
     if (!downloadPath.endsWith('start=1')) {
       Log.warning('Failed to parse download url, retry: $downloadPath');
-      Log.upload(Exception('Failed to parse download url!'), extraInfos: {
+      Log.uploadError(Exception('Failed to parse download url!'), extraInfos: {
         'downloadPath': downloadPath,
         'archive': archiveDownloadInfo.toString(),
       });
@@ -633,7 +633,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     if (_invalidDownload(response)) {
       Log.error('Invalid archive!');
-      Log.upload(Exception('Invalid archive!'), extraInfos: {
+      Log.uploadError(Exception('Invalid archive!'), extraInfos: {
         'code': response.statusCode,
         'headers': response.headers,
         'body': response.data.toString(),
@@ -672,7 +672,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     if (!success) {
       Log.error('Unpacking error!');
-      Log.upload(Exception('Unpacking error!'), extraInfos: {'archive': archive});
+      Log.uploadError(Exception('Unpacking error!'), extraInfos: {'archive': archive});
       snack('error'.tr, '${'failedToDealWith'.tr}:${archive.title}', longDuration: true);
       archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
       await _deletePackingFileInDisk(archive);
@@ -841,7 +841,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
     } on Exception catch (e) {
       Log.error(e);
-      Log.upload(e);
+      Log.uploadError(e);
     }
   }
 }
