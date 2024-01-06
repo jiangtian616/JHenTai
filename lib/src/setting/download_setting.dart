@@ -156,12 +156,12 @@ class DownloadSetting {
   static _initFromMap(Map<String, dynamic> map) {
     if (!GetPlatform.isIOS) {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
+      singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     }
     if (map['extraGalleryScanPath'] != null) {
       extraGalleryScanPath.addAll(map['extraGalleryScanPath'].cast<String>());
       extraGalleryScanPath.value = extraGalleryScanPath.toSet().toList();
     }
-    singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     defaultGalleryGroup.value = map['defaultGalleryGroup'];
     defaultArchiveGroup.value = map['defaultArchiveGroup'];
