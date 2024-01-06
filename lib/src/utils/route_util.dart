@@ -107,8 +107,8 @@ void backRoute<T>({
   );
 }
 
-/// pop current right route, it is only used in tablet or desktop layout
-void backRightRoute<T>({
+/// pop current route triggered by esc or fifth button or system back button
+void popRoute<T>({
   T? result,
   bool closeOverlays = false,
   bool canPop = true,
@@ -117,7 +117,11 @@ void backRightRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.isInV2Layout ? rightV2 : right,
+    id: StyleSetting.isInMobileLayout
+        ? null
+        : StyleSetting.isInV2Layout
+            ? rightV2
+            : right,
   );
 }
 
