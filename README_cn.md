@@ -80,6 +80,13 @@ Linux更新（不维护）： 直接删除旧的解压出来的文件夹，下�
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
+
+标签热度排序:
+
+- [e-hentai-db](https://github.com/ccloli/e-hentai-db)
+- [e-hentai-tag-count](https://github.com/poly000/e-hentai-tag-count)
+
+
 App翻译：
 
 - [andyching168](https://github.com/andyching168) 繁體中文(台灣)
