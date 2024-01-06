@@ -1,0 +1,46 @@
+CREATE TABLE IF NOT EXISTS dio_cache
+(
+    cacheKey   TEXT     NOT NULL PRIMARY KEY,
+    url        TEXT     NOT NULL,
+    expireDate DATETIME NOT NULL,
+    content    BLOB     NOT NULL,
+    headers    BLOB     NOT NULL
+);
+create index if not exists idx_expire_date on dio_cache (expireDate);
+create index if not exists idx_url on dio_cache (url);
+
+selectByCacheKey:
+select *
+from dio_cache
+where cacheKey = :cacheKey;
+
+insertCache:
+insert into dio_cache
+values (:cacheKey, :url, :date, :content, :header);
+
+insertOrUpdateCache:
+insert or
+replace
+into dio_cache
+values (:cacheKey, :url, :expireDate, :content, :headers);
+
+deleteByCacheKey:
+delete
+from dio_cache
+where cacheKey = :cacheKey;
+
+deleteCacheByDate:
+delete
+from dio_cache
+where expireDate < :date;
+
+deleteCacheLikeUrl:
+delete
+from dio_cache
+where url like :url;
+
+deleteAllCache:
+delete
+from dio_cache;
+
+

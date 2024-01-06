@@ -75,14 +75,10 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     setState(() => loadingState = LoadingState.loading);
 
     try {
-      hhInfo = await EHRequest.request(
-        url: widget.archivePageUrl,
-        parser: EHSpiderParser.archivePage2HHInfo,
-        useCacheIfAvailable: false,
-      );
-    } on DioError catch (e) {
+      hhInfo = await EHRequest.request(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2HHInfo);
+    } on DioException catch (e) {
       Log.error('Get H@H download info failed', e.message);
-      snack('failed'.tr, e.message);
+      snack('failed'.tr, e.message ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHException catch (e) {

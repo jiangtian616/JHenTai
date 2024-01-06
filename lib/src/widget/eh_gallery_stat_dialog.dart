@@ -87,9 +87,9 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
         token: widget.token,
         parser: EHSpiderParser.statPage2GalleryStats,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('getGalleryStatisticsFailed'.tr, e.message);
-      snack('getGalleryStatisticsFailed'.tr, e.message);
+      snack('getGalleryStatisticsFailed'.tr, e.message ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHException catch (e) {

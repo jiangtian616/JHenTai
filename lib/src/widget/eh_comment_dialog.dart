@@ -100,10 +100,10 @@ class EHCommentDialogState extends State<EHCommentDialog> {
           parser: EHSpiderParser.sendComment2ErrorMsg,
         );
       }
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
         Log.error('sendCommentFailed'.tr, e.message);
-        snack('sendCommentFailed'.tr, e.message);
+        snack('sendCommentFailed'.tr, e.message ?? '');
         return;
       }
     } on EHException catch (e) {

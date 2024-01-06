@@ -121,9 +121,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
         imageName: result.files.first.name,
         parser: EHSpiderParser.imageLookup2RedirectUrl,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('fileSearchFailed'.tr, e.message);
-      snack('fileSearchFailed'.tr, e.message);
+      snack('fileSearchFailed'.tr, e.message ?? '');
       state.loadingState = LoadingState.idle;
       update([loadingStateId]);
       return;
@@ -181,7 +181,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
     } else {
       try {
         state.suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
       }
     }

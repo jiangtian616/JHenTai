@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
-import '../../../../consts/eh_consts.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
 
@@ -162,8 +160,6 @@ class _AddHostMappingDialogState extends State<_AddHostMappingDialog> {
                 break;
             }
 
-            EHCookieManager cookieManager = Get.find<EHCookieManager>();
-            cookieManager.getCookie(Uri.parse(EHConsts.EHIndex)).then((value) => cookieManager.storeEhCookiesForAllUri(value));
             backRoute();
           },
         ),

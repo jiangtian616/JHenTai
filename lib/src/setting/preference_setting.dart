@@ -15,6 +15,7 @@ enum TagSearchBehaviour { inheritAll, inheritPartially, none }
 class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
   static RxBool enableTagZHTranslation = false.obs;
+  static RxBool enableTagZHSearchOrderOptimization = false.obs;
   static Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
   static RxBool simpleDashboardMode = false.obs;
   static RxBool hideBottomBar = false.obs;
@@ -57,6 +58,12 @@ class PreferenceSetting {
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
     Log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
     PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
+    _save();
+  }
+  
+  static saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) {
+    Log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
+    PreferenceSetting.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
     _save();
   }
 
@@ -147,6 +154,7 @@ class PreferenceSetting {
       'locale': locale.value.toString(),
       'showR18GImageDirectly': showR18GImageDirectly.value,
       'enableTagZHTranslation': enableTagZHTranslation.value,
+      'enableTagZHSearchOrderOptimization': enableTagZHSearchOrderOptimization.value,
       'defaultTab': defaultTab.value.index,
       'enableSwipeBackGesture': enableSwipeBackGesture.value,
       'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
@@ -170,6 +178,7 @@ class PreferenceSetting {
     showR18GImageDirectly.value = map['showR18GImageDirectly'] ?? showR18GImageDirectly.value;
     enableSwipeBackGesture.value = map['enableSwipeBackGesture'] ?? enableSwipeBackGesture.value;
     enableTagZHTranslation.value = map['enableTagZHTranslation'] ?? enableTagZHTranslation.value;
+    enableTagZHSearchOrderOptimization.value = map['enableTagZHSearchOrderOptimization'] ?? enableTagZHSearchOrderOptimization.value;
     defaultTab.value = TabBarIconNameEnum.values[map['defaultTab'] ?? TabBarIconNameEnum.home.index];
     enableLeftMenuDrawerGesture.value = map['enableLeftMenuDrawerGesture'] ?? enableLeftMenuDrawerGesture.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;

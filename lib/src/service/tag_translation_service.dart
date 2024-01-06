@@ -4,9 +4,11 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -37,12 +39,13 @@ class TagTranslationService extends GetxService {
 
   @override
   void onInit() {
+    super.onInit();
+
     loadingState.value = LoadingState.values[storageService.read('TagTranslationServiceLoadingState') ?? 0];
     timeStamp.value = storageService.read('TagTranslationServiceTimestamp');
     if (isReady) {
       refresh();
     }
-    super.onInit();
   }
 
   Future<void> refresh() async {
@@ -53,7 +56,7 @@ class TagTranslationService extends GetxService {
       return;
     }
 
-    Log.info('Refresh Tag translation data');
+    Log.info('Refresh tag translation data');
 
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 MB';
@@ -70,9 +73,10 @@ class TagTranslationService extends GetxService {
         maxAttempts: 5,
         onRetry: (error) => Log.warning('Download tag translation data failed, retry.'),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Download tag translation data failed after 5 times', e.message);
       loadingState.value = LoadingState.error;
+      storageService.write('TagTranslationServiceLoadingState', LoadingState.error.index);
       return;
     }
 
@@ -117,8 +121,8 @@ class TagTranslationService extends GetxService {
 
     /// save
     timeStamp.value = null;
-    await appDb.deleteAllTags();
     await appDb.transaction(() async {
+      await appDb.deleteAllTags();
       for (TagData tag in tagList) {
         await appDb.insertTag(
           tag.namespace,
@@ -169,7 +173,27 @@ class TagTranslationService extends GetxService {
   }
 
   Future<List<TagData>> searchTags(String keyword) async {
-    return (await appDb.searchTags('%$keyword%').get()).where((tag) => tag.namespace != 'rows').toList();
+    List<TagData> tagDatas = await appDb.searchTags('%$keyword%').get();
+    tagDatas = tagDatas.where((tag) => tag.namespace != 'rows' && tag.namespace != 'reclass').toList();
+
+    TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
+    if (!tagSearchOrderOptimizationService.isReady) {
+      return tagDatas;
+    }
+
+    List<String> namespaceWithKeys = tagDatas.map((tag) => '${tag.namespace}:${tag.key}').toList();
+    List<TagCountData> tagCountDatas = await TagCountDao.batchSelectTagCount(namespaceWithKeys);
+
+    Map<TagData, int> tagCountMap = tagDatas.fold({}, (Map<TagData, int> map, tag) {
+      map[tag] = tagCountDatas.firstWhereOrNull((tagCount) => tagCount.namespaceWithKey == '${tag.namespace}:${tag.key}')?.count ?? 0;
+      return map;
+    });
+
+    tagDatas.sort((a, b) {
+      return tagCountMap[b]! - tagCountMap[a]!;
+    });
+    
+    return tagDatas;
   }
 
   /// won't translate keys

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -32,8 +33,16 @@ class QuickSearchService extends GetxController {
 
   void addQuickSearch(String name, SearchConfig searchConfig) {
     if (quickSearchConfigs.containsKey(name)) {
-      toast('sameNameExists'.tr);
+      toast('sameNameExists'.tr, isShort: false);
       return;
+    }
+
+    Map<String, dynamic> queryParameters = searchConfig.toQueryParameters();
+    for (MapEntry<String, SearchConfig> entry in quickSearchConfigs.entries) {
+      if (mapEquals(entry.value.toQueryParameters(), queryParameters)) {
+        toast('${'sameConfigExists'.tr}: ${entry.key}', isShort: false);
+        return;
+      }
     }
 
     Log.info('Add quick search: $name');

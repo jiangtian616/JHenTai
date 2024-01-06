@@ -70,9 +70,9 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
         widget.token,
         EHSpiderParser.torrentPage2GalleryTorrent,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('getGalleryTorrentsFailed'.tr, e.message);
-      snack('getGalleryTorrentsFailed'.tr, e.message);
+      snack('getGalleryTorrentsFailed'.tr, e.message ?? '');
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }

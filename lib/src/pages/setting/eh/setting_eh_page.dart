@@ -54,7 +54,6 @@ class _SettingEHPageState extends State<SettingEHPage> {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildSiteSegmentControl(),
-            _buildIsDonor(),
             _buildProfile(),
             _buildSiteSetting(),
             _buildImageLimit(),
@@ -80,14 +79,6 @@ class _SettingEHPageState extends State<SettingEHPage> {
     );
   }
 
-  Widget _buildIsDonor() {
-    return ListTile(
-      title: Text('redirectAllGallery'.tr),
-      subtitle: Text('imDonorHint'.tr),
-      trailing: Switch(value: EHSetting.isDonor.value, onChanged: EHSetting.saveIsDonor),
-    );
-  }
-
   Widget _buildProfile() {
     return ListTile(
       title: Text('profileSetting'.tr),
@@ -108,13 +99,12 @@ class _SettingEHPageState extends State<SettingEHPage> {
           return;
         }
 
-        List<Cookie> cookies = await Get.find<EHCookieManager>().getCookie(Uri.parse(EHConsts.EIndex));
         await toRoute(
           Routes.webview,
           arguments: {
             'title': 'siteSetting'.tr,
             'url': EHConsts.EUconfig,
-            'cookies': CookieUtil.parse2String(cookies),
+            'cookies': CookieUtil.parse2String(EHRequest.cookies),
           },
         );
 
@@ -190,9 +180,9 @@ class _SettingEHPageState extends State<SettingEHPage> {
     Map<String, String> assets;
     try {
       assets = await EHRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Get assets failed', e.message);
-      snack('Get assets failed'.tr, e.message, longDuration: true);
+      snack('Get assets failed'.tr, e.message ?? '', longDuration: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
@@ -224,9 +214,9 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     try {
       await EHRequest.requestResetImageLimit();
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Reset limit failed', e.message);
-      snack('Reset limit failed'.tr, e.message, longDuration: true);
+      snack('Reset limit failed'.tr, e.message ?? '', longDuration: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });

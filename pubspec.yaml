@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 7.4.10+149
+version: 7.4.11+150
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -16,12 +16,9 @@ dependencies:
   # rewrite file mode
   dio:
     git:
-      url: https://gitee.com/jiangtian616/dio
+      url: https://github.com/jiangtian616/dio
       path: dio
-  cookie_jar: 3.0.1
-  dio_cookie_manager: 2.0.0
-  dio_cache_interceptor: 3.2.6
-  dio_cache_interceptor_db_store: 4.1.1
+      ref: append-mode
   get: 4.6.5
   get_storage: 2.0.3
   extended_nested_scroll_view: 6.1.1
@@ -40,7 +37,7 @@ dependencies:
   executor: 2.2.2
   retry: 3.1.2
   path: 1.8.3
-  drift: 1.7.1
+  drift: 2.14.1
   sqlite3_flutter_libs: 0.5.8
   path_provider: 2.0.15
   flutter_slidable: 3.0.0
@@ -62,14 +59,14 @@ dependencies:
   share_plus: 4.5.3
   syncfusion_flutter_charts: 22.2.11
   sentry_flutter: 7.9.0
-  archive: 3.3.6
+  archive: 3.4.10
   fluttertoast: 8.1.2
   battery_plus: 3.0.2
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
   window_manager:
     # https://github.com/leanflutter/window_manager/pull/409
-    git: 
+    git:
       url: https://github.com/damywise/window_manager
       branch: fullscreen-events
   permission_handler: 9.2.0
@@ -95,24 +92,22 @@ dependencies:
   android_intent_plus: 3.1.7
   integral_isolates: 0.4.1
   screen_brightness: 0.2.2+1
-  
+  crypto: 3.0.3
+  csv: 5.1.1
+
 dependency_overrides:
-  dio:
-    git:
-      url: https://gitee.com/jiangtian616/dio
-      path: dio
   test_api: 0.6.0
   matcher: 0.12.16
   chewie: 1.7.0
   http: 1.1.0
   cached_network_image: 3.3.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
   test: 1.24.3
-  drift_dev: 1.7.0
+  drift_dev: 2.14.1
   build_runner: ^2.1.8
   flutter_launcher_icons: 0.11.0
 

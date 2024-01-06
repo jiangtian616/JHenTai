@@ -44,7 +44,7 @@ class AddLocalTagPageLogic extends GetxController {
     } else {
       try {
         state.tags = await EHRequest.requestTagSuggestion(state.keyword!, EHSpiderParser.tagSuggestion2TagList);
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
         state.searchLoadingState = LoadingState.error;
         updateSafely([searchLoadingStateId]);

@@ -236,14 +236,14 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         isVotingUp,
         parser: EHSpiderParser.voteTagResponse2ErrorMessage,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (isVotingUp) {
         voteUpState = LoadingState.error;
       } else {
         voteDownState = LoadingState.error;
       }
       Log.error('voteTagFailed'.tr, e.message);
-      snack('voteTagFailed'.tr, e.message);
+      snack('voteTagFailed'.tr, e.message ?? '');
       return;
     } on EHException catch (e) {
       if (isVotingUp) {
@@ -302,7 +302,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         hidden: !watch,
         parser: EHSpiderParser.addTagSetResponse2Result,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('addNewTagSetFailed'.tr, e.message);
       toast('${'addNewTagSetFailed'.tr}: ${e.message}', isShort: false);
 

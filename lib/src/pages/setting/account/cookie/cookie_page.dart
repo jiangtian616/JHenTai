@@ -2,10 +2,9 @@ import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
-
-import '../../../../network/eh_cookie_manager.dart';
 
 class CookiePage extends StatelessWidget {
   const CookiePage({Key? key}) : super(key: key);
@@ -17,12 +16,12 @@ class CookiePage extends StatelessWidget {
         centerTitle: true,
         title: Text('accountSetting'.tr),
         actions: [
-          IconButton(icon: const Icon(Icons.copy), onPressed: _copCookies),
+          IconButton(icon: const Icon(Icons.copy), onPressed: _copyCookies),
         ],
       ),
       body: ListView(
         padding: const EdgeInsets.only(top: 12),
-        children: CookieUtil.parse2Cookies(EHCookieManager.userCookies)
+        children: EHRequest.cookies
             .map(
               (cookie) => ListTile(
                 title: Text(cookie.name),
@@ -37,16 +36,20 @@ class CookiePage extends StatelessWidget {
   }
 
   Future<void> _copyAllCookies() async {
-    await FlutterClipboard.copy(EHCookieManager.userCookies);
+    await FlutterClipboard.copy(CookieUtil.parse2String(EHRequest.cookies));
     toast('hasCopiedToClipboard'.tr);
   }
 
-  Future<void> _copCookies() async {
-    await FlutterClipboard.copy(CookieUtil.parse2String(CookieUtil.parse2Cookies(EHCookieManager.userCookies)
-        .where(
-          (cookie) => cookie.name == 'ipb_member_id' || cookie.name == 'ipb_pass_hash' || cookie.name == 'igneous',
-        )
-        .toList()));
+  Future<void> _copyCookies() async {
+    await FlutterClipboard.copy(
+      CookieUtil.parse2String(
+        EHRequest.cookies
+            .where(
+              (cookie) => cookie.name == 'ipb_member_id' || cookie.name == 'ipb_pass_hash' || cookie.name == 'igneous',
+            )
+            .toList(),
+      ),
+    );
     toast('hasCopiedToClipboard'.tr);
   }
 }

@@ -807,6 +807,10 @@ class EHSpiderParser {
     return latestRelease['tag_name'];
   }
 
+  static String latestReleaseResponse2Tag(Headers headers, dynamic data) {
+    return (headers['Location'] as List<String>).first.split('/').last;
+  }
+
   static Gallery _parseMinimalGallery(Element tr) {
     GalleryImage? cover = _parseMinimalGalleryCover(tr);
     String galleryUrl = tr.querySelector('.gl3m.glname > a')?.attributes['href'] ?? '';

@@ -1,7 +1,7 @@
 import 'package:archive/archive_io.dart';
 import 'package:flutter/foundation.dart';
 
-Future<bool> extractArchive(String archivePath, String extractPath) {
+Future<bool> extractZipArchive(String archivePath, String extractPath) {
   return compute(
     (List<String> path) async {
       InputFileStream inputStream = InputFileStream(path[0]);
@@ -15,5 +15,21 @@ Future<bool> extractArchive(String archivePath, String extractPath) {
       return true;
     },
     [archivePath, extractPath],
+  );
+}
+
+Future<List<int>> extractGZipArchive(String archivePath) {
+  return compute(
+    (String path) async {
+      InputFileStream inputStream = InputFileStream(path);
+      try {
+        return GZipDecoder().decodeBuffer(inputStream);
+      } on Exception catch (_) {
+        return [];
+      } finally {
+        inputStream.close();
+      }
+    },
+    archivePath,
   );
 }

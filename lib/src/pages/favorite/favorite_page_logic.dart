@@ -60,7 +60,7 @@ class FavoritePageLogic extends BasePageLogic {
         result,
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       /// handle with domain fronting, manually load more
       if (e.response?.statusCode == 403 && e.response!.redirects.isNotEmpty) {
         loadMore(checkLoadingState: false);
@@ -68,7 +68,7 @@ class FavoritePageLogic extends BasePageLogic {
       }
 
       Log.error('change favorite sort order fail', e.message);
-      snack('failed'.tr, e.message);
+      snack('failed'.tr, e.message ?? '');
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;

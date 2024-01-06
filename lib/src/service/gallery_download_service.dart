@@ -9,9 +9,11 @@ import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
@@ -19,19 +21,19 @@ import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart' as path;
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
+import 'package:drift/drift.dart';
 
 import '../exception/cancel_exception.dart';
 import '../exception/eh_exception.dart';
 import '../model/gallery.dart';
 import '../model/gallery_image.dart';
-import '../network/eh_cache_interceptor.dart';
-import '../network/eh_cookie_manager.dart';
 import '../network/eh_request.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../setting/path_setting.dart';
@@ -64,8 +66,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   final Completer<bool> completer = Completer();
 
-  final EHCacheInterceptor ehCacheInterceptor = Get.find();
-
   static void init() {
     Get.put(GalleryDownloadService(), permanent: true);
   }
@@ -86,7 +86,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   bool containGallery(int gid) => galleryDownloadInfos.containsKey(gid);
-  
+
   Future<void> downloadGallery(GalleryDownloadedData gallery, {bool resume = false}) async {
     if (!resume && galleryDownloadInfos.containsKey(gallery.gid)) {
       return;
@@ -231,14 +231,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       Map<String, dynamic> map = await retry(
         () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
-        retryIf: (e) => e is DioError && e.error,
+        retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
       Gallery gallery = map['gallery'];
       newGallery = gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
-      snack('updateGalleryError'.tr, e.message, longDuration: true);
+      snack('updateGalleryError'.tr, e.message ?? '', longDuration: true);
       return;
     } on EHException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
@@ -248,8 +248,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     newGallery = newGallery.copyWith(
-      oldVersionGalleryUrl: oldGallery.galleryUrl,
-      groupName: galleryDownloadInfos[oldGallery.gid]?.group,
+      oldVersionGalleryUrl: Value.ofNullable(oldGallery.galleryUrl),
+      groupName: Value.ofNullable(galleryDownloadInfos[oldGallery.gid]?.group),
     );
 
     downloadGallery(newGallery);
@@ -267,7 +267,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     await deleteGallery(gallery);
 
-    downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: null));
+    downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: Value.absent()));
 
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
@@ -724,12 +724,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             cancelToken: galleryDownloadInfo.cancelToken,
             parser: EHSpiderParser.detailPage2RangeAndThumbnails,
           ),
-          retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-          onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioError).message}'),
+          retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+          onRetry: (e) => Log.download('Parse image hrefs failed, retry. Reason: ${(e as DioException).message}'),
           maxAttempts: _maxRetryTimes,
         );
-      } on DioError catch (e) {
-        if (e.type == DioErrorType.cancel) {
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.cancel) {
           return;
         }
         return _submitTask(
@@ -794,16 +794,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && EHCookieManager.userCookies.isNotEmpty
+            parser: gallery.downloadOriginalImage && UserSetting.hasLoggedIn()
                 ? EHSpiderParser.imagePage2OriginalGalleryImage
                 : EHSpiderParser.imagePage2GalleryImage,
           ),
-          retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-          onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioError).message}'),
+          retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+          onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioException).message}'),
           maxAttempts: _maxRetryTimes,
         );
-      } on DioError catch (e) {
-        if (e.type == DioErrorType.cancel) {
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.cancel) {
           return;
         }
         return _submitTask(
@@ -822,7 +822,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
 
         if (e.type == EHExceptionType.exceedLimit) {
-          ehCacheInterceptor.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
+          EHRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
         }
         return;
       }
@@ -884,17 +884,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           /// 403 is due to token error(maybe... I forgot the reason)
           /// If we have not downloaded any bytes, we should re-parse because we might encounter a death H@H node
           retryIf: (e) =>
-              e is DioError &&
-              e.type != DioErrorType.cancel &&
+              e is DioException &&
+              e.type != DioExceptionType.cancel &&
               (e.response == null || e.response!.statusCode != 403) &&
               galleryDownloadInfo.speedComputer.getImageDownloadedBytes(serialNo) > 0,
           onRetry: (e) {
-            Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioError).message}. Url:${image.url}');
+            Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioException).message}. Url:${image.url}');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
           },
         );
-      } on DioError catch (e) {
-        if (e.type == DioErrorType.cancel) {
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.cancel) {
           return;
         }
         Log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.message}. Url:${image.url}');
@@ -1122,7 +1122,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images, bool sort = true}){
+  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImage?>? images, bool sort = true}) {
     if (!allGroups.contains(gallery.groupName ?? 'default'.tr)) {
       allGroups.add(gallery.groupName ?? 'default'.tr);
     }
@@ -1135,8 +1135,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         curCount: images?.fold<int>(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded:
-            images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded: images?.map((image) => image?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
       images: images ?? List.generate(gallery.pageCount, (_) => null),
@@ -1275,8 +1274,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       'gallery': gallery
           .copyWith(
             downloadStatusIndex: galleryDownloadInfo.downloadProgress.downloadStatus.index,
-            priority: galleryDownloadInfo.priority,
-            groupName: galleryDownloadInfo.group,
+            priority: Value.ofNullable(galleryDownloadInfo.priority),
+            groupName: Value.ofNullable(galleryDownloadInfo.group),
           )
           .toJson(),
       'images': jsonEncode(galleryDownloadInfo.images),

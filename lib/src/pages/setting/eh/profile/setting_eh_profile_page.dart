@@ -58,7 +58,7 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
               elevation: 4,
               alignment: AlignmentDirectional.centerEnd,
               onChanged: (int? newValue) {
-                Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp', newValue?.toString() ?? '1')]);
+                EHRequest.storeEHCookies([Cookie('sp', newValue?.toString() ?? '1')]);
                 setState(() {
                   for (Profile value in profiles) {
                     value.selected = value.number == newValue;
@@ -87,10 +87,10 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
     try {
       settings = await retry(
         () => EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
-        retryIf: (e) => e is DioError,
+        retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Load profile fail', e.message);
       setState(() {
         loadingState = LoadingState.error;

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:path/path.dart';
 
 import '../utils/log.dart';
 
@@ -10,6 +13,8 @@ class StorageService extends GetxService {
   final GetStorage _storage = GetStorage(storageFileName, PathSetting.getVisibleDir().path);
 
   static Future<void> init() async {
+    _migrateOldConfigFile();
+
     StorageService storageService = StorageService();
     Get.put(storageService);
     await storageService._storage.initStorage;
@@ -34,5 +39,22 @@ class StorageService extends GetxService {
 
   Future<void> erase() async {
     _storage.erase();
+  }
+
+  static void _migrateOldConfigFile() {
+    try {
+      File oldConfigFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.gs'));
+      File oldBakFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.bak'));
+      if (oldConfigFile.existsSync()) {
+        oldConfigFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.gs'));
+        oldConfigFile.delete();
+      }
+      if (oldBakFile.existsSync()) {
+        oldBakFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.bak'));
+        oldBakFile.delete();
+      }
+    } on Exception catch (e) {
+      Log.upload(e);
+    }
   }
 }

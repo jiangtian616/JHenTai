@@ -16,7 +16,6 @@ import '../utils/eh_spider_parser.dart';
 
 class EHSetting {
   static RxString site = 'EH'.obs;
-  static RxBool isDonor = false.obs;
 
   static Rx<LoadingState> refreshState = LoadingState.idle.obs;
   static RxInt currentConsumption = (-1).obs;
@@ -56,10 +55,10 @@ class EHSetting {
         () async {
           map = await EHRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
         },
-        retryIf: (e) => e is DioError,
+        retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('refresh EHSetting fail', e.message);
       refreshState.value = LoadingState.error;
       return;
@@ -82,15 +81,9 @@ class EHSetting {
     EHSetting.site.value = site;
     _save();
 
-    Get.find<EHCookieManager>().storeEhCookiesForAllUri([Cookie('sp','1')]);
-    
-    SiteSetting.refresh();
-  }
+    EHRequest.storeEHCookies([Cookie('sp', site)]);
 
-  static saveIsDonor(bool isDonor) {
-    Log.debug('saveIsDonor:$isDonor');
-    EHSetting.isDonor.value = isDonor;
-    _save();
+    SiteSetting.refresh();
   }
 
   static Future<void> _save() async {

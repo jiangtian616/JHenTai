@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -18,7 +20,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 8;
+  static const int appVersion = 9;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -27,8 +29,6 @@ class AppUpdateService extends GetxService {
   @override
   void onInit() async {
     super.onInit();
-
-    migrateOldConfigFile();
 
     File file = File(join(PathSetting.getVisibleDir().path, 'jhentai.version'));
     if (!file.existsSync()) {
@@ -54,27 +54,11 @@ class AppUpdateService extends GetxService {
     }
   }
 
-  void migrateOldConfigFile() {
-    try {
-      File oldConfigFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.gs'));
-      File oldBakFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.bak'));
-      if (oldConfigFile.existsSync()) {
-        oldConfigFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.gs'));
-        oldConfigFile.delete();
-      }
-      if (oldBakFile.existsSync()) {
-        oldBakFile.copySync(join(PathSetting.getVisibleDir().path, 'jhentai.bak'));
-        oldBakFile.delete();
-      }
-    } on Exception catch (e) {
-      Log.upload(e);
-    }
-  }
-
   void handleFirstOpen() {
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
         PreferenceSetting.saveEnableTagZHTranslation(true);
+        PreferenceSetting.saveEnableTagZHSearchOrderOptimization(true);
         Get.find<TagTranslationService>().refresh();
       }
     });
@@ -178,6 +162,30 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 7) {
         Log.info('Clear super-resulotion setting');
         SuperResolutionSetting.saveModelDirectoryPath(null);
+      }
+
+      if (oldVersion <= 8) {
+        File cookieFile = File(join(PathSetting.getVisibleDir().path, 'cookies', 'ie0_ps1', 'exhentai.org'));
+        if (!cookieFile.existsSync()) {
+          return;
+        }
+        String str = cookieFile.readAsStringSync();
+        Map<String, Map<String, dynamic>> cookieStrs = json.decode(str).cast<String, Map<String, dynamic>>();
+
+        List<Cookie> cookies = [];
+        for (Map<String, dynamic> cookieObject in cookieStrs.values) {
+          for (MapEntry<String, dynamic> entry in cookieObject.entries) {
+            String key = entry.key;
+            String exp = '$key=([^;]+);';
+            String? value = RegExp(exp).firstMatch(str)?.group(1);
+            if (value != null) {
+              cookies.add(Cookie(key, value));
+            }
+          }
+        }
+
+        Log.info('migrate cookies: $cookies');
+        EHRequest.storeEHCookies(cookies);
       }
     });
   }

@@ -62,10 +62,10 @@ class FavoriteSetting {
           favoriteCounts = map['favoriteCounts'] as List<int>;
           save();
         },
-        retryIf: (e) => e is DioError,
+        retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('refresh FavoriteSetting fail', e.message);
       return;
     } on EHException catch (e) {

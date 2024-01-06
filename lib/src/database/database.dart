@@ -24,13 +24,15 @@ part 'database.g.dart';
   'tag.drift',
   'gallery_history.drift',
   'tag_browse_progress.drift',
-  'super_resolution_info.drift'
+  'super_resolution_info.drift',
+  'tag_count.drift',
+  'dio_cache.drift',
 })
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -83,6 +85,12 @@ class AppDb extends _$AppDb {
           }
           if (from < 13) {
             await m.createTable(superResolutionInfo);
+          }
+          if (from < 14) {
+            await m.createTable(tagCount);
+            await m.createTable(dioCache);
+            await m.createIndex(idxExpireDate);
+            await m.createIndex(idxUrl);
           }
         } on Exception catch (e) {
           Log.error(e);

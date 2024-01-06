@@ -265,7 +265,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     await EHRequest.download(
       url: readPageState.images[index]!.originalImageUrl!,
       path: downloadPath,
-      receiveTimeout: 0,
     );
 
     if (GetPlatform.isDesktop) {

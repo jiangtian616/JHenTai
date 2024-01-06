@@ -109,14 +109,10 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     setState(() => loadingState = LoadingState.loading);
 
     try {
-      archive = await EHRequest.request(
-        url: widget.archivePageUrl,
-        parser: EHSpiderParser.archivePage2Archive,
-        useCacheIfAvailable: false,
-      );
-    } on DioError catch (e) {
+      archive = await EHRequest.request(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2Archive);
+    } on DioException catch (e) {
       Log.error('getGalleryArchiveFailed'.tr, e.message);
-      snack('getGalleryArchiveFailed'.tr, e.message);
+      snack('getGalleryArchiveFailed'.tr, e.message ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHException catch (e) {

@@ -38,9 +38,9 @@ class Log {
       Directory(logDirPath).createSync();
     }
 
-    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3);
-    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, printTime: true);
-    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 1, methodCount: 3, colors: false, noBoxingByDefault: true);
+    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3);
+    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3, colors: false, noBoxingByDefault: true);
 
     _consoleLogger = Logger(printer: devPrinter);
 
@@ -199,7 +199,7 @@ class Log {
     if (throwable is StateError && throwable.message.contains('User cancel request')) {
       return true;
     }
-    // if (throwable is DioError && throwable.message.contains('Http status error')) {
+    // if (throwable is DioException && throwable.message.contains('Http status error')) {
     //   return true;
     // }
     if (throwable is HttpException && throwable.message.contains('Connection closed while receiving data')) {
@@ -211,10 +211,10 @@ class Log {
     if (throwable is SocketException && throwable.message.contains('Reading from a closed socket')) {
       return true;
     }
-    if (throwable is DioError && throwable.message.contains('HandshakeException')) {
+    if (throwable is DioException && (throwable.message?.contains('HandshakeException') ?? false)) {
       return true;
     }
-    if (throwable is DioError && throwable.message.contains('Connection closed while receiving data')) {
+    if (throwable is DioException && (throwable.message?.contains('Connection closed while receiving data') ?? false)) {
       return true;
     }
     if (throwable is TimeoutException && (throwable.message?.contains('Executor is closing') ?? false)) {
@@ -268,7 +268,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
   try {
     return func.call();
   } on Exception catch (e) {
-    if (e is DioError || e is EHException) {
+    if (e is DioException || e is EHException) {
       rethrow;
     }
 

@@ -12,10 +12,12 @@ import 'package:http_proxy/http_proxy.dart';
 import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -25,18 +27,21 @@ import 'package:system_network_proxy/system_network_proxy.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../setting/network_setting.dart';
-import 'eh_cache_interceptor.dart';
+import 'eh_cache_manager.dart';
 import 'eh_cookie_manager.dart';
 
 class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager cookieManager;
+  static late final EHCacheManager cacheManager;
   static late final StatefulIsolate isolate;
+
+  static List<Cookie> get cookies => cookieManager.cookies;
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: NetworkSetting.connectTimeout.value,
-      receiveTimeout: NetworkSetting.receiveTimeout.value,
+      connectTimeout: Duration(milliseconds: NetworkSetting.connectTimeout.value),
+      receiveTimeout: Duration(milliseconds: NetworkSetting.receiveTimeout.value),
     ));
 
     _initDomainFronting();
@@ -47,14 +52,13 @@ class EHRequest {
 
     _initCertificateForAndroidWithOldVersion();
 
-    _dio.interceptors.add(Get.find<EHCacheInterceptor>());
+    _initCacheManager();
 
     isolate = StatefulIsolate();
 
     Log.debug('init EHRequest success');
   }
 
-  /// domain fronting for dio and proxy
   static Future<void> _initDomainFronting() async {
     /// domain fronting interceptor
     _dio.interceptors.add(InterceptorsWrapper(
@@ -79,7 +83,6 @@ class EHRequest {
     ));
   }
 
-  /// proxy
   static Future<void> _initProxy() async {
     /// proxy setting
     String systemProxyAddress = '';
@@ -127,9 +130,8 @@ class EHRequest {
     );
   }
 
-  /// cookies
   static void _initCookies() {
-    cookieManager = Get.find<EHCookieManager>();
+    cookieManager = EHCookieManager(Get.find<StorageService>());
     _dio.interceptors.add(cookieManager);
   }
 
@@ -172,6 +174,55 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
   }
 
+  static void _initCacheManager() {
+    cacheManager = EHCacheManager(
+      options: CacheOptions(
+        policy: CachePolicy.disable,
+        expire: NetworkSetting.pageCacheMaxAge.value,
+        store: SqliteCacheStore(appDb: appDb),
+      ),
+    );
+    _dio.interceptors.add(cacheManager);
+  }
+
+  static void storeEHCookiesString(String cookiesString) {
+    cookieManager.storeEHCookiesString(cookiesString);
+  }
+
+  static void storeEHCookies(List<Cookie> cookies) {
+    cookieManager.storeEHCookies(cookies);
+  }
+
+  static void removeAllCookies() {
+    cookieManager.removeAllCookies();
+  }
+
+  static Future<void> removeCacheByUrl(String url) {
+    return cacheManager.removeCacheByUrl(url);
+  }
+
+  static Future<void> removeCacheByUrlPrefix(String url) {
+    return cacheManager.removeCacheByUrlPrefix(url);
+  }
+
+  static Future<void> removeCacheByGalleryUrlAndPage(String galleryUrl, int pageIndex) {
+    Uri uri = Uri.parse(galleryUrl);
+    uri = uri.replace(queryParameters: {'p': pageIndex.toString()});
+
+    List<Future> futures = [];
+    futures.add(removeCacheByUrlPrefix(uri.toString()));
+
+    NetworkSetting.host2IPs[uri.host]?.forEach((ip) {
+      futures.add(removeCacheByUrlPrefix(uri.replace(host: ip).toString()));
+    });
+
+    return Future.wait(futures);
+  }
+
+  static Future<void> removeAllCache() {
+    return cacheManager.removeAllCache();
+  }
+
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EForums,
@@ -190,7 +241,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<void> requestLogout() async {
-    cookieManager.removeAllCookies();
+    removeAllCookies();
     UserSetting.clear();
     if (!GetPlatform.isDesktop) {
       WebViewCookieManager().clearCookies();
@@ -249,7 +300,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'hc': PreferenceSetting.showAllComments.isTrue ? 1 : 0,
       },
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
+      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }
@@ -375,7 +426,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     Response response = await _getWithErrorHandler(
       href,
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
+      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }
@@ -387,7 +438,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'gid': gid,
         't': token,
       },
-      options: EHCacheInterceptor.cacheOption.toOptions(),
+      options: CacheOptions.cacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }
@@ -421,7 +472,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestStatPage<T>({required int gid, required String token, required EHHtmlParser<T> parser}) async {
     Response response = await _getWithErrorHandler(
       '${EHConsts.EStat}?gid=$gid&t=$token',
-      options: EHCacheInterceptor.cacheOption.toOptions(),
+      options: CacheOptions.cacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }
@@ -456,7 +507,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         options: Options(contentType: Headers.formUrlEncodedContentType),
         data: data,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode == 302) {
         response = e.response!;
       } else {
@@ -482,7 +533,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           'modify_usertags[]': tagSetId,
         },
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
         rethrow;
       }
@@ -525,7 +576,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     ProgressCallback? onReceiveProgress,
     CancelToken? cancelToken,
     bool appendMode = false,
-    bool caseInsensitiveHeader = true,
+    bool preserveHeaderCase = true,
     int? receiveTimeout,
     String? range,
     bool deleteOnError = true,
@@ -535,14 +586,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       url,
       path,
       onReceiveProgress: onReceiveProgress,
+      shouldAppendFile: appendMode,
       cancelToken: cancelToken,
-      appendFile: appendMode,
       deleteOnError: deleteOnError,
       options: Options(
-        caseInsensitiveHeader: caseInsensitiveHeader,
-        extra: EHCacheInterceptor.noCacheOption.toExtra(),
+        preserveHeaderCase: preserveHeaderCase,
         headers: range == null ? null : {'Range': range},
-        receiveTimeout: receiveTimeout,
+        receiveTimeout: Duration(milliseconds: receiveTimeout ?? 0),
       ),
     );
 
@@ -646,7 +696,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           'fs_exp': 'on',
         }),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
         rethrow;
       }
@@ -716,15 +766,11 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<T> request<T>({
     required String url,
-    bool useCacheIfAvailable = true,
     CancelToken? cancelToken,
+    Options? options,
     EHHtmlParser<T>? parser,
   }) async {
-    Response response = await _getWithErrorHandler(
-      url,
-      options: useCacheIfAvailable ? EHCacheInterceptor.cacheOption.toOptions() : EHCacheInterceptor.refreshCacheOption.toOptions(),
-      cancelToken: cancelToken,
-    );
+    Response response = await _getWithErrorHandler(url, cancelToken: cancelToken, options: options);
 
     return _parseResponse(response, parser);
   }
@@ -753,7 +799,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw _convertExceptionIfGalleryDeleted(e);
     }
 
@@ -782,7 +828,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw _convertExceptionIfGalleryDeleted(e);
     }
 
@@ -791,7 +837,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return response;
   }
 
-  static Exception _convertExceptionIfGalleryDeleted(DioError e) {
+  static Exception _convertExceptionIfGalleryDeleted(DioException e) {
     if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
       String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
       if (!isEmptyOrNull(errMessage)) {
@@ -807,6 +853,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static void emitEHExceptionIfFailed(Response response) {
+    if (!NetworkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
+      return;
+    }
+
     if (response.data is String) {
       String data = response.data.toString();
 

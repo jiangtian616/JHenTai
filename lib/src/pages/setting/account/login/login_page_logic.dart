@@ -29,7 +29,6 @@ class LoginPageLogic extends GetxController {
   static const loadingStateId = 'loadingStateId';
 
   final LoginPageState state = LoginPageState();
-  final EHCookieManager cookieManager = Get.find<EHCookieManager>();
 
   LoadingState cookieLoginLoadingState = LoadingState.idle;
 
@@ -97,9 +96,9 @@ class LoginPageLogic extends GetxController {
         state.password!,
         EHSpiderParser.loginPage2UserInfoOrErrorMsg,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('loginFail'.tr, e.message);
-      snack('loginFail'.tr, e.message);
+      snack('loginFail'.tr, e.message ?? '');
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -153,14 +152,14 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    await cookieManager.storeEhCookiesForAllUri([
+    EHRequest.storeEHCookies([
       Cookie('ipb_member_id', state.ipbMemberId!),
       Cookie('ipb_pass_hash', state.ipbPassHash!),
     ]);
 
     bool useEXSite = false;
     if (state.igneous != null && state.igneous != 'null' && state.igneous != 'mystery' && state.igneous != 'deleted') {
-      await cookieManager.storeEhCookiesForAllUri([
+      EHRequest.storeEHCookies([
         Cookie('igneous', state.igneous!),
       ]);
       useEXSite = true;
@@ -177,11 +176,11 @@ class LoginPageLogic extends GetxController {
       /// get cookie [sk] first
       await EHRequest.requestHomePage();
       userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('loginFail'.tr, e.message);
-      snack('loginFail'.tr, e.message);
+      snack('loginFail'.tr, e.message ?? '');
 
-      await cookieManager.removeAllCookies();
+      EHRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -190,7 +189,7 @@ class LoginPageLogic extends GetxController {
       Log.error('loginFail'.tr, e.toString());
       snack('loginFail'.tr, e.toString());
 
-      await cookieManager.removeAllCookies();
+      EHRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -199,7 +198,7 @@ class LoginPageLogic extends GetxController {
     if (userInfo == null) {
       Log.info('Login failed by cookie.');
 
-      await cookieManager.removeAllCookies();
+      EHRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -255,7 +254,7 @@ class LoginPageLogic extends GetxController {
 
     try {
       List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
-      await cookieManager.storeEhCookiesForAllUri(cookies);
+      EHRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
 
       int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
       String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;

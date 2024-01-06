@@ -635,7 +635,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     } else {
       try {
         suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
-      } on DioError catch (e) {
+      } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
       }
     }

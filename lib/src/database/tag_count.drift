@@ -1,0 +1,14 @@
+CREATE TABLE tag_count
+(
+    namespaceWithKey TEXT NOT NULL, -- raw namespace&tagName
+    count            INT  NOT NULL, -- gallerys count with this tag
+    primary key (namespaceWithKey)
+);
+
+insertTagCount:
+insert into tag_count
+values (:namespaceWithKey, :count);
+
+deleteAllTagCount:
+delete
+from tag_count;

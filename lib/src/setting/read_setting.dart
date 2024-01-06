@@ -281,7 +281,7 @@ class ReadSetting {
       'preloadPageCount': preloadPageCount.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'reverseTurnPageDirection': reverseTurnPageDirection.value,
-      'saveDisablePageTurningOnTap': disablePageTurningOnTap.value,
+      'disablePageTurningOnTap': disablePageTurningOnTap.value,
     };
   }
 

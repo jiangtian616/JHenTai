@@ -5,7 +5,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/network/eh_cache_interceptor.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -147,7 +147,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       title: Text('clearPageCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
       onLongPress: () async {
-        await Get.find<EHCacheInterceptor>().removeAllCache();
+        await EHRequest.removeAllCache();
         toast('clearSuccess'.tr, isCenter: false);
       },
     );

@@ -115,7 +115,7 @@ class SuperResolutionService extends GetxController {
         maxAttempts: 5,
         onRetry: (error) => Log.warning('Download super-resolution model failed, retry.'),
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Download super-resolution model failed after 5 times', e.message);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
@@ -124,7 +124,7 @@ class SuperResolutionService extends GetxController {
 
     Log.info('Super-resolution model downloaded, model: ${model.subType}');
 
-    bool success = await extractArchive(modelDownloadPath, extractPath);
+    bool success = await extractZipArchive(modelDownloadPath, extractPath);
 
     if (!success) {
       Log.error('Unpacking Super-resolution model error!');

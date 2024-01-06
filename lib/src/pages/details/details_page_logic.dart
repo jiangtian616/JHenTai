@@ -14,13 +14,11 @@ import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/network/eh_cache_interceptor.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_add_tag_dialog.dart';
@@ -145,9 +143,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Map<String, dynamic>? galleryAndDetailAndApikey;
     try {
       galleryAndDetailAndApikey = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
       if (enableLoadingState) {
         updateSafely([loadingStateId]);
@@ -161,8 +159,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         updateSafely([loadingStateId]);
       }
       return;
-    } on Object catch (e) {
-      Log.error('Get Gallery Detail Failed', e);
+    } on Error catch (e) {
+      Log.error('Get Gallery Detail Failed', e, e.stackTrace);
       snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
       state.loadingState = LoadingState.error;
       if (enableLoadingState) {
@@ -209,9 +207,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
-      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
+      snack('failToGetThumbnails'.tr, e.message ?? '', longDuration: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
@@ -342,9 +340,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       FavoriteSetting.save();
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
-      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message ?? '', longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([addFavoriteStateId]);
       return;
@@ -403,9 +401,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         (rating * 2).toInt(),
         EHSpiderParser.galleryRatingResponse2RatingInfo,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('ratingFailed'.tr, e.message);
-      snack('ratingFailed'.tr, e.message);
+      snack('ratingFailed'.tr, e.message ?? '');
       state.ratingState = LoadingState.error;
       updateSafely([ratingStateId]);
       return;
@@ -530,9 +528,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         resolution: resolution,
         parser: EHSpiderParser.downloadHHPage2Result,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('H@H download error', e.message);
-      snack('failed'.tr, e.message);
+      snack('failed'.tr, e.message ?? '');
       return;
     } on EHException catch (e) {
       Log.error('H@H download error', e.message);
@@ -657,9 +655,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         true,
         parser: EHSpiderParser.voteTagResponse2ErrorMessage,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('addTagFailed'.tr, e.message);
-      snack('addTagFailed'.tr, e.message);
+      snack('addTagFailed'.tr, e.message ?? '');
       return;
     } on EHException catch (e) {
       Log.error('addTagFailed'.tr, e.message);
@@ -783,10 +781,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return false;
     }
 
-    if (EHSetting.isDonor.isTrue) {
-      return false;
-    }
-    
     return state.gallery!.tags.values.any((tagList) => tagList.any((tag) => tag.tagData.key == 'lolicon'));
   }
 
@@ -856,6 +850,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void _removeCache() {
-    Get.find<EHCacheInterceptor>().removeGalleryDetailPageCache(state.galleryUrl);
+    
+    EHRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl, 0);
   }
 }

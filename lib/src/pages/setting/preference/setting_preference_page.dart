@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
+import 'package:jhentai/src/service/tag_search_order_service.dart';
 
 import '../../../consts/locale_consts.dart';
 import '../../../l18n/locale_text.dart';
@@ -16,7 +17,8 @@ import '../../../widget/loading_state_indicator.dart';
 
 class SettingPreferencePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
-
+  final TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
+  
   SettingPreferencePage({Key? key}) : super(key: key);
 
   @override
@@ -30,6 +32,7 @@ class SettingPreferencePage extends StatelessWidget {
             children: [
               _buildLanguage(),
               _buildTagTranslate(),
+              _buildTagOrderOptimization(),
               _buildDefaultTab(),
               if (StyleSetting.isInV2Layout) _buildSimpleDashboardMode(),
               if (StyleSetting.isInV2Layout) _buildShowBottomNavigation(),
@@ -82,7 +85,9 @@ class SettingPreferencePage extends StatelessWidget {
                   '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}',
                   style: const TextStyle(fontSize: 12),
                 )
-              : null,
+              : tagTranslationService.loadingState.value == LoadingState.error
+                  ? Text('downloadFailed'.tr, style: const TextStyle(fontSize: 12))
+                  : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -101,6 +106,45 @@ class SettingPreferencePage extends StatelessWidget {
               PreferenceSetting.saveEnableTagZHTranslation(value);
               if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
                 tagTranslationService.refresh();
+              }
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTagOrderOptimization() {
+    return ListTile(
+      title: Text('zhTagSearchOrderOptimization'.tr),
+      subtitle: tagSearchOrderOptimizationService.loadingState.value == LoadingState.success
+          ? Text('${'version'.tr}: ${tagSearchOrderOptimizationService.version.value!}', style: const TextStyle(fontSize: 12))
+          : tagSearchOrderOptimizationService.loadingState.value == LoadingState.loading
+              ? Text(
+                  '${'downloadTagTranslationHint'.tr}${tagSearchOrderOptimizationService.downloadProgress.value}',
+                  style: const TextStyle(fontSize: 12),
+                )
+              : tagSearchOrderOptimizationService.loadingState.value == LoadingState.error
+                  ? Text('downloadFailed'.tr, style: const TextStyle(fontSize: 12))
+                  : Text('zhTagSearchOrderOptimizationHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            useCupertinoIndicator: true,
+            loadingState: tagSearchOrderOptimizationService.loadingState.value,
+            indicatorRadius: 10,
+            width: 40,
+            idleWidget: IconButton(onPressed: tagSearchOrderOptimizationService.refresh, icon: const Icon(Icons.refresh)),
+            errorWidgetSameWithIdle: true,
+            successWidgetSameWithIdle: true,
+          ),
+          Switch(
+            value: PreferenceSetting.enableTagZHSearchOrderOptimization.value,
+            onChanged: (value) {
+              PreferenceSetting.saveEnableTagZHSearchOrderOptimization(value);
+              if (value == true && tagSearchOrderOptimizationService.loadingState.value != LoadingState.success) {
+                tagSearchOrderOptimizationService.refresh();
               }
             },
           )

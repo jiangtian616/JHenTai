@@ -208,8 +208,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       await retry(
         () => EHRequest.requestCancelUnlockArchive(url: archive.archivePageUrl.replaceFirst('--', '-')),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-        onRetry: (e) => Log.download('Request re-unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioError).message}'),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        onRetry: (e) => Log.download('Request re-unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _retryTimes,
       );
     } on Exception catch (e) {
@@ -483,12 +483,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           cancelToken: archiveDownloadInfo.cancelToken,
           parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
         ),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-        onRetry: (e) => Log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioError).message}'),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        onRetry: (e) => Log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _retryTimes,
       );
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.cancel) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
         return;
       }
 
@@ -536,14 +536,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           url: archiveDownloadInfo.downloadPageUrl!,
           cancelToken: archiveDownloadInfo.cancelToken,
           parser: EHSpiderParser.downloadArchivePage2DownloadUrl,
-          useCacheIfAvailable: false,
         ),
-        retryIf: (e) => e is DioError && e.type != DioErrorType.cancel,
-        onRetry: (e) => Log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioError).message}'),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        onRetry: (e) => Log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _retryTimes,
       );
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.cancel) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
         return;
       }
       return await _getDownloadUrl(archive);
@@ -592,9 +591,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       response = await EHRequest.download(
         url: archiveDownloadInfo.downloadUrl!,
         path: computePackingFileDownloadPath(archive),
-        receiveTimeout: 0,
         appendMode: true,
-        caseInsensitiveHeader: false,
+        preserveHeaderCase: true,
         deleteOnError: false,
         range: latestDownloadedBytes <= 0 ? null : '$latestDownloadedBytes-',
         cancelToken: archiveDownloadInfo.cancelToken,
@@ -602,8 +600,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           speedComputer.downloadedBytes = latestDownloadedBytes + count;
         },
       );
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.cancel) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
         return;
       }
 
@@ -667,7 +665,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     Log.info('Unpacking archive: ${archive.title}, original: ${archive.isOriginal}');
 
-    bool success = await extractArchive(
+    bool success = await extractZipArchive(
       computePackingFileDownloadPath(archive),
       computeArchiveUnpackingPath(archive),
     );

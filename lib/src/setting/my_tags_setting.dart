@@ -48,10 +48,10 @@ class MyTagsSetting {
           tagSetNo: 1,
           parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
         ),
-        retryIf: (e) => e is DioError,
+        retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
       return;
     } on EHException catch (e) {

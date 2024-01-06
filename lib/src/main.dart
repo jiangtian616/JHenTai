@@ -11,9 +11,9 @@ import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
-import 'package:jhentai/src/service/relogin_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/frame_rate_setting.dart';
@@ -46,8 +46,6 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import 'config/theme_config.dart';
-import 'network/eh_cache_interceptor.dart';
-import 'network/eh_cookie_manager.dart';
 
 void main() async {
   await init();
@@ -131,8 +129,8 @@ Future<void> init() async {
   await FrameRateSetting.init();
 
   await PathSetting.init();
-  AppUpdateService.init();
   await StorageService.init();
+  AppUpdateService.init();
 
   StyleSetting.init();
   NetworkSetting.init();
@@ -149,17 +147,13 @@ Future<void> init() async {
   MyTagsSetting.init();
   EHSetting.init();
 
-  await EHCookieManager.init();
-  EHCacheInterceptor.init();
-
-  ReLoginService.init();
-
   DownloadSetting.init();
   await EHRequest.init();
 
   PreferenceSetting.init();
 
   TagTranslationService.init();
+  TagSearchOrderOptimizationService.init();
 
   MouseSetting.init();
 
