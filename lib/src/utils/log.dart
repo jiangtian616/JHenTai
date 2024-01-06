@@ -106,46 +106,7 @@ class Log {
     _downloadFileLogger?.v(msg, null, StackTrace.empty);
   }
 
-  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
-    if (_shouldDismissUpload(throwable)) {
-      return;
-    }
-
-    extraInfos = _extractExtraInfos(throwable, stackTrace, extraInfos);
-
-    // /// Wait for full log
-    // Future.delayed(const Duration(seconds: 3)).then(
-    //   (_) => Sentry.captureException(
-    //     throwable,
-    //     stackTrace: stackTrace,
-    //     withScope: (scope) {
-    //       if (UserSetting.hasLoggedIn()) {
-    //         if (scope.user != null) {
-    //           scope.setUser(scope.user!.copyWith(id: UserSetting.userName.value, username: UserSetting.userName.value));
-    //         } else {
-    //           scope.setUser(SentryUser(id: UserSetting.userName.value, username: UserSetting.userName.value));
-    //         }
-    //       }
-    //
-    //       extraInfos?.forEach((key, value) {
-    //         String cleanedValue = _cleanPrivacy(value.toString());
-    //         if (cleanedValue.length < 1000) {
-    //           scope.setExtra(key, cleanedValue);
-    //         } else {
-    //           scope.addAttachment(SentryAttachment.fromIntList(cleanedValue.codeUnits, '$key.log'));
-    //         }
-    //       });
-    //
-    //       if (_shouldAttachLogFile(stackTrace)) {
-    //         Uint8List verboseAttachment = _verboseLogFile.readAsBytesSync();
-    //         if (verboseAttachment.isNotEmpty) {
-    //           scope.addAttachment(SentryAttachment.fromUint8List(verboseAttachment, path.basename(_verboseLogFile.path)));
-    //         }
-    //       }
-    //     },
-    //   ),
-    // );
-  }
+  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {}
 
   static Future<String> getSize() async {
     Directory logDirectory = Directory(logDirPath);
@@ -185,67 +146,6 @@ class Log {
         }
       },
     );
-  }
-
-  static bool _shouldDismissUpload(throwable) {
-    if (throwable is StateError && throwable.message.contains('Failed to load https')) {
-      return true;
-    }
-    if (throwable is StateError && throwable.message.contains('User cancel request')) {
-      return true;
-    }
-    // if (throwable is DioException && throwable.message.contains('Http status error')) {
-    //   return true;
-    // }
-    if (throwable is HttpException && throwable.message.contains('Connection closed while receiving data')) {
-      return true;
-    }
-    if (throwable is StateError && throwable.message.contains('Reading from a closed socket')) {
-      return true;
-    }
-    if (throwable is SocketException && throwable.message.contains('Reading from a closed socket')) {
-      return true;
-    }
-    if (throwable is DioException && (throwable.message?.contains('HandshakeException') ?? false)) {
-      return true;
-    }
-    if (throwable is DioException && (throwable.message?.contains('Connection closed while receiving data') ?? false)) {
-      return true;
-    }
-    if (throwable is TimeoutException && (throwable.message?.contains('Executor is closing') ?? false)) {
-      return true;
-    }
-    return false;
-  }
-
-  static bool _shouldAttachLogFile(dynamic stackTrace) {
-    if (stackTrace == null) {
-      return true;
-    }
-
-    /// todo:
-    if (stackTrace.toString().contains('Scrollable.recommendDeferredLoadingForContext')) {
-      return false;
-    }
-
-    return true;
-  }
-
-  static Map<String, dynamic> _extractExtraInfos(dynamic throwable, dynamic stackTrace, Map<String, dynamic>? extraInfos) {
-    extraInfos ??= {};
-
-    if (throwable is JsonUnsupportedObjectError) {
-      extraInfos['object'] = throwable.unsupportedObject;
-      extraInfos['cause'] = throwable.cause;
-      extraInfos['partialResult'] = throwable.partialResult;
-    }
-
-    return extraInfos;
-  }
-
-  static String _cleanPrivacy(String raw) {
-    String pattern = r'(password|secret|passwd|api_key|apikey|auth) = ("|\w)+';
-    return raw.replaceAll(RegExp(pattern), '');
   }
 }
 
