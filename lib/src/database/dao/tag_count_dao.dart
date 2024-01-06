@@ -3,7 +3,7 @@ import '../database.dart';
 class TagCountDao {
   static const int _batchSize = 200;
 
-  static Future<void> updateTagCount(List<TagCountData> tagCountData) {
+  static Future<void> replaceTagCount(List<TagCountData> tagCountData) {
     return appDb.transaction(() async {
       await appDb.deleteAllTagCount();
 

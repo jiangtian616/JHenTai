@@ -147,7 +147,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     List<TagCountData> tagCountData =
         rows.where((row) => row[1] >= 5).map((row) => TagCountData(namespaceWithKey: (row[2] as String).replaceAll('"', ''), count: row[1])).toList();
     version.value = null;
-    await TagCountDao.updateTagCount(tagCountData);
+    await TagCountDao.replaceTagCount(tagCountData);
     version.value = tag;
 
     storageService.write('TagSearchOrderOptimizationServiceLoadingState', LoadingState.success.index);
