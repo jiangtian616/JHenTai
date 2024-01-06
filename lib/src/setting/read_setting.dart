@@ -38,6 +38,7 @@ class ReadSetting {
   static RxInt customBrightness = 50.obs;
   static RxInt imageSpace = 6.obs;
   static RxBool showThumbnails = true.obs;
+  static RxBool showScrollBar = true.obs;
   static RxBool showStatusInfo = true.obs;
   static RxBool enablePageTurnByVolumeKeys = true.obs;
   static RxBool enablePageTurnAnime = true.obs;
@@ -134,6 +135,12 @@ class ReadSetting {
   static saveShowThumbnails(bool value) {
     Log.debug('saveShowThumbnails:$value');
     showThumbnails.value = value;
+    _save();
+  }
+  
+  static saveShowScrollBar(bool value) {
+    Log.debug('saveShowScrollBar:$value');
+    showScrollBar.value = value;
     _save();
   }
 
@@ -263,6 +270,7 @@ class ReadSetting {
       'customBrightness': customBrightness.value,
       'imageSpace': imageSpace.value,
       'showThumbnails': showThumbnails.value,
+      'showScrollBar': showScrollBar.value,
       'showStatusInfo': showStatusInfo.value,
       'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
@@ -292,6 +300,7 @@ class ReadSetting {
     customBrightness.value = map['customBrightness'] ?? customBrightness.value;
     imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
+    showScrollBar.value = map['showScrollBar'] ?? showScrollBar.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
     enablePageTurnByVolumeKeys.value = map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];

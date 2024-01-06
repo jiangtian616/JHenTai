@@ -416,6 +416,7 @@ class en_US {
       'useThirdPartyViewer': 'Use Custom Viewer',
       'thirdPartyViewerPath': 'Custom Viewer Path(Executable file)',
       'showThumbnails': 'Show Thumbnails',
+      'showScrollBar': 'Show Scroll Bar',
       'showStatusInfo': 'Show Status at Bottom',
       'autoModeInterval': 'Turn Page Interval',
       'autoModeStyle': 'Auto mode style',

@@ -416,6 +416,7 @@ class zh_CN {
       'useThirdPartyViewer': '使用第三方阅读器',
       'thirdPartyViewerPath': '第三方阅读器路径（可执行文件）',
       'showThumbnails': '显示缩略图',
+      'showScrollBar': '显示滚动条',
       'showStatusInfo': '底部显示状态信息',
       'autoModeInterval': '自动模式翻页时间',
       'autoModeStyle': '自动模式风格',

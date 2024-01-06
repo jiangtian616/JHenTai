@@ -29,6 +29,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildEnableCustomReadBrightness().center(),
               if (GetPlatform.isMobile) _buildCustomReadBrightness().center(),
               _buildShowThumbnails().center(),
+              _buildShowScrollBar().center(),
               _buildShowStatusInfo().center(),
               if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
               _buildEnablePageTurnAnime().center(),
@@ -140,6 +141,13 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('showThumbnails'.tr),
       trailing: Switch(value: ReadSetting.showThumbnails.value, onChanged: ReadSetting.saveShowThumbnails),
+    );
+  }
+
+  Widget _buildShowScrollBar() {
+    return ListTile(
+      title: Text('showScrollBar'.tr),
+      trailing: Switch(value: ReadSetting.showScrollBar.value, onChanged: ReadSetting.saveShowScrollBar),
     );
   }
 

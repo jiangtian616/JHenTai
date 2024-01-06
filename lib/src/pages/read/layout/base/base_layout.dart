@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -33,7 +34,10 @@ abstract class BaseLayout extends StatelessWidget {
       id: BaseLayoutLogic.pageId,
       global: false,
       init: logic,
-      builder: (_) => buildBody(context),
+      builder: (_) => ScrollConfiguration(
+        behavior: ReadSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBar : UIConfig.scrollBehaviourWithoutScrollBar,
+        child: buildBody(context),
+      ),
     );
   }
 

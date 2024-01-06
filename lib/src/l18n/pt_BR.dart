@@ -417,6 +417,7 @@ class pt_BR {
       'useThirdPartyViewer': 'Usar visualizador personaliado',
       'thirdPartyViewerPath': 'Localização do visualizador personalizado(Arquivo executável)',
       'showThumbnails': 'Mostrar miniaturas',
+      'showScrollBar': 'Show Scroll Bar',
       'showStatusInfo': 'Mostrar status na parte inferior',
       'autoModeInterval': 'Intervalo de virada de página',
       'autoModeStyle': 'Estilo do modo automático',

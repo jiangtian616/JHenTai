@@ -417,6 +417,7 @@ class ko_KR {
       'thirdPartyViewerPath': '커스텀 뷰어 경로(실행 파일)',
       'showThumbnails': '섬네일 보기',
       'showStatusInfo': '하단에 상태 보기',
+      'showScrollBar': 'Show Scroll Bar',
       'autoModeInterval': '자동 넘기기 간격',
       'autoModeStyle': '자동 넘기기 스타일',
       'scroll': '스크롤',
