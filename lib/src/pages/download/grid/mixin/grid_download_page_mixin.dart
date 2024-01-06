@@ -71,7 +71,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
               () => DraggableGridViewBuilder(
                 key: PageStorageKey(state.currentGroup),
                 controller: state.scrollController,
-                padding: const EdgeInsets.only(left: 12, right: 12, bottom: 24),
+                padding: const EdgeInsets.only(left: 12, right: 16, bottom: 24),
                 children: getChildren(context),
                 dragFeedback: (List<DraggableGridItem> list, int index) {
                   return SizedBox(
