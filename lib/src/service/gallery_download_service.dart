@@ -1102,7 +1102,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     try {
       return (await appDb.insertGalleryGroup(group) > 0);
-    } on SqliteException catch (e) {
+    } on SqliteException catch (_) {
       return false;
     }
   }
@@ -1167,9 +1167,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return appDb.transaction(() async {
       try {
         await appDb.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
-      } on SqliteException catch (e) {
-        Log.debug(e);
-      }
+      } on SqliteException catch (_) {}
+      
       return await appDb.insertGallery(
             gallery.gid,
             gallery.token,

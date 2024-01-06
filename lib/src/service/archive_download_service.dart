@@ -729,9 +729,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return appDb.transaction(() async {
       try {
         await appDb.insertArchiveGroup(archive.groupName ?? 'default'.tr);
-      } on SqliteException catch (e) {
-        Log.debug(e);
-      }
+      } on SqliteException catch (_) {}
 
       return await appDb.insertArchive(
             archive.gid,

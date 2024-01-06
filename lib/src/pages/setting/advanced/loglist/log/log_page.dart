@@ -1,4 +1,4 @@
-import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
@@ -18,12 +18,15 @@ class LogPage extends StatefulWidget {
 }
 
 class _LogPageState extends State<LogPage> {
-  late final io.FileSystemEntity log;
+  late final File log;
+  late final String logText;
 
   @override
   void initState() {
-    log = Get.arguments;
     super.initState();
+
+    log = Get.arguments;
+    logText = log.readAsStringSync();
   }
 
   @override
@@ -35,42 +38,35 @@ class _LogPageState extends State<LogPage> {
         elevation: 1,
         titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         actions: [
-          if (!GetPlatform.isDesktop) IconButton(onPressed: () => _shareLog(log as io.File), icon: const Icon(Icons.share)),
-          IconButton(onPressed: () => _copyLog(log as io.File), icon: const Icon(Icons.copy)),
+          if (!GetPlatform.isDesktop) IconButton(onPressed: _shareLog, icon: const Icon(Icons.share)),
+          IconButton(onPressed: _copyLog, icon: const Icon(Icons.copy)),
         ],
       ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: screenHeight),
-          child: SelectableText(
-            (log as io.File).readAsStringSync(),
-            scrollPhysics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            style: TextStyle(
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              fontFamily: io.Platform.isAndroid ? 'monospace' : 'PingFang HK',
-            ),
-          ),
-        ).paddingOnly(top: 8, left: 4, right: 4),
-      ),
+      body: SelectableText(
+        logText,
+        scrollPhysics: const ClampingScrollPhysics(),
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.bold,
+          fontFamily: Platform.isAndroid ? 'monospace' : 'PingFang HK',
+        ),
+      ).marginSymmetric(horizontal: 4),
     );
   }
 
-  void _shareLog(io.File file) {
+  void _shareLog() {
     Share.shareFiles(
-      [file.path],
-      text: basename(file.path),
+      [log.path],
+      text: basename(log.path),
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
   }
 
-  Future<void> _copyLog(io.File file) async {
-    String content = file.readAsStringSync();
-    if (isEmptyOrNull(content)) {
+  Future<void> _copyLog() async {
+    if (isEmptyOrNull(logText)) {
       return;
     }
-    await FlutterClipboard.copy(file.readAsStringSync());
+    await FlutterClipboard.copy(logText);
     toast('hasCopiedToClipboard'.tr);
   }
 }

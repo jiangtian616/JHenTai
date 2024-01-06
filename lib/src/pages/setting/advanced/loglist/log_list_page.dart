@@ -1,4 +1,4 @@
-import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,18 +18,19 @@ class LogListPage extends StatefulWidget {
 }
 
 class _LogListPageState extends State<LogListPage> {
-  List<io.FileSystemEntity> logs = [];
+  List<File> logs = [];
 
   ScrollController scrollController = ScrollController();
 
   @override
   void initState() {
-    io.Directory logDir = io.Directory(Log.logDirPath);
+    super.initState();
+
+    Directory logDir = Directory(Log.logDirPath);
     if (logDir.existsSync()) {
-      logs = logDir.listSync();
+      logs = logDir.listSync().whereType<File>().toList();
       logs.sort((a, b) => b.path.compareTo(a.path));
     }
-    super.initState();
   }
 
   @override

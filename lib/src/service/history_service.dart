@@ -37,7 +37,7 @@ class HistoryService extends GetxController {
       return;
     }
 
-    Log.verbose('Record history: $gallery');
+    Log.verbose('Record history: ${gallery.gid}');
 
     Gallery? record = history.singleWhereOrNull((h) => h.gid == gallery.gid);
 
