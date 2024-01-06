@@ -247,7 +247,8 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
           gid = int.tryParse(lines[2]);
           token = lines[3];
         }).catchError((e) {
-          Log.error('Read Ehviewer metadata error!', e);
+          /// EhViewer-NekoInverter supported
+          /// Ehviewer-Overhauled not supported
         });
       }
     }).then((_) {
