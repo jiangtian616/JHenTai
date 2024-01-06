@@ -107,7 +107,7 @@ void backRoute<T>({
   );
 }
 
-/// pop current route triggered by esc or fifth button or system back button
+/// pop current active route triggered by esc or fifth button or system back button
 void popRoute<T>({
   T? result,
   bool closeOverlays = false,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/pages/home_page.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 
 import '../utils/toast_util.dart';
 
@@ -20,8 +23,35 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
     return WillPopScope(child: widget.child, onWillPop: _handlePopApp);
   }
 
-  /// double tap back button to exit app
+  /// system back
   Future<bool> _handlePopApp() {
+    if (StyleSetting.isInMobileLayout) {
+      return _handleDoubleTapPopApp();
+    }
+
+    if (StyleSetting.isInTabletLayout) {
+      if (Get.global(rightV2).currentState?.canPop() == true) {
+        popRoute();
+        return Future.value(false);
+      } else {
+        return _handleDoubleTapPopApp();
+      }
+    }
+
+    if (StyleSetting.isInDesktopLayout) {
+      if (Get.global(right).currentState?.canPop() == true) {
+        popRoute();
+        return Future.value(false);
+      } else {
+        return _handleDoubleTapPopApp();
+      }
+    }
+
+    return _handleDoubleTapPopApp();
+  }
+
+  /// double tap back button to exit app
+  Future<bool> _handleDoubleTapPopApp() {
     if (_lastPopTime == null) {
       _lastPopTime = DateTime.now();
       toast('TapAgainToExit'.tr, isCenter: false);
