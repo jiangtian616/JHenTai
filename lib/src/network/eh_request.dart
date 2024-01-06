@@ -32,11 +32,11 @@ import 'eh_cookie_manager.dart';
 
 class EHRequest {
   static late final Dio _dio;
-  static late final EHCookieManager cookieManager;
-  static late final EHCacheManager cacheManager;
-  static late final StatefulIsolate isolate;
+  static late final EHCookieManager _cookieManager;
+  static late final EHCacheManager _cacheManager;
+  static late final StatefulIsolate _isolate;
 
-  static List<Cookie> get cookies => cookieManager.cookies;
+  static List<Cookie> get cookies => _cookieManager.cookies;
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -54,7 +54,7 @@ class EHRequest {
 
     _initCacheManager();
 
-    isolate = StatefulIsolate();
+    _isolate = StatefulIsolate();
 
     Log.debug('init EHRequest success');
   }
@@ -131,8 +131,8 @@ class EHRequest {
   }
 
   static void _initCookies() {
-    cookieManager = EHCookieManager(Get.find<StorageService>());
-    _dio.interceptors.add(cookieManager);
+    _cookieManager = EHCookieManager(Get.find<StorageService>());
+    _dio.interceptors.add(_cookieManager);
   }
 
   /// https://github.com/dart-lang/io/issues/83
@@ -175,34 +175,34 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static void _initCacheManager() {
-    cacheManager = EHCacheManager(
+    _cacheManager = EHCacheManager(
       options: CacheOptions(
         policy: CachePolicy.disable,
         expire: NetworkSetting.pageCacheMaxAge.value,
         store: SqliteCacheStore(appDb: appDb),
       ),
     );
-    _dio.interceptors.add(cacheManager);
+    _dio.interceptors.add(_cacheManager);
   }
 
   static void storeEHCookiesString(String cookiesString) {
-    cookieManager.storeEHCookiesString(cookiesString);
+    _cookieManager.storeEHCookiesString(cookiesString);
   }
 
   static void storeEHCookies(List<Cookie> cookies) {
-    cookieManager.storeEHCookies(cookies);
+    _cookieManager.storeEHCookies(cookies);
   }
 
   static void removeAllCookies() {
-    cookieManager.removeAllCookies();
+    _cookieManager.removeAllCookies();
   }
 
   static Future<void> removeCacheByUrl(String url) {
-    return cacheManager.removeCacheByUrl(url);
+    return _cacheManager.removeCacheByUrl(url);
   }
 
   static Future<void> removeCacheByUrlPrefix(String url) {
-    return cacheManager.removeCacheByUrlPrefix(url);
+    return _cacheManager.removeCacheByUrlPrefix(url);
   }
 
   static Future<void> removeCacheByGalleryUrlAndPage(String galleryUrl, int pageIndex) {
@@ -220,7 +220,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<void> removeAllCache() {
-    return cacheManager.removeAllCache();
+    return _cacheManager.removeAllCache();
   }
 
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
@@ -779,7 +779,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (parser == null) {
       return response as T;
     }
-    return isolate.isolate((list) => parser(list[0], list[1]), [response.headers, response.data]);
+    return _isolate.isolate((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
   static Future<Response> _getWithErrorHandler<T>(
