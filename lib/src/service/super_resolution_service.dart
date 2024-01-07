@@ -44,10 +44,10 @@ class SuperResolutionService extends GetxController {
 
   @override
   void onInit() async {
-    if (!await galleryDownloadService.completer.future) {
+    if (!await galleryDownloadService.completed) {
       return;
     }
-    if (!await archiveDownloadService.completer.future) {
+    if (!await archiveDownloadService.completed) {
       return;
     }
 

@@ -36,7 +36,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
 
-  final Completer<bool> completer = Completer();
+  final Completer<bool> _completer = Completer();
+
+  Future<bool> get completed => _completer.future;
 
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
@@ -49,7 +51,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   @override
-  onInit() async {
+  Future<void> onInit() async {
     await _instantiateFromDB();
 
     Log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
@@ -60,7 +62,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
-    completer.complete(true);
+    _completer.complete(true);
 
     super.onInit();
   }

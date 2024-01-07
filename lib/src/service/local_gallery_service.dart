@@ -67,10 +67,10 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   }
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
-    
-    refreshLocalGallerys();
+
+    await refreshLocalGallerys();
   }
 
   Future<void> refreshLocalGallerys() {

@@ -65,21 +65,23 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
 
-  final Completer<bool> completer = Completer();
+  final Completer<bool> _completer = Completer();
+
+  Future<bool> get completed => _completer.future;
 
   static void init() {
     Get.put(GalleryDownloadService(), permanent: true);
   }
 
   @override
-  onInit() async {
+  Future<void> onInit() async {
     await _instantiateFromDB();
 
     Log.debug('init DownloadService success, download task count: ${gallerys.length}');
 
     _startExecutor();
 
-    completer.complete(true);
+    _completer.complete(true);
 
     super.onInit();
   }
