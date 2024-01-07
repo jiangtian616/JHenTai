@@ -4,11 +4,3 @@ CREATE TABLE tag_count
     count            INT  NOT NULL, -- gallerys count with this tag
     primary key (namespaceWithKey)
 );
-
-insertTagCount:
-insert into tag_count
-values (:namespaceWithKey, :count);
-
-deleteAllTagCount:
-delete
-from tag_count;

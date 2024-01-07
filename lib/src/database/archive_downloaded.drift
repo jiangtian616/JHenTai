@@ -62,10 +62,6 @@ SELECT *
 FROM archive_group
 ORDER BY sortOrder;
 
-insertArchiveGroup:
-insert into archive_group(groupName)
-values (:groupName);
-
 renameArchiveGroup:
 update archive_group
 set groupName = :newGroupName

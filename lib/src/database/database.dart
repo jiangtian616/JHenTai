@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:drift/drift.dart';
 
@@ -11,10 +12,14 @@ import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 import '../model/gallery.dart';
 import '../service/storage_service.dart';
+import 'dao/archive_dao.dart';
+import 'dao/gallery_dao.dart';
 
 part 'database.g.dart';
 
@@ -152,10 +157,10 @@ class AppDb extends _$AppDb {
 
       await appDb.transaction(() async {
         for (String groupName in galleryGroups) {
-          await appDb.insertGalleryGroup(groupName);
+          await GalleryDao.insertGalleryGroup(groupName);
         }
         for (String groupName in archiveGroups) {
-          await appDb.insertArchiveGroup(groupName);
+          await ArchiveDao.insertArchiveGroup(groupName);
         }
       });
     } on Exception catch (e) {
@@ -177,7 +182,14 @@ class AppDb extends _$AppDb {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(p.join(PathSetting.getVisibleDir().path, 'db.sqlite'));
+    final file = io.File(join(PathSetting.getVisibleDir().path, 'db.sqlite'));
+
+    if (Platform.isAndroid) {
+      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+    }
+
+    sqlite3.tempDirectory = PathSetting.tempDir.path;
+
     return NativeDatabase(file);
   });
 }

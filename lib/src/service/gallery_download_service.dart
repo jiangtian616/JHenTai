@@ -15,6 +15,7 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -1101,7 +1102,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     try {
-      return (await appDb.insertGalleryGroup(group) > 0);
+      return (await GalleryDao.insertGalleryGroup(group) > 0);
     } on SqliteException catch (_) {
       return false;
     }
@@ -1166,7 +1167,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<bool> _saveGalleryInfoAndGroupInDB(GalleryDownloadedData gallery) async {
     return appDb.transaction(() async {
       try {
-        await appDb.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
+        await GalleryDao.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
       } on SqliteException catch (_) {}
       
       return await appDb.insertGallery(

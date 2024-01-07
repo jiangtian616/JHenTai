@@ -5,7 +5,7 @@ class TagCountDao {
 
   static Future<void> replaceTagCount(List<TagCountData> tagCountData) {
     return appDb.transaction(() async {
-      await appDb.deleteAllTagCount();
+      await deleteAllTagCount();
 
       for (int i = 0; i < tagCountData.length; i += _batchSize) {
         await appDb.batch((batch) {
@@ -19,5 +19,13 @@ class TagCountDao {
 
   static Future<List<TagCountData>> batchSelectTagCount(List<String> namespaceWithKeys) {
     return (appDb.select(appDb.tagCount)..where((tbl) => tbl.namespaceWithKey.isIn(namespaceWithKeys))).get();
+  }
+
+  static Future<int> insertTagCount(TagCountData tagCountData) {
+    return appDb.into(appDb.tagCount).insert(tagCountData);
+  }
+
+  static Future<int> deleteAllTagCount() {
+    return appDb.delete(appDb.tagCount).go();
   }
 }

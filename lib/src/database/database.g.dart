@@ -3965,23 +3965,6 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
-  Future<int> insertTagCount(String namespaceWithKey, int count) {
-    return customInsert(
-      'INSERT INTO tag_count VALUES (?1, ?2)',
-      variables: [Variable<String>(namespaceWithKey), Variable<int>(count)],
-      updates: {tagCount},
-    );
-  }
-
-  Future<int> deleteAllTagCount() {
-    return customUpdate(
-      'DELETE FROM tag_count',
-      variables: [],
-      updates: {tagCount},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
   Selectable<SuperResolutionInfoData> selectAllSuperResolutionInfo() {
     return customSelect('SELECT * FROM super_resolution_info',
         variables: [],
@@ -4254,14 +4237,6 @@ abstract class _$AppDb extends GeneratedDatabase {
         }).asyncMap(archiveGroup.mapFromRow);
   }
 
-  Future<int> insertArchiveGroup(String groupName) {
-    return customInsert(
-      'INSERT INTO archive_group (groupName) VALUES (?1)',
-      variables: [Variable<String>(groupName)],
-      updates: {archiveGroup},
-    );
-  }
-
   Future<int> renameArchiveGroup(String newGroupName, String oldGroupName) {
     return customUpdate(
       'UPDATE archive_group SET groupName = ?1 WHERE groupName = ?2',
@@ -4518,14 +4493,6 @@ abstract class _$AppDb extends GeneratedDatabase {
         readsFrom: {
           galleryGroup,
         }).asyncMap(galleryGroup.mapFromRow);
-  }
-
-  Future<int> insertGalleryGroup(String groupName) {
-    return customInsert(
-      'INSERT INTO gallery_group (groupName) VALUES (?1)',
-      variables: [Variable<String>(groupName)],
-      updates: {galleryGroup},
-    );
   }
 
   Future<int> renameGalleryGroup(String newGroupName, String oldGroupName) {

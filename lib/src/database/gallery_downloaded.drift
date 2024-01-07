@@ -140,10 +140,6 @@ SELECT *
 FROM gallery_group
 ORDER BY sortOrder;
 
-insertGalleryGroup:
-insert into gallery_group(groupName)
-values (:groupName);
-
 renameGalleryGroup:
 update gallery_group
 set groupName = :newGroupName

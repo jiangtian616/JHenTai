@@ -19,6 +19,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
+import '../database/dao/archive_dao.dart';
 import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
@@ -246,7 +247,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (!allGroups.contains(newGroup)) {
         int index = allGroups.indexOf(oldGroup);
         allGroups[index] = newGroup;
-        await appDb.insertArchiveGroup(newGroup);
+        await ArchiveDao.insertArchiveGroup(newGroup);
         await appDb.updateArchiveGroupOrder(index, newGroup);
       }
 
@@ -294,7 +295,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
         try {
-          await appDb.insertArchiveGroup(allGroups[i]);
+          await ArchiveDao.insertArchiveGroup(allGroups[i]);
         } on SqliteException catch (_) {}
         await appDb.updateArchiveGroupOrder(i, allGroups[i]);
       }
@@ -717,7 +718,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     try {
-      return (await appDb.insertArchiveGroup(group) > 0);
+      return (await ArchiveDao.insertArchiveGroup(group) > 0);
     } on SqliteException catch (_) {
       return false;
     }
@@ -728,7 +729,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<bool> _saveArchiveAndGroupInDatabase(ArchiveDownloadedData archive) async {
     return appDb.transaction(() async {
       try {
-        await appDb.insertArchiveGroup(archive.groupName ?? 'default'.tr);
+        await ArchiveDao.insertArchiveGroup(archive.groupName ?? 'default'.tr);
       } on SqliteException catch (_) {}
 
       return await appDb.insertArchive(

@@ -147,7 +147,7 @@ class TagTranslationService extends GetxService {
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
     if (isReady) {
-      Future.wait(gallerys.map((gallery) {
+      await Future.wait(gallerys.map((gallery) {
         return translateTagMap(gallery.tags);
       }).toList());
     }
@@ -192,7 +192,7 @@ class TagTranslationService extends GetxService {
     tagDatas.sort((a, b) {
       return tagCountMap[b]! - tagCountMap[a]!;
     });
-    
+
     return tagDatas;
   }
 
