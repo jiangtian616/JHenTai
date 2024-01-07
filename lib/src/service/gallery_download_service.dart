@@ -286,6 +286,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     galleryDownloadInfo.downloadProgress.curCount--;
     galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
+    galleryDownloadInfo.speedComputer.resetProgress(serialNo);
+    galleryDownloadInfo.speedComputer.start();
     await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
     await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
     _deleteImageInDisk(image);
