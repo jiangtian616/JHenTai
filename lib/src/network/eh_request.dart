@@ -59,7 +59,7 @@ class EHRequest {
     Log.debug('init EHRequest success');
   }
 
-  static Future<void> _initDomainFronting() async {
+  static void _initDomainFronting() {
     /// domain fronting interceptor
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {

@@ -34,14 +34,16 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(top: 16),
-        children: [
-          _buildProxyType(),
-          _buildProxyAddress(),
-          _buildProxyUsername(),
-          _buildProxyPassword(),
-        ],
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.only(top: 16),
+          children: [
+            _buildProxyType(),
+            _buildProxyAddress(),
+            _buildProxyUsername(),
+            _buildProxyPassword(),
+          ],
+        ),
       ).withListTileTheme(context),
     );
   }
@@ -79,8 +81,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyAddress = value,
+          enabled: NetworkSetting.proxyType.value != ProxyType.system,
         ),
       ),
+      enabled: NetworkSetting.proxyType.value != ProxyType.system,
     );
   }
 
@@ -94,8 +98,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyUsername = value,
+          enabled: NetworkSetting.proxyType.value != ProxyType.system,
         ),
       ),
+      enabled: NetworkSetting.proxyType.value != ProxyType.system,
     );
   }
 
@@ -110,8 +116,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyPassword = value,
           obscureText: true,
+          enabled: NetworkSetting.proxyType.value != ProxyType.system,
         ),
       ),
+      enabled: NetworkSetting.proxyType.value != ProxyType.system,
     );
   }
 }
