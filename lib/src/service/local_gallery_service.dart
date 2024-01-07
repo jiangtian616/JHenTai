@@ -63,7 +63,6 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
   static void init() {
     Get.put(LocalGalleryService(), permanent: true);
-    Get.put(LocalGalleryListPageLogic(), permanent: true);
   }
 
   @override

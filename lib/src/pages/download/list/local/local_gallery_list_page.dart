@@ -20,7 +20,7 @@ import 'local_gallery_list_page_state.dart';
 class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
   LocalGalleryListPage({Key? key}) : super(key: key);
 
-  final LocalGalleryListPageLogic logic = Get.find<LocalGalleryListPageLogic>();
+  final LocalGalleryListPageLogic logic = Get.put(LocalGalleryListPageLogic(), permanent: true);
   final LocalGalleryListPageState state = Get.find<LocalGalleryListPageLogic>().state;
 
   @override

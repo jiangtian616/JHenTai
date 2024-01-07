@@ -763,37 +763,30 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       init: logic,
       builder: (_) {
         bool disabled = state.gallery?.pageCount == null;
-        LocalGallery? localGallery = logic.localGalleryService.gid2EHViewerGallery[state.gallery?.gid];
-
         return GetBuilder<GalleryDownloadService>(
           id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gallery?.gid}',
           builder: (_) {
             GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gallery?.gid]?.downloadProgress;
 
-            String text = localGallery != null
-                ? 'finished'.tr
-                : downloadProgress == null
-                    ? 'download'.tr
-                    : downloadProgress.downloadStatus == DownloadStatus.paused
-                        ? 'resume'.tr
-                        : downloadProgress.downloadStatus == DownloadStatus.downloading
-                            ? 'pause'.tr
-                            : state.galleryDetails?.newVersionGalleryUrl == null
-                                ? 'finished'.tr
-                                : 'update'.tr;
+            String text = downloadProgress == null
+                ? 'download'.tr
+                : downloadProgress.downloadStatus == DownloadStatus.paused
+                    ? 'resume'.tr
+                    : downloadProgress.downloadStatus == DownloadStatus.downloading
+                        ? 'pause'.tr
+                        : state.galleryDetails?.newVersionGalleryUrl == null
+                            ? 'finished'.tr
+                            : 'update'.tr;
 
-            Icon icon = localGallery != null
-                ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-                : downloadProgress == null
-                    ? Icon(Icons.download,
-                        color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
-                    : downloadProgress.downloadStatus == DownloadStatus.paused
-                        ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                        : downloadProgress.downloadStatus == DownloadStatus.downloading
-                            ? Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                            : state.galleryDetails?.newVersionGalleryUrl == null
-                                ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-                                : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
+            Icon icon = downloadProgress == null
+                ? Icon(Icons.download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                : downloadProgress.downloadStatus == DownloadStatus.paused
+                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                    : downloadProgress.downloadStatus == DownloadStatus.downloading
+                        ? Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                        : state.galleryDetails?.newVersionGalleryUrl == null
+                            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                            : Icon(Icons.auto_awesome, color: UIConfig.alertColor(context));
 
             return IconTextButton(
               width: UIConfig.detailsPageActionExtent,

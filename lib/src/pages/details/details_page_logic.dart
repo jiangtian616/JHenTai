@@ -90,9 +90,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
-  final LocalGalleryService localGalleryService = Get.find();
   final SuperResolutionService superResolutionService = Get.find();
-  final LocalGalleryListPageLogic localGalleryPageLogic = Get.find();
   final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
@@ -237,13 +235,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
     GalleryDownloadedData? galleryDownloadedData = downloadService.gallerys.singleWhereOrNull((g) => g.gid == gallery.gid);
     GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
-    LocalGallery? localGallery = localGalleryService.gid2EHViewerGallery[state.gallery!.gid];
-
-    /// local ehviewer gallery
-    if (localGallery != null) {
-      localGalleryPageLogic.goToReadPage(localGallery);
-      return;
-    }
 
     /// new download
     if (galleryDownloadedData == null || downloadProgress == null) {
