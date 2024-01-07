@@ -1101,11 +1101,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       allGroups.add(group);
     }
 
-    try {
-      return (await GalleryDao.insertGalleryGroup(group) > 0);
-    } on SqliteException catch (_) {
-      return false;
-    }
+    return (await GalleryDao.insertGalleryGroup(group) > 0);
   }
 
   Future<bool> _deleteGroup(String group) async {
@@ -1166,10 +1162,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<bool> _saveGalleryInfoAndGroupInDB(GalleryDownloadedData gallery) async {
     return appDb.transaction(() async {
-      try {
-        await GalleryDao.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
-      } on SqliteException catch (_) {}
-      
+      await GalleryDao.insertGalleryGroup(gallery.groupName ?? 'default'.tr);
+
       return await appDb.insertGallery(
             gallery.gid,
             gallery.token,

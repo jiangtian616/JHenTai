@@ -294,9 +294,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
-        try {
-          await ArchiveDao.insertArchiveGroup(allGroups[i]);
-        } on SqliteException catch (_) {}
+        await ArchiveDao.insertArchiveGroup(allGroups[i]);
         await appDb.updateArchiveGroupOrder(i, allGroups[i]);
       }
     });
@@ -717,20 +715,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       allGroups.add(group);
     }
 
-    try {
-      return (await ArchiveDao.insertArchiveGroup(group) > 0);
-    } on SqliteException catch (_) {
-      return false;
-    }
+    return (await ArchiveDao.insertArchiveGroup(group) > 0);
   }
 
   // DB
 
   Future<bool> _saveArchiveAndGroupInDatabase(ArchiveDownloadedData archive) async {
     return appDb.transaction(() async {
-      try {
-        await ArchiveDao.insertArchiveGroup(archive.groupName ?? 'default'.tr);
-      } on SqliteException catch (_) {}
+      await ArchiveDao.insertArchiveGroup(archive.groupName ?? 'default'.tr);
 
       return await appDb.insertArchive(
             archive.gid,
