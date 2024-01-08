@@ -266,11 +266,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> reDownloadGallery(GalleryDownloadedData gallery) async {
     Log.info('Re-download gallery: ${gallery.gid}');
 
-    await deleteGallery(gallery);
-
-    downloadGallery(gallery.copyWith(downloadStatusIndex: DownloadStatus.downloading.index, insertTime: Value.absent()));
-
-    update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
+    for (int serialNo = 0; serialNo < gallery.pageCount; serialNo++) {
+      await reDownloadImage(gallery.gid, serialNo);
+    }
   }
 
   Future<void> reDownloadImage(int gid, int serialNo) async {
