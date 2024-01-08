@@ -56,7 +56,7 @@ body:
       description: |
         您可以通过设置-高级-查看日志-最近一条日志来获得日志文件
         请注意，您必须复现一遍bug流程后，日志中才会记录相关信息
-        此外，如果您提交的问题与下载相关，请打开记录全部日志的开关，附上全部的日志文件
+        此外，如果您提交的问题与下载相关，请打开记录全部日志的开关，重启应用后附上全部的日志文件
         You can get logs file in Settings - Advanced - Open Log
         Attention, you must reproduce the bug before get logs
         Besides, if your issue is about download, please turn on `Enable Verbose Logging` and attach all logs
