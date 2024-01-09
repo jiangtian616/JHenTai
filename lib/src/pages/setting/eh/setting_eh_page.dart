@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/network/eh_cookie_manager.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -16,7 +15,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../../exception/eh_exception.dart';
+import '../../../exception/eh_site_exception.dart';
 import '../../../setting/eh_setting.dart';
 import '../../../utils/log.dart';
 import '../../../utils/route_util.dart';
@@ -187,7 +186,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
         assetsLoadingState = LoadingState.error;
       });
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('Get assets failed', e.message);
       snack('Get assets failed'.tr, e.message, longDuration: true);
       setStateSafely(() {
@@ -221,7 +220,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
         resetLimitLoadingState = LoadingState.error;
       });
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('Reset limit failed', e.message);
       snack('Reset limit failed'.tr, e.message, longDuration: true);
       setStateSafely(() {

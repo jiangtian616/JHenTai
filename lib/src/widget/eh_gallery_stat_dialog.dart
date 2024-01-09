@@ -13,7 +13,7 @@ import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../exception/eh_exception.dart';
+import '../exception/eh_site_exception.dart';
 
 enum GraphType { allTime, year, month, day }
 
@@ -92,8 +92,8 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
       snack('getGalleryStatisticsFailed'.tr, e.message ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
-    } on EHException catch (e) {
-      if (e.type == EHExceptionType.galleryDeleted) {
+    } on EHSiteException catch (e) {
+      if (e.type == EHSiteExceptionType.galleryDeleted) {
         Log.error('invisible2UserWithoutDonation'.tr);
         setStateSafely(() => loadingState = LoadingState.noData);
         return;

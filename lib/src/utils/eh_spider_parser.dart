@@ -9,7 +9,6 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
@@ -29,6 +28,7 @@ import 'package:jhentai/src/utils/color_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
 import '../database/database.dart';
+import '../exception/eh_parse_exception.dart';
 import '../model/gallery.dart';
 import 'check_util.dart';
 import 'log.dart';
@@ -428,14 +428,14 @@ class EHSpiderParser {
     Document document = parse(html);
     Element? img = document.querySelector('#img');
     if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
+      throw EHParseException(type: EHParseExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
 
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
     if (url.contains('509.gif')) {
-      throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
+      throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
     double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
     double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
@@ -464,14 +464,14 @@ class EHSpiderParser {
     Document document = parse(data as String);
     Element? img = document.querySelector('#img');
     if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHException(type: EHExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
+      throw EHParseException(type: EHParseExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
     }
 
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
     if (url.contains('509.gif')) {
-      throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
+      throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
     double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
     double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
@@ -696,7 +696,11 @@ class EHSpiderParser {
 
   static void addTagSetResponse2Result(Headers headers, dynamic data) {
     if (data is String && data.contains('No more tags can be added to this tagset')) {
-      throw EHException(type: EHExceptionType.tagSetExceedLimit, message: 'tagSetExceedLimit'.tr);
+      throw EHParseException(
+        type: EHParseExceptionType.tagSetExceedLimit,
+        message: 'tagSetExceedLimit'.tr,
+        shouldPauseAllDownloadTasks: false,
+      );
     }
   }
 

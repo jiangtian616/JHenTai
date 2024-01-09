@@ -8,7 +8,8 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/eh_parse_exception.dart';
+import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
@@ -235,7 +236,7 @@ class ReadPageLogic extends GetxController {
       state.parseImageHrefsStates[index] = LoadingState.error;
       update(['$parseImageHrefsStateId::$index']);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       state.parseImageHrefErrorMsg = e.message;
       state.parseImageHrefsStates[index] = LoadingState.error;
       update(['$parseImageHrefsStateId::$index']);
@@ -295,13 +296,15 @@ class ReadPageLogic extends GetxController {
       state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
       update(['$parseImageUrlStateId::$index']);
       return;
-    } on EHException catch (e) {
+    } on EHParseException catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
       state.parseImageUrlErrorMsg[index] = e.message.tr;
       update(['$parseImageUrlStateId::$index']);
-      if (e.type == EHExceptionType.exceedLimit) {
-        EHRequest.removeCacheByUrl(state.thumbnails[index]!.href);
-      }
+      return;
+    } on EHSiteException catch (e) {
+      state.parseImageUrlStates[index] = LoadingState.error;
+      state.parseImageUrlErrorMsg[index] = e.message.tr;
+      update(['$parseImageUrlStateId::$index']);
       return;
     }
 

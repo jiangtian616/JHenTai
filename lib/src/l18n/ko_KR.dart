@@ -28,6 +28,8 @@ class ko_KR {
       'attention': '경고',
       'jump': 'Jump',
       'deleteAll': 'Delete All',
+      'connectionTimeoutHint': 'Network connect timeout',
+      'receiveDataTimeoutHint': 'Network receive data timeout',
 
       'home': "홈",
       'gallery': "갤러리",

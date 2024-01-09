@@ -8,7 +8,7 @@ import 'package:get/get_utils/get_utils.dart';
 import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
@@ -494,7 +494,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       return await _requestUnlock(archive);
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
       snack('error'.tr, e.message, longDuration: true);
       pauseAllDownloadArchive();
@@ -547,7 +547,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
       return await _getDownloadUrl(archive);
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
       snack('error'.tr, e.message, longDuration: true);
       pauseAllDownloadArchive();

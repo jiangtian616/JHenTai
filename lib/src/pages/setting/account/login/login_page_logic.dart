@@ -14,8 +14,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-import '../../../../exception/eh_exception.dart';
-import '../../../../network/eh_cookie_manager.dart';
+import '../../../../exception/eh_site_exception.dart';
 import '../../../../setting/eh_setting.dart';
 import '../../../../utils/cookie_util.dart';
 import '../../../../utils/log.dart';
@@ -102,7 +101,7 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;

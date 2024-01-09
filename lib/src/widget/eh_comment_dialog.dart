@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
-import '../exception/eh_exception.dart';
+import '../exception/eh_site_exception.dart';
 import '../network/eh_request.dart';
 import '../pages/details/details_page_logic.dart';
 import '../utils/eh_spider_parser.dart';
@@ -106,7 +106,7 @@ class EHCommentDialogState extends State<EHCommentDialog> {
         snack('sendCommentFailed'.tr, e.message ?? '');
         return;
       }
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('sendCommentFailed'.tr, e.message);
       snack('sendCommentFailed'.tr, e.message);
       return;

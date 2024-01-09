@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:logger/logger.dart';
 import 'package:logger/src/outputs/file_output.dart';
 import 'package:path/path.dart' as path;
@@ -163,7 +160,7 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
   try {
     return func.call();
   } on Exception catch (e) {
-    if (e is DioException || e is EHException) {
+    if (e is DioException || e is EHSiteException) {
       rethrow;
     }
 

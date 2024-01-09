@@ -12,7 +12,7 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../exception/eh_exception.dart';
+import '../exception/eh_site_exception.dart';
 import '../utils/snack_util.dart';
 import '../utils/toast_util.dart';
 
@@ -77,7 +77,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
         setState(() => loadingState = LoadingState.error);
       }
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getGalleryTorrentsFailed'.tr, e.message);
       snack('getGalleryTorrentsFailed'.tr, e.message);
       if (mounted) {

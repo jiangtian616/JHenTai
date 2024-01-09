@@ -28,7 +28,9 @@ class zh_TW {
       'attention': '注意',
       'jump': '跳轉',
       'deleteAll': '刪除全部',
-
+      'connectionTimeoutHint': '建立網絡連接超時',
+      'receiveDataTimeoutHint': '網絡接收數據超時',
+      
       'home': "主畫面",
       'gallery': "畫廊",
       'setting': '設定',

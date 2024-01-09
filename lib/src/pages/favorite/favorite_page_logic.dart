@@ -7,7 +7,7 @@ import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/widget/eh_favorite_sort_order_dialog.dart';
 
-import '../../exception/eh_exception.dart';
+import '../../exception/eh_site_exception.dart';
 import '../../model/search_config.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
@@ -72,7 +72,7 @@ class FavoritePageLogic extends BasePageLogic {
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('change favorite sort order fail', e.message);
       snack('failed'.tr, e.message);
       state.loadingState = LoadingState.error;

@@ -7,9 +7,8 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 
-import '../../../../exception/eh_exception.dart';
+import '../../../../exception/eh_site_exception.dart';
 import '../../../../model/profile.dart';
-import '../../../../network/eh_cookie_manager.dart';
 import '../../../../network/eh_request.dart';
 import '../../../../setting/site_setting.dart';
 import '../../../../utils/eh_spider_parser.dart';
@@ -96,7 +95,7 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
         loadingState = LoadingState.error;
       });
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('Load profile fail', e.message);
       setState(() {
         loadingState = LoadingState.error;

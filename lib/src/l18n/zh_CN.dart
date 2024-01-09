@@ -28,6 +28,8 @@ class zh_CN {
       'attention': '注意',
       'jump': '跳转',
       'deleteAll': '删除全部',
+      'connectionTimeoutHint': '建立网络连接超时',
+      'receiveDataTimeoutHint': '网络接收数据超时',
 
       'home': "主页",
       'gallery': "画廊",

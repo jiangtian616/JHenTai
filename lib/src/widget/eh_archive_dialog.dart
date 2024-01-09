@@ -2,14 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/widget/eh_asset.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../exception/eh_exception.dart';
+import '../exception/eh_site_exception.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
@@ -115,7 +114,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       snack('getGalleryArchiveFailed'.tr, e.message ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getGalleryArchiveFailed'.tr, e.message);
       snack('getGalleryArchiveFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);

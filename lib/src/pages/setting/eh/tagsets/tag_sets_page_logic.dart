@@ -11,7 +11,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../database/database.dart';
-import '../../../../exception/eh_exception.dart';
+import '../../../../exception/eh_site_exception.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../model/tag_set.dart';
@@ -58,7 +58,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.error;
       updateSafely([bodyId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
       snack('getTagSetFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
@@ -202,7 +202,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('updateTagSetFailed'.tr, e.message);
       snack('updateTagSetFailed'.tr, e.message, longDuration: true);
       state.updateTagState = LoadingState.error;
@@ -233,7 +233,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('deleteTagSetFailed'.tr, e.message);
       snack('deleteTagSetFailed'.tr, e.message, longDuration: true);
       state.updateTagState = LoadingState.error;

@@ -7,7 +7,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:retry/retry.dart';
 
-import '../exception/eh_exception.dart';
+import '../exception/eh_site_exception.dart';
 import '../service/storage_service.dart';
 import '../utils/eh_spider_parser.dart';
 
@@ -68,7 +68,7 @@ class FavoriteSetting {
     } on DioException catch (e) {
       Log.error('refresh FavoriteSetting fail', e.message);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('refresh FavoriteSetting fail', e.message);
       return;
     }

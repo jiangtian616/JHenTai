@@ -9,7 +9,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 
-import '../../exception/eh_exception.dart';
+import '../../exception/eh_site_exception.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
@@ -98,7 +98,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
       snack('refreshGalleryFailed'.tr, e.message, longDuration: true);
       state.refreshState = LoadingState.error;
@@ -175,7 +175,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = prevState;
@@ -217,7 +217,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
@@ -269,7 +269,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
       snack('getGallerysFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;

@@ -13,9 +13,10 @@ import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/network/eh_timeout_translator.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
@@ -53,6 +54,8 @@ class EHRequest {
     _initCertificateForAndroidWithOldVersion();
 
     _initCacheManager();
+
+    _initTimeOutTranslator();
 
     _isolate = StatefulIsolate();
 
@@ -185,6 +188,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     _dio.interceptors.add(_cacheManager);
   }
 
+  static void _initTimeOutTranslator() {
+    _dio.interceptors.add(EHTimeoutTranslator());
+  }
+
   static void storeEHCookiesString(String cookiesString) {
     _cookieManager.storeEHCookiesString(cookiesString);
   }
@@ -201,8 +208,17 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _cacheManager.removeCacheByUrl(url);
   }
 
-  static Future<void> removeCacheByUrlPrefix(String url) {
-    return _cacheManager.removeCacheByUrlPrefix(url);
+  static Future<void> removeCacheByEHUrl(String url) {
+    Uri uri = Uri.parse(url);
+
+    List<Future> futures = [];
+    futures.add(_cacheManager.removeCacheByUrl(uri.toString()));
+
+    NetworkSetting.host2IPs[uri.host]?.forEach((ip) {
+      futures.add(_cacheManager.removeCacheByUrl(uri.replace(host: ip).toString()));
+    });
+
+    return Future.wait(futures);
   }
 
   static Future<void> removeCacheByGalleryUrlAndPage(String galleryUrl, int pageIndex) {
@@ -217,6 +233,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     });
 
     return Future.wait(futures);
+  }
+
+  static Future<void> removeCacheByUrlPrefix(String url) {
+    return _cacheManager.removeCacheByUrlPrefix(url);
   }
 
   static Future<void> removeAllCache() {
@@ -704,7 +724,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return _parseResponse(e.response!, parser);
     }
 
-    throw EHException(message: 'Look up response error', type: EHExceptionType.intelNelError);
+    throw EHSiteException(message: 'Look up response error', type: EHSiteExceptionType.intelNelError);
   }
 
   static Future<T> requestUnlockArchive<T>({
@@ -803,7 +823,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       throw _convertExceptionIfGalleryDeleted(e);
     }
 
-    emitEHExceptionIfFailed(response);
+    try {
+      emitEHExceptionIfFailed(response);
+    } on EHSiteException catch (_) {
+      removeCacheByUrl(response.requestOptions.uri.toString());
+      rethrow;
+    }
 
     return response;
   }
@@ -841,8 +866,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
       String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
       if (!isEmptyOrNull(errMessage)) {
-        return EHException(
-          type: EHExceptionType.galleryDeleted,
+        return EHSiteException(
+          type: EHSiteExceptionType.galleryDeleted,
           message: errMessage!,
           shouldPauseAllDownloadTasks: false,
         );
@@ -861,15 +886,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       String data = response.data.toString();
 
       if (data.isEmpty) {
-        throw EHException(type: EHExceptionType.blankBody, message: 'sadPanda'.tr);
+        throw EHSiteException(type: EHSiteExceptionType.blankBody, message: 'sadPanda'.tr);
       }
 
       if (data.startsWith('Your IP address')) {
-        throw EHException(type: EHExceptionType.banned, message: response.data);
+        throw EHSiteException(type: EHSiteExceptionType.banned, message: response.data);
       }
 
       if (data.startsWith('You have exceeded your image')) {
-        throw EHException(type: EHExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
+        throw EHSiteException(type: EHSiteExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
       }
     }
   }

@@ -28,6 +28,8 @@ class en_US {
       'attention': 'Attention',
       'jump': 'Jump',
       'deleteAll': 'Delete All',
+      'connectionTimeoutHint': 'Network connect timeout',
+      'receiveDataTimeoutHint': 'Network receive data timeout',
 
       'home': "Home",
       'gallery': "Gallery",

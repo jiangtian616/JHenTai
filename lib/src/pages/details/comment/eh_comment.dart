@@ -19,7 +19,7 @@ import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../../exception/eh_exception.dart';
+import '../../../exception/eh_site_exception.dart';
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/check_util.dart';
@@ -489,7 +489,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       Log.error('voteCommentFailed'.tr, e.message);
       toast('${'voteCommentFailed'.tr}: ${e.message}');
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);
       toast('${'voteCommentFailed'.tr}: ${e.message}');
       return;

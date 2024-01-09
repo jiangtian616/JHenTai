@@ -3,7 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/exception/eh_exception.dart';
+import 'package:jhentai/src/exception/eh_parse_exception.dart';
+import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
@@ -245,7 +246,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       Log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message ?? '');
       return;
-    } on EHException catch (e) {
+    } on EHSiteException catch (e) {
       if (isVotingUp) {
         voteUpState = LoadingState.error;
       } else {
@@ -312,7 +313,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         addHiddenTagState = LoadingState.error;
       }
       return;
-    } on EHException catch (e) {
+    } on EHParseException catch (e) {
       toast(e.message.tr, isShort: false);
       if (watch) {
         addWatchedTagState = LoadingState.error;
