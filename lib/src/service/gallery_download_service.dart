@@ -32,6 +32,7 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 import 'package:drift/drift.dart';
 
+import '../database/dao/gallery_image_dao.dart';
 import '../exception/cancel_exception.dart';
 import '../exception/eh_site_exception.dart';
 import '../model/gallery.dart';
@@ -765,6 +766,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
       /// because the [thumbnailsPageIndex] we computed before is wrong, so we need to parse again
       if (galleryDownloadInfo.imageHrefs[serialNo] == null) {
+        Log.download('Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again');
         return _submitTask(
           gid: gallery.gid,
           priority: _computeImageTaskPriority(gallery, serialNo),
@@ -846,6 +848,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       galleryDownloadInfo.images[serialNo] = image;
 
+      Log.download('Parse image url success, index: $serialNo, url: ${image.url}');
+      
       /// Next step: download image
       return _submitTask(
         gid: gallery.gid,
@@ -925,7 +929,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       /// what we downloaded is not an image
-      if (gallery.downloadOriginalImage && !response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+      if (gallery.downloadOriginalImage &&
+          !response.isRedirect &&
+          (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
         String data = io.File(path).readAsStringSync();
 
         /// Sometimes we need gp to download original image, but gp is not enough, we should pause this gallery
@@ -957,10 +963,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
-    GalleryImage oldImage = galleryDownloadInfo.images[serialNo]!;
 
     galleryDownloadInfo.images[serialNo] = null;
-    await appDb.deleteImage(gallery.gid, oldImage.url);
+    await GalleryImageDao.deleteImage(gallery.gid, serialNo);
 
     /// has parsed href => parse url
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
