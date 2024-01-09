@@ -34,9 +34,9 @@ class Log {
       Directory(logDirPath).createSync();
     }
 
-    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3);
-    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3, colors: false, printTime: true);
-    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 3, colors: false, noBoxingByDefault: true);
+    LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6);
+    LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, colors: false, printTime: true);
+    LogPrinter prodPrinterWithoutBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, colors: false, noBoxingByDefault: true);
 
     _consoleLogger = Logger(printer: devPrinter);
 

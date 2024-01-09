@@ -517,6 +517,7 @@ class ko_KR {
       'multiReDownloadHint': 'You will re-download all selected gallerys',
       'multiChangeGroupHint': 'You will change group of all selected gallerys',
       'multiDeleteHint': 'You will delete all selected gallerys',
+      'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
 
       /// search dialog
       'searchConfig': '검색 설정',

@@ -504,10 +504,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }) {
     galleryDownloadInfos[gid]?.tasks.add(task);
 
-    executor.scheduleTask(priority, task).then((_) => galleryDownloadInfos[gid]?.tasks.remove(task)).catchError((e) {
+    executor.scheduleTask(priority, task).then((_) => galleryDownloadInfos[gid]?.tasks.remove(task)).onError((e, stackTrace) {
       galleryDownloadInfos[gid]?.tasks.remove(task);
       if (e is! CancelException) {
-        Log.error('Executor exception!', e);
+        Log.error('Executor exception!', e, stackTrace);
         Log.uploadError(e);
       }
     });
@@ -924,9 +924,22 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      if (_isInvalidToken(gallery, response)) {
-        Log.warning('Invalid original image token, url: ${image.url}');
-        return _reParseImageUrlAndDownload(gallery, serialNo);
+      /// what we downloaded is not an image
+      if (gallery.downloadOriginalImage && !response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+        String data = io.File(path).readAsStringSync();
+
+        /// Sometimes we need gp to download original image, but gp is not enough, we should pause this gallery
+        if (data.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
+          Log.error('Download ${gallery.title} image: $serialNo failed, gp not enough');
+          snack('error'.tr, 'gpNotEnoughHint'.tr, longDuration: true);
+          return pauseDownloadGallery(gallery);
+        }
+
+        /// We need a token in url to get the original image download url, expired token will leads to a failed request,
+        if (data.contains('Invalid token')) {
+          Log.warning('Invalid original image token, url: ${image.url}');
+          return _reParseImageUrlAndDownload(gallery, serialNo);
+        }
       }
 
       Log.download('Download ${gallery.title} image: $serialNo success');
@@ -944,9 +957,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
-    galleryDownloadInfo.images[serialNo] = null;
+    GalleryImage oldImage = galleryDownloadInfo.images[serialNo]!;
 
-    await appDb.deleteImage(gallery.gid, galleryDownloadInfo.images[serialNo]!.url);
+    galleryDownloadInfo.images[serialNo] = null;
+    await appDb.deleteImage(gallery.gid, oldImage.url);
 
     /// has parsed href => parse url
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
@@ -1024,14 +1038,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
-  }
-
-  /// We need a token in url to get the original image download url, expired token will leads to a failed request,
-  bool _isInvalidToken(GalleryDownloadedData gallery, Response response) {
-    if (!gallery.downloadOriginalImage) {
-      return false;
-    }
-    return !response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false);
   }
 
   // ALL

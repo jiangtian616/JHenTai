@@ -515,7 +515,8 @@ class zh_TW {
       'multiReDownloadHint': '你將會重新下載所有選中的畫廊',
       'multiChangeGroupHint': '你將會改變所有選中畫廊的分組',
       'multiDeleteHint': '你將會刪除所有選中的畫廊',
-
+      'gpNotEnoughHint': '高峰段下載原圖需要耗費GP，由于妳的GP不足，下載已自動停止。',
+      
       /// search dialog
       'searchConfig': '搜尋設定',
       'addTabBar': '添加標籤欄',
