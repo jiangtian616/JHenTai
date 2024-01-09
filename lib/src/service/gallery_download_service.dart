@@ -290,7 +290,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
     _deleteImageInDisk(image);
 
-    update(['$galleryDownloadProgressId::${gallery.gid}']);
+    update(['$galleryDownloadSuccessId::${gallery.gid}', '$galleryDownloadProgressId::${gallery.gid}']);
 
     _processImage(gallery, serialNo);
   }
@@ -981,7 +981,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 
-    _updateProgressAfterImageDownloaded(newGallery, newImageSerialNo);
+    await _updateProgressAfterImageDownloaded(newGallery, newImageSerialNo);
   }
 
   Future<void> _tryLoadFromCacheInsteadDownload(GalleryDownloadedData gallery, GalleryImage image, int serialNo, String path) async {
@@ -990,7 +990,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       Log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
       cachedImageFile.copySync(path);
       await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
-      _updateProgressAfterImageDownloaded(gallery, serialNo);
+      await _updateProgressAfterImageDownloaded(gallery, serialNo);
     }
   }
 

@@ -178,7 +178,7 @@ class LoginPageLogic extends GetxController {
       userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioException catch (e) {
       Log.error('loginFail'.tr, e.message);
-      snack('loginFail'.tr, e.message ?? '');
+      snack('loginFail'.tr, e.message ?? '', longDuration: true);
 
       EHRequest.removeAllCookies();
 
@@ -187,12 +187,13 @@ class LoginPageLogic extends GetxController {
       return;
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e.toString());
-      snack('loginFail'.tr, e.toString());
+      snack('loginFail'.tr, e.toString(), longDuration: true);
 
       EHRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
+      return;
     }
 
     if (userInfo == null) {
