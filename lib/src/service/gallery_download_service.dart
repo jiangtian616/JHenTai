@@ -944,7 +944,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
-    galleryDownloadInfo.images.removeAt(serialNo);
+    galleryDownloadInfo.images[serialNo] = null;
 
     await appDb.deleteImage(gallery.gid, galleryDownloadInfo.images[serialNo]!.url);
 
