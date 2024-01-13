@@ -24,7 +24,6 @@ Widget EHGalleryCollection({
   CardCallback? handleLongPressCard,
   CardCallback? handleSecondaryTapCard,
   VoidCallback? handleLoadMore,
-  ValueChanged<Gallery>? onScrolled,
 }) {
   GalleryDownloadService galleryDownloadService = Get.find();
   ArchiveDownloadService archiveDownloadService = Get.find();
@@ -33,12 +32,6 @@ Widget EHGalleryCollection({
     /// use FlutterSliverList to [keepPosition] when insert items at top
     return FlutterSliverList(
       key: key,
-      controller: FlutterSliverListController()
-        ..onPaintItemPositionsCallback = (_, List<FlutterListViewItemPosition> positions) {
-          if (positions.isNotEmpty) {
-            onScrolled?.call(gallerys[positions.last.index]);
-          }
-        },
       delegate: FlutterListViewDelegate(
         (_, int index) {
           if (index == gallerys.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
@@ -81,21 +74,11 @@ Widget EHGalleryCollection({
                 maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? 240 : 150,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
-                collectGarbage: (List<int> garbages) {
-                  if (gallerys.isNotEmpty) {
-                    onScrolled?.call(gallerys[garbages.last]);
-                  }
-                },
               )
             : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
                 crossAxisCount: StyleSetting.crossAxisCountInWaterFallFlow.value!,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
-                collectGarbage: (List<int> garbages) {
-                  if (gallerys.isNotEmpty) {
-                    onScrolled?.call(gallerys[garbages.last]);
-                  }
-                },
               ),
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
