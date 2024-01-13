@@ -11,24 +11,10 @@ import '../utils/screen_size_util.dart';
 class UIConfig {
   /// common
   static ScrollBehavior scrollBehaviourWithScrollBar = EHScrollBehaviourWithScrollBar().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
     scrollbars: true,
   );
 
   static ScrollBehavior scrollBehaviourWithoutScrollBar = const MaterialScrollBehavior().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
     scrollbars: false,
   );
 
