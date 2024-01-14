@@ -56,57 +56,60 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
   }
 
   Widget buildSearchField() {
-    return GetBuilder<L>(
-      global: false,
-      init: logic,
-      id: logic.searchFieldId,
-      builder: (_) => SizedBox(
-        height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-        child: TextField(
-          focusNode: state.searchFieldFocusNode,
-          textInputAction: TextInputAction.search,
-          controller: TextEditingController.fromValue(
-            TextEditingValue(
-              text: state.searchConfig.keyword ?? '',
+    return ScrollConfiguration(
+      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+      child: GetBuilder<L>(
+        global: false,
+        init: logic,
+        id: logic.searchFieldId,
+        builder: (_) => SizedBox(
+          height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+          child: TextField(
+            focusNode: state.searchFieldFocusNode,
+            textInputAction: TextInputAction.search,
+            controller: TextEditingController.fromValue(
+              TextEditingValue(
+                text: state.searchConfig.keyword ?? '',
 
-              /// make cursor stay at last letter
-              selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
+                /// make cursor stay at last letter
+                selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
+              ),
             ),
+            style: const TextStyle(fontSize: 15),
+            textAlignVertical: TextAlignVertical.center,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'search'.tr,
+              contentPadding: EdgeInsets.zero,
+              labelStyle: const TextStyle(fontSize: 15),
+              floatingLabelStyle: const TextStyle(fontSize: 10),
+              labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+              prefixIcon: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
+              ),
+              prefixIconConstraints: BoxConstraints(
+                minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+                minWidth: 52,
+              ),
+              suffixIcon: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
+              ),
+              suffixIconConstraints: BoxConstraints(
+                minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+                minWidth: 40,
+              ),
+            ),
+            onTap: () {
+              if (state.bodyType == SearchPageBodyType.gallerys) {
+                state.hideSearchHistory = false;
+                logic.toggleBodyType();
+              }
+            },
+            onChanged: logic.onInputChanged,
+            onSubmitted: (_) => logic.handleClearAndRefresh(),
           ),
-          style: const TextStyle(fontSize: 15),
-          textAlignVertical: TextAlignVertical.center,
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: 'search'.tr,
-            contentPadding: EdgeInsets.zero,
-            labelStyle: const TextStyle(fontSize: 15),
-            floatingLabelStyle: const TextStyle(fontSize: 10),
-            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
-            prefixIcon: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
-            ),
-            prefixIconConstraints: BoxConstraints(
-              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: 52,
-            ),
-            suffixIcon: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
-            ),
-            suffixIconConstraints: BoxConstraints(
-              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: 40,
-            ),
-          ),
-          onTap: () {
-            if (state.bodyType == SearchPageBodyType.gallerys) {
-              state.hideSearchHistory = false;
-              logic.toggleBodyType();
-            }
-          },
-          onChanged: logic.onInputChanged,
-          onSubmitted: (_) => logic.handleClearAndRefresh(),
         ),
       ),
     );

@@ -286,35 +286,38 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           return const SizedBox();
         }
 
-        return SelectableText(
-          state.gallery!.title,
-          minLines: 1,
-          maxLines: 5,
-          style: const TextStyle(
-            fontSize: UIConfig.detailsPageTitleTextSize,
-            letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
-            height: UIConfig.detailsPageTitleTextHeight,
-          ),
-          contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
-            AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
-              buttonItems: editableTextState.contextMenuButtonItems,
-              anchors: editableTextState.contextMenuAnchors,
-            );
-
-            if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
-              toolbar.buttonItems?.add(
-                ContextMenuButtonItem(
-                  label: 'search'.tr,
-                  onPressed: () {
-                    ContextMenuController.removeAny();
-                    logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
-                  },
-                ),
+        return ScrollConfiguration(
+          behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+          child: SelectableText(
+            state.gallery!.title,
+            minLines: 1,
+            maxLines: 5,
+            style: const TextStyle(
+              fontSize: UIConfig.detailsPageTitleTextSize,
+              letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
+              height: UIConfig.detailsPageTitleTextHeight,
+            ),
+            contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
+              AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
+                buttonItems: editableTextState.contextMenuButtonItems,
+                anchors: editableTextState.contextMenuAnchors,
               );
-            }
 
-            return toolbar;
-          },
+              if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
+                toolbar.buttonItems?.add(
+                  ContextMenuButtonItem(
+                    label: 'search'.tr,
+                    onPressed: () {
+                      ContextMenuController.removeAny();
+                      logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
+                    },
+                  ),
+                );
+              }
+
+              return toolbar;
+            },
+          ),
         );
       },
     );

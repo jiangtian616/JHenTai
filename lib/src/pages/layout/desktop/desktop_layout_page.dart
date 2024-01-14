@@ -41,7 +41,7 @@ class DesktopLayoutPage extends StatelessWidget {
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
           builder: (_) => ScrollConfiguration(
-            behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+            behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
             child: ListView.builder(
               controller: state.leftTabBarScrollController,
               itemCount: state.icons.length,

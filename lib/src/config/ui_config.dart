@@ -13,8 +13,29 @@ class UIConfig {
   static ScrollBehavior scrollBehaviourWithScrollBar = EHScrollBehaviourWithScrollBar().copyWith(
     scrollbars: true,
   );
-
   static ScrollBehavior scrollBehaviourWithoutScrollBar = const MaterialScrollBehavior().copyWith(
+    scrollbars: false,
+  );
+  static ScrollBehavior scrollBehaviourWithScrollBarWithMouse = EHScrollBehaviourWithScrollBar().copyWith(
+    dragDevices: {
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.touch,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.invertedStylus,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.unknown,
+    },
+    scrollbars: true,
+  );
+  static ScrollBehavior scrollBehaviourWithoutScrollBarWithMouse = const MaterialScrollBehavior().copyWith(
+    dragDevices: {
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.touch,
+      PointerDeviceKind.stylus,
+      PointerDeviceKind.invertedStylus,
+      PointerDeviceKind.trackpad,
+      PointerDeviceKind.unknown,
+    },
     scrollbars: false,
   );
 

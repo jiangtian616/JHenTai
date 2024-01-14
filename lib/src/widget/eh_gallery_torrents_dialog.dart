@@ -39,7 +39,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+      behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
       child: SimpleDialog(
         title: Center(child: Text('torrent'.tr)),
         contentPadding: const EdgeInsets.only(bottom: 12, top: 24),

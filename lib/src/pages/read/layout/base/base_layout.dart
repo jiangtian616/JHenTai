@@ -35,7 +35,7 @@ abstract class BaseLayout extends StatelessWidget {
       global: false,
       init: logic,
       builder: (_) => ScrollConfiguration(
-        behavior: ReadSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBar : UIConfig.scrollBehaviourWithoutScrollBar,
+        behavior: ReadSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
         child: buildBody(context),
       ),
     );

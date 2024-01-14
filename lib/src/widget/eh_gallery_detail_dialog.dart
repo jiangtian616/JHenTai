@@ -18,7 +18,7 @@ class EHGalleryDetailDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+      behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
       child: SimpleDialog(
         contentPadding: const EdgeInsets.symmetric(vertical: 24),
         children: [
@@ -53,9 +53,12 @@ class _Item extends StatelessWidget {
       title: Text(name),
       trailing: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 200),
-        child: Text(value?.breakWord ?? '', maxLines: 2),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Text(value?.breakWord ?? ''),
+        ),
       ),
-      dense: true,
+      dense: !GetPlatform.isDesktop,
       onTap: () {
         if (!isEmptyOrNull(value)) {
           FlutterClipboard.copy(value!).then((value) => toast('hasCopiedToClipboard'.tr));

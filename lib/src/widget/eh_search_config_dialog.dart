@@ -83,7 +83,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
+      behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
       child: Dialog(
         child: Container(
           height: searchConfig.searchType == SearchType.favorite ? 400 : 500,
