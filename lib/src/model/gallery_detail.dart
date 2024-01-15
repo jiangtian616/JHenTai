@@ -9,6 +9,7 @@ import 'gallery_thumbnail.dart';
 class GalleryDetail {
   String rawTitle;
   String? japaneseTitle;
+  String language;
   int ratingCount;
   double realRating;
   String size;
@@ -30,6 +31,7 @@ class GalleryDetail {
   GalleryDetail({
     required this.rawTitle,
     this.japaneseTitle,
+    required this.language,
     required this.ratingCount,
     required this.realRating,
     required this.size,

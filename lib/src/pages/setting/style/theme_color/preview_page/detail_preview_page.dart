@@ -295,6 +295,7 @@ class DetailsPreviewPageState extends DetailsPageState {
 
     galleryDetails = GalleryDetail(
       rawTitle: 'Title - This is the detail preview page',
+      language: 'Chinese',
       ratingCount: 666,
       realRating: 4,
       size: '66.66MB',

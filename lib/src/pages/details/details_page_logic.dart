@@ -59,13 +59,13 @@ import '../../widget/eh_download_dialog.dart';
 import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/eh_gallery_history_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
-import '../download/list/local/local_gallery_list_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   static const String galleryId = 'galleryId';
   static const String uploaderId = 'uploaderId';
   static const String detailsId = 'detailsId';
+  static const String languageId = 'languageId';
   static const String pageCountId = 'pageCountId';
   static const String ratingId = 'ratingId';
   static const String favoriteId = 'favoriteId';
@@ -786,6 +786,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       updateIds.add(ratingId);
       updateIds.add(pageCountId);
       return;
+    }
+
+    if (state.gallery?.language == null) {
+      updateIds.add(languageId);
     }
 
     /// page count is null in favorite page

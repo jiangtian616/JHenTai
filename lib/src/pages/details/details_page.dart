@@ -426,24 +426,37 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildLanguage(double iconSize, double space, BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
-      id: DetailsPageLogic.galleryId,
+      id: DetailsPageLogic.languageId,
       global: false,
       init: logic,
-      builder: (_) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
-          SizedBox(width: space),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-            child: Text(
-              state.gallery == null ? '...' : state.gallery!.language?.capitalizeFirst ?? 'Japanese',
-              key: ValueKey(state.gallery == null ? '...' : state.gallery!.language?.capitalizeFirst ?? 'Japanese'),
-              style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+      builder: (_) {
+        String language;
+        if (state.galleryDetails != null) {
+          language = state.galleryDetails!.language.capitalizeFirst!;
+        } else if (state.gallery?.language != null) {
+          language = state.gallery!.language!.capitalizeFirst!;
+        } else if (state.gallery?.tags.isNotEmpty ?? false) {
+          language = 'Japanese';
+        } else {
+          language = '...';
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.language, size: iconSize, color: UIConfig.detailsPageIconColor(context)),
+            SizedBox(width: space),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+              child: Text(
+                language,
+                key: ValueKey(language),
+                style: const TextStyle(fontSize: UIConfig.detailsPageInfoTextSize),
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      },
     );
   }
 
