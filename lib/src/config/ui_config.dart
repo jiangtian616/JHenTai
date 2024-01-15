@@ -121,6 +121,10 @@ class UIConfig {
   static Color dashboardCardFooterTextColor = Colors.grey.shade300;
   static const Color dashboardCardShadeColor = Colors.black87;
 
+  static const double waterFallFlowCardWidthBig = 240;
+  static const double waterFallFlowCardWidthSmall = 150;
+  static const double waterFallFlowCardMaxHeightBig = 640;
+  static const double waterFallFlowCardMaxHeightSmall = 400;
   static const double waterFallFlowCardInfoHeight = 68;
   static const double waterFallFlowCardTitleSize = 12;
   static const double waterFallFlowCardTagsMaxHeight = 18;

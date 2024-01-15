@@ -143,7 +143,7 @@ class EHImage extends StatelessWidget {
 
             Widget child = completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state);
 
-            if (borderRadius != null) {
+            if (borderRadius != BorderRadius.zero) {
               child = ClipRRect(child: child, borderRadius: borderRadius);
             }
 

@@ -72,7 +72,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget _buildSmallCard(BuildContext context) {
     return Stack(
       children: [
-        _buildCover(),
+        _buildCover(context),
         Positioned(bottom: 4, right: 4, child: _buildLanguageChip()),
       ],
     );
@@ -83,7 +83,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       children: [
         Stack(
           children: [
-            _buildCover(),
+            _buildCover(context),
             Positioned(bottom: 4, right: 4, child: _buildLanguageChip()),
           ],
         ),
@@ -109,32 +109,42 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildCover(),
+        _buildCover(context),
         const SizedBox(height: 6),
-        Row(
+        Column(
           children: [
-            _buildRatingBar(context),
-            const Expanded(child: SizedBox()),
-            if (downloaded) _buildDownloadIcon(),
-            if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
-            _buildCategory().marginOnly(left: 4, right: 4),
-            if (gallery.language != null) _buildLanguage().marginOnly(right: 2),
-            if (gallery.pageCount != null) _buildPageCount(),
+            Row(
+              children: [
+                _buildRatingBar(context),
+                const Expanded(child: SizedBox()),
+                if (downloaded) _buildDownloadIcon(),
+                if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
+                _buildCategory().marginOnly(left: 4, right: 4),
+                if (gallery.language != null) _buildLanguage().marginOnly(right: 2),
+                if (gallery.pageCount != null) _buildPageCount(),
+              ],
+            ),
+            _buildTitle().marginOnly(top: 4, left: 2),
+            if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
           ],
-        ),
-        _buildTitle().marginOnly(top: 4, left: 2),
-        if (gallery.tags.isNotEmpty) _buildTags().marginOnly(top: 4),
+        ).paddingOnly(bottom: 6, left: 6, right: 6)
       ],
-    ).paddingOnly(bottom: 6, left: 6, right: 6);
+    );
   }
 
-  Widget _buildCover() {
+  Widget _buildCover(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         FittedSizes fittedSizes = applyBoxFit(
-          BoxFit.contain,
+          BoxFit.fitWidth,
           Size(gallery.cover.width!, gallery.cover.height!),
-          Size(constraints.maxWidth, constraints.maxHeight),
+          Size(
+            constraints.maxWidth,
+            min(
+              constraints.maxHeight,
+              listMode == ListMode.waterfallFlowBig ? UIConfig.waterFallFlowCardMaxHeightBig : UIConfig.waterFallFlowCardMaxHeightSmall,
+            ),
+          ),
         );
 
         return EHImage(

@@ -71,7 +71,7 @@ Widget EHGalleryCollection({
       sliver: SliverWaterfallFlow(
         gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? 240 : 150,
+                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? UIConfig.waterFallFlowCardWidthBig : UIConfig.waterFallFlowCardWidthSmall,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
               )
