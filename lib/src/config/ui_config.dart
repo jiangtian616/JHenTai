@@ -523,6 +523,14 @@ class UIConfig {
 
   static Color searchConfigDialogFieldHintTextColor(BuildContext context) => Theme.of(context).colorScheme.outline.withOpacity(0.5);
 
+  /// gallery detail dialog
+  static BorderRadius galleryDetailDialogItemBorderRadius = BorderRadius.circular(32);
+
+  static const TextStyle galleryDetailDialogItemNameTextStyle = TextStyle(fontSize: 14);
+  static const TextStyle galleryDetailDialogItemValueTextStyle = TextStyle(fontSize: 11);
+
+  static const double galleryDetailDialogItemValueMaxWidth = 200;
+
   /// lock page
   static const double lockPagePinCodeRegionWidth = 60;
   static const double lockPageCursorHeight = 2;

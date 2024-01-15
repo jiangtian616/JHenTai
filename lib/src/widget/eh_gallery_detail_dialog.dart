@@ -20,7 +20,7 @@ class EHGalleryDetailDialog extends StatelessWidget {
     return ScrollConfiguration(
       behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
       child: SimpleDialog(
-        contentPadding: const EdgeInsets.symmetric(vertical: 24),
+        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
         children: [
           _Item(name: 'gid'.tr, value: gallery.gid.toString()),
           _Item(name: 'token'.tr, value: (gallery.token)),
@@ -49,21 +49,37 @@ class _Item extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(name),
-      trailing: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 200),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Text(value?.breakWord ?? ''),
-        ),
-      ),
-      dense: !GetPlatform.isDesktop,
+    return InkWell(
+      borderRadius: UIConfig.galleryDetailDialogItemBorderRadius,
       onTap: () {
         if (!isEmptyOrNull(value)) {
           FlutterClipboard.copy(value!).then((value) => toast('hasCopiedToClipboard'.tr));
         }
       },
+      child: Ink(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Text(name, style: UIConfig.galleryDetailDialogItemNameTextStyle),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: UIConfig.galleryDetailDialogItemValueMaxWidth),
+                    child: Text(value?.breakWord ?? '', style: UIConfig.galleryDetailDialogItemValueTextStyle),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
