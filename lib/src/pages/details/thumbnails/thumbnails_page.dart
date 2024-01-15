@@ -13,6 +13,7 @@ import '../../../config/ui_config.dart';
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_image.dart';
+import '../../../setting/style_setting.dart';
 import '../../../widget/eh_thumbnail.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/loading_state_indicator.dart';
@@ -124,12 +125,19 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
               },
               childCount: state.thumbnails.length,
             ),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
-              maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
-              mainAxisSpacing: 20,
-              crossAxisSpacing: 5,
-            ),
+            gridDelegate: StyleSetting.crossAxisCountInDetailPage.value == null
+                ? const SliverGridDelegateWithMaxCrossAxisExtent(
+                    mainAxisExtent: UIConfig.detailsPageThumbnailHeight,
+                    maxCrossAxisExtent: UIConfig.detailsPageThumbnailWidth,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 5,
+                  )
+                : SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: StyleSetting.crossAxisCountInDetailPage.value!,
+                    mainAxisSpacing: 20,
+                    crossAxisSpacing: 5,
+                    childAspectRatio: UIConfig.detailsPageGridViewCardAspectRatio,
+                  ),
           );
         },
       ),
