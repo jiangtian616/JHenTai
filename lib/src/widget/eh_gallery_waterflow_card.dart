@@ -112,6 +112,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
         _buildCover(context),
         const SizedBox(height: 6),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
