@@ -11,10 +11,8 @@ import 'package:path/path.dart';
 
 import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
-import '../pages/download/list/local/local_gallery_list_page_logic.dart';
 import '../setting/download_setting.dart';
 import '../utils/log.dart';
-import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
@@ -97,18 +95,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
   List<GalleryImage> getGalleryImages(LocalGallery gallery) {
     List<File> imageFiles = Directory(gallery.path).listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-      ..sort((a, b) {
-        String aName = basenameWithoutExtension(a.path);
-        String bName = basenameWithoutExtension(b.path);
-
-        int? aIndex = int.tryParse(aName);
-        int? bIndex = int.tryParse(bName);
-
-        if (aIndex != null && bIndex != null) {
-          return aIndex - bIndex;
-        }
-        return aName.compareTo(bName);
-      });
+      ..sort(FileUtil.compareComicImagesOrder);
 
     return imageFiles
         .map(

@@ -354,18 +354,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     List<io.File> imageFiles;
     try {
       imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-        ..sort((a, b) {
-          String aName = basenameWithoutExtension(a.path);
-          String bName = basenameWithoutExtension(b.path);
-
-          int? aIndex = int.tryParse(aName);
-          int? bIndex = int.tryParse(bName);
-
-          if (aIndex != null && bIndex != null) {
-            return aIndex - bIndex;
-          }
-          return aName.compareTo(bName);
-        });
+        ..sort(FileUtil.compareComicImagesOrderSimple);
     } on Exception catch (e) {
       toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
       Log.uploadError(e, extraInfos: {'dirs': directory.parent.listSync()});

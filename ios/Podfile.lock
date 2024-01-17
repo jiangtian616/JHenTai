@@ -61,16 +61,11 @@ PODS:
     - Flutter
   - receive_sharing_intent (0.0.1):
     - Flutter
+  - screen_brightness_ios (0.1.0):
+    - Flutter
   - SDWebImage (5.16.0):
     - SDWebImage/Core (= 5.16.0)
   - SDWebImage/Core (5.16.0)
-  - Sentry/HybridSDK (8.7.3):
-    - SentryPrivate (= 8.7.3)
-  - sentry_flutter (0.0.1):
-    - Flutter
-    - FlutterMacOS
-    - Sentry/HybridSDK (= 8.7.3)
-  - SentryPrivate (8.7.3)
   - share_plus (0.0.1):
     - Flutter
   - smart_auth (0.0.1):
@@ -104,7 +99,7 @@ PODS:
     - Flutter
   - video_player_avfoundation (0.0.1):
     - Flutter
-  - wakelock (0.0.1):
+  - wakelock_plus (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
@@ -123,7 +118,7 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - receive_sharing_intent (from `.symlinks/plugins/receive_sharing_intent/ios`)
-  - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
+  - screen_brightness_ios (from `.symlinks/plugins/screen_brightness_ios/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - smart_auth (from `.symlinks/plugins/smart_auth/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
@@ -131,7 +126,7 @@ DEPENDENCIES:
   - system_network_proxy (from `.symlinks/plugins/system_network_proxy/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
-  - wakelock (from `.symlinks/plugins/wakelock/ios`)
+  - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
@@ -140,8 +135,6 @@ SPEC REPOS:
     - DKPhotoGallery
     - FMDB
     - SDWebImage
-    - Sentry
-    - SentryPrivate
     - sqlite3
     - SwiftyGif
     - Toast
@@ -173,8 +166,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   receive_sharing_intent:
     :path: ".symlinks/plugins/receive_sharing_intent/ios"
-  sentry_flutter:
-    :path: ".symlinks/plugins/sentry_flutter/ios"
+  screen_brightness_ios:
+    :path: ".symlinks/plugins/screen_brightness_ios/ios"
   share_plus:
     :path: ".symlinks/plugins/share_plus/ios"
   smart_auth:
@@ -189,8 +182,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_player_avfoundation:
     :path: ".symlinks/plugins/video_player_avfoundation/ios"
-  wakelock:
-    :path: ".symlinks/plugins/wakelock/ios"
+  wakelock_plus:
+    :path: ".symlinks/plugins/wakelock_plus/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
@@ -211,10 +204,8 @@ SPEC CHECKSUMS:
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
+  screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
   SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
-  Sentry: c7a86f43510a7d5678d4de28d78c28ab351d295b
-  sentry_flutter: f2710a4f537e9a7143b02562b8754ccdc8224751
-  SentryPrivate: 2eaabf598a46d4b9b8822aef766df2a84caf2e6f
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
@@ -225,8 +216,8 @@ SPEC CHECKSUMS:
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   url_launcher_ios: ae1517e5e344f5544fb090b079e11f399dfbe4d2
   video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff
-  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
-  webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
+  wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
+  webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
 PODFILE CHECKSUM: 370170548b26ccd3d9d76d5af60f3c771131cfa7
 
