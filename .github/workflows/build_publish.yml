@@ -4,7 +4,7 @@ name: Build & Release
 on:
   push:
     branches:
-      - 'master'
+      - '**'
     tags:
       - v*
 
@@ -54,9 +54,6 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
-      # Add Sentry DSN
-      - name: Add Sentry DSN
-        run: echo "${{ secrets.SENTRY_CONFIG }}" > lib/src/config/sentry_config.dart
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
