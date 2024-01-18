@@ -194,6 +194,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           controller: state.scrollController,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
+            if (PreferenceSetting.showAllGalleryTitles.isTrue) _buildSubTitle(context),
             buildDetail(context),
             buildDivider(),
             buildNewVersionHint(),
@@ -320,6 +321,67 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildSubTitle(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Container(
+        height: 28,
+        padding: const EdgeInsets.symmetric(horizontal: UIConfig.detailPagePadding),
+        alignment: Alignment.centerLeft,
+        child: GetBuilder<DetailsPageLogic>(
+          id: DetailsPageLogic.detailsId,
+          global: false,
+          init: logic,
+          builder: (_) {
+            if (state.gallery == null || state.galleryDetails == null) {
+              return const AnimatedSwitcher(duration: Duration(milliseconds: UIConfig.detailsPageAnimationDuration), child: SizedBox());
+            }
+
+            String? subTitle;
+            if (state.galleryDetails!.rawTitle != state.gallery!.title) {
+              subTitle = state.galleryDetails!.rawTitle;
+            } else if (state.galleryDetails!.japaneseTitle != null && state.galleryDetails!.japaneseTitle != state.gallery!.title) {
+              subTitle = state.galleryDetails!.japaneseTitle;
+            }
+
+            if (subTitle == null) {
+              return const AnimatedSwitcher(duration: Duration(milliseconds: UIConfig.detailsPageAnimationDuration), child: SizedBox());
+            }
+
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
+              child: SelectableText(
+                '[Izure] Iede Gal na Senpai wa Kantan ni Yarasete Kureru [Digital] [Chinese] [Localized by Antares] [Localized by Antares] [Localized by Antares] [Localized by Antares]',
+                minLines: 1,
+                maxLines: 2,
+                style: UIConfig.detailsPageSubTitleTextStyle(context),
+                contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
+                  AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
+                    buttonItems: editableTextState.contextMenuButtonItems,
+                    anchors: editableTextState.contextMenuAnchors,
+                  );
+
+                  if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
+                    toolbar.buttonItems?.add(
+                      ContextMenuButtonItem(
+                        label: 'search'.tr,
+                        onPressed: () {
+                          ContextMenuController.removeAny();
+                          logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
+                        },
+                      ),
+                    );
+                  }
+
+                  return toolbar;
+                },
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 

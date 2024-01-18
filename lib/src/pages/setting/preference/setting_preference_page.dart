@@ -18,7 +18,7 @@ import '../../../widget/loading_state_indicator.dart';
 class SettingPreferencePage extends StatelessWidget {
   final TagTranslationService tagTranslationService = Get.find();
   final TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
-  
+
   SettingPreferencePage({Key? key}) : super(key: key);
 
   @override
@@ -41,6 +41,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
               if (StyleSetting.isInV2Layout) _buildDrawerGestureEdgeWidth(context),
+              _buildShowAllGalleryTitles(),
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
               _buildEnableDefaultFavorite(),
@@ -284,6 +285,15 @@ class SettingPreferencePage extends StatelessWidget {
           ],
         );
       }),
+    );
+  }
+
+  Widget _buildShowAllGalleryTitles() {
+    return SwitchListTile(
+      title: Text('showAllGalleryTitles'.tr),
+      subtitle: Text('showAllGalleryTitlesHint'.tr),
+      value: PreferenceSetting.showAllGalleryTitles.value,
+      onChanged: PreferenceSetting.saveShowAllGalleryTitles,
     );
   }
 

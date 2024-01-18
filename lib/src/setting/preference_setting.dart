@@ -24,6 +24,7 @@ class PreferenceSetting {
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
   static RxInt drawerGestureEdgeWidth = 100.obs;
+  static RxBool showAllGalleryTitles = false.obs;
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool enableDefaultFavorite = false.obs;
@@ -60,7 +61,7 @@ class PreferenceSetting {
     PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
     _save();
   }
-  
+
   static saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) {
     Log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
     PreferenceSetting.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
@@ -106,6 +107,12 @@ class PreferenceSetting {
   static saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) {
     Log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
     PreferenceSetting.hideScroll2TopButton.value = hideScroll2TopButton;
+    _save();
+  }
+
+  static saveShowAllGalleryTitles(bool showAllGalleryTitles) {
+    Log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
+    PreferenceSetting.showAllGalleryTitles.value = showAllGalleryTitles;
     _save();
   }
 
@@ -163,6 +170,7 @@ class PreferenceSetting {
       'simpleDashboardMode': simpleDashboardMode.value,
       'hideBottomBar': hideBottomBar.value,
       'hideScroll2TopButton': hideScroll2TopButton.value.index,
+      'showAllGalleryTitles': showAllGalleryTitles.value,
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
       'tagSearchConfig': tagSearchBehaviour.value.index,
@@ -186,6 +194,7 @@ class PreferenceSetting {
     simpleDashboardMode.value = map['simpleDashboardMode'] ?? simpleDashboardMode.value;
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
     hideScroll2TopButton.value = Scroll2TopButtonModeEnum.values[map['hideScroll2TopButton'] ?? Scroll2TopButtonModeEnum.scrollDown.index];
+    showAllGalleryTitles.value = map['showAllGalleryTitles'] ?? showAllGalleryTitles.value;
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
     tagSearchBehaviour.value = TagSearchBehaviour.values[map['tagSearchConfig'] ?? TagSearchBehaviour.inheritAll.index];

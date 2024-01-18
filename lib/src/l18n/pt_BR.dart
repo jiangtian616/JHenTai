@@ -331,6 +331,8 @@ class pt_BR {
       'inheritPartiallyHint': 'Use last search options for tag search(except language and category)',
       'none': 'None',
       'noneHint': 'Use default search options for tag search',
+      'showAllGalleryTitles': 'Show All Gallery Titles',
+      'showAllGalleryTitlesHint': 'Show both original and japanese titles if available',
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
       'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
