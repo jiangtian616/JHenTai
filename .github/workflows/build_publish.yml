@@ -30,7 +30,9 @@ jobs:
           - target: Linux
             os: ubuntu-latest
             artifact_name: release-Linux
-            artifact_path: build/linux/*.AppImage, build/linux/*.deb
+            artifact_path: |
+              build/linux/*.AppImage
+              build/linux/*.deb
           - target: iOS
             os: macos-latest
             cache_pod_key: ios-pods
