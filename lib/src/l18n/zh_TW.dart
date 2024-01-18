@@ -226,6 +226,7 @@ class zh_TW {
       /// eh setting page
       'site': '站點',
       'redirect2Eh': '優先重定向至表站',
+      'redirect2EhHint': '優先嘗試從表站加載畫廊詳情頁，以獲得更好的網絡體驗',
       'redirectAllGallery': '重定向所有畫廊至表站',
       'imDonorHint': '如果你是捐赠者，你可以打開此項來更容易地訪問裏站中的畫廊',
       'profileSetting': 'Profile設定',

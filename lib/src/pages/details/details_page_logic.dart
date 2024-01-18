@@ -49,6 +49,7 @@ import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
+import '../../setting/eh_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
@@ -720,24 +721,35 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<Map<String, dynamic>> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
-    final String firstLink;
+    final String? firstLink;
     final String secondLink;
 
-    /// 1. Try EH site first for EX link
+    /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
-    if (state.galleryUrl.contains(EHConsts.EXIndex) && !_galleryOnlyInExSite()) {
-      firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-      secondLink = state.galleryUrl;
+    if (state.galleryUrl.contains(EHConsts.EXIndex)) {
+      if (EHSetting.redirect2Eh.isTrue) {
+        firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+        secondLink = state.galleryUrl;
+      } else {
+        firstLink = null;
+        secondLink = state.galleryUrl;
+      }
     } else {
-      firstLink = state.galleryUrl;
-      secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+      if (_galleryOnlyInExSite()) {
+        firstLink = null;
+        secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+      } else {
+        firstLink = state.galleryUrl;
+        secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+      }
     }
 
     /// if we can't find gallery via firstLink, try second link
     if (!isEmptyOrNull(firstLink)) {
+      Log.verbose('Try to find gallery via firstLink: $firstLink');
       try {
         Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
-          galleryUrl: firstLink,
+          galleryUrl: firstLink!,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );
@@ -749,6 +761,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     try {
+      Log.verbose('Try to find gallery via secondLink: $secondLink');
       Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
         galleryUrl: secondLink,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,

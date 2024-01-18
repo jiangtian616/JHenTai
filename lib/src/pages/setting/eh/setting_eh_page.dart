@@ -53,6 +53,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildSiteSegmentControl(),
+            _buildRedirect2EH(),
             _buildProfile(),
             _buildSiteSetting(),
             _buildImageLimit(),
@@ -75,6 +76,18 @@ class _SettingEHPageState extends State<SettingEHPage> {
         },
         onValueChanged: (value) => EHSetting.saveSite(value ?? 'EH'),
       ),
+    );
+  }
+
+  Widget _buildRedirect2EH() {
+    if (EHSetting.site.value == 'EH') {
+      return const SizedBox();
+    }
+
+    return ListTile(
+      title: Text('redirect2Eh'.tr),
+      subtitle: Text('redirect2EhHint'.tr),
+      trailing: Switch(value: EHSetting.redirect2Eh.value, onChanged: EHSetting.saveRedirect2Eh).fadeIn(),
     );
   }
 
