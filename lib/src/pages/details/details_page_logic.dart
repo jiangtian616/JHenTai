@@ -740,6 +740,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     /// if we can't find gallery via firstLink, try second link
+    EHSiteException? firstException;
     if (!isEmptyOrNull(firstLink)) {
       Log.verbose('Try to find gallery via firstLink: $firstLink');
       try {
@@ -752,6 +753,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return galleryAndDetailAndApikey;
       } on EHSiteException catch (e) {
         Log.verbose('Can\'t find gallery, firstLink: $firstLink');
+        firstException = e;
       }
     }
 
@@ -764,9 +766,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
       state.gallery?.galleryUrl = state.galleryUrl = secondLink;
       return galleryAndDetailAndApikey;
-    } on EHSiteException catch (_) {
+    } on EHSiteException catch (e) {
       Log.verbose('Can\'t find gallery, secondLink: $secondLink');
-      rethrow;
+      throw firstException ?? e;
     }
   }
 
