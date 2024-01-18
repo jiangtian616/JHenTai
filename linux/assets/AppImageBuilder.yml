@@ -4,7 +4,7 @@ AppDir:
   app_info:
     id: top.jtmonster.jhentai
     name: JHenTai
-    icon: top.jtmonster.jhentai
+    icon: jhentai
     version: latest
     exec: jhentai
     exec_args: $@
