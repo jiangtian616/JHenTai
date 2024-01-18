@@ -330,6 +330,8 @@ class zh_CN {
       'inheritPartiallyHint': '点击标签搜索时使用上一次搜索选项（除开种类和语言）',
       'none': '无',
       'noneHint': '点击标签搜索时使用新的初始搜索选项',
+      'showAllGalleryTitles': '显示所有画廊标题',
+      'showAllGalleryTitlesHint': '同时显示原标题和日文标题（如果可用）',
       'showComments': '显示画廊评论',
       'showAllComments': '显示画廊所有评论',
       'showAllCommentsHint': '默认只会展示45个最高分评论和5个最新评论，低分评论也会被自动隐藏',

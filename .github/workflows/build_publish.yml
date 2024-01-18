@@ -192,7 +192,7 @@ jobs:
           cp ../../linux/assets/top.jtmonster.jhentai.desktop AppDir/usr/share/applications
           cp ../../assets/icon_512.png AppDir/usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
           ./appimage-builder --skip-tests --recipe ../../linux/assets/AppImageBuilder.yml
-          ls -la
+          mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x86_64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3

@@ -163,7 +163,9 @@ class UIConfig {
   static const double detailsPageTitleTextSize = 15;
   static const double detailsPageTitleLetterSpacing = 0;
   static const double detailsPageTitleTextHeight = 1.3;
-  static const double detailsPageUploaderTextSize = 12;
+  static const double detailsPageUploaderTextSize = 11;
+
+  static TextStyle detailsPageSubTitleTextStyle(BuildContext context) => TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.outline);
 
   static Color detailsPageUploaderTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 

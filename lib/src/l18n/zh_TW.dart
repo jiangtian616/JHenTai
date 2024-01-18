@@ -329,6 +329,8 @@ class zh_TW {
       'inheritPartiallyHint': '點擊標簽搜索時使用上壹次搜索選項（除開種類和語言）',
       'none': '無',
       'noneHint': '點擊標簽搜索時使用新的初始搜索選項',
+      'showAllGalleryTitles': '顯示所有畫廊標題',
+      'showAllGalleryTitlesHint': '同時顯示原標題和日文標題（如果可用）',
       'showComments': '顯示畫廊評論',
       'showAllComments': '顯示畫廊所有評論',
       'showAllCommentsHint': '默認只會展示45個最高分評論和5個最新評論，低分評論也會被自動隱藏',
