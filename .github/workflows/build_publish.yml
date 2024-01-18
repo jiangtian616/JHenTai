@@ -30,7 +30,9 @@ jobs:
           - target: Linux
             os: ubuntu-latest
             artifact_name: release-Linux
-            artifact_path: build/linux/*.zip
+            artifact_path: |
+              build/linux/*.AppImage
+              build/linux/*.deb
           - target: iOS
             os: macos-latest
             cache_pod_key: ios-pods
@@ -139,18 +141,60 @@ jobs:
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
-      # Build Linux .zip
+      # Build Linux .deb and .AppImage
       - name: Build Linux
         if: matrix.target == 'Linux'
         run: |
+          # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev
+          sudo apt-get install -y ninja-build libgtk-3-dev libfuse2
+
+          # Compile
           flutter config --enable-linux-desktop
           flutter build linux --release -t lib/src/main.dart
-          mkdir ./build/linux/JHenTai_${{ steps.get_version.outputs.version }}
-          cp -a build/linux/x64/release/bundle/* ./build/linux/JHenTai_${{ steps.get_version.outputs.version }}
-          cd build/linux
-          zip -qroy JHenTai_${{ steps.get_version.outputs.version }}_Linux.zip JHenTai_${{ steps.get_version.outputs.version }}
+
+          # Build debian package
+          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+          mkdir -p opt/jhentai
+          mkdir -p usr/share/applications
+          mkdir -p usr/share/icons/hicolor/512x512/apps
+          cp -r ../x64/release/bundle/* opt/jhentai
+          cp -r ../../../linux/assets/DEBIAN .
+          chmod 0755 DEBIAN/postinst
+          chmod 0755 DEBIAN/postrm
+
+          cat>DEBIAN/control<<EOF
+          Maintainer: madoka773 <valigarmanda55@gmail.com>
+          Package: jhentai
+          Version: ${{ steps.get_version.outputs.version }}
+          Section: x11
+          Priority: optional
+          Architecture: amd64
+          Essential: no
+          Installed-Size: 34648
+          Description: A cross-platform app made for e-hentai & exhentai by Flutter.
+          Homepage: https://github.com/jiangtian616/JHenTai
+          EOF
+
+          cp ../../../linux/assets/top.jtmonster.jhentai.desktop usr/share/applications
+          cp ../../../assets/icon_512.png usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
+
+          cd ..
+          dpkg-deb --build JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+
+          # Build AppImage
+          wget -O appimage-builder https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
+          chmod +x appimage-builder
+
+          mkdir AppDir
+          cp -r x64/release/bundle/* AppDir
+          mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps/
+          mkdir -p AppDir/usr/share/applications
+          cp ../../linux/assets/top.jtmonster.jhentai.desktop AppDir/usr/share/applications
+          cp ../../assets/icon_512.png AppDir/usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
+          ./appimage-builder --skip-tests --recipe ../../linux/assets/AppImageBuilder.yml
+          mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x86_64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
