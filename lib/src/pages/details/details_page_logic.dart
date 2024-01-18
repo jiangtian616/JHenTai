@@ -727,7 +727,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
     if (state.galleryUrl.contains(EHConsts.EXIndex)) {
-      if (EHSetting.redirect2Eh.isTrue) {
+      if (EHSetting.redirect2Eh.isTrue && !_galleryOnlyInExSite()) {
         firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
         secondLink = state.galleryUrl;
       } else {
@@ -735,13 +735,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         secondLink = state.galleryUrl;
       }
     } else {
-      if (_galleryOnlyInExSite()) {
-        firstLink = null;
-        secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
-      } else {
-        firstLink = state.galleryUrl;
-        secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
-      }
+      firstLink = state.galleryUrl;
+      secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
     }
 
     /// if we can't find gallery via firstLink, try second link

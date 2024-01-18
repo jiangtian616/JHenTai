@@ -14,15 +14,10 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - screen_brightness_macos (0.1.0):
+    - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - Sentry/HybridSDK (8.9.1):
-    - SentryPrivate (= 8.9.1)
-  - sentry_flutter (0.0.1):
-    - Flutter
-    - FlutterMacOS
-    - Sentry/HybridSDK (= 8.9.1)
-  - SentryPrivate (8.9.1)
   - share_plus_macos (0.0.1):
     - FlutterMacOS
   - smart_auth (0.0.1):
@@ -62,8 +57,8 @@ DEPENDENCIES:
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
+  - screen_brightness_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
-  - sentry_flutter (from `Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos`)
   - share_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos`)
   - smart_auth (from `Flutter/ephemeral/.symlinks/plugins/smart_auth/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
@@ -75,8 +70,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - FMDB
-    - Sentry
-    - SentryPrivate
     - sqlite3
 
 EXTERNAL SOURCES:
@@ -92,10 +85,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
+  screen_brightness_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos
   screen_retriever:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos
-  sentry_flutter:
-    :path: Flutter/ephemeral/.symlinks/plugins/sentry_flutter/macos
   share_plus_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/share_plus_macos/macos
   smart_auth:
@@ -119,10 +112,8 @@ SPEC CHECKSUMS:
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   package_info_plus: 02d7a575e80f194102bef286361c6c326e4c29ce
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
+  screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  Sentry: e3203780941722a1fcfee99e351de14244c7f806
-  sentry_flutter: 8f0ffd53088e6a4d50c095852c5cad9e4405025c
-  SentryPrivate: 5e3683390f66611fc7c6215e27645873adb55d13
   share_plus_macos: 853ee48e7dce06b633998ca0735d482dd671ade4
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
