@@ -325,6 +325,25 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
+  static Future<T> requestGalleryMetadata<T>({
+    required int gid,
+    required String token,
+    bool useCacheIfAvailable = true,
+    required EHHtmlParser<T> parser,
+  }) async {
+    Response response = await _getWithErrorHandler(
+      EHConsts.EHApi,
+      queryParameters: {
+        'method': 'gdata',
+        'gidlist': [
+          [gid, token]
+        ],
+      },
+      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
+    );
+    return _parseResponse(response, parser);
+  }
+
   static Future<T> requestRanklistPage<T>({required RanklistType ranklistType, required int pageNo, required EHHtmlParser<T> parser}) async {
     int tl;
 
@@ -724,7 +743,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return _parseResponse(e.response!, parser);
     }
 
-    throw EHSiteException(message: 'Look up response error', type: EHSiteExceptionType.intelNelError);
+    throw EHSiteException(message: 'Look up response error', type: EHSiteExceptionType.internalError);
   }
 
   static Future<T> requestUnlockArchive<T>({

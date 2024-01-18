@@ -30,6 +30,8 @@ import 'package:jhentai/src/utils/string_uril.dart';
 import '../database/database.dart';
 import '../exception/eh_parse_exception.dart';
 import '../model/gallery.dart';
+import '../model/gallery_metadata.dart';
+import 'byte_util.dart';
 import 'check_util.dart';
 import 'log.dart';
 
@@ -366,6 +368,26 @@ class EHSpiderParser {
     Document document = parse(data as String);
     List<Element> commentElements = document.querySelectorAll('#cdiv > .c1');
     return _parseGalleryDetailsComments(commentElements);
+  }
+
+  static GalleryMetadata galleryMetadataJson2GalleryMetadata(Headers headers, dynamic data) {
+    Map map = json.decode(data);
+    return GalleryMetadata(
+      galleryUrl: GalleryUrl(isEH: true, gid: map['gid'], token: map['token']),
+      archiveKey: map['archiver_key'],
+      title: map['title'],
+      japaneseTitle: map['title_jpn'],
+      category: map['category'],
+      cover: GalleryImage(url: map['thumb']),
+      uploader: map['uploader'],
+      publishTime: DateTime.fromMillisecondsSinceEpoch(map['posted'] * 1000).toString(),
+      pageCount: map['filecount'],
+      size: byte2String(map['filesize']),
+      isExpunged: map['expunged'],
+      rating: map['rating'],
+      tags: LinkedHashMap(),
+      language: null,
+    );
   }
 
   static Map<String, String?>? forumPage2UserInfo(Headers headers, dynamic data) {
