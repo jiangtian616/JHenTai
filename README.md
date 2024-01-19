@@ -40,7 +40,7 @@ Install for MacOS(No maintenance): download .dmg.
 - Trust it in system setting.
 - If you use a proxy server, set proxy address at network setting page.
 
-Install for Linux(No maintenance): download Linux_xxx.zip, then unpack it.
+Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install or execute it.
 
 - If you use a proxy server, set proxy address at network setting page.
 
@@ -54,7 +54,7 @@ Update for Windows: Delete old unpacked directory directly, then download latest
 
 Update for MacOS(No maintenance): download .dmg.
 
-Update for Linux(No maintenance): Delete old unpacked directory directly, then download latest Linux_xxx.zip, unpack it.
+Update for Linux(No maintenance): Delete old and download the latest product.
 
 ## Help With Translation
 
