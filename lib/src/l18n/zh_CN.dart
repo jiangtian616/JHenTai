@@ -226,7 +226,7 @@ class zh_CN {
       /// eh setting page
       'site': '站点',
       'redirect2Eh': '优先重定向至表站',
-      'redirect2EhHint': '优先尝试从表站加载画廊详情页，以获得更好的网络体验',
+      'redirect2EhHint': '优先尝试从表站加载画廊详情页，以获得更好的网络体验，非必要不用关闭',
       'redirectAllGallery': '重定向所有画廊至表站',
       'imDonorHint': '如果你是捐赠者，你可以打开此项来更容易地访问里站中的画廊',
       'profileSetting': 'Profile设置',
