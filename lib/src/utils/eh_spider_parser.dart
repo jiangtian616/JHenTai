@@ -244,7 +244,7 @@ class EHSpiderParser {
       isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
       favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text,
-      galleryUrl: galleryUrl,
+      galleryUrl: GalleryUrl.parse(galleryUrl),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: document.querySelector('#gdn > a')?.text ?? '',
@@ -371,7 +371,22 @@ class EHSpiderParser {
   }
 
   static GalleryMetadata galleryMetadataJson2GalleryMetadata(Headers headers, dynamic data) {
-    Map map = json.decode(data);
+    Map? body = json.decode(data);
+    if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {
+      throw EHParseException(type: EHParseExceptionType.getMetaDataFailed, message: 'getMetaDataFailed'.tr, shouldPauseAllDownloadTasks: false);
+    }
+
+    Map map = (body['gmetadata'] as List).first;
+    List<GalleryTag> tags = (map['tags'] as List).cast<String>().map((str) {
+      List<String> list = str.split(':').toList();
+      String namespace = list.length == 2 ? list[0] : 'temp';
+      String key = list.length == 2 ? list[1] : list[0];
+      return GalleryTag(tagData: TagData(namespace: namespace, key: key));
+    }).toList();
+
+    LinkedHashMap<String, List<GalleryTag>> tagsMap = LinkedHashMap.of(tags.groupListsBy((tag) => tag.tagData.namespace));
+    String? language = tagsMap['language']?.firstWhereOrNull((tag) => tag.tagData.key != 'translated')?.tagData.key;
+
     return GalleryMetadata(
       galleryUrl: GalleryUrl(isEH: true, gid: map['gid'], token: map['token']),
       archiveKey: map['archiver_key'],
@@ -380,13 +395,13 @@ class EHSpiderParser {
       category: map['category'],
       cover: GalleryImage(url: map['thumb']),
       uploader: map['uploader'],
-      publishTime: DateTime.fromMillisecondsSinceEpoch(map['posted'] * 1000).toString(),
-      pageCount: map['filecount'],
-      size: byte2String(map['filesize']),
+      publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(map['posted']) * 1000).toString(),
+      pageCount: int.parse(map['filecount']),
+      size: byte2String(map['filesize'].toDouble()),
       isExpunged: map['expunged'],
-      rating: map['rating'],
-      tags: LinkedHashMap(),
-      language: null,
+      rating: double.parse(map['rating']),
+      tags: tagsMap,
+      language: language,
     );
   }
 
@@ -855,7 +870,7 @@ class EHSpiderParser {
       isFavorite: tr.querySelector('.gl2m > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseMinimalGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2m > div:nth-child(2) > [id][style]')?.attributes['title'],
-      galleryUrl: galleryUrl,
+      galleryUrl: GalleryUrl.parse(galleryUrl),
       tags: LinkedHashMap<String, List<GalleryTag>>(),
       uploader: tr.querySelector('.gl5m.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2m > div:nth-child(2)')?.text ?? '',
@@ -883,7 +898,7 @@ class EHSpiderParser {
       isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseCompactGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
-      galleryUrl: galleryUrl,
+      galleryUrl: GalleryUrl.parse(galleryUrl),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl4c.glhide > div > a')?.text ?? '',
@@ -912,7 +927,7 @@ class EHSpiderParser {
       isFavorite: tr.querySelector('.gl3e > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseExtendedGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl3e > [id][style]')?.attributes['title'],
-      galleryUrl: galleryUrl,
+      galleryUrl: GalleryUrl.parse(galleryUrl),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl3e > div > a')?.text ?? '',
@@ -940,7 +955,7 @@ class EHSpiderParser {
       isFavorite: div.querySelector('.gl5t > div > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseThumbnailGalleryFavoriteTagIndex(div),
       favoriteTagName: div.querySelector('.gl5t > div > [id][style]')?.attributes['title'],
-      galleryUrl: galleryUrl,
+      galleryUrl: GalleryUrl.parse(galleryUrl),
       tags: LinkedHashMap(),
       publishTime: div.querySelector('.gl5t > div > div[id]')?.text ?? '',
       isExpunged: div.querySelector('.gl5t > div > div[id] > s') != null,

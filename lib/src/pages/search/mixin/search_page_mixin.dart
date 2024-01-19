@@ -128,10 +128,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         leading: const Icon(Icons.open_in_new),
         onTap: () => toRoute(
           Routes.details,
-          arguments: {
-            'gid': state.inputGalleryUrl!.gid,
-            'galleryUrl': state.inputGalleryUrl!.url,
-          },
+          arguments: {'galleryUrl': state.inputGalleryUrl!},
         ),
       ),
     );

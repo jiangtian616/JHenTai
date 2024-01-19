@@ -340,7 +340,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     toRoute(
       Routes.details,
       arguments: {
-        'gid': gallery.gid,
         'galleryUrl': gallery.galleryUrl,
         'gallery': gallery,
       },

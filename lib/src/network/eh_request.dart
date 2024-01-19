@@ -331,15 +331,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     bool useCacheIfAvailable = true,
     required EHHtmlParser<T> parser,
   }) async {
-    Response response = await _getWithErrorHandler(
+    Response response = await _postWithErrorHandler(
       EHConsts.EHApi,
-      queryParameters: {
+      options: Options(contentType: Headers.jsonContentType),
+      data: {
         'method': 'gdata',
         'gidlist': [
           [gid, token]
         ],
+        "namespace": 1,
       },
-      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }

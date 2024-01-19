@@ -11,4 +11,4 @@ class EHParseException implements Exception {
   }
 }
 
-enum EHParseExceptionType { exceedLimit, unsupportedImagePageStyle, tagSetExceedLimit }
+enum EHParseExceptionType { exceedLimit, unsupportedImagePageStyle, tagSetExceedLimit, getMetaDataFailed }

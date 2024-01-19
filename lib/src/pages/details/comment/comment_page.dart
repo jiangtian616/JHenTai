@@ -77,7 +77,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     }
 
     List<GalleryComment> newComments = await EHRequest.requestDetailPage(
-      galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
+      galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl.url,
       parser: EHSpiderParser.detailPage2Comments,
       useCacheIfAvailable: false,
     );
@@ -113,7 +113,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     }
 
     List<GalleryComment> newComments = await EHRequest.requestDetailPage(
-      galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
+      galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl.url,
       parser: EHSpiderParser.detailPage2Comments,
       useCacheIfAvailable: false,
     );

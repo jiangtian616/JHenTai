@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/version_util.dart';
@@ -18,7 +18,6 @@ import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:retry/retry.dart';
 import 'package:window_manager/window_manager.dart';
 
-import '../consts/eh_consts.dart';
 import '../mixin/window_widget_mixin.dart';
 import '../mixin/login_required_logic_mixin.dart';
 import '../model/jh_layout.dart';
@@ -165,13 +164,13 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
           return;
         }
 
-        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(rawText!);
-        if (match == null) {
+        GalleryUrl? galleryUrl = GalleryUrl.tryParse(rawText!);
+        if (galleryUrl == null) {
           toast('Invalid jump link', isShort: false);
         } else {
           toRoute(
             Routes.details,
-            arguments: {'gid': parseGalleryUrl2Gid(rawText), 'galleryUrl': match.group(0)},
+            arguments: {'galleryUrl': galleryUrl},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -181,13 +180,13 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
       (String url) {
-        Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(url);
-        if (match == null) {
+        GalleryUrl? galleryUrl = GalleryUrl.tryParse(url);
+        if (galleryUrl == null) {
           toast('Invalid jump link', isShort: false);
         } else {
           toRoute(
             Routes.details,
-            arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': match.group(0)},
+            arguments: {'galleryUrl': galleryUrl},
             offAllBefore: false,
             preventDuplicates: false,
           );
@@ -206,31 +205,29 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       return;
     }
 
-    Match? match = RegExp(r'https://e[-x]hentai\.org/g/\S+').firstMatch(await FlutterClipboard.paste());
-    if (match == null) {
+    GalleryUrl? galleryUrl = GalleryUrl.tryParse(await FlutterClipboard.paste());
+    if (galleryUrl == null) {
       return;
     }
-
-    String url = match.group(0)!;
 
     /// show snack only once
-    if (url == _lastDetectedUrl) {
+    if (galleryUrl.url == _lastDetectedUrl) {
       return;
     }
 
-    _lastDetectedUrl = url;
+    _lastDetectedUrl = galleryUrl.url;
 
     snack(
       'galleryUrlDetected'.tr,
-      '${'galleryUrlDetectedHint'.tr}: $url',
+      '${'galleryUrlDetectedHint'.tr}: ${galleryUrl.url}',
       onPressed: () {
-        if (url.startsWith('${EHConsts.EXIndex}/g') && !UserSetting.hasLoggedIn()) {
+        if (!galleryUrl.isEH && !UserSetting.hasLoggedIn()) {
           showLoginToast();
           return;
         }
         toRoute(
           Routes.details,
-          arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
+          arguments: {'galleryUrl': galleryUrl},
           offAllBefore: false,
           preventDuplicates: false,
         );

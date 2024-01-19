@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_state_mixin.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 
@@ -53,10 +54,7 @@ class ArchiveGridDownloadPageLogic extends GetxController
   void goToDetailPage(ArchiveDownloadedData archive) {
     toRoute(
       Routes.details,
-      arguments: {
-        'gid': archive.gid,
-        'galleryUrl': archive.galleryUrl,
-      },
+      arguments: {'galleryUrl': GalleryUrl.parse(archive.galleryUrl)},
     );
   }
 

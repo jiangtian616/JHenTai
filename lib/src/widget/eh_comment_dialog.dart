@@ -86,7 +86,7 @@ class EHCommentDialogState extends State<EHCommentDialog> {
     try {
       if (widget.type == CommentDialogType.add) {
         errMsg = await EHRequest.requestSendComment(
-          galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
+          galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl.url,
           content: content,
           parser: EHSpiderParser.sendComment2ErrorMsg,
         );
@@ -94,7 +94,7 @@ class EHCommentDialogState extends State<EHCommentDialog> {
 
       if (widget.type == CommentDialogType.update) {
         errMsg = await EHRequest.requestUpdateComment(
-          galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl,
+          galleryUrl: DetailsPageLogic.current!.state.gallery!.galleryUrl.url,
           commentId: widget.commentId!,
           content: content,
           parser: EHSpiderParser.sendComment2ErrorMsg,

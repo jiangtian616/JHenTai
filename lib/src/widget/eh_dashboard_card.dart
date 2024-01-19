@@ -33,7 +33,6 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
         onTap: () => toRoute(
           Routes.details,
           arguments: {
-            'gid': widget.gallery.gid,
             'galleryUrl': widget.gallery.galleryUrl,
             'gallery': widget.gallery,
           },

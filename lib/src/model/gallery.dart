@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 
 import '../service/archive_download_service.dart';
 import '../service/gallery_download_service.dart';
@@ -19,7 +20,7 @@ class Gallery {
   bool isFavorite;
   int? favoriteTagIndex;
   String? favoriteTagName;
-  String galleryUrl;
+  GalleryUrl galleryUrl;
   LinkedHashMap<String, List<GalleryTag>> tags;
   String? language;
   String? uploader;
@@ -35,7 +36,7 @@ class Gallery {
       title: title,
       category: category,
       pageCount: pageCount!,
-      galleryUrl: galleryUrl,
+      galleryUrl: galleryUrl.url,
       uploader: uploader,
       publishTime: publishTime,
       downloadStatusIndex: DownloadStatus.downloading.index,
@@ -59,7 +60,7 @@ class Gallery {
       title: title,
       category: category,
       pageCount: pageCount!,
-      galleryUrl: galleryUrl,
+      galleryUrl: galleryUrl.url,
       uploader: uploader,
       size: size,
       coverUrl: cover.url,
@@ -107,7 +108,7 @@ class Gallery {
       'isFavorite': isFavorite,
       'favoriteTagIndex': favoriteTagIndex,
       'favoriteTagName': favoriteTagName,
-      'galleryUrl': galleryUrl,
+      'galleryUrl': galleryUrl.url,
       'tags': tags,
       'language': language,
       'uploader': uploader,
@@ -130,7 +131,7 @@ class Gallery {
       isFavorite: map['isFavorite'],
       favoriteTagIndex: map['favoriteTagIndex'],
       favoriteTagName: map['favoriteTagName'],
-      galleryUrl: map['galleryUrl'],
+      galleryUrl: GalleryUrl.parse(map['galleryUrl']) ,
       tags: LinkedHashMap.of(
         (map['tags'] as Map).map(
           (key, value) => MapEntry(
@@ -149,7 +150,7 @@ class Gallery {
 
   @override
   String toString() {
-    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: $galleryUrl, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, isFilteredByLocalTag: $hasLocalFilteredTag}';
+    return 'Gallery{gid: $gid, token: $token, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, isFavorite: $isFavorite, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, galleryUrl: ${galleryUrl.url}, tags: $tags, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, isFilteredByLocalTag: $hasLocalFilteredTag}';
   }
 
   Gallery copyWith({
@@ -164,7 +165,7 @@ class Gallery {
     bool? isFavorite,
     int? favoriteTagIndex,
     String? favoriteTagName,
-    String? galleryUrl,
+    GalleryUrl? galleryUrl,
     LinkedHashMap<String, List<GalleryTag>>? tags,
     String? language,
     String? uploader,

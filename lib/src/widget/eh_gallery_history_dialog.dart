@@ -42,7 +42,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 backRoute();
                 toRoute(
                   Routes.details,
-                  arguments: {'gid': e.galleryUrl.gid, 'galleryUrl': e.galleryUrl.url},
+                  arguments: {'galleryUrl': e.galleryUrl},
                   offAllBefore: false,
                   preventDuplicates: false,
                 );
@@ -72,7 +72,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 backRoute();
                 toRoute(
                   Routes.details,
-                  arguments: {'gid': parentUrl!.gid, 'galleryUrl': parentUrl!.url},
+                  arguments: {'galleryUrl': parentUrl!},
                   offAllBefore: false,
                   preventDuplicates: false,
                 );

@@ -20,6 +20,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -227,13 +228,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   /// Update local downloaded gallery if there's a new version.
-  Future<void> updateGallery(GalleryDownloadedData oldGallery, String newVersionGalleryUrl) async {
+  Future<void> updateGallery(GalleryDownloadedData oldGallery, GalleryUrl newVersionGalleryUrl) async {
     Log.info('update gallery: ${oldGallery.title}');
 
     GalleryDownloadedData newGallery;
     try {
       Map<String, dynamic> map = await retry(
-        () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );

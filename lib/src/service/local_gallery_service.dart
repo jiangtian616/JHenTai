@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
@@ -21,20 +21,22 @@ class LocalGallery {
   String path;
   GalleryImage cover;
 
-  bool isFromEHViewer;
-  int? gid;
-  String? token;
+  GalleryUrl? _galleryUrl;
 
-  String? get galleryUrl => isFromEHViewer ? '${UserSetting.hasLoggedIn() ? EHConsts.EXIndex : EHConsts.EHIndex}/g/$gid/$token' : null;
+  bool get isFromEHViewer => _galleryUrl != null;
+
+  GalleryUrl? get galleryUrl => isFromEHViewer
+      ? UserSetting.hasLoggedIn()
+          ? _galleryUrl!.copyWith(isEH: false)
+          : _galleryUrl!.copyWith(isEH: true)
+      : null;
 
   LocalGallery({
     required this.title,
     required this.path,
     required this.cover,
-    required this.isFromEHViewer,
-    this.gid,
-    this.token,
-  });
+    GalleryUrl? galleryUrl,
+  }) : _galleryUrl = galleryUrl;
 }
 
 class LocalGalleryParseResult {
@@ -246,9 +248,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
           path: coverImage.path,
           downloadStatus: DownloadStatus.downloaded,
         ),
-        isFromEHViewer: gid != null && token != null,
-        gid: gid,
-        token: token,
+        galleryUrl: gid != null && token != null ? GalleryUrl(isEH: true, gid: gid!, token: token!) : null,
       );
 
       allGallerys.add(gallery);

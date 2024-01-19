@@ -103,15 +103,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
   @override
   void onInit() {
+    super.onInit();
+    
     if (Get.arguments is! Map) {
       return;
     }
 
-    state.gid = Get.arguments['gid'];
     state.galleryUrl = Get.arguments['galleryUrl'];
     state.gallery = Get.arguments['gallery'];
-
-    super.onInit();
   }
 
   @override
@@ -156,6 +155,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       if (enableLoadingState) {
         updateSafely([loadingStateId]);
       }
+
+      if (e.type == EHSiteExceptionType.galleryDeleted) {
+        await _handleGalleryDeleted();
+      }
       return;
     } on Error catch (e) {
       Log.error('Get Gallery Detail Failed', e, e.stackTrace);
@@ -183,6 +186,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.animation);
   }
 
+  Future<void> _handleGalleryDeleted() async {}
+
   Future<void> loadMoreThumbnails() async {
     if (state.loadingThumbnailsState == LoadingState.loading) {
       return;
@@ -201,7 +206,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     List<GalleryThumbnail> newThumbNails;
     try {
       newThumbNails = await EHRequest.requestDetailPage(
-        galleryUrl: state.galleryUrl,
+        galleryUrl: state.galleryUrl.url,
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
@@ -587,13 +592,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Log.info('Share gallery:${state.galleryUrl}');
 
     if (GetPlatform.isDesktop) {
-      await FlutterClipboard.copy(state.galleryUrl);
+      await FlutterClipboard.copy(state.galleryUrl.url);
       toast('hasCopiedToClipboard'.tr);
       return;
     }
 
     Share.share(
-      state.galleryUrl,
+      state.galleryUrl.url,
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
   }
@@ -678,7 +683,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           gid: state.gallery!.gid,
           token: state.gallery!.token,
           galleryTitle: state.gallery!.title,
-          galleryUrl: state.galleryUrl,
+          galleryUrl: state.galleryUrl.url,
           initialIndex: forceIndex ?? readIndexRecord,
           currentImageIndex: forceIndex ?? readIndexRecord,
           readProgressRecordStorageKey: storageKey,
@@ -703,7 +708,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         gid: state.gallery!.gid,
         token: state.gallery!.token,
         galleryTitle: state.gallery!.title,
-        galleryUrl: state.galleryUrl,
+        galleryUrl: state.galleryUrl.url,
         initialIndex: forceIndex ?? readIndexRecord,
         currentImageIndex: forceIndex ?? readIndexRecord,
         readProgressRecordStorageKey: storageKey,
@@ -726,17 +731,17 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
-    if (state.galleryUrl.contains(EHConsts.EXIndex)) {
+    if (state.galleryUrl.url.contains(EHConsts.EXIndex)) {
       if (EHSetting.redirect2Eh.isTrue && !_galleryOnlyInExSite()) {
-        firstLink = state.galleryUrl.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-        secondLink = state.galleryUrl;
+        firstLink = state.galleryUrl.url.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
+        secondLink = state.galleryUrl.url;
       } else {
         firstLink = null;
-        secondLink = state.galleryUrl;
+        secondLink = state.galleryUrl.url;
       }
     } else {
-      firstLink = state.galleryUrl;
-      secondLink = state.galleryUrl.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+      firstLink = state.galleryUrl.url;
+      secondLink = state.galleryUrl.url.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
     }
 
     /// if we can't find gallery via firstLink, try second link
@@ -749,10 +754,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );
-        state.gallery?.galleryUrl = state.galleryUrl = firstLink;
+        state.gallery?.galleryUrl = state.galleryUrl = state.galleryUrl.copyWith(isEH: true);
         return galleryAndDetailAndApikey;
       } on EHSiteException catch (e) {
-        Log.verbose('Can\'t find gallery, firstLink: $firstLink');
+        Log.verbose('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
         firstException = e;
       }
     }
@@ -764,10 +769,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: useCache,
       );
-      state.gallery?.galleryUrl = state.galleryUrl = secondLink;
+      state.gallery?.galleryUrl = state.galleryUrl = state.galleryUrl.copyWith(isEH: false);
       return galleryAndDetailAndApikey;
     } on EHSiteException catch (e) {
-      Log.verbose('Can\'t find gallery, secondLink: $secondLink');
+      Log.verbose('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
       throw firstException ?? e;
     }
   }
@@ -854,6 +859,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void _removeCache() {
-    EHRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl, 0);
+    EHRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl.url, 0);
   }
 }

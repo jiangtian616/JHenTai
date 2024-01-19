@@ -86,7 +86,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String storageKey = 'readIndexRecord::${gallery.gid ?? gallery.title}';
+      String storageKey = 'readIndexRecord::${gallery.galleryUrl?.gid ?? gallery.title}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);

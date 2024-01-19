@@ -105,12 +105,12 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         }
 
         return GetBuilder<ArchiveDownloadService>(
-          id: '${ArchiveDownloadService.archiveStatusId}::${state.gid}',
+          id: '${ArchiveDownloadService.archiveStatusId}::${state.galleryUrl.gid}',
           builder: (_) => GetBuilder<GalleryDownloadService>(
-            id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.gid}',
+            id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.galleryUrl.gid}',
             builder: (_) {
-              GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.gid]?.downloadProgress;
-              ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.gid]?.archiveStatus;
+              GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
+              ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
 
               return PopupMenuButton(
                 itemBuilder: (context) {
@@ -753,10 +753,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 child: Text('thisGalleryHasANewVersion'.tr),
                 onPressed: () => toRoute(
                   Routes.details,
-                  arguments: {
-                    'gid': parseGalleryUrl2Gid(state.galleryDetails!.newVersionGalleryUrl!),
-                    'galleryUrl': state.galleryDetails!.newVersionGalleryUrl!
-                  },
+                  arguments: {'galleryUrl': state.galleryDetails!.newVersionGalleryUrl!},
                   offAllBefore: false,
                   preventDuplicates: false,
                 ),

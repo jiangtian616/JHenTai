@@ -3,13 +3,12 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
 import 'package:jhentai/src/setting/style_setting.dart';
 import '../../../../database/database.dart';
-import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
-import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -176,9 +175,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
           onLongPress: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
           child: FadeShrinkWidget(
-            show: state.displayGroups.contains(group) &&
-                !state.removedGids.contains(gallery.gid) &&
-                !state.removedGidsWithoutImages.contains(gallery.gid),
+            show: state.displayGroups.contains(group) && !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
             child: _buildCard(context, gallery).marginAll(5),
             afterDisappear: () {
               if (state.removedGids.contains(gallery.gid) || state.removedGidsWithoutImages.contains(gallery.gid)) {
@@ -248,7 +245,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(
         Routes.details,
-        arguments: {'gid': gallery.gid, 'galleryUrl': gallery.galleryUrl},
+        arguments: {'galleryUrl': GalleryUrl.parse(gallery.galleryUrl)},
       ),
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
@@ -410,19 +407,15 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
     switch (priority) {
       case 1:
-        return Text('①', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold))
-            .marginSymmetric(horizontal: 6);
+        return Text('①', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case 2:
-        return Text('②', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold))
-            .marginSymmetric(horizontal: 6);
+        return Text('②', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case 3:
-        return Text('③', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold))
-            .marginSymmetric(horizontal: 6);
+        return Text('③', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       case GalleryDownloadService.defaultDownloadGalleryPriority:
         return const SizedBox();
       case 5:
-        return Text('⑤', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold))
-            .marginSymmetric(horizontal: 6);
+        return Text('⑤', style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold)).marginSymmetric(horizontal: 6);
       default:
         return const SizedBox();
     }

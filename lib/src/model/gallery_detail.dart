@@ -26,7 +26,7 @@ class GalleryDetail {
   List<GalleryThumbnail> thumbnails;
   int thumbnailsPageCount;
 
-  String? get newVersionGalleryUrl => childrenGallerys?.lastOrNull?.galleryUrl.url;
+  GalleryUrl? get newVersionGalleryUrl => childrenGallerys?.lastOrNull?.galleryUrl;
 
   GalleryDetail({
     required this.rawTitle,

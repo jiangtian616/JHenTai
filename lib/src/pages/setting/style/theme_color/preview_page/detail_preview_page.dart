@@ -11,6 +11,7 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
@@ -261,7 +262,7 @@ class DetailsPreviewPageLogic extends DetailsPageLogic {
 
 class DetailsPreviewPageState extends DetailsPageState {
   DetailsPreviewPageState() {
-    galleryUrl = 'gallery url - preview';
+    galleryUrl = const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404');
 
     gallery = Gallery(
       gid: 1,
@@ -273,7 +274,7 @@ class DetailsPreviewPageState extends DetailsPageState {
       pageCount: 66,
       hasRated: true,
       isFavorite: true,
-      galleryUrl: 'gallery url - preview',
+      galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       tags: LinkedHashMap.of({
         'language': [
           GalleryTag(tagData: TagData(namespace: 'language', key: 'chinese')),

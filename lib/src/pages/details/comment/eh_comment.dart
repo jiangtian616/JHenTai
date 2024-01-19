@@ -6,13 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
@@ -343,14 +342,15 @@ class _EHCommentTextBody extends StatelessWidget {
       return false;
     }
 
-    return element.children.any((child) => _containsImage(child));
+    return element.children.any(_containsImage);
   }
 
   Future<bool> _handleTapUrl(String url) async {
-    if (url.startsWith(EHConsts.EHIndex + '/g') || url.startsWith(EHConsts.EXIndex + '/g')) {
+    GalleryUrl? galleryUrl = GalleryUrl.tryParse(url);
+    if (galleryUrl != null) {
       toRoute(
         Routes.details,
-        arguments: {'gid': parseGalleryUrl2Gid(url), 'galleryUrl': url},
+        arguments: {'galleryUrl': galleryUrl},
         offAllBefore: false,
       );
       return true;

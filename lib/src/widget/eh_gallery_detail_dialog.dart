@@ -24,7 +24,7 @@ class EHGalleryDetailDialog extends StatelessWidget {
         children: [
           _Item(name: 'gid'.tr, value: gallery.gid.toString()),
           _Item(name: 'token'.tr, value: (gallery.token)),
-          _Item(name: ('galleryUrl'.tr), value: (gallery.galleryUrl)),
+          _Item(name: ('galleryUrl'.tr), value: (gallery.galleryUrl.url)),
           _Item(name: ('title'.tr), value: (galleryDetail.rawTitle)),
           _Item(name: ('japaneseTitle'.tr), value: (galleryDetail.japaneseTitle)),
           _Item(name: ('category'.tr), value: (gallery.category)),

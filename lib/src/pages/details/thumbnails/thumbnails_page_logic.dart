@@ -52,7 +52,7 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
     Map<String, dynamic> rangeAndThumbnails;
     try {
       rangeAndThumbnails = await EHRequest.requestDetailPage(
-        galleryUrl: detailsPageState.galleryUrl,
+        galleryUrl: detailsPageState.galleryUrl.url,
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2RangeAndThumbnails,
       );
