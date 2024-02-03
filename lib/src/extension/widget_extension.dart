@@ -33,9 +33,9 @@ extension WidgetExtension on Widget {
 
   Widget withEscOrFifthButton2BackRightRoute() {
     return EHKeyboardListener(
-      handleEsc: popRoute,
+      handleEsc: popRightRoute,
       child: EHMouseButtonListener(
-        onFifthButtonTapDown: (_) => popRoute(),
+        onFifthButtonTapDown: (_) => popRightRoute(),
         child: this,
       ),
     );

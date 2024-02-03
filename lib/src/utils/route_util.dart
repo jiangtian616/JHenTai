@@ -108,7 +108,26 @@ void backRoute<T>({
 }
 
 /// pop current active route triggered by esc or fifth button or system back button
-void popRoute<T>({
+void popLeftRoute<T>({
+  T? result,
+  bool closeOverlays = false,
+  bool canPop = true,
+}) {
+  return Get.back(
+    result: result,
+    closeOverlays: closeOverlays,
+    canPop: canPop,
+    id: StyleSetting.isInMobileLayout
+        ? null
+        : StyleSetting.isInV2Layout
+            ? leftV2
+            : left,
+  );
+}
+
+/// pop current active right route triggered by esc or fifth button or system back button
+
+void popRightRoute<T>({
   T? result,
   bool closeOverlays = false,
   bool canPop = true,

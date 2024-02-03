@@ -31,20 +31,26 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
 
     if (StyleSetting.isInTabletLayout) {
       if (Get.global(rightV2).currentState?.canPop() == true) {
-        popRoute();
+        popRightRoute();
         return Future.value(false);
-      } else {
-        return _handleDoubleTapPopApp();
       }
+      if (Get.global(leftV2).currentState?.canPop() == true) {
+        popLeftRoute();
+        return Future.value(false);
+      }
+      return _handleDoubleTapPopApp();
     }
 
     if (StyleSetting.isInDesktopLayout) {
       if (Get.global(right).currentState?.canPop() == true) {
-        popRoute();
+        popRightRoute();
         return Future.value(false);
-      } else {
-        return _handleDoubleTapPopApp();
       }
+      if (Get.global(left).currentState?.canPop() == true) {
+        popLeftRoute();
+        return Future.value(false);
+      }
+      return _handleDoubleTapPopApp();
     }
 
     return _handleDoubleTapPopApp();
