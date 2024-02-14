@@ -63,9 +63,9 @@ PODS:
     - Flutter
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.16.0):
-    - SDWebImage/Core (= 5.16.0)
-  - SDWebImage/Core (5.16.0)
+  - SDWebImage (5.18.11):
+    - SDWebImage/Core (= 5.18.11)
+  - SDWebImage/Core (5.18.11)
   - share_plus (0.0.1):
     - Flutter
   - smart_auth (0.0.1):
@@ -205,7 +205,7 @@ SPEC CHECKSUMS:
   permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   receive_sharing_intent: c0d87310754e74c0f9542947e7cbdf3a0335a3b1
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
-  SDWebImage: 2aea163b50bfcb569a2726b6a754c54a4506fcf6
+  SDWebImage: a3ba0b8faac7228c3c8eadd1a55c9c9fe5e16457
   share_plus: 056a1e8ac890df3e33cb503afffaf1e9b4fbae68
   smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
@@ -219,6 +219,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
   webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 
-PODFILE CHECKSUM: 789d264d0364ee5d6a372c52c9659f450aed0e02
+PODFILE CHECKSUM: 8bf5aae27c6297497bd9aebd44d1c114e7405af6
 
 COCOAPODS: 1.11.3
