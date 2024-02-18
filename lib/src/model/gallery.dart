@@ -21,10 +21,11 @@ class Gallery {
   int? favoriteTagIndex;
   String? favoriteTagName;
   String? language;
+
+  /// null when in Thumbnail mode / Favorite tab
   String? uploader;
   String publishTime;
   bool isExpunged;
-
   LinkedHashMap<String, List<GalleryTag>> tags;
 
   bool hasLocalFilteredTag;
