@@ -222,15 +222,11 @@ class EHSpiderParser {
   static Map<String, dynamic> detailPage2GalleryAndDetailAndApikey(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    String galleryUrl = document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0];
-    List<String>? parts = galleryUrl.split('/');
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
     LinkedHashMap<String, List<GalleryTag>> tags = _detailPageDocument2Tags(document);
 
     Gallery gallery = Gallery(
-      gid: int.parse(parts[4]),
-      token: parts[5],
       title: document.querySelector('#gn')?.text ?? '',
       category: document.querySelector('#gdc > .cs')?.text ?? '',
       cover: GalleryImage(
@@ -241,10 +237,9 @@ class EHSpiderParser {
       pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
       rating: _parseGalleryRating(document.querySelector('#grt2')!),
       hasRated: document.querySelector('#rating_image.ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      isFavorite: document.querySelector('#fav > .i') != null ? true : false,
       favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
       favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text,
-      galleryUrl: GalleryUrl.parse(galleryUrl),
+      galleryUrl: GalleryUrl.parse(document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0]),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: document.querySelector('#gdn > a')?.text ?? '',
@@ -855,22 +850,17 @@ class EHSpiderParser {
 
   static Gallery _parseMinimalGallery(Element tr) {
     GalleryImage? cover = _parseMinimalGalleryCover(tr);
-    String galleryUrl = tr.querySelector('.gl3m.glname > a')?.attributes['href'] ?? '';
-    List<String> parts = galleryUrl.split('/');
 
     Gallery gallery = Gallery(
-      gid: int.parse(parts[4]),
-      token: parts[5],
       title: tr.querySelector('.glink')?.text ?? '',
       category: tr.querySelector('.gl1m.glcat > div')?.text ?? '',
       cover: cover!,
       pageCount: null,
       rating: _parseGalleryRating(tr),
       hasRated: tr.querySelector('.gl4m > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      isFavorite: tr.querySelector('.gl2m > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseMinimalGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2m > div:nth-child(2) > [id][style]')?.attributes['title'],
-      galleryUrl: GalleryUrl.parse(galleryUrl),
+      galleryUrl: GalleryUrl.parse(tr.querySelector('.gl3m.glname > a')?.attributes['href'] ?? ''),
       tags: LinkedHashMap<String, List<GalleryTag>>(),
       uploader: tr.querySelector('.gl5m.glhide > div > a')?.text ?? '',
       publishTime: tr.querySelector('.gl2m > div:nth-child(2)')?.text ?? '',
@@ -883,22 +873,17 @@ class EHSpiderParser {
   static Gallery _parseCompactGallery(Element tr) {
     LinkedHashMap<String, List<GalleryTag>> tags = _parseCompactGalleryTags(tr);
     GalleryImage? cover = _parseCompactGalleryCover(tr);
-    String galleryUrl = tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? '';
-    List<String> parts = galleryUrl.split('/');
 
     Gallery gallery = Gallery(
-      gid: int.parse(parts[4]),
-      token: parts[5],
       title: tr.querySelector('.glink')?.text ?? '',
       category: tr.querySelector('.cn')?.text ?? '',
       cover: cover!,
       pageCount: _parseCompactGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
       hasRated: tr.querySelector('.gl2c > div:nth-child(2) > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      isFavorite: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseCompactGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl2c > div:nth-child(2) > [id][style]')?.attributes['title'],
-      galleryUrl: GalleryUrl.parse(galleryUrl),
+      galleryUrl: GalleryUrl.parse(tr.querySelector('.gl3c.glname > a')?.attributes['href'] ?? ''),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl4c.glhide > div > a')?.text ?? '',
@@ -912,22 +897,17 @@ class EHSpiderParser {
   static Gallery _parseExtendedGallery(Element tr) {
     LinkedHashMap<String, List<GalleryTag>> tags = _parseExtendedGalleryTags(tr);
     GalleryImage? cover = _parseExtendedGalleryCover(tr);
-    String galleryUrl = tr.querySelector('.gl1e > div > a')?.attributes['href'] ?? '';
-    List<String> parts = galleryUrl.split('/');
 
     Gallery gallery = Gallery(
-      gid: int.parse(parts[4]),
-      token: parts[5],
       title: tr.querySelector('.glink')?.text ?? '',
       category: tr.querySelector('.cn')?.text ?? '',
       cover: cover!,
       pageCount: _parseExtendedGalleryPageCount(tr),
       rating: _parseGalleryRating(tr),
       hasRated: tr.querySelector('.gl3e > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      isFavorite: tr.querySelector('.gl3e > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseExtendedGalleryFavoriteTagIndex(tr),
       favoriteTagName: tr.querySelector('.gl3e > [id][style]')?.attributes['title'],
-      galleryUrl: GalleryUrl.parse(galleryUrl),
+      galleryUrl: GalleryUrl.parse(tr.querySelector('.gl1e > div > a')?.attributes['href'] ?? ''),
       tags: tags,
       language: tags['language']?[0].tagData.key,
       uploader: tr.querySelector('.gl3e > div > a')?.text ?? '',
@@ -940,22 +920,17 @@ class EHSpiderParser {
 
   static Gallery _parseThumbnailGallery(Element div) {
     GalleryImage? cover = _parseThumbnailGalleryCover(div);
-    String galleryUrl = div.querySelector('a')?.attributes['href'] ?? '';
-    List<String> parts = galleryUrl.split('/');
 
     Gallery gallery = Gallery(
-      gid: int.parse(parts[4]),
-      token: parts[5],
       title: div.querySelector('.glink')?.text ?? '',
       category: div.querySelector('.cs')?.text ?? '',
       cover: cover!,
       pageCount: _parseThumbnailGalleryPageCount(div),
       rating: _parseGalleryRating(div),
       hasRated: div.querySelector('.gl5t > div > .ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      isFavorite: div.querySelector('.gl5t > div > [id][style]') != null ? true : false,
       favoriteTagIndex: _parseThumbnailGalleryFavoriteTagIndex(div),
       favoriteTagName: div.querySelector('.gl5t > div > [id][style]')?.attributes['title'],
-      galleryUrl: GalleryUrl.parse(galleryUrl),
+      galleryUrl: GalleryUrl.parse(div.querySelector('a')?.attributes['href'] ?? ''),
       tags: LinkedHashMap(),
       publishTime: div.querySelector('.gl5t > div > div[id]')?.text ?? '',
       isExpunged: div.querySelector('.gl5t > div > div[id] > s') != null,

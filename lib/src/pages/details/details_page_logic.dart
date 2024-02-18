@@ -322,7 +322,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         await EHRequest.requestRemoveFavorite(state.gallery!.gid, state.gallery!.token);
         FavoriteSetting.decrementFavByIndex(favIndex);
         state.gallery!
-          ..isFavorite = false
           ..favoriteTagIndex = null
           ..favoriteTagName = null;
       } else {
@@ -330,7 +329,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         FavoriteSetting.incrementFavByIndex(favIndex);
         FavoriteSetting.decrementFavByIndex(state.gallery?.favoriteTagIndex);
         state.gallery!
-          ..isFavorite = true
           ..favoriteTagIndex = favIndex
           ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
       }
@@ -822,7 +820,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (state.gallery?.isFavorite != newGallery.isFavorite ||
         state.gallery?.favoriteTagIndex != newGallery.favoriteTagIndex ||
         state.gallery?.favoriteTagName != newGallery.favoriteTagName) {
-      state.gallery?.isFavorite = newGallery.isFavorite;
       state.gallery?.favoriteTagIndex = newGallery.favoriteTagIndex;
       state.gallery?.favoriteTagName = newGallery.favoriteTagName;
       updateIds.add(favoriteId);

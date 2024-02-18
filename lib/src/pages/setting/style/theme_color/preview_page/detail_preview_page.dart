@@ -265,15 +265,12 @@ class DetailsPreviewPageState extends DetailsPageState {
     galleryUrl = const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404');
 
     gallery = Gallery(
-      gid: 1,
-      token: 'token - preview',
       title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
       category: 'Doujinshi',
       cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
       rating: 4.5,
       pageCount: 66,
       hasRated: true,
-      isFavorite: true,
       galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       tags: LinkedHashMap.of({
         'language': [
