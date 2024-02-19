@@ -223,50 +223,57 @@ class EHSpiderParser {
     Document document = parse(data as String);
 
     GalleryUrl galleryUrl = GalleryUrl.parse(document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0]);
+    String rawTitle = document.querySelector('#gn')!.text;
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
+    GalleryImage cover = GalleryImage(
+      url: coverMatch.group(3)!,
+      height: double.parse(coverMatch.group(2)!),
+      width: double.parse(coverMatch.group(1)!),
+    );
+    String category = document.querySelector('#gdc > .cs')!.text;
+    int pageCount = int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]);
+    double rating = _parseGalleryRating(document.querySelector('#grt2')!);
+    int? favoriteTagIndex = _parseFavoriteTagIndexByOffset(document);
+    String? favoriteTagName = document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text;
     LinkedHashMap<String, List<GalleryTag>> tags = _detailPageDocument2Tags(document);
+    String language = document.querySelector('#gdd > table > tbody')?.children[3].children[1].nodes[0].text?.trim() ?? '';
+    String? uploader = document.querySelector('#gdn > a')?.text;
+    String publishTime = document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '';
+    bool isExpunged = (document.querySelector('#gdd > table > tbody > tr:nth-child(2) > .gdt2')?.text ?? '').contains('Expunged');
 
     Gallery gallery = Gallery(
       galleryUrl: galleryUrl,
-      title: document.querySelector('#gn')?.text ?? '',
-      category: document.querySelector('#gdc > .cs')?.text ?? '',
-      cover: GalleryImage(
-        url: coverMatch.group(3)!,
-        height: double.parse(coverMatch.group(2)!),
-        width: double.parse(coverMatch.group(1)!),
-      ),
-      pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
-      rating: _parseGalleryRating(document.querySelector('#grt2')!),
+      title: rawTitle,
+      category: category,
+      cover: cover,
+      pageCount: pageCount,
+      rating: rating,
       hasRated: document.querySelector('#rating_image.ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
-      favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text,
+      favoriteTagIndex: favoriteTagIndex,
+      favoriteTagName: favoriteTagName,
       tags: tags,
-      language: tags['language']?[0].tagData.key,
-      uploader: document.querySelector('#gdn > a')?.text,
-      publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
-      isExpunged: (document.querySelector('#gdd > table > tbody > tr:nth-child(2) > .gdt2')?.text ?? '').contains('Expunged'),
+      language: language,
+      uploader: uploader,
+      publishTime: publishTime,
+      isExpunged: isExpunged,
     );
 
     GalleryDetail galleryDetail = GalleryDetail(
       galleryUrl: galleryUrl,
-      rawTitle: document.querySelector('#gn')!.text,
+      rawTitle: rawTitle,
       japaneseTitle: document.querySelector('#gj')!.text,
-      category: document.querySelector('#gdc > .cs')!.text,
-      cover: GalleryImage(
-        url: coverMatch.group(3)!,
-        height: double.parse(coverMatch.group(2)!),
-        width: double.parse(coverMatch.group(1)!),
-      ),
-      pageCount: int.parse((document.querySelector('#gdd > table > tbody > tr:nth-child(5) > .gdt2')?.text ?? '').split(' ')[0]),
-      rating: _parseGalleryRating(document.querySelector('#grt2')!),
+      category: category,
+      cover: cover,
+      pageCount: pageCount,
+      rating: rating,
       realRating: _parseGalleryDetailsRealRating(document),
-      favoriteTagIndex: _parseFavoriteTagIndexByOffset(document),
-      favoriteTagName: document.querySelector('#fav > .i')?.attributes['style'] == null ? null : document.querySelector('#favoritelink')?.text,
-      language: document.querySelector('#gdd > table > tbody')?.children[3].children[1].nodes[0].text?.trim() ?? '',
-      uploader: document.querySelector('#gdn > a')?.text,
-      publishTime: document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '',
-      isExpunged: (document.querySelector('#gdd > table > tbody > tr:nth-child(2) > .gdt2')?.text ?? '').contains('Expunged'),
+      favoriteTagIndex: favoriteTagIndex,
+      favoriteTagName: favoriteTagName,
+      language: language,
+      uploader: uploader,
+      publishTime: publishTime,
+      isExpunged: isExpunged,
       tags: tags,
       ratingCount: int.parse(document.querySelector('#rating_count')?.text ?? '0'),
       size: document.querySelector('#gdd > table > tbody')?.children[4].children[1].text ?? '',
