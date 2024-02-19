@@ -126,13 +126,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     _stack.remove(this);
   }
 
-  Future<void> getDetails({bool enableLoadingState = true, bool useCacheIfAvailable = true}) async {
+  Future<void> getDetails({bool refreshPageImmediately = true, bool useCacheIfAvailable = true}) async {
     if (state.loadingState == LoadingState.loading) {
       return;
     }
 
     state.loadingState = LoadingState.loading;
-    if (enableLoadingState) {
+    if (refreshPageImmediately) {
       updateSafely([loadingStateId]);
     }
 
@@ -145,7 +145,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
-      if (enableLoadingState) {
+      if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
       }
       return;
@@ -153,7 +153,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
-      if (enableLoadingState) {
+      if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
       }
 
@@ -165,7 +165,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('Get Gallery Detail Failed', e, s);
       snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
       state.loadingState = LoadingState.error;
-      if (enableLoadingState) {
+      if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
       }
       return;
@@ -233,7 +233,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleRefresh() async {
-    return getDetails(enableLoadingState: false, useCacheIfAvailable: false);
+    return getDetails(refreshPageImmediately: false, useCacheIfAvailable: false);
   }
 
   Future<void> handleTapDownload() async {
