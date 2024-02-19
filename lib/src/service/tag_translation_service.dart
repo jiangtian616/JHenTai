@@ -156,14 +156,14 @@ class TagTranslationService extends GetxService {
   Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetail> galleryDetails) async {
     if (isReady) {
       Future.wait(galleryDetails.map((galleryDetail) {
-        return translateTagMap(galleryDetail.fullTags);
+        return translateTagMap(galleryDetail.tags);
       }).toList());
     }
   }
 
   Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetail galleryDetail) async {
     if (isReady) {
-      await translateTagMap(galleryDetail.fullTags);
+      await translateTagMap(galleryDetail.tags);
     }
   }
 

@@ -1138,12 +1138,12 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         global: false,
         init: logic,
         builder: (_) {
-          if (state.galleryDetails?.fullTags.isEmpty ?? true) {
+          if (state.galleryDetails?.tags.isEmpty ?? true) {
             return const SizedBox();
           }
 
           return _GalleryTags(
-            tagList: state.galleryDetails!.fullTags,
+            tagList: state.galleryDetails!.tags,
             gid: state.gallery!.gid,
             token: state.gallery!.token,
             apikey: state.apikey!,

@@ -265,13 +265,13 @@ class DetailsPreviewPageState extends DetailsPageState {
     galleryUrl = const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404');
 
     gallery = Gallery(
+      galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
       category: 'Doujinshi',
       cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
       rating: 4.5,
       pageCount: 66,
       hasRated: true,
-      galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       tags: LinkedHashMap.of({
         'language': [
           GalleryTag(tagData: TagData(namespace: 'language', key: 'chinese')),
@@ -292,16 +292,21 @@ class DetailsPreviewPageState extends DetailsPageState {
     );
 
     galleryDetails = GalleryDetail(
+      galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       rawTitle: 'Title - This is the detail preview page',
+      category: 'Doujinshi',
+      cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
+      pageCount: 66,
+      rating: 4.5,
+      realRating: 4,
       language: 'Chinese',
       ratingCount: 666,
-      realRating: 4,
       size: '66.66MB',
       favoriteCount: 666,
       torrentCount: '666',
       torrentPageUrl: 'torrent page url - preview',
       archivePageUrl: 'archivePageUrl page url - preview',
-      fullTags: LinkedHashMap.of({
+      tags: LinkedHashMap.of({
         'language': [
           GalleryTag(tagData: TagData(namespace: 'language', key: 'chinese')),
         ],
@@ -316,6 +321,8 @@ class DetailsPreviewPageState extends DetailsPageState {
           GalleryTag(tagData: TagData(namespace: 'artist', key: 'Hibiki')),
         ],
       }),
+      publishTime: '2022-02-22 12:12:12',
+      isExpunged: true,
       comments: [
         GalleryComment(
           id: 0,

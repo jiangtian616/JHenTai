@@ -176,7 +176,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
 
-    _addColor2WatchedTags(state.galleryDetails!.fullTags);
+    _addColor2WatchedTags(state.galleryDetails!.tags);
 
     state.loadingState = LoadingState.success;
     List<Object> updateIds = [detailsId, loadingStateId];

@@ -22,7 +22,7 @@ class Gallery {
   String? favoriteTagName;
   String? language;
 
-  /// null when in Thumbnail mode / Favorite tab
+  /// null when in Thumbnail mode / Favorite tab / for disowned gallery
   String? uploader;
   String publishTime;
   bool isExpunged;
