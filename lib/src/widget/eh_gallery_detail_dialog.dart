@@ -10,10 +10,9 @@ import '../model/gallery.dart';
 import '../utils/toast_util.dart';
 
 class EHGalleryDetailDialog extends StatelessWidget {
-  final Gallery gallery;
   final GalleryDetail galleryDetail;
 
-  const EHGalleryDetailDialog({Key? key, required this.gallery, required this.galleryDetail}) : super(key: key);
+  const EHGalleryDetailDialog({Key? key, required this.galleryDetail}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +21,16 @@ class EHGalleryDetailDialog extends StatelessWidget {
       child: SimpleDialog(
         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
         children: [
-          _Item(name: 'gid'.tr, value: gallery.gid.toString()),
-          _Item(name: 'token'.tr, value: (gallery.token)),
-          _Item(name: ('galleryUrl'.tr), value: (gallery.galleryUrl.url)),
+          _Item(name: 'gid'.tr, value: galleryDetail.galleryUrl.gid.toString()),
+          _Item(name: 'token'.tr, value: (galleryDetail.galleryUrl.token)),
+          _Item(name: ('galleryUrl'.tr), value: (galleryDetail.galleryUrl.url)),
           _Item(name: ('title'.tr), value: (galleryDetail.rawTitle)),
           _Item(name: ('japaneseTitle'.tr), value: (galleryDetail.japaneseTitle)),
-          _Item(name: ('category'.tr), value: (gallery.category)),
-          _Item(name: ('uploader'.tr), value: (gallery.uploader)),
-          _Item(name: ('publishTime'.tr), value: (gallery.publishTime.toString())),
-          _Item(name: ('language'.tr), value: (gallery.language)),
-          _Item(name: ('pageCount'.tr), value: (gallery.pageCount?.toString())),
+          _Item(name: ('category'.tr), value: (galleryDetail.category)),
+          _Item(name: ('uploader'.tr), value: (galleryDetail.uploader)),
+          _Item(name: ('publishTime'.tr), value: (galleryDetail.publishTime.toString())),
+          _Item(name: ('language'.tr), value: (galleryDetail.language)),
+          _Item(name: ('pageCount'.tr), value: (galleryDetail.pageCount.toString())),
           _Item(name: ('favoriteCount'.tr), value: (galleryDetail.favoriteCount.toString())),
           _Item(name: ('ratingCount'.tr), value: (galleryDetail.ratingCount.toString())),
           _Item(name: ('rating'.tr), value: (galleryDetail.realRating.toString())),

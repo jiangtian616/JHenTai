@@ -16,14 +16,22 @@ class Gallery {
 
   /// null when in Minimal mode / Favorite tab
   int? pageCount;
+
   double rating;
+
+  /// unavailable when in ranklist page
   bool hasRated;
+
+  /// unavailable when in ranklist page
   int? favoriteTagIndex;
   String? favoriteTagName;
+
+  /// null when in Minimal mode
   String? language;
 
   /// null when in Thumbnail mode / Favorite tab / for disowned gallery
   String? uploader;
+
   String publishTime;
   bool isExpunged;
   LinkedHashMap<String, List<GalleryTag>> tags;
@@ -53,51 +61,6 @@ class Gallery {
     required this.isExpunged,
     this.hasLocalFilteredTag = false,
   });
-
-  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
-    return GalleryDownloadedData(
-      gid: gid,
-      token: token,
-      title: title,
-      category: category,
-      pageCount: pageCount!,
-      galleryUrl: galleryUrl.url,
-      uploader: uploader,
-      publishTime: publishTime,
-      downloadStatusIndex: DownloadStatus.downloading.index,
-      insertTime: DateTime.now().toString(),
-      downloadOriginalImage: downloadOriginalImage,
-      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
-      sortOrder: 0,
-      groupName: group,
-    );
-  }
-
-  ArchiveDownloadedData toArchiveDownloadedData({
-    required String archivePageUrl,
-    required bool isOriginal,
-    required int size,
-    required String group,
-  }) {
-    return ArchiveDownloadedData(
-      gid: gid,
-      token: token,
-      title: title,
-      category: category,
-      pageCount: pageCount!,
-      galleryUrl: galleryUrl.url,
-      uploader: uploader,
-      size: size,
-      coverUrl: cover.url,
-      publishTime: publishTime,
-      archiveStatusIndex: ArchiveStatus.unlocking.index,
-      archivePageUrl: archivePageUrl,
-      isOriginal: isOriginal,
-      insertTime: DateTime.now().toString(),
-      sortOrder: 0,
-      groupName: group,
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {

@@ -5,18 +5,17 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../config/ui_config.dart';
-import '../model/gallery.dart';
 import '../routes/routes.dart';
 
 class EHGalleryHistoryDialog extends StatelessWidget {
+  final String currentGalleryTitle;
   final GalleryUrl? parentUrl;
-  final Gallery gallery;
   final List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGallerys;
 
   const EHGalleryHistoryDialog({
     super.key,
+    required this.currentGalleryTitle,
     this.parentUrl,
-    required this.gallery,
     this.childrenGallerys,
   });
 
@@ -53,7 +52,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
           ListTile(
             dense: true,
             title: Text(
-              gallery.title,
+              currentGalleryTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: UIConfig.galleryHistoryTitleSize),

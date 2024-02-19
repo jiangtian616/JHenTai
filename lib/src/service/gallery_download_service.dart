@@ -234,12 +234,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryDownloadedData newGallery;
     try {
-      ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
+      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
         () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
-      newGallery = detailPageInfo.gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
+      newGallery = detailPageInfo.galleryDetails.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
     } on DioException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
       snack('updateGalleryError'.tr, e.message ?? '', longDuration: true);

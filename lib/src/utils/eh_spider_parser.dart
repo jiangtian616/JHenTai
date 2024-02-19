@@ -219,7 +219,7 @@ class EHSpiderParser {
 
   // In some page like favorite page or ranklist page, infos like uploader, pageCount, favorited info, rated info is
   // missing. So we need to extract these infos in details page.
-  static ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPage2GalleryAndDetailAndApikey(Headers headers, dynamic data) {
+  static ({GalleryDetail galleryDetails, String apikey}) detailPage2GalleryAndDetailAndApikey(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     GalleryUrl galleryUrl = GalleryUrl.parse(document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0]);
@@ -241,23 +241,6 @@ class EHSpiderParser {
     String? uploader = document.querySelector('#gdn > a')?.text;
     String publishTime = document.querySelector('#gdd > table > tbody > tr > .gdt2')?.text ?? '';
     bool isExpunged = (document.querySelector('#gdd > table > tbody > tr:nth-child(2) > .gdt2')?.text ?? '').contains('Expunged');
-
-    Gallery gallery = Gallery(
-      galleryUrl: galleryUrl,
-      title: rawTitle,
-      category: category,
-      cover: cover,
-      pageCount: pageCount,
-      rating: rating,
-      hasRated: document.querySelector('#rating_image.ir')!.attributes['class']!.split(' ').length > 1 ? true : false,
-      favoriteTagIndex: favoriteTagIndex,
-      favoriteTagName: favoriteTagName,
-      tags: tags,
-      language: language,
-      uploader: uploader,
-      publishTime: publishTime,
-      isExpunged: isExpunged,
-    );
 
     GalleryDetail galleryDetail = GalleryDetail(
       galleryUrl: galleryUrl,
@@ -291,11 +274,7 @@ class EHSpiderParser {
     String script = document.querySelector('.gm')?.previousElementSibling?.previousElementSibling?.text ?? '';
     String apikey = RegExp(r'var apikey = "(\w+)"').firstMatch(script)?.group(1) ?? '';
 
-    return (
-      gallery: gallery,
-      galleryDetails: galleryDetail,
-      apikey: apikey,
-    );
+    return (galleryDetails: galleryDetail, apikey: apikey);
   }
 
   static LinkedHashMap<String, List<GalleryTag>> _detailPageDocument2Tags(Document document) {
