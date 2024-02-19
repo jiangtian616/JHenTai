@@ -37,6 +37,7 @@ import '../database/dao/gallery_image_dao.dart';
 import '../exception/cancel_exception.dart';
 import '../exception/eh_site_exception.dart';
 import '../model/gallery.dart';
+import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
 import '../network/eh_request.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
@@ -233,13 +234,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryDownloadedData newGallery;
     try {
-      Map<String, dynamic> map = await retry(
+      ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
         () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
-      Gallery gallery = map['gallery'];
-      newGallery = gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
+      newGallery = detailPageInfo.gallery.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
     } on DioException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
       snack('updateGalleryError'.tr, e.message ?? '', longDuration: true);
@@ -850,7 +850,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       galleryDownloadInfo.images[serialNo] = image;
 
       Log.download('Parse image url success, index: $serialNo, url: ${image.url}');
-      
+
       /// Next step: download image
       return _submitTask(
         gid: gallery.gid,

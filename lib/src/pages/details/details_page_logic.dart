@@ -44,6 +44,7 @@ import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery.dart';
+import '../../model/gallery_detail.dart';
 import '../../model/gallery_image.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
@@ -104,7 +105,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   @override
   void onInit() {
     super.onInit();
-    
+
     if (Get.arguments is! Map) {
       return;
     }
@@ -137,9 +138,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     Log.info('Get gallery details:${state.galleryUrl}');
 
-    Map<String, dynamic>? galleryAndDetailAndApikey;
+    ({Gallery gallery, GalleryDetail galleryDetails, String apikey})? detailPageInfo;
     try {
-      galleryAndDetailAndApikey = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
+      detailPageInfo = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
     } on DioException catch (e) {
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
@@ -160,8 +161,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         await _handleGalleryDeleted();
       }
       return;
-    } on Error catch (e) {
-      Log.error('Get Gallery Detail Failed', e, e.stackTrace);
+    } catch (e, s) {
+      Log.error('Get Gallery Detail Failed', e, s);
       snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
       state.loadingState = LoadingState.error;
       if (enableLoadingState) {
@@ -170,8 +171,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     }
 
-    state.galleryDetails = galleryAndDetailAndApikey['galleryDetails'];
-    state.apikey = galleryAndDetailAndApikey['apikey'];
+    state.galleryDetails = detailPageInfo.galleryDetails;
+    state.apikey = detailPageInfo.apikey;
     state.nextPageIndexToLoadThumbnails = 1;
 
     await tagTranslationService.translateGalleryDetailTagsIfNeeded(state.galleryDetails!);
@@ -180,7 +181,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     state.loadingState = LoadingState.success;
     List<Object> updateIds = [detailsId, loadingStateId];
-    _dealWithMissingField(updateIds, galleryAndDetailAndApikey['gallery']! as Gallery);
+    _dealWithMissingField(updateIds, detailPageInfo.gallery);
     updateSafely(updateIds);
 
     SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.animation);
@@ -723,7 +724,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     return storageService.read('readIndexRecord::${state.gallery!.gid}') ?? 0;
   }
 
-  Future<Map<String, dynamic>> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
+  Future<({Gallery gallery, GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
     final String? firstLink;
     final String secondLink;
 
@@ -747,13 +748,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (!isEmptyOrNull(firstLink)) {
       Log.verbose('Try to find gallery via firstLink: $firstLink');
       try {
-        Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+        ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPageInfo =
+            await EHRequest.requestDetailPage<({Gallery gallery, GalleryDetail galleryDetails, String apikey})>(
           galleryUrl: firstLink!,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );
         state.gallery?.galleryUrl = state.galleryUrl = state.galleryUrl.copyWith(isEH: true);
-        return galleryAndDetailAndApikey;
+        return detailPageInfo;
       } on EHSiteException catch (e) {
         Log.verbose('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
         firstException = e;
@@ -762,13 +764,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     try {
       Log.verbose('Try to find gallery via secondLink: $secondLink');
-      Map<String, dynamic> galleryAndDetailAndApikey = await EHRequest.requestDetailPage<Map<String, dynamic>>(
+      ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPageInfo =
+          await EHRequest.requestDetailPage<({Gallery gallery, GalleryDetail galleryDetails, String apikey})>(
         galleryUrl: secondLink,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: useCache,
       );
       state.gallery?.galleryUrl = state.galleryUrl = state.galleryUrl.copyWith(isEH: false);
-      return galleryAndDetailAndApikey;
+      return detailPageInfo;
     } on EHSiteException catch (e) {
       Log.verbose('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
       throw firstException ?? e;

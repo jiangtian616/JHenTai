@@ -219,7 +219,7 @@ class EHSpiderParser {
 
   // In some page like favorite page or ranklist page, infos like uploader, pageCount, favorited info, rated info is
   // missing. So we need to extract these infos in details page.
-  static Map<String, dynamic> detailPage2GalleryAndDetailAndApikey(Headers headers, dynamic data) {
+  static ({Gallery gallery, GalleryDetail galleryDetails, String apikey}) detailPage2GalleryAndDetailAndApikey(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     GalleryUrl galleryUrl = GalleryUrl.parse(document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0]);
@@ -284,11 +284,11 @@ class EHSpiderParser {
     String script = document.querySelector('.gm')?.previousElementSibling?.previousElementSibling?.text ?? '';
     String apikey = RegExp(r'var apikey = "(\w+)"').firstMatch(script)?.group(1) ?? '';
 
-    return {
-      'gallery': gallery,
-      'galleryDetails': galleryDetail,
-      'apikey': apikey,
-    };
+    return (
+      gallery: gallery,
+      galleryDetails: galleryDetail,
+      apikey: apikey,
+    );
   }
 
   static LinkedHashMap<String, List<GalleryTag>> _detailPageDocument2Tags(Document document) {
