@@ -22,8 +22,10 @@ class GalleryDetail {
 
   /// real rating, not the one we rated
   double realRating;
+  int ratingCount;
   int? favoriteTagIndex;
   String? favoriteTagName;
+  int favoriteCount;
   String language;
 
   /// null when in Thumbnail mode / Favorite tab / for disowned gallery
@@ -34,9 +36,7 @@ class GalleryDetail {
   /// full tags: tags in Gallery may be incomplete
   LinkedHashMap<String, List<GalleryTag>> tags;
 
-  int ratingCount;
   String size;
-  int favoriteCount;
   String torrentCount;
   String torrentPageUrl;
   String archivePageUrl;
@@ -57,16 +57,16 @@ class GalleryDetail {
     required this.pageCount,
     this.rating,
     required this.realRating,
+    required this.ratingCount,
     this.favoriteTagIndex,
     this.favoriteTagName,
+    required this.favoriteCount,
     required this.language,
     this.uploader,
     required this.publishTime,
     required this.isExpunged,
     required this.tags,
-    required this.ratingCount,
     required this.size,
-    required this.favoriteCount,
     required this.torrentCount,
     required this.torrentPageUrl,
     required this.archivePageUrl,
