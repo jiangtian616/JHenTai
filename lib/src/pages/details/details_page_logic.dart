@@ -137,7 +137,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       updateSafely([loadingStateId]);
     }
 
-    Log.info('Get gallery details:${state.galleryUrl}');
+    Log.info('Get gallery details:${state.galleryUrl.url}');
 
     ({GalleryDetail galleryDetails, String apikey})? detailPageInfo;
     try {

@@ -224,6 +224,7 @@ class EHSpiderParser {
 
     GalleryUrl galleryUrl = GalleryUrl.parse(document.querySelector('#gd5 > p > a')!.attributes['href']!.split('?')[0]);
     String rawTitle = document.querySelector('#gn')!.text;
+    String japaneseTitle = document.querySelector('#gj')!.text;
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
     GalleryImage cover = GalleryImage(
@@ -245,12 +246,13 @@ class EHSpiderParser {
     GalleryDetail galleryDetail = GalleryDetail(
       galleryUrl: galleryUrl,
       rawTitle: rawTitle,
-      japaneseTitle: document.querySelector('#gj')!.text,
+      japaneseTitle: isEmptyOrNull(japaneseTitle) ? null : japaneseTitle,
       category: category,
       cover: cover,
       pageCount: pageCount,
       rating: rating,
       realRating: _parseGalleryDetailsRealRating(document),
+      hasRated: document.querySelector('#rating_image')!.attributes['class']!.split(' ').length > 1 ? true : false,
       favoriteTagIndex: favoriteTagIndex,
       favoriteTagName: favoriteTagName,
       language: language,

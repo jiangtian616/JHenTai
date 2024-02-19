@@ -335,10 +335,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             }
 
             String? subTitle;
-            if (state.galleryDetails!.rawTitle != _mainTitleText) {
-              subTitle = state.galleryDetails!.rawTitle;
-            } else if (state.galleryDetails!.japaneseTitle != null && state.galleryDetails!.japaneseTitle != _mainTitleText) {
-              subTitle = state.galleryDetails!.japaneseTitle;
+            if (state.galleryDetails!.rawTitle.breakWord != _mainTitleText) {
+              subTitle = state.galleryDetails!.rawTitle.breakWord;
+            } else if (state.galleryDetails!.japaneseTitle != null && state.galleryDetails!.japaneseTitle!.breakWord != _mainTitleText) {
+              subTitle = state.galleryDetails!.japaneseTitle!.breakWord;
             }
 
             if (subTitle == null) {

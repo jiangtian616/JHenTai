@@ -100,7 +100,7 @@ class DetailPreviewPage extends DetailsPage {
                 ),
                 IconTextButton(
                   icon: Icon(
-                    state.gallery!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
+                    state.galleryDetails!.favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
                     color: UIConfig.detailsPageActionIconColor(context),
                   ),
                   text: Text(
@@ -117,11 +117,11 @@ class DetailPreviewPage extends DetailsPage {
                 ),
                 IconTextButton(
                   icon: Icon(
-                    state.gallery!.hasRated ? Icons.star : Icons.star_border,
-                    color: state.gallery!.hasRated ? UIConfig.alertColor(context) : UIConfig.detailsPageActionTextColor(context),
+                    state.galleryDetails!.hasRated ? Icons.star : Icons.star_border,
+                    color: state.galleryDetails!.hasRated ? UIConfig.alertColor(context) : UIConfig.detailsPageActionTextColor(context),
                   ),
                   text: Text(
-                    state.gallery!.hasRated ? state.gallery!.rating.toString() : 'rating'.tr,
+                    state.galleryDetails!.hasRated ? state.galleryDetails!.rating.toString() : 'rating'.tr,
                     style: TextStyle(
                       fontSize: UIConfig.detailsPageActionTextSize,
                       color: UIConfig.detailsPageActionTextColor(context),
@@ -258,38 +258,14 @@ class DetailsPreviewPageLogic extends DetailsPageLogic {
   final DetailsPageState state = DetailsPreviewPageState();
 
   DetailsPreviewPageLogic() : super.preview();
+
+  @override
+  void onReady() async {}
 }
 
 class DetailsPreviewPageState extends DetailsPageState {
   DetailsPreviewPageState() {
     galleryUrl = const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404');
-
-    gallery = Gallery(
-      galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
-      title: 'Title - This is the detail preview page, you can change theme seed color to view the difference',
-      category: 'Doujinshi',
-      cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
-      rating: 4.5,
-      pageCount: 66,
-      hasRated: true,
-      tags: LinkedHashMap.of({
-        'language': [
-          GalleryTag(tagData: TagData(namespace: 'language', key: 'chinese')),
-        ],
-        'artist': [
-          GalleryTag(tagData: TagData(namespace: 'artist', key: 'JTMonster')),
-          GalleryTag(tagData: TagData(namespace: 'artist', key: '酱天小禽兽')),
-        ],
-        'character': [
-          GalleryTag(tagData: TagData(namespace: 'character', key: 'hibiki')),
-        ],
-        'female': [
-          GalleryTag(tagData: TagData(namespace: 'female', key: 'lolicon')),
-        ],
-      }),
-      publishTime: '2022-02-22 12:12:12',
-      isExpunged: true,
-    );
 
     galleryDetails = GalleryDetail(
       galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
@@ -299,6 +275,7 @@ class DetailsPreviewPageState extends DetailsPageState {
       pageCount: 66,
       rating: 4.5,
       realRating: 4,
+      hasRated: true,
       language: 'Chinese',
       ratingCount: 666,
       size: '66.66MB',

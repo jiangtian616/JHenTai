@@ -17,12 +17,11 @@ class GalleryDetail {
   String category;
   GalleryImage cover;
   int pageCount;
-
-  /// available when we have rated this gallery
-  double? rating;
+  double rating;
 
   /// real rating, not the one we rated
   double realRating;
+  bool hasRated;
   int ratingCount;
   int? favoriteTagIndex;
   String? favoriteTagName;
@@ -48,8 +47,6 @@ class GalleryDetail {
   List<GalleryThumbnail> thumbnails;
   int thumbnailsPageCount;
 
-  bool get hasRated => rating != null;
-
   bool get isFavorite => favoriteTagIndex != null || favoriteTagName != null;
 
   GalleryUrl? get newVersionGalleryUrl => childrenGallerys?.lastOrNull?.galleryUrl;
@@ -61,8 +58,9 @@ class GalleryDetail {
     required this.category,
     required this.cover,
     required this.pageCount,
-    this.rating,
+    required this.rating,
     required this.realRating,
+    required this.hasRated,
     required this.ratingCount,
     this.favoriteTagIndex,
     this.favoriteTagName,
