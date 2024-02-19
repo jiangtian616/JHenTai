@@ -145,26 +145,23 @@ class TagTranslationService extends GetxService {
     Log.info('Update tag translation database success, timestamp: $timeStamp');
   }
 
-  Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
-    if (isReady) {
-      await Future.wait(gallerys.map((gallery) {
-        return translateTagMap(gallery.tags);
-      }).toList());
+  /// won't translate keys
+  Future<void> translateTagsIfNeeded(LinkedHashMap<String, List<GalleryTag>> tags) async {
+    if (!isReady) {
+      return;
     }
-  }
 
-  Future<void> translateGalleryDetailsTagsIfNeeded(List<GalleryDetail> galleryDetails) async {
-    if (isReady) {
-      Future.wait(galleryDetails.map((galleryDetail) {
-        return translateTagMap(galleryDetail.tags);
-      }).toList());
-    }
-  }
+    List<Future> futures = [];
 
-  Future<void> translateGalleryDetailTagsIfNeeded(GalleryDetail galleryDetail) async {
-    if (isReady) {
-      await translateTagMap(galleryDetail.tags);
-    }
+    tags.forEach((namespace, tags) {
+      for (GalleryTag tag in tags) {
+        futures.add(
+          getTagTranslation(namespace, tag.tagData.key).then((TagData? value) => tag.tagData = value ?? tag.tagData),
+        );
+      }
+    });
+
+    await Future.wait(futures);
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {
@@ -194,20 +191,5 @@ class TagTranslationService extends GetxService {
     });
 
     return tagDatas;
-  }
-
-  /// won't translate keys
-  Future<void> translateTagMap(LinkedHashMap<String, List<GalleryTag>> tags) async {
-    List<Future> futures = [];
-
-    tags.forEach((namespace, tags) {
-      for (GalleryTag tag in tags) {
-        futures.add(
-          getTagTranslation(namespace, tag.tagData.key).then((TagData? value) => tag.tagData = value ?? tag.tagData),
-        );
-      }
-    });
-
-    await Future.wait(futures);
   }
 }

@@ -367,7 +367,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
-    await tagTranslationService.translateGalleryTagsIfNeeded(gallerys);
+    await Future.wait(gallerys.map((gallery) {
+      return tagTranslationService.translateTagsIfNeeded(gallery.tags);
+    }).toList());
   }
 
   /// deal with the first and last page
