@@ -306,68 +306,14 @@ class SuperResolutionService extends GetxController {
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
 
-      if (extension(rawImages[i].path!) == '.gif') {
-        String inputAbsolutePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(rawImages[i].path!);
-        String outputAbsolutePath = computeImageOutputAbsolutePath(rawImages[i].path!);
-        File(inputAbsolutePath).copySync(outputAbsolutePath);
-        continue;
-      }
-
-      Process? process;
-      try {
-        process = await _callProcess(rawImages[i]);
-      } on Exception catch (e) {
-        toast('internalError'.tr + e.toString(), isShort: false);
-        Log.error(e);
-        Log.uploadError(e, extraInfos: {'rawImage': rawImages[i]});
-
-        pauseSuperResolve(gid, type);
-        return;
-      } on Error catch (e) {
-        toast('internalError'.tr + e.toString(), isShort: false);
-        Log.error(e);
-        Log.uploadError(e, extraInfos: {'rawImage': rawImages[i]});
-
-        pauseSuperResolve(gid, type);
-        return;
-      }
-
-      if (process == null) {
-        return;
-      }
-
-      superResolutionInfo.currentProcess = process;
-
-      process.stderr.listen((event) {
-        Log.verbose(String.fromCharCodes(event).trim());
-      });
-
-      int exitCode = await process.exitCode;
-
-      /// pause and kill the process
-      if (exitCode == -1 || exitCode == -15 || exitCode == 15) {
-        pauseSuperResolve(gid, type);
-        return;
-      }
-
-      if (exitCode != 0) {
-        toast('${'internalError'.tr} exitCode:$exitCode', isShort: false);
-        Log.error('${'internalError'.tr} exitCode:$exitCode');
-        Log.uploadError(
-          Exception('Process Error'),
-          extraInfos: {'rawImage': rawImages[i], 'exitCode': exitCode},
-        );
-
+      bool success = await _handleImage(rawImages[i], superResolutionInfo);
+      if (!success) {
         pauseSuperResolve(gid, type);
         return;
       }
 
       superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
       Log.download('super resolve image ${rawImages[i].path} success');
-      if (superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
-        superResolutionInfo.status = SuperResolutionStatus.success;
-        Log.info('super resolve success, gid:$gid');
-      }
 
       /// we can't kill the process immediately on Windows
       if (get(gid, type) != null) {
@@ -375,9 +321,73 @@ class SuperResolutionService extends GetxController {
       }
       updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
     }
+
+    if (get(gid, type) != null && superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
+      superResolutionInfo.status = SuperResolutionStatus.success;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
+      Log.info('super resolve success, gid:$gid');
+    }
   }
 
-  Future<Process?> _callProcess(GalleryImage rawImage) {
+  Future<bool> _handleImage(GalleryImage rawImage, SuperResolutionInfo superResolutionInfo) async {
+    if (extension(rawImage.path!) == '.gif') {
+      String inputAbsolutePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
+      String outputAbsolutePath = computeImageOutputAbsolutePath(rawImage.path!);
+      try {
+        File(inputAbsolutePath).copySync(outputAbsolutePath);
+      } catch (e, s) {
+        Log.error('copy gif image failed', e, s);
+        return false;
+      }
+      return true;
+    }
+
+    Process? process;
+    try {
+      process = await _callProcess(rawImage);
+    } on Exception catch (e) {
+      toast('internalError'.tr + e.toString(), isShort: false);
+      Log.error(e);
+      Log.uploadError(e, extraInfos: {'rawImage': rawImage});
+
+      return false;
+    } on Error catch (e) {
+      toast('internalError'.tr + e.toString(), isShort: false);
+      Log.error(e);
+      Log.uploadError(e, extraInfos: {'rawImage': rawImage});
+
+      return false;
+    }
+
+    superResolutionInfo.currentProcess = process;
+
+    process.stderr.listen((event) {
+      Log.verbose(String.fromCharCodes(event).trim());
+    });
+
+    int exitCode = await process.exitCode;
+
+    /// pause and kill the process
+    if (exitCode == -1 || exitCode == -15 || exitCode == 15) {
+      return false;
+    }
+
+    if (exitCode != 0) {
+      toast('${'internalError'.tr} exitCode:$exitCode', isShort: false);
+      Log.error('${'internalError'.tr} exitCode:$exitCode');
+      Log.uploadError(
+        Exception('Process Error'),
+        extraInfos: {'rawImage': rawImage, 'exitCode': exitCode},
+      );
+
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<Process> _callProcess(GalleryImage rawImage) {
     Log.download('start to super resolve image ${rawImage.path}');
 
     String inputRelativePath = rawImage.path!;
