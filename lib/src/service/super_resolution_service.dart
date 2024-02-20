@@ -306,6 +306,13 @@ class SuperResolutionService extends GetxController {
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
 
+      if (extension(rawImages[i].path!) == '.gif') {
+        String inputAbsolutePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(rawImages[i].path!);
+        String outputAbsolutePath = computeImageOutputAbsolutePath(rawImages[i].path!);
+        File(inputAbsolutePath).copySync(outputAbsolutePath);
+        continue;
+      }
+
       Process? process;
       try {
         process = await _callProcess(rawImages[i]);
@@ -373,12 +380,8 @@ class SuperResolutionService extends GetxController {
   Future<Process?> _callProcess(GalleryImage rawImage) {
     Log.download('start to super resolve image ${rawImage.path}');
 
-    String outputPath = computeImageOutputRelativePath(rawImage.path!);
-
-    if (extension(rawImage.path!) == '.gif') {
-      File(rawImage.path!).copySync(outputPath);
-      return Future.value(null);
-    }
+    String inputRelativePath = rawImage.path!;
+    String outputRelativePath = computeImageOutputRelativePath(rawImage.path!);
 
     ModelType modelType = SuperResolutionSetting.model.value;
 
@@ -391,8 +394,8 @@ class SuperResolutionService extends GetxController {
                 ? modelType.macOSExecutableName
                 : modelType.linuxExecutableName,
       )} '
-      '-i ${rawImage.path!} '
-      '-o $outputPath '
+      '-i $inputRelativePath '
+      '-o $outputRelativePath '
       '-n ${SuperResolutionSetting.model.value.subType} '
       '-f png '
       '-s 4 '
@@ -411,9 +414,9 @@ class SuperResolutionService extends GetxController {
       ),
       [
         '-i',
-        rawImage.path!,
+        inputRelativePath,
         '-o',
-        outputPath,
+        outputRelativePath,
         '-n',
         SuperResolutionSetting.model.value.subType,
         '-f',
