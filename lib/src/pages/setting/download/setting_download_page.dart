@@ -242,20 +242,12 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   Widget _buildDownloadAllGallerysOfSamePriority() {
     return ListTile(
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('downloadAllGallerysOfSamePriority'.tr),
-          const SizedBox(width: 2),
-          const Icon(Icons.help, size: 18),
-        ],
-      ),
-      subtitle: Text('needRestart'.tr),
+      title: Text('downloadAllGallerysOfSamePriority'.tr),
+      subtitle: Text('${'downloadAllGallerysOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
       trailing: Switch(
         value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
         onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
       ),
-      onTap: () => toast('downloadAllGallerysOfSamePriorityHint'.tr, isShort: false),
     );
   }
 
