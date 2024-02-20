@@ -302,10 +302,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      downloadService.downloadGallery(state.galleryDetails!.toGalleryDownloadedData(
-        downloadOriginalImage: result.downloadOriginalImage,
-        group: result.group,
-      ));
+      if (state.gallery == null && state.galleryDetails == null) {
+        return;
+      }
+
+      downloadService.downloadGallery(
+        state.gallery?.toGalleryDownloadedData(downloadOriginalImage: result.downloadOriginalImage, group: result.group) ??
+            state.galleryDetails!.toGalleryDownloadedData(downloadOriginalImage: result.downloadOriginalImage, group: result.group),
+      );
 
       updateGlobalGalleryStatus();
 
@@ -752,21 +756,26 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           mode: ReadMode.online,
           gid: state.galleryUrl.gid,
           token: state.galleryUrl.token,
-          galleryTitle: state.gallery?.title ?? state.galleryDetails!.japaneseTitle ?? state.galleryDetails!.rawTitle,
+          galleryTitle: state.gallery?.title ??
+              state.galleryDetails?.japaneseTitle ??
+              state.galleryDetails?.rawTitle ??
+              state.galleryMetadata?.japaneseTitle ??
+              state.galleryMetadata!.title,
           galleryUrl: state.galleryUrl.url,
           initialIndex: forceIndex ?? readIndexRecord,
           currentImageIndex: forceIndex ?? readIndexRecord,
           readProgressRecordStorageKey: storageKey,
-          pageCount: state.galleryDetails?.pageCount ?? state.gallery!.pageCount!,
+          pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
         ),
       )?.then((_) => updateSafely([readButtonId]));
       return;
     }
 
+    /// use GalleryDownloadedData's title
+    GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
+
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      /// use GalleryDownloadedData's title
-      GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
       openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
       return;
     }
@@ -775,14 +784,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Routes.read,
       arguments: ReadPageInfo(
         mode: ReadMode.downloaded,
-        gid: state.galleryUrl.gid,
-        token: state.galleryUrl.token,
-        galleryTitle: state.gallery?.title ?? state.galleryDetails!.japaneseTitle ?? state.galleryDetails!.rawTitle,
-        galleryUrl: state.galleryUrl.url,
+        gid: gallery.gid,
+        token: gallery.token,
+        galleryTitle: gallery.title,
+        galleryUrl: gallery.galleryUrl,
         initialIndex: forceIndex ?? readIndexRecord,
         currentImageIndex: forceIndex ?? readIndexRecord,
         readProgressRecordStorageKey: storageKey,
-        pageCount: state.galleryDetails?.pageCount ?? state.gallery!.pageCount!,
+        pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
       ),
     )?.then((_) => updateSafely([readButtonId]));

@@ -62,6 +62,25 @@ class Gallery {
     this.hasLocalFilteredTag = false,
   });
 
+  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
+    return GalleryDownloadedData(
+      gid: gid,
+      token: token,
+      title: title,
+      category: category,
+      pageCount: pageCount!,
+      galleryUrl: galleryUrl.url,
+      uploader: uploader,
+      publishTime: publishTime,
+      downloadStatusIndex: DownloadStatus.downloading.index,
+      insertTime: DateTime.now().toString(),
+      downloadOriginalImage: downloadOriginalImage,
+      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      sortOrder: 0,
+      groupName: group,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'gid': gid,

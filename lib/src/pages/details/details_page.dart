@@ -840,7 +840,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        bool disabled = state.galleryDetails?.pageCount == null && state.gallery?.pageCount == null;
+        bool disabled = state.galleryDetails?.pageCount == null && state.gallery?.pageCount == null && state.galleryMetadata?.pageCount == null;
 
         return GetBuilder<DetailsPageLogic>(
           id: DetailsPageLogic.readButtonId,
