@@ -269,9 +269,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> reDownloadGallery(GalleryDownloadedData gallery) async {
     Log.info('Re-download gallery: ${gallery.gid}');
 
-    for (int serialNo = 0; serialNo < gallery.pageCount; serialNo++) {
-      await reDownloadImage(gallery.gid, serialNo);
-    }
+    await deleteGallery(gallery);
+
+    downloadGallery(gallery);
   }
 
   Future<void> reDownloadImage(int gid, int serialNo) async {
@@ -285,7 +285,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     Log.info('Re-download image, gid: $gid, index: $serialNo');
 
-    galleryDownloadInfo.downloadProgress.curCount--;
+    if (galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] == true) {
+      galleryDownloadInfo.downloadProgress.curCount--;
+    }
     galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
     galleryDownloadInfo.speedComputer.resetProgress(serialNo);
     galleryDownloadInfo.speedComputer.start();
@@ -1178,7 +1180,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   void _clearGalleryInfoInMemory(GalleryDownloadedData gallery) {
-    gallerys.remove(gallery);
+    gallerys.removeWhere((g) => g.gid == gallery.gid);
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos.remove(gallery.gid);
     galleryDownloadInfo?.speedComputer.dispose();
 
