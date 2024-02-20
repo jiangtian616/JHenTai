@@ -32,11 +32,7 @@ class HistoryService extends GetxController {
     return history.sublist(pageIndex * pageSize, min((pageIndex + 1) * pageSize, history.length));
   }
 
-  Future<void> record(Gallery? gallery) async {
-    if (gallery == null) {
-      return;
-    }
-
+  Future<void> record(Gallery gallery) async {
     Log.verbose('Record history: ${gallery.gid}');
 
     Gallery? record = history.singleWhereOrNull((h) => h.gid == gallery.gid);

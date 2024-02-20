@@ -11,14 +11,18 @@ class GalleryMetadata {
   String japaneseTitle;
   String category;
   GalleryImage cover;
+  int pageCount;
+  double rating;
+  String language;
+
+  /// may be null if (Disowned)
   String? uploader;
   String publishTime;
-  int pageCount;
-  String size;
   bool isExpunged;
-  double rating;
+  String size;
+  int torrentCount;
+
   LinkedHashMap<String, List<GalleryTag>> tags;
-  String? language;
 
   GalleryMetadata({
     required this.galleryUrl,
@@ -27,13 +31,14 @@ class GalleryMetadata {
     required this.japaneseTitle,
     required this.category,
     required this.cover,
+    required this.pageCount,
+    required this.rating,
+    required this.language,
     this.uploader,
     required this.publishTime,
-    required this.pageCount,
-    required this.size,
     required this.isExpunged,
-    required this.rating,
+    required this.size,
+    required this.torrentCount,
     required this.tags,
-    this.language,
   });
 }

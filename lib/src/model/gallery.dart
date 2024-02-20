@@ -54,11 +54,11 @@ class Gallery {
     required this.hasRated,
     this.favoriteTagIndex,
     this.favoriteTagName,
-    required this.tags,
     this.language,
     this.uploader,
     required this.publishTime,
     required this.isExpunged,
+    required this.tags,
     this.hasLocalFilteredTag = false,
   });
 
@@ -76,11 +76,11 @@ class Gallery {
       'favoriteTagIndex': favoriteTagIndex,
       'favoriteTagName': favoriteTagName,
       'galleryUrl': galleryUrl.url,
-      'tags': tags,
       'language': language,
       'uploader': uploader,
       'publishTime': publishTime,
       'isExpunged': isExpunged,
+      'tags': tags,
     };
   }
 

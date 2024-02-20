@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 
 import '../database/database.dart';
@@ -80,6 +81,25 @@ class GalleryDetail {
     required this.thumbnails,
     required this.thumbnailsPageCount,
   });
+
+  Gallery toGallery() {
+    return Gallery(
+      galleryUrl: galleryUrl,
+      title: japaneseTitle ?? rawTitle,
+      category: category,
+      cover: cover,
+      pageCount: pageCount,
+      rating: rating,
+      hasRated: hasRated,
+      favoriteTagIndex: favoriteTagIndex,
+      favoriteTagName: favoriteTagName,
+      language: language,
+      uploader: uploader,
+      publishTime: publishTime,
+      isExpunged: isExpunged,
+      tags: tags,
+    );
+  }
 
   GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
     return GalleryDownloadedData(

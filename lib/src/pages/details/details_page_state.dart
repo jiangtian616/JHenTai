@@ -4,6 +4,8 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
+import '../../model/gallery_metadata.dart';
+
 class DetailsPageState with Scroll2TopStateMixin {
   /// initial param
   late GalleryUrl galleryUrl;
@@ -15,6 +17,10 @@ class DetailsPageState with Scroll2TopStateMixin {
 
   GalleryDetail? galleryDetails;
 
+  /// If the gallery is deleted due to copyright, we use metadata to render page
+  GalleryMetadata? galleryMetadata;
+  String? copyRighter;
+  
   /// used for rating
   String? apikey;
 

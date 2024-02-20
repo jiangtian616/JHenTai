@@ -392,14 +392,15 @@ class EHSpiderParser {
       japaneseTitle: map['title_jpn'],
       category: map['category'],
       cover: GalleryImage(url: map['thumb']),
-      uploader: map['uploader'],
-      publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(map['posted']) * 1000).toString(),
       pageCount: int.parse(map['filecount']),
-      size: byte2String(map['filesize'].toDouble()),
-      isExpunged: map['expunged'],
       rating: double.parse(map['rating']),
+      language: language ?? 'Japanese',
+      uploader: map['uploader'] != '(Disowned)' ? map['uploader'] : null,
+      publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(map['posted']) * 1000).toString(),
+      isExpunged: map['expunged'],
+      size: byte2String(map['filesize'].toDouble()),
+      torrentCount: int.parse(map['torrentcount']),
       tags: tagsMap,
-      language: language,
     );
   }
 

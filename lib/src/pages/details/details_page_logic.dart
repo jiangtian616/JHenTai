@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -44,9 +43,9 @@ import '../../exception/eh_site_exception.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../mixin/update_global_gallery_status_logic_mixin.dart';
-import '../../model/gallery.dart';
 import '../../model/gallery_detail.dart';
 import '../../model/gallery_image.dart';
+import '../../model/gallery_metadata.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
@@ -67,6 +66,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   static const String galleryId = 'galleryId';
   static const String uploaderId = 'uploaderId';
   static const String detailsId = 'detailsId';
+  static const String metadataId = 'metadataId';
   static const String languageId = 'languageId';
   static const String pageCountId = 'pageCountId';
   static const String ratingId = 'ratingId';
@@ -151,15 +151,15 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
       return;
     } on EHSiteException catch (e) {
+      if (e.type == EHSiteExceptionType.galleryDeleted) {
+        return _handleGalleryDeleted(refreshPageImmediately, e);
+      }
+
       Log.error('Get Gallery Detail Failed', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
-      }
-
-      if (e.type == EHSiteExceptionType.galleryDeleted) {
-        await _handleGalleryDeleted();
       }
       return;
     } catch (e, s) {
@@ -183,11 +183,49 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.loadingState = LoadingState.success;
     updateSafely(_judgeUpdateIds());
 
-    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.gallery), Priority.animation);
+    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.galleryDetails!.toGallery()), Priority.animation);
   }
 
-  Future<void> _handleGalleryDeleted() async {
-    /// todo
+  Future<void> _handleGalleryDeleted(bool refreshPageImmediately, EHSiteException exception) async {
+    Log.verbose('Gallery deleted: ${state.galleryUrl.url}, try to get metadata');
+
+    try {
+      state.galleryMetadata = await EHRequest.requestGalleryMetadata<GalleryMetadata>(
+        gid: state.galleryUrl.gid,
+        token: state.galleryUrl.token,
+        parser: EHSpiderParser.galleryMetadataJson2GalleryMetadata,
+      );
+    } on DioException catch (e) {
+      Log.error('Get Gallery Metadata Failed', e.message);
+      snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
+      state.loadingState = LoadingState.error;
+      if (refreshPageImmediately) {
+        updateSafely([loadingStateId]);
+      }
+      return;
+    } on EHSiteException catch (e) {
+      Log.error('Get Gallery Metadata Failed', e.message);
+      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      state.loadingState = LoadingState.error;
+      if (refreshPageImmediately) {
+        updateSafely([loadingStateId]);
+      }
+      return;
+    } catch (e, s) {
+      Log.error('Get Gallery Metadata Failed', e, s);
+      snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
+      state.loadingState = LoadingState.error;
+      if (refreshPageImmediately) {
+        updateSafely([loadingStateId]);
+      }
+      return;
+    }
+
+    state.copyRighter = exception.message;
+    state.nextPageIndexToLoadThumbnails = 1;
+
+    state.loadingState = LoadingState.success;
+    updateSafely(_judgeUpdateIds4MetaData());
   }
 
   Future<void> loadMoreThumbnails() async {
@@ -240,7 +278,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleRefresh() async {
-    return getDetails(refreshPageImmediately: false, useCacheIfAvailable: false);
+    return getDetails(refreshPageImmediately: true, useCacheIfAvailable: false);
   }
 
   Future<void> handleTapDownload() async {
@@ -453,15 +491,15 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapArchive() async {
-    if (!UserSetting.hasLoggedIn()) {
-      showLoginToast();
-      return;
-    }
-
     ArchiveStatus? archiveStatus = archiveDownloadService.archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
 
     /// new download
     if (archiveStatus == null) {
+      if (!UserSetting.hasLoggedIn()) {
+        showLoginToast();
+        return;
+      }
+
       ({bool isOriginal, int size, String group})? result = await Get.dialog(
         EHArchiveDialog(
           title: 'chooseArchive'.tr,
@@ -563,10 +601,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void searchSimilar() {
-    if (state.galleryDetails?.rawTitle == null) {
+    if (state.galleryDetails?.rawTitle == null && state.galleryMetadata?.title == null) {
       return;
     }
-    search('title:"${state.galleryDetails!.rawTitle.replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
+    search('title:"${(state.galleryDetails?.rawTitle ?? state.galleryMetadata!.title).replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
   }
 
   void searchUploader() {
@@ -862,6 +900,38 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// rating info is null in ranklist page
     if (state.galleryDetails?.hasRated != state.gallery?.hasRated || state.galleryDetails?.rating != state.gallery?.rating) {
       updateIds.add(ratingId);
+    }
+
+    return updateIds;
+  }
+
+  List<Object> _judgeUpdateIds4MetaData() {
+    List<Object> updateIds = [detailsId, metadataId, loadingStateId];
+
+    if (state.gallery == null) {
+      updateIds.add(galleryId);
+      updateIds.add(languageId);
+      updateIds.add(pageCountId);
+      updateIds.add(uploaderId);
+      updateIds.add(favoriteId);
+      updateIds.add(ratingId);
+      updateIds.add(pageCountId);
+      return updateIds;
+    }
+
+    /// language is null in Minimal mode
+    if (state.galleryMetadata?.language != state.gallery?.language) {
+      updateIds.add(languageId);
+    }
+
+    /// page count is null in favorite page
+    if (state.galleryMetadata?.pageCount != state.gallery?.pageCount) {
+      updateIds.add(pageCountId);
+    }
+
+    /// uploader info is null in favorite page
+    if (state.galleryMetadata?.uploader != state.gallery?.uploader) {
+      updateIds.add(uploaderId);
     }
 
     return updateIds;

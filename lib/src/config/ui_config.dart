@@ -178,6 +178,8 @@ class UIConfig {
   static const double detailsPageSecondSpanWidthSize = 55;
   static const double detailsPageThirdSpanWidthSize = 80;
   static const double detailsPageNewVersionHintHeight = 36;
+  static const double detailsPageCopyRightRemovedHintHeight = 36;
+  static const double detailsPageCopyRightRemovedHintTextSize = 13;
   static const double detailsPageActionsHeight = 64;
   static const double detailsPageActionExtent = 74;
 

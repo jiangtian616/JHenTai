@@ -116,7 +116,7 @@ class pt_BR {
       'getGalleryDetailFailed': 'Falha ao obter detalhes da galeria',
       'invisible2User': 'Esta Galeria é invisível para você',
       'invisibleHints': 'Esta galeria está indisponível ou foi removida.',
-      'copyRightHints': 'Esta galeria está indisponível devido a uma reivindicação de direitos autorais por',
+      'copyRightHints': 'Esta galeria está indisponível devido a uma reivindicação de direitos autorais por ',
       'refreshGalleryDetailsFailed': 'Falha ao atualizar detalhes da galeria',
       'failToGetThumbnails': "Falha ao obter miniaturas",
       'favoriteGallerySuccess': "Favorite Gallery Success",

@@ -115,7 +115,7 @@ class en_US {
       'getGalleryDetailFailed': 'Get Gallery Detail Failed',
       'invisible2User': 'This Gallery is invisible to You',
       'invisibleHints': 'This gallery is removed or unavailable.',
-      'copyRightHints': 'This gallery is unavailable due to a copyright claim by',
+      'copyRightHints': 'This gallery is unavailable due to a copyright claim by: ',
       'refreshGalleryDetailsFailed': 'Refresh Gallery Details Failed',
       'failToGetThumbnails': "Fail To Get Thumbnails",
       'favoriteGallerySuccess': "Favorite Gallery Success",
