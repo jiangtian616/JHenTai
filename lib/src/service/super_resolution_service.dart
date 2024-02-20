@@ -468,7 +468,7 @@ class SuperResolutionService extends GetxController {
   }
 
   String computeImageOutputRelativePath(String rawImagePath) {
-    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + '.png');
+    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + extension(rawImagePath) == '.gif' ? '.gif' : '.png');
   }
 
   String computeImageOutputDirPath(String rawImagePath) {
