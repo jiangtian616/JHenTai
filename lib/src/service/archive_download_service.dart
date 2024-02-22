@@ -64,6 +64,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
+    if (DownloadSetting.restoreTasksAutomatically.isTrue) {
+      await restoreTasks();
+    }
+
     super.onInit();
   }
 
@@ -305,6 +309,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   /// Use meta in each archive folder to restore download tasks, then sync to database.
   /// this is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {
+    await completed;
+
     io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
@@ -343,7 +349,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       restoredCount++;
     }
-    _sortArchives();
+
+    if (restoredCount > 0) {
+      _sortArchives();
+    }
     return restoredCount;
   }
 

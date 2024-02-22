@@ -87,6 +87,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
+    if (DownloadSetting.restoreTasksAutomatically.isTrue) {
+      await restoreTasks();
+    }
+
     super.onInit();
   }
 
@@ -389,6 +393,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   /// Use metadata in each gallery folder to restore download status, then sync to database.
   /// This is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {
+    await completed;
+
     io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
@@ -443,7 +449,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       restoredCount++;
     }
-    _sortGallerys();
+
+    if (restoredCount > 0) {
+      _sortGallerys();
+    }
+    
     return restoredCount;
   }
 

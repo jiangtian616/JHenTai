@@ -69,6 +69,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadAllGallerysOfSamePriority(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
+              _buildRestoreTasksAutomatically(),
             ],
           ).withListTileTheme(context),
         ),
@@ -263,6 +264,17 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       title: Text('restoreDownloadTasks'.tr),
       subtitle: Text('restoreDownloadTasksHint'.tr),
       onTap: _restore,
+    );
+  }
+
+  Widget _buildRestoreTasksAutomatically() {
+    return ListTile(
+      title: Text('restoreTasksAutomatically'.tr),
+      subtitle: Text('restoreTasksAutomaticallyHint'.tr),
+      trailing: Switch(
+        value: DownloadSetting.restoreTasksAutomatically.value,
+        onChanged: DownloadSetting.saveRestoreTasksAutomatically,
+      ),
     );
   }
 

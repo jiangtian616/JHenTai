@@ -631,6 +631,8 @@ class en_US {
       'restoredCount': 'Restored task count',
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
+      'restoreTasksAutomatically': 'Restore Tasks Automatically',
+      'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
 

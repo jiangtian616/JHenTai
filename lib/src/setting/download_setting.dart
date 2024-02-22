@@ -23,6 +23,7 @@ class DownloadSetting {
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxBool downloadAllGallerysOfSamePriority = false.obs;
   static RxBool deleteArchiveFileAfterDownload = true.obs;
+  static RxBool restoreTasksAutomatically = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
@@ -113,6 +114,12 @@ class DownloadSetting {
     deleteArchiveFileAfterDownload.value = value;
     _save();
   }
+  
+  static saveRestoreTasksAutomatically(bool value) {
+    Log.debug('saveRestoreTasksAutomatically:$value');
+    restoreTasksAutomatically.value = value;
+    _save();
+  }
 
   static void _ensureDownloadDirExists() {
     try {
@@ -150,6 +157,7 @@ class DownloadSetting {
       'period': period.value.inMilliseconds,
       'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
+      'restoreTasksAutomatically': restoreTasksAutomatically.value,
     };
   }
 
@@ -170,5 +178,6 @@ class DownloadSetting {
     period.value = Duration(milliseconds: map['period']);
     downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
+    restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
   }
 }

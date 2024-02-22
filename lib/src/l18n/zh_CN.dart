@@ -630,6 +630,8 @@ class zh_CN {
       'restoredCount': '恢复任务数',
       'restoredGalleryCount': '恢复画廊数目',
       'restoredArchiveCount': '恢复归档数目',
+      'restoreTasksAutomatically': '自动恢复下载任务',
+      'restoreTasksAutomaticallyHint': '应用每次启动时尝试恢复下载任务',
       'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默认本地画廊路径已经损坏，本地画廊可能无法被识别',
 

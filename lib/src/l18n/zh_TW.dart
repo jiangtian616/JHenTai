@@ -628,6 +628,8 @@ class zh_TW {
       'restoredCount': '恢復任務數',
       'restoredGalleryCount': '恢復畫廊數目',
       'restoredArchiveCount': '恢復歸檔數目',
+      'restoreTasksAutomatically': '自動恢複下載任務',
+      'restoreTasksAutomaticallyHint': '應用每次啓動時嘗試恢複下載任務',
       'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默認本地畫廊路徑已經損壞，本地畫廊可能無法被識別',
 

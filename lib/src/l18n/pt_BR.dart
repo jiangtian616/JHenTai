@@ -633,6 +633,8 @@ class pt_BR {
       'restoredCount': 'Contagem de tarefas restaurada',
       'restoredGalleryCount': 'Contagem de galerias restaurada',
       'restoredArchiveCount': 'Contagem de arquivos restaurada',
+      'restoreTasksAutomatically': 'Restore Tasks Automatically',
+      'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
 

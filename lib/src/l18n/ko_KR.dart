@@ -630,6 +630,8 @@ class ko_KR {
       'restoredCount': '복원된 작업 수',
       'restoredGalleryCount': '복원된 갤러리 수',
       'restoredArchiveCount': '복원된 아카이브 수',
+      'restoreTasksAutomatically': 'Restore Tasks Automatically',
+      'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': '다운로드 경로가 손상된 것 같습니다. 다운로드 기능이 낮아질 수 있습니다.',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
 
