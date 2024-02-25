@@ -494,8 +494,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return await _requestUnlock(archive);
     } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
-      snack('error'.tr, e.message, longDuration: true);
-      pauseAllDownloadArchive();
+      snack('archiveError'.tr, e.message, longDuration: true);
+      if (e.shouldPauseAllDownloadTasks) {
+        pauseAllDownloadArchive();
+      }
       return;
     }
 
@@ -547,8 +549,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return await _getDownloadUrl(archive);
     } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
-      snack('error'.tr, e.message, longDuration: true);
-      pauseAllDownloadArchive();
+      snack('archiveError'.tr, e.message, longDuration: true);
+      if (e.shouldPauseAllDownloadTasks) {
+        pauseAllDownloadArchive();
+      }
       return;
     }
 
@@ -608,12 +612,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (e.response?.statusCode == 410) {
         if (e.response!.data is String && e.response!.data.contains('You have clocked too many downloaded bytes on this gallery')) {
           Log.download('${'410Hints'.tr} Archive: ${archive.title}');
-          snack('error'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
+          snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
 
           return await pauseDownloadArchive(archive, needReUnlock: true);
         } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
           Log.download('IP quota exhausted! Archive: ${archive.title}');
-          snack('error'.tr, 'IP quota exhausted!', longDuration: true);
+          snack('archiveError'.tr, 'IP quota exhausted!', longDuration: true);
 
           return await pauseDownloadArchive(archive, needReUnlock: true);
         } else {

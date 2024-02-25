@@ -30,6 +30,7 @@ class en_US {
       'deleteAll': 'Delete All',
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
+      'archiveError': 'Download Archive Error',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -195,6 +196,7 @@ class en_US {
       'loading': "Loading",
       'paused': 'Paused',
       'exceedImageLimits': "Exceed Image Limits",
+      'ehServerError': 'An error occurred due to EH\'s server, please try again later',
       'unsupportedImagePageStyle': "JHenTai doesn't support Multi-Page Viewer(MPV), please change to default style in e-hentai.org",
       'toNext': 'To next',
       'toPrev': 'To prev',

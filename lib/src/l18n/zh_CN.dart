@@ -30,7 +30,8 @@ class zh_CN {
       'deleteAll': '删除全部',
       'connectionTimeoutHint': '建立网络连接超时',
       'receiveDataTimeoutHint': '网络接收数据超时',
-
+      'archiveError': '下载归档错误',
+      
       'home': "主页",
       'gallery': "画廊",
       'setting': '设置',
@@ -194,6 +195,7 @@ class zh_CN {
       'loading': "加载中",
       'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
+      'ehServerError':'E站服务器发生错误，请稍后重试',
       'unsupportedImagePageStyle': "JHenTai当前不支持Multi-Page Viewer(MPV)多页查看，请在e-hentai.org更换为默认风格",
       'toNext': '下一页',
       'toPrev': '上一页',

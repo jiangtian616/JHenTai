@@ -916,6 +916,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       if (data.startsWith('You have exceeded your image')) {
         throw EHSiteException(type: EHSiteExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
       }
+
+      if (data.contains('Page load has been aborted due to a fatal error')) {
+        throw EHSiteException(type: EHSiteExceptionType.ehServerError, message: 'ehServerError'.tr, shouldPauseAllDownloadTasks: false);
+      }
     }
   }
 }

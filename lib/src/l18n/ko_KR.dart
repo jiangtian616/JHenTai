@@ -30,7 +30,8 @@ class ko_KR {
       'deleteAll': 'Delete All',
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
-
+      'archiveError': 'Download Archive Error',
+      
       'home': "홈",
       'gallery': "갤러리",
       'setting': '설정',
@@ -195,6 +196,7 @@ class ko_KR {
       'loading': "로딩",
       'paused': '일시 정지',
       'exceedImageLimits': "이미지 한도 초과",
+      'ehServerError': 'An error occurred due to EH\'s server, please try again later',
       'unsupportedImagePageStyle': "JHenTai는 Multi-Page Viewer(MPV)를 지원하지 않습니다. e-hentai.org에서 기본값 스타일로 해주세요.",
       'toNext': '다음',
       'toPrev': '이전',

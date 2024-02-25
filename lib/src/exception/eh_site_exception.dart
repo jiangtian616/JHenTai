@@ -11,4 +11,4 @@ class EHSiteException implements Exception {
   }
 }
 
-enum EHSiteExceptionType { blankBody, banned, exceedLimit, galleryDeleted, internalError }
+enum EHSiteExceptionType { blankBody, banned, exceedLimit, galleryDeleted, internalError, ehServerError }
