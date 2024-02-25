@@ -532,10 +532,12 @@ class ReadPageLogic extends GetxController {
   }
 
   void scrollThumbnailsToIndex(int index) {
-    state.thumbnailsScrollController.scrollTo(
-      index: max(0, index - 2),
-      duration: const Duration(milliseconds: 200),
-    );
+    if (!isClosed) {
+      state.thumbnailsScrollController.scrollTo(
+        index: max(0, index - 2),
+        duration: const Duration(milliseconds: 200),
+      );
+    }
   }
 
   void handleTapSuperResolutionButton() {
