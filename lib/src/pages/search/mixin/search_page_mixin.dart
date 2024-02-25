@@ -205,6 +205,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
                   key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
                 ),
               ),
+              showTagStatus: false,
             ),
             if (state.inDeleteSearchHistoryMode)
               Positioned(

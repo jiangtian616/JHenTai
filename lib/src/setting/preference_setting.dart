@@ -25,6 +25,7 @@ class PreferenceSetting {
   static RxBool enableQuickSearchDrawerGesture = true.obs;
   static RxInt drawerGestureEdgeWidth = 100.obs;
   static RxBool showAllGalleryTitles = false.obs;
+  static RxBool showGalleryTagVoteStatus = false.obs;
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool enableDefaultFavorite = false.obs;
@@ -117,6 +118,12 @@ class PreferenceSetting {
     _save();
   }
 
+  static saveShowGalleryTagVoteStatus(bool showGalleryTagVoteStatus) {
+    Log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
+    PreferenceSetting.showGalleryTagVoteStatus.value = showGalleryTagVoteStatus;
+    _save();
+  }
+
   static saveShowComments(bool showComments) {
     Log.debug('saveShowComments:$showComments');
     PreferenceSetting.showComments.value = showComments;
@@ -134,7 +141,7 @@ class PreferenceSetting {
     PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
     _save();
   }
-  
+
   static saveEnableDefaultTagSet(bool enableDefaultTagSet) {
     Log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
     PreferenceSetting.enableDefaultTagSet.value = enableDefaultTagSet;
@@ -178,6 +185,7 @@ class PreferenceSetting {
       'hideBottomBar': hideBottomBar.value,
       'hideScroll2TopButton': hideScroll2TopButton.value.index,
       'showAllGalleryTitles': showAllGalleryTitles.value,
+      'showGalleryTagVoteStatus': showGalleryTagVoteStatus.value,
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
       'tagSearchConfig': tagSearchBehaviour.value.index,
@@ -203,6 +211,7 @@ class PreferenceSetting {
     hideBottomBar.value = map['hideBottomBar'] ?? hideBottomBar.value;
     hideScroll2TopButton.value = Scroll2TopButtonModeEnum.values[map['hideScroll2TopButton'] ?? Scroll2TopButtonModeEnum.scrollDown.index];
     showAllGalleryTitles.value = map['showAllGalleryTitles'] ?? showAllGalleryTitles.value;
+    showGalleryTagVoteStatus.value = map['showGalleryTagVoteStatus'] ?? showGalleryTagVoteStatus.value;
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
     tagSearchBehaviour.value = TagSearchBehaviour.values[map['tagSearchConfig'] ?? TagSearchBehaviour.inheritAll.index];

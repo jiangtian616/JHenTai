@@ -427,6 +427,8 @@ class UIConfig {
 
   static Color ehTagTextColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
 
+  static Color ehTagUnderLineColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
+
   /// Gallery card favorite tag
   static const Color galleryCardFavoriteTagTextColor = Colors.white;
 

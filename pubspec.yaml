@@ -44,7 +44,7 @@ dependencies:
   flutter_widget_from_html: 0.14.10+1
   url_launcher: 6.1.8
   # add onLongPress
-  like_button: 
+  like_button:
     git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
   # rewrite double tap & tap drag gesture
@@ -95,6 +95,7 @@ dependencies:
   screen_brightness: 0.2.2+1
   crypto: 3.0.3
   csv: 5.1.1
+  dotted_border: 2.1.0
 
 dependency_overrides:
   test_api: 0.6.0

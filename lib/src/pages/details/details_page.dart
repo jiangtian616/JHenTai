@@ -1243,19 +1243,23 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         ),
       ),
       addNameSpaceColor: true,
+      showTagStatus: false,
     );
   }
 
   List<Widget> _buildSubTags(List<GalleryTag> tags) {
     return tags
-        .map((tag) => EHTag(
-              tag: tag,
-              enableTapping: true,
-              gid: state.galleryUrl.gid,
-              token: state.galleryUrl.token,
-              apikey: state.apikey,
-              forceNewRoute: true,
-            ))
+        .map(
+          (tag) => EHTag(
+            tag: tag,
+            enableTapping: true,
+            gid: state.galleryUrl.gid,
+            token: state.galleryUrl.token,
+            apikey: state.apikey,
+            forceNewRoute: true,
+            showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,
+          ),
+        )
         .toList();
   }
 
