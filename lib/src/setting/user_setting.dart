@@ -10,6 +10,7 @@ class UserSetting {
   static RxnString avatarImgUrl = RxnString();
   static RxnString nickName = RxnString();
   static RxnInt defaultFavoriteIndex = RxnInt();
+  static RxnInt defaultTagSetNo = RxnInt();
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
@@ -54,6 +55,12 @@ class UserSetting {
     UserSetting.defaultFavoriteIndex.value = index;
     save();
   }
+  
+  static Future<void> saveDefaultTagSetNo(int? number) async {
+    Log.debug('saveDefaultTagSet: $number');
+    UserSetting.defaultTagSetNo.value = number;
+    save();
+  }
 
   static bool hasLoggedIn() {
     return ipbMemberId.value != null;
@@ -67,6 +74,7 @@ class UserSetting {
     avatarImgUrl.value = null;
     nickName.value = null;
     defaultFavoriteIndex.value = null;
+    defaultTagSetNo.value = null;
   }
 
   static Future<void> save() async {
@@ -81,6 +89,7 @@ class UserSetting {
       'avatarImgUrl': avatarImgUrl.value,
       'nickName': nickName.value,
       'defaultFavoriteIndex': defaultFavoriteIndex.value,
+      'defaultTagSetNo': defaultTagSetNo.value,
     };
   }
 
@@ -91,5 +100,6 @@ class UserSetting {
     avatarImgUrl = RxnString(map['avatarImgUrl']);
     nickName = RxnString(map['nickName']);
     defaultFavoriteIndex = RxnInt(map['defaultFavoriteIndex']);
+    defaultTagSetNo = RxnInt(map['defaultTagSetNo']);
   }
 }

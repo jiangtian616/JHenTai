@@ -28,6 +28,7 @@ class PreferenceSetting {
   static RxBool showComments = true.obs;
   static RxBool showAllComments = false.obs;
   static RxBool enableDefaultFavorite = false.obs;
+  static RxBool enableDefaultTagSet = true.obs;
   static RxBool launchInFullScreen = false.obs;
   static Rx<TagSearchBehaviour> tagSearchBehaviour = TagSearchBehaviour.inheritAll.obs;
   static RxBool showR18GImageDirectly = false.obs;
@@ -133,6 +134,12 @@ class PreferenceSetting {
     PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
     _save();
   }
+  
+  static saveEnableDefaultTagSet(bool enableDefaultTagSet) {
+    Log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
+    PreferenceSetting.enableDefaultTagSet.value = enableDefaultTagSet;
+    _save();
+  }
 
   static saveLaunchInFullScreen(bool launchInFullScreen) {
     Log.debug('saveLaunchInFullScreen:$launchInFullScreen');
@@ -175,6 +182,7 @@ class PreferenceSetting {
       'showAllComments': showAllComments.value,
       'tagSearchConfig': tagSearchBehaviour.value.index,
       'enableDefaultFavorite': enableDefaultFavorite.value,
+      'enableDefaultTagSet': enableDefaultTagSet.value,
       'launchInFullScreen': launchInFullScreen.value,
     };
   }
@@ -199,6 +207,7 @@ class PreferenceSetting {
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
     tagSearchBehaviour.value = TagSearchBehaviour.values[map['tagSearchConfig'] ?? TagSearchBehaviour.inheritAll.index];
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
+    enableDefaultTagSet.value = map['enableDefaultTagSet'] ?? enableDefaultTagSet.value;
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;
   }
 }

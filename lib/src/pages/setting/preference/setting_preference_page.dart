@@ -45,6 +45,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowComments(),
               if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
               _buildEnableDefaultFavorite(),
+              _buildEnableDefaultTagSet(),
               if (GetPlatform.isDesktop && StyleSetting.isInDesktopLayout) _buildLaunchInFullScreen(),
               _buildTagSearchConfig(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
@@ -331,6 +332,17 @@ class SettingPreferencePage extends StatelessWidget {
       trailing: Switch(
         value: PreferenceSetting.enableDefaultFavorite.value,
         onChanged: PreferenceSetting.saveEnableDefaultFavorite,
+      ),
+    );
+  }
+
+  Widget _buildEnableDefaultTagSet() {
+    return ListTile(
+      title: Text('enableDefaultTagSet'.tr),
+      subtitle: Text(PreferenceSetting.enableDefaultTagSet.isTrue ? 'enableDefaultTagSetHint'.tr : 'disableDefaultTagSetHint'.tr),
+      trailing: Switch(
+        value: PreferenceSetting.enableDefaultTagSet.value,
+        onChanged: PreferenceSetting.saveEnableDefaultTagSet,
       ),
     );
   }

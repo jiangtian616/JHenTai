@@ -12,7 +12,7 @@ import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
 
 class MyTagsSetting {
-  static List<TagSet> onlineTagSets = [];
+  static List<WatchedTag> onlineTags = [];
   static List<TagData> localTagSets = [];
 
   static void init() {
@@ -41,9 +41,9 @@ class MyTagsSetting {
 
     Log.info('refresh MyTagsSetting');
 
-    Map<String, dynamic> map;
+    ({List<({int number, String name})> tagSets, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
-      map = await retry(
+      pageInfo = await retry(
         () => EHRequest.requestMyTagsPage(
           tagSetNo: 1,
           parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
@@ -59,22 +59,22 @@ class MyTagsSetting {
       return;
     }
 
-    onlineTagSets = map['tagSets'] ?? onlineTagSets;
+    onlineTags = pageInfo.tags;
 
-    Log.info('refresh MyTagsSetting success, length: ${onlineTagSets.length}');
+    Log.info('refresh MyTagsSetting success, length: ${onlineTags.length}');
   }
 
-  static TagSet? getOnlineTagSetByTagData(TagData tagData) {
-    return onlineTagSets.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
+  static WatchedTag? getOnlineTagSetByTagData(TagData tagData) {
+    return onlineTags.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
   }
 
   static bool containWatchedOnlineLocalTag(TagData tagData) {
-    TagSet? tagSet = getOnlineTagSetByTagData(tagData);
+    WatchedTag? tagSet = getOnlineTagSetByTagData(tagData);
     return tagSet?.watched == true;
   }
 
   static bool containHiddenOnlineLocalTag(TagData tagData) {
-    TagSet? tagSet = getOnlineTagSetByTagData(tagData);
+    WatchedTag? tagSet = getOnlineTagSetByTagData(tagData);
     return tagSet?.hidden == true;
   }
 
@@ -101,7 +101,7 @@ class MyTagsSetting {
   }
 
   static Future<void> _clearOnlineTagSets() async {
-    onlineTagSets.clear();
+    onlineTags.clear();
     Log.info('clear MyTagsSetting success');
   }
 

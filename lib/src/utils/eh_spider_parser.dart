@@ -625,14 +625,15 @@ class EHSpiderParser {
     return map;
   }
 
-  static Map<String, dynamic> myTagsPage2TagSetNamesAndTagSetsAndApikey(Headers headers, dynamic data) {
+  static ({List<({int number, String name})> tagSets, List<WatchedTag> tags, String apikey}) myTagsPage2TagSetNamesAndTagSetsAndApikey(
+      Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
-    List<String> tagSetNames = options.map((o) => o.text).toList();
+    List<({int number, String name})> tagSets = options.map((o) => (number: int.parse(o.attributes['value']!), name: o.text)).toList();
 
     List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div');
-    List<TagSet> tagSets = tagDivs.where((element) => element.id != 'usertag_0').map(
+    List<WatchedTag> tags = tagDivs.where((element) => element.id != 'usertag_0').map(
       (div) {
         String pair = div.querySelector('div:nth-child(1) > a > div')?.attributes['title'] ?? '';
 
@@ -642,7 +643,7 @@ class EHSpiderParser {
         String key = list[1];
         TagData tagData = TagData(namespace: namespace, key: key);
 
-        return TagSet(
+        return WatchedTag(
           tagId: int.parse(div.querySelector('div:nth-child(1) > a > div')!.attributes['id']!.split('_')[1]),
           tagData: tagData,
           watched: div.querySelector('div:nth-child(3) > label > input[checked=checked]') != null,
@@ -655,11 +656,7 @@ class EHSpiderParser {
 
     String apikey = RegExp(r'apikey = \"(.*)\"').firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!.group(1)!;
 
-    return {
-      'tagSetNames': tagSetNames,
-      'tagSets': tagSets,
-      'apikey': apikey,
-    };
+    return (tagSets: tagSets, tags: tags, apikey: apikey);
   }
 
   static GalleryStats statPage2GalleryStats(Headers headers, dynamic data) {

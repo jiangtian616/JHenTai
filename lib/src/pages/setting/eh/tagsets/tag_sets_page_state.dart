@@ -3,9 +3,9 @@ import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class TagSetsState with Scroll2TopStateMixin {
-  int currentTagSetIndex = 0;
-  List<String> tagSetNames = <String>[];
-  List<TagSet> tagSets = <TagSet>[];
+  int currentTagSetNo = 1;
+  List<({int number, String name})> tagSets = [];
+  List<WatchedTag> tags = <WatchedTag>[];
 
   late String apikey;
 

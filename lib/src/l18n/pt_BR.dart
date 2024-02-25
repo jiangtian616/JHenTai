@@ -31,7 +31,7 @@ class pt_BR {
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
-      
+
       'home': "Home",
       'gallery': "Galeria",
       'setting': 'Configuração',
@@ -197,7 +197,7 @@ class pt_BR {
       'loading': "Caregando",
       'paused': 'Pausar',
       'exceedImageLimits': "Limite de imagens excedido",
-      'ehServerError':'An error occurred due to EH\'s server, please try again later',
+      'ehServerError': 'An error occurred due to EH\'s server, please try again later',
       'unsupportedImagePageStyle': "JHenTai não suporta Multi-Page Viewer (MPV), por favor mude para o estilo padrão em e-hentai.org",
       'toNext': 'Para o próximo',
       'toPrev': 'Para anterior',
@@ -323,6 +323,9 @@ class pt_BR {
       'alwaysShowScroll2TopButton': 'Sempre mostrar o botão de rolagem para cima',
       'enableDefaultFavorite': 'Enable Default Favorite',
       'enableDefaultFavoriteHint': 'Long press to re-select',
+      'enableDefaultTagSet': 'Enable Default Tag Set',
+      'enableDefaultTagSetHint': 'Long press to re-select',
+      'disableDefaultTagSetHint': 'Select manually',
       'launchInFullScreen': 'Launch In Full Screen',
       'launchInFullScreenHint': 'Switch manually by F11',
       'disableDefaultFavoriteHint': 'Select manually',
@@ -525,7 +528,7 @@ class pt_BR {
       'multiChangeGroupHint': 'You will change group of all selected gallerys',
       'multiDeleteHint': 'You will delete all selected gallerys',
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
-      
+
       /// search dialog
       'searchConfig': 'Opções de pesquisa',
       'addTabBar': 'Adicionar barra de guias',
@@ -654,6 +657,9 @@ class pt_BR {
 
       /// tag dialog
       'warningImageHint': 'R18G image, Tap to view',
+
+      /// tagSet dialog
+      'chooseTagSet': 'Choose Tag Set',
 
       /// tag namespace
       'language': 'Idioma',

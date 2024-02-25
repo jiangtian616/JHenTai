@@ -41,17 +41,17 @@ class TagSetsPage extends StatelessWidget {
               child: ListView.builder(
                 itemExtent: 64,
                 cacheExtent: 3000,
-                itemCount: state.tagSets.length,
+                itemCount: state.tags.length,
                 controller: state.scrollController,
                 itemBuilder: (_, int index) => GetBuilder<TagSetsLogic>(
-                  id: '${TagSetsLogic.tagId}::${state.tagSets[index].tagId}',
+                  id: '${TagSetsLogic.tagId}::${state.tags[index].tagId}',
                   builder: (_) => LoadingStateIndicator(
                     loadingState: state.updateTagState,
                     idleWidget: FadeIn(
                       child: _Tag(
-                        tagSet: state.tagSets[index],
+                        tagSet: state.tags[index],
                         onTap: () => logic.showBottomSheet(index, context),
-                        onLongPress: () => newSearch('${state.tagSets[index].tagData.namespace}:${state.tagSets[index].tagData.key}', true),
+                        onLongPress: () => newSearch('${state.tags[index].tagData.namespace}:${state.tags[index].tagData.key}', true),
                         onColorUpdated: (v) => logic.handleUpdateColor(index, v),
                         onWeightUpdated: (v) => logic.handleUpdateWeight(index, v),
                         onStatusUpdated: (v) => logic.handleUpdateStatus(index, v),
@@ -73,24 +73,24 @@ class TagSetsPage extends StatelessWidget {
       centerTitle: true,
       title: GetBuilder<TagSetsLogic>(
         id: TagSetsLogic.titleId,
-        builder: (_) => Text(state.tagSetNames.isEmpty ? 'myTags'.tr : state.tagSetNames[state.currentTagSetIndex]),
+        builder: (_) => Text(state.tagSets.isEmpty ? 'myTags'.tr : state.tagSets.firstWhere((t) => t.number == state.currentTagSetNo).name),
       ),
       actions: [
         GetBuilder<TagSetsLogic>(
           id: TagSetsLogic.titleId,
           builder: (_) => PopupMenuButton<int>(
-            initialValue: state.currentTagSetIndex,
+            initialValue: state.currentTagSetNo,
             padding: EdgeInsets.zero,
             onSelected: (value) {
-              if (state.currentTagSetIndex == value) {
+              if (state.currentTagSetNo == value) {
                 return;
               }
-              state.currentTagSetIndex = value;
+              state.currentTagSetNo = value;
               logic.getTagSet();
             },
-            itemBuilder: (_) => state.tagSetNames
-                .mapIndexed(
-                  (index, element) => PopupMenuItem<int>(value: index, child: Center(child: Text(element))),
+            itemBuilder: (_) => state.tagSets
+                .map(
+                  (t) => PopupMenuItem<int>(value: t.number, child: Center(child: Text(t.name))),
                 )
                 .toList(),
           ),
@@ -101,7 +101,7 @@ class TagSetsPage extends StatelessWidget {
 }
 
 class _Tag extends StatelessWidget {
-  final TagSet tagSet;
+  final WatchedTag tagSet;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final ValueChanged<Color?> onColorUpdated;

@@ -322,6 +322,9 @@ class en_US {
       'alwaysShowScroll2TopButton': 'Always Show Scroll to Top Button',
       'enableDefaultFavorite': 'Enable Default Favorite',
       'enableDefaultFavoriteHint': 'Long press to re-select',
+      'enableDefaultTagSet': 'Enable Default Tag Set',
+      'enableDefaultTagSetHint': 'Long press to re-select',
+      'disableDefaultTagSetHint': 'Select manually',
       'launchInFullScreen': 'Launch In Full Screen',
       'launchInFullScreenHint': 'Switch manually by F11',
       'disableDefaultFavoriteHint': 'Select manually',
@@ -652,6 +655,9 @@ class en_US {
 
       /// tag dialog
       'warningImageHint': 'R18G image, Tap to view',
+
+      /// tagSet dialog
+      'chooseTagSet': 'Choose Tag Set',
 
       /// tag namespace
       'language': 'Language',

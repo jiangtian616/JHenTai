@@ -953,7 +953,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           continue;
         }
 
-        TagSet? tagSet = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
+        WatchedTag? tagSet = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
         if (tagSet == null) {
           continue;
         }

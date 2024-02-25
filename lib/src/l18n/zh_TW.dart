@@ -31,7 +31,7 @@ class zh_TW {
       'connectionTimeoutHint': '建立網絡連接超時',
       'receiveDataTimeoutHint': '網絡接收數據超時',
       'archiveError': '下載歸檔錯誤',
-      
+
       'home': "主畫面",
       'gallery': "畫廊",
       'setting': '設定',
@@ -195,7 +195,7 @@ class zh_TW {
       'loading': "載入中",
       'paused': '已暫停',
       'exceedImageLimits': "超出圖片配額限制",
-      'ehServerError':'E站服務器發生錯誤，請稍後重試',
+      'ehServerError': 'E站服務器發生錯誤，請稍後重試',
       'unsupportedImagePageStyle': "JHenTai目前不支持Multi-Page Viewer(MPV)多頁查看，請在e-hentai.org更換為預設風格",
       'toNext': '下一頁',
       'toPrev': '上一頁',
@@ -321,6 +321,9 @@ class zh_TW {
       'alwaysShowScroll2TopButton': '總是展示快速回頂按鈕',
       'enableDefaultFavorite': '使用默認收藏夾',
       'enableDefaultFavoriteHint': '默認直接收藏，長按重新選擇',
+      'enableDefaultTagSet': '關注標簽時使用默認標簽集',
+      'enableDefaultTagSetHint': '默認直接關注，長按重新選擇',
+      'disableDefaultTagSetHint': '手动选择',
       'launchInFullScreen': '以全屏模式啓動',
       'launchInFullScreenHint': 'F11手動切換全屏',
       'disableDefaultFavoriteHint': '手動選擇',
@@ -521,7 +524,7 @@ class zh_TW {
       'multiChangeGroupHint': '你將會改變所有選中畫廊的分組',
       'multiDeleteHint': '你將會刪除所有選中的畫廊',
       'gpNotEnoughHint': '高峰段下載原圖需要耗費GP，由于妳的GP不足，下載已自動停止。',
-      
+
       /// search dialog
       'searchConfig': '搜尋設定',
       'addTabBar': '添加標籤欄',
@@ -649,6 +652,9 @@ class zh_TW {
 
       /// tag dialog
       'warningImageHint': 'R18G圖片，點擊以顯示',
+
+      /// tagSet dialog
+      'chooseTagSet': '選擇收藏標簽集',
 
       /// tag namespace
       'language': '語言',

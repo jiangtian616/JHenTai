@@ -243,6 +243,14 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _cacheManager.removeAllCache();
   }
 
+  static void setConnectTimeout(int connectTimeout) {
+    _dio.options.connectTimeout = Duration(milliseconds: connectTimeout);
+  }
+  
+  static void setReceiveTimeout(int receiveTimeout) {
+    _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
+  }
+  
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EForums,
@@ -517,15 +525,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestAddTagSet<T>({
+  static Future<T> requestAddWatchedTag<T>({
     required String tag,
     String? tagColor,
     required int tagWeight,
     required bool watch,
     required bool hidden,
+    int tagSetNo = 1,
     EHHtmlParser<T>? parser,
   }) async {
-    Map data = {
+    Map<String, dynamic> data = {
       'usertag_action': "add",
       'tagname_new': tag,
       'tagcolor_new': tagColor ?? "",
@@ -545,6 +554,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       response = await _postWithErrorHandler(
         EHConsts.EMyTags,
         options: Options(contentType: Headers.formUrlEncodedContentType),
+        queryParameters: {'tagset': tagSetNo},
         data: data,
       );
     } on DioException catch (e) {
@@ -558,19 +568,20 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestDeleteTagSet<T>({required int tagSetId, EHHtmlParser<T>? parser}) async {
+  static Future<T> requestDeleteTagSet<T>({required int watchedTagId, int tagSetNo = 1, EHHtmlParser<T>? parser}) async {
     Response response;
     try {
       response = await _postWithErrorHandler(
         EHConsts.EMyTags,
         options: Options(contentType: Headers.formUrlEncodedContentType),
+        queryParameters: {'tagset': tagSetNo},
         data: {
           'usertag_action': 'mass',
           'tagname_new': '',
           'tagcolor_new': '',
           'usertag_target': 0,
           'tagweight_new': 10,
-          'modify_usertags[]': tagSetId,
+          'modify_usertags[]': watchedTagId,
         },
       );
     } on DioException catch (e) {

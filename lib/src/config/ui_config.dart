@@ -455,6 +455,9 @@ class UIConfig {
 
   static Color archiveDialogCostTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
+  /// tagSet dialog
+  static const double tagSetDialogBodyHeight = 230;
+
   /// HH download dialog
   static const double hhDialogBodyHeight = 220;
   static const double hhDialogTextSize = 9;

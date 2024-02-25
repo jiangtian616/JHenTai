@@ -850,10 +850,11 @@ packages:
   like_button:
     dependency: "direct main"
     description:
-      name: like_button
-      sha256: "08e6a45b78888412df5d351786c550205ad3a677e72a0820d5bbc0b063c8a463"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: a0b2afa980e0f7e421b4649a3391e0d01c607f82
+      url: "https://github.com/jiangtian616/like_button"
+    source: git
     version: "2.0.5"
   lints:
     dependency: transitive

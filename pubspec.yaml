@@ -43,7 +43,9 @@ dependencies:
   flutter_slidable: 3.0.0
   flutter_widget_from_html: 0.14.10+1
   url_launcher: 6.1.8
-  like_button: 2.0.5
+  # add onLongPress
+  like_button: 
+    git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
   # rewrite double tap & tap drag gesture
   photo_view:

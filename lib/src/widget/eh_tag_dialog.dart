@@ -12,6 +12,7 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_tag_set_dialog.dart';
 import 'package:jhentai/src/widget/eh_warning_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:like_button/like_button.dart';
@@ -151,7 +152,9 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         size: UIConfig.tagDialogButtonSize,
         color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
-      onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(true),
+      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: PreferenceSetting.enableDefaultTagSet.isTrue),
+      onLongPress:
+          PreferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: false),
     );
   }
 
@@ -163,7 +166,9 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         size: UIConfig.tagDialogButtonSize,
         color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
-      onTap: (bool liked) => liked ? Future.value(true) : addNewTagSet(false),
+      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: PreferenceSetting.enableDefaultTagSet.isTrue),
+      onLongPress:
+          PreferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: false),
     );
   }
 
@@ -271,7 +276,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
   }
 
-  Future<bool> addNewTagSet(bool watch) async {
+  Future<bool> handleAddWatchedTag(bool watch, {required bool useDefault}) async {
     if (!UserSetting.hasLoggedIn()) {
       showLoginToast();
       return false;
@@ -281,26 +286,40 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       return true;
     }
 
+    if (useDefault && PreferenceSetting.enableDefaultTagSet.isTrue && UserSetting.defaultTagSetNo.value != null) {
+      _doAddNewTagSet(UserSetting.defaultTagSetNo.value!, watch);
+      return true;
+    }
+
+    ({int tagSetNo, bool remember})? result = await Get.dialog(const EHTagSetDialog());
+    if (result == null) {
+      return false;
+    }
+
+    if (result.remember == true) {
+      UserSetting.saveDefaultTagSetNo(result.tagSetNo);
+    }
+
+    _doAddNewTagSet(result.tagSetNo, watch);
+    return true;
+  }
+
+  Future<void> _doAddNewTagSet(int tagSetNumber, bool watch) async {
+    Log.info('Add new watched tag: ${widget.tagData.namespace}:${widget.tagData.key},tagSetNumber:$tagSetNumber, watch:$watch');
+
     if (watch) {
       addWatchedTagState = LoadingState.loading;
     } else {
       addHiddenTagState = LoadingState.loading;
     }
 
-    _doAddNewTagSet(watch);
-
-    return true;
-  }
-
-  Future<void> _doAddNewTagSet(bool watch) async {
-    Log.info('Add new tag set: ${widget.tagData.namespace}:${widget.tagData.key}, watch:$watch');
-
     try {
-      await EHRequest.requestAddTagSet(
+      await EHRequest.requestAddWatchedTag(
         tag: '${widget.tagData.namespace}:${widget.tagData.key}',
         tagWeight: 10,
         watch: watch,
         hidden: !watch,
+        tagSetNo: tagSetNumber,
         parser: EHSpiderParser.addTagSetResponse2Result,
       );
     } on DioException catch (e) {

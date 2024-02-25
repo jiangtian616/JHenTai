@@ -85,7 +85,6 @@ class SettingNetworkPage extends StatelessWidget {
   Widget _buildConnectTimeout(BuildContext context) {
     return ListTile(
       title: Text('connectTimeout'.tr),
-      subtitle: Text('needRestart'.tr),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -122,7 +121,6 @@ class SettingNetworkPage extends StatelessWidget {
   Widget _buildReceiveTimeout(BuildContext context) {
     return ListTile(
       title: Text('receiveTimeout'.tr),
-      subtitle: Text('needRestart'.tr),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

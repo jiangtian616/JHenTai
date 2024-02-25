@@ -31,7 +31,7 @@ class ko_KR {
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
-      
+
       'home': "홈",
       'gallery': "갤러리",
       'setting': '설정',
@@ -322,6 +322,9 @@ class ko_KR {
       'alwaysShowScroll2TopButton': '맨 위로 가기 버튼 항상 보이기',
       'enableDefaultFavorite': 'Enable Default Favorite',
       'enableDefaultFavoriteHint': 'Long press to re-select',
+      'enableDefaultTagSet': 'Enable Default Tag Set',
+      'enableDefaultTagSetHint': 'Long press to re-select',
+      'disableDefaultTagSetHint': 'Select manually',
       'launchInFullScreen': 'Launch In Full Screen',
       'launchInFullScreenHint': 'Switch manually by F11',
       'disableDefaultFavoriteHint': 'Select manually',
@@ -651,6 +654,9 @@ class ko_KR {
 
       /// tag dialog
       'warningImageHint': 'R18G 이미지, 눌러서 보기',
+
+      /// tagSet dialog
+      'chooseTagSet': 'Choose Tag Set',
 
       /// tag namespace
       'language': '언어',

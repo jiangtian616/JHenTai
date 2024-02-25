@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/database/database.dart';
 
-class TagSet {
+class WatchedTag {
   int tagId;
   TagData tagData;
   bool watched;
@@ -9,7 +9,7 @@ class TagSet {
   Color? backgroundColor;
   int weight;
 
-  TagSet({
+  WatchedTag({
     required this.tagId,
     required this.tagData,
     required this.watched,
@@ -18,7 +18,7 @@ class TagSet {
     required this.weight,
   });
 
-  TagSet copyWith({
+  WatchedTag copyWith({
     int? tagId,
     TagData? tagData,
     bool? watched,
@@ -26,7 +26,7 @@ class TagSet {
     Color? backgroundColor,
     int? weight,
   }) {
-    return TagSet(
+    return WatchedTag(
       tagId: tagId ?? this.tagId,
       tagData: tagData ?? this.tagData.copyWith(),
       watched: watched ?? this.watched,

@@ -31,7 +31,7 @@ class zh_CN {
       'connectionTimeoutHint': '建立网络连接超时',
       'receiveDataTimeoutHint': '网络接收数据超时',
       'archiveError': '下载归档错误',
-      
+
       'home': "主页",
       'gallery': "画廊",
       'setting': '设置',
@@ -195,7 +195,7 @@ class zh_CN {
       'loading': "加载中",
       'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
-      'ehServerError':'E站服务器发生错误，请稍后重试',
+      'ehServerError': 'E站服务器发生错误，请稍后重试',
       'unsupportedImagePageStyle': "JHenTai当前不支持Multi-Page Viewer(MPV)多页查看，请在e-hentai.org更换为默认风格",
       'toNext': '下一页',
       'toPrev': '上一页',
@@ -322,6 +322,9 @@ class zh_CN {
       'alwaysShowScroll2TopButton': '总是展示快速回顶按钮',
       'enableDefaultFavorite': '使用默认收藏夹',
       'enableDefaultFavoriteHint': '默认直接收藏，长按重新选择',
+      'enableDefaultTagSet': '关注标签时使用默认标签集',
+      'enableDefaultTagSetHint': '默认直接关注，长按重新选择',
+      'disableDefaultTagSetHint': '手动选择',
       'launchInFullScreen': '以全屏模式启动',
       'launchInFullScreenHint': 'F11手动切换全屏',
       'disableDefaultFavoriteHint': '手动选择',
@@ -651,6 +654,9 @@ class zh_CN {
 
       /// tag dialog
       'warningImageHint': 'R18G图片，点击以显示',
+
+      /// tagSet dialog
+      'chooseTagSet': '选择收藏标签集',
 
       /// tag namespace
       'language': '语言',

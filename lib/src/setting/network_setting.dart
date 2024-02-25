@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../service/storage_service.dart';
@@ -78,12 +79,14 @@ class NetworkSetting {
   static saveConnectTimeout(int connectTimeout) {
     Log.debug('saveConnectTimeout:$connectTimeout');
     NetworkSetting.connectTimeout.value = connectTimeout;
+    EHRequest.setConnectTimeout(connectTimeout);
     _save();
   }
 
   static saveReceiveTimeout(int receiveTimeout) {
     Log.debug('saveReceiveTimeout:$receiveTimeout');
     NetworkSetting.receiveTimeout.value = receiveTimeout;
+    EHRequest.setReceiveTimeout(receiveTimeout);
     _save();
   }
 
