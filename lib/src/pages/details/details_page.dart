@@ -935,37 +935,32 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         int? favoriteTagIndex = state.galleryDetails?.favoriteTagIndex ?? state.gallery?.favoriteTagIndex;
         String? favoriteTagName = state.galleryDetails?.favoriteTagName ?? state.gallery?.favoriteTagName;
 
-        return GetBuilder<DetailsPageLogic>(
-          id: DetailsPageLogic.addFavoriteStateId,
-          global: false,
-          init: logic,
-          builder: (_) => LoadingStateIndicator(
-            loadingState: state.favoriteState,
-            idleWidget: IconTextButton(
-              width: UIConfig.detailsPageActionExtent,
-              icon: Icon(
-                favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
-                color: disabled
-                    ? UIConfig.detailsPageActionDisabledIconColor(context)
-                    : favoriteTagIndex != null
-                        ? ColorConsts.favoriteTagColor[favoriteTagIndex]
-                        : UIConfig.detailsPageActionIconColor(context),
-              ),
-              text: Text(
-                favoriteTagName ?? 'favorite'.tr,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: UIConfig.detailsPageActionTextSize,
-                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-                  height: 1,
-                ),
-              ),
-              onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: PreferenceSetting.enableDefaultFavorite.isTrue),
-              onLongPress: disabled || PreferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
+        return LoadingStateIndicator(
+          loadingState: state.favoriteState,
+          idleWidget: IconTextButton(
+            width: UIConfig.detailsPageActionExtent,
+            icon: Icon(
+              favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
+              color: disabled
+                  ? UIConfig.detailsPageActionDisabledIconColor(context)
+                  : favoriteTagIndex != null
+                  ? ColorConsts.favoriteTagColor[favoriteTagIndex]
+                  : UIConfig.detailsPageActionIconColor(context),
             ),
-            errorWidgetSameWithIdle: true,
+            text: Text(
+              favoriteTagName ?? 'favorite'.tr,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: UIConfig.detailsPageActionTextSize,
+                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                height: 1,
+              ),
+            ),
+            onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: PreferenceSetting.enableDefaultFavorite.isTrue),
+            onLongPress: disabled || PreferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
           ),
+          errorWidgetSameWithIdle: true,
         );
       },
     );

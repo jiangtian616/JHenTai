@@ -76,7 +76,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   static const String thumbnailId = 'thumbnailId';
   static const String loadingStateId = 'fullPageLoadingStateId';
   static const String loadingThumbnailsStateId = 'loadingThumbnailsStateId';
-  static const String addFavoriteStateId = 'addFavoriteStateId';
   static const String ratingStateId = 'ratingStateId';
 
   /// there may be more than one DetailsPages in route stack at same time, eg: tap a link in a comment.
@@ -365,7 +364,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Log.info('Favorite gallery: ${state.galleryUrl.gid}');
 
     state.favoriteState = LoadingState.loading;
-    updateSafely([addFavoriteStateId]);
+    updateSafely([favoriteId]);
 
     bool isRemoveFavorite = favIndex == currentFavIndex;
     try {
@@ -375,11 +374,18 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         state.gallery
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
+        state.galleryDetails
+          ?..favoriteTagIndex = null
+          ..favoriteTagName = null;
       } else {
-        await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, favIndex);
+        await EHRequest.requestAddFavorite(
+            state.galleryUrl.gid, state.galleryUrl.token, favIndex);
         FavoriteSetting.incrementFavByIndex(favIndex);
         FavoriteSetting.decrementFavByIndex(currentFavIndex);
         state.gallery
+          ?..favoriteTagIndex = favIndex
+          ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
+        state.galleryDetails
           ?..favoriteTagIndex = favIndex
           ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
       }
@@ -389,26 +395,26 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
       snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message ?? '', longDuration: true);
       state.favoriteState = LoadingState.error;
-      updateSafely([addFavoriteStateId]);
+      updateSafely([favoriteId]);
       return;
     } on EHSiteException catch (e) {
       Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
       snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
       state.favoriteState = LoadingState.error;
-      updateSafely([addFavoriteStateId]);
+      updateSafely([favoriteId]);
       return;
     } catch (e, s) {
       Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e, s);
       snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.toString(), longDuration: true);
       state.favoriteState = LoadingState.error;
-      updateSafely([addFavoriteStateId]);
+      updateSafely([favoriteId]);
       return;
     }
 
     _removeCache();
 
     state.favoriteState = LoadingState.idle;
-    updateSafely([addFavoriteStateId]);
+    updateSafely([favoriteId]);
 
     updateGlobalGalleryStatus();
 
