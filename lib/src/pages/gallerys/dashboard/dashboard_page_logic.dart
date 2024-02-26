@@ -63,7 +63,7 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getRanklistFailed'.tr, e.message);
+      Log.error('getRanklistFailed'.tr, e.toString());
       snack('getRanklistFailed'.tr, e.message ?? '', longDuration: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
@@ -105,7 +105,7 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getPopularListFailed'.tr, e.message);
+      Log.error('getPopularListFailed'.tr, e.toString());
       snack('getPopularListFailed'.tr, e.message ?? '', longDuration: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);
