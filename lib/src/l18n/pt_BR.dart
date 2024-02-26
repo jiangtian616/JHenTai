@@ -425,6 +425,8 @@ class pt_BR {
       'landscape': 'Landscape',
       'portrait': 'Portrait',
       'readDirection': 'Direção da leitura',
+      'notchOptimization': 'Notch Optimization',
+      'notchOptimizationHint': 'Add padding before the first image to avoid the notch and status bar',
       'imageRegionWidthRatio': 'Image Region Width Ratio',
       'useThirdPartyViewer': 'Usar visualizador personaliado',
       'thirdPartyViewerPath': 'Localização do visualizador personalizado(Arquivo executável)',

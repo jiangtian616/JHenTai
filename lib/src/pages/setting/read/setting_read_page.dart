@@ -42,6 +42,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
               _buildReadDirection().center(),
+              if (GetPlatform.isMobile && ReadSetting.readDirection.value == ReadDirection.top2bottomList) _buildNotchOptimization().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) _buildImageRegionWidthRatio(context).center(),
               if (ReadSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
               if (!ReadSetting.isInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
@@ -232,6 +233,14 @@ class SettingReadPage extends StatelessWidget {
         onChanged: (ReadDirection? newValue) => ReadSetting.saveReadDirection(newValue!),
         items: ReadDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
       ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildNotchOptimization() {
+    return ListTile(
+      title: Text('notchOptimization'.tr),
+      subtitle: Text('notchOptimizationHint'.tr),
+      trailing: Switch(value: ReadSetting.notchOptimization.value, onChanged: ReadSetting.saveNotchOptimization),
     );
   }
 

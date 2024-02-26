@@ -47,6 +47,7 @@ class ReadSetting {
   static RxBool enableBottomMenu = false.obs;
   static Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  static RxBool notchOptimization = false.obs;
   static RxInt imageRegionWidthRatio = 100.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
@@ -174,6 +175,12 @@ class ReadSetting {
     _save();
   }
 
+  static saveNotchOptimization(bool value) {
+    Log.debug('saveNotchOptimization:$value');
+    notchOptimization.value = value;
+    _save();
+  }
+
   static saveImageRegionWidthRatio(int value) {
     Log.debug('saveImageRegionWidthRatio:$value');
     imageRegionWidthRatio.value = value;
@@ -281,6 +288,7 @@ class ReadSetting {
       'autoModeStyle': autoModeStyle.value.index,
       'deviceDirection': deviceDirection.value.index,
       'readDirection': readDirection.value.index,
+      'notchOptimization': notchOptimization.value,
       'imageRegionWidthRatio': imageRegionWidthRatio.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
@@ -311,6 +319,7 @@ class ReadSetting {
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
+    notchOptimization.value = map['notchOptimization'] ?? notchOptimization.value;
     imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];

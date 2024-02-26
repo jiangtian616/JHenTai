@@ -20,40 +20,67 @@ class VerticalListLayout extends BaseLayout {
 
   @override
   Widget buildBody(BuildContext context) {
-    return GetBuilder<VerticalListLayoutLogic>(
-      id: logic.verticalLayoutId,
-      builder: (_) => PhotoViewGallery.builder(
-        itemCount: 1,
-        builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
-          controller: state.photoViewController,
-          initialScale: 1.0,
-          minScale: 1.0,
-          maxScale: 2.5,
-          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
-          child: EHWheelSpeedControllerForReadPage(
-            scrollController: state.itemScrollController,
-            child: EHScrollablePositionedList.separated(
-              physics: const ClampingScrollPhysics(),
-              minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                  ? ReadSetting.preloadDistance * screenHeight * 1
-                  : GetPlatform.isIOS
-                      ? 3 * screenHeight
-                      : 8 * screenHeight,
-              initialScrollIndex: readPageState.readPageInfo.initialIndex,
-              itemCount: readPageState.readPageInfo.pageCount,
-              itemScrollController: state.itemScrollController,
-              itemPositionsListener: state.itemPositionsListener,
-              itemBuilder: _itemBuilder,
-              separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Obx(() => SizedBox(height: GetPlatform.isMobile && ReadSetting.notchOptimization.isTrue ? MediaQuery.of(context).padding.top : 0)),
+        Expanded(
+          child: GetBuilder<VerticalListLayoutLogic>(
+            id: logic.verticalLayoutId,
+            builder: (_) => PhotoViewGallery.builder(
+              itemCount: 1,
+              builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
+                controller: state.photoViewController,
+                initialScale: 1.0,
+                minScale: 1.0,
+                maxScale: 2.5,
+                scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+                enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+                child: EHWheelSpeedControllerForReadPage(
+                  scrollController: state.itemScrollController,
+                  child: EHScrollablePositionedList.separated(
+                    physics: const ClampingScrollPhysics(),
+                    minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                        ? ReadSetting.preloadDistance * screenHeight * 1
+                        : GetPlatform.isIOS
+                            ? 3 * screenHeight
+                            : 8 * screenHeight,
+                    initialScrollIndex: readPageState.readPageInfo.initialIndex,
+                    itemCount: readPageState.readPageInfo.pageCount,
+                    itemScrollController: state.itemScrollController,
+                    itemPositionsListener: state.itemPositionsListener,
+                    itemBuilder: _itemBuilder,
+                    separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _itemBuilder(context, index) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          child: const SizedBox(),
+        ),
+        Expanded(
+          flex: ReadSetting.imageRegionWidthRatio.value * 2,
+          child: readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+        ),
+        Expanded(
+          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          child: const SizedBox(),
+        ),
+      ],
+    );
+  }
+
+  Widget _imageBuilder(context, index) {
     return Row(
       children: [
         Expanded(
