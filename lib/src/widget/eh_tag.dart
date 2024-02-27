@@ -16,6 +16,7 @@ class EHTag extends StatefulWidget {
   final bool enableTapping;
   final bool forceNewRoute;
   final bool showTagStatus;
+  final ValueChanged<bool>? onTagVoted;
 
   final int? gid;
   final String? token;
@@ -28,6 +29,7 @@ class EHTag extends StatefulWidget {
     this.enableTapping = false,
     this.forceNewRoute = false,
     required this.showTagStatus,
+    this.onTagVoted,
     this.gid,
     this.token,
     this.apikey,
@@ -140,11 +142,7 @@ class _EHTagState extends State<EHTag> {
       gid: widget.gid!,
       token: widget.token!,
       apikey: widget.apikey!,
-      onTagVoted: (bool isVoted) {
-        setState(() {
-          widget.tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.none;
-        });
-      },
+      onTagVoted: widget.onTagVoted,
     ));
   }
 }

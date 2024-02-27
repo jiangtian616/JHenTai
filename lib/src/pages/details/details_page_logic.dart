@@ -751,6 +751,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
+  void onTagVoted(GalleryTag tag, bool isVoted) {
+    tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.down;
+    updateSafely([detailsId]);
+    _removeCache();
+  }
+
   void goToReadPage([int? forceIndex]) {
     String storageKey = 'readIndexRecord::${state.galleryUrl.gid}';
     int readIndexRecord = storageService.read(storageKey) ?? 0;

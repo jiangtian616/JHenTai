@@ -683,8 +683,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        double? rating = state.galleryDetails?.rating ?? state.gallery?.rating ?? state.galleryMetadata?.rating;
         bool hasRated = state.galleryDetails?.hasRated ?? state.gallery?.hasRated ?? false;
+        double? rating = state.galleryDetails?.rating ?? state.gallery?.rating ?? state.galleryMetadata?.rating;
 
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
@@ -974,7 +974,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       builder: (_) {
         bool disabled = state.galleryDetails == null && state.gallery == null;
         bool hasRated = state.galleryDetails?.hasRated ?? state.gallery?.hasRated ?? false;
-        double? rating = state.galleryDetails?.rating ?? state.gallery?.rating;
+        double? rating = state.galleryDetails?.rating ?? state.gallery?.rating ?? state.galleryMetadata?.rating;
 
         return LoadingStateIndicator(
           loadingState: state.ratingState,
@@ -1246,6 +1246,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             apikey: state.apikey,
             forceNewRoute: true,
             showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,
+            onTagVoted: (bool isVoted) {
+              logic.onTagVoted(tag, isVoted);
+            },
           ),
         )
         .toList();
