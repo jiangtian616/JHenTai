@@ -486,8 +486,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// eg: {"rating_avg":0.93000000000000005,"rating_usr":0.5,"rating_cnt":21,"rating_cls":"ir irr"}
     state.gallery?.hasRated = true;
     state.gallery?.rating = ratingInfo['rating_usr'];
-    state.galleryDetails?.ratingCount = ratingInfo['rating_cnt'];
+    state.galleryDetails?.hasRated = true;
+    state.galleryDetails?.rating = ratingInfo['rating_usr'];
     state.galleryDetails?.realRating = ratingInfo['rating_avg'];
+    state.galleryDetails?.ratingCount = ratingInfo['rating_cnt'];
 
     _removeCache();
 
