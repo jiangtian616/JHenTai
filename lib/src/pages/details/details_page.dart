@@ -976,36 +976,29 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         bool hasRated = state.galleryDetails?.hasRated ?? state.gallery?.hasRated ?? false;
         double? rating = state.galleryDetails?.rating ?? state.gallery?.rating;
 
-        return GetBuilder<DetailsPageLogic>(
-          id: DetailsPageLogic.ratingStateId,
-          global: false,
-          init: logic,
-          builder: (_) {
-            return LoadingStateIndicator(
-              loadingState: state.ratingState,
-              idleWidget: IconTextButton(
-                width: UIConfig.detailsPageActionExtent,
-                icon: Icon(
-                  hasRated ? Icons.star : Icons.star_border,
-                  color: disabled
-                      ? UIConfig.detailsPageActionDisabledIconColor(context)
-                      : hasRated
-                          ? UIConfig.alertColor(context)
-                          : UIConfig.detailsPageActionIconColor(context),
-                ),
-                text: Text(
-                  hasRated ? rating!.toString() : 'rating'.tr,
-                  style: TextStyle(
-                    fontSize: UIConfig.detailsPageActionTextSize,
-                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-                    height: 1,
-                  ),
-                ),
-                onPressed: disabled ? null : logic.handleTapRating,
+        return LoadingStateIndicator(
+          loadingState: state.ratingState,
+          idleWidget: IconTextButton(
+            width: UIConfig.detailsPageActionExtent,
+            icon: Icon(
+              hasRated ? Icons.star : Icons.star_border,
+              color: disabled
+                  ? UIConfig.detailsPageActionDisabledIconColor(context)
+                  : hasRated
+                      ? UIConfig.alertColor(context)
+                      : UIConfig.detailsPageActionIconColor(context),
+            ),
+            text: Text(
+              hasRated ? rating!.toString() : 'rating'.tr,
+              style: TextStyle(
+                fontSize: UIConfig.detailsPageActionTextSize,
+                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                height: 1,
               ),
-              errorWidgetSameWithIdle: true,
-            );
-          },
+            ),
+            onPressed: disabled ? null : logic.handleTapRating,
+          ),
+          errorWidgetSameWithIdle: true,
         );
       },
     );

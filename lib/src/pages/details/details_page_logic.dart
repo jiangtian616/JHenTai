@@ -76,7 +76,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   static const String thumbnailId = 'thumbnailId';
   static const String loadingStateId = 'fullPageLoadingStateId';
   static const String loadingThumbnailsStateId = 'loadingThumbnailsStateId';
-  static const String ratingStateId = 'ratingStateId';
 
   /// there may be more than one DetailsPages in route stack at same time, eg: tap a link in a comment.
   /// use this param as a 'tag' to get target [DetailsPageLogic] and [DetailsPageState].
@@ -448,7 +447,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     Log.info('Rate gallery: ${state.galleryUrl.gid}, rating: $rating');
 
     state.ratingState = LoadingState.loading;
-    updateSafely([ratingStateId]);
+    updateSafely([ratingId]);
 
     Map<String, dynamic> ratingInfo;
     try {
@@ -464,13 +463,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message ?? '');
       state.ratingState = LoadingState.error;
-      updateSafely([ratingStateId]);
+      updateSafely([ratingId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('ratingFailed'.tr, e.message);
       snack('ratingFailed'.tr, e.message);
       state.ratingState = LoadingState.error;
-      updateSafely([ratingStateId]);
+      updateSafely([ratingId]);
       return;
     } on FormatException catch (_) {
       /// expired apikey
@@ -480,7 +479,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       Log.error('ratingFailed'.tr, e, s);
       snack('ratingFailed'.tr, e.toString());
       state.ratingState = LoadingState.error;
-      updateSafely([ratingStateId]);
+      updateSafely([ratingId]);
       return;
     }
 
