@@ -752,7 +752,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void onTagVoted(GalleryTag tag, bool isVoted) {
-    tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.down;
+    if (tag.voteStatus == EHTagVoteStatus.none) {
+      tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.down;
+    } else if (tag.voteStatus == EHTagVoteStatus.up) {
+      tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.none;
+    } else if (tag.voteStatus == EHTagVoteStatus.down) {
+      tag.voteStatus = isVoted ? EHTagVoteStatus.none : EHTagVoteStatus.down;
+    }
+
     updateSafely([detailsId]);
     _removeCache();
   }
