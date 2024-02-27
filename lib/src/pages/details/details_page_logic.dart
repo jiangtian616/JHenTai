@@ -276,7 +276,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleRefresh() async {
-    return getDetails(refreshPageImmediately: true, useCacheIfAvailable: false);
+    return getDetails(refreshPageImmediately: false, useCacheIfAvailable: false);
   }
 
   Future<void> handleTapDownload() async {
