@@ -81,7 +81,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         id: DetailsPageLogic.galleryId,
         global: false,
         init: logic,
-        builder: (_) => Text(_mainTitleText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        builder: (_) => Text(_mainTitleTextWithBreakWord, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       ),
       actions: [
         _buildMenuButton(context),
@@ -90,11 +90,19 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   String get _mainTitleText =>
+      state.gallery?.title ??
+      state.galleryDetails?.japaneseTitle ??
+      state.galleryDetails?.rawTitle ??
+      state.galleryMetadata?.japaneseTitle ??
+      state.galleryMetadata?.title ??
+      '';
+
+  String get _mainTitleTextWithBreakWord =>
       state.gallery?.title.breakWord ??
       state.galleryDetails?.japaneseTitle?.breakWord ??
       state.galleryDetails?.rawTitle.breakWord ??
-      state.galleryMetadata?.japaneseTitle ??
-      state.galleryMetadata?.title ??
+      state.galleryMetadata?.japaneseTitle.breakWord ??
+      state.galleryMetadata?.title.breakWord ??
       '';
 
   Widget _buildMenuButton(BuildContext context) {
@@ -344,13 +352,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
             String? subTitle;
             if (state.galleryDetails?.japaneseTitle != null && state.galleryDetails!.japaneseTitle!.breakWord != _mainTitleText) {
-              subTitle = state.galleryDetails!.rawTitle.breakWord;
+              subTitle = state.galleryDetails!.rawTitle;
             } else if (state.galleryDetails?.japaneseTitle != null && state.galleryDetails!.japaneseTitle!.breakWord != _mainTitleText) {
-              subTitle = state.galleryDetails!.japaneseTitle!.breakWord;
+              subTitle = state.galleryDetails!.japaneseTitle!;
             } else if (state.galleryMetadata?.title != null && state.galleryMetadata!.title.breakWord != _mainTitleText) {
-              subTitle = state.galleryMetadata!.title.breakWord;
+              subTitle = state.galleryMetadata!.title;
             } else if (state.galleryMetadata?.japaneseTitle != null && state.galleryMetadata!.japaneseTitle.breakWord != _mainTitleText) {
-              subTitle = state.galleryMetadata!.japaneseTitle.breakWord;
+              subTitle = state.galleryMetadata!.japaneseTitle;
             }
 
             if (subTitle == null) {
