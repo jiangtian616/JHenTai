@@ -140,6 +140,11 @@ class _EHTagState extends State<EHTag> {
       gid: widget.gid!,
       token: widget.token!,
       apikey: widget.apikey!,
+      onTagVoted: (bool isVoted) {
+        setState(() {
+          widget.tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.none;
+        });
+      },
     ));
   }
 }

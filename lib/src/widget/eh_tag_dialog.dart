@@ -32,6 +32,7 @@ class EHTagDialog extends StatefulWidget {
   final int gid;
   final String token;
   final String apikey;
+  final ValueChanged<bool>? onTagVoted;
 
   const EHTagDialog({
     Key? key,
@@ -39,6 +40,7 @@ class EHTagDialog extends StatefulWidget {
     required this.gid,
     required this.token,
     required this.apikey,
+    this.onTagVoted,
   }) : super(key: key);
 
   @override
@@ -223,12 +225,15 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       voteDownState = LoadingState.loading;
     }
 
-    _doVote(isVotingUp: isVotingUp);
+    bool success = await _doVote(isVotingUp: isVotingUp);
+    if (success) {
+      widget.onTagVoted?.call(isVotingUp);
+    }
 
     return true;
   }
 
-  Future<void> _doVote({required bool isVotingUp}) async {
+  Future<bool> _doVote({required bool isVotingUp}) async {
     Log.info('Vote for tag:${widget.tagData.key}, isVotingUp: $isVotingUp');
 
     String? errMsg;
@@ -250,7 +255,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       }
       Log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message ?? '');
-      return;
+      return false;
     } on EHSiteException catch (e) {
       if (isVotingUp) {
         voteUpState = LoadingState.error;
@@ -259,7 +264,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       }
       Log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message);
-      return;
+      return false;
     }
 
     if (isVotingUp) {
@@ -270,9 +275,10 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
     if (!isEmptyOrNull(errMsg)) {
       snack('voteTagFailed'.tr, errMsg!, longDuration: true);
-      return;
+      return false;
     } else {
       toast('success'.tr);
+      return true;
     }
   }
 
