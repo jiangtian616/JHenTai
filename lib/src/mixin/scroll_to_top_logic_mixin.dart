@@ -56,8 +56,8 @@ mixin Scroll2TopLogicMixin on GetxController {
       scroll2TopState.isScrollingDown = false;
     }
 
-    // if always show FAB, we don't need to update
-    if (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never) {
+    // if always or never show FAB, we don't need to update
+    if (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never || PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.always) {
       return false;
     }
 

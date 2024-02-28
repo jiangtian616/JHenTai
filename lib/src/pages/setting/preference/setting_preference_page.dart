@@ -230,6 +230,10 @@ class SettingPreferencePage extends StatelessWidget {
             child: Text('never'.tr),
             value: Scroll2TopButtonModeEnum.never,
           ),
+          DropdownMenuItem(
+            child: Text('always'.tr),
+            value: Scroll2TopButtonModeEnum.always,
+          ),
         ],
       ),
     );

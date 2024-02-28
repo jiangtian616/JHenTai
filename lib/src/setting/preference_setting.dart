@@ -8,7 +8,7 @@ import '../service/storage_service.dart';
 import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
-enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never }
+enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never, always }
 
 enum TagSearchBehaviour { inheritAll, inheritPartially, none }
 
