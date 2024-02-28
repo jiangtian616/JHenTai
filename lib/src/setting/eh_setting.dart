@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -58,7 +59,7 @@ class EHSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('refresh EHSetting fail', e.message);
+      Log.error('refresh EHSetting fail', e.errorMsg);
       refreshState.value = LoadingState.error;
       return;
     } on EHSiteException catch (e) {

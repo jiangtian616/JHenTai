@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:retry/retry.dart';
 
@@ -52,7 +53,7 @@ class MyTagsSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
+      Log.error('getTagSetFailed'.tr, e.errorMsg);
       return;
     } on EHSiteException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);

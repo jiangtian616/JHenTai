@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
@@ -486,8 +487,8 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         parser: EHSpiderParser.votingCommentResponse2Score,
       );
     } on DioException catch (e) {
-      Log.error('voteCommentFailed'.tr, e.message);
-      toast('${'voteCommentFailed'.tr}: ${e.message}');
+      Log.error('voteCommentFailed'.tr, e.errorMsg);
+      toast('${'voteCommentFailed'.tr}: ${e.errorMsg}');
       return;
     } on EHSiteException catch (e) {
       Log.error('voteCommentFailed'.tr, e.message);

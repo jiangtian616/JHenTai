@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
@@ -90,7 +91,7 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('Load profile fail', e.message);
+      Log.error('Load profile fail', e.errorMsg);
       setState(() {
         loadingState = LoadingState.error;
       });

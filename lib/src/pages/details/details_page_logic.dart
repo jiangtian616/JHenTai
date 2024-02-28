@@ -9,6 +9,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
@@ -141,8 +142,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     try {
       detailPageInfo = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
     } on DioException catch (e) {
-      Log.error('Get Gallery Detail Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('Get Gallery Detail Failed', e.errorMsg);
+      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -194,8 +195,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.galleryMetadataJson2GalleryMetadata,
       );
     } on DioException catch (e) {
-      Log.error('Get Gallery Metadata Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('Get Gallery Metadata Failed', e.errorMsg);
+      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -249,8 +250,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.detailPage2Thumbnails,
       );
     } on DioException catch (e) {
-      Log.error('failToGetThumbnails'.tr, e.message);
-      snack('failToGetThumbnails'.tr, e.message ?? '', longDuration: true);
+      Log.error('failToGetThumbnails'.tr, e.errorMsg);
+      snack('failToGetThumbnails'.tr, e.errorMsg ?? '', longDuration: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
@@ -391,8 +392,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
       FavoriteSetting.save();
     } on DioException catch (e) {
-      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
-      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg);
+      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
@@ -460,8 +461,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         EHSpiderParser.galleryRatingResponse2RatingInfo,
       );
     } on DioException catch (e) {
-      Log.error('ratingFailed'.tr, e.message);
-      snack('ratingFailed'.tr, e.message ?? '');
+      Log.error('ratingFailed'.tr, e.errorMsg);
+      snack('ratingFailed'.tr, e.errorMsg ?? '');
       state.ratingState = LoadingState.error;
       updateSafely([ratingId]);
       return;
@@ -595,8 +596,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.downloadHHPage2Result,
       );
     } on DioException catch (e) {
-      Log.error('H@H download error', e.message);
-      snack('failed'.tr, e.message ?? '');
+      Log.error('H@H download error', e.errorMsg);
+      snack('failed'.tr, e.errorMsg ?? '');
       return;
     } on EHSiteException catch (e) {
       Log.error('H@H download error', e.message);
@@ -729,8 +730,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         parser: EHSpiderParser.voteTagResponse2ErrorMessage,
       );
     } on DioException catch (e) {
-      Log.error('addTagFailed'.tr, e.message);
-      snack('addTagFailed'.tr, e.message ?? '');
+      Log.error('addTagFailed'.tr, e.errorMsg);
+      snack('addTagFailed'.tr, e.errorMsg ?? '');
       return;
     } on EHSiteException catch (e) {
       Log.error('addTagFailed'.tr, e.message);

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -96,8 +97,8 @@ class LoginPageLogic extends GetxController {
         EHSpiderParser.loginPage2UserInfoOrErrorMsg,
       );
     } on DioException catch (e) {
-      Log.error('loginFail'.tr, e.message);
-      snack('loginFail'.tr, e.message ?? '');
+      Log.error('loginFail'.tr, e.errorMsg);
+      snack('loginFail'.tr, e.errorMsg ?? '');
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
@@ -176,8 +177,8 @@ class LoginPageLogic extends GetxController {
       await EHRequest.requestHomePage();
       userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioException catch (e) {
-      Log.error('loginFail'.tr, e.message);
-      snack('loginFail'.tr, e.message ?? '', longDuration: true);
+      Log.error('loginFail'.tr, e.errorMsg);
+      snack('loginFail'.tr, e.errorMsg ?? '', longDuration: true);
 
       EHRequest.removeAllCookies();
 

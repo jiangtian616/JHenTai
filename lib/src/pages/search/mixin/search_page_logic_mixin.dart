@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/search_history.dart';
@@ -122,8 +123,8 @@ mixin SearchPageLogicMixin on BasePageLogic {
         parser: EHSpiderParser.imageLookup2RedirectUrl,
       );
     } on DioException catch (e) {
-      Log.error('fileSearchFailed'.tr, e.message);
-      snack('fileSearchFailed'.tr, e.message ?? '');
+      Log.error('fileSearchFailed'.tr, e.errorMsg);
+      snack('fileSearchFailed'.tr, e.errorMsg ?? '');
       state.loadingState = LoadingState.idle;
       update([loadingStateId]);
       return;

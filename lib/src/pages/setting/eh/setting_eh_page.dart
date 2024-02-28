@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -193,8 +194,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       assets = await EHRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
     } on DioException catch (e) {
-      Log.error('Get assets failed', e.message);
-      snack('Get assets failed'.tr, e.message ?? '', longDuration: true);
+      Log.error('Get assets failed', e.errorMsg);
+      snack('Get assets failed'.tr, e.errorMsg ?? '', longDuration: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
@@ -227,8 +228,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       await EHRequest.requestResetImageLimit();
     } on DioException catch (e) {
-      Log.error('Reset limit failed', e.message);
-      snack('Reset limit failed'.tr, e.message ?? '', longDuration: true);
+      Log.error('Reset limit failed', e.errorMsg);
+      snack('Reset limit failed'.tr, e.errorMsg ?? '', longDuration: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });

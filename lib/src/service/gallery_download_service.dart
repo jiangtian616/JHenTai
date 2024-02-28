@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
@@ -245,8 +246,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       );
       newGallery = detailPageInfo.galleryDetails.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
     } on DioException catch (e) {
-      Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
-      snack('updateGalleryError'.tr, e.message ?? '', longDuration: true);
+      Log.info('${'updateGalleryError'.tr}, reason: ${e.errorMsg}');
+      snack('updateGalleryError'.tr, e.errorMsg ?? '', longDuration: true);
       return;
     } on EHSiteException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');

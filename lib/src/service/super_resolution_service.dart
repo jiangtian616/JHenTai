@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
@@ -116,7 +117,7 @@ class SuperResolutionService extends GetxController {
         onRetry: (error) => Log.warning('Download super-resolution model failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download super-resolution model failed after 5 times', e.message);
+      Log.error('Download super-resolution model failed after 5 times', e.errorMsg);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
       return;

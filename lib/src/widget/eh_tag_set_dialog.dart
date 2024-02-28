@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 
 import '../config/ui_config.dart';
@@ -81,8 +82,8 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
-      snack('getTagSetFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      snack('getTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });

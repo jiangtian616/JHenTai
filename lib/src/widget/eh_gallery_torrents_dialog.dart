@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -71,8 +72,8 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
         EHSpiderParser.torrentPage2GalleryTorrent,
       );
     } on DioException catch (e) {
-      Log.error('getGalleryTorrentsFailed'.tr, e.message);
-      snack('getGalleryTorrentsFailed'.tr, e.message ?? '');
+      Log.error('getGalleryTorrentsFailed'.tr, e.errorMsg);
+      snack('getGalleryTorrentsFailed'.tr, e.errorMsg ?? '');
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }

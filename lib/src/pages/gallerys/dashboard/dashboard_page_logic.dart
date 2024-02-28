@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
@@ -63,8 +64,8 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getRanklistFailed'.tr, e.toString());
-      snack('getRanklistFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('getRanklistFailed'.tr, e.errorMsg);
+      snack('getRanklistFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
       return;
@@ -105,8 +106,8 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getPopularListFailed'.tr, e.toString());
-      snack('getPopularListFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('getPopularListFailed'.tr, e.errorMsg);
+      snack('getPopularListFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);
       return;

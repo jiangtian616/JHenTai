@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -76,7 +77,7 @@ class TagSearchOrderOptimizationService extends GetxService {
         onRetry: (error) => Log.warning('Get tag order optimization data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Get tag order optimization data failed after 5 times', e.message);
+      Log.error('Get tag order optimization data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write('TagSearchOrderOptimizationServiceLoadingState', LoadingState.error.index);
       return;
@@ -102,7 +103,7 @@ class TagSearchOrderOptimizationService extends GetxService {
         onRetry: (error) => Log.warning('Download tag order optimization data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download tag translation data failed after 5 times', e.message);
+      Log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write('TagSearchOrderOptimizationServiceLoadingState', LoadingState.error.index);
       return;

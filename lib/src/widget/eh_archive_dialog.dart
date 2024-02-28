@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/widget/eh_asset.dart';
@@ -110,8 +111,8 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     try {
       archive = await EHRequest.request(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2Archive);
     } on DioException catch (e) {
-      Log.error('getGalleryArchiveFailed'.tr, e.message);
-      snack('getGalleryArchiveFailed'.tr, e.message ?? '');
+      Log.error('getGalleryArchiveFailed'.tr, e.errorMsg);
+      snack('getGalleryArchiveFailed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {

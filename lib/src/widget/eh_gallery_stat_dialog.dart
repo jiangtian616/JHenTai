@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -88,8 +89,8 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
         parser: EHSpiderParser.statPage2GalleryStats,
       );
     } on DioException catch (e) {
-      Log.error('getGalleryStatisticsFailed'.tr, e.message);
-      snack('getGalleryStatisticsFailed'.tr, e.message ?? '');
+      Log.error('getGalleryStatisticsFailed'.tr, e.errorMsg);
+      snack('getGalleryStatisticsFailed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {

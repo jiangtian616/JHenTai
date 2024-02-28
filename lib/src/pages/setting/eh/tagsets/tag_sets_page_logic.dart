@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
@@ -53,8 +54,8 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
-      snack('getTagSetFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      snack('getTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
       updateSafely([bodyId]);
       return;
@@ -203,8 +204,8 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         hidden: tag.hidden,
       );
     } on DioException catch (e) {
-      Log.error('updateTagSetFailed'.tr, e.message);
-      snack('updateTagSetFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('updateTagSetFailed'.tr, e.errorMsg);
+      snack('updateTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
@@ -234,8 +235,8 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       await EHRequest.requestDeleteTagSet(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
     } on DioException catch (e) {
-      Log.error('deleteTagSetFailed'.tr, e.message);
-      snack('deleteTagSetFailed'.tr, e.message ?? '', longDuration: true);
+      Log.error('deleteTagSetFailed'.tr, e.errorMsg);
+      snack('deleteTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;

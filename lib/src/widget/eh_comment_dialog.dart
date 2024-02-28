@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../exception/eh_site_exception.dart';
@@ -102,8 +103,8 @@ class EHCommentDialogState extends State<EHCommentDialog> {
       }
     } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
-        Log.error('sendCommentFailed'.tr, e.message);
-        snack('sendCommentFailed'.tr, e.message ?? '');
+        Log.error('sendCommentFailed'.tr, e.errorMsg);
+        snack('sendCommentFailed'.tr, e.errorMsg ?? '');
         return;
       }
     } on EHSiteException catch (e) {

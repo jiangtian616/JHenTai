@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -74,7 +75,7 @@ class TagTranslationService extends GetxService {
         onRetry: (error) => Log.warning('Download tag translation data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download tag translation data failed after 5 times', e.message);
+      Log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write('TagTranslationServiceLoadingState', LoadingState.error.index);
       return;

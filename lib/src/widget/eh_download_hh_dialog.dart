@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
@@ -77,8 +78,8 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     try {
       hhInfo = await EHRequest.request(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2HHInfo);
     } on DioException catch (e) {
-      Log.error('Get H@H download info failed', e.message);
-      snack('failed'.tr, e.message ?? '');
+      Log.error('Get H@H download info failed', e.errorMsg);
+      snack('failed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
