@@ -93,7 +93,6 @@ jobs:
       - name: Flutter Pub Get
         run: |
           git config --global core.longpaths true
-          flutter clean
           flutter pub get
       # Get app version
       - name: Get app version
