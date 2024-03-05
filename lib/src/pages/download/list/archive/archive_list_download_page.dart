@@ -126,26 +126,8 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
             groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName).marginAll(5),
             elementBuilder: (BuildContext context, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
-            elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid,
             groupUniqueKey: (String group) => group,
-          ),
-        ),
-      ),
-    );
-
-    return GetBuilder<ArchiveDownloadService>(
-      id: logic.archiveDownloadService.galleryCountChangedId,
-      builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
-        id: logic.bodyId,
-        builder: (_) => NotificationListener<UserScrollNotification>(
-          onNotification: logic.onUserScroll,
-          child: GroupList<ArchiveDownloadedData, String>(
-            scrollController: state.scrollController,
-            groups: logic.archiveDownloadService.allGroups,
-            elements: logic.archiveDownloadService.archives,
-            groupBy: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group ?? 'default'.tr,
-            groupBuilder: (context, groupName) => _groupBuilder(context, groupName).marginAll(5),
-            itemBuilder: (BuildContext context, ArchiveDownloadedData archive) => _itemBuilder(context, archive),
+            elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid,
           ),
         ),
       ),

@@ -43,7 +43,10 @@ class ArchiveListDownloadPageLogic extends GetxController
 
   @override
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    state.groupedListController.removeElement(archive).then((_) => archiveDownloadService.deleteArchive(archive));
+    state.groupedListController.removeElement(archive).then((_) {
+      state.selectedGids.remove(archive.gid);
+      archiveDownloadService.deleteArchive(archive);
+    });
   }
 
   @override

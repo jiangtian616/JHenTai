@@ -20,7 +20,6 @@ import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
 mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData> {
   final String bodyId = 'bodyId';
-  final String groupId = 'groupId';
 
   final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
   final StorageService storageService = Get.find<StorageService>();

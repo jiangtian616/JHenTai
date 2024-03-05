@@ -7,6 +7,7 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/grouped_list.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
@@ -16,7 +17,6 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
-import '../../../../widget/fade_shrink_widget.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -123,13 +123,16 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
-          child: GroupList<GalleryDownloadedData, String>(
+          child: GroupedList<String, GalleryDownloadedData>(
             scrollController: state.scrollController,
-            groups: logic.downloadService.allGroups,
+            controller: state.groupedListController,
+            groups: logic.downloadService.allGroups.map((g) => (group: g, isOpen: state.displayGroups.contains(g))).toList(),
             elements: logic.downloadService.gallerys,
-            groupBy: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]?.group ?? 'default'.tr,
-            groupBuilder: (context, groupName) => _groupBuilder(context, groupName).marginAll(5),
-            itemBuilder: (BuildContext context, GalleryDownloadedData gallery) => _itemBuilder(context, gallery),
+            elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
+            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName).marginAll(5),
+            elementBuilder: (BuildContext context, GalleryDownloadedData gallery, isOpen) => _itemBuilder(context, gallery),
+            groupUniqueKey: (String group) => group,
+            elementUniqueKey: (GalleryDownloadedData gallery) => gallery.gid,
           ),
         ),
       ),
@@ -153,10 +156,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GetBuilder<GalleryListDownloadPageLogic>(
-              id: '${logic.groupId}::$groupName',
-              builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
-            ),
+            GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
           ],
         ),
       ),
@@ -164,32 +164,13 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _itemBuilder(BuildContext context, GalleryDownloadedData gallery) {
-    String? group = logic.downloadService.galleryDownloadInfos[gallery.gid]?.group;
-
-    return GetBuilder<GalleryListDownloadPageLogic>(
-      id: '${logic.groupId}::$group',
-      builder: (_) => Slidable(
-        key: Key(gallery.gid.toString()),
-        endActionPane: _buildEndActionPane(context, gallery),
-        child: GestureDetector(
-          onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
-          onLongPress: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
-          child: FadeShrinkWidget(
-            show: state.displayGroups.contains(group) && !state.removedGids.contains(gallery.gid) && !state.removedGidsWithoutImages.contains(gallery.gid),
-            child: _buildCard(context, gallery).marginAll(5),
-            afterDisappear: () {
-              if (state.removedGids.contains(gallery.gid) || state.removedGidsWithoutImages.contains(gallery.gid)) {
-                Get.engine.addPostFrameCallback(
-                  (_) {
-                    logic.downloadService.deleteGallery(gallery, deleteImages: state.removedGids.contains(gallery.gid));
-                    state.removedGids.remove(gallery.gid);
-                    state.removedGidsWithoutImages.remove(gallery.gid);
-                  },
-                );
-              }
-            },
-          ),
-        ),
+    return Slidable(
+      key: Key(gallery.gid.toString()),
+      endActionPane: _buildEndActionPane(context, gallery),
+      child: GestureDetector(
+        onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
+        onLongPress: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
+        child: _buildCard(context, gallery).marginAll(5),
       ),
     );
   }

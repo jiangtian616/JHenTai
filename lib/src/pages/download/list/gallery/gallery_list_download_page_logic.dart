@@ -33,7 +33,7 @@ class GalleryListDownloadPageLogic extends GetxController
     }
 
     storageService.write('displayGalleryGroups', state.displayGroups.toList());
-    update(['$groupId::$groupName']);
+    update([bodyId]);
   }
 
   @override
@@ -44,15 +44,10 @@ class GalleryListDownloadPageLogic extends GetxController
 
   @override
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
-    if (deleteImages) {
-      state.removedGids.add(gallery.gid);
-    } else {
-      state.removedGidsWithoutImages.add(gallery.gid);
-    }
-
-    state.selectedGids.remove(gallery.gid);
-
-    super.handleRemoveItem(gallery, deleteImages);
+    state.groupedListController.removeElement(gallery).then((_) {
+      state.selectedGids.remove(gallery.gid);
+      downloadService.deleteGallery(gallery, deleteImages: deleteImages);
+    });
   }
 
   @override
@@ -61,7 +56,7 @@ class GalleryListDownloadPageLogic extends GetxController
     for (String group in state.displayGroups) {
       gallerys.addAll(downloadService.gallerysWithGroup(group));
     }
-    
+
     multiSelectDownloadPageState.selectedGids.addAll(gallerys.map((gallery) => gallery.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }
