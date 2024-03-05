@@ -93,10 +93,10 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     for (({G group, bool isOpen}) groupInfo in widget.groups) {
       slivers.add(_buildGroup(context, groupInfo));
-
-      group2Elements[groupInfo.group]?.forEach((e) {
-        slivers.add(_buildElement(context, e, groupInfo.isOpen));
-      });
+  
+      if (group2Elements.containsKey(groupInfo.group)) {
+        slivers.add(_buildElements(context, group2Elements[groupInfo.group]!, groupInfo.isOpen));
+      }
     }
 
     return slivers;
@@ -108,21 +108,28 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     );
   }
 
-  Widget _buildElement(BuildContext context, E element, bool isOpen) {
-    return SliverToBoxAdapter(
-      child: FadeSlideWidget(
-        show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
-        enableOpacityTransition: false,
-        child: widget.elementBuilder(context, element, isOpen),
-        afterDisappear: () {
-          Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
-          if (completer != null) {
-            setState(() {
-              deletingElements.remove(widget.elementUniqueKey(element));
-            });
-            completer.complete();
-          }
+  Widget _buildElements(BuildContext context, List<E> list, bool isOpen) {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          E element = list[index];
+
+          return FadeSlideWidget(
+            show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
+            enableOpacityTransition: false,
+            child: widget.elementBuilder(context, element, isOpen),
+            afterDisappear: () {
+              Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
+              if (completer != null) {
+                setState(() {
+                  deletingElements.remove(widget.elementUniqueKey(element));
+                });
+                completer.complete();
+              }
+            },
+          );
         },
+        childCount: list.length,
       ),
     );
   }

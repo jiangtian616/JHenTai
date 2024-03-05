@@ -94,7 +94,7 @@ jobs:
         if: matrix.target == 'Windows'
         run: |
           $rmDir = "/c/Users/runneradmin/.pub-cache\git\cache\flutter_draggable_gridview-21f5e6f670e8dca33b172a89089742f83a28ad25"
-          rm -rf $rmDir
+          rm $rmDir
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
