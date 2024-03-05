@@ -12,11 +12,13 @@ class FadeSlideWidget extends StatefulWidget {
   final bool enableOpacityTransition;
   final double opacityFrom;
   final double opacityTo;
+  final Curve opacityCurve;
 
   final bool enableSlideTransition;
   final double slideFrom;
   final double slideTo;
-  final Axis sizeAxis;
+  final Curve slideCurve;
+  final Axis axis;
 
   final VoidCallback? afterDisappear;
 
@@ -30,9 +32,11 @@ class FadeSlideWidget extends StatefulWidget {
     this.enableSlideTransition = true,
     this.opacityFrom = 0,
     this.opacityTo = 1,
+    this.opacityCurve = Curves.ease,
     this.slideFrom = 0,
     this.slideTo = 1,
-    this.sizeAxis = Axis.vertical,
+    this.slideCurve = Curves.linear,
+    this.axis = Axis.vertical,
     this.afterDisappear,
   }) : super(key: key);
 
@@ -44,8 +48,9 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
   bool show = false;
 
   late Animation<double> fadeAnimation =
-      Tween<double>(begin: widget.opacityFrom, end: widget.opacityTo).animate(CurvedAnimation(parent: controller, curve: Curves.ease));
-  late Animation<double> slideAnimation = Tween<double>(begin: widget.slideFrom, end: widget.slideTo).animate(controller);
+      Tween<double>(begin: widget.opacityFrom, end: widget.opacityTo).animate(CurvedAnimation(parent: controller, curve: widget.opacityCurve));
+  late Animation<double> slideAnimation =
+      Tween<double>(begin: widget.slideFrom, end: widget.slideTo).animate(CurvedAnimation(parent: controller, curve: widget.slideCurve));
 
   @override
   void initState() {
@@ -105,9 +110,9 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
     if (widget.enableSlideTransition) {
       child = ClipRect(
         child: Align(
-          alignment: widget.sizeAxis == Axis.horizontal ? Alignment.centerLeft : Alignment.topCenter,
-          widthFactor: widget.sizeAxis == Axis.horizontal ? slideAnimation.value : 1,
-          heightFactor: widget.sizeAxis == Axis.vertical ? slideAnimation.value : 1,
+          alignment: widget.axis == Axis.horizontal ? Alignment.centerLeft : Alignment.topCenter,
+          widthFactor: widget.axis == Axis.horizontal ? slideAnimation.value : 1,
+          heightFactor: widget.axis == Axis.vertical ? slideAnimation.value : 1,
           child: child,
         ),
       );

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-import 'package:jhentai/src/widget/fade_shrink_widget.dart';
+import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
@@ -78,12 +78,12 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
   List<Widget> _buildTabs(BuildContext context) {
     return state.tabLogics
         .mapIndexed<Widget>(
-          (index, tabLogic) => FadeShrinkWidget(
+          (index, tabLogic) => FadeSlideWidget(
             show: true,
             animateWhenInitialization: true,
-            opacityFrom: 1,
-            opacityTo: 1,
-            sizeAxis: Axis.horizontal,
+            enableOpacityTransition: false,
+            slideCurve: Curves.ease,
+            axis: Axis.horizontal,
             duration: UIConfig.desktopSearchTabAnimationDuration,
             child: _SearchTab(
               name: tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),

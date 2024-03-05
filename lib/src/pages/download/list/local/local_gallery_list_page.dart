@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/widget/fade_slide_widget.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
 
@@ -12,7 +13,6 @@ import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/eh_wheel_speed_controller.dart';
-import '../../../../widget/fade_shrink_widget.dart';
 import '../../download_base_page.dart';
 import 'local_gallery_list_page_logic.dart';
 import 'local_gallery_list_page_state.dart';
@@ -166,7 +166,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       child: GestureDetector(
         onSecondaryTap: () => logic.showBottomSheet(gallery, context),
         onLongPress: () => logic.showBottomSheet(gallery, context),
-        child: FadeShrinkWidget(
+        child: FadeSlideWidget(
           show: !state.removedGalleryTitles.contains(gallery.title),
           child: _buildGallery(gallery, context).marginAll(5),
           afterDisappear: () {
