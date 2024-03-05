@@ -94,10 +94,9 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     for (({G group, bool isOpen}) groupInfo in widget.groups) {
       slivers.add(_buildGroup(context, groupInfo));
 
-      List<E>? elements = group2Elements[groupInfo.group];
-      if (elements?.isNotEmpty ?? false) {
-        slivers.add(_buildElements(context, elements!, groupInfo.isOpen));
-      }
+      group2Elements[groupInfo.group]?.forEach((e) {
+        slivers.add(_buildElement(context, e, groupInfo.isOpen));
+      });
     }
 
     return slivers;
@@ -109,35 +108,23 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     );
   }
 
-  Widget _buildElements(BuildContext context, List<E> elements, bool isOpen) {
+  Widget _buildElement(BuildContext context, E element, bool isOpen) {
     return SliverToBoxAdapter(
       child: FadeSlideWidget(
-        show: isOpen,
+        show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
         enableOpacityTransition: false,
-        child: Column(
-          children: elements.map((e) => _buildElement(context, e, isOpen)).toList(),
-        ),
+        child: widget.elementBuilder(context, element, isOpen),
+        afterDisappear: () {
+          Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
+          if (completer != null) {
+            setState(() {
+              deletingElements.remove(widget.elementUniqueKey(element));
+            });
+            completer.complete();
+          }
+        },
       ),
     );
-  }
-
-  Widget _buildElement(BuildContext context, E element, bool isOpen) {
-    Widget child = widget.elementBuilder(context, element, isOpen);
-    if (deletingElements.containsKey(widget.elementUniqueKey(element))) {
-      child = FadeSlideWidget(
-        show: false,
-        animateWhenInitialization: true,
-        child: child,
-        afterDisappear: () {
-          Completer<void> completer = deletingElements[widget.elementUniqueKey(element)]!;
-          setState(() {
-            deletingElements.remove(widget.elementUniqueKey(element));
-          });
-          completer.complete();
-        },
-      );
-    }
-    return child;
   }
 
   Future<void> removeElement(E element) {

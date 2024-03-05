@@ -91,7 +91,7 @@ jobs:
         run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # temp
       - name: temp
-        if: matrix.os == 'Windows'
+        if: matrix.target == 'Windows'
         run: |
           $rmDir = "/c/Users/runneradmin/.pub-cache\git\cache\flutter_draggable_gridview-21f5e6f670e8dca33b172a89089742f83a28ad25"
           rm -rf $rmDir
