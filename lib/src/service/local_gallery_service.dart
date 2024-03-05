@@ -115,14 +115,14 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
     Directory dir = Directory(gallery.path);
 
-    List<File> otherFiles = dir.listSync().whereType<File>().where((image) => !FileUtil.isImageExtension(image.path)).toList();
-    if (otherFiles.isEmpty) {
+    List<File> allFiles = dir.listSync().whereType<File>().toList();
+    List<File> imageFiles = dir.listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
+    if (allFiles.length == imageFiles.length) {
       dir.delete(recursive: true).catchError((e) {
         Log.error('Delete local gallery error!', e);
         Log.uploadError(e);
       });
     } else {
-      List<File> imageFiles = dir.listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
       for (File file in imageFiles) {
         file.delete().catchError((e) {
           Log.error('Delete local gallery error!', e);
