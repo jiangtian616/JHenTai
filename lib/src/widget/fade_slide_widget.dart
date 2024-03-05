@@ -52,14 +52,22 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
     super.initState();
 
     show = widget.show;
-    if (!show) {
-      return;
-    }
+    controller.duration = widget.duration;
 
     if (widget.animateWhenInitialization) {
-      controller.play(duration: widget.duration);
+      if (show) {
+        controller.forward();
+      } else {
+        controller.reverse(from: 1).then((_) {
+          widget.afterDisappear?.call();
+        });
+      }
     } else {
-      controller.forward(from: 1);
+      if (show) {
+        controller.value = 1;
+      } else {
+        controller.value = 0;
+      }
     }
   }
 
@@ -71,11 +79,13 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
       return;
     }
 
+    controller.duration = widget.duration;
     show = widget.show;
+
     if (show) {
-      controller.play(duration: widget.duration);
+      controller.forward();
     } else {
-      controller.playReverse(duration: widget.duration).then((_) {
+      controller.reverse().then((_) {
         widget.afterDisappear?.call();
       });
     }
@@ -93,10 +103,13 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
     }
 
     if (widget.enableSlideTransition) {
-      child = Align(
-        widthFactor: widget.sizeAxis == Axis.horizontal ? slideAnimation.value : 1,
-        heightFactor: widget.sizeAxis == Axis.vertical ? slideAnimation.value : 1,
-        child: child,
+      child = ClipRect(
+        child: Align(
+          alignment: widget.sizeAxis == Axis.horizontal ? Alignment.centerLeft : Alignment.topCenter,
+          widthFactor: widget.sizeAxis == Axis.horizontal ? slideAnimation.value : 1,
+          heightFactor: widget.sizeAxis == Axis.vertical ? slideAnimation.value : 1,
+          child: child,
+        ),
       );
     }
 

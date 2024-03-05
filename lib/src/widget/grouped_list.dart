@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -5,8 +7,7 @@ import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
 import 'eh_wheel_speed_controller.dart';
 
-
-
+class GroupedListLogic extends GetxService {}
 
 class GroupedList<G, E> extends StatefulWidget {
   final List<({G group, bool isOpen})> groups;
@@ -38,13 +39,15 @@ class GroupedList<G, E> extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<GroupedList> createState() => _GroupedListState();
+  State<GroupedList<G, E>> createState() => _GroupedListState<G, E>();
 }
 
 class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   late ScrollController scrollController;
 
   late GroupedListController controller;
+
+  final Map<Object, Completer<void>> deletingElements = {};
 
   @override
   void initState() {
@@ -79,14 +82,14 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
         controller: scrollController,
         cacheExtent: 20,
         slivers: _buildSlivers(context),
-      ).paddingOnly(bottom: 80),
+      ),
     );
   }
 
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
 
-    Map<G, List<E>> group2Elements = widget.elements.groupListsBy((e) => widget.elementGroup(e));
+    Map<G, List<E>> group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
 
     for (({G group, bool isOpen}) groupInfo in widget.groups) {
       slivers.add(_buildGroup(context, groupInfo));
@@ -118,22 +121,39 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   }
 
   Widget _buildElement(BuildContext context, E element, bool isOpen) {
-    return widget.elementBuilder(context, element, isOpen);
+    Widget child = widget.elementBuilder(context, element, isOpen);
+    if (deletingElements.containsKey(widget.elementUniqueKey(element))) {
+      child = FadeSlideWidget(
+        show: false,
+        animateWhenInitialization: true,
+        child: child,
+        afterDisappear: () {
+          Completer<void> completer = deletingElements[widget.elementUniqueKey(element)]!;
+          setState(() {
+            deletingElements.remove(widget.elementUniqueKey(element));
+          });
+          completer.complete();
+        },
+      );
+    }
+    return child;
   }
 
-  void insertElement() {}
-
-  void removeElement() {}
-
-  void toggleGroup() {}
+  Future<void> removeElement(E element) {
+    Completer<void> completer = Completer();
+    setState(() {
+      deletingElements[widget.elementUniqueKey(element)] = completer;
+    });
+    return completer.future;
+  }
 }
 
-class GroupedListController {
+class GroupedListController<G, E> {
   bool get isAttached => _groupedListState != null;
 
-  _GroupedListState? _groupedListState;
+  _GroupedListState<G, E>? _groupedListState;
 
-  void attach(_GroupedListState state) {
+  void attach(_GroupedListState<G, E> state) {
     assert(_groupedListState == null);
 
     _groupedListState = state;
@@ -145,21 +165,9 @@ class GroupedListController {
     _groupedListState = null;
   }
 
-  void insertElement() {
+  Future<void> removeElement(E element) {
     assert(isAttached);
 
-    _groupedListState!.insertElement();
-  }
-
-  void removeElement() {
-    assert(isAttached);
-
-    _groupedListState!.removeElement();
-  }
-
-  void toggleGroup() {
-    assert(isAttached);
-
-    _groupedListState!.toggleGroup();
+    return _groupedListState!.removeElement(element);
   }
 }

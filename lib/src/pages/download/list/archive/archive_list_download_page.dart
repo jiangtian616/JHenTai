@@ -8,6 +8,7 @@ import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_logic_mixin.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_state_mixin.dart';
+import 'package:jhentai/src/widget/grouped_list.dart';
 
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
@@ -20,7 +21,6 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
-import '../../../../widget/fade_shrink_widget.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
 import '../../mixin/archive/archive_download_page_mixin.dart';
@@ -118,6 +118,27 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
+          child: GroupedList<String, ArchiveDownloadedData>(
+            scrollController: state.scrollController,
+            controller: state.groupedListController,
+            groups: logic.archiveDownloadService.allGroups.map((g) => (group: g, isOpen: state.displayGroups.contains(g))).toList(),
+            elements: logic.archiveDownloadService.archives,
+            elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
+            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName).marginAll(5),
+            elementBuilder: (BuildContext context, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
+            elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid,
+            groupUniqueKey: (String group) => group,
+          ),
+        ),
+      ),
+    );
+
+    return GetBuilder<ArchiveDownloadService>(
+      id: logic.archiveDownloadService.galleryCountChangedId,
+      builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
+        id: logic.bodyId,
+        builder: (_) => NotificationListener<UserScrollNotification>(
+          onNotification: logic.onUserScroll,
           child: GroupList<ArchiveDownloadedData, String>(
             scrollController: state.scrollController,
             groups: logic.archiveDownloadService.allGroups,
@@ -148,10 +169,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GetBuilder<ArchiveListDownloadPageLogic>(
-              id: '${logic.groupId}::$groupName',
-              builder: (_) => GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
-            ),
+            GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
           ],
         ),
       ),
@@ -159,29 +177,13 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _itemBuilder(BuildContext context, ArchiveDownloadedData archive) {
-    String? group = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.group;
-
     return Slidable(
       key: Key(archive.gid.toString()),
       endActionPane: _buildEndActionPane(context, archive),
       child: GestureDetector(
         onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
         onLongPress: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
-        child: GetBuilder<ArchiveListDownloadPageLogic>(
-          id: '${logic.groupId}::$group',
-          builder: (_) => FadeShrinkWidget(
-            show: state.displayGroups.contains(group) && !state.removedGids.contains(archive.gid),
-            child: _buildCard(context, archive).marginAll(5),
-            afterDisappear: () {
-              if (state.removedGids.contains(archive.gid)) {
-                Get.engine.addPostFrameCallback(
-                  (_) => logic.archiveDownloadService.deleteArchive(archive),
-                );
-                state.removedGids.remove(archive.gid);
-              }
-            },
-          ),
-        ),
+        child: _buildCard(context, archive).marginAll(5),
       ),
     );
   }

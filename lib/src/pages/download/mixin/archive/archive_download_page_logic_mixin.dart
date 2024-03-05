@@ -24,7 +24,6 @@ import 'archive_download_page_state_mixin.dart';
 
 mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData> {
   final String bodyId = 'bodyId';
-  final String groupId = 'groupId';
 
   ArchiveDownloadPageStateMixin get archiveDownloadPageState;
 

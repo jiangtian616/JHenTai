@@ -32,7 +32,7 @@ class ArchiveListDownloadPageLogic extends GetxController
     }
 
     storageService.write('displayArchiveGroups', state.displayGroups.toList());
-    update(['$groupId::$groupName']);
+    update([bodyId]);
   }
 
   @override
@@ -43,8 +43,7 @@ class ArchiveListDownloadPageLogic extends GetxController
 
   @override
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    state.removedGids.add(archive.gid);
-    super.handleRemoveItem(archive);
+    state.groupedListController.removeElement(archive).then((_) => archiveDownloadService.deleteArchive(archive));
   }
 
   @override
