@@ -362,7 +362,7 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         IconTextButton(
           icon: const Icon(Icons.sentiment_very_dissatisfied),
-          text: Text('error'.tr),
+          text: Text('error'.tr, style: const TextStyle(color: UIConfig.readPageButtonColor)),
           onPressed: state.reLoadImage,
         ),
         Text((index + 1).toString()),

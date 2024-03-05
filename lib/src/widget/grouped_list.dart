@@ -113,6 +113,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     return SliverToBoxAdapter(
       child: FadeSlideWidget(
         show: isOpen,
+        enableOpacityTransition: false,
         child: Column(
           children: elements.map((e) => _buildElement(context, e, isOpen)).toList(),
         ),
