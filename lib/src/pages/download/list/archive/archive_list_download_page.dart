@@ -124,7 +124,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             groups: logic.archiveDownloadService.allGroups.map((g) => (group: g, isOpen: state.displayGroups.contains(g))).toList(),
             elements: logic.archiveDownloadService.archives,
             elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
-            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName).marginAll(5),
+            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
             elementBuilder: (BuildContext context, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
             groupUniqueKey: (String group) => group,
             elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid,
@@ -134,7 +134,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Widget _groupBuilder(BuildContext context, String groupName) {
+  Widget _groupBuilder(BuildContext context, String groupName, bool isOpen) {
     return GestureDetector(
       onTap: () => logic.toggleDisplayGroups(groupName),
       onLongPress: () => logic.handleLongPressGroup(groupName),
@@ -151,7 +151,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GroupOpenIndicator(isOpen: state.displayGroups.contains(groupName)).marginOnly(right: 8),
+            GroupOpenIndicator(isOpen: isOpen).marginOnly(right: 8),
           ],
         ),
       ),
