@@ -109,36 +109,28 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   }
 
   Widget _buildElements(BuildContext context, List<E> elements, bool isOpen) {
-    return SliverToBoxAdapter(
-      child: FadeSlideWidget(
-        show: isOpen,
-        enableOpacityTransition: false,
-        child: ListView.builder(
-          itemBuilder: (context, index) => _buildElement(context, elements[index], isOpen),
-        ),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => _buildElement(context, elements[index], isOpen),
+        childCount: elements.length,
       ),
     );
   }
 
   Widget _buildElement(BuildContext context, E element, bool isOpen) {
-    Widget child = widget.elementBuilder(context, element, isOpen);
-    
-    if (deletingElements.containsKey(widget.elementUniqueKey(element))) {
-      child = FadeSlideWidget(
-        show: false,
-        animateWhenInitialization: true,
-        child: child,
-        afterDisappear: () {
-          Completer<void> completer = deletingElements[widget.elementUniqueKey(element)]!;
+    return FadeSlideWidget(
+      show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
+      child: widget.elementBuilder(context, element, isOpen),
+      afterDisappear: () {
+        Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
+        if (completer != null) {
           setState(() {
             deletingElements.remove(widget.elementUniqueKey(element));
           });
           completer.complete();
-        },
-      );
-    }
-    
-    return child;
+        }
+      },
+    );
   }
 
   Future<void> removeElement(E element) {
