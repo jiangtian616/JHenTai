@@ -36,7 +36,7 @@ dependencies:
   flutter_list_view: 1.1.21
   executor: 2.2.2
   retry: 3.1.2
-  path: 1.8.3
+  path: 1.9.0
   drift: 2.14.1
   sqlite3_flutter_libs: 0.5.8
   path_provider: 2.0.15
@@ -87,7 +87,7 @@ dependencies:
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
   wakelock_plus: 1.1.1
-  material_color_utilities: 0.5.0
+  material_color_utilities: 0.8.0
   flex_color_picker: 3.1.0
   zoom_widget: 2.0.1
   android_intent_plus: 3.1.7
@@ -108,7 +108,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
-  test: 1.24.3
+  test: 1.25.2
   drift_dev: 2.14.1
   build_runner: ^2.1.8
   flutter_launcher_icons: 0.11.0
