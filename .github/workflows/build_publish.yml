@@ -51,7 +51,7 @@ jobs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
     env:
-      FLUTTER_VERSION: 3.16.5
+      FLUTTER_VERSION: 3.19.2
     steps:
       # Checkout branch
       - name: Checkout
@@ -89,12 +89,6 @@ jobs:
       - name: Build Xcode
         if: matrix.os == 'macos-latest'
         run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
-      # temp
-      - name: temp
-        if: matrix.target == 'Windows'
-        run: |
-          $rmDir = "c:/Users/runneradmin/.pub-cache\git\cache"
-          rm $rmDir
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
