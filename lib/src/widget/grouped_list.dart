@@ -93,7 +93,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     for (({G group, bool isOpen}) groupInfo in widget.groups) {
       slivers.add(_buildGroup(context, groupInfo));
-  
+
       if (group2Elements.containsKey(groupInfo.group)) {
         slivers.add(_buildElements(context, group2Elements[groupInfo.group]!, groupInfo.isOpen));
       }
@@ -108,30 +108,37 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     );
   }
 
-  Widget _buildElements(BuildContext context, List<E> list, bool isOpen) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) {
-          E element = list[index];
-
-          return FadeSlideWidget(
-            show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
-            enableOpacityTransition: false,
-            child: widget.elementBuilder(context, element, isOpen),
-            afterDisappear: () {
-              Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
-              if (completer != null) {
-                setState(() {
-                  deletingElements.remove(widget.elementUniqueKey(element));
-                });
-                completer.complete();
-              }
-            },
-          );
-        },
-        childCount: list.length,
+  Widget _buildElements(BuildContext context, List<E> elements, bool isOpen) {
+    return SliverToBoxAdapter(
+      child: FadeSlideWidget(
+        show: isOpen,
+        enableOpacityTransition: false,
+        child: ListView.builder(
+          itemBuilder: (context, index) => _buildElement(context, elements[index], isOpen),
+        ),
       ),
     );
+  }
+
+  Widget _buildElement(BuildContext context, E element, bool isOpen) {
+    Widget child = widget.elementBuilder(context, element, isOpen);
+    
+    if (deletingElements.containsKey(widget.elementUniqueKey(element))) {
+      child = FadeSlideWidget(
+        show: false,
+        animateWhenInitialization: true,
+        child: child,
+        afterDisappear: () {
+          Completer<void> completer = deletingElements[widget.elementUniqueKey(element)]!;
+          setState(() {
+            deletingElements.remove(widget.elementUniqueKey(element));
+          });
+          completer.complete();
+        },
+      );
+    }
+    
+    return child;
   }
 
   Future<void> removeElement(E element) {
