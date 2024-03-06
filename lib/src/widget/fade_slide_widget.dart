@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
+typedef AfterAnimationCallBack = void Function(bool show, bool isInit);
+
 class FadeSlideWidget extends StatefulWidget {
   final Widget child;
 
@@ -20,8 +22,7 @@ class FadeSlideWidget extends StatefulWidget {
   final Curve slideCurve;
   final Axis axis;
 
-  final VoidCallback? afterInitAnimation;
-  final VoidCallback? afterDisappear;
+  final AfterAnimationCallBack? afterAnimation;
 
   const FadeSlideWidget({
     Key? key,
@@ -38,8 +39,7 @@ class FadeSlideWidget extends StatefulWidget {
     this.slideTo = 1,
     this.slideCurve = Curves.linear,
     this.axis = Axis.vertical,
-    this.afterInitAnimation,
-    this.afterDisappear,
+    this.afterAnimation,
   }) : super(key: key);
 
   @override
@@ -63,11 +63,10 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
 
     if (widget.animateWhenInitialization) {
       if (show) {
-        controller.forward().then((_) => widget.afterInitAnimation?.call());
+        controller.forward().then((_) => widget.afterAnimation?.call(true, true));
       } else {
         controller.reverse(from: 1).then((_) {
-          widget.afterInitAnimation?.call();
-          widget.afterDisappear?.call();
+          widget.afterAnimation?.call(false, true);
         });
       }
     } else {
@@ -91,10 +90,12 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
     show = widget.show;
 
     if (show) {
-      controller.forward();
+      controller.forward().then((_) {
+        widget.afterAnimation?.call(true, false);
+      });
     } else {
       controller.reverse().then((_) {
-        widget.afterDisappear?.call();
+        widget.afterAnimation?.call(false, false);
       });
     }
   }

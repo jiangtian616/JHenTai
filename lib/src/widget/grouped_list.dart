@@ -119,40 +119,37 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   Widget _buildElements(BuildContext context, List<E> elements, G group, bool isOpen, bool isToggling) {
     /// dont render when closed
-    if (!isToggling) {
-      return SliverList(
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => FadeSlideWidget(
-            show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
-            child: widget.elementBuilder(context, elements[index], isOpen),
-            afterDisappear: () {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) => FadeSlideWidget(
+          show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
+          child: widget.elementBuilder(context, elements[index], isOpen),
+          afterAnimation: (bool show, bool isInit) {
+            if (isInit) {
+              return;
+            }
+
+            if (!show) {
               Completer<void>? completer = deletingElements[widget.elementUniqueKey(elements[index])];
               if (completer != null) {
                 setState(() {
                   deletingElements.remove(widget.elementUniqueKey(elements[index]));
                   completer.complete();
                 });
+                return;
               }
-            },
-          ),
-          childCount: elements.length,
-        ),
-      );
-    }
+            }
 
-    return SliverToBoxAdapter(
-      child: FadeSlideWidget(
-        show: isOpen,
-        animateWhenInitialization: true,
-        child: Column(
-          children: elements.map((element) => widget.elementBuilder(context, element, isOpen)).toList(),
+            Completer<void>? toggleCompleter = togglingGroups[group];
+            if (toggleCompleter != null) {
+              setState(() {
+                togglingGroups.remove(group);
+                toggleCompleter.complete();
+              });
+            }
+          },
         ),
-        afterInitAnimation: () {
-          setState(() {
-            Completer<void> completer = togglingGroups.remove(group)!;
-            completer.complete();
-          });
-        },
+        childCount: elements.length,
       ),
     );
   }

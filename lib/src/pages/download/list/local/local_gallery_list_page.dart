@@ -169,11 +169,13 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
         child: FadeSlideWidget(
           show: !state.removedGalleryTitles.contains(gallery.title),
           child: _buildGallery(gallery, context).marginAll(5),
-          afterDisappear: () {
-            Get.engine.addPostFrameCallback(
-              (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
-            );
-            state.removedGalleryTitles.remove(gallery.title);
+          afterAnimation: (bool show, bool isInit) {
+            if (!show && !isInit) {
+              Get.engine.addPostFrameCallback(
+                (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
+              );
+              state.removedGalleryTitles.remove(gallery.title);
+            }
           },
         ),
       ),
