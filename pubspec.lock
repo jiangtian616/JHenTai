@@ -508,10 +508,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: c8c951dd527d5356ab12a3287c8e63cf59028659
+      resolved-ref: "948931c5c3287d2253145cb7959539ba626063a1"
       url: "https://github.com/jiangtian616/flutter_draggable_gridview"
     source: git
-    version: "0.0.9"
+    version: "0.0.7"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
