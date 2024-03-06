@@ -506,10 +506,11 @@ packages:
   flutter_draggable_gridview:
     dependency: "direct main"
     description:
-      name: flutter_draggable_gridview
-      sha256: "619e9179bf18c38a24f776e762068448516f5005a3d06220c653420e199df8d8"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: c8c951dd527d5356ab12a3287c8e63cf59028659
+      url: "https://github.com/jiangtian616/flutter_draggable_gridview"
+    source: git
     version: "0.0.9"
   flutter_launcher_icons:
     dependency: "direct dev"

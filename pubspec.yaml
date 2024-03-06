@@ -73,7 +73,8 @@ dependencies:
   permission_handler: 9.2.0
   grouped_list: 5.1.2
   resizable_widget:
-    git: https://github.com/eurisit/resizable_widget
+    git:
+      url: https://github.com/eurisit/resizable_widget
   loading_animation_widget: 1.2.0+4
   simple_animations: 5.0.2
   animated_flip_counter: 0.2.6
@@ -81,7 +82,10 @@ dependencies:
   system_network_proxy: 1.0.2
   http_proxy: 1.2.1
   flutter_socks_proxy: 0.0.3
-  flutter_draggable_gridview: 0.0.9
+  flutter_draggable_gridview:
+    # remove assert
+    git:
+      url: https://github.com/jiangtian616/flutter_draggable_gridview
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
   wakelock_plus: 1.1.1
