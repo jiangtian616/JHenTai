@@ -2,12 +2,9 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
 import 'eh_wheel_speed_controller.dart';
-
-class GroupedListLogic extends GetxService {}
 
 class GroupedList<G, E> extends StatefulWidget {
   final List<({G group, bool isOpen})> groups;
