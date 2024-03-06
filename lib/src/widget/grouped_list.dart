@@ -7,7 +7,7 @@ import 'package:jhentai/src/widget/fade_slide_widget.dart';
 import 'eh_wheel_speed_controller.dart';
 
 class GroupedList<G, E> extends StatefulWidget {
-  final List<({G group, bool isOpen})> groups;
+  final Map<G, bool> groups;
   final List<E> elements;
 
   final G Function(E element) elementGroup;
@@ -44,6 +44,9 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   late GroupedListController controller;
 
+  final Map<G, bool> groups = {};
+
+  final Map<G, Completer<void>> togglingGroups = {};
   final Map<Object, Completer<void>> deletingElements = {};
 
   @override
@@ -62,6 +65,8 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       controller = widget.controller!;
     }
     controller.attach(this);
+
+    _initGroups(widget.groups);
   }
 
   @override
@@ -69,6 +74,13 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     super.dispose();
 
     controller.detach();
+  }
+
+  @override
+  void didUpdateWidget(covariant GroupedList<G, E> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _initGroups(widget.groups);
   }
 
   @override
@@ -88,45 +100,60 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     Map<G, List<E>> group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
 
-    for (({G group, bool isOpen}) groupInfo in widget.groups) {
-      slivers.add(_buildGroup(context, groupInfo));
+    groups.forEach((group, isOpen) {
+      slivers.add(_buildGroup(context, group, isOpen));
 
-      if (group2Elements.containsKey(groupInfo.group)) {
-        slivers.add(_buildElements(context, group2Elements[groupInfo.group]!, groupInfo.isOpen));
+      if (group2Elements.containsKey(group)) {
+        slivers.add(_buildElements(context, group2Elements[group]!, group, isOpen, togglingGroups.containsKey(group)));
       }
-    }
+    });
 
     return slivers;
   }
 
-  Widget _buildGroup(BuildContext context, ({G group, bool isOpen}) groupInfo) {
+  Widget _buildGroup(BuildContext context, G group, bool isOpen) {
     return SliverToBoxAdapter(
-      child: widget.groupBuilder(context, groupInfo.group, groupInfo.isOpen),
+      child: widget.groupBuilder(context, group, isOpen),
     );
   }
 
-  Widget _buildElements(BuildContext context, List<E> elements, bool isOpen) {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (context, index) => _buildElement(context, elements[index], isOpen),
-        childCount: elements.length,
-      ),
-    );
-  }
+  Widget _buildElements(BuildContext context, List<E> elements, G group, bool isOpen, bool isToggling) {
+    /// dont render when closed
+    if (!isToggling) {
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => FadeSlideWidget(
+            show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
+            child: widget.elementBuilder(context, elements[index], isOpen),
+            afterDisappear: () {
+              Completer<void>? completer = deletingElements[widget.elementUniqueKey(elements[index])];
+              if (completer != null) {
+                setState(() {
+                  deletingElements.remove(widget.elementUniqueKey(elements[index]));
+                  completer.complete();
+                });
+              }
+            },
+          ),
+          childCount: elements.length,
+        ),
+      );
+    }
 
-  Widget _buildElement(BuildContext context, E element, bool isOpen) {
-    return FadeSlideWidget(
-      show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(element)),
-      child: widget.elementBuilder(context, element, isOpen),
-      afterDisappear: () {
-        Completer<void>? completer = deletingElements[widget.elementUniqueKey(element)];
-        if (completer != null) {
+    return SliverToBoxAdapter(
+      child: FadeSlideWidget(
+        show: isOpen,
+        animateWhenInitialization: true,
+        child: Column(
+          children: elements.map((element) => widget.elementBuilder(context, element, isOpen)).toList(),
+        ),
+        afterInitAnimation: () {
           setState(() {
-            deletingElements.remove(widget.elementUniqueKey(element));
+            Completer<void> completer = togglingGroups.remove(group)!;
+            completer.complete();
           });
-          completer.complete();
-        }
-      },
+        },
+      ),
     );
   }
 
@@ -136,6 +163,24 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       deletingElements[widget.elementUniqueKey(element)] = completer;
     });
     return completer.future;
+  }
+
+  Future<void> toggleGroup(G group) {
+    if (togglingGroups.containsKey(group) || !groups.containsKey(group)) {
+      return Future.value();
+    }
+
+    Completer<void> completer = Completer();
+    setState(() {
+      groups[group] = !groups[group]!;
+      togglingGroups[group] = completer;
+    });
+    return completer.future;
+  }
+
+  void _initGroups(Map<G, bool> groups) {
+    this.groups.clear();
+    this.groups.addAll(groups);
   }
 }
 
@@ -160,5 +205,11 @@ class GroupedListController<G, E> {
     assert(isAttached);
 
     return _groupedListState!.removeElement(element);
+  }
+
+  Future<void> toggleGroup(G group) {
+    assert(isAttached);
+
+    return _groupedListState!.toggleGroup(group);
   }
 }

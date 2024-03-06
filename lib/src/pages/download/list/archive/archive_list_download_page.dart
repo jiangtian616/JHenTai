@@ -121,7 +121,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           child: GroupedList<String, ArchiveDownloadedData>(
             scrollController: state.scrollController,
             controller: state.groupedListController,
-            groups: logic.archiveDownloadService.allGroups.map((g) => (group: g, isOpen: state.displayGroups.contains(g))).toList(),
+            groups: Map.fromEntries(logic.archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
             elements: logic.archiveDownloadService.archives,
             elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
             groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),

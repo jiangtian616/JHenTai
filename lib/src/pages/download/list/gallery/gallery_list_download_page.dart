@@ -126,7 +126,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           child: GroupedList<String, GalleryDownloadedData>(
             scrollController: state.scrollController,
             controller: state.groupedListController,
-            groups: logic.downloadService.allGroups.map((g) => (group: g, isOpen: state.displayGroups.contains(g))).toList(),
+            groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
             elements: logic.downloadService.gallerys,
             elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
             groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),

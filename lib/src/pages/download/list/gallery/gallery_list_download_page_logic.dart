@@ -33,7 +33,7 @@ class GalleryListDownloadPageLogic extends GetxController
     }
 
     storageService.write('displayGalleryGroups', state.displayGroups.toList());
-    update([bodyId]);
+    state.groupedListController.toggleGroup(groupName);
   }
 
   @override

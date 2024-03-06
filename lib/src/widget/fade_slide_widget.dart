@@ -20,6 +20,7 @@ class FadeSlideWidget extends StatefulWidget {
   final Curve slideCurve;
   final Axis axis;
 
+  final VoidCallback? afterInitAnimation;
   final VoidCallback? afterDisappear;
 
   const FadeSlideWidget({
@@ -37,6 +38,7 @@ class FadeSlideWidget extends StatefulWidget {
     this.slideTo = 1,
     this.slideCurve = Curves.linear,
     this.axis = Axis.vertical,
+    this.afterInitAnimation,
     this.afterDisappear,
   }) : super(key: key);
 
@@ -61,9 +63,10 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
 
     if (widget.animateWhenInitialization) {
       if (show) {
-        controller.forward();
+        controller.forward().then((_) => widget.afterInitAnimation?.call());
       } else {
         controller.reverse(from: 1).then((_) {
+          widget.afterInitAnimation?.call();
           widget.afterDisappear?.call();
         });
       }
