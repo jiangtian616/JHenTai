@@ -81,9 +81,7 @@ dependencies:
   system_network_proxy: 1.0.2
   http_proxy: 1.2.1
   flutter_socks_proxy: 0.0.3
-  flutter_draggable_gridview:
-    # remove assert
-    git: https://github.com/jiangtian616/flutter_draggable_gridview
+  flutter_draggable_gridview: 0.0.9
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
   wakelock_plus: 1.1.1
