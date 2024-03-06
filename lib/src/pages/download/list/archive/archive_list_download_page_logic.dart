@@ -32,7 +32,7 @@ class ArchiveListDownloadPageLogic extends GetxController
     }
 
     storageService.write('displayArchiveGroups', state.displayGroups.toList());
-    state.groupedListController.toggleGroup(groupName);
+    updateSafely([bodyId]);
   }
 
   @override

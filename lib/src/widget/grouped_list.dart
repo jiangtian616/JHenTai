@@ -46,7 +46,6 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   final Map<G, bool> groups = {};
 
-  final Map<G, Completer<void>> togglingGroups = {};
   final Map<Object, Completer<void>> deletingElements = {};
 
   @override
@@ -104,7 +103,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       slivers.add(_buildGroup(context, group, isOpen));
 
       if (group2Elements.containsKey(group)) {
-        slivers.add(_buildElements(context, group2Elements[group]!, group, isOpen, togglingGroups.containsKey(group)));
+        slivers.add(_buildElements(context, group2Elements[group]!, group, isOpen));
       }
     });
 
@@ -117,38 +116,27 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     );
   }
 
-  Widget _buildElements(BuildContext context, List<E> elements, G group, bool isOpen, bool isToggling) {
+  Widget _buildElements(BuildContext context, List<E> elements, G group, bool isOpen) {
     /// dont render when closed
     return SliverList(
       delegate: SliverChildBuilderDelegate(
-        (context, index) => FadeSlideWidget(
-          show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
-          child: widget.elementBuilder(context, elements[index], isOpen),
-          afterAnimation: (bool show, bool isInit) {
-            if (isInit) {
-              return;
-            }
-
-            if (!show) {
-              Completer<void>? completer = deletingElements[widget.elementUniqueKey(elements[index])];
-              if (completer != null) {
-                setState(() {
-                  deletingElements.remove(widget.elementUniqueKey(elements[index]));
-                  completer.complete();
-                });
-                return;
+        (context, index) {
+          return FadeSlideWidget(
+            show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
+            child: widget.elementBuilder(context, elements[index], isOpen),
+            afterAnimation: (bool show, bool isInit) {
+              if (!show && !isInit) {
+                Completer<void>? completer = deletingElements[widget.elementUniqueKey(elements[index])];
+                if (completer != null) {
+                  setState(() {
+                    deletingElements.remove(widget.elementUniqueKey(elements[index]));
+                    completer.complete();
+                  });
+                }
               }
-            }
-
-            Completer<void>? toggleCompleter = togglingGroups[group];
-            if (toggleCompleter != null) {
-              setState(() {
-                togglingGroups.remove(group);
-                toggleCompleter.complete();
-              });
-            }
-          },
-        ),
+            },
+          );
+        },
         childCount: elements.length,
       ),
     );
@@ -158,19 +146,6 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     Completer<void> completer = Completer();
     setState(() {
       deletingElements[widget.elementUniqueKey(element)] = completer;
-    });
-    return completer.future;
-  }
-
-  Future<void> toggleGroup(G group) {
-    if (togglingGroups.containsKey(group) || !groups.containsKey(group)) {
-      return Future.value();
-    }
-
-    Completer<void> completer = Completer();
-    setState(() {
-      groups[group] = !groups[group]!;
-      togglingGroups[group] = completer;
     });
     return completer.future;
   }
@@ -202,11 +177,5 @@ class GroupedListController<G, E> {
     assert(isAttached);
 
     return _groupedListState!.removeElement(element);
-  }
-
-  Future<void> toggleGroup(G group) {
-    assert(isAttached);
-
-    return _groupedListState!.toggleGroup(group);
   }
 }
