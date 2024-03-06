@@ -13,6 +13,7 @@ import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../setting/performance_setting.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
@@ -124,6 +125,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
           child: GroupedList<String, GalleryDownloadedData>(
+            maxGalleryNum4Animation: PerformanceSetting.maxGalleryNum4Animation.value,
             scrollController: state.scrollController,
             controller: state.groupedListController,
             groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),

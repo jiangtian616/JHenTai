@@ -54,6 +54,8 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
   late Animation<double> slideAnimation =
       Tween<double>(begin: widget.slideFrom, end: widget.slideTo).animate(CurvedAnimation(parent: controller, curve: widget.slideCurve));
 
+  bool get disableAnimation => !widget.enableOpacityTransition && !widget.enableSlideTransition;
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +105,10 @@ class _FadeSlideWidgetState extends State<FadeSlideWidget> with AnimationMixin {
   @override
   Widget build(BuildContext context) {
     Widget child = widget.child;
+
+    if (disableAnimation) {
+      return show ? child : const SizedBox();
+    }
 
     if (widget.enableOpacityTransition) {
       child = FadeTransition(

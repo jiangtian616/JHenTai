@@ -15,12 +15,12 @@ class GroupedList<G, E> extends StatefulWidget {
   final List<E> elements;
 
   final G Function(E element) elementGroup;
-
   final String Function(G group) groupUniqueKey;
   final String Function(E element) elementUniqueKey;
-
   final Widget Function(BuildContext context, G group, bool isOpen) groupBuilder;
   final Widget Function(BuildContext context, E element, bool isOpen) elementBuilder;
+
+  final int maxGalleryNum4Animation;
 
   final ScrollController? scrollController;
 
@@ -35,6 +35,7 @@ class GroupedList<G, E> extends StatefulWidget {
     required this.groupUniqueKey,
     required this.groupBuilder,
     required this.elementBuilder,
+    required this.maxGalleryNum4Animation,
     this.scrollController,
     this.controller,
   }) : super(key: key);
@@ -46,20 +47,23 @@ class GroupedList<G, E> extends StatefulWidget {
 class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   late GroupedListLogic logic;
 
+  late int maxGalleryNum4Animation;
+  
   late ScrollController scrollController;
 
   late GroupedListController controller;
 
-  final Map<G, bool> groups = {};
-  final Set<G> togglingGroups = {};
+  final Map<G, bool> _groups = {};
 
-  final Map<Object, Completer<void>> deletingElements = {};
+  final Map<Object, Completer<void>> _deletingElements = {};
 
   @override
   void initState() {
     super.initState();
 
     logic = GroupedListLogic();
+
+    maxGalleryNum4Animation = widget.maxGalleryNum4Animation;
 
     _initGroups(widget.groups);
 
@@ -88,6 +92,8 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   void didUpdateWidget(covariant GroupedList<G, E> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    maxGalleryNum4Animation = widget.maxGalleryNum4Animation;
+
     _initGroups(widget.groups);
   }
 
@@ -108,7 +114,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     Map<G, List<E>> group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
 
-    for (G group in groups.keys) {
+    for (G group in _groups.keys) {
       slivers.add(_buildGroup(context, group));
 
       if (group2Elements.containsKey(group)) {
@@ -126,7 +132,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
         global: false,
         init: logic,
         builder: (_) {
-          bool isOpen = groups[group] ?? false;
+          bool isOpen = _groups[group] ?? false;
           return widget.groupBuilder(context, group, isOpen);
         },
       ),
@@ -134,7 +140,6 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   }
 
   Widget _buildElements(BuildContext context, List<E> elements, G group) {
-    /// dont render when closed
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
@@ -148,14 +153,16 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
                 global: false,
                 init: logic,
                 builder: (_) {
-                  bool isOpen = groups[group] ?? false;
+                  bool isOpen = _groups[group] ?? false;
                   return FadeSlideWidget(
                     key: ValueKey(widget.elementUniqueKey(elements[index])),
-                    show: isOpen && !deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
+                    show: isOpen && !_deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
+                    enableOpacityTransition: elements.length <= maxGalleryNum4Animation,
+                    enableSlideTransition: elements.length <= maxGalleryNum4Animation,
                     child: widget.elementBuilder(context, elements[index], isOpen),
                     afterAnimation: (bool show, bool isInit) {
                       if (!show && !isInit) {
-                        deletingElements.remove(widget.elementUniqueKey(elements[index]))?.complete();
+                        _deletingElements.remove(widget.elementUniqueKey(elements[index]))?.complete();
                       }
                     },
                   );
@@ -172,22 +179,22 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   Future<void> removeElement(E element) {
     Completer<void> completer = Completer();
     String elementKey = widget.elementUniqueKey(element);
-    deletingElements[elementKey] = completer;
+    _deletingElements[elementKey] = completer;
     logic.update(['element::$elementKey']);
     return completer.future;
   }
 
   void toggleGroup(G group) {
-    if (!groups.containsKey(group)) {
+    if (!_groups.containsKey(group)) {
       return;
     }
-    groups[group] = !groups[group]!;
+    _groups[group] = !_groups[group]!;
     logic.updateSafely(['group::${widget.groupUniqueKey(group)}']);
   }
 
   void _initGroups(Map<G, bool> groups) {
-    this.groups.clear();
-    this.groups.addAll(groups);
+    this._groups.clear();
+    this._groups.addAll(groups);
   }
 }
 

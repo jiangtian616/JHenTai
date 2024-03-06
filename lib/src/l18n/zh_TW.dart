@@ -210,6 +210,7 @@ class zh_TW {
       'style': '樣式',
       'preference': '偏好',
       'network': '網路',
+      'performance': '性能',
       'mouseWheel': '滑鼠滾輪',
       'advanced': '進階',
       'about': '關於',
@@ -223,6 +224,7 @@ class zh_TW {
       'preferenceSetting': '偏好設置',
       'downloadSetting': '下載設定',
       'networkSetting': '網路設定',
+      'performanceSetting': '性能設定',
       'mouseWheelSetting': '滑鼠滾輪設定',
 
       /// eh setting page
@@ -350,6 +352,10 @@ class zh_TW {
       'preset': '預設',
       'custom': '自定義',
 
+      /// performance setting page
+      'maxGalleryNum4Animation': '下載頁支持列表動畫的最大畫廊個數',
+      'maxGalleryNum4AnimationHint': '列表模式下，擁有超過此配置個數畫廊的分組在展開/收起時取消動畫效果',
+      
       /// mouse wheel setting page
       'wheelScrollSpeed': '滑鼠滾輪速度',
       'ineffectiveInGalleryPage': '在畫廊頁面暫時無效',

@@ -15,6 +15,7 @@ import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
 import '../../../../service/super_resolution_service.dart' as srs;
 import '../../../../service/super_resolution_service.dart';
+import '../../../../setting/performance_setting.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
@@ -119,6 +120,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
           child: GroupedList<String, ArchiveDownloadedData>(
+            maxGalleryNum4Animation: PerformanceSetting.maxGalleryNum4Animation.value,
             scrollController: state.scrollController,
             controller: state.groupedListController,
             groups: Map.fromEntries(logic.archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),

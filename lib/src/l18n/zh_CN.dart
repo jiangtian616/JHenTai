@@ -210,6 +210,7 @@ class zh_CN {
       'style': '样式',
       'preference': '偏好',
       'network': '网络',
+      'performance': '性能',
       'mouseWheel': '鼠标滚轮',
       'advanced': '高级',
       'about': '关于',
@@ -223,6 +224,7 @@ class zh_CN {
       'preferenceSetting': '偏好设置',
       'downloadSetting': '下载设置',
       'networkSetting': '网络设置',
+      'performanceSetting': '性能设置',
       'mouseWheelSetting': '鼠标滚轮设置',
 
       /// eh setting page
@@ -351,6 +353,10 @@ class zh_CN {
       'preset': '预设',
       'custom': '自定义',
 
+      /// performance setting page
+      'maxGalleryNum4Animation': '下载页支持列表动画的最大画廊个数',
+      'maxGalleryNum4AnimationHint': '列表模式下，拥有超过此配置个数画廊的分组在展开/收起时取消动画效果',
+      
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',
       'ineffectiveInGalleryPage': '在画廊页面暂时无效',

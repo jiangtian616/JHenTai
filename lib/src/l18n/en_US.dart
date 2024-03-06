@@ -211,6 +211,7 @@ class en_US {
       'style': 'Style',
       'preference': 'Preference',
       'network': 'Network',
+      'performance': 'Performance',
       'mouseWheel': 'Mouse Wheel',
       'advanced': 'Advanced',
       'security': 'Security',
@@ -224,6 +225,7 @@ class en_US {
       'preferenceSetting': 'Preference Setting',
       'downloadSetting': 'Download Setting',
       'networkSetting': 'Network Setting',
+      'performanceSetting': 'Performance Setting',
       'mouseWheelSetting': 'Mouse Wheel Setting',
 
       /// eh setting page
@@ -350,6 +352,10 @@ class en_US {
       'preview': 'Preview',
       'preset': 'Preset',
       'custom': 'Custom',
+
+      /// performance setting page
+      'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
+      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',

@@ -211,6 +211,7 @@ class ko_KR {
       'style': '스타일',
       'preference': '일반',
       'network': '네트워크',
+      'performance': 'Performance',
       'mouseWheel': '마우스 휠',
       'advanced': '고급',
       'security': '보안',
@@ -224,6 +225,7 @@ class ko_KR {
       'preferenceSetting': '일반 설정',
       'downloadSetting': '다운로드 설정',
       'networkSetting': '네트워크 설정',
+      'performanceSetting': 'Performance Setting',
       'mouseWheelSetting': '마우스 휠 설정',
 
       /// eh setting page
@@ -349,6 +351,10 @@ class ko_KR {
       'preset': '프리셋',
       'custom': '커스텀',
 
+      /// performance setting page
+      'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
+      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
+      
       /// mouse wheel setting page
       'themeColorSettingHint': '라이트 모드와 다크 모드 각각에 다른 색을 지정합니다',
       'preview': '미리 보기',

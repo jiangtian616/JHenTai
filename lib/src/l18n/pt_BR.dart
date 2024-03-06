@@ -212,6 +212,7 @@ class pt_BR {
       'style': 'Estilo',
       'preference': 'Preference',
       'network': 'Network',
+      'performance': 'Performance',
       'mouseWheel': 'Roda do mouse',
       'advanced': 'Avançado',
       'security': 'Segurança',
@@ -225,6 +226,7 @@ class pt_BR {
       'preferenceSetting': 'Preference Setting',
       'downloadSetting': 'Configurações de download',
       'networkSetting': 'Configurações de Network',
+      'performanceSetting': 'Performance Setting',
       'mouseWheelSetting': 'Configurações da roda do mouse',
 
       /// eh setting page
@@ -352,6 +354,10 @@ class pt_BR {
       'preset': 'Preset',
       'custom': 'Custom',
 
+      /// performance setting page
+      'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
+      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
+      
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',
       'ineffectiveInGalleryPage': 'Ineficaz na página da galeria agora.',
