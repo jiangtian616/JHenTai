@@ -166,31 +166,41 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
-          if (SuperResolutionSetting.modelDirectoryPath.value != null)
+          if (SuperResolutionSetting.modelDirectoryPath.value != null &&
+              downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded &&
+              (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
+                  superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
             CupertinoActionSheetAction(
-              child: Text(
-                superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running
-                    ? 'stopSuperResolution'.tr
-                    : superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success
-                        ? 'deleteSuperResolvedImage'.tr
-                        : 'superResolution'.tr,
-              ),
+              child: Text('superResolution'.tr),
               onPressed: () async {
                 backRoute();
 
-                if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running) {
-                  superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
-                } else if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success) {
-                  superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
-                } else {
-                  if (gallery.downloadOriginalImage) {
-                    bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
-                    if (result == false) {
-                      return;
-                    }
+                if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null && gallery.downloadOriginalImage) {
+                  bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                  if (result == false) {
+                    return;
                   }
-                  superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
                 }
+
+                superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
+              },
+            ),
+          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
+            CupertinoActionSheetAction(
+              child: Text('stopSuperResolution'.tr),
+              onPressed: () async {
+                backRoute();
+
+                superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
+              },
+            ),
+          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused || superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
+            CupertinoActionSheetAction(
+              child: Text('deleteSuperResolvedImage'.tr),
+              onPressed: () async {
+                backRoute();
+
+                superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
               },
             ),
           CupertinoActionSheetAction(

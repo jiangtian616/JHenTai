@@ -241,10 +241,16 @@ class SuperResolutionService extends GetxController {
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == gid);
+      GalleryDownloadedData? gallery = galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
+      if (gallery == null) {
+        return;
+      }
       dirPath = join(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid), imageDirName);
     } else {
-      ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == gid);
+      ArchiveDownloadedData? archive = archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
+      if (archive == null) {
+        return;
+      }
       dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive), imageDirName);
     }
 

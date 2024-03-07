@@ -131,13 +131,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await pauseDownloadArchive(archive);
 
+    await Get.find<SuperResolutionService>().deleteSuperResolve(archive.gid, SuperResolutionType.archive);
+
     await _deleteArchiveInfoInDatabase(archive.gid, archive.isOriginal);
 
     await _deleteArchiveInDisk(archive);
 
     _deleteArchiveInMemory(archive.gid, archive.isOriginal);
-
-    Get.find<SuperResolutionService>().deleteSuperResolve(archive.gid, SuperResolutionType.archive);
 
     update(['$archiveStatusId::${archive.gid}']);
   }

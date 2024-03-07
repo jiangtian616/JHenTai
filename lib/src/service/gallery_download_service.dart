@@ -224,13 +224,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     Log.info('Delete download gallery: ${gallery.title}, deleteImages:$deleteImages');
 
+    await Get.find<SuperResolutionService>().deleteSuperResolve(gallery.gid, SuperResolutionType.gallery);
+
     await _clearGalleryDownloadInfoInDatabase(gallery.gid);
     if (deleteImages) {
       _clearDownloadedImageInDisk(gallery);
     }
     _clearGalleryInfoInMemory(gallery);
-
-    Get.find<SuperResolutionService>().deleteSuperResolve(gallery.gid, SuperResolutionType.gallery);
   }
 
   /// Update local downloaded gallery if there's a new version.
