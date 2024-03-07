@@ -244,7 +244,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
-      newGallery = detailPageInfo.galleryDetails.toGalleryDownloadedData(downloadOriginalImage: oldGallery.downloadOriginalImage);
+      newGallery = detailPageInfo.galleryDetails.toGalleryDownloadedData();
     } on DioException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.errorMsg}');
       snack('updateGalleryError'.tr, e.errorMsg ?? '', longDuration: true);
@@ -257,6 +257,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     newGallery = newGallery.copyWith(
+      downloadOriginalImage: oldGallery.downloadOriginalImage,
       oldVersionGalleryUrl: Value.ofNullable(oldGallery.galleryUrl),
       groupName: Value.ofNullable(galleryDownloadInfos[oldGallery.gid]?.group),
     );

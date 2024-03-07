@@ -101,7 +101,7 @@ class GalleryDetail {
     );
   }
 
-  GalleryDownloadedData toGalleryDownloadedData({bool downloadOriginalImage = false, String? group}) {
+  GalleryDownloadedData toGalleryDownloadedData() {
     return GalleryDownloadedData(
       gid: galleryUrl.gid,
       token: galleryUrl.token,
@@ -113,10 +113,9 @@ class GalleryDetail {
       publishTime: publishTime,
       downloadStatusIndex: DownloadStatus.downloading.index,
       insertTime: DateTime.now().toString(),
-      downloadOriginalImage: downloadOriginalImage,
+      downloadOriginalImage: false,
       priority: GalleryDownloadService.defaultDownloadGalleryPriority,
       sortOrder: 0,
-      groupName: group,
     );
   }
 

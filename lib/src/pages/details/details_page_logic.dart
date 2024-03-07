@@ -305,10 +305,20 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      downloadService.downloadGallery(
-        state.galleryDetails?.toGalleryDownloadedData(downloadOriginalImage: result.downloadOriginalImage, group: result.group) ??
-            state.gallery!.toGalleryDownloadedData(downloadOriginalImage: result.downloadOriginalImage, group: result.group),
+      GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+        gid: state.galleryDetails?.galleryUrl.gid ?? state.gallery!.galleryUrl.gid,
+        token: state.galleryDetails?.galleryUrl.token ?? state.gallery!.galleryUrl.token,
+        title: state.gallery?.title ?? state.galleryDetails?.japaneseTitle ?? state.galleryDetails!.rawTitle,
+        category: state.galleryDetails?.category ?? state.gallery!.category,
+        pageCount: state.galleryDetails?.pageCount ?? state.gallery!.pageCount!,
+        galleryUrl: state.galleryDetails?.galleryUrl.url ?? state.gallery!.galleryUrl.url,
+        publishTime: state.galleryDetails?.publishTime ?? state.gallery!.publishTime,
+        downloadStatusIndex: DownloadStatus.downloading.index,
+        downloadOriginalImage: result.downloadOriginalImage,
+        sortOrder: 0,
+        groupName: result.group,
       );
+      downloadService.downloadGallery(galleryDownloadedData);
 
       updateGlobalGalleryStatus();
 
