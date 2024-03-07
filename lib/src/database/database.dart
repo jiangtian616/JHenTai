@@ -25,6 +25,7 @@ import 'dao/gallery_dao.dart';
 
 part 'database.g.dart';
 
+@Deprecated(".drift is not used any more, use DSL instead")
 @DriftDatabase(
   include: {
     'gallery_downloaded.drift',
