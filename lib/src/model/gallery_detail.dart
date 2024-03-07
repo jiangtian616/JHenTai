@@ -118,30 +118,4 @@ class GalleryDetail {
       sortOrder: 0,
     );
   }
-
-  ArchiveDownloadedData toArchiveDownloadedData({
-    required String archivePageUrl,
-    required bool isOriginal,
-    required int size,
-    required String group,
-  }) {
-    return ArchiveDownloadedData(
-      gid: galleryUrl.gid,
-      token: galleryUrl.token,
-      title: japaneseTitle ?? rawTitle,
-      category: category,
-      pageCount: pageCount,
-      galleryUrl: galleryUrl.url,
-      uploader: uploader,
-      size: size,
-      coverUrl: cover.url,
-      publishTime: publishTime,
-      archiveStatusIndex: ArchiveStatus.unlocking.index,
-      archivePageUrl: archivePageUrl,
-      isOriginal: isOriginal,
-      insertTime: DateTime.now().toString(),
-      sortOrder: 0,
-      groupName: group,
-    );
-  }
 }
