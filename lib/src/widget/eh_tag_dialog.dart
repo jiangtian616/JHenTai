@@ -226,10 +226,11 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       voteDownState = LoadingState.loading;
     }
 
-    bool success = await _doVote(isVotingUp: isVotingUp);
-    if (success) {
-      widget.onTagVoted?.call(isVotingUp);
-    }
+    _doVote(isVotingUp: isVotingUp).then((bool success) {
+      if (success) {
+        widget.onTagVoted?.call(isVotingUp);
+      }
+    });
 
     return true;
   }
