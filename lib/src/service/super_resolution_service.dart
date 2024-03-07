@@ -11,6 +11,7 @@ import 'package:jhentai/src/utils/table.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
+import '../database/dao/super_resolution_info_dao.dart';
 import '../model/gallery_image.dart';
 import '../setting/path_setting.dart';
 import '../utils/archive_util.dart';
@@ -237,7 +238,7 @@ class SuperResolutionService extends GetxController {
 
     superResolutionInfo.currentProcess?.kill();
     superResolutionInfoTable.remove(gid, type);
-    await appDb.deleteSuperResolutionInfo(gid);
+    await SuperResolutionInfoDao.deleteSuperResolutionInfo(gid,type.index);
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
@@ -458,24 +459,29 @@ class SuperResolutionService extends GetxController {
 
   /// db
   Future<List<SuperResolutionInfoData>> _selectAllSuperResolutionInfo() async {
-    return appDb.selectAllSuperResolutionInfo().get();
+    return SuperResolutionInfoDao.selectAllSuperResolutionInfo();
   }
 
   Future<bool> _insertSuperResolutionInfo(int gid, SuperResolutionInfo superResolutionInfo) async {
-    return await appDb.insertSuperResolutionInfo(
-          gid,
-          superResolutionInfo.type.index,
-          superResolutionInfo.status.index,
-          superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+    return await SuperResolutionInfoDao.insertSuperResolutionInfo(
+          SuperResolutionInfoData(
+            gid: gid,
+            type: superResolutionInfo.type.index,
+            status: superResolutionInfo.status.index,
+            imageStatuses: superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+          ),
         ) >
         0;
   }
 
   Future<bool> _updateSuperResolutionInfoStatus(int gid, SuperResolutionInfo superResolutionInfo) async {
-    return await appDb.updateSuperResolutionInfoStatus(
-          superResolutionInfo.status.index,
-          superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
-          gid,
+    return await SuperResolutionInfoDao.updateSuperResolutionInfo(
+          SuperResolutionInfoData(
+            gid: gid,
+            type: superResolutionInfo.type.index,
+            status: superResolutionInfo.status.index,
+            imageStatuses: superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+          ),
         ) >
         0;
   }

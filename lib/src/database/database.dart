@@ -8,6 +8,8 @@ import 'package:drift/native.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
+import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -23,21 +25,26 @@ import 'dao/gallery_dao.dart';
 
 part 'database.g.dart';
 
-@DriftDatabase(include: {
-  'gallery_downloaded.drift',
-  'archive_downloaded.drift',
-  'tag.drift',
-  'gallery_history.drift',
-  'tag_browse_progress.drift',
-  'super_resolution_info.drift',
-  'tag_count.drift',
-  'dio_cache.drift',
-})
+@DriftDatabase(
+  include: {
+    'gallery_downloaded.drift',
+    'archive_downloaded.drift',
+    'tag.drift',
+    'gallery_history.drift',
+    'tag_browse_progress.drift',
+    'tag_count.drift',
+    'dio_cache.drift',
+  },
+  tables: [
+    OldSuperResolutionInfo,
+    SuperResolutionInfo,
+  ],
+)
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -96,6 +103,9 @@ class AppDb extends _$AppDb {
             await m.createTable(dioCache);
             await m.createIndex(idxExpireDate);
             await m.createIndex(idxUrl);
+          }
+          if (from < 15) {
+            await _migrateSuperResolutionInfo(m);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -177,6 +187,30 @@ class AppDb extends _$AppDb {
   Future<void> _deleteImageSizeColumn(Migrator m) async {
     await m.alterTable(TableMigration(archiveDownloaded));
     await m.alterTable(TableMigration(image));
+  }
+
+  Future<void> _migrateSuperResolutionInfo(Migrator m) async {
+    try {
+      await m.createTable(superResolutionInfo);
+
+      List<OldSuperResolutionInfoData> oldSuperResolutionInfo = await SuperResolutionInfoDao.selectAllOldSuperResolutionInfo();
+
+      await appDb.transaction(() async {
+        for (OldSuperResolutionInfoData old in oldSuperResolutionInfo) {
+          await SuperResolutionInfoDao.insertSuperResolutionInfo(
+            SuperResolutionInfoData(
+              gid: old.gid,
+              type: old.type,
+              status: old.status,
+              imageStatuses: old.imageStatuses,
+            ),
+          );
+        }
+      });
+    } on Exception catch (e) {
+      Log.error('Migrate super resolution info failed!', e);
+      Log.uploadError(e);
+    }
   }
 }
 
