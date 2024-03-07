@@ -230,7 +230,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
     _clearGalleryInfoInMemory(gallery);
 
-    Get.find<SuperResolutionService>().deleteSuperResolutionInfo(gallery.gid, SuperResolutionType.gallery);
+    Get.find<SuperResolutionService>().deleteSuperResolve(gallery.gid, SuperResolutionType.gallery);
   }
 
   /// Update local downloaded gallery if there's a new version.

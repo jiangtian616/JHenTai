@@ -214,7 +214,6 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    toast('cancel'.tr);
     bool? success = superResolutionInfo.currentProcess?.kill();
     Log.info('pause super resolution: $gid $success');
 
@@ -228,46 +227,33 @@ class SuperResolutionService extends GetxController {
     updateSafely(['$superResolutionId::$gid']);
   }
 
-  /// when we update a gallery, if this gallery is in super-resolution process, we need to copy current product
-  Future<void> copyImageInfo(GalleryDownloadedData oldGallery, GalleryDownloadedData newGallery, int oldImageSerialNo, int newImageSerialNo) async {
-    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(oldGallery.gid, SuperResolutionType.gallery);
-    if (oldGallerySuperResolutionInfo == null) {
+  Future<void> deleteSuperResolve(int gid, SuperResolutionType type) async {
+    SuperResolutionInfo? superResolutionInfo = get(gid, type);
+    if (superResolutionInfo == null) {
       return;
     }
 
-    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] != SuperResolutionStatus.success) {
-      return;
+    Log.info('delete super resolution: $gid');
+
+    superResolutionInfo.currentProcess?.kill();
+    superResolutionInfoTable.remove(gid, type);
+    await appDb.deleteSuperResolutionInfo(gid);
+
+    String dirPath;
+    if (type == SuperResolutionType.gallery) {
+      GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == gid);
+      dirPath = join(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid), imageDirName);
+    } else {
+      ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == gid);
+      dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive), imageDirName);
     }
 
-    Log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
-
-    SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
-    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
-    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
-
-    if (newGallerySuperResolutionInfo == null) {
-      newGallerySuperResolutionInfo = SuperResolutionInfo(
-        SuperResolutionType.gallery,
-        SuperResolutionStatus.paused,
-        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images.length, (_) => SuperResolutionStatus.running),
-      );
-      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
-      await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
-      File(newPath).parent.createSync(recursive: true);
-      updateSafely(['$superResolutionId::${newGallery.gid}']);
+    Directory directory = Directory(dirPath);
+    if (directory.existsSync()) {
+      Directory(dirPath).deleteSync(recursive: true);
     }
 
-    try {
-      File imageFile = File(oldPath);
-      imageFile.copySync(newPath);
-    } on Exception catch (e) {
-      Log.error('copy super resolution image failed', e);
-      Log.uploadError(e);
-    }
-
-    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
-    await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
-    updateSafely(['$superResolutionId::${newGallery.gid}', '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo']);
+    updateSafely(['$superResolutionId::$gid']);
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
@@ -460,20 +446,8 @@ class SuperResolutionService extends GetxController {
     }
 
     for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in targetEntries) {
-      deleteSuperResolutionInfo(entry.key1, entry.key2);
+      deleteSuperResolve(entry.key1, entry.key2);
     }
-  }
-
-  String computeImageOutputAbsolutePath(String rawImagePath) {
-    return join(PathSetting.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
-  }
-
-  String computeImageOutputRelativePath(String rawImagePath) {
-    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + (extension(rawImagePath) == '.gif' ? '.gif' : '.png'));
-  }
-
-  String computeImageOutputDirPath(String rawImagePath) {
-    return join(dirname(rawImagePath), imageDirName);
   }
 
   /// db
@@ -500,14 +474,60 @@ class SuperResolutionService extends GetxController {
         0;
   }
 
-  Future<bool> deleteSuperResolutionInfo(int gid, SuperResolutionType type) async {
-    Log.info('delete super resolution: $gid');
+  // disk
 
-    superResolutionInfoTable.remove(gid, type);
-    updateSafely(['$superResolutionId::$gid']);
-    toast('success'.tr);
+  /// when we update a gallery, if this gallery is in super-resolution process, we need to copy current product
+  Future<void> copyImageInfo(GalleryDownloadedData oldGallery, GalleryDownloadedData newGallery, int oldImageSerialNo, int newImageSerialNo) async {
+    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(oldGallery.gid, SuperResolutionType.gallery);
+    if (oldGallerySuperResolutionInfo == null) {
+      return;
+    }
 
-    return await appDb.deleteSuperResolutionInfo(gid) > 0;
+    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] != SuperResolutionStatus.success) {
+      return;
+    }
+
+    Log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
+
+    SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
+    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
+    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
+
+    if (newGallerySuperResolutionInfo == null) {
+      newGallerySuperResolutionInfo = SuperResolutionInfo(
+        SuperResolutionType.gallery,
+        SuperResolutionStatus.paused,
+        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images.length, (_) => SuperResolutionStatus.running),
+      );
+      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
+      await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
+      File(newPath).parent.createSync(recursive: true);
+      updateSafely(['$superResolutionId::${newGallery.gid}']);
+    }
+
+    try {
+      File imageFile = File(oldPath);
+      imageFile.copySync(newPath);
+    } on Exception catch (e) {
+      Log.error('copy super resolution image failed', e);
+      Log.uploadError(e);
+    }
+
+    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
+    await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
+    updateSafely(['$superResolutionId::${newGallery.gid}', '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo']);
+  }
+
+  String computeImageOutputAbsolutePath(String rawImagePath) {
+    return join(PathSetting.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
+  }
+
+  String computeImageOutputRelativePath(String rawImagePath) {
+    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + (extension(rawImagePath) == '.gif' ? '.gif' : '.png'));
+  }
+
+  String computeImageOutputDirPath(String rawImagePath) {
+    return join(dirname(rawImagePath), imageDirName);
   }
 }
 

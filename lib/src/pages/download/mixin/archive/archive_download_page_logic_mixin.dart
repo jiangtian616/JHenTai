@@ -15,6 +15,7 @@ import '../../../../setting/read_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
+import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../../../../widget/re_unlock_dialog.dart';
@@ -181,9 +182,9 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
               onPressed: () async {
                 backRoute();
                 if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running) {
-                  superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive);
+                  superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
                 } else if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success) {
-                  superResolutionService.deleteSuperResolutionInfo(archive.gid, SuperResolutionType.archive);
+                  superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
                 } else {
                   if (archive.isOriginal) {
                     bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
