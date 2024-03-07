@@ -534,13 +534,24 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      ArchiveDownloadedData archive = state.galleryDetails!.toArchiveDownloadedData(
+      ArchiveDownloadedData archive = ArchiveDownloadedData(
+        gid: state.galleryDetails!.galleryUrl.gid,
+        token: state.galleryDetails!.galleryUrl.token,
+        title: state.gallery?.title ?? state.galleryDetails!.japaneseTitle ?? state.galleryDetails!.rawTitle,
+        category: state.galleryDetails!.category,
+        pageCount: state.galleryDetails!.pageCount,
+        galleryUrl: state.galleryDetails!.galleryUrl.url,
+        uploader: state.galleryDetails!.uploader,
+        size: result.size,
+        coverUrl: state.galleryDetails!.cover.url,
+        publishTime: state.galleryDetails!.publishTime,
+        archiveStatusIndex: ArchiveStatus.unlocking.index,
         archivePageUrl: state.galleryDetails!.archivePageUrl,
         isOriginal: result.isOriginal,
-        size: result.size,
-        group: result.group,
+        insertTime: DateTime.now().toString(),
+        sortOrder: 0,
+        groupName: result.group,
       );
-
       archiveDownloadService.downloadArchive(archive);
 
       updateGlobalGalleryStatus();
