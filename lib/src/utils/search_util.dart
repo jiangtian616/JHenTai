@@ -75,9 +75,6 @@ void newSearchWithConfig(SearchConfig searchConfig, [bool forceNewRoute = false]
     return;
   }
 
-  /// close drawer
-  backRoute(currentRoute: Routes.mobileV2Search);
-
   if (SearchPageMobileV2Logic.current == null) {
     toRoute(Routes.mobileV2Search, arguments: searchConfig.copyWith());
     return;
