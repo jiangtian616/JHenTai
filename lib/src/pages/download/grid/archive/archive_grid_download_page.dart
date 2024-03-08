@@ -121,8 +121,10 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             (archive) => GetBuilder<ArchiveDownloadService>(
               id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
               builder: (_) {
+                Widget cover = buildGroupInnerImage(GalleryImage(url: archive.coverUrl));
+
                 if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
-                  return buildGroupInnerImage(logic.archiveDownloadService.getArchiveCover(archive.gid));
+                  return cover;
                 }
 
                 return ClipRRect(
@@ -131,7 +133,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     blur: 1,
                     blurColor: UIConfig.downloadPageGridCoverBlurColor,
                     colorOpacity: 0.6,
-                    child: buildGroupInnerImage(GalleryImage(url: archive.coverUrl)),
+                    child: cover,
                     overlay: const Icon(Icons.download, color: UIConfig.downloadPageGridCoverOverlayColor),
                   ),
                 );
@@ -154,16 +156,15 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         builder: (_) => GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
           builder: (_) {
+            Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
+
             if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
               if (state.selectedGids.contains(archive.gid)) {
                 return Stack(
-                  children: [
-                    buildGalleryImage(logic.archiveDownloadService.getArchiveCover(archive.gid)),
-                    _buildSelectedIcon(),
-                  ],
+                  children: [cover, _buildSelectedIcon()],
                 );
               } else {
-                return buildGalleryImage(logic.archiveDownloadService.getArchiveCover(archive.gid));
+                return cover;
               }
             }
 
@@ -177,7 +178,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     blur: 1,
                     blurColor: UIConfig.downloadPageGridCoverBlurColor,
                     colorOpacity: 0.6,
-                    child: buildGalleryImage(GalleryImage(url: archive.coverUrl)),
+                    child: cover,
                   ),
                 ),
                 _buildCircularProgressIndicator(archive, archiveDownloadInfo),
