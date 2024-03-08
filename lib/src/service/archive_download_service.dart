@@ -43,6 +43,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<String> allGroups = [];
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
+  Map<int, GalleryImage> archiveCover = {};
 
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
@@ -379,6 +380,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           ),
         )
         .toList();
+  }
+
+  GalleryImage getArchiveCover(int gid) {
+    return archiveCover[gid] ??= getUnpackedImages(gid).first;
   }
 
   String _computeArchiveTitle(String rawTitle) {
@@ -792,7 +797,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     if (sort) _sortArchives();
-    update([galleryCountChangedId, '$archiveStatusId::::${archive.gid}']);
+    update([galleryCountChangedId, '$archiveStatusId::${archive.gid}']);
   }
 
   void _deleteArchiveInMemory(int gid, bool isOriginal) {
@@ -801,6 +806,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     archiveDownloadInfo?.cancelToken.cancel();
     archiveDownloadInfo?.speedComputer.dispose();
+
+    archiveCover.remove(gid);
 
     update([galleryCountChangedId]);
   }

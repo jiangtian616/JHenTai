@@ -220,13 +220,28 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         Routes.details,
         arguments: {'galleryUrl': GalleryUrl.parse(archive.galleryUrl)},
       ),
-      child: EHImage(
-        galleryImage: GalleryImage(url: archive.coverUrl),
-        containerWidth: UIConfig.downloadPageCoverWidth,
-        containerHeight: UIConfig.downloadPageCoverHeight,
-        borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-        fit: BoxFit.fitWidth,
-        maxBytes: 2 * 1024 * 1024,
+      child: GetBuilder<ArchiveDownloadService>(
+        id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+        builder: (_) {
+          if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+            return EHImage(
+              galleryImage: logic.archiveDownloadService.getArchiveCover(archive.gid),
+              containerWidth: UIConfig.downloadPageCoverWidth,
+              containerHeight: UIConfig.downloadPageCoverHeight,
+              borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              fit: BoxFit.fitWidth,
+              maxBytes: 2 * 1024 * 1024,
+            );
+          }
+          return EHImage(
+            galleryImage: GalleryImage(url: archive.coverUrl),
+            containerWidth: UIConfig.downloadPageCoverWidth,
+            containerHeight: UIConfig.downloadPageCoverHeight,
+            borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+            fit: BoxFit.fitWidth,
+            maxBytes: 2 * 1024 * 1024,
+          );
+        },
       ),
     );
   }
