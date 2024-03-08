@@ -5,8 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
+import 'package:jhentai/src/database/dao/tag_dao.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
-import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
@@ -17,7 +17,6 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../database/database.dart';
-import '../model/gallery.dart';
 import '../model/gallery_tag.dart';
 import '../utils/log.dart';
 
@@ -123,16 +122,18 @@ class TagTranslationService extends GetxService {
     /// save
     timeStamp.value = null;
     await appDb.transaction(() async {
-      await appDb.deleteAllTags();
+      await TagDao.deleteAllTags();
       for (TagData tag in tagList) {
-        await appDb.insertTag(
-          tag.namespace,
-          tag.key,
-          tag.translatedNamespace,
-          tag.tagName,
-          tag.fullTagName,
-          tag.intro,
-          tag.links,
+        await TagDao.insertTag(
+          TagData(
+            namespace: tag.namespace,
+            key: tag.key,
+            translatedNamespace: tag.translatedNamespace,
+            tagName: tag.tagName,
+            fullTagName: tag.fullTagName,
+            intro: tag.intro,
+            links: tag.links,
+          ),
         );
       }
     });
@@ -166,12 +167,12 @@ class TagTranslationService extends GetxService {
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {
-    List<TagData> list = await appDb.selectTagByNamespaceAndKey(namespace, key).get();
+    List<TagData> list = await TagDao.selectTagByNamespaceAndKey(namespace, key);
     return list.isNotEmpty ? list.first : null;
   }
 
   Future<List<TagData>> searchTags(String keyword) async {
-    List<TagData> tagDatas = await appDb.searchTags('%$keyword%').get();
+    List<TagData> tagDatas = await TagDao.searchTags('%$keyword%', 100);
     tagDatas = tagDatas.where((tag) => tag.namespace != 'rows' && tag.namespace != 'reclass').toList();
 
     TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();

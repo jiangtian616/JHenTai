@@ -10,6 +10,7 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
+import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -25,12 +26,10 @@ import 'dao/gallery_dao.dart';
 
 part 'database.g.dart';
 
-@Deprecated(".drift is not used any more, use DSL instead")
 @DriftDatabase(
   include: {
     'gallery_downloaded.drift',
     'archive_downloaded.drift',
-    'tag.drift',
     'gallery_history.drift',
     'tag_browse_progress.drift',
     'tag_count.drift',
@@ -39,13 +38,14 @@ part 'database.g.dart';
   tables: [
     OldSuperResolutionInfo,
     SuperResolutionInfo,
+    Tag,
   ],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {
@@ -107,6 +107,10 @@ class AppDb extends _$AppDb {
           }
           if (from < 15) {
             await _migrateSuperResolutionInfo(m);
+          }
+          if (from < 16) {
+            await m.createIndex(idxKey);
+            await m.createIndex(idxTagName);
           }
         } on Exception catch (e) {
           Log.error(e);

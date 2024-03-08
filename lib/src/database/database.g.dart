@@ -913,409 +913,6 @@ class GalleryHistoryCompanion extends UpdateCompanion<GalleryHistoryData> {
   }
 }
 
-class Tag extends Table with TableInfo<Tag, TagData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  Tag(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _namespaceMeta =
-      const VerificationMeta('namespace');
-  late final GeneratedColumn<String> namespace = GeneratedColumn<String>(
-      'namespace', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _keyMeta = const VerificationMeta('key');
-  late final GeneratedColumn<String> key = GeneratedColumn<String>(
-      '_key', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _translatedNamespaceMeta =
-      const VerificationMeta('translatedNamespace');
-  late final GeneratedColumn<String> translatedNamespace =
-      GeneratedColumn<String>('translatedNamespace', aliasedName, true,
-          type: DriftSqlType.string,
-          requiredDuringInsert: false,
-          $customConstraints: '');
-  static const VerificationMeta _tagNameMeta =
-      const VerificationMeta('tagName');
-  late final GeneratedColumn<String> tagName = GeneratedColumn<String>(
-      'tagName', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _fullTagNameMeta =
-      const VerificationMeta('fullTagName');
-  late final GeneratedColumn<String> fullTagName = GeneratedColumn<String>(
-      'fullTagName', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _introMeta = const VerificationMeta('intro');
-  late final GeneratedColumn<String> intro = GeneratedColumn<String>(
-      'intro', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _linksMeta = const VerificationMeta('links');
-  late final GeneratedColumn<String> links = GeneratedColumn<String>(
-      'links', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  @override
-  List<GeneratedColumn> get $columns =>
-      [namespace, key, translatedNamespace, tagName, fullTagName, intro, links];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tag';
-  @override
-  VerificationContext validateIntegrity(Insertable<TagData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('namespace')) {
-      context.handle(_namespaceMeta,
-          namespace.isAcceptableOrUnknown(data['namespace']!, _namespaceMeta));
-    } else if (isInserting) {
-      context.missing(_namespaceMeta);
-    }
-    if (data.containsKey('_key')) {
-      context.handle(
-          _keyMeta, key.isAcceptableOrUnknown(data['_key']!, _keyMeta));
-    } else if (isInserting) {
-      context.missing(_keyMeta);
-    }
-    if (data.containsKey('translatedNamespace')) {
-      context.handle(
-          _translatedNamespaceMeta,
-          translatedNamespace.isAcceptableOrUnknown(
-              data['translatedNamespace']!, _translatedNamespaceMeta));
-    }
-    if (data.containsKey('tagName')) {
-      context.handle(_tagNameMeta,
-          tagName.isAcceptableOrUnknown(data['tagName']!, _tagNameMeta));
-    }
-    if (data.containsKey('fullTagName')) {
-      context.handle(
-          _fullTagNameMeta,
-          fullTagName.isAcceptableOrUnknown(
-              data['fullTagName']!, _fullTagNameMeta));
-    }
-    if (data.containsKey('intro')) {
-      context.handle(
-          _introMeta, intro.isAcceptableOrUnknown(data['intro']!, _introMeta));
-    }
-    if (data.containsKey('links')) {
-      context.handle(
-          _linksMeta, links.isAcceptableOrUnknown(data['links']!, _linksMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {namespace, key};
-  @override
-  TagData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TagData(
-      namespace: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}namespace'])!,
-      key: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}_key'])!,
-      translatedNamespace: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}translatedNamespace']),
-      tagName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tagName']),
-      fullTagName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}fullTagName']),
-      intro: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}intro']),
-      links: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}links']),
-    );
-  }
-
-  @override
-  Tag createAlias(String alias) {
-    return Tag(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const ['PRIMARY KEY(namespace, _key)'];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class TagData extends DataClass implements Insertable<TagData> {
-  final String namespace;
-
-  /// raw namespace of the tag
-  final String key;
-
-  /// raw tagName of the tag
-  final String? translatedNamespace;
-
-  /// translated namespace of the tag
-  final String? tagName;
-
-  /// translated tagName of the tag
-  final String? fullTagName;
-
-  /// full translated tagName of the tag(in html form)
-  final String? intro;
-  final String? links;
-  const TagData(
-      {required this.namespace,
-      required this.key,
-      this.translatedNamespace,
-      this.tagName,
-      this.fullTagName,
-      this.intro,
-      this.links});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['namespace'] = Variable<String>(namespace);
-    map['_key'] = Variable<String>(key);
-    if (!nullToAbsent || translatedNamespace != null) {
-      map['translatedNamespace'] = Variable<String>(translatedNamespace);
-    }
-    if (!nullToAbsent || tagName != null) {
-      map['tagName'] = Variable<String>(tagName);
-    }
-    if (!nullToAbsent || fullTagName != null) {
-      map['fullTagName'] = Variable<String>(fullTagName);
-    }
-    if (!nullToAbsent || intro != null) {
-      map['intro'] = Variable<String>(intro);
-    }
-    if (!nullToAbsent || links != null) {
-      map['links'] = Variable<String>(links);
-    }
-    return map;
-  }
-
-  TagCompanion toCompanion(bool nullToAbsent) {
-    return TagCompanion(
-      namespace: Value(namespace),
-      key: Value(key),
-      translatedNamespace: translatedNamespace == null && nullToAbsent
-          ? const Value.absent()
-          : Value(translatedNamespace),
-      tagName: tagName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(tagName),
-      fullTagName: fullTagName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(fullTagName),
-      intro:
-          intro == null && nullToAbsent ? const Value.absent() : Value(intro),
-      links:
-          links == null && nullToAbsent ? const Value.absent() : Value(links),
-    );
-  }
-
-  factory TagData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TagData(
-      namespace: serializer.fromJson<String>(json['namespace']),
-      key: serializer.fromJson<String>(json['_key']),
-      translatedNamespace:
-          serializer.fromJson<String?>(json['translatedNamespace']),
-      tagName: serializer.fromJson<String?>(json['tagName']),
-      fullTagName: serializer.fromJson<String?>(json['fullTagName']),
-      intro: serializer.fromJson<String?>(json['intro']),
-      links: serializer.fromJson<String?>(json['links']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'namespace': serializer.toJson<String>(namespace),
-      '_key': serializer.toJson<String>(key),
-      'translatedNamespace': serializer.toJson<String?>(translatedNamespace),
-      'tagName': serializer.toJson<String?>(tagName),
-      'fullTagName': serializer.toJson<String?>(fullTagName),
-      'intro': serializer.toJson<String?>(intro),
-      'links': serializer.toJson<String?>(links),
-    };
-  }
-
-  TagData copyWith(
-          {String? namespace,
-          String? key,
-          Value<String?> translatedNamespace = const Value.absent(),
-          Value<String?> tagName = const Value.absent(),
-          Value<String?> fullTagName = const Value.absent(),
-          Value<String?> intro = const Value.absent(),
-          Value<String?> links = const Value.absent()}) =>
-      TagData(
-        namespace: namespace ?? this.namespace,
-        key: key ?? this.key,
-        translatedNamespace: translatedNamespace.present
-            ? translatedNamespace.value
-            : this.translatedNamespace,
-        tagName: tagName.present ? tagName.value : this.tagName,
-        fullTagName: fullTagName.present ? fullTagName.value : this.fullTagName,
-        intro: intro.present ? intro.value : this.intro,
-        links: links.present ? links.value : this.links,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('TagData(')
-          ..write('namespace: $namespace, ')
-          ..write('key: $key, ')
-          ..write('translatedNamespace: $translatedNamespace, ')
-          ..write('tagName: $tagName, ')
-          ..write('fullTagName: $fullTagName, ')
-          ..write('intro: $intro, ')
-          ..write('links: $links')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      namespace, key, translatedNamespace, tagName, fullTagName, intro, links);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TagData &&
-          other.namespace == this.namespace &&
-          other.key == this.key &&
-          other.translatedNamespace == this.translatedNamespace &&
-          other.tagName == this.tagName &&
-          other.fullTagName == this.fullTagName &&
-          other.intro == this.intro &&
-          other.links == this.links);
-}
-
-class TagCompanion extends UpdateCompanion<TagData> {
-  final Value<String> namespace;
-  final Value<String> key;
-  final Value<String?> translatedNamespace;
-  final Value<String?> tagName;
-  final Value<String?> fullTagName;
-  final Value<String?> intro;
-  final Value<String?> links;
-  final Value<int> rowid;
-  const TagCompanion({
-    this.namespace = const Value.absent(),
-    this.key = const Value.absent(),
-    this.translatedNamespace = const Value.absent(),
-    this.tagName = const Value.absent(),
-    this.fullTagName = const Value.absent(),
-    this.intro = const Value.absent(),
-    this.links = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TagCompanion.insert({
-    required String namespace,
-    required String key,
-    this.translatedNamespace = const Value.absent(),
-    this.tagName = const Value.absent(),
-    this.fullTagName = const Value.absent(),
-    this.intro = const Value.absent(),
-    this.links = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : namespace = Value(namespace),
-        key = Value(key);
-  static Insertable<TagData> custom({
-    Expression<String>? namespace,
-    Expression<String>? key,
-    Expression<String>? translatedNamespace,
-    Expression<String>? tagName,
-    Expression<String>? fullTagName,
-    Expression<String>? intro,
-    Expression<String>? links,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (namespace != null) 'namespace': namespace,
-      if (key != null) '_key': key,
-      if (translatedNamespace != null)
-        'translatedNamespace': translatedNamespace,
-      if (tagName != null) 'tagName': tagName,
-      if (fullTagName != null) 'fullTagName': fullTagName,
-      if (intro != null) 'intro': intro,
-      if (links != null) 'links': links,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TagCompanion copyWith(
-      {Value<String>? namespace,
-      Value<String>? key,
-      Value<String?>? translatedNamespace,
-      Value<String?>? tagName,
-      Value<String?>? fullTagName,
-      Value<String?>? intro,
-      Value<String?>? links,
-      Value<int>? rowid}) {
-    return TagCompanion(
-      namespace: namespace ?? this.namespace,
-      key: key ?? this.key,
-      translatedNamespace: translatedNamespace ?? this.translatedNamespace,
-      tagName: tagName ?? this.tagName,
-      fullTagName: fullTagName ?? this.fullTagName,
-      intro: intro ?? this.intro,
-      links: links ?? this.links,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (namespace.present) {
-      map['namespace'] = Variable<String>(namespace.value);
-    }
-    if (key.present) {
-      map['_key'] = Variable<String>(key.value);
-    }
-    if (translatedNamespace.present) {
-      map['translatedNamespace'] = Variable<String>(translatedNamespace.value);
-    }
-    if (tagName.present) {
-      map['tagName'] = Variable<String>(tagName.value);
-    }
-    if (fullTagName.present) {
-      map['fullTagName'] = Variable<String>(fullTagName.value);
-    }
-    if (intro.present) {
-      map['intro'] = Variable<String>(intro.value);
-    }
-    if (links.present) {
-      map['links'] = Variable<String>(links.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TagCompanion(')
-          ..write('namespace: $namespace, ')
-          ..write('key: $key, ')
-          ..write('translatedNamespace: $translatedNamespace, ')
-          ..write('tagName: $tagName, ')
-          ..write('fullTagName: $fullTagName, ')
-          ..write('intro: $intro, ')
-          ..write('links: $links, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class ArchiveDownloaded extends Table
     with TableInfo<ArchiveDownloaded, ArchiveDownloadedData> {
   @override
@@ -4127,6 +3724,387 @@ class SuperResolutionInfoCompanion
   }
 }
 
+class $TagTable extends Tag with TableInfo<$TagTable, TagData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TagTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _namespaceMeta =
+      const VerificationMeta('namespace');
+  @override
+  late final GeneratedColumn<String> namespace = GeneratedColumn<String>(
+      'namespace', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+      '_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _translatedNamespaceMeta =
+      const VerificationMeta('translatedNamespace');
+  @override
+  late final GeneratedColumn<String> translatedNamespace =
+      GeneratedColumn<String>('translatedNamespace', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _tagNameMeta =
+      const VerificationMeta('tagName');
+  @override
+  late final GeneratedColumn<String> tagName = GeneratedColumn<String>(
+      'tagName', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fullTagNameMeta =
+      const VerificationMeta('fullTagName');
+  @override
+  late final GeneratedColumn<String> fullTagName = GeneratedColumn<String>(
+      'fullTagName', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _introMeta = const VerificationMeta('intro');
+  @override
+  late final GeneratedColumn<String> intro = GeneratedColumn<String>(
+      'intro', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _linksMeta = const VerificationMeta('links');
+  @override
+  late final GeneratedColumn<String> links = GeneratedColumn<String>(
+      'links', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [namespace, key, translatedNamespace, tagName, fullTagName, intro, links];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tag';
+  @override
+  VerificationContext validateIntegrity(Insertable<TagData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('namespace')) {
+      context.handle(_namespaceMeta,
+          namespace.isAcceptableOrUnknown(data['namespace']!, _namespaceMeta));
+    } else if (isInserting) {
+      context.missing(_namespaceMeta);
+    }
+    if (data.containsKey('_key')) {
+      context.handle(
+          _keyMeta, key.isAcceptableOrUnknown(data['_key']!, _keyMeta));
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('translatedNamespace')) {
+      context.handle(
+          _translatedNamespaceMeta,
+          translatedNamespace.isAcceptableOrUnknown(
+              data['translatedNamespace']!, _translatedNamespaceMeta));
+    }
+    if (data.containsKey('tagName')) {
+      context.handle(_tagNameMeta,
+          tagName.isAcceptableOrUnknown(data['tagName']!, _tagNameMeta));
+    }
+    if (data.containsKey('fullTagName')) {
+      context.handle(
+          _fullTagNameMeta,
+          fullTagName.isAcceptableOrUnknown(
+              data['fullTagName']!, _fullTagNameMeta));
+    }
+    if (data.containsKey('intro')) {
+      context.handle(
+          _introMeta, intro.isAcceptableOrUnknown(data['intro']!, _introMeta));
+    }
+    if (data.containsKey('links')) {
+      context.handle(
+          _linksMeta, links.isAcceptableOrUnknown(data['links']!, _linksMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {namespace, key};
+  @override
+  TagData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TagData(
+      namespace: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}namespace'])!,
+      key: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}_key'])!,
+      translatedNamespace: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}translatedNamespace']),
+      tagName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tagName']),
+      fullTagName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}fullTagName']),
+      intro: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}intro']),
+      links: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}links']),
+    );
+  }
+
+  @override
+  $TagTable createAlias(String alias) {
+    return $TagTable(attachedDatabase, alias);
+  }
+}
+
+class TagData extends DataClass implements Insertable<TagData> {
+  final String namespace;
+  final String key;
+  final String? translatedNamespace;
+  final String? tagName;
+  final String? fullTagName;
+  final String? intro;
+  final String? links;
+  const TagData(
+      {required this.namespace,
+      required this.key,
+      this.translatedNamespace,
+      this.tagName,
+      this.fullTagName,
+      this.intro,
+      this.links});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['namespace'] = Variable<String>(namespace);
+    map['_key'] = Variable<String>(key);
+    if (!nullToAbsent || translatedNamespace != null) {
+      map['translatedNamespace'] = Variable<String>(translatedNamespace);
+    }
+    if (!nullToAbsent || tagName != null) {
+      map['tagName'] = Variable<String>(tagName);
+    }
+    if (!nullToAbsent || fullTagName != null) {
+      map['fullTagName'] = Variable<String>(fullTagName);
+    }
+    if (!nullToAbsent || intro != null) {
+      map['intro'] = Variable<String>(intro);
+    }
+    if (!nullToAbsent || links != null) {
+      map['links'] = Variable<String>(links);
+    }
+    return map;
+  }
+
+  TagCompanion toCompanion(bool nullToAbsent) {
+    return TagCompanion(
+      namespace: Value(namespace),
+      key: Value(key),
+      translatedNamespace: translatedNamespace == null && nullToAbsent
+          ? const Value.absent()
+          : Value(translatedNamespace),
+      tagName: tagName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tagName),
+      fullTagName: fullTagName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fullTagName),
+      intro:
+          intro == null && nullToAbsent ? const Value.absent() : Value(intro),
+      links:
+          links == null && nullToAbsent ? const Value.absent() : Value(links),
+    );
+  }
+
+  factory TagData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TagData(
+      namespace: serializer.fromJson<String>(json['namespace']),
+      key: serializer.fromJson<String>(json['_key']),
+      translatedNamespace:
+          serializer.fromJson<String?>(json['translatedNamespace']),
+      tagName: serializer.fromJson<String?>(json['tagName']),
+      fullTagName: serializer.fromJson<String?>(json['fullTagName']),
+      intro: serializer.fromJson<String?>(json['intro']),
+      links: serializer.fromJson<String?>(json['links']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'namespace': serializer.toJson<String>(namespace),
+      '_key': serializer.toJson<String>(key),
+      'translatedNamespace': serializer.toJson<String?>(translatedNamespace),
+      'tagName': serializer.toJson<String?>(tagName),
+      'fullTagName': serializer.toJson<String?>(fullTagName),
+      'intro': serializer.toJson<String?>(intro),
+      'links': serializer.toJson<String?>(links),
+    };
+  }
+
+  TagData copyWith(
+          {String? namespace,
+          String? key,
+          Value<String?> translatedNamespace = const Value.absent(),
+          Value<String?> tagName = const Value.absent(),
+          Value<String?> fullTagName = const Value.absent(),
+          Value<String?> intro = const Value.absent(),
+          Value<String?> links = const Value.absent()}) =>
+      TagData(
+        namespace: namespace ?? this.namespace,
+        key: key ?? this.key,
+        translatedNamespace: translatedNamespace.present
+            ? translatedNamespace.value
+            : this.translatedNamespace,
+        tagName: tagName.present ? tagName.value : this.tagName,
+        fullTagName: fullTagName.present ? fullTagName.value : this.fullTagName,
+        intro: intro.present ? intro.value : this.intro,
+        links: links.present ? links.value : this.links,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TagData(')
+          ..write('namespace: $namespace, ')
+          ..write('key: $key, ')
+          ..write('translatedNamespace: $translatedNamespace, ')
+          ..write('tagName: $tagName, ')
+          ..write('fullTagName: $fullTagName, ')
+          ..write('intro: $intro, ')
+          ..write('links: $links')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      namespace, key, translatedNamespace, tagName, fullTagName, intro, links);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TagData &&
+          other.namespace == this.namespace &&
+          other.key == this.key &&
+          other.translatedNamespace == this.translatedNamespace &&
+          other.tagName == this.tagName &&
+          other.fullTagName == this.fullTagName &&
+          other.intro == this.intro &&
+          other.links == this.links);
+}
+
+class TagCompanion extends UpdateCompanion<TagData> {
+  final Value<String> namespace;
+  final Value<String> key;
+  final Value<String?> translatedNamespace;
+  final Value<String?> tagName;
+  final Value<String?> fullTagName;
+  final Value<String?> intro;
+  final Value<String?> links;
+  final Value<int> rowid;
+  const TagCompanion({
+    this.namespace = const Value.absent(),
+    this.key = const Value.absent(),
+    this.translatedNamespace = const Value.absent(),
+    this.tagName = const Value.absent(),
+    this.fullTagName = const Value.absent(),
+    this.intro = const Value.absent(),
+    this.links = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TagCompanion.insert({
+    required String namespace,
+    required String key,
+    this.translatedNamespace = const Value.absent(),
+    this.tagName = const Value.absent(),
+    this.fullTagName = const Value.absent(),
+    this.intro = const Value.absent(),
+    this.links = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : namespace = Value(namespace),
+        key = Value(key);
+  static Insertable<TagData> custom({
+    Expression<String>? namespace,
+    Expression<String>? key,
+    Expression<String>? translatedNamespace,
+    Expression<String>? tagName,
+    Expression<String>? fullTagName,
+    Expression<String>? intro,
+    Expression<String>? links,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (namespace != null) 'namespace': namespace,
+      if (key != null) '_key': key,
+      if (translatedNamespace != null)
+        'translatedNamespace': translatedNamespace,
+      if (tagName != null) 'tagName': tagName,
+      if (fullTagName != null) 'fullTagName': fullTagName,
+      if (intro != null) 'intro': intro,
+      if (links != null) 'links': links,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TagCompanion copyWith(
+      {Value<String>? namespace,
+      Value<String>? key,
+      Value<String?>? translatedNamespace,
+      Value<String?>? tagName,
+      Value<String?>? fullTagName,
+      Value<String?>? intro,
+      Value<String?>? links,
+      Value<int>? rowid}) {
+    return TagCompanion(
+      namespace: namespace ?? this.namespace,
+      key: key ?? this.key,
+      translatedNamespace: translatedNamespace ?? this.translatedNamespace,
+      tagName: tagName ?? this.tagName,
+      fullTagName: fullTagName ?? this.fullTagName,
+      intro: intro ?? this.intro,
+      links: links ?? this.links,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespace.present) {
+      map['namespace'] = Variable<String>(namespace.value);
+    }
+    if (key.present) {
+      map['_key'] = Variable<String>(key.value);
+    }
+    if (translatedNamespace.present) {
+      map['translatedNamespace'] = Variable<String>(translatedNamespace.value);
+    }
+    if (tagName.present) {
+      map['tagName'] = Variable<String>(tagName.value);
+    }
+    if (fullTagName.present) {
+      map['fullTagName'] = Variable<String>(fullTagName.value);
+    }
+    if (intro.present) {
+      map['intro'] = Variable<String>(intro.value);
+    }
+    if (links.present) {
+      map['links'] = Variable<String>(links.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TagCompanion(')
+          ..write('namespace: $namespace, ')
+          ..write('key: $key, ')
+          ..write('translatedNamespace: $translatedNamespace, ')
+          ..write('tagName: $tagName, ')
+          ..write('fullTagName: $fullTagName, ')
+          ..write('intro: $intro, ')
+          ..write('links: $links, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   late final DioCache dioCache = DioCache(this);
@@ -4138,7 +4116,6 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final TagBrowseProgressTable tagBrowseProgress =
       TagBrowseProgressTable(this);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
-  late final Tag tag = Tag(this);
   late final ArchiveDownloaded archiveDownloaded = ArchiveDownloaded(this);
   late final ArchiveGroup archiveGroup = ArchiveGroup(this);
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
@@ -4148,6 +4125,11 @@ abstract class _$AppDb extends GeneratedDatabase {
       $OldSuperResolutionInfoTable(this);
   late final $SuperResolutionInfoTable superResolutionInfo =
       $SuperResolutionInfoTable(this);
+  late final $TagTable tag = $TagTable(this);
+  late final Index idxKey =
+      Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
+  late final Index idxTagName =
+      Index('idx_tagName', 'CREATE INDEX idx_tagName ON tag (tagName)');
   Selectable<DioCacheData> selectByCacheKey(String cacheKey) {
     return customSelect('SELECT * FROM dio_cache WHERE cacheKey = ?1',
         variables: [
@@ -4286,74 +4268,6 @@ abstract class _$AppDb extends GeneratedDatabase {
       'DELETE FROM gallery_history',
       variables: [],
       updates: {galleryHistory},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Selectable<TagData> selectTagByNamespaceAndKey(String namespace, String key) {
-    return customSelect('SELECT * FROM tag WHERE namespace = ?1 AND _key = ?2',
-        variables: [
-          Variable<String>(namespace),
-          Variable<String>(key)
-        ],
-        readsFrom: {
-          tag,
-        }).asyncMap(tag.mapFromRow);
-  }
-
-  Selectable<TagData> selectTagsByKey(String key) {
-    return customSelect('SELECT * FROM tag WHERE _key = ?1', variables: [
-      Variable<String>(key)
-    ], readsFrom: {
-      tag,
-    }).asyncMap(tag.mapFromRow);
-  }
-
-  Selectable<TagData> selectAllTags() {
-    return customSelect('SELECT * FROM tag', variables: [], readsFrom: {
-      tag,
-    }).asyncMap(tag.mapFromRow);
-  }
-
-  Selectable<TagData> searchTags(String pattern) {
-    return customSelect(
-        'SELECT * FROM tag WHERE _key LIKE ?1 OR tagName LIKE ?1 LIMIT 35',
-        variables: [
-          Variable<String>(pattern)
-        ],
-        readsFrom: {
-          tag,
-        }).asyncMap(tag.mapFromRow);
-  }
-
-  Future<int> insertTag(
-      String namespace,
-      String key,
-      String? translatedNamespace,
-      String? tagName,
-      String? fullTagName,
-      String? intro,
-      String? links) {
-    return customInsert(
-      'INSERT INTO tag VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)',
-      variables: [
-        Variable<String>(namespace),
-        Variable<String>(key),
-        Variable<String>(translatedNamespace),
-        Variable<String>(tagName),
-        Variable<String>(fullTagName),
-        Variable<String>(intro),
-        Variable<String>(links)
-      ],
-      updates: {tag},
-    );
-  }
-
-  Future<int> deleteAllTags() {
-    return customUpdate(
-      'DELETE FROM tag',
-      variables: [],
-      updates: {tag},
       updateKind: UpdateKind.delete,
     );
   }
@@ -4762,14 +4676,16 @@ abstract class _$AppDb extends GeneratedDatabase {
         tagCount,
         tagBrowseProgress,
         galleryHistory,
-        tag,
         archiveDownloaded,
         archiveGroup,
         galleryDownloaded,
         image,
         galleryGroup,
         oldSuperResolutionInfo,
-        superResolutionInfo
+        superResolutionInfo,
+        tag,
+        idxKey,
+        idxTagName
       ];
 }
 
