@@ -551,7 +551,7 @@ class EHSpiderParser {
         List<Element> trs = form.querySelectorAll('div > table > tbody > tr');
         return GalleryTorrent(
           title: trs[2].querySelector('td > a')!.text,
-          postTime: trs[0].querySelector('td:nth-child(1)')!.text.substring(8),
+          postTime: trs[0].querySelector('td:nth-child(1) > span:nth-child(2)')!.text,
           size: trs[0].querySelector('td:nth-child(3)')!.text.substring(6),
           seeds: int.parse(trs[0].querySelector('td:nth-child(7)')!.text.substring(7)),
           peers: int.parse(trs[0].querySelector('td:nth-child(9)')!.text.substring(7)),
@@ -559,6 +559,7 @@ class EHSpiderParser {
           uploader: trs[1].querySelector('td:nth-child(1)')!.text.substring(10),
           torrentUrl: trs[2].querySelector('td > a')!.attributes['href']!,
           magnetUrl: 'magnet:?xt=urn:btih:${trs[2].querySelector('td > a')!.attributes['href']!.split('.')[1].split('/').last}',
+          outdated: trs[0].querySelector('td:nth-child(1) > span:nth-child(2)')!.attributes['style']?.contains('color:red') ?? false,
         );
       },
     ).toList();

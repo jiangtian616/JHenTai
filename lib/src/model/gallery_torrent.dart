@@ -8,6 +8,7 @@ class GalleryTorrent {
   String uploader;
   String torrentUrl;
   String magnetUrl;
+  bool outdated;
 
   GalleryTorrent({
     required this.title,
@@ -19,5 +20,6 @@ class GalleryTorrent {
     required this.uploader,
     required this.torrentUrl,
     required this.magnetUrl,
+    required this.outdated,
   });
 }

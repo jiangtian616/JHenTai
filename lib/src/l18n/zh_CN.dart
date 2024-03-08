@@ -662,6 +662,9 @@ class zh_CN {
       'seeAll': '查看全部',
       'newest': '最新',
 
+      /// torrent dialog
+      'outdated': '已过期',
+
       /// tag dialog
       'warningImageHint': 'R18G图片，点击以显示',
 

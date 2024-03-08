@@ -665,6 +665,9 @@ class pt_BR {
       'seeAll': 'Tudo',
       'newest': 'Mias novo',
 
+      /// torrent dialog
+      'outdated': 'Outdated',
+
       /// tag dialog
       'warningImageHint': 'R18G image, Tap to view',
 

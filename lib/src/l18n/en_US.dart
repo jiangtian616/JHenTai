@@ -663,6 +663,9 @@ class en_US {
       'seeAll': 'All',
       'newest': 'Latest',
 
+      /// torrent dialog
+      'outdated': 'Outdated',
+
       /// tag dialog
       'warningImageHint': 'R18G image, Tap to view',
 

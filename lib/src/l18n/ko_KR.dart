@@ -662,6 +662,9 @@ class ko_KR {
       'seeAll': '전부',
       'newest': '최신순',
 
+      /// torrent dialog
+      'outdated': 'Outdated',
+
       /// tag dialog
       'warningImageHint': 'R18G 이미지, 눌러서 보기',
 
