@@ -4,7 +4,7 @@ import '../service/storage_service.dart';
 import '../utils/log.dart';
 
 class PerformanceSetting {
-  static RxInt maxGalleryNum4Animation = 10.obs;
+  static RxInt maxGalleryNum4Animation = 30.obs;
 
   static Future<void> init() async {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('performanceSetting');
