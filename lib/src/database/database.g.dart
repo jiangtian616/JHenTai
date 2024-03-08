@@ -913,1044 +913,6 @@ class GalleryHistoryCompanion extends UpdateCompanion<GalleryHistoryData> {
   }
 }
 
-class ArchiveDownloaded extends Table
-    with TableInfo<ArchiveDownloaded, ArchiveDownloadedData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  ArchiveDownloaded(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
-  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
-      'gid', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
-  late final GeneratedColumn<String> token = GeneratedColumn<String>(
-      'token', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _categoryMeta =
-      const VerificationMeta('category');
-  late final GeneratedColumn<String> category = GeneratedColumn<String>(
-      'category', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _pageCountMeta =
-      const VerificationMeta('pageCount');
-  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
-      'pageCount', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _galleryUrlMeta =
-      const VerificationMeta('galleryUrl');
-  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
-      'galleryUrl', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _coverUrlMeta =
-      const VerificationMeta('coverUrl');
-  late final GeneratedColumn<String> coverUrl = GeneratedColumn<String>(
-      'coverUrl', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _uploaderMeta =
-      const VerificationMeta('uploader');
-  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
-      'uploader', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
-  late final GeneratedColumn<int> size = GeneratedColumn<int>(
-      'size', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _publishTimeMeta =
-      const VerificationMeta('publishTime');
-  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
-      'publishTime', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _archiveStatusIndexMeta =
-      const VerificationMeta('archiveStatusIndex');
-  late final GeneratedColumn<int> archiveStatusIndex = GeneratedColumn<int>(
-      'archiveStatusIndex', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _archivePageUrlMeta =
-      const VerificationMeta('archivePageUrl');
-  late final GeneratedColumn<String> archivePageUrl = GeneratedColumn<String>(
-      'archivePageUrl', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _downloadPageUrlMeta =
-      const VerificationMeta('downloadPageUrl');
-  late final GeneratedColumn<String> downloadPageUrl = GeneratedColumn<String>(
-      'downloadPageUrl', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _downloadUrlMeta =
-      const VerificationMeta('downloadUrl');
-  late final GeneratedColumn<String> downloadUrl = GeneratedColumn<String>(
-      'downloadUrl', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _isOriginalMeta =
-      const VerificationMeta('isOriginal');
-  late final GeneratedColumn<bool> isOriginal = GeneratedColumn<bool>(
-      'isOriginal', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _insertTimeMeta =
-      const VerificationMeta('insertTime');
-  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
-      'insertTime', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _sortOrderMeta =
-      const VerificationMeta('sortOrder');
-  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
-      'sortOrder', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL DEFAULT 0',
-      defaultValue: const CustomExpression('0'));
-  static const VerificationMeta _groupNameMeta =
-      const VerificationMeta('groupName');
-  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
-      'groupName', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  @override
-  List<GeneratedColumn> get $columns => [
-        gid,
-        token,
-        title,
-        category,
-        pageCount,
-        galleryUrl,
-        coverUrl,
-        uploader,
-        size,
-        publishTime,
-        archiveStatusIndex,
-        archivePageUrl,
-        downloadPageUrl,
-        downloadUrl,
-        isOriginal,
-        insertTime,
-        sortOrder,
-        groupName
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'archive_downloaded';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<ArchiveDownloadedData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('gid')) {
-      context.handle(
-          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
-    } else if (isInserting) {
-      context.missing(_gidMeta);
-    }
-    if (data.containsKey('token')) {
-      context.handle(
-          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
-    } else if (isInserting) {
-      context.missing(_tokenMeta);
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('category')) {
-      context.handle(_categoryMeta,
-          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
-    } else if (isInserting) {
-      context.missing(_categoryMeta);
-    }
-    if (data.containsKey('pageCount')) {
-      context.handle(_pageCountMeta,
-          pageCount.isAcceptableOrUnknown(data['pageCount']!, _pageCountMeta));
-    } else if (isInserting) {
-      context.missing(_pageCountMeta);
-    }
-    if (data.containsKey('galleryUrl')) {
-      context.handle(
-          _galleryUrlMeta,
-          galleryUrl.isAcceptableOrUnknown(
-              data['galleryUrl']!, _galleryUrlMeta));
-    } else if (isInserting) {
-      context.missing(_galleryUrlMeta);
-    }
-    if (data.containsKey('coverUrl')) {
-      context.handle(_coverUrlMeta,
-          coverUrl.isAcceptableOrUnknown(data['coverUrl']!, _coverUrlMeta));
-    } else if (isInserting) {
-      context.missing(_coverUrlMeta);
-    }
-    if (data.containsKey('uploader')) {
-      context.handle(_uploaderMeta,
-          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
-    }
-    if (data.containsKey('size')) {
-      context.handle(
-          _sizeMeta, size.isAcceptableOrUnknown(data['size']!, _sizeMeta));
-    } else if (isInserting) {
-      context.missing(_sizeMeta);
-    }
-    if (data.containsKey('publishTime')) {
-      context.handle(
-          _publishTimeMeta,
-          publishTime.isAcceptableOrUnknown(
-              data['publishTime']!, _publishTimeMeta));
-    } else if (isInserting) {
-      context.missing(_publishTimeMeta);
-    }
-    if (data.containsKey('archiveStatusIndex')) {
-      context.handle(
-          _archiveStatusIndexMeta,
-          archiveStatusIndex.isAcceptableOrUnknown(
-              data['archiveStatusIndex']!, _archiveStatusIndexMeta));
-    } else if (isInserting) {
-      context.missing(_archiveStatusIndexMeta);
-    }
-    if (data.containsKey('archivePageUrl')) {
-      context.handle(
-          _archivePageUrlMeta,
-          archivePageUrl.isAcceptableOrUnknown(
-              data['archivePageUrl']!, _archivePageUrlMeta));
-    } else if (isInserting) {
-      context.missing(_archivePageUrlMeta);
-    }
-    if (data.containsKey('downloadPageUrl')) {
-      context.handle(
-          _downloadPageUrlMeta,
-          downloadPageUrl.isAcceptableOrUnknown(
-              data['downloadPageUrl']!, _downloadPageUrlMeta));
-    }
-    if (data.containsKey('downloadUrl')) {
-      context.handle(
-          _downloadUrlMeta,
-          downloadUrl.isAcceptableOrUnknown(
-              data['downloadUrl']!, _downloadUrlMeta));
-    }
-    if (data.containsKey('isOriginal')) {
-      context.handle(
-          _isOriginalMeta,
-          isOriginal.isAcceptableOrUnknown(
-              data['isOriginal']!, _isOriginalMeta));
-    } else if (isInserting) {
-      context.missing(_isOriginalMeta);
-    }
-    if (data.containsKey('insertTime')) {
-      context.handle(
-          _insertTimeMeta,
-          insertTime.isAcceptableOrUnknown(
-              data['insertTime']!, _insertTimeMeta));
-    }
-    if (data.containsKey('sortOrder')) {
-      context.handle(_sortOrderMeta,
-          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
-    }
-    if (data.containsKey('groupName')) {
-      context.handle(_groupNameMeta,
-          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {gid, isOriginal};
-  @override
-  ArchiveDownloadedData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ArchiveDownloadedData(
-      gid: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
-      token: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      category: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
-      pageCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}pageCount'])!,
-      galleryUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}galleryUrl'])!,
-      coverUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}coverUrl'])!,
-      uploader: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
-      size: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}size'])!,
-      publishTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}publishTime'])!,
-      archiveStatusIndex: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}archiveStatusIndex'])!,
-      archivePageUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}archivePageUrl'])!,
-      downloadPageUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}downloadPageUrl']),
-      downloadUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}downloadUrl']),
-      isOriginal: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}isOriginal'])!,
-      insertTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}insertTime']),
-      sortOrder: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
-      groupName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}groupName']),
-    );
-  }
-
-  @override
-  ArchiveDownloaded createAlias(String alias) {
-    return ArchiveDownloaded(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const ['PRIMARY KEY(gid, isOriginal)'];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class ArchiveDownloadedData extends DataClass
-    implements Insertable<ArchiveDownloadedData> {
-  final int gid;
-  final String token;
-  final String title;
-  final String category;
-  final int pageCount;
-  final String galleryUrl;
-  final String coverUrl;
-  final String? uploader;
-  final int size;
-  final String publishTime;
-  final int archiveStatusIndex;
-  final String archivePageUrl;
-  final String? downloadPageUrl;
-  final String? downloadUrl;
-  final bool isOriginal;
-  final String? insertTime;
-  final int sortOrder;
-  final String? groupName;
-  const ArchiveDownloadedData(
-      {required this.gid,
-      required this.token,
-      required this.title,
-      required this.category,
-      required this.pageCount,
-      required this.galleryUrl,
-      required this.coverUrl,
-      this.uploader,
-      required this.size,
-      required this.publishTime,
-      required this.archiveStatusIndex,
-      required this.archivePageUrl,
-      this.downloadPageUrl,
-      this.downloadUrl,
-      required this.isOriginal,
-      this.insertTime,
-      required this.sortOrder,
-      this.groupName});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['gid'] = Variable<int>(gid);
-    map['token'] = Variable<String>(token);
-    map['title'] = Variable<String>(title);
-    map['category'] = Variable<String>(category);
-    map['pageCount'] = Variable<int>(pageCount);
-    map['galleryUrl'] = Variable<String>(galleryUrl);
-    map['coverUrl'] = Variable<String>(coverUrl);
-    if (!nullToAbsent || uploader != null) {
-      map['uploader'] = Variable<String>(uploader);
-    }
-    map['size'] = Variable<int>(size);
-    map['publishTime'] = Variable<String>(publishTime);
-    map['archiveStatusIndex'] = Variable<int>(archiveStatusIndex);
-    map['archivePageUrl'] = Variable<String>(archivePageUrl);
-    if (!nullToAbsent || downloadPageUrl != null) {
-      map['downloadPageUrl'] = Variable<String>(downloadPageUrl);
-    }
-    if (!nullToAbsent || downloadUrl != null) {
-      map['downloadUrl'] = Variable<String>(downloadUrl);
-    }
-    map['isOriginal'] = Variable<bool>(isOriginal);
-    if (!nullToAbsent || insertTime != null) {
-      map['insertTime'] = Variable<String>(insertTime);
-    }
-    map['sortOrder'] = Variable<int>(sortOrder);
-    if (!nullToAbsent || groupName != null) {
-      map['groupName'] = Variable<String>(groupName);
-    }
-    return map;
-  }
-
-  ArchiveDownloadedCompanion toCompanion(bool nullToAbsent) {
-    return ArchiveDownloadedCompanion(
-      gid: Value(gid),
-      token: Value(token),
-      title: Value(title),
-      category: Value(category),
-      pageCount: Value(pageCount),
-      galleryUrl: Value(galleryUrl),
-      coverUrl: Value(coverUrl),
-      uploader: uploader == null && nullToAbsent
-          ? const Value.absent()
-          : Value(uploader),
-      size: Value(size),
-      publishTime: Value(publishTime),
-      archiveStatusIndex: Value(archiveStatusIndex),
-      archivePageUrl: Value(archivePageUrl),
-      downloadPageUrl: downloadPageUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(downloadPageUrl),
-      downloadUrl: downloadUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(downloadUrl),
-      isOriginal: Value(isOriginal),
-      insertTime: insertTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(insertTime),
-      sortOrder: Value(sortOrder),
-      groupName: groupName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(groupName),
-    );
-  }
-
-  factory ArchiveDownloadedData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ArchiveDownloadedData(
-      gid: serializer.fromJson<int>(json['gid']),
-      token: serializer.fromJson<String>(json['token']),
-      title: serializer.fromJson<String>(json['title']),
-      category: serializer.fromJson<String>(json['category']),
-      pageCount: serializer.fromJson<int>(json['pageCount']),
-      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
-      coverUrl: serializer.fromJson<String>(json['coverUrl']),
-      uploader: serializer.fromJson<String?>(json['uploader']),
-      size: serializer.fromJson<int>(json['size']),
-      publishTime: serializer.fromJson<String>(json['publishTime']),
-      archiveStatusIndex: serializer.fromJson<int>(json['archiveStatusIndex']),
-      archivePageUrl: serializer.fromJson<String>(json['archivePageUrl']),
-      downloadPageUrl: serializer.fromJson<String?>(json['downloadPageUrl']),
-      downloadUrl: serializer.fromJson<String?>(json['downloadUrl']),
-      isOriginal: serializer.fromJson<bool>(json['isOriginal']),
-      insertTime: serializer.fromJson<String?>(json['insertTime']),
-      sortOrder: serializer.fromJson<int>(json['sortOrder']),
-      groupName: serializer.fromJson<String?>(json['groupName']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'gid': serializer.toJson<int>(gid),
-      'token': serializer.toJson<String>(token),
-      'title': serializer.toJson<String>(title),
-      'category': serializer.toJson<String>(category),
-      'pageCount': serializer.toJson<int>(pageCount),
-      'galleryUrl': serializer.toJson<String>(galleryUrl),
-      'coverUrl': serializer.toJson<String>(coverUrl),
-      'uploader': serializer.toJson<String?>(uploader),
-      'size': serializer.toJson<int>(size),
-      'publishTime': serializer.toJson<String>(publishTime),
-      'archiveStatusIndex': serializer.toJson<int>(archiveStatusIndex),
-      'archivePageUrl': serializer.toJson<String>(archivePageUrl),
-      'downloadPageUrl': serializer.toJson<String?>(downloadPageUrl),
-      'downloadUrl': serializer.toJson<String?>(downloadUrl),
-      'isOriginal': serializer.toJson<bool>(isOriginal),
-      'insertTime': serializer.toJson<String?>(insertTime),
-      'sortOrder': serializer.toJson<int>(sortOrder),
-      'groupName': serializer.toJson<String?>(groupName),
-    };
-  }
-
-  ArchiveDownloadedData copyWith(
-          {int? gid,
-          String? token,
-          String? title,
-          String? category,
-          int? pageCount,
-          String? galleryUrl,
-          String? coverUrl,
-          Value<String?> uploader = const Value.absent(),
-          int? size,
-          String? publishTime,
-          int? archiveStatusIndex,
-          String? archivePageUrl,
-          Value<String?> downloadPageUrl = const Value.absent(),
-          Value<String?> downloadUrl = const Value.absent(),
-          bool? isOriginal,
-          Value<String?> insertTime = const Value.absent(),
-          int? sortOrder,
-          Value<String?> groupName = const Value.absent()}) =>
-      ArchiveDownloadedData(
-        gid: gid ?? this.gid,
-        token: token ?? this.token,
-        title: title ?? this.title,
-        category: category ?? this.category,
-        pageCount: pageCount ?? this.pageCount,
-        galleryUrl: galleryUrl ?? this.galleryUrl,
-        coverUrl: coverUrl ?? this.coverUrl,
-        uploader: uploader.present ? uploader.value : this.uploader,
-        size: size ?? this.size,
-        publishTime: publishTime ?? this.publishTime,
-        archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
-        archivePageUrl: archivePageUrl ?? this.archivePageUrl,
-        downloadPageUrl: downloadPageUrl.present
-            ? downloadPageUrl.value
-            : this.downloadPageUrl,
-        downloadUrl: downloadUrl.present ? downloadUrl.value : this.downloadUrl,
-        isOriginal: isOriginal ?? this.isOriginal,
-        insertTime: insertTime.present ? insertTime.value : this.insertTime,
-        sortOrder: sortOrder ?? this.sortOrder,
-        groupName: groupName.present ? groupName.value : this.groupName,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('ArchiveDownloadedData(')
-          ..write('gid: $gid, ')
-          ..write('token: $token, ')
-          ..write('title: $title, ')
-          ..write('category: $category, ')
-          ..write('pageCount: $pageCount, ')
-          ..write('galleryUrl: $galleryUrl, ')
-          ..write('coverUrl: $coverUrl, ')
-          ..write('uploader: $uploader, ')
-          ..write('size: $size, ')
-          ..write('publishTime: $publishTime, ')
-          ..write('archiveStatusIndex: $archiveStatusIndex, ')
-          ..write('archivePageUrl: $archivePageUrl, ')
-          ..write('downloadPageUrl: $downloadPageUrl, ')
-          ..write('downloadUrl: $downloadUrl, ')
-          ..write('isOriginal: $isOriginal, ')
-          ..write('insertTime: $insertTime, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      gid,
-      token,
-      title,
-      category,
-      pageCount,
-      galleryUrl,
-      coverUrl,
-      uploader,
-      size,
-      publishTime,
-      archiveStatusIndex,
-      archivePageUrl,
-      downloadPageUrl,
-      downloadUrl,
-      isOriginal,
-      insertTime,
-      sortOrder,
-      groupName);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ArchiveDownloadedData &&
-          other.gid == this.gid &&
-          other.token == this.token &&
-          other.title == this.title &&
-          other.category == this.category &&
-          other.pageCount == this.pageCount &&
-          other.galleryUrl == this.galleryUrl &&
-          other.coverUrl == this.coverUrl &&
-          other.uploader == this.uploader &&
-          other.size == this.size &&
-          other.publishTime == this.publishTime &&
-          other.archiveStatusIndex == this.archiveStatusIndex &&
-          other.archivePageUrl == this.archivePageUrl &&
-          other.downloadPageUrl == this.downloadPageUrl &&
-          other.downloadUrl == this.downloadUrl &&
-          other.isOriginal == this.isOriginal &&
-          other.insertTime == this.insertTime &&
-          other.sortOrder == this.sortOrder &&
-          other.groupName == this.groupName);
-}
-
-class ArchiveDownloadedCompanion
-    extends UpdateCompanion<ArchiveDownloadedData> {
-  final Value<int> gid;
-  final Value<String> token;
-  final Value<String> title;
-  final Value<String> category;
-  final Value<int> pageCount;
-  final Value<String> galleryUrl;
-  final Value<String> coverUrl;
-  final Value<String?> uploader;
-  final Value<int> size;
-  final Value<String> publishTime;
-  final Value<int> archiveStatusIndex;
-  final Value<String> archivePageUrl;
-  final Value<String?> downloadPageUrl;
-  final Value<String?> downloadUrl;
-  final Value<bool> isOriginal;
-  final Value<String?> insertTime;
-  final Value<int> sortOrder;
-  final Value<String?> groupName;
-  final Value<int> rowid;
-  const ArchiveDownloadedCompanion({
-    this.gid = const Value.absent(),
-    this.token = const Value.absent(),
-    this.title = const Value.absent(),
-    this.category = const Value.absent(),
-    this.pageCount = const Value.absent(),
-    this.galleryUrl = const Value.absent(),
-    this.coverUrl = const Value.absent(),
-    this.uploader = const Value.absent(),
-    this.size = const Value.absent(),
-    this.publishTime = const Value.absent(),
-    this.archiveStatusIndex = const Value.absent(),
-    this.archivePageUrl = const Value.absent(),
-    this.downloadPageUrl = const Value.absent(),
-    this.downloadUrl = const Value.absent(),
-    this.isOriginal = const Value.absent(),
-    this.insertTime = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.groupName = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ArchiveDownloadedCompanion.insert({
-    required int gid,
-    required String token,
-    required String title,
-    required String category,
-    required int pageCount,
-    required String galleryUrl,
-    required String coverUrl,
-    this.uploader = const Value.absent(),
-    required int size,
-    required String publishTime,
-    required int archiveStatusIndex,
-    required String archivePageUrl,
-    this.downloadPageUrl = const Value.absent(),
-    this.downloadUrl = const Value.absent(),
-    required bool isOriginal,
-    this.insertTime = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.groupName = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : gid = Value(gid),
-        token = Value(token),
-        title = Value(title),
-        category = Value(category),
-        pageCount = Value(pageCount),
-        galleryUrl = Value(galleryUrl),
-        coverUrl = Value(coverUrl),
-        size = Value(size),
-        publishTime = Value(publishTime),
-        archiveStatusIndex = Value(archiveStatusIndex),
-        archivePageUrl = Value(archivePageUrl),
-        isOriginal = Value(isOriginal);
-  static Insertable<ArchiveDownloadedData> custom({
-    Expression<int>? gid,
-    Expression<String>? token,
-    Expression<String>? title,
-    Expression<String>? category,
-    Expression<int>? pageCount,
-    Expression<String>? galleryUrl,
-    Expression<String>? coverUrl,
-    Expression<String>? uploader,
-    Expression<int>? size,
-    Expression<String>? publishTime,
-    Expression<int>? archiveStatusIndex,
-    Expression<String>? archivePageUrl,
-    Expression<String>? downloadPageUrl,
-    Expression<String>? downloadUrl,
-    Expression<bool>? isOriginal,
-    Expression<String>? insertTime,
-    Expression<int>? sortOrder,
-    Expression<String>? groupName,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (gid != null) 'gid': gid,
-      if (token != null) 'token': token,
-      if (title != null) 'title': title,
-      if (category != null) 'category': category,
-      if (pageCount != null) 'pageCount': pageCount,
-      if (galleryUrl != null) 'galleryUrl': galleryUrl,
-      if (coverUrl != null) 'coverUrl': coverUrl,
-      if (uploader != null) 'uploader': uploader,
-      if (size != null) 'size': size,
-      if (publishTime != null) 'publishTime': publishTime,
-      if (archiveStatusIndex != null) 'archiveStatusIndex': archiveStatusIndex,
-      if (archivePageUrl != null) 'archivePageUrl': archivePageUrl,
-      if (downloadPageUrl != null) 'downloadPageUrl': downloadPageUrl,
-      if (downloadUrl != null) 'downloadUrl': downloadUrl,
-      if (isOriginal != null) 'isOriginal': isOriginal,
-      if (insertTime != null) 'insertTime': insertTime,
-      if (sortOrder != null) 'sortOrder': sortOrder,
-      if (groupName != null) 'groupName': groupName,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ArchiveDownloadedCompanion copyWith(
-      {Value<int>? gid,
-      Value<String>? token,
-      Value<String>? title,
-      Value<String>? category,
-      Value<int>? pageCount,
-      Value<String>? galleryUrl,
-      Value<String>? coverUrl,
-      Value<String?>? uploader,
-      Value<int>? size,
-      Value<String>? publishTime,
-      Value<int>? archiveStatusIndex,
-      Value<String>? archivePageUrl,
-      Value<String?>? downloadPageUrl,
-      Value<String?>? downloadUrl,
-      Value<bool>? isOriginal,
-      Value<String?>? insertTime,
-      Value<int>? sortOrder,
-      Value<String?>? groupName,
-      Value<int>? rowid}) {
-    return ArchiveDownloadedCompanion(
-      gid: gid ?? this.gid,
-      token: token ?? this.token,
-      title: title ?? this.title,
-      category: category ?? this.category,
-      pageCount: pageCount ?? this.pageCount,
-      galleryUrl: galleryUrl ?? this.galleryUrl,
-      coverUrl: coverUrl ?? this.coverUrl,
-      uploader: uploader ?? this.uploader,
-      size: size ?? this.size,
-      publishTime: publishTime ?? this.publishTime,
-      archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
-      archivePageUrl: archivePageUrl ?? this.archivePageUrl,
-      downloadPageUrl: downloadPageUrl ?? this.downloadPageUrl,
-      downloadUrl: downloadUrl ?? this.downloadUrl,
-      isOriginal: isOriginal ?? this.isOriginal,
-      insertTime: insertTime ?? this.insertTime,
-      sortOrder: sortOrder ?? this.sortOrder,
-      groupName: groupName ?? this.groupName,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (gid.present) {
-      map['gid'] = Variable<int>(gid.value);
-    }
-    if (token.present) {
-      map['token'] = Variable<String>(token.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (category.present) {
-      map['category'] = Variable<String>(category.value);
-    }
-    if (pageCount.present) {
-      map['pageCount'] = Variable<int>(pageCount.value);
-    }
-    if (galleryUrl.present) {
-      map['galleryUrl'] = Variable<String>(galleryUrl.value);
-    }
-    if (coverUrl.present) {
-      map['coverUrl'] = Variable<String>(coverUrl.value);
-    }
-    if (uploader.present) {
-      map['uploader'] = Variable<String>(uploader.value);
-    }
-    if (size.present) {
-      map['size'] = Variable<int>(size.value);
-    }
-    if (publishTime.present) {
-      map['publishTime'] = Variable<String>(publishTime.value);
-    }
-    if (archiveStatusIndex.present) {
-      map['archiveStatusIndex'] = Variable<int>(archiveStatusIndex.value);
-    }
-    if (archivePageUrl.present) {
-      map['archivePageUrl'] = Variable<String>(archivePageUrl.value);
-    }
-    if (downloadPageUrl.present) {
-      map['downloadPageUrl'] = Variable<String>(downloadPageUrl.value);
-    }
-    if (downloadUrl.present) {
-      map['downloadUrl'] = Variable<String>(downloadUrl.value);
-    }
-    if (isOriginal.present) {
-      map['isOriginal'] = Variable<bool>(isOriginal.value);
-    }
-    if (insertTime.present) {
-      map['insertTime'] = Variable<String>(insertTime.value);
-    }
-    if (sortOrder.present) {
-      map['sortOrder'] = Variable<int>(sortOrder.value);
-    }
-    if (groupName.present) {
-      map['groupName'] = Variable<String>(groupName.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ArchiveDownloadedCompanion(')
-          ..write('gid: $gid, ')
-          ..write('token: $token, ')
-          ..write('title: $title, ')
-          ..write('category: $category, ')
-          ..write('pageCount: $pageCount, ')
-          ..write('galleryUrl: $galleryUrl, ')
-          ..write('coverUrl: $coverUrl, ')
-          ..write('uploader: $uploader, ')
-          ..write('size: $size, ')
-          ..write('publishTime: $publishTime, ')
-          ..write('archiveStatusIndex: $archiveStatusIndex, ')
-          ..write('archivePageUrl: $archivePageUrl, ')
-          ..write('downloadPageUrl: $downloadPageUrl, ')
-          ..write('downloadUrl: $downloadUrl, ')
-          ..write('isOriginal: $isOriginal, ')
-          ..write('insertTime: $insertTime, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class ArchiveGroup extends Table
-    with TableInfo<ArchiveGroup, ArchiveGroupData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  ArchiveGroup(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _groupNameMeta =
-      const VerificationMeta('groupName');
-  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
-      'groupName', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
-  static const VerificationMeta _sortOrderMeta =
-      const VerificationMeta('sortOrder');
-  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
-      'sortOrder', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL DEFAULT 0',
-      defaultValue: const CustomExpression('0'));
-  @override
-  List<GeneratedColumn> get $columns => [groupName, sortOrder];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'archive_group';
-  @override
-  VerificationContext validateIntegrity(Insertable<ArchiveGroupData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('groupName')) {
-      context.handle(_groupNameMeta,
-          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
-    } else if (isInserting) {
-      context.missing(_groupNameMeta);
-    }
-    if (data.containsKey('sortOrder')) {
-      context.handle(_sortOrderMeta,
-          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {groupName};
-  @override
-  ArchiveGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ArchiveGroupData(
-      groupName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}groupName'])!,
-      sortOrder: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
-    );
-  }
-
-  @override
-  ArchiveGroup createAlias(String alias) {
-    return ArchiveGroup(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class ArchiveGroupData extends DataClass
-    implements Insertable<ArchiveGroupData> {
-  final String groupName;
-  final int sortOrder;
-  const ArchiveGroupData({required this.groupName, required this.sortOrder});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['groupName'] = Variable<String>(groupName);
-    map['sortOrder'] = Variable<int>(sortOrder);
-    return map;
-  }
-
-  ArchiveGroupCompanion toCompanion(bool nullToAbsent) {
-    return ArchiveGroupCompanion(
-      groupName: Value(groupName),
-      sortOrder: Value(sortOrder),
-    );
-  }
-
-  factory ArchiveGroupData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ArchiveGroupData(
-      groupName: serializer.fromJson<String>(json['groupName']),
-      sortOrder: serializer.fromJson<int>(json['sortOrder']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'groupName': serializer.toJson<String>(groupName),
-      'sortOrder': serializer.toJson<int>(sortOrder),
-    };
-  }
-
-  ArchiveGroupData copyWith({String? groupName, int? sortOrder}) =>
-      ArchiveGroupData(
-        groupName: groupName ?? this.groupName,
-        sortOrder: sortOrder ?? this.sortOrder,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('ArchiveGroupData(')
-          ..write('groupName: $groupName, ')
-          ..write('sortOrder: $sortOrder')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(groupName, sortOrder);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ArchiveGroupData &&
-          other.groupName == this.groupName &&
-          other.sortOrder == this.sortOrder);
-}
-
-class ArchiveGroupCompanion extends UpdateCompanion<ArchiveGroupData> {
-  final Value<String> groupName;
-  final Value<int> sortOrder;
-  final Value<int> rowid;
-  const ArchiveGroupCompanion({
-    this.groupName = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ArchiveGroupCompanion.insert({
-    required String groupName,
-    this.sortOrder = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : groupName = Value(groupName);
-  static Insertable<ArchiveGroupData> custom({
-    Expression<String>? groupName,
-    Expression<int>? sortOrder,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (groupName != null) 'groupName': groupName,
-      if (sortOrder != null) 'sortOrder': sortOrder,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ArchiveGroupCompanion copyWith(
-      {Value<String>? groupName, Value<int>? sortOrder, Value<int>? rowid}) {
-    return ArchiveGroupCompanion(
-      groupName: groupName ?? this.groupName,
-      sortOrder: sortOrder ?? this.sortOrder,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (groupName.present) {
-      map['groupName'] = Variable<String>(groupName.value);
-    }
-    if (sortOrder.present) {
-      map['sortOrder'] = Variable<int>(sortOrder.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ArchiveGroupCompanion(')
-          ..write('groupName: $groupName, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class GalleryDownloaded extends Table
     with TableInfo<GalleryDownloaded, GalleryDownloadedData> {
   @override
@@ -4105,6 +3067,1836 @@ class TagCompanion extends UpdateCompanion<TagData> {
   }
 }
 
+class $ArchiveDownloadedTable extends ArchiveDownloaded
+    with TableInfo<$ArchiveDownloadedTable, ArchiveDownloadedData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArchiveDownloadedTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
+  @override
+  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
+      'gid', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+      'token', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'page_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _galleryUrlMeta =
+      const VerificationMeta('galleryUrl');
+  @override
+  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
+      'gallery_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _coverUrlMeta =
+      const VerificationMeta('coverUrl');
+  @override
+  late final GeneratedColumn<String> coverUrl = GeneratedColumn<String>(
+      'cover_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _uploaderMeta =
+      const VerificationMeta('uploader');
+  @override
+  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
+      'uploader', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<int> size = GeneratedColumn<int>(
+      'size', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _publishTimeMeta =
+      const VerificationMeta('publishTime');
+  @override
+  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
+      'publish_time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _archiveStatusIndexMeta =
+      const VerificationMeta('archiveStatusIndex');
+  @override
+  late final GeneratedColumn<int> archiveStatusIndex = GeneratedColumn<int>(
+      'archive_status_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _archivePageUrlMeta =
+      const VerificationMeta('archivePageUrl');
+  @override
+  late final GeneratedColumn<String> archivePageUrl = GeneratedColumn<String>(
+      'archive_page_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadPageUrlMeta =
+      const VerificationMeta('downloadPageUrl');
+  @override
+  late final GeneratedColumn<String> downloadPageUrl = GeneratedColumn<String>(
+      'download_page_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _downloadUrlMeta =
+      const VerificationMeta('downloadUrl');
+  @override
+  late final GeneratedColumn<String> downloadUrl = GeneratedColumn<String>(
+      'download_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isOriginalMeta =
+      const VerificationMeta('isOriginal');
+  @override
+  late final GeneratedColumn<bool> isOriginal = GeneratedColumn<bool>(
+      'is_original', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_original" IN (0, 1))'));
+  static const VerificationMeta _insertTimeMeta =
+      const VerificationMeta('insertTime');
+  @override
+  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
+      'insert_time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'group_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        gid,
+        token,
+        title,
+        category,
+        pageCount,
+        galleryUrl,
+        coverUrl,
+        uploader,
+        size,
+        publishTime,
+        archiveStatusIndex,
+        archivePageUrl,
+        downloadPageUrl,
+        downloadUrl,
+        isOriginal,
+        insertTime,
+        sortOrder,
+        groupName
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'archive_downloaded_v2';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ArchiveDownloadedData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
+    } else if (isInserting) {
+      context.missing(_tokenMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta));
+    } else if (isInserting) {
+      context.missing(_pageCountMeta);
+    }
+    if (data.containsKey('gallery_url')) {
+      context.handle(
+          _galleryUrlMeta,
+          galleryUrl.isAcceptableOrUnknown(
+              data['gallery_url']!, _galleryUrlMeta));
+    } else if (isInserting) {
+      context.missing(_galleryUrlMeta);
+    }
+    if (data.containsKey('cover_url')) {
+      context.handle(_coverUrlMeta,
+          coverUrl.isAcceptableOrUnknown(data['cover_url']!, _coverUrlMeta));
+    } else if (isInserting) {
+      context.missing(_coverUrlMeta);
+    }
+    if (data.containsKey('uploader')) {
+      context.handle(_uploaderMeta,
+          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+          _sizeMeta, size.isAcceptableOrUnknown(data['size']!, _sizeMeta));
+    } else if (isInserting) {
+      context.missing(_sizeMeta);
+    }
+    if (data.containsKey('publish_time')) {
+      context.handle(
+          _publishTimeMeta,
+          publishTime.isAcceptableOrUnknown(
+              data['publish_time']!, _publishTimeMeta));
+    } else if (isInserting) {
+      context.missing(_publishTimeMeta);
+    }
+    if (data.containsKey('archive_status_index')) {
+      context.handle(
+          _archiveStatusIndexMeta,
+          archiveStatusIndex.isAcceptableOrUnknown(
+              data['archive_status_index']!, _archiveStatusIndexMeta));
+    } else if (isInserting) {
+      context.missing(_archiveStatusIndexMeta);
+    }
+    if (data.containsKey('archive_page_url')) {
+      context.handle(
+          _archivePageUrlMeta,
+          archivePageUrl.isAcceptableOrUnknown(
+              data['archive_page_url']!, _archivePageUrlMeta));
+    } else if (isInserting) {
+      context.missing(_archivePageUrlMeta);
+    }
+    if (data.containsKey('download_page_url')) {
+      context.handle(
+          _downloadPageUrlMeta,
+          downloadPageUrl.isAcceptableOrUnknown(
+              data['download_page_url']!, _downloadPageUrlMeta));
+    }
+    if (data.containsKey('download_url')) {
+      context.handle(
+          _downloadUrlMeta,
+          downloadUrl.isAcceptableOrUnknown(
+              data['download_url']!, _downloadUrlMeta));
+    }
+    if (data.containsKey('is_original')) {
+      context.handle(
+          _isOriginalMeta,
+          isOriginal.isAcceptableOrUnknown(
+              data['is_original']!, _isOriginalMeta));
+    } else if (isInserting) {
+      context.missing(_isOriginalMeta);
+    }
+    if (data.containsKey('insert_time')) {
+      context.handle(
+          _insertTimeMeta,
+          insertTime.isAcceptableOrUnknown(
+              data['insert_time']!, _insertTimeMeta));
+    } else if (isInserting) {
+      context.missing(_insertTimeMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    if (data.containsKey('group_name')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['group_name']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid};
+  @override
+  ArchiveDownloadedData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveDownloadedData(
+      gid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
+      token: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_count'])!,
+      galleryUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gallery_url'])!,
+      coverUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cover_url'])!,
+      uploader: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
+      size: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size'])!,
+      publishTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publish_time'])!,
+      archiveStatusIndex: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}archive_status_index'])!,
+      archivePageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}archive_page_url'])!,
+      downloadPageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}download_page_url']),
+      downloadUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}download_url']),
+      isOriginal: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_original'])!,
+      insertTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}insert_time'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_name'])!,
+    );
+  }
+
+  @override
+  $ArchiveDownloadedTable createAlias(String alias) {
+    return $ArchiveDownloadedTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveDownloadedData extends DataClass
+    implements Insertable<ArchiveDownloadedData> {
+  final int gid;
+  final String token;
+  final String title;
+  final String category;
+  final int pageCount;
+  final String galleryUrl;
+  final String coverUrl;
+  final String? uploader;
+  final int size;
+  final String publishTime;
+  final int archiveStatusIndex;
+  final String archivePageUrl;
+  final String? downloadPageUrl;
+  final String? downloadUrl;
+  final bool isOriginal;
+  final String insertTime;
+  final int sortOrder;
+  final String groupName;
+  const ArchiveDownloadedData(
+      {required this.gid,
+      required this.token,
+      required this.title,
+      required this.category,
+      required this.pageCount,
+      required this.galleryUrl,
+      required this.coverUrl,
+      this.uploader,
+      required this.size,
+      required this.publishTime,
+      required this.archiveStatusIndex,
+      required this.archivePageUrl,
+      this.downloadPageUrl,
+      this.downloadUrl,
+      required this.isOriginal,
+      required this.insertTime,
+      required this.sortOrder,
+      required this.groupName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['token'] = Variable<String>(token);
+    map['title'] = Variable<String>(title);
+    map['category'] = Variable<String>(category);
+    map['page_count'] = Variable<int>(pageCount);
+    map['gallery_url'] = Variable<String>(galleryUrl);
+    map['cover_url'] = Variable<String>(coverUrl);
+    if (!nullToAbsent || uploader != null) {
+      map['uploader'] = Variable<String>(uploader);
+    }
+    map['size'] = Variable<int>(size);
+    map['publish_time'] = Variable<String>(publishTime);
+    map['archive_status_index'] = Variable<int>(archiveStatusIndex);
+    map['archive_page_url'] = Variable<String>(archivePageUrl);
+    if (!nullToAbsent || downloadPageUrl != null) {
+      map['download_page_url'] = Variable<String>(downloadPageUrl);
+    }
+    if (!nullToAbsent || downloadUrl != null) {
+      map['download_url'] = Variable<String>(downloadUrl);
+    }
+    map['is_original'] = Variable<bool>(isOriginal);
+    map['insert_time'] = Variable<String>(insertTime);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['group_name'] = Variable<String>(groupName);
+    return map;
+  }
+
+  ArchiveDownloadedCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveDownloadedCompanion(
+      gid: Value(gid),
+      token: Value(token),
+      title: Value(title),
+      category: Value(category),
+      pageCount: Value(pageCount),
+      galleryUrl: Value(galleryUrl),
+      coverUrl: Value(coverUrl),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
+      size: Value(size),
+      publishTime: Value(publishTime),
+      archiveStatusIndex: Value(archiveStatusIndex),
+      archivePageUrl: Value(archivePageUrl),
+      downloadPageUrl: downloadPageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadPageUrl),
+      downloadUrl: downloadUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadUrl),
+      isOriginal: Value(isOriginal),
+      insertTime: Value(insertTime),
+      sortOrder: Value(sortOrder),
+      groupName: Value(groupName),
+    );
+  }
+
+  factory ArchiveDownloadedData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveDownloadedData(
+      gid: serializer.fromJson<int>(json['gid']),
+      token: serializer.fromJson<String>(json['token']),
+      title: serializer.fromJson<String>(json['title']),
+      category: serializer.fromJson<String>(json['category']),
+      pageCount: serializer.fromJson<int>(json['pageCount']),
+      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
+      coverUrl: serializer.fromJson<String>(json['coverUrl']),
+      uploader: serializer.fromJson<String?>(json['uploader']),
+      size: serializer.fromJson<int>(json['size']),
+      publishTime: serializer.fromJson<String>(json['publishTime']),
+      archiveStatusIndex: serializer.fromJson<int>(json['archiveStatusIndex']),
+      archivePageUrl: serializer.fromJson<String>(json['archivePageUrl']),
+      downloadPageUrl: serializer.fromJson<String?>(json['downloadPageUrl']),
+      downloadUrl: serializer.fromJson<String?>(json['downloadUrl']),
+      isOriginal: serializer.fromJson<bool>(json['isOriginal']),
+      insertTime: serializer.fromJson<String>(json['insertTime']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      groupName: serializer.fromJson<String>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'token': serializer.toJson<String>(token),
+      'title': serializer.toJson<String>(title),
+      'category': serializer.toJson<String>(category),
+      'pageCount': serializer.toJson<int>(pageCount),
+      'galleryUrl': serializer.toJson<String>(galleryUrl),
+      'coverUrl': serializer.toJson<String>(coverUrl),
+      'uploader': serializer.toJson<String?>(uploader),
+      'size': serializer.toJson<int>(size),
+      'publishTime': serializer.toJson<String>(publishTime),
+      'archiveStatusIndex': serializer.toJson<int>(archiveStatusIndex),
+      'archivePageUrl': serializer.toJson<String>(archivePageUrl),
+      'downloadPageUrl': serializer.toJson<String?>(downloadPageUrl),
+      'downloadUrl': serializer.toJson<String?>(downloadUrl),
+      'isOriginal': serializer.toJson<bool>(isOriginal),
+      'insertTime': serializer.toJson<String>(insertTime),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'groupName': serializer.toJson<String>(groupName),
+    };
+  }
+
+  ArchiveDownloadedData copyWith(
+          {int? gid,
+          String? token,
+          String? title,
+          String? category,
+          int? pageCount,
+          String? galleryUrl,
+          String? coverUrl,
+          Value<String?> uploader = const Value.absent(),
+          int? size,
+          String? publishTime,
+          int? archiveStatusIndex,
+          String? archivePageUrl,
+          Value<String?> downloadPageUrl = const Value.absent(),
+          Value<String?> downloadUrl = const Value.absent(),
+          bool? isOriginal,
+          String? insertTime,
+          int? sortOrder,
+          String? groupName}) =>
+      ArchiveDownloadedData(
+        gid: gid ?? this.gid,
+        token: token ?? this.token,
+        title: title ?? this.title,
+        category: category ?? this.category,
+        pageCount: pageCount ?? this.pageCount,
+        galleryUrl: galleryUrl ?? this.galleryUrl,
+        coverUrl: coverUrl ?? this.coverUrl,
+        uploader: uploader.present ? uploader.value : this.uploader,
+        size: size ?? this.size,
+        publishTime: publishTime ?? this.publishTime,
+        archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+        archivePageUrl: archivePageUrl ?? this.archivePageUrl,
+        downloadPageUrl: downloadPageUrl.present
+            ? downloadPageUrl.value
+            : this.downloadPageUrl,
+        downloadUrl: downloadUrl.present ? downloadUrl.value : this.downloadUrl,
+        isOriginal: isOriginal ?? this.isOriginal,
+        insertTime: insertTime ?? this.insertTime,
+        sortOrder: sortOrder ?? this.sortOrder,
+        groupName: groupName ?? this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveDownloadedData(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('coverUrl: $coverUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('size: $size, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archivePageUrl: $archivePageUrl, ')
+          ..write('downloadPageUrl: $downloadPageUrl, ')
+          ..write('downloadUrl: $downloadUrl, ')
+          ..write('isOriginal: $isOriginal, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      gid,
+      token,
+      title,
+      category,
+      pageCount,
+      galleryUrl,
+      coverUrl,
+      uploader,
+      size,
+      publishTime,
+      archiveStatusIndex,
+      archivePageUrl,
+      downloadPageUrl,
+      downloadUrl,
+      isOriginal,
+      insertTime,
+      sortOrder,
+      groupName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveDownloadedData &&
+          other.gid == this.gid &&
+          other.token == this.token &&
+          other.title == this.title &&
+          other.category == this.category &&
+          other.pageCount == this.pageCount &&
+          other.galleryUrl == this.galleryUrl &&
+          other.coverUrl == this.coverUrl &&
+          other.uploader == this.uploader &&
+          other.size == this.size &&
+          other.publishTime == this.publishTime &&
+          other.archiveStatusIndex == this.archiveStatusIndex &&
+          other.archivePageUrl == this.archivePageUrl &&
+          other.downloadPageUrl == this.downloadPageUrl &&
+          other.downloadUrl == this.downloadUrl &&
+          other.isOriginal == this.isOriginal &&
+          other.insertTime == this.insertTime &&
+          other.sortOrder == this.sortOrder &&
+          other.groupName == this.groupName);
+}
+
+class ArchiveDownloadedCompanion
+    extends UpdateCompanion<ArchiveDownloadedData> {
+  final Value<int> gid;
+  final Value<String> token;
+  final Value<String> title;
+  final Value<String> category;
+  final Value<int> pageCount;
+  final Value<String> galleryUrl;
+  final Value<String> coverUrl;
+  final Value<String?> uploader;
+  final Value<int> size;
+  final Value<String> publishTime;
+  final Value<int> archiveStatusIndex;
+  final Value<String> archivePageUrl;
+  final Value<String?> downloadPageUrl;
+  final Value<String?> downloadUrl;
+  final Value<bool> isOriginal;
+  final Value<String> insertTime;
+  final Value<int> sortOrder;
+  final Value<String> groupName;
+  const ArchiveDownloadedCompanion({
+    this.gid = const Value.absent(),
+    this.token = const Value.absent(),
+    this.title = const Value.absent(),
+    this.category = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.galleryUrl = const Value.absent(),
+    this.coverUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    this.size = const Value.absent(),
+    this.publishTime = const Value.absent(),
+    this.archiveStatusIndex = const Value.absent(),
+    this.archivePageUrl = const Value.absent(),
+    this.downloadPageUrl = const Value.absent(),
+    this.downloadUrl = const Value.absent(),
+    this.isOriginal = const Value.absent(),
+    this.insertTime = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+  });
+  ArchiveDownloadedCompanion.insert({
+    this.gid = const Value.absent(),
+    required String token,
+    required String title,
+    required String category,
+    required int pageCount,
+    required String galleryUrl,
+    required String coverUrl,
+    this.uploader = const Value.absent(),
+    required int size,
+    required String publishTime,
+    required int archiveStatusIndex,
+    required String archivePageUrl,
+    this.downloadPageUrl = const Value.absent(),
+    this.downloadUrl = const Value.absent(),
+    required bool isOriginal,
+    required String insertTime,
+    this.sortOrder = const Value.absent(),
+    required String groupName,
+  })  : token = Value(token),
+        title = Value(title),
+        category = Value(category),
+        pageCount = Value(pageCount),
+        galleryUrl = Value(galleryUrl),
+        coverUrl = Value(coverUrl),
+        size = Value(size),
+        publishTime = Value(publishTime),
+        archiveStatusIndex = Value(archiveStatusIndex),
+        archivePageUrl = Value(archivePageUrl),
+        isOriginal = Value(isOriginal),
+        insertTime = Value(insertTime),
+        groupName = Value(groupName);
+  static Insertable<ArchiveDownloadedData> custom({
+    Expression<int>? gid,
+    Expression<String>? token,
+    Expression<String>? title,
+    Expression<String>? category,
+    Expression<int>? pageCount,
+    Expression<String>? galleryUrl,
+    Expression<String>? coverUrl,
+    Expression<String>? uploader,
+    Expression<int>? size,
+    Expression<String>? publishTime,
+    Expression<int>? archiveStatusIndex,
+    Expression<String>? archivePageUrl,
+    Expression<String>? downloadPageUrl,
+    Expression<String>? downloadUrl,
+    Expression<bool>? isOriginal,
+    Expression<String>? insertTime,
+    Expression<int>? sortOrder,
+    Expression<String>? groupName,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (token != null) 'token': token,
+      if (title != null) 'title': title,
+      if (category != null) 'category': category,
+      if (pageCount != null) 'page_count': pageCount,
+      if (galleryUrl != null) 'gallery_url': galleryUrl,
+      if (coverUrl != null) 'cover_url': coverUrl,
+      if (uploader != null) 'uploader': uploader,
+      if (size != null) 'size': size,
+      if (publishTime != null) 'publish_time': publishTime,
+      if (archiveStatusIndex != null)
+        'archive_status_index': archiveStatusIndex,
+      if (archivePageUrl != null) 'archive_page_url': archivePageUrl,
+      if (downloadPageUrl != null) 'download_page_url': downloadPageUrl,
+      if (downloadUrl != null) 'download_url': downloadUrl,
+      if (isOriginal != null) 'is_original': isOriginal,
+      if (insertTime != null) 'insert_time': insertTime,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (groupName != null) 'group_name': groupName,
+    });
+  }
+
+  ArchiveDownloadedCompanion copyWith(
+      {Value<int>? gid,
+      Value<String>? token,
+      Value<String>? title,
+      Value<String>? category,
+      Value<int>? pageCount,
+      Value<String>? galleryUrl,
+      Value<String>? coverUrl,
+      Value<String?>? uploader,
+      Value<int>? size,
+      Value<String>? publishTime,
+      Value<int>? archiveStatusIndex,
+      Value<String>? archivePageUrl,
+      Value<String?>? downloadPageUrl,
+      Value<String?>? downloadUrl,
+      Value<bool>? isOriginal,
+      Value<String>? insertTime,
+      Value<int>? sortOrder,
+      Value<String>? groupName}) {
+    return ArchiveDownloadedCompanion(
+      gid: gid ?? this.gid,
+      token: token ?? this.token,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      pageCount: pageCount ?? this.pageCount,
+      galleryUrl: galleryUrl ?? this.galleryUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
+      uploader: uploader ?? this.uploader,
+      size: size ?? this.size,
+      publishTime: publishTime ?? this.publishTime,
+      archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+      archivePageUrl: archivePageUrl ?? this.archivePageUrl,
+      downloadPageUrl: downloadPageUrl ?? this.downloadPageUrl,
+      downloadUrl: downloadUrl ?? this.downloadUrl,
+      isOriginal: isOriginal ?? this.isOriginal,
+      insertTime: insertTime ?? this.insertTime,
+      sortOrder: sortOrder ?? this.sortOrder,
+      groupName: groupName ?? this.groupName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (galleryUrl.present) {
+      map['gallery_url'] = Variable<String>(galleryUrl.value);
+    }
+    if (coverUrl.present) {
+      map['cover_url'] = Variable<String>(coverUrl.value);
+    }
+    if (uploader.present) {
+      map['uploader'] = Variable<String>(uploader.value);
+    }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
+    if (publishTime.present) {
+      map['publish_time'] = Variable<String>(publishTime.value);
+    }
+    if (archiveStatusIndex.present) {
+      map['archive_status_index'] = Variable<int>(archiveStatusIndex.value);
+    }
+    if (archivePageUrl.present) {
+      map['archive_page_url'] = Variable<String>(archivePageUrl.value);
+    }
+    if (downloadPageUrl.present) {
+      map['download_page_url'] = Variable<String>(downloadPageUrl.value);
+    }
+    if (downloadUrl.present) {
+      map['download_url'] = Variable<String>(downloadUrl.value);
+    }
+    if (isOriginal.present) {
+      map['is_original'] = Variable<bool>(isOriginal.value);
+    }
+    if (insertTime.present) {
+      map['insert_time'] = Variable<String>(insertTime.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (groupName.present) {
+      map['group_name'] = Variable<String>(groupName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveDownloadedCompanion(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('coverUrl: $coverUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('size: $size, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archivePageUrl: $archivePageUrl, ')
+          ..write('downloadPageUrl: $downloadPageUrl, ')
+          ..write('downloadUrl: $downloadUrl, ')
+          ..write('isOriginal: $isOriginal, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ArchiveDownloadedOldTable extends ArchiveDownloadedOld
+    with TableInfo<$ArchiveDownloadedOldTable, ArchiveDownloadedOldData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArchiveDownloadedOldTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
+  @override
+  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
+      'gid', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+      'token', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'pageCount', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _galleryUrlMeta =
+      const VerificationMeta('galleryUrl');
+  @override
+  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
+      'galleryUrl', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _coverUrlMeta =
+      const VerificationMeta('coverUrl');
+  @override
+  late final GeneratedColumn<String> coverUrl = GeneratedColumn<String>(
+      'coverUrl', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _uploaderMeta =
+      const VerificationMeta('uploader');
+  @override
+  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
+      'uploader', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<int> size = GeneratedColumn<int>(
+      'size', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _publishTimeMeta =
+      const VerificationMeta('publishTime');
+  @override
+  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
+      'publishTime', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _archiveStatusIndexMeta =
+      const VerificationMeta('archiveStatusIndex');
+  @override
+  late final GeneratedColumn<int> archiveStatusIndex = GeneratedColumn<int>(
+      'archiveStatusIndex', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _archivePageUrlMeta =
+      const VerificationMeta('archivePageUrl');
+  @override
+  late final GeneratedColumn<String> archivePageUrl = GeneratedColumn<String>(
+      'archivePageUrl', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadPageUrlMeta =
+      const VerificationMeta('downloadPageUrl');
+  @override
+  late final GeneratedColumn<String> downloadPageUrl = GeneratedColumn<String>(
+      'downloadPageUrl', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _downloadUrlMeta =
+      const VerificationMeta('downloadUrl');
+  @override
+  late final GeneratedColumn<String> downloadUrl = GeneratedColumn<String>(
+      'downloadUrl', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isOriginalMeta =
+      const VerificationMeta('isOriginal');
+  @override
+  late final GeneratedColumn<bool> isOriginal = GeneratedColumn<bool>(
+      'isOriginal', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("isOriginal" IN (0, 1))'));
+  static const VerificationMeta _insertTimeMeta =
+      const VerificationMeta('insertTime');
+  @override
+  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
+      'insertTime', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sortOrder', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'groupName', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        gid,
+        token,
+        title,
+        category,
+        pageCount,
+        galleryUrl,
+        coverUrl,
+        uploader,
+        size,
+        publishTime,
+        archiveStatusIndex,
+        archivePageUrl,
+        downloadPageUrl,
+        downloadUrl,
+        isOriginal,
+        insertTime,
+        sortOrder,
+        groupName
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'archive_downloaded';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ArchiveDownloadedOldData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    } else if (isInserting) {
+      context.missing(_gidMeta);
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
+    } else if (isInserting) {
+      context.missing(_tokenMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('pageCount')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['pageCount']!, _pageCountMeta));
+    } else if (isInserting) {
+      context.missing(_pageCountMeta);
+    }
+    if (data.containsKey('galleryUrl')) {
+      context.handle(
+          _galleryUrlMeta,
+          galleryUrl.isAcceptableOrUnknown(
+              data['galleryUrl']!, _galleryUrlMeta));
+    } else if (isInserting) {
+      context.missing(_galleryUrlMeta);
+    }
+    if (data.containsKey('coverUrl')) {
+      context.handle(_coverUrlMeta,
+          coverUrl.isAcceptableOrUnknown(data['coverUrl']!, _coverUrlMeta));
+    } else if (isInserting) {
+      context.missing(_coverUrlMeta);
+    }
+    if (data.containsKey('uploader')) {
+      context.handle(_uploaderMeta,
+          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
+    }
+    if (data.containsKey('size')) {
+      context.handle(
+          _sizeMeta, size.isAcceptableOrUnknown(data['size']!, _sizeMeta));
+    } else if (isInserting) {
+      context.missing(_sizeMeta);
+    }
+    if (data.containsKey('publishTime')) {
+      context.handle(
+          _publishTimeMeta,
+          publishTime.isAcceptableOrUnknown(
+              data['publishTime']!, _publishTimeMeta));
+    } else if (isInserting) {
+      context.missing(_publishTimeMeta);
+    }
+    if (data.containsKey('archiveStatusIndex')) {
+      context.handle(
+          _archiveStatusIndexMeta,
+          archiveStatusIndex.isAcceptableOrUnknown(
+              data['archiveStatusIndex']!, _archiveStatusIndexMeta));
+    } else if (isInserting) {
+      context.missing(_archiveStatusIndexMeta);
+    }
+    if (data.containsKey('archivePageUrl')) {
+      context.handle(
+          _archivePageUrlMeta,
+          archivePageUrl.isAcceptableOrUnknown(
+              data['archivePageUrl']!, _archivePageUrlMeta));
+    } else if (isInserting) {
+      context.missing(_archivePageUrlMeta);
+    }
+    if (data.containsKey('downloadPageUrl')) {
+      context.handle(
+          _downloadPageUrlMeta,
+          downloadPageUrl.isAcceptableOrUnknown(
+              data['downloadPageUrl']!, _downloadPageUrlMeta));
+    }
+    if (data.containsKey('downloadUrl')) {
+      context.handle(
+          _downloadUrlMeta,
+          downloadUrl.isAcceptableOrUnknown(
+              data['downloadUrl']!, _downloadUrlMeta));
+    }
+    if (data.containsKey('isOriginal')) {
+      context.handle(
+          _isOriginalMeta,
+          isOriginal.isAcceptableOrUnknown(
+              data['isOriginal']!, _isOriginalMeta));
+    } else if (isInserting) {
+      context.missing(_isOriginalMeta);
+    }
+    if (data.containsKey('insertTime')) {
+      context.handle(
+          _insertTimeMeta,
+          insertTime.isAcceptableOrUnknown(
+              data['insertTime']!, _insertTimeMeta));
+    }
+    if (data.containsKey('sortOrder')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
+    }
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid, isOriginal};
+  @override
+  ArchiveDownloadedOldData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveDownloadedOldData(
+      gid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
+      token: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pageCount'])!,
+      galleryUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}galleryUrl'])!,
+      coverUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}coverUrl'])!,
+      uploader: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
+      size: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size'])!,
+      publishTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publishTime'])!,
+      archiveStatusIndex: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}archiveStatusIndex'])!,
+      archivePageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}archivePageUrl'])!,
+      downloadPageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}downloadPageUrl']),
+      downloadUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}downloadUrl']),
+      isOriginal: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}isOriginal'])!,
+      insertTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}insertTime']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}groupName']),
+    );
+  }
+
+  @override
+  $ArchiveDownloadedOldTable createAlias(String alias) {
+    return $ArchiveDownloadedOldTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveDownloadedOldData extends DataClass
+    implements Insertable<ArchiveDownloadedOldData> {
+  final int gid;
+  final String token;
+  final String title;
+  final String category;
+  final int pageCount;
+  final String galleryUrl;
+  final String coverUrl;
+  final String? uploader;
+  final int size;
+  final String publishTime;
+  final int archiveStatusIndex;
+  final String archivePageUrl;
+  final String? downloadPageUrl;
+  final String? downloadUrl;
+  final bool isOriginal;
+  final String? insertTime;
+  final int sortOrder;
+  final String? groupName;
+  const ArchiveDownloadedOldData(
+      {required this.gid,
+      required this.token,
+      required this.title,
+      required this.category,
+      required this.pageCount,
+      required this.galleryUrl,
+      required this.coverUrl,
+      this.uploader,
+      required this.size,
+      required this.publishTime,
+      required this.archiveStatusIndex,
+      required this.archivePageUrl,
+      this.downloadPageUrl,
+      this.downloadUrl,
+      required this.isOriginal,
+      this.insertTime,
+      required this.sortOrder,
+      this.groupName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['token'] = Variable<String>(token);
+    map['title'] = Variable<String>(title);
+    map['category'] = Variable<String>(category);
+    map['pageCount'] = Variable<int>(pageCount);
+    map['galleryUrl'] = Variable<String>(galleryUrl);
+    map['coverUrl'] = Variable<String>(coverUrl);
+    if (!nullToAbsent || uploader != null) {
+      map['uploader'] = Variable<String>(uploader);
+    }
+    map['size'] = Variable<int>(size);
+    map['publishTime'] = Variable<String>(publishTime);
+    map['archiveStatusIndex'] = Variable<int>(archiveStatusIndex);
+    map['archivePageUrl'] = Variable<String>(archivePageUrl);
+    if (!nullToAbsent || downloadPageUrl != null) {
+      map['downloadPageUrl'] = Variable<String>(downloadPageUrl);
+    }
+    if (!nullToAbsent || downloadUrl != null) {
+      map['downloadUrl'] = Variable<String>(downloadUrl);
+    }
+    map['isOriginal'] = Variable<bool>(isOriginal);
+    if (!nullToAbsent || insertTime != null) {
+      map['insertTime'] = Variable<String>(insertTime);
+    }
+    map['sortOrder'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || groupName != null) {
+      map['groupName'] = Variable<String>(groupName);
+    }
+    return map;
+  }
+
+  ArchiveDownloadedOldCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveDownloadedOldCompanion(
+      gid: Value(gid),
+      token: Value(token),
+      title: Value(title),
+      category: Value(category),
+      pageCount: Value(pageCount),
+      galleryUrl: Value(galleryUrl),
+      coverUrl: Value(coverUrl),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
+      size: Value(size),
+      publishTime: Value(publishTime),
+      archiveStatusIndex: Value(archiveStatusIndex),
+      archivePageUrl: Value(archivePageUrl),
+      downloadPageUrl: downloadPageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadPageUrl),
+      downloadUrl: downloadUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(downloadUrl),
+      isOriginal: Value(isOriginal),
+      insertTime: insertTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(insertTime),
+      sortOrder: Value(sortOrder),
+      groupName: groupName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupName),
+    );
+  }
+
+  factory ArchiveDownloadedOldData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveDownloadedOldData(
+      gid: serializer.fromJson<int>(json['gid']),
+      token: serializer.fromJson<String>(json['token']),
+      title: serializer.fromJson<String>(json['title']),
+      category: serializer.fromJson<String>(json['category']),
+      pageCount: serializer.fromJson<int>(json['pageCount']),
+      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
+      coverUrl: serializer.fromJson<String>(json['coverUrl']),
+      uploader: serializer.fromJson<String?>(json['uploader']),
+      size: serializer.fromJson<int>(json['size']),
+      publishTime: serializer.fromJson<String>(json['publishTime']),
+      archiveStatusIndex: serializer.fromJson<int>(json['archiveStatusIndex']),
+      archivePageUrl: serializer.fromJson<String>(json['archivePageUrl']),
+      downloadPageUrl: serializer.fromJson<String?>(json['downloadPageUrl']),
+      downloadUrl: serializer.fromJson<String?>(json['downloadUrl']),
+      isOriginal: serializer.fromJson<bool>(json['isOriginal']),
+      insertTime: serializer.fromJson<String?>(json['insertTime']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      groupName: serializer.fromJson<String?>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'token': serializer.toJson<String>(token),
+      'title': serializer.toJson<String>(title),
+      'category': serializer.toJson<String>(category),
+      'pageCount': serializer.toJson<int>(pageCount),
+      'galleryUrl': serializer.toJson<String>(galleryUrl),
+      'coverUrl': serializer.toJson<String>(coverUrl),
+      'uploader': serializer.toJson<String?>(uploader),
+      'size': serializer.toJson<int>(size),
+      'publishTime': serializer.toJson<String>(publishTime),
+      'archiveStatusIndex': serializer.toJson<int>(archiveStatusIndex),
+      'archivePageUrl': serializer.toJson<String>(archivePageUrl),
+      'downloadPageUrl': serializer.toJson<String?>(downloadPageUrl),
+      'downloadUrl': serializer.toJson<String?>(downloadUrl),
+      'isOriginal': serializer.toJson<bool>(isOriginal),
+      'insertTime': serializer.toJson<String?>(insertTime),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'groupName': serializer.toJson<String?>(groupName),
+    };
+  }
+
+  ArchiveDownloadedOldData copyWith(
+          {int? gid,
+          String? token,
+          String? title,
+          String? category,
+          int? pageCount,
+          String? galleryUrl,
+          String? coverUrl,
+          Value<String?> uploader = const Value.absent(),
+          int? size,
+          String? publishTime,
+          int? archiveStatusIndex,
+          String? archivePageUrl,
+          Value<String?> downloadPageUrl = const Value.absent(),
+          Value<String?> downloadUrl = const Value.absent(),
+          bool? isOriginal,
+          Value<String?> insertTime = const Value.absent(),
+          int? sortOrder,
+          Value<String?> groupName = const Value.absent()}) =>
+      ArchiveDownloadedOldData(
+        gid: gid ?? this.gid,
+        token: token ?? this.token,
+        title: title ?? this.title,
+        category: category ?? this.category,
+        pageCount: pageCount ?? this.pageCount,
+        galleryUrl: galleryUrl ?? this.galleryUrl,
+        coverUrl: coverUrl ?? this.coverUrl,
+        uploader: uploader.present ? uploader.value : this.uploader,
+        size: size ?? this.size,
+        publishTime: publishTime ?? this.publishTime,
+        archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+        archivePageUrl: archivePageUrl ?? this.archivePageUrl,
+        downloadPageUrl: downloadPageUrl.present
+            ? downloadPageUrl.value
+            : this.downloadPageUrl,
+        downloadUrl: downloadUrl.present ? downloadUrl.value : this.downloadUrl,
+        isOriginal: isOriginal ?? this.isOriginal,
+        insertTime: insertTime.present ? insertTime.value : this.insertTime,
+        sortOrder: sortOrder ?? this.sortOrder,
+        groupName: groupName.present ? groupName.value : this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveDownloadedOldData(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('coverUrl: $coverUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('size: $size, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archivePageUrl: $archivePageUrl, ')
+          ..write('downloadPageUrl: $downloadPageUrl, ')
+          ..write('downloadUrl: $downloadUrl, ')
+          ..write('isOriginal: $isOriginal, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      gid,
+      token,
+      title,
+      category,
+      pageCount,
+      galleryUrl,
+      coverUrl,
+      uploader,
+      size,
+      publishTime,
+      archiveStatusIndex,
+      archivePageUrl,
+      downloadPageUrl,
+      downloadUrl,
+      isOriginal,
+      insertTime,
+      sortOrder,
+      groupName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveDownloadedOldData &&
+          other.gid == this.gid &&
+          other.token == this.token &&
+          other.title == this.title &&
+          other.category == this.category &&
+          other.pageCount == this.pageCount &&
+          other.galleryUrl == this.galleryUrl &&
+          other.coverUrl == this.coverUrl &&
+          other.uploader == this.uploader &&
+          other.size == this.size &&
+          other.publishTime == this.publishTime &&
+          other.archiveStatusIndex == this.archiveStatusIndex &&
+          other.archivePageUrl == this.archivePageUrl &&
+          other.downloadPageUrl == this.downloadPageUrl &&
+          other.downloadUrl == this.downloadUrl &&
+          other.isOriginal == this.isOriginal &&
+          other.insertTime == this.insertTime &&
+          other.sortOrder == this.sortOrder &&
+          other.groupName == this.groupName);
+}
+
+class ArchiveDownloadedOldCompanion
+    extends UpdateCompanion<ArchiveDownloadedOldData> {
+  final Value<int> gid;
+  final Value<String> token;
+  final Value<String> title;
+  final Value<String> category;
+  final Value<int> pageCount;
+  final Value<String> galleryUrl;
+  final Value<String> coverUrl;
+  final Value<String?> uploader;
+  final Value<int> size;
+  final Value<String> publishTime;
+  final Value<int> archiveStatusIndex;
+  final Value<String> archivePageUrl;
+  final Value<String?> downloadPageUrl;
+  final Value<String?> downloadUrl;
+  final Value<bool> isOriginal;
+  final Value<String?> insertTime;
+  final Value<int> sortOrder;
+  final Value<String?> groupName;
+  final Value<int> rowid;
+  const ArchiveDownloadedOldCompanion({
+    this.gid = const Value.absent(),
+    this.token = const Value.absent(),
+    this.title = const Value.absent(),
+    this.category = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.galleryUrl = const Value.absent(),
+    this.coverUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    this.size = const Value.absent(),
+    this.publishTime = const Value.absent(),
+    this.archiveStatusIndex = const Value.absent(),
+    this.archivePageUrl = const Value.absent(),
+    this.downloadPageUrl = const Value.absent(),
+    this.downloadUrl = const Value.absent(),
+    this.isOriginal = const Value.absent(),
+    this.insertTime = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArchiveDownloadedOldCompanion.insert({
+    required int gid,
+    required String token,
+    required String title,
+    required String category,
+    required int pageCount,
+    required String galleryUrl,
+    required String coverUrl,
+    this.uploader = const Value.absent(),
+    required int size,
+    required String publishTime,
+    required int archiveStatusIndex,
+    required String archivePageUrl,
+    this.downloadPageUrl = const Value.absent(),
+    this.downloadUrl = const Value.absent(),
+    required bool isOriginal,
+    this.insertTime = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : gid = Value(gid),
+        token = Value(token),
+        title = Value(title),
+        category = Value(category),
+        pageCount = Value(pageCount),
+        galleryUrl = Value(galleryUrl),
+        coverUrl = Value(coverUrl),
+        size = Value(size),
+        publishTime = Value(publishTime),
+        archiveStatusIndex = Value(archiveStatusIndex),
+        archivePageUrl = Value(archivePageUrl),
+        isOriginal = Value(isOriginal);
+  static Insertable<ArchiveDownloadedOldData> custom({
+    Expression<int>? gid,
+    Expression<String>? token,
+    Expression<String>? title,
+    Expression<String>? category,
+    Expression<int>? pageCount,
+    Expression<String>? galleryUrl,
+    Expression<String>? coverUrl,
+    Expression<String>? uploader,
+    Expression<int>? size,
+    Expression<String>? publishTime,
+    Expression<int>? archiveStatusIndex,
+    Expression<String>? archivePageUrl,
+    Expression<String>? downloadPageUrl,
+    Expression<String>? downloadUrl,
+    Expression<bool>? isOriginal,
+    Expression<String>? insertTime,
+    Expression<int>? sortOrder,
+    Expression<String>? groupName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (token != null) 'token': token,
+      if (title != null) 'title': title,
+      if (category != null) 'category': category,
+      if (pageCount != null) 'pageCount': pageCount,
+      if (galleryUrl != null) 'galleryUrl': galleryUrl,
+      if (coverUrl != null) 'coverUrl': coverUrl,
+      if (uploader != null) 'uploader': uploader,
+      if (size != null) 'size': size,
+      if (publishTime != null) 'publishTime': publishTime,
+      if (archiveStatusIndex != null) 'archiveStatusIndex': archiveStatusIndex,
+      if (archivePageUrl != null) 'archivePageUrl': archivePageUrl,
+      if (downloadPageUrl != null) 'downloadPageUrl': downloadPageUrl,
+      if (downloadUrl != null) 'downloadUrl': downloadUrl,
+      if (isOriginal != null) 'isOriginal': isOriginal,
+      if (insertTime != null) 'insertTime': insertTime,
+      if (sortOrder != null) 'sortOrder': sortOrder,
+      if (groupName != null) 'groupName': groupName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArchiveDownloadedOldCompanion copyWith(
+      {Value<int>? gid,
+      Value<String>? token,
+      Value<String>? title,
+      Value<String>? category,
+      Value<int>? pageCount,
+      Value<String>? galleryUrl,
+      Value<String>? coverUrl,
+      Value<String?>? uploader,
+      Value<int>? size,
+      Value<String>? publishTime,
+      Value<int>? archiveStatusIndex,
+      Value<String>? archivePageUrl,
+      Value<String?>? downloadPageUrl,
+      Value<String?>? downloadUrl,
+      Value<bool>? isOriginal,
+      Value<String?>? insertTime,
+      Value<int>? sortOrder,
+      Value<String?>? groupName,
+      Value<int>? rowid}) {
+    return ArchiveDownloadedOldCompanion(
+      gid: gid ?? this.gid,
+      token: token ?? this.token,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      pageCount: pageCount ?? this.pageCount,
+      galleryUrl: galleryUrl ?? this.galleryUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
+      uploader: uploader ?? this.uploader,
+      size: size ?? this.size,
+      publishTime: publishTime ?? this.publishTime,
+      archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+      archivePageUrl: archivePageUrl ?? this.archivePageUrl,
+      downloadPageUrl: downloadPageUrl ?? this.downloadPageUrl,
+      downloadUrl: downloadUrl ?? this.downloadUrl,
+      isOriginal: isOriginal ?? this.isOriginal,
+      insertTime: insertTime ?? this.insertTime,
+      sortOrder: sortOrder ?? this.sortOrder,
+      groupName: groupName ?? this.groupName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (pageCount.present) {
+      map['pageCount'] = Variable<int>(pageCount.value);
+    }
+    if (galleryUrl.present) {
+      map['galleryUrl'] = Variable<String>(galleryUrl.value);
+    }
+    if (coverUrl.present) {
+      map['coverUrl'] = Variable<String>(coverUrl.value);
+    }
+    if (uploader.present) {
+      map['uploader'] = Variable<String>(uploader.value);
+    }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
+    if (publishTime.present) {
+      map['publishTime'] = Variable<String>(publishTime.value);
+    }
+    if (archiveStatusIndex.present) {
+      map['archiveStatusIndex'] = Variable<int>(archiveStatusIndex.value);
+    }
+    if (archivePageUrl.present) {
+      map['archivePageUrl'] = Variable<String>(archivePageUrl.value);
+    }
+    if (downloadPageUrl.present) {
+      map['downloadPageUrl'] = Variable<String>(downloadPageUrl.value);
+    }
+    if (downloadUrl.present) {
+      map['downloadUrl'] = Variable<String>(downloadUrl.value);
+    }
+    if (isOriginal.present) {
+      map['isOriginal'] = Variable<bool>(isOriginal.value);
+    }
+    if (insertTime.present) {
+      map['insertTime'] = Variable<String>(insertTime.value);
+    }
+    if (sortOrder.present) {
+      map['sortOrder'] = Variable<int>(sortOrder.value);
+    }
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveDownloadedOldCompanion(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('coverUrl: $coverUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('size: $size, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archivePageUrl: $archivePageUrl, ')
+          ..write('downloadPageUrl: $downloadPageUrl, ')
+          ..write('downloadUrl: $downloadUrl, ')
+          ..write('isOriginal: $isOriginal, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ArchiveGroupTable extends ArchiveGroup
+    with TableInfo<$ArchiveGroupTable, ArchiveGroupData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArchiveGroupTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'groupName', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sortOrder', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [groupName, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'archive_group';
+  @override
+  VerificationContext validateIntegrity(Insertable<ArchiveGroupData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    if (data.containsKey('sortOrder')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {groupName};
+  @override
+  ArchiveGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveGroupData(
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}groupName'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
+    );
+  }
+
+  @override
+  $ArchiveGroupTable createAlias(String alias) {
+    return $ArchiveGroupTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveGroupData extends DataClass
+    implements Insertable<ArchiveGroupData> {
+  final String groupName;
+  final int sortOrder;
+  const ArchiveGroupData({required this.groupName, required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['groupName'] = Variable<String>(groupName);
+    map['sortOrder'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  ArchiveGroupCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveGroupCompanion(
+      groupName: Value(groupName),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory ArchiveGroupData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveGroupData(
+      groupName: serializer.fromJson<String>(json['groupName']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'groupName': serializer.toJson<String>(groupName),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  ArchiveGroupData copyWith({String? groupName, int? sortOrder}) =>
+      ArchiveGroupData(
+        groupName: groupName ?? this.groupName,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveGroupData(')
+          ..write('groupName: $groupName, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(groupName, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveGroupData &&
+          other.groupName == this.groupName &&
+          other.sortOrder == this.sortOrder);
+}
+
+class ArchiveGroupCompanion extends UpdateCompanion<ArchiveGroupData> {
+  final Value<String> groupName;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const ArchiveGroupCompanion({
+    this.groupName = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArchiveGroupCompanion.insert({
+    required String groupName,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : groupName = Value(groupName);
+  static Insertable<ArchiveGroupData> custom({
+    Expression<String>? groupName,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (groupName != null) 'groupName': groupName,
+      if (sortOrder != null) 'sortOrder': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArchiveGroupCompanion copyWith(
+      {Value<String>? groupName, Value<int>? sortOrder, Value<int>? rowid}) {
+    return ArchiveGroupCompanion(
+      groupName: groupName ?? this.groupName,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    if (sortOrder.present) {
+      map['sortOrder'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveGroupCompanion(')
+          ..write('groupName: $groupName, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   late final DioCache dioCache = DioCache(this);
@@ -4116,8 +4908,6 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final TagBrowseProgressTable tagBrowseProgress =
       TagBrowseProgressTable(this);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
-  late final ArchiveDownloaded archiveDownloaded = ArchiveDownloaded(this);
-  late final ArchiveGroup archiveGroup = ArchiveGroup(this);
   late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
   late final Image image = Image(this);
   late final GalleryGroup galleryGroup = GalleryGroup(this);
@@ -4126,10 +4916,21 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $SuperResolutionInfoTable superResolutionInfo =
       $SuperResolutionInfoTable(this);
   late final $TagTable tag = $TagTable(this);
+  late final $ArchiveDownloadedTable archiveDownloaded =
+      $ArchiveDownloadedTable(this);
+  late final $ArchiveDownloadedOldTable archiveDownloadedOld =
+      $ArchiveDownloadedOldTable(this);
+  late final $ArchiveGroupTable archiveGroup = $ArchiveGroupTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
       Index('idx_tagName', 'CREATE INDEX idx_tagName ON tag (tagName)');
+  late final Index idxInsertTime = Index('idx_insert_time',
+      'CREATE INDEX idx_insert_time ON archive_downloaded_v2 (insert_time)');
+  late final Index idxSoreOrder = Index('idx_sore_order',
+      'CREATE INDEX idx_sore_order ON archive_downloaded_v2 (sort_order)');
+  late final Index idxGroupName = Index('idx_group_name',
+      'CREATE INDEX idx_group_name ON archive_downloaded_v2 (group_name)');
   Selectable<DioCacheData> selectByCacheKey(String cacheKey) {
     return customSelect('SELECT * FROM dio_cache WHERE cacheKey = ?1',
         variables: [
@@ -4268,141 +5069,6 @@ abstract class _$AppDb extends GeneratedDatabase {
       'DELETE FROM gallery_history',
       variables: [],
       updates: {galleryHistory},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Selectable<ArchiveDownloadedData> selectArchives() {
-    return customSelect(
-        'SELECT * FROM archive_downloaded ORDER BY insertTime DESC',
-        variables: [],
-        readsFrom: {
-          archiveDownloaded,
-        }).asyncMap(archiveDownloaded.mapFromRow);
-  }
-
-  Future<int> insertArchive(
-      int gid,
-      String token,
-      String title,
-      String category,
-      int pageCount,
-      String galleryUrl,
-      String coverUrl,
-      String? uploader,
-      int size,
-      String publishTime,
-      int archiveStatusIndex,
-      String archivePageUrl,
-      String? downloadPageUrl,
-      String? downloadUrl,
-      bool isOriginal,
-      String? insertTime,
-      String? groupName) {
-    return customInsert(
-      'INSERT INTO archive_downloaded (gid, token, title, category, pageCount, galleryUrl, coverUrl, uploader, size, publishTime, archiveStatusIndex, archivePageUrl, downloadPageUrl, downloadUrl, isOriginal, insertTime, groupName) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)',
-      variables: [
-        Variable<int>(gid),
-        Variable<String>(token),
-        Variable<String>(title),
-        Variable<String>(category),
-        Variable<int>(pageCount),
-        Variable<String>(galleryUrl),
-        Variable<String>(coverUrl),
-        Variable<String>(uploader),
-        Variable<int>(size),
-        Variable<String>(publishTime),
-        Variable<int>(archiveStatusIndex),
-        Variable<String>(archivePageUrl),
-        Variable<String>(downloadPageUrl),
-        Variable<String>(downloadUrl),
-        Variable<bool>(isOriginal),
-        Variable<String>(insertTime),
-        Variable<String>(groupName)
-      ],
-      updates: {archiveDownloaded},
-    );
-  }
-
-  Future<int> deleteArchive(int gid, bool isOriginal) {
-    return customUpdate(
-      'DELETE FROM archive_downloaded WHERE gid = ?1 AND isOriginal = ?2',
-      variables: [Variable<int>(gid), Variable<bool>(isOriginal)],
-      updates: {archiveDownloaded},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> updateArchive(
-      int archiveStatusIndex,
-      String? downloadPageUrl,
-      String? downloadUrl,
-      int sortOrder,
-      String? groupName,
-      int gid,
-      bool isOriginal) {
-    return customUpdate(
-      'UPDATE archive_downloaded SET archiveStatusIndex = ?1, downloadPageUrl = ?2, downloadUrl = ?3, sortOrder = ?4, groupName = ?5 WHERE gid = ?6 AND isOriginal = ?7',
-      variables: [
-        Variable<int>(archiveStatusIndex),
-        Variable<String>(downloadPageUrl),
-        Variable<String>(downloadUrl),
-        Variable<int>(sortOrder),
-        Variable<String>(groupName),
-        Variable<int>(gid),
-        Variable<bool>(isOriginal)
-      ],
-      updates: {archiveDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Selectable<ArchiveGroupData> selectArchiveGroups() {
-    return customSelect('SELECT * FROM archive_group ORDER BY sortOrder',
-        variables: [],
-        readsFrom: {
-          archiveGroup,
-        }).asyncMap(archiveGroup.mapFromRow);
-  }
-
-  Future<int> renameArchiveGroup(String newGroupName, String oldGroupName) {
-    return customUpdate(
-      'UPDATE archive_group SET groupName = ?1 WHERE groupName = ?2',
-      variables: [
-        Variable<String>(newGroupName),
-        Variable<String>(oldGroupName)
-      ],
-      updates: {archiveGroup},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateArchiveGroupOrder(int sortOrder, String groupName) {
-    return customUpdate(
-      'UPDATE archive_group SET sortOrder = ?1 WHERE groupName = ?2',
-      variables: [Variable<int>(sortOrder), Variable<String>(groupName)],
-      updates: {archiveGroup},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> reGroupArchive(String? newGroupName, String? oldGroupName) {
-    return customUpdate(
-      'UPDATE archive_downloaded SET groupName = ?1 WHERE groupName = ?2',
-      variables: [
-        Variable<String>(newGroupName),
-        Variable<String>(oldGroupName)
-      ],
-      updates: {archiveDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> deleteArchiveGroup(String groupName) {
-    return customUpdate(
-      'DELETE FROM archive_group WHERE groupName = ?1',
-      variables: [Variable<String>(groupName)],
-      updates: {archiveGroup},
       updateKind: UpdateKind.delete,
     );
   }
@@ -4676,16 +5342,20 @@ abstract class _$AppDb extends GeneratedDatabase {
         tagCount,
         tagBrowseProgress,
         galleryHistory,
-        archiveDownloaded,
-        archiveGroup,
         galleryDownloaded,
         image,
         galleryGroup,
         oldSuperResolutionInfo,
         superResolutionInfo,
         tag,
+        archiveDownloaded,
+        archiveDownloadedOld,
+        archiveGroup,
         idxKey,
-        idxTagName
+        idxTagName,
+        idxInsertTime,
+        idxSoreOrder,
+        idxGroupName
       ];
 }
 

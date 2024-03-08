@@ -10,9 +10,8 @@ class SuperResolutionInfoDao {
     return appDb.into(appDb.superResolutionInfo).insert(entry);
   }
 
-  static Future<int> updateSuperResolutionInfo(SuperResolutionInfoData entry) {
-    return (appDb.update(appDb.superResolutionInfo)..where((tbl) => tbl.gid.equals(entry.gid) & tbl.type.equals(entry.type)))
-        .write(SuperResolutionInfoCompanion(status: Value(entry.status), imageStatuses: Value(entry.imageStatuses)));
+  static Future<int> updateSuperResolutionInfo(SuperResolutionInfoCompanion entry) {
+    return (appDb.update(appDb.superResolutionInfo)..where((tbl) => tbl.gid.equals(entry.gid.value) & tbl.type.equals(entry.type.value))).write(entry);
   }
 
   static Future<int> deleteSuperResolutionInfo(int gid, int type) {

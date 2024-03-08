@@ -2,11 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/database/dao/archive_group_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
@@ -253,8 +257,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (!allGroups.contains(newGroup)) {
         int index = allGroups.indexOf(oldGroup);
         allGroups[index] = newGroup;
-        await ArchiveDao.insertArchiveGroup(newGroup);
-        await appDb.updateArchiveGroupOrder(index, newGroup);
+        await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: newGroup, sortOrder: index));
       }
 
       for (ArchiveDownloadedData a in archiveDownloadedDatas) {
@@ -272,7 +275,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     allGroups.remove(group);
 
     try {
-      return (await appDb.deleteArchiveGroup(group) > 0);
+      return (await ArchiveGroupDao.deleteArchiveGroup(group) > 0);
     } on SqliteException catch (e) {
       Log.info(e);
       return false;
@@ -300,8 +303,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await appDb.transaction(() async {
       for (int i = 0; i < allGroups.length; i++) {
-        await ArchiveDao.insertArchiveGroup(allGroups[i]);
-        await appDb.updateArchiveGroupOrder(i, allGroups[i]);
+        await ArchiveGroupDao.updateArchiveGroupOrder(allGroups[i], i);
       }
     });
   }
@@ -695,10 +697,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   // ALL
 
   Future<void> _instantiateFromDB() async {
-    allGroups = (await appDb.selectArchiveGroups().get()).map((e) => e.groupName).toList();
+    allGroups = (await ArchiveGroupDao.selectArchiveGroups()).map((e) => e.groupName).toList();
     Log.debug('init Archive groups: $allGroups');
 
-    List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
+    List<ArchiveDownloadedData> archives = await ArchiveDao.selectArchives();
 
     for (ArchiveDownloadedData archive in archives) {
       _initArchiveInMemory(archive, sort: false);
@@ -719,33 +721,36 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       allGroups.add(group);
     }
 
-    return (await ArchiveDao.insertArchiveGroup(group) > 0);
+    return (await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: group, sortOrder: 0)) > 0);
   }
 
   // DB
 
   Future<bool> _saveArchiveAndGroupInDatabase(ArchiveDownloadedData archive) async {
     return appDb.transaction(() async {
-      await ArchiveDao.insertArchiveGroup(archive.groupName ?? 'default'.tr);
+      await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: archive.groupName, sortOrder: 0));
 
-      return await appDb.insertArchive(
-            archive.gid,
-            archive.token,
-            archive.title,
-            archive.category,
-            archive.pageCount,
-            archive.galleryUrl,
-            archive.coverUrl,
-            archive.uploader,
-            archive.size,
-            archive.publishTime,
-            archive.archiveStatusIndex,
-            archive.archivePageUrl,
-            null,
-            null,
-            archive.isOriginal,
-            archive.insertTime ?? DateTime.now().toString(),
-            archive.groupName,
+      return await ArchiveDao.insertArchive(
+            ArchiveDownloadedData(
+              gid: archive.gid,
+              token: archive.token,
+              title: archive.title,
+              category: archive.category,
+              pageCount: archive.pageCount,
+              galleryUrl: archive.galleryUrl,
+              coverUrl: archive.coverUrl,
+              uploader: archive.uploader,
+              size: archive.size,
+              publishTime: archive.publishTime,
+              archiveStatusIndex: archive.archiveStatusIndex,
+              archivePageUrl: archive.archivePageUrl,
+              downloadPageUrl: null,
+              downloadUrl: null,
+              sortOrder: archive.sortOrder,
+              groupName: archive.groupName,
+              isOriginal: archive.isOriginal,
+              insertTime: archive.insertTime,
+            ),
           ) >
           0;
     });
@@ -754,20 +759,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<bool> _updateArchiveInDatabase(ArchiveDownloadedData archive) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
 
-    return await appDb.updateArchive(
-          archiveDownloadInfo.archiveStatus.index,
-          archiveDownloadInfo.downloadPageUrl,
-          archiveDownloadInfo.downloadUrl,
-          archiveDownloadInfo.sortOrder,
-          archiveDownloadInfo.group,
-          archive.gid,
-          archive.isOriginal,
+    return await ArchiveDao.updateArchive(
+          ArchiveDownloadedCompanion(
+            gid: Value(archive.gid),
+            archiveStatusIndex: Value(archiveDownloadInfo.archiveStatus.index),
+            downloadPageUrl: Value.ofNullable(archiveDownloadInfo.downloadPageUrl),
+            downloadUrl: Value.ofNullable(archiveDownloadInfo.downloadUrl),
+            sortOrder: Value(archiveDownloadInfo.sortOrder),
+            groupName: Value(archiveDownloadInfo.group),
+          ),
         ) >
         0;
   }
 
   Future<bool> _deleteArchiveInfoInDatabase(int gid, bool isOriginal) async {
-    return await appDb.deleteArchive(gid, isOriginal) > 0;
+    return await ArchiveDao.deleteArchive(gid) > 0;
   }
 
   // MEMORY

@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:get/utils.dart';
 
 class Table<K1, K2, V> {
   Map<K1, Map<K2, V>> data = {};

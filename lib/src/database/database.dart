@@ -9,6 +9,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
+import 'package:jhentai/src/database/table/archive_downloaded.dart';
+import 'package:jhentai/src/database/table/archive_group.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
@@ -22,6 +24,7 @@ import 'package:sqlite3/sqlite3.dart';
 import '../model/gallery.dart';
 import '../service/storage_service.dart';
 import 'dao/archive_dao.dart';
+import 'dao/archive_group_dao.dart';
 import 'dao/gallery_dao.dart';
 
 part 'database.g.dart';
@@ -29,7 +32,6 @@ part 'database.g.dart';
 @DriftDatabase(
   include: {
     'gallery_downloaded.drift',
-    'archive_downloaded.drift',
     'gallery_history.drift',
     'tag_browse_progress.drift',
     'tag_count.drift',
@@ -39,13 +41,16 @@ part 'database.g.dart';
     OldSuperResolutionInfo,
     SuperResolutionInfo,
     Tag,
+    ArchiveDownloaded,
+    ArchiveDownloadedOld,
+    ArchiveGroup,
   ],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -123,11 +128,16 @@ class AppDb extends _$AppDb {
 
   Future<void> _updateArchive(Migrator m) async {
     try {
-      List<ArchiveDownloadedData> archives = await appDb.selectArchives().get();
+      List<ArchiveDownloadedOldData> archives = await ArchiveDao.selectOldArchives();
 
       await appDb.transaction(() async {
-        for (ArchiveDownloadedData a in archives) {
-          await appDb.updateArchive(a.archiveStatusIndex + 1, a.downloadPageUrl, a.downloadUrl, a.sortOrder, a.groupName, a.gid, a.isOriginal);
+        for (ArchiveDownloadedOldData a in archives) {
+          await ArchiveDao.updateOldArchive(
+            ArchiveDownloadedOldCompanion(
+              gid: Value(a.gid),
+              archiveStatusIndex: Value(a.archiveStatusIndex + 1),
+            ),
+          );
         }
       });
     } on Exception catch (e) {
@@ -165,7 +175,7 @@ class AppDb extends _$AppDb {
       await m.createTable(archiveGroup);
 
       Set<String> galleryGroups = (await appDb.selectGallerys().get()).map((g) => g.groupName ?? 'default'.tr).toSet();
-      Set<String> archiveGroups = (await appDb.selectArchives().get()).map((g) => g.groupName ?? 'default'.tr).toSet();
+      Set<String> archiveGroups = (await ArchiveDao.selectOldArchives()).map((g) => g.groupName ?? 'default'.tr).toSet();
 
       Log.info('Migrate gallery groups: $galleryGroups');
       Log.info('Migrate archive groups: $archiveGroups');
@@ -175,7 +185,7 @@ class AppDb extends _$AppDb {
           await GalleryDao.insertGalleryGroup(groupName);
         }
         for (String groupName in archiveGroups) {
-          await ArchiveDao.insertArchiveGroup(groupName);
+          await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: groupName, sortOrder: 0));
         }
       });
     } on Exception catch (e) {

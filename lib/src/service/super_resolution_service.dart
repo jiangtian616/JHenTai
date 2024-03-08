@@ -1,7 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:get/get.dart';
+import 'package:drift/drift.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -19,6 +23,7 @@ import '../utils/eh_executor.dart';
 import '../utils/log.dart';
 import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
+import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
 import 'gallery_download_service.dart';
 
@@ -35,7 +40,7 @@ class SuperResolutionService extends GetxController {
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
 
-  Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = Table();
+  util.Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = util.Table();
 
   static const String imageDirName = 'super_resolution';
 
@@ -476,11 +481,11 @@ class SuperResolutionService extends GetxController {
 
   Future<bool> _updateSuperResolutionInfoStatus(int gid, SuperResolutionInfo superResolutionInfo) async {
     return await SuperResolutionInfoDao.updateSuperResolutionInfo(
-          SuperResolutionInfoData(
-            gid: gid,
-            type: superResolutionInfo.type.index,
-            status: superResolutionInfo.status.index,
-            imageStatuses: superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+          SuperResolutionInfoCompanion(
+            gid: Value(gid),
+            type: Value(superResolutionInfo.type.index),
+            status: Value(superResolutionInfo.status.index),
+            imageStatuses: Value(superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator)),
           ),
         ) >
         0;
