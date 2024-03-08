@@ -42,13 +42,15 @@ class _LogPageState extends State<LogPage> {
           IconButton(onPressed: _copyLog, icon: const Icon(Icons.copy)),
         ],
       ),
-      body: SelectableText(
-        logText,
-        scrollPhysics: const ClampingScrollPhysics(),
-        style: TextStyle(
-          fontSize: 9,
-          fontWeight: FontWeight.bold,
-          fontFamily: Platform.isAndroid ? 'monospace' : 'PingFang HK',
+      body: SizedBox.expand(
+        child: SelectableText(
+          logText,
+          scrollPhysics: const ClampingScrollPhysics(),
+          style: TextStyle(
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            fontFamily: Platform.isAndroid ? 'monospace' : 'PingFang HK',
+          ),
         ),
       ).marginSymmetric(horizontal: 4),
     );
