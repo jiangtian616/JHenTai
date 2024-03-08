@@ -792,7 +792,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     if (sort) _sortArchives();
-    update([galleryCountChangedId, '$archiveStatusId::::${archive.gid}']);
+    update([galleryCountChangedId, '$archiveStatusId::${archive.gid}']);
   }
 
   void _deleteArchiveInMemory(int gid, bool isOriginal) {
