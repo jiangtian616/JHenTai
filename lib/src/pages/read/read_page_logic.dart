@@ -265,18 +265,18 @@ class ReadPageLogic extends GetxController {
     update(['$onlineImageId::$index']);
   }
 
-  void beginToParseImageUrl(int index, bool reParse) {
+  void beginToParseImageUrl(int index, bool reParse, {String? reloadKey}) {
     if (state.parseImageUrlStates[index] == LoadingState.loading) {
       return;
     }
 
     state.parseImageUrlStates[index] = LoadingState.loading;
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      executor.scheduleTask(0, () => _parseImageUrl(index, reParse));
+      executor.scheduleTask(0, () => _parseImageUrl(index, reParse, reloadKey));
     });
   }
 
-  Future<void> _parseImageUrl(int index, bool reParse) async {
+  Future<void> _parseImageUrl(int index, bool reParse, String? reloadKey) async {
     update(['$parseImageUrlStateId::$index']);
 
     GalleryImage image;
@@ -284,6 +284,7 @@ class ReadPageLogic extends GetxController {
       image = await retry(
         () => EHRequest.requestImagePage(
           state.thumbnails[index]!.href,
+          reloadKey: reloadKey,
           parser: EHSpiderParser.imagePage2GalleryImage,
           useCacheIfAvailable: !reParse,
         ),
@@ -314,11 +315,13 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> reloadImage(int index) async {
+    String? reloadKey;
     if (state.images[index] != null) {
+      reloadKey = state.images[index]!.reloadKey;
       clearDiskCachedImage(state.images[index]!.url);
     }
     state.images[index] = null;
-    beginToParseImageUrl(index, true);
+    beginToParseImageUrl(index, true, reloadKey: reloadKey);
     updateSafely(['$onlineImageId::$index']);
   }
 

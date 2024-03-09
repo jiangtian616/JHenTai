@@ -467,12 +467,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<T> requestImagePage<T>(
     String href, {
+    String? reloadKey,
     CancelToken? cancelToken,
     bool useCacheIfAvailable = true,
     required EHHtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
       href,
+      queryParameters: {
+        if (reloadKey != null) 'nl': reloadKey,
+      },
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
     );

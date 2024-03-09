@@ -9,6 +9,9 @@ class GalleryImage {
   double? originalImageHeight;
   double? originalImageWidth;
 
+  /// The key used to reload online image(not available for original image)
+  String? reloadKey;
+
   String? path;
   String? imageHash;
   DownloadStatus downloadStatus;
@@ -20,6 +23,7 @@ class GalleryImage {
     this.originalImageUrl,
     this.originalImageHeight,
     this.originalImageWidth,
+    this.reloadKey,
     this.imageHash,
     this.path,
     this.downloadStatus = DownloadStatus.none,
@@ -33,6 +37,7 @@ class GalleryImage {
       "originalImageUrl": originalImageUrl,
       "originalImageHeight": originalImageHeight,
       "originalImageWidth": originalImageWidth,
+      "reloadKey": reloadKey,
       "imageHash": imageHash,
       "path": path,
       "downloadStatus": downloadStatus.index,
@@ -47,6 +52,7 @@ class GalleryImage {
       originalImageUrl: json["originalImageUrl"],
       originalImageHeight: json["originalImageHeight"],
       originalImageWidth: json["originalImageWidth"],
+      reloadKey: json["reloadKey"],
       imageHash: json["imageHash"],
       path: json["path"],
       downloadStatus: DownloadStatus.values[json["downloadStatus"]],
@@ -71,6 +77,7 @@ class GalleryImage {
       originalImageUrl: originalImageUrl ?? this.originalImageUrl,
       originalImageHeight: originalImageHeight ?? this.originalImageHeight,
       originalImageWidth: originalImageWidth ?? this.originalImageWidth,
+      reloadKey: reloadKey ?? this.reloadKey,
       imageHash: imageHash ?? this.imageHash,
       path: path ?? this.path,
       downloadStatus: downloadStatus ?? this.downloadStatus,
@@ -79,6 +86,6 @@ class GalleryImage {
 
   @override
   String toString() {
-    return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
+    return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
   }
 }

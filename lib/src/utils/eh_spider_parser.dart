@@ -487,6 +487,10 @@ class EHSpiderParser {
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
     double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
 
+    /// return nl('WZG-474997')
+    Element reloadKeyElement = document.querySelector('#loadfail')!;
+    String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
+
     return GalleryImage(
       url: url,
       height: height,
@@ -494,6 +498,7 @@ class EHSpiderParser {
       originalImageUrl: originalImgHref,
       originalImageWidth: originalImgWidth,
       originalImageHeight: originalImgHeight,
+      reloadKey: reloadKey,
       imageHash: imageHash,
     );
   }
@@ -523,10 +528,17 @@ class EHSpiderParser {
     double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
     double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
 
+    /// return nl('WZG-474997')
+    Element reloadKeyElement = document.querySelector('#loadfail')!;
+    String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
+
     return GalleryImage(
       url: originalImgHref ?? url,
       height: originalImgHeight ?? height,
       width: originalImgWidth ?? width,
+
+      /// reload is not available for original image
+      reloadKey: originalImgHref == null ? reloadKey : null,
       imageHash: imageHash,
     );
   }

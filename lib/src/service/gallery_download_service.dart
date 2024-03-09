@@ -810,7 +810,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     };
   }
 
-  AsyncTask<void> _parseImageUrlTask(GalleryDownloadedData gallery, int serialNo, {bool reParse = false}) {
+  AsyncTask<void> _parseImageUrlTask(GalleryDownloadedData gallery, int serialNo, {bool reParse = false, String? reloadKey}) {
     return () async {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         return;
@@ -823,6 +823,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         image = await retry(
           () => EHRequest.requestImagePage(
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
+            reloadKey: reloadKey,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
             parser: gallery.downloadOriginalImage && UserSetting.hasLoggedIn()
@@ -991,6 +992,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
+    String? reloadKey = galleryDownloadInfo.images[serialNo]?.reloadKey;
     galleryDownloadInfo.images[serialNo] = null;
     await GalleryImageDao.deleteImage(gallery.gid, serialNo);
 
@@ -999,7 +1001,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return _submitTask(
         gid: gallery.gid,
         priority: _computeImageTaskPriority(gallery, serialNo),
-        task: _parseImageUrlTask(gallery, serialNo, reParse: true),
+        task: _parseImageUrlTask(gallery, serialNo, reParse: true, reloadKey: reloadKey),
       );
     }
 
