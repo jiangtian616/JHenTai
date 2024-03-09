@@ -100,7 +100,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildInListView();
+    // return _buildInListView();
 
     return _buildInCustomScrollView(context);
   }
