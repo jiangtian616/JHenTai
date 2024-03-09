@@ -459,9 +459,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 height: 3,
                 child: LinearProgressIndicator(
                   value: downloadProgress.curCount / downloadProgress.totalCount,
-                  color: downloadProgress.downloadStatus == DownloadStatus.downloading
-                      ? UIConfig.downloadPageProgressIndicatorColor(context)
-                      : UIConfig.downloadPageProgressPausedIndicatorColor(context),
+                  color: UIConfig.downloadPageProgressIndicatorColor(context),
                 ),
               ).marginOnly(top: 4),
           ],
