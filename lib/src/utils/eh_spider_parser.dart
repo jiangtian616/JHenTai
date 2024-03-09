@@ -27,6 +27,7 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/color_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
+import '../consts/eh_consts.dart';
 import '../database/database.dart';
 import '../exception/eh_parse_exception.dart';
 import '../model/gallery.dart';
@@ -471,7 +472,7 @@ class EHSpiderParser {
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
-    if (url.contains('509.gif')) {
+    if (url == EHConsts.EH509ImageUrl || url == EHConsts.EX509ImageUrl) {
       throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
     double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
@@ -507,7 +508,7 @@ class EHSpiderParser {
     /// height: 1600px; width: 1124px;
     String style = img!.attributes['style']!;
     String url = img.attributes['src']!;
-    if (url.contains('509.gif')) {
+    if (url == EHConsts.EH509ImageUrl || url == EHConsts.EX509ImageUrl) {
       throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
     }
     double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
