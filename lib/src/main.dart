@@ -19,6 +19,7 @@ import 'package:jhentai/src/setting/frame_rate_setting.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
@@ -155,6 +156,7 @@ Future<void> init() async {
 
   HistoryService.init();
   SearchHistoryService.init();
+  PerformanceSetting.init();
   GalleryDownloadService.init();
   ArchiveDownloadService.init();
   LocalGalleryService.init();

@@ -48,12 +48,13 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   late GroupedListLogic logic;
 
   late int maxGalleryNum4Animation;
-  
+
   late ScrollController scrollController;
 
   late GroupedListController controller;
 
   final Map<G, bool> _groups = {};
+  Map<G, List<E>> _group2Elements = {};
 
   final Map<Object, Completer<void>> _deletingElements = {};
 
@@ -65,7 +66,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     maxGalleryNum4Animation = widget.maxGalleryNum4Animation;
 
-    _initGroups(widget.groups);
+    _initGroupsAndElements(widget);
 
     if (widget.scrollController == null) {
       scrollController = ScrollController();
@@ -94,11 +95,53 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     maxGalleryNum4Animation = widget.maxGalleryNum4Animation;
 
-    _initGroups(widget.groups);
+    _initGroupsAndElements(widget);
   }
 
   @override
   Widget build(BuildContext context) {
+    return _buildInListView();
+
+    return _buildInCustomScrollView(context);
+  }
+
+  EHWheelSpeedController _buildInListView() {
+    return EHWheelSpeedController(
+      controller: scrollController,
+      child: ListView.builder(
+        controller: scrollController,
+        cacheExtent: 200,
+        itemCount: _groups.length + widget.elements.length,
+        itemBuilder: (context, index) {
+          int i = 0;
+          int groupIndex = 0;
+          while (true) {
+            G group = _groups.keys.elementAt(groupIndex);
+
+            if (i == index) {
+              return _buildGroup(group, context);
+            }
+
+            List<E> elements = _group2Elements[group] ?? [];
+
+            if (i + 1 + elements.length > index) {
+              return _buildElement(
+                context,
+                elements[index - i - 1],
+                group,
+                elements.length <= maxGalleryNum4Animation,
+              );
+            }
+
+            i += 1 + elements.length;
+            groupIndex++;
+          }
+        },
+      ),
+    );
+  }
+
+  EHWheelSpeedController _buildInCustomScrollView(BuildContext context) {
     return EHWheelSpeedController(
       controller: scrollController,
       child: CustomScrollView(
@@ -115,31 +158,23 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     Map<G, List<E>> group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
 
     for (G group in _groups.keys) {
-      slivers.add(_buildGroup(context, group));
+      slivers.add(_buildGroupSliver(context, group));
 
       if (group2Elements.containsKey(group)) {
-        slivers.add(_buildElements(context, group2Elements[group]!, group));
+        slivers.add(_buildElementsSliver(context, group2Elements[group]!, group));
       }
     }
 
     return slivers;
   }
 
-  Widget _buildGroup(BuildContext context, G group) {
+  Widget _buildGroupSliver(BuildContext context, G group) {
     return SliverToBoxAdapter(
-      child: GetBuilder<GroupedListLogic>(
-        id: 'group::${widget.groupUniqueKey(group)}',
-        global: false,
-        init: logic,
-        builder: (_) {
-          bool isOpen = _groups[group] ?? false;
-          return widget.groupBuilder(context, group, isOpen);
-        },
-      ),
+      child: _buildGroup(group, context),
     );
   }
 
-  Widget _buildElements(BuildContext context, List<E> elements, G group) {
+  Widget _buildElementsSliver(BuildContext context, List<E> elements, G group) {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (context, index) {
@@ -148,26 +183,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
             global: false,
             init: logic,
             builder: (_) {
-              return GetBuilder<GroupedListLogic>(
-                id: 'element::${widget.elementUniqueKey(elements[index])}',
-                global: false,
-                init: logic,
-                builder: (_) {
-                  bool isOpen = _groups[group] ?? false;
-                  return FadeSlideWidget(
-                    key: ValueKey(widget.elementUniqueKey(elements[index])),
-                    show: isOpen && !_deletingElements.containsKey(widget.elementUniqueKey(elements[index])),
-                    enableOpacityTransition: elements.length <= maxGalleryNum4Animation,
-                    enableSlideTransition: elements.length <= maxGalleryNum4Animation,
-                    child: widget.elementBuilder(context, elements[index], isOpen),
-                    afterAnimation: (bool show, bool isInit) {
-                      if (!show && !isInit) {
-                        _deletingElements.remove(widget.elementUniqueKey(elements[index]))?.complete();
-                      }
-                    },
-                  );
-                },
-              );
+              return _buildElement(context, elements[index], group, elements.length <= maxGalleryNum4Animation);
             },
           );
         },
@@ -176,10 +192,56 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     );
   }
 
+  GetBuilder<GroupedListLogic> _buildGroup(group, BuildContext context) {
+    return GetBuilder<GroupedListLogic>(
+      id: 'group::${widget.groupUniqueKey(group)}',
+      global: false,
+      init: logic,
+      builder: (_) {
+        bool isOpen = _groups[group] ?? false;
+        return widget.groupBuilder(context, group, isOpen);
+      },
+    );
+  }
+
+  Widget _buildElement(BuildContext context, E element, G group, bool enableAnimation) {
+    return GetBuilder<GroupedListLogic>(
+      id: 'group::${widget.groupUniqueKey(group)}',
+      global: false,
+      init: logic,
+      builder: (_) {
+        return GetBuilder<GroupedListLogic>(
+          id: 'element::${widget.elementUniqueKey(element)}',
+          global: false,
+          init: logic,
+          builder: (_) {
+            bool isOpen = _groups[group] ?? false;
+            return FadeSlideWidget(
+              key: ValueKey(widget.elementUniqueKey(element)),
+              show: isOpen && !_deletingElements.containsKey(widget.elementUniqueKey(element)),
+              enableOpacityTransition: enableAnimation,
+              enableSlideTransition: enableAnimation,
+              child: widget.elementBuilder(context, element, isOpen),
+              afterAnimation: (bool show, bool isInit) {
+                if (!show && !isInit) {
+                  _deletingElements.remove(widget.elementUniqueKey(element))?.complete();
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   Future<void> removeElement(E element) {
     Completer<void> completer = Completer();
     String elementKey = widget.elementUniqueKey(element);
     _deletingElements[elementKey] = completer;
+
+    G group = widget.elementGroup(element);
+    _group2Elements[group]!.remove(element);
+    
     logic.update(['element::$elementKey']);
     return completer.future;
   }
@@ -192,9 +254,12 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     logic.updateSafely(['group::${widget.groupUniqueKey(group)}']);
   }
 
-  void _initGroups(Map<G, bool> groups) {
+  void _initGroupsAndElements(GroupedList<G, E> widget) {
     this._groups.clear();
-    this._groups.addAll(groups);
+    this._group2Elements.clear();
+
+    this._groups.addAll(widget.groups);
+    this._group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
   }
 }
 
