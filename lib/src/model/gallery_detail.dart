@@ -100,22 +100,4 @@ class GalleryDetail {
       tags: tags,
     );
   }
-
-  GalleryDownloadedData toGalleryDownloadedData() {
-    return GalleryDownloadedData(
-      gid: galleryUrl.gid,
-      token: galleryUrl.token,
-      title: japaneseTitle ?? rawTitle,
-      category: category,
-      pageCount: pageCount,
-      galleryUrl: galleryUrl.url,
-      uploader: uploader,
-      publishTime: publishTime,
-      downloadStatusIndex: DownloadStatus.downloading.index,
-      insertTime: DateTime.now().toString(),
-      downloadOriginalImage: false,
-      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
-      sortOrder: 0,
-    );
-  }
 }

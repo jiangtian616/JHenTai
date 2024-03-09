@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
 
-@TableIndex(name: 'idx_insert_time', columns: {#insertTime})
-@TableIndex(name: 'idx_sore_order', columns: {#sortOrder})
-@TableIndex(name: 'idx_group_name', columns: {#groupName})
+@TableIndex(name: 'a_idx_insert_time', columns: {#insertTime})
+@TableIndex(name: 'a_idx_sort_order', columns: {#sortOrder})
+@TableIndex(name: 'a_idx_group_name', columns: {#groupName})
 class ArchiveDownloaded extends Table {
   @override
   String? get tableName => 'archive_downloaded_v2';

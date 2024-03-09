@@ -312,11 +312,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         category: state.galleryDetails?.category ?? state.gallery!.category,
         pageCount: state.galleryDetails?.pageCount ?? state.gallery!.pageCount!,
         galleryUrl: state.galleryDetails?.galleryUrl.url ?? state.gallery!.galleryUrl.url,
+        uploader: state.galleryDetails?.uploader ?? state.gallery?.uploader,
         publishTime: state.galleryDetails?.publishTime ?? state.gallery!.publishTime,
         downloadStatusIndex: DownloadStatus.downloading.index,
         downloadOriginalImage: result.downloadOriginalImage,
         sortOrder: 0,
         groupName: result.group,
+        insertTime: DateTime.now().toString(),
+        priority: GalleryDownloadService.defaultDownloadGalleryPriority,
       );
       downloadService.downloadGallery(galleryDownloadedData);
 
@@ -388,8 +391,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
       } else {
-        await EHRequest.requestAddFavorite(
-            state.galleryUrl.gid, state.galleryUrl.token, favIndex);
+        await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, favIndex);
         FavoriteSetting.incrementFavByIndex(favIndex);
         FavoriteSetting.decrementFavByIndex(currentFavIndex);
         state.gallery

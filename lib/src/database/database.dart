@@ -8,9 +8,13 @@ import 'package:drift/native.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/database/dao/gallery_group_dao.dart';
 import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
 import 'package:jhentai/src/database/table/archive_downloaded.dart';
 import 'package:jhentai/src/database/table/archive_group.dart';
+import 'package:jhentai/src/database/table/gallery_downloaded.dart';
+import 'package:jhentai/src/database/table/gallery_group.dart';
+import 'package:jhentai/src/database/table/image.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
@@ -31,7 +35,6 @@ part 'database.g.dart';
 
 @DriftDatabase(
   include: {
-    'gallery_downloaded.drift',
     'gallery_history.drift',
     'tag_browse_progress.drift',
     'tag_count.drift',
@@ -44,6 +47,10 @@ part 'database.g.dart';
     ArchiveDownloaded,
     ArchiveDownloadedOld,
     ArchiveGroup,
+    GalleryDownloaded,
+    GalleryDownloadedOld,
+    GalleryGroup,
+    Image,
   ],
 )
 class AppDb extends _$AppDb {
@@ -117,6 +124,9 @@ class AppDb extends _$AppDb {
             await m.createIndex(idxKey);
             await m.createIndex(idxTagName);
           }
+          if (from < 17) {
+            await _migrateDownloadedInfo(m);
+          }
         } on Exception catch (e) {
           Log.error(e);
           Log.uploadError(e, extraInfos: {'from': from, 'to': to});
@@ -174,7 +184,7 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryGroup);
       await m.createTable(archiveGroup);
 
-      Set<String> galleryGroups = (await appDb.selectGallerys().get()).map((g) => g.groupName ?? 'default'.tr).toSet();
+      Set<String> galleryGroups = (await GalleryDao.selectOldGallerys()).map((g) => g.groupName ?? 'default'.tr).toSet();
       Set<String> archiveGroups = (await ArchiveDao.selectOldArchives()).map((g) => g.groupName ?? 'default'.tr).toSet();
 
       Log.info('Migrate gallery groups: $galleryGroups');
@@ -182,7 +192,7 @@ class AppDb extends _$AppDb {
 
       await appDb.transaction(() async {
         for (String groupName in galleryGroups) {
-          await GalleryDao.insertGalleryGroup(groupName);
+          await GalleryGroupDao.insertGalleryGroup(GalleryGroupData(groupName: groupName, sortOrder: 0));
         }
         for (String groupName in archiveGroups) {
           await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: groupName, sortOrder: 0));
@@ -224,6 +234,69 @@ class AppDb extends _$AppDb {
       });
     } on Exception catch (e) {
       Log.error('Migrate super resolution info failed!', e);
+      Log.uploadError(e);
+    }
+  }
+
+  Future<void> _migrateDownloadedInfo(Migrator m) async {
+    try {
+      await m.createTable(galleryDownloaded);
+      await m.createTable(archiveDownloaded);
+
+      List<GalleryDownloadedOldData> gallerys = await GalleryDao.selectOldGallerys();
+      await appDb.transaction(() async {
+        for (GalleryDownloadedOldData g in gallerys) {
+          await GalleryDao.insertGallery(
+            GalleryDownloadedData(
+              gid: g.gid,
+              token: g.token,
+              title: g.title,
+              category: g.category,
+              pageCount: g.pageCount,
+              galleryUrl: g.galleryUrl,
+              oldVersionGalleryUrl: g.oldVersionGalleryUrl,
+              uploader: g.uploader,
+              publishTime: g.publishTime,
+              downloadStatusIndex: g.downloadStatusIndex,
+              insertTime: g.insertTime!,
+              downloadOriginalImage: g.downloadOriginalImage,
+              priority: g.priority ?? 0,
+              sortOrder: g.sortOrder,
+              groupName: g.groupName!,
+            ),
+          );
+        }
+      });
+
+      List<ArchiveDownloadedOldData> archives = await ArchiveDao.selectOldArchives();
+      await appDb.transaction(() async {
+        for (ArchiveDownloadedOldData a in archives) {
+          await ArchiveDao.insertArchive(
+            ArchiveDownloadedData(
+              gid: a.gid,
+              token: a.token,
+              title: a.title,
+              category: a.category,
+              pageCount: a.pageCount,
+              galleryUrl: a.galleryUrl,
+              coverUrl: a.coverUrl,
+              uploader: a.uploader,
+              size: a.size,
+              publishTime: a.publishTime,
+              archiveStatusIndex: a.archiveStatusIndex,
+              archivePageUrl: a.archivePageUrl,
+              downloadPageUrl: a.downloadPageUrl,
+              downloadUrl: a.downloadUrl,
+              isOriginal: a.isOriginal,
+              insertTime: a.insertTime!,
+              sortOrder: a.sortOrder,
+              groupName: a.groupName!,
+            ),
+          );
+        }
+      });
+    } catch (e) {
+      Log.error('Migrate downloaded info failed!', e);
       Log.uploadError(e);
     }
   }

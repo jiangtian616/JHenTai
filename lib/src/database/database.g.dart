@@ -913,1265 +913,6 @@ class GalleryHistoryCompanion extends UpdateCompanion<GalleryHistoryData> {
   }
 }
 
-class GalleryDownloaded extends Table
-    with TableInfo<GalleryDownloaded, GalleryDownloadedData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  GalleryDownloaded(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
-  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
-      'gid', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
-  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
-  late final GeneratedColumn<String> token = GeneratedColumn<String>(
-      'token', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _categoryMeta =
-      const VerificationMeta('category');
-  late final GeneratedColumn<String> category = GeneratedColumn<String>(
-      'category', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _pageCountMeta =
-      const VerificationMeta('pageCount');
-  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
-      'pageCount', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _galleryUrlMeta =
-      const VerificationMeta('galleryUrl');
-  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
-      'galleryUrl', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _oldVersionGalleryUrlMeta =
-      const VerificationMeta('oldVersionGalleryUrl');
-  late final GeneratedColumn<String> oldVersionGalleryUrl =
-      GeneratedColumn<String>('oldVersionGalleryUrl', aliasedName, true,
-          type: DriftSqlType.string,
-          requiredDuringInsert: false,
-          $customConstraints: '');
-  static const VerificationMeta _uploaderMeta =
-      const VerificationMeta('uploader');
-  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
-      'uploader', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _publishTimeMeta =
-      const VerificationMeta('publishTime');
-  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
-      'publishTime', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _downloadStatusIndexMeta =
-      const VerificationMeta('downloadStatusIndex');
-  late final GeneratedColumn<int> downloadStatusIndex = GeneratedColumn<int>(
-      'downloadStatusIndex', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _insertTimeMeta =
-      const VerificationMeta('insertTime');
-  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
-      'insertTime', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _downloadOriginalImageMeta =
-      const VerificationMeta('downloadOriginalImage');
-  late final GeneratedColumn<bool> downloadOriginalImage =
-      GeneratedColumn<bool>('downloadOriginalImage', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          $customConstraints: 'NOT NULL DEFAULT FALSE',
-          defaultValue: const CustomExpression('FALSE'));
-  static const VerificationMeta _priorityMeta =
-      const VerificationMeta('priority');
-  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
-      'priority', aliasedName, true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  static const VerificationMeta _sortOrderMeta =
-      const VerificationMeta('sortOrder');
-  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
-      'sortOrder', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL DEFAULT 0',
-      defaultValue: const CustomExpression('0'));
-  static const VerificationMeta _groupNameMeta =
-      const VerificationMeta('groupName');
-  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
-      'groupName', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      $customConstraints: '');
-  @override
-  List<GeneratedColumn> get $columns => [
-        gid,
-        token,
-        title,
-        category,
-        pageCount,
-        galleryUrl,
-        oldVersionGalleryUrl,
-        uploader,
-        publishTime,
-        downloadStatusIndex,
-        insertTime,
-        downloadOriginalImage,
-        priority,
-        sortOrder,
-        groupName
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'gallery_downloaded';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<GalleryDownloadedData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('gid')) {
-      context.handle(
-          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
-    }
-    if (data.containsKey('token')) {
-      context.handle(
-          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
-    } else if (isInserting) {
-      context.missing(_tokenMeta);
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('category')) {
-      context.handle(_categoryMeta,
-          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
-    } else if (isInserting) {
-      context.missing(_categoryMeta);
-    }
-    if (data.containsKey('pageCount')) {
-      context.handle(_pageCountMeta,
-          pageCount.isAcceptableOrUnknown(data['pageCount']!, _pageCountMeta));
-    } else if (isInserting) {
-      context.missing(_pageCountMeta);
-    }
-    if (data.containsKey('galleryUrl')) {
-      context.handle(
-          _galleryUrlMeta,
-          galleryUrl.isAcceptableOrUnknown(
-              data['galleryUrl']!, _galleryUrlMeta));
-    } else if (isInserting) {
-      context.missing(_galleryUrlMeta);
-    }
-    if (data.containsKey('oldVersionGalleryUrl')) {
-      context.handle(
-          _oldVersionGalleryUrlMeta,
-          oldVersionGalleryUrl.isAcceptableOrUnknown(
-              data['oldVersionGalleryUrl']!, _oldVersionGalleryUrlMeta));
-    }
-    if (data.containsKey('uploader')) {
-      context.handle(_uploaderMeta,
-          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
-    }
-    if (data.containsKey('publishTime')) {
-      context.handle(
-          _publishTimeMeta,
-          publishTime.isAcceptableOrUnknown(
-              data['publishTime']!, _publishTimeMeta));
-    } else if (isInserting) {
-      context.missing(_publishTimeMeta);
-    }
-    if (data.containsKey('downloadStatusIndex')) {
-      context.handle(
-          _downloadStatusIndexMeta,
-          downloadStatusIndex.isAcceptableOrUnknown(
-              data['downloadStatusIndex']!, _downloadStatusIndexMeta));
-    } else if (isInserting) {
-      context.missing(_downloadStatusIndexMeta);
-    }
-    if (data.containsKey('insertTime')) {
-      context.handle(
-          _insertTimeMeta,
-          insertTime.isAcceptableOrUnknown(
-              data['insertTime']!, _insertTimeMeta));
-    }
-    if (data.containsKey('downloadOriginalImage')) {
-      context.handle(
-          _downloadOriginalImageMeta,
-          downloadOriginalImage.isAcceptableOrUnknown(
-              data['downloadOriginalImage']!, _downloadOriginalImageMeta));
-    }
-    if (data.containsKey('priority')) {
-      context.handle(_priorityMeta,
-          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
-    }
-    if (data.containsKey('sortOrder')) {
-      context.handle(_sortOrderMeta,
-          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
-    }
-    if (data.containsKey('groupName')) {
-      context.handle(_groupNameMeta,
-          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {gid};
-  @override
-  GalleryDownloadedData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return GalleryDownloadedData(
-      gid: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
-      token: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      category: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
-      pageCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}pageCount'])!,
-      galleryUrl: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}galleryUrl'])!,
-      oldVersionGalleryUrl: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}oldVersionGalleryUrl']),
-      uploader: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
-      publishTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}publishTime'])!,
-      downloadStatusIndex: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}downloadStatusIndex'])!,
-      insertTime: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}insertTime']),
-      downloadOriginalImage: attachedDatabase.typeMapping.read(
-          DriftSqlType.bool, data['${effectivePrefix}downloadOriginalImage'])!,
-      priority: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}priority']),
-      sortOrder: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
-      groupName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}groupName']),
-    );
-  }
-
-  @override
-  GalleryDownloaded createAlias(String alias) {
-    return GalleryDownloaded(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class GalleryDownloadedData extends DataClass
-    implements Insertable<GalleryDownloadedData> {
-  final int gid;
-  final String token;
-  final String title;
-  final String category;
-  final int pageCount;
-  final String galleryUrl;
-  final String? oldVersionGalleryUrl;
-  final String? uploader;
-  final String publishTime;
-  final int downloadStatusIndex;
-  final String? insertTime;
-  final bool downloadOriginalImage;
-  final int? priority;
-  final int sortOrder;
-  final String? groupName;
-  const GalleryDownloadedData(
-      {required this.gid,
-      required this.token,
-      required this.title,
-      required this.category,
-      required this.pageCount,
-      required this.galleryUrl,
-      this.oldVersionGalleryUrl,
-      this.uploader,
-      required this.publishTime,
-      required this.downloadStatusIndex,
-      this.insertTime,
-      required this.downloadOriginalImage,
-      this.priority,
-      required this.sortOrder,
-      this.groupName});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['gid'] = Variable<int>(gid);
-    map['token'] = Variable<String>(token);
-    map['title'] = Variable<String>(title);
-    map['category'] = Variable<String>(category);
-    map['pageCount'] = Variable<int>(pageCount);
-    map['galleryUrl'] = Variable<String>(galleryUrl);
-    if (!nullToAbsent || oldVersionGalleryUrl != null) {
-      map['oldVersionGalleryUrl'] = Variable<String>(oldVersionGalleryUrl);
-    }
-    if (!nullToAbsent || uploader != null) {
-      map['uploader'] = Variable<String>(uploader);
-    }
-    map['publishTime'] = Variable<String>(publishTime);
-    map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
-    if (!nullToAbsent || insertTime != null) {
-      map['insertTime'] = Variable<String>(insertTime);
-    }
-    map['downloadOriginalImage'] = Variable<bool>(downloadOriginalImage);
-    if (!nullToAbsent || priority != null) {
-      map['priority'] = Variable<int>(priority);
-    }
-    map['sortOrder'] = Variable<int>(sortOrder);
-    if (!nullToAbsent || groupName != null) {
-      map['groupName'] = Variable<String>(groupName);
-    }
-    return map;
-  }
-
-  GalleryDownloadedCompanion toCompanion(bool nullToAbsent) {
-    return GalleryDownloadedCompanion(
-      gid: Value(gid),
-      token: Value(token),
-      title: Value(title),
-      category: Value(category),
-      pageCount: Value(pageCount),
-      galleryUrl: Value(galleryUrl),
-      oldVersionGalleryUrl: oldVersionGalleryUrl == null && nullToAbsent
-          ? const Value.absent()
-          : Value(oldVersionGalleryUrl),
-      uploader: uploader == null && nullToAbsent
-          ? const Value.absent()
-          : Value(uploader),
-      publishTime: Value(publishTime),
-      downloadStatusIndex: Value(downloadStatusIndex),
-      insertTime: insertTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(insertTime),
-      downloadOriginalImage: Value(downloadOriginalImage),
-      priority: priority == null && nullToAbsent
-          ? const Value.absent()
-          : Value(priority),
-      sortOrder: Value(sortOrder),
-      groupName: groupName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(groupName),
-    );
-  }
-
-  factory GalleryDownloadedData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return GalleryDownloadedData(
-      gid: serializer.fromJson<int>(json['gid']),
-      token: serializer.fromJson<String>(json['token']),
-      title: serializer.fromJson<String>(json['title']),
-      category: serializer.fromJson<String>(json['category']),
-      pageCount: serializer.fromJson<int>(json['pageCount']),
-      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
-      oldVersionGalleryUrl:
-          serializer.fromJson<String?>(json['oldVersionGalleryUrl']),
-      uploader: serializer.fromJson<String?>(json['uploader']),
-      publishTime: serializer.fromJson<String>(json['publishTime']),
-      downloadStatusIndex:
-          serializer.fromJson<int>(json['downloadStatusIndex']),
-      insertTime: serializer.fromJson<String?>(json['insertTime']),
-      downloadOriginalImage:
-          serializer.fromJson<bool>(json['downloadOriginalImage']),
-      priority: serializer.fromJson<int?>(json['priority']),
-      sortOrder: serializer.fromJson<int>(json['sortOrder']),
-      groupName: serializer.fromJson<String?>(json['groupName']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'gid': serializer.toJson<int>(gid),
-      'token': serializer.toJson<String>(token),
-      'title': serializer.toJson<String>(title),
-      'category': serializer.toJson<String>(category),
-      'pageCount': serializer.toJson<int>(pageCount),
-      'galleryUrl': serializer.toJson<String>(galleryUrl),
-      'oldVersionGalleryUrl': serializer.toJson<String?>(oldVersionGalleryUrl),
-      'uploader': serializer.toJson<String?>(uploader),
-      'publishTime': serializer.toJson<String>(publishTime),
-      'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
-      'insertTime': serializer.toJson<String?>(insertTime),
-      'downloadOriginalImage': serializer.toJson<bool>(downloadOriginalImage),
-      'priority': serializer.toJson<int?>(priority),
-      'sortOrder': serializer.toJson<int>(sortOrder),
-      'groupName': serializer.toJson<String?>(groupName),
-    };
-  }
-
-  GalleryDownloadedData copyWith(
-          {int? gid,
-          String? token,
-          String? title,
-          String? category,
-          int? pageCount,
-          String? galleryUrl,
-          Value<String?> oldVersionGalleryUrl = const Value.absent(),
-          Value<String?> uploader = const Value.absent(),
-          String? publishTime,
-          int? downloadStatusIndex,
-          Value<String?> insertTime = const Value.absent(),
-          bool? downloadOriginalImage,
-          Value<int?> priority = const Value.absent(),
-          int? sortOrder,
-          Value<String?> groupName = const Value.absent()}) =>
-      GalleryDownloadedData(
-        gid: gid ?? this.gid,
-        token: token ?? this.token,
-        title: title ?? this.title,
-        category: category ?? this.category,
-        pageCount: pageCount ?? this.pageCount,
-        galleryUrl: galleryUrl ?? this.galleryUrl,
-        oldVersionGalleryUrl: oldVersionGalleryUrl.present
-            ? oldVersionGalleryUrl.value
-            : this.oldVersionGalleryUrl,
-        uploader: uploader.present ? uploader.value : this.uploader,
-        publishTime: publishTime ?? this.publishTime,
-        downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
-        insertTime: insertTime.present ? insertTime.value : this.insertTime,
-        downloadOriginalImage:
-            downloadOriginalImage ?? this.downloadOriginalImage,
-        priority: priority.present ? priority.value : this.priority,
-        sortOrder: sortOrder ?? this.sortOrder,
-        groupName: groupName.present ? groupName.value : this.groupName,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('GalleryDownloadedData(')
-          ..write('gid: $gid, ')
-          ..write('token: $token, ')
-          ..write('title: $title, ')
-          ..write('category: $category, ')
-          ..write('pageCount: $pageCount, ')
-          ..write('galleryUrl: $galleryUrl, ')
-          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
-          ..write('uploader: $uploader, ')
-          ..write('publishTime: $publishTime, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex, ')
-          ..write('insertTime: $insertTime, ')
-          ..write('downloadOriginalImage: $downloadOriginalImage, ')
-          ..write('priority: $priority, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      gid,
-      token,
-      title,
-      category,
-      pageCount,
-      galleryUrl,
-      oldVersionGalleryUrl,
-      uploader,
-      publishTime,
-      downloadStatusIndex,
-      insertTime,
-      downloadOriginalImage,
-      priority,
-      sortOrder,
-      groupName);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is GalleryDownloadedData &&
-          other.gid == this.gid &&
-          other.token == this.token &&
-          other.title == this.title &&
-          other.category == this.category &&
-          other.pageCount == this.pageCount &&
-          other.galleryUrl == this.galleryUrl &&
-          other.oldVersionGalleryUrl == this.oldVersionGalleryUrl &&
-          other.uploader == this.uploader &&
-          other.publishTime == this.publishTime &&
-          other.downloadStatusIndex == this.downloadStatusIndex &&
-          other.insertTime == this.insertTime &&
-          other.downloadOriginalImage == this.downloadOriginalImage &&
-          other.priority == this.priority &&
-          other.sortOrder == this.sortOrder &&
-          other.groupName == this.groupName);
-}
-
-class GalleryDownloadedCompanion
-    extends UpdateCompanion<GalleryDownloadedData> {
-  final Value<int> gid;
-  final Value<String> token;
-  final Value<String> title;
-  final Value<String> category;
-  final Value<int> pageCount;
-  final Value<String> galleryUrl;
-  final Value<String?> oldVersionGalleryUrl;
-  final Value<String?> uploader;
-  final Value<String> publishTime;
-  final Value<int> downloadStatusIndex;
-  final Value<String?> insertTime;
-  final Value<bool> downloadOriginalImage;
-  final Value<int?> priority;
-  final Value<int> sortOrder;
-  final Value<String?> groupName;
-  const GalleryDownloadedCompanion({
-    this.gid = const Value.absent(),
-    this.token = const Value.absent(),
-    this.title = const Value.absent(),
-    this.category = const Value.absent(),
-    this.pageCount = const Value.absent(),
-    this.galleryUrl = const Value.absent(),
-    this.oldVersionGalleryUrl = const Value.absent(),
-    this.uploader = const Value.absent(),
-    this.publishTime = const Value.absent(),
-    this.downloadStatusIndex = const Value.absent(),
-    this.insertTime = const Value.absent(),
-    this.downloadOriginalImage = const Value.absent(),
-    this.priority = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.groupName = const Value.absent(),
-  });
-  GalleryDownloadedCompanion.insert({
-    this.gid = const Value.absent(),
-    required String token,
-    required String title,
-    required String category,
-    required int pageCount,
-    required String galleryUrl,
-    this.oldVersionGalleryUrl = const Value.absent(),
-    this.uploader = const Value.absent(),
-    required String publishTime,
-    required int downloadStatusIndex,
-    this.insertTime = const Value.absent(),
-    this.downloadOriginalImage = const Value.absent(),
-    this.priority = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.groupName = const Value.absent(),
-  })  : token = Value(token),
-        title = Value(title),
-        category = Value(category),
-        pageCount = Value(pageCount),
-        galleryUrl = Value(galleryUrl),
-        publishTime = Value(publishTime),
-        downloadStatusIndex = Value(downloadStatusIndex);
-  static Insertable<GalleryDownloadedData> custom({
-    Expression<int>? gid,
-    Expression<String>? token,
-    Expression<String>? title,
-    Expression<String>? category,
-    Expression<int>? pageCount,
-    Expression<String>? galleryUrl,
-    Expression<String>? oldVersionGalleryUrl,
-    Expression<String>? uploader,
-    Expression<String>? publishTime,
-    Expression<int>? downloadStatusIndex,
-    Expression<String>? insertTime,
-    Expression<bool>? downloadOriginalImage,
-    Expression<int>? priority,
-    Expression<int>? sortOrder,
-    Expression<String>? groupName,
-  }) {
-    return RawValuesInsertable({
-      if (gid != null) 'gid': gid,
-      if (token != null) 'token': token,
-      if (title != null) 'title': title,
-      if (category != null) 'category': category,
-      if (pageCount != null) 'pageCount': pageCount,
-      if (galleryUrl != null) 'galleryUrl': galleryUrl,
-      if (oldVersionGalleryUrl != null)
-        'oldVersionGalleryUrl': oldVersionGalleryUrl,
-      if (uploader != null) 'uploader': uploader,
-      if (publishTime != null) 'publishTime': publishTime,
-      if (downloadStatusIndex != null)
-        'downloadStatusIndex': downloadStatusIndex,
-      if (insertTime != null) 'insertTime': insertTime,
-      if (downloadOriginalImage != null)
-        'downloadOriginalImage': downloadOriginalImage,
-      if (priority != null) 'priority': priority,
-      if (sortOrder != null) 'sortOrder': sortOrder,
-      if (groupName != null) 'groupName': groupName,
-    });
-  }
-
-  GalleryDownloadedCompanion copyWith(
-      {Value<int>? gid,
-      Value<String>? token,
-      Value<String>? title,
-      Value<String>? category,
-      Value<int>? pageCount,
-      Value<String>? galleryUrl,
-      Value<String?>? oldVersionGalleryUrl,
-      Value<String?>? uploader,
-      Value<String>? publishTime,
-      Value<int>? downloadStatusIndex,
-      Value<String?>? insertTime,
-      Value<bool>? downloadOriginalImage,
-      Value<int?>? priority,
-      Value<int>? sortOrder,
-      Value<String?>? groupName}) {
-    return GalleryDownloadedCompanion(
-      gid: gid ?? this.gid,
-      token: token ?? this.token,
-      title: title ?? this.title,
-      category: category ?? this.category,
-      pageCount: pageCount ?? this.pageCount,
-      galleryUrl: galleryUrl ?? this.galleryUrl,
-      oldVersionGalleryUrl: oldVersionGalleryUrl ?? this.oldVersionGalleryUrl,
-      uploader: uploader ?? this.uploader,
-      publishTime: publishTime ?? this.publishTime,
-      downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
-      insertTime: insertTime ?? this.insertTime,
-      downloadOriginalImage:
-          downloadOriginalImage ?? this.downloadOriginalImage,
-      priority: priority ?? this.priority,
-      sortOrder: sortOrder ?? this.sortOrder,
-      groupName: groupName ?? this.groupName,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (gid.present) {
-      map['gid'] = Variable<int>(gid.value);
-    }
-    if (token.present) {
-      map['token'] = Variable<String>(token.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (category.present) {
-      map['category'] = Variable<String>(category.value);
-    }
-    if (pageCount.present) {
-      map['pageCount'] = Variable<int>(pageCount.value);
-    }
-    if (galleryUrl.present) {
-      map['galleryUrl'] = Variable<String>(galleryUrl.value);
-    }
-    if (oldVersionGalleryUrl.present) {
-      map['oldVersionGalleryUrl'] =
-          Variable<String>(oldVersionGalleryUrl.value);
-    }
-    if (uploader.present) {
-      map['uploader'] = Variable<String>(uploader.value);
-    }
-    if (publishTime.present) {
-      map['publishTime'] = Variable<String>(publishTime.value);
-    }
-    if (downloadStatusIndex.present) {
-      map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
-    }
-    if (insertTime.present) {
-      map['insertTime'] = Variable<String>(insertTime.value);
-    }
-    if (downloadOriginalImage.present) {
-      map['downloadOriginalImage'] =
-          Variable<bool>(downloadOriginalImage.value);
-    }
-    if (priority.present) {
-      map['priority'] = Variable<int>(priority.value);
-    }
-    if (sortOrder.present) {
-      map['sortOrder'] = Variable<int>(sortOrder.value);
-    }
-    if (groupName.present) {
-      map['groupName'] = Variable<String>(groupName.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('GalleryDownloadedCompanion(')
-          ..write('gid: $gid, ')
-          ..write('token: $token, ')
-          ..write('title: $title, ')
-          ..write('category: $category, ')
-          ..write('pageCount: $pageCount, ')
-          ..write('galleryUrl: $galleryUrl, ')
-          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
-          ..write('uploader: $uploader, ')
-          ..write('publishTime: $publishTime, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex, ')
-          ..write('insertTime: $insertTime, ')
-          ..write('downloadOriginalImage: $downloadOriginalImage, ')
-          ..write('priority: $priority, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class Image extends Table with TableInfo<Image, ImageData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  Image(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _urlMeta = const VerificationMeta('url');
-  late final GeneratedColumn<String> url = GeneratedColumn<String>(
-      'url', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _serialNoMeta =
-      const VerificationMeta('serialNo');
-  late final GeneratedColumn<int> serialNo = GeneratedColumn<int>(
-      'serialNo', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
-  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
-      'gid', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL REFERENCES gallery_downloaded(gid)');
-  static const VerificationMeta _pathMeta = const VerificationMeta('path');
-  late final GeneratedColumn<String> path = GeneratedColumn<String>(
-      'path', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _imageHashMeta =
-      const VerificationMeta('imageHash');
-  late final GeneratedColumn<String> imageHash = GeneratedColumn<String>(
-      'imageHash', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _downloadStatusIndexMeta =
-      const VerificationMeta('downloadStatusIndex');
-  late final GeneratedColumn<int> downloadStatusIndex = GeneratedColumn<int>(
-      'downloadStatusIndex', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  @override
-  List<GeneratedColumn> get $columns =>
-      [url, serialNo, gid, path, imageHash, downloadStatusIndex];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'image';
-  @override
-  VerificationContext validateIntegrity(Insertable<ImageData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('url')) {
-      context.handle(
-          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
-    } else if (isInserting) {
-      context.missing(_urlMeta);
-    }
-    if (data.containsKey('serialNo')) {
-      context.handle(_serialNoMeta,
-          serialNo.isAcceptableOrUnknown(data['serialNo']!, _serialNoMeta));
-    } else if (isInserting) {
-      context.missing(_serialNoMeta);
-    }
-    if (data.containsKey('gid')) {
-      context.handle(
-          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
-    } else if (isInserting) {
-      context.missing(_gidMeta);
-    }
-    if (data.containsKey('path')) {
-      context.handle(
-          _pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
-    } else if (isInserting) {
-      context.missing(_pathMeta);
-    }
-    if (data.containsKey('imageHash')) {
-      context.handle(_imageHashMeta,
-          imageHash.isAcceptableOrUnknown(data['imageHash']!, _imageHashMeta));
-    } else if (isInserting) {
-      context.missing(_imageHashMeta);
-    }
-    if (data.containsKey('downloadStatusIndex')) {
-      context.handle(
-          _downloadStatusIndexMeta,
-          downloadStatusIndex.isAcceptableOrUnknown(
-              data['downloadStatusIndex']!, _downloadStatusIndexMeta));
-    } else if (isInserting) {
-      context.missing(_downloadStatusIndexMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {gid, serialNo};
-  @override
-  ImageData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ImageData(
-      url: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
-      serialNo: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}serialNo'])!,
-      gid: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
-      path: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
-      imageHash: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}imageHash'])!,
-      downloadStatusIndex: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}downloadStatusIndex'])!,
-    );
-  }
-
-  @override
-  Image createAlias(String alias) {
-    return Image(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const ['PRIMARY KEY(gid, serialNo)'];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class ImageData extends DataClass implements Insertable<ImageData> {
-  final String url;
-  final int serialNo;
-  final int gid;
-  final String path;
-  final String imageHash;
-  final int downloadStatusIndex;
-  const ImageData(
-      {required this.url,
-      required this.serialNo,
-      required this.gid,
-      required this.path,
-      required this.imageHash,
-      required this.downloadStatusIndex});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['url'] = Variable<String>(url);
-    map['serialNo'] = Variable<int>(serialNo);
-    map['gid'] = Variable<int>(gid);
-    map['path'] = Variable<String>(path);
-    map['imageHash'] = Variable<String>(imageHash);
-    map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
-    return map;
-  }
-
-  ImageCompanion toCompanion(bool nullToAbsent) {
-    return ImageCompanion(
-      url: Value(url),
-      serialNo: Value(serialNo),
-      gid: Value(gid),
-      path: Value(path),
-      imageHash: Value(imageHash),
-      downloadStatusIndex: Value(downloadStatusIndex),
-    );
-  }
-
-  factory ImageData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ImageData(
-      url: serializer.fromJson<String>(json['url']),
-      serialNo: serializer.fromJson<int>(json['serialNo']),
-      gid: serializer.fromJson<int>(json['gid']),
-      path: serializer.fromJson<String>(json['path']),
-      imageHash: serializer.fromJson<String>(json['imageHash']),
-      downloadStatusIndex:
-          serializer.fromJson<int>(json['downloadStatusIndex']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'url': serializer.toJson<String>(url),
-      'serialNo': serializer.toJson<int>(serialNo),
-      'gid': serializer.toJson<int>(gid),
-      'path': serializer.toJson<String>(path),
-      'imageHash': serializer.toJson<String>(imageHash),
-      'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
-    };
-  }
-
-  ImageData copyWith(
-          {String? url,
-          int? serialNo,
-          int? gid,
-          String? path,
-          String? imageHash,
-          int? downloadStatusIndex}) =>
-      ImageData(
-        url: url ?? this.url,
-        serialNo: serialNo ?? this.serialNo,
-        gid: gid ?? this.gid,
-        path: path ?? this.path,
-        imageHash: imageHash ?? this.imageHash,
-        downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('ImageData(')
-          ..write('url: $url, ')
-          ..write('serialNo: $serialNo, ')
-          ..write('gid: $gid, ')
-          ..write('path: $path, ')
-          ..write('imageHash: $imageHash, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(url, serialNo, gid, path, imageHash, downloadStatusIndex);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ImageData &&
-          other.url == this.url &&
-          other.serialNo == this.serialNo &&
-          other.gid == this.gid &&
-          other.path == this.path &&
-          other.imageHash == this.imageHash &&
-          other.downloadStatusIndex == this.downloadStatusIndex);
-}
-
-class ImageCompanion extends UpdateCompanion<ImageData> {
-  final Value<String> url;
-  final Value<int> serialNo;
-  final Value<int> gid;
-  final Value<String> path;
-  final Value<String> imageHash;
-  final Value<int> downloadStatusIndex;
-  final Value<int> rowid;
-  const ImageCompanion({
-    this.url = const Value.absent(),
-    this.serialNo = const Value.absent(),
-    this.gid = const Value.absent(),
-    this.path = const Value.absent(),
-    this.imageHash = const Value.absent(),
-    this.downloadStatusIndex = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  ImageCompanion.insert({
-    required String url,
-    required int serialNo,
-    required int gid,
-    required String path,
-    required String imageHash,
-    required int downloadStatusIndex,
-    this.rowid = const Value.absent(),
-  })  : url = Value(url),
-        serialNo = Value(serialNo),
-        gid = Value(gid),
-        path = Value(path),
-        imageHash = Value(imageHash),
-        downloadStatusIndex = Value(downloadStatusIndex);
-  static Insertable<ImageData> custom({
-    Expression<String>? url,
-    Expression<int>? serialNo,
-    Expression<int>? gid,
-    Expression<String>? path,
-    Expression<String>? imageHash,
-    Expression<int>? downloadStatusIndex,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (url != null) 'url': url,
-      if (serialNo != null) 'serialNo': serialNo,
-      if (gid != null) 'gid': gid,
-      if (path != null) 'path': path,
-      if (imageHash != null) 'imageHash': imageHash,
-      if (downloadStatusIndex != null)
-        'downloadStatusIndex': downloadStatusIndex,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  ImageCompanion copyWith(
-      {Value<String>? url,
-      Value<int>? serialNo,
-      Value<int>? gid,
-      Value<String>? path,
-      Value<String>? imageHash,
-      Value<int>? downloadStatusIndex,
-      Value<int>? rowid}) {
-    return ImageCompanion(
-      url: url ?? this.url,
-      serialNo: serialNo ?? this.serialNo,
-      gid: gid ?? this.gid,
-      path: path ?? this.path,
-      imageHash: imageHash ?? this.imageHash,
-      downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (url.present) {
-      map['url'] = Variable<String>(url.value);
-    }
-    if (serialNo.present) {
-      map['serialNo'] = Variable<int>(serialNo.value);
-    }
-    if (gid.present) {
-      map['gid'] = Variable<int>(gid.value);
-    }
-    if (path.present) {
-      map['path'] = Variable<String>(path.value);
-    }
-    if (imageHash.present) {
-      map['imageHash'] = Variable<String>(imageHash.value);
-    }
-    if (downloadStatusIndex.present) {
-      map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ImageCompanion(')
-          ..write('url: $url, ')
-          ..write('serialNo: $serialNo, ')
-          ..write('gid: $gid, ')
-          ..write('path: $path, ')
-          ..write('imageHash: $imageHash, ')
-          ..write('downloadStatusIndex: $downloadStatusIndex, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class GalleryGroup extends Table
-    with TableInfo<GalleryGroup, GalleryGroupData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  GalleryGroup(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _groupNameMeta =
-      const VerificationMeta('groupName');
-  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
-      'groupName', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
-  static const VerificationMeta _sortOrderMeta =
-      const VerificationMeta('sortOrder');
-  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
-      'sortOrder', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      $customConstraints: 'NOT NULL DEFAULT 0',
-      defaultValue: const CustomExpression('0'));
-  @override
-  List<GeneratedColumn> get $columns => [groupName, sortOrder];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'gallery_group';
-  @override
-  VerificationContext validateIntegrity(Insertable<GalleryGroupData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('groupName')) {
-      context.handle(_groupNameMeta,
-          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
-    } else if (isInserting) {
-      context.missing(_groupNameMeta);
-    }
-    if (data.containsKey('sortOrder')) {
-      context.handle(_sortOrderMeta,
-          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {groupName};
-  @override
-  GalleryGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return GalleryGroupData(
-      groupName: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}groupName'])!,
-      sortOrder: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
-    );
-  }
-
-  @override
-  GalleryGroup createAlias(String alias) {
-    return GalleryGroup(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class GalleryGroupData extends DataClass
-    implements Insertable<GalleryGroupData> {
-  final String groupName;
-  final int sortOrder;
-  const GalleryGroupData({required this.groupName, required this.sortOrder});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['groupName'] = Variable<String>(groupName);
-    map['sortOrder'] = Variable<int>(sortOrder);
-    return map;
-  }
-
-  GalleryGroupCompanion toCompanion(bool nullToAbsent) {
-    return GalleryGroupCompanion(
-      groupName: Value(groupName),
-      sortOrder: Value(sortOrder),
-    );
-  }
-
-  factory GalleryGroupData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return GalleryGroupData(
-      groupName: serializer.fromJson<String>(json['groupName']),
-      sortOrder: serializer.fromJson<int>(json['sortOrder']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'groupName': serializer.toJson<String>(groupName),
-      'sortOrder': serializer.toJson<int>(sortOrder),
-    };
-  }
-
-  GalleryGroupData copyWith({String? groupName, int? sortOrder}) =>
-      GalleryGroupData(
-        groupName: groupName ?? this.groupName,
-        sortOrder: sortOrder ?? this.sortOrder,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('GalleryGroupData(')
-          ..write('groupName: $groupName, ')
-          ..write('sortOrder: $sortOrder')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(groupName, sortOrder);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is GalleryGroupData &&
-          other.groupName == this.groupName &&
-          other.sortOrder == this.sortOrder);
-}
-
-class GalleryGroupCompanion extends UpdateCompanion<GalleryGroupData> {
-  final Value<String> groupName;
-  final Value<int> sortOrder;
-  final Value<int> rowid;
-  const GalleryGroupCompanion({
-    this.groupName = const Value.absent(),
-    this.sortOrder = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  GalleryGroupCompanion.insert({
-    required String groupName,
-    this.sortOrder = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : groupName = Value(groupName);
-  static Insertable<GalleryGroupData> custom({
-    Expression<String>? groupName,
-    Expression<int>? sortOrder,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (groupName != null) 'groupName': groupName,
-      if (sortOrder != null) 'sortOrder': sortOrder,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  GalleryGroupCompanion copyWith(
-      {Value<String>? groupName, Value<int>? sortOrder, Value<int>? rowid}) {
-    return GalleryGroupCompanion(
-      groupName: groupName ?? this.groupName,
-      sortOrder: sortOrder ?? this.sortOrder,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (groupName.present) {
-      map['groupName'] = Variable<String>(groupName.value);
-    }
-    if (sortOrder.present) {
-      map['sortOrder'] = Variable<int>(sortOrder.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('GalleryGroupCompanion(')
-          ..write('groupName: $groupName, ')
-          ..write('sortOrder: $sortOrder, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $OldSuperResolutionInfoTable extends OldSuperResolutionInfo
     with TableInfo<$OldSuperResolutionInfoTable, OldSuperResolutionInfoData> {
   @override
@@ -4897,6 +3638,1945 @@ class ArchiveGroupCompanion extends UpdateCompanion<ArchiveGroupData> {
   }
 }
 
+class $GalleryDownloadedTable extends GalleryDownloaded
+    with TableInfo<$GalleryDownloadedTable, GalleryDownloadedData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GalleryDownloadedTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
+  @override
+  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
+      'gid', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+      'token', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'page_count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _galleryUrlMeta =
+      const VerificationMeta('galleryUrl');
+  @override
+  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
+      'gallery_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _oldVersionGalleryUrlMeta =
+      const VerificationMeta('oldVersionGalleryUrl');
+  @override
+  late final GeneratedColumn<String> oldVersionGalleryUrl =
+      GeneratedColumn<String>('old_version_gallery_url', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _uploaderMeta =
+      const VerificationMeta('uploader');
+  @override
+  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
+      'uploader', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publishTimeMeta =
+      const VerificationMeta('publishTime');
+  @override
+  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
+      'publish_time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadStatusIndexMeta =
+      const VerificationMeta('downloadStatusIndex');
+  @override
+  late final GeneratedColumn<int> downloadStatusIndex = GeneratedColumn<int>(
+      'download_status_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _insertTimeMeta =
+      const VerificationMeta('insertTime');
+  @override
+  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
+      'insert_time', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadOriginalImageMeta =
+      const VerificationMeta('downloadOriginalImage');
+  @override
+  late final GeneratedColumn<bool> downloadOriginalImage =
+      GeneratedColumn<bool>('download_original_image', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("download_original_image" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _priorityMeta =
+      const VerificationMeta('priority');
+  @override
+  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
+      'priority', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sort_order', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'group_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        gid,
+        token,
+        title,
+        category,
+        pageCount,
+        galleryUrl,
+        oldVersionGalleryUrl,
+        uploader,
+        publishTime,
+        downloadStatusIndex,
+        insertTime,
+        downloadOriginalImage,
+        priority,
+        sortOrder,
+        groupName
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gallery_downloaded_v2';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<GalleryDownloadedData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
+    } else if (isInserting) {
+      context.missing(_tokenMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta));
+    } else if (isInserting) {
+      context.missing(_pageCountMeta);
+    }
+    if (data.containsKey('gallery_url')) {
+      context.handle(
+          _galleryUrlMeta,
+          galleryUrl.isAcceptableOrUnknown(
+              data['gallery_url']!, _galleryUrlMeta));
+    } else if (isInserting) {
+      context.missing(_galleryUrlMeta);
+    }
+    if (data.containsKey('old_version_gallery_url')) {
+      context.handle(
+          _oldVersionGalleryUrlMeta,
+          oldVersionGalleryUrl.isAcceptableOrUnknown(
+              data['old_version_gallery_url']!, _oldVersionGalleryUrlMeta));
+    }
+    if (data.containsKey('uploader')) {
+      context.handle(_uploaderMeta,
+          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
+    }
+    if (data.containsKey('publish_time')) {
+      context.handle(
+          _publishTimeMeta,
+          publishTime.isAcceptableOrUnknown(
+              data['publish_time']!, _publishTimeMeta));
+    } else if (isInserting) {
+      context.missing(_publishTimeMeta);
+    }
+    if (data.containsKey('download_status_index')) {
+      context.handle(
+          _downloadStatusIndexMeta,
+          downloadStatusIndex.isAcceptableOrUnknown(
+              data['download_status_index']!, _downloadStatusIndexMeta));
+    } else if (isInserting) {
+      context.missing(_downloadStatusIndexMeta);
+    }
+    if (data.containsKey('insert_time')) {
+      context.handle(
+          _insertTimeMeta,
+          insertTime.isAcceptableOrUnknown(
+              data['insert_time']!, _insertTimeMeta));
+    } else if (isInserting) {
+      context.missing(_insertTimeMeta);
+    }
+    if (data.containsKey('download_original_image')) {
+      context.handle(
+          _downloadOriginalImageMeta,
+          downloadOriginalImage.isAcceptableOrUnknown(
+              data['download_original_image']!, _downloadOriginalImageMeta));
+    }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta,
+          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
+    } else if (isInserting) {
+      context.missing(_priorityMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    }
+    if (data.containsKey('group_name')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['group_name']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid};
+  @override
+  GalleryDownloadedData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GalleryDownloadedData(
+      gid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
+      token: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_count'])!,
+      galleryUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gallery_url'])!,
+      oldVersionGalleryUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}old_version_gallery_url']),
+      uploader: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
+      publishTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publish_time'])!,
+      downloadStatusIndex: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}download_status_index'])!,
+      insertTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}insert_time'])!,
+      downloadOriginalImage: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool,
+          data['${effectivePrefix}download_original_image'])!,
+      priority: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}priority'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_name'])!,
+    );
+  }
+
+  @override
+  $GalleryDownloadedTable createAlias(String alias) {
+    return $GalleryDownloadedTable(attachedDatabase, alias);
+  }
+}
+
+class GalleryDownloadedData extends DataClass
+    implements Insertable<GalleryDownloadedData> {
+  final int gid;
+  final String token;
+  final String title;
+  final String category;
+  final int pageCount;
+  final String galleryUrl;
+  final String? oldVersionGalleryUrl;
+  final String? uploader;
+  final String publishTime;
+  final int downloadStatusIndex;
+  final String insertTime;
+  final bool downloadOriginalImage;
+  final int priority;
+  final int sortOrder;
+  final String groupName;
+  const GalleryDownloadedData(
+      {required this.gid,
+      required this.token,
+      required this.title,
+      required this.category,
+      required this.pageCount,
+      required this.galleryUrl,
+      this.oldVersionGalleryUrl,
+      this.uploader,
+      required this.publishTime,
+      required this.downloadStatusIndex,
+      required this.insertTime,
+      required this.downloadOriginalImage,
+      required this.priority,
+      required this.sortOrder,
+      required this.groupName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['token'] = Variable<String>(token);
+    map['title'] = Variable<String>(title);
+    map['category'] = Variable<String>(category);
+    map['page_count'] = Variable<int>(pageCount);
+    map['gallery_url'] = Variable<String>(galleryUrl);
+    if (!nullToAbsent || oldVersionGalleryUrl != null) {
+      map['old_version_gallery_url'] = Variable<String>(oldVersionGalleryUrl);
+    }
+    if (!nullToAbsent || uploader != null) {
+      map['uploader'] = Variable<String>(uploader);
+    }
+    map['publish_time'] = Variable<String>(publishTime);
+    map['download_status_index'] = Variable<int>(downloadStatusIndex);
+    map['insert_time'] = Variable<String>(insertTime);
+    map['download_original_image'] = Variable<bool>(downloadOriginalImage);
+    map['priority'] = Variable<int>(priority);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['group_name'] = Variable<String>(groupName);
+    return map;
+  }
+
+  GalleryDownloadedCompanion toCompanion(bool nullToAbsent) {
+    return GalleryDownloadedCompanion(
+      gid: Value(gid),
+      token: Value(token),
+      title: Value(title),
+      category: Value(category),
+      pageCount: Value(pageCount),
+      galleryUrl: Value(galleryUrl),
+      oldVersionGalleryUrl: oldVersionGalleryUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(oldVersionGalleryUrl),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
+      publishTime: Value(publishTime),
+      downloadStatusIndex: Value(downloadStatusIndex),
+      insertTime: Value(insertTime),
+      downloadOriginalImage: Value(downloadOriginalImage),
+      priority: Value(priority),
+      sortOrder: Value(sortOrder),
+      groupName: Value(groupName),
+    );
+  }
+
+  factory GalleryDownloadedData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GalleryDownloadedData(
+      gid: serializer.fromJson<int>(json['gid']),
+      token: serializer.fromJson<String>(json['token']),
+      title: serializer.fromJson<String>(json['title']),
+      category: serializer.fromJson<String>(json['category']),
+      pageCount: serializer.fromJson<int>(json['pageCount']),
+      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
+      oldVersionGalleryUrl:
+          serializer.fromJson<String?>(json['oldVersionGalleryUrl']),
+      uploader: serializer.fromJson<String?>(json['uploader']),
+      publishTime: serializer.fromJson<String>(json['publishTime']),
+      downloadStatusIndex:
+          serializer.fromJson<int>(json['downloadStatusIndex']),
+      insertTime: serializer.fromJson<String>(json['insertTime']),
+      downloadOriginalImage:
+          serializer.fromJson<bool>(json['downloadOriginalImage']),
+      priority: serializer.fromJson<int>(json['priority']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      groupName: serializer.fromJson<String>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'token': serializer.toJson<String>(token),
+      'title': serializer.toJson<String>(title),
+      'category': serializer.toJson<String>(category),
+      'pageCount': serializer.toJson<int>(pageCount),
+      'galleryUrl': serializer.toJson<String>(galleryUrl),
+      'oldVersionGalleryUrl': serializer.toJson<String?>(oldVersionGalleryUrl),
+      'uploader': serializer.toJson<String?>(uploader),
+      'publishTime': serializer.toJson<String>(publishTime),
+      'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
+      'insertTime': serializer.toJson<String>(insertTime),
+      'downloadOriginalImage': serializer.toJson<bool>(downloadOriginalImage),
+      'priority': serializer.toJson<int>(priority),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'groupName': serializer.toJson<String>(groupName),
+    };
+  }
+
+  GalleryDownloadedData copyWith(
+          {int? gid,
+          String? token,
+          String? title,
+          String? category,
+          int? pageCount,
+          String? galleryUrl,
+          Value<String?> oldVersionGalleryUrl = const Value.absent(),
+          Value<String?> uploader = const Value.absent(),
+          String? publishTime,
+          int? downloadStatusIndex,
+          String? insertTime,
+          bool? downloadOriginalImage,
+          int? priority,
+          int? sortOrder,
+          String? groupName}) =>
+      GalleryDownloadedData(
+        gid: gid ?? this.gid,
+        token: token ?? this.token,
+        title: title ?? this.title,
+        category: category ?? this.category,
+        pageCount: pageCount ?? this.pageCount,
+        galleryUrl: galleryUrl ?? this.galleryUrl,
+        oldVersionGalleryUrl: oldVersionGalleryUrl.present
+            ? oldVersionGalleryUrl.value
+            : this.oldVersionGalleryUrl,
+        uploader: uploader.present ? uploader.value : this.uploader,
+        publishTime: publishTime ?? this.publishTime,
+        downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+        insertTime: insertTime ?? this.insertTime,
+        downloadOriginalImage:
+            downloadOriginalImage ?? this.downloadOriginalImage,
+        priority: priority ?? this.priority,
+        sortOrder: sortOrder ?? this.sortOrder,
+        groupName: groupName ?? this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GalleryDownloadedData(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      gid,
+      token,
+      title,
+      category,
+      pageCount,
+      galleryUrl,
+      oldVersionGalleryUrl,
+      uploader,
+      publishTime,
+      downloadStatusIndex,
+      insertTime,
+      downloadOriginalImage,
+      priority,
+      sortOrder,
+      groupName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GalleryDownloadedData &&
+          other.gid == this.gid &&
+          other.token == this.token &&
+          other.title == this.title &&
+          other.category == this.category &&
+          other.pageCount == this.pageCount &&
+          other.galleryUrl == this.galleryUrl &&
+          other.oldVersionGalleryUrl == this.oldVersionGalleryUrl &&
+          other.uploader == this.uploader &&
+          other.publishTime == this.publishTime &&
+          other.downloadStatusIndex == this.downloadStatusIndex &&
+          other.insertTime == this.insertTime &&
+          other.downloadOriginalImage == this.downloadOriginalImage &&
+          other.priority == this.priority &&
+          other.sortOrder == this.sortOrder &&
+          other.groupName == this.groupName);
+}
+
+class GalleryDownloadedCompanion
+    extends UpdateCompanion<GalleryDownloadedData> {
+  final Value<int> gid;
+  final Value<String> token;
+  final Value<String> title;
+  final Value<String> category;
+  final Value<int> pageCount;
+  final Value<String> galleryUrl;
+  final Value<String?> oldVersionGalleryUrl;
+  final Value<String?> uploader;
+  final Value<String> publishTime;
+  final Value<int> downloadStatusIndex;
+  final Value<String> insertTime;
+  final Value<bool> downloadOriginalImage;
+  final Value<int> priority;
+  final Value<int> sortOrder;
+  final Value<String> groupName;
+  const GalleryDownloadedCompanion({
+    this.gid = const Value.absent(),
+    this.token = const Value.absent(),
+    this.title = const Value.absent(),
+    this.category = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.galleryUrl = const Value.absent(),
+    this.oldVersionGalleryUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    this.publishTime = const Value.absent(),
+    this.downloadStatusIndex = const Value.absent(),
+    this.insertTime = const Value.absent(),
+    this.downloadOriginalImage = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+  });
+  GalleryDownloadedCompanion.insert({
+    this.gid = const Value.absent(),
+    required String token,
+    required String title,
+    required String category,
+    required int pageCount,
+    required String galleryUrl,
+    this.oldVersionGalleryUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    required String publishTime,
+    required int downloadStatusIndex,
+    required String insertTime,
+    this.downloadOriginalImage = const Value.absent(),
+    required int priority,
+    this.sortOrder = const Value.absent(),
+    required String groupName,
+  })  : token = Value(token),
+        title = Value(title),
+        category = Value(category),
+        pageCount = Value(pageCount),
+        galleryUrl = Value(galleryUrl),
+        publishTime = Value(publishTime),
+        downloadStatusIndex = Value(downloadStatusIndex),
+        insertTime = Value(insertTime),
+        priority = Value(priority),
+        groupName = Value(groupName);
+  static Insertable<GalleryDownloadedData> custom({
+    Expression<int>? gid,
+    Expression<String>? token,
+    Expression<String>? title,
+    Expression<String>? category,
+    Expression<int>? pageCount,
+    Expression<String>? galleryUrl,
+    Expression<String>? oldVersionGalleryUrl,
+    Expression<String>? uploader,
+    Expression<String>? publishTime,
+    Expression<int>? downloadStatusIndex,
+    Expression<String>? insertTime,
+    Expression<bool>? downloadOriginalImage,
+    Expression<int>? priority,
+    Expression<int>? sortOrder,
+    Expression<String>? groupName,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (token != null) 'token': token,
+      if (title != null) 'title': title,
+      if (category != null) 'category': category,
+      if (pageCount != null) 'page_count': pageCount,
+      if (galleryUrl != null) 'gallery_url': galleryUrl,
+      if (oldVersionGalleryUrl != null)
+        'old_version_gallery_url': oldVersionGalleryUrl,
+      if (uploader != null) 'uploader': uploader,
+      if (publishTime != null) 'publish_time': publishTime,
+      if (downloadStatusIndex != null)
+        'download_status_index': downloadStatusIndex,
+      if (insertTime != null) 'insert_time': insertTime,
+      if (downloadOriginalImage != null)
+        'download_original_image': downloadOriginalImage,
+      if (priority != null) 'priority': priority,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (groupName != null) 'group_name': groupName,
+    });
+  }
+
+  GalleryDownloadedCompanion copyWith(
+      {Value<int>? gid,
+      Value<String>? token,
+      Value<String>? title,
+      Value<String>? category,
+      Value<int>? pageCount,
+      Value<String>? galleryUrl,
+      Value<String?>? oldVersionGalleryUrl,
+      Value<String?>? uploader,
+      Value<String>? publishTime,
+      Value<int>? downloadStatusIndex,
+      Value<String>? insertTime,
+      Value<bool>? downloadOriginalImage,
+      Value<int>? priority,
+      Value<int>? sortOrder,
+      Value<String>? groupName}) {
+    return GalleryDownloadedCompanion(
+      gid: gid ?? this.gid,
+      token: token ?? this.token,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      pageCount: pageCount ?? this.pageCount,
+      galleryUrl: galleryUrl ?? this.galleryUrl,
+      oldVersionGalleryUrl: oldVersionGalleryUrl ?? this.oldVersionGalleryUrl,
+      uploader: uploader ?? this.uploader,
+      publishTime: publishTime ?? this.publishTime,
+      downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+      insertTime: insertTime ?? this.insertTime,
+      downloadOriginalImage:
+          downloadOriginalImage ?? this.downloadOriginalImage,
+      priority: priority ?? this.priority,
+      sortOrder: sortOrder ?? this.sortOrder,
+      groupName: groupName ?? this.groupName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (galleryUrl.present) {
+      map['gallery_url'] = Variable<String>(galleryUrl.value);
+    }
+    if (oldVersionGalleryUrl.present) {
+      map['old_version_gallery_url'] =
+          Variable<String>(oldVersionGalleryUrl.value);
+    }
+    if (uploader.present) {
+      map['uploader'] = Variable<String>(uploader.value);
+    }
+    if (publishTime.present) {
+      map['publish_time'] = Variable<String>(publishTime.value);
+    }
+    if (downloadStatusIndex.present) {
+      map['download_status_index'] = Variable<int>(downloadStatusIndex.value);
+    }
+    if (insertTime.present) {
+      map['insert_time'] = Variable<String>(insertTime.value);
+    }
+    if (downloadOriginalImage.present) {
+      map['download_original_image'] =
+          Variable<bool>(downloadOriginalImage.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<int>(priority.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (groupName.present) {
+      map['group_name'] = Variable<String>(groupName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GalleryDownloadedCompanion(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GalleryDownloadedOldTable extends GalleryDownloadedOld
+    with TableInfo<$GalleryDownloadedOldTable, GalleryDownloadedOldData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GalleryDownloadedOldTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
+  @override
+  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
+      'gid', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _tokenMeta = const VerificationMeta('token');
+  @override
+  late final GeneratedColumn<String> token = GeneratedColumn<String>(
+      'token', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageCountMeta =
+      const VerificationMeta('pageCount');
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+      'pageCount', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _galleryUrlMeta =
+      const VerificationMeta('galleryUrl');
+  @override
+  late final GeneratedColumn<String> galleryUrl = GeneratedColumn<String>(
+      'galleryUrl', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _oldVersionGalleryUrlMeta =
+      const VerificationMeta('oldVersionGalleryUrl');
+  @override
+  late final GeneratedColumn<String> oldVersionGalleryUrl =
+      GeneratedColumn<String>('oldVersionGalleryUrl', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _uploaderMeta =
+      const VerificationMeta('uploader');
+  @override
+  late final GeneratedColumn<String> uploader = GeneratedColumn<String>(
+      'uploader', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _publishTimeMeta =
+      const VerificationMeta('publishTime');
+  @override
+  late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
+      'publishTime', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadStatusIndexMeta =
+      const VerificationMeta('downloadStatusIndex');
+  @override
+  late final GeneratedColumn<int> downloadStatusIndex = GeneratedColumn<int>(
+      'downloadStatusIndex', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _insertTimeMeta =
+      const VerificationMeta('insertTime');
+  @override
+  late final GeneratedColumn<String> insertTime = GeneratedColumn<String>(
+      'insertTime', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _downloadOriginalImageMeta =
+      const VerificationMeta('downloadOriginalImage');
+  @override
+  late final GeneratedColumn<bool> downloadOriginalImage =
+      GeneratedColumn<bool>('downloadOriginalImage', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintIsAlways(
+              'CHECK ("downloadOriginalImage" IN (0, 1))'),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _priorityMeta =
+      const VerificationMeta('priority');
+  @override
+  late final GeneratedColumn<int> priority = GeneratedColumn<int>(
+      'priority', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sortOrder', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'groupName', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        gid,
+        token,
+        title,
+        category,
+        pageCount,
+        galleryUrl,
+        oldVersionGalleryUrl,
+        uploader,
+        publishTime,
+        downloadStatusIndex,
+        insertTime,
+        downloadOriginalImage,
+        priority,
+        sortOrder,
+        groupName
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gallery_downloaded';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<GalleryDownloadedOldData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    }
+    if (data.containsKey('token')) {
+      context.handle(
+          _tokenMeta, token.isAcceptableOrUnknown(data['token']!, _tokenMeta));
+    } else if (isInserting) {
+      context.missing(_tokenMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('pageCount')) {
+      context.handle(_pageCountMeta,
+          pageCount.isAcceptableOrUnknown(data['pageCount']!, _pageCountMeta));
+    } else if (isInserting) {
+      context.missing(_pageCountMeta);
+    }
+    if (data.containsKey('galleryUrl')) {
+      context.handle(
+          _galleryUrlMeta,
+          galleryUrl.isAcceptableOrUnknown(
+              data['galleryUrl']!, _galleryUrlMeta));
+    } else if (isInserting) {
+      context.missing(_galleryUrlMeta);
+    }
+    if (data.containsKey('oldVersionGalleryUrl')) {
+      context.handle(
+          _oldVersionGalleryUrlMeta,
+          oldVersionGalleryUrl.isAcceptableOrUnknown(
+              data['oldVersionGalleryUrl']!, _oldVersionGalleryUrlMeta));
+    }
+    if (data.containsKey('uploader')) {
+      context.handle(_uploaderMeta,
+          uploader.isAcceptableOrUnknown(data['uploader']!, _uploaderMeta));
+    }
+    if (data.containsKey('publishTime')) {
+      context.handle(
+          _publishTimeMeta,
+          publishTime.isAcceptableOrUnknown(
+              data['publishTime']!, _publishTimeMeta));
+    } else if (isInserting) {
+      context.missing(_publishTimeMeta);
+    }
+    if (data.containsKey('downloadStatusIndex')) {
+      context.handle(
+          _downloadStatusIndexMeta,
+          downloadStatusIndex.isAcceptableOrUnknown(
+              data['downloadStatusIndex']!, _downloadStatusIndexMeta));
+    } else if (isInserting) {
+      context.missing(_downloadStatusIndexMeta);
+    }
+    if (data.containsKey('insertTime')) {
+      context.handle(
+          _insertTimeMeta,
+          insertTime.isAcceptableOrUnknown(
+              data['insertTime']!, _insertTimeMeta));
+    }
+    if (data.containsKey('downloadOriginalImage')) {
+      context.handle(
+          _downloadOriginalImageMeta,
+          downloadOriginalImage.isAcceptableOrUnknown(
+              data['downloadOriginalImage']!, _downloadOriginalImageMeta));
+    }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta,
+          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
+    }
+    if (data.containsKey('sortOrder')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
+    }
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid};
+  @override
+  GalleryDownloadedOldData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GalleryDownloadedOldData(
+      gid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
+      token: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}token'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
+      pageCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pageCount'])!,
+      galleryUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}galleryUrl'])!,
+      oldVersionGalleryUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}oldVersionGalleryUrl']),
+      uploader: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}uploader']),
+      publishTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}publishTime'])!,
+      downloadStatusIndex: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}downloadStatusIndex'])!,
+      insertTime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}insertTime']),
+      downloadOriginalImage: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}downloadOriginalImage'])!,
+      priority: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}priority']),
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}groupName']),
+    );
+  }
+
+  @override
+  $GalleryDownloadedOldTable createAlias(String alias) {
+    return $GalleryDownloadedOldTable(attachedDatabase, alias);
+  }
+}
+
+class GalleryDownloadedOldData extends DataClass
+    implements Insertable<GalleryDownloadedOldData> {
+  final int gid;
+  final String token;
+  final String title;
+  final String category;
+  final int pageCount;
+  final String galleryUrl;
+  final String? oldVersionGalleryUrl;
+  final String? uploader;
+  final String publishTime;
+  final int downloadStatusIndex;
+  final String? insertTime;
+  final bool downloadOriginalImage;
+  final int? priority;
+  final int sortOrder;
+  final String? groupName;
+  const GalleryDownloadedOldData(
+      {required this.gid,
+      required this.token,
+      required this.title,
+      required this.category,
+      required this.pageCount,
+      required this.galleryUrl,
+      this.oldVersionGalleryUrl,
+      this.uploader,
+      required this.publishTime,
+      required this.downloadStatusIndex,
+      this.insertTime,
+      required this.downloadOriginalImage,
+      this.priority,
+      required this.sortOrder,
+      this.groupName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['token'] = Variable<String>(token);
+    map['title'] = Variable<String>(title);
+    map['category'] = Variable<String>(category);
+    map['pageCount'] = Variable<int>(pageCount);
+    map['galleryUrl'] = Variable<String>(galleryUrl);
+    if (!nullToAbsent || oldVersionGalleryUrl != null) {
+      map['oldVersionGalleryUrl'] = Variable<String>(oldVersionGalleryUrl);
+    }
+    if (!nullToAbsent || uploader != null) {
+      map['uploader'] = Variable<String>(uploader);
+    }
+    map['publishTime'] = Variable<String>(publishTime);
+    map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
+    if (!nullToAbsent || insertTime != null) {
+      map['insertTime'] = Variable<String>(insertTime);
+    }
+    map['downloadOriginalImage'] = Variable<bool>(downloadOriginalImage);
+    if (!nullToAbsent || priority != null) {
+      map['priority'] = Variable<int>(priority);
+    }
+    map['sortOrder'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || groupName != null) {
+      map['groupName'] = Variable<String>(groupName);
+    }
+    return map;
+  }
+
+  GalleryDownloadedOldCompanion toCompanion(bool nullToAbsent) {
+    return GalleryDownloadedOldCompanion(
+      gid: Value(gid),
+      token: Value(token),
+      title: Value(title),
+      category: Value(category),
+      pageCount: Value(pageCount),
+      galleryUrl: Value(galleryUrl),
+      oldVersionGalleryUrl: oldVersionGalleryUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(oldVersionGalleryUrl),
+      uploader: uploader == null && nullToAbsent
+          ? const Value.absent()
+          : Value(uploader),
+      publishTime: Value(publishTime),
+      downloadStatusIndex: Value(downloadStatusIndex),
+      insertTime: insertTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(insertTime),
+      downloadOriginalImage: Value(downloadOriginalImage),
+      priority: priority == null && nullToAbsent
+          ? const Value.absent()
+          : Value(priority),
+      sortOrder: Value(sortOrder),
+      groupName: groupName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(groupName),
+    );
+  }
+
+  factory GalleryDownloadedOldData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GalleryDownloadedOldData(
+      gid: serializer.fromJson<int>(json['gid']),
+      token: serializer.fromJson<String>(json['token']),
+      title: serializer.fromJson<String>(json['title']),
+      category: serializer.fromJson<String>(json['category']),
+      pageCount: serializer.fromJson<int>(json['pageCount']),
+      galleryUrl: serializer.fromJson<String>(json['galleryUrl']),
+      oldVersionGalleryUrl:
+          serializer.fromJson<String?>(json['oldVersionGalleryUrl']),
+      uploader: serializer.fromJson<String?>(json['uploader']),
+      publishTime: serializer.fromJson<String>(json['publishTime']),
+      downloadStatusIndex:
+          serializer.fromJson<int>(json['downloadStatusIndex']),
+      insertTime: serializer.fromJson<String?>(json['insertTime']),
+      downloadOriginalImage:
+          serializer.fromJson<bool>(json['downloadOriginalImage']),
+      priority: serializer.fromJson<int?>(json['priority']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      groupName: serializer.fromJson<String?>(json['groupName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'token': serializer.toJson<String>(token),
+      'title': serializer.toJson<String>(title),
+      'category': serializer.toJson<String>(category),
+      'pageCount': serializer.toJson<int>(pageCount),
+      'galleryUrl': serializer.toJson<String>(galleryUrl),
+      'oldVersionGalleryUrl': serializer.toJson<String?>(oldVersionGalleryUrl),
+      'uploader': serializer.toJson<String?>(uploader),
+      'publishTime': serializer.toJson<String>(publishTime),
+      'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
+      'insertTime': serializer.toJson<String?>(insertTime),
+      'downloadOriginalImage': serializer.toJson<bool>(downloadOriginalImage),
+      'priority': serializer.toJson<int?>(priority),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'groupName': serializer.toJson<String?>(groupName),
+    };
+  }
+
+  GalleryDownloadedOldData copyWith(
+          {int? gid,
+          String? token,
+          String? title,
+          String? category,
+          int? pageCount,
+          String? galleryUrl,
+          Value<String?> oldVersionGalleryUrl = const Value.absent(),
+          Value<String?> uploader = const Value.absent(),
+          String? publishTime,
+          int? downloadStatusIndex,
+          Value<String?> insertTime = const Value.absent(),
+          bool? downloadOriginalImage,
+          Value<int?> priority = const Value.absent(),
+          int? sortOrder,
+          Value<String?> groupName = const Value.absent()}) =>
+      GalleryDownloadedOldData(
+        gid: gid ?? this.gid,
+        token: token ?? this.token,
+        title: title ?? this.title,
+        category: category ?? this.category,
+        pageCount: pageCount ?? this.pageCount,
+        galleryUrl: galleryUrl ?? this.galleryUrl,
+        oldVersionGalleryUrl: oldVersionGalleryUrl.present
+            ? oldVersionGalleryUrl.value
+            : this.oldVersionGalleryUrl,
+        uploader: uploader.present ? uploader.value : this.uploader,
+        publishTime: publishTime ?? this.publishTime,
+        downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+        insertTime: insertTime.present ? insertTime.value : this.insertTime,
+        downloadOriginalImage:
+            downloadOriginalImage ?? this.downloadOriginalImage,
+        priority: priority.present ? priority.value : this.priority,
+        sortOrder: sortOrder ?? this.sortOrder,
+        groupName: groupName.present ? groupName.value : this.groupName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GalleryDownloadedOldData(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      gid,
+      token,
+      title,
+      category,
+      pageCount,
+      galleryUrl,
+      oldVersionGalleryUrl,
+      uploader,
+      publishTime,
+      downloadStatusIndex,
+      insertTime,
+      downloadOriginalImage,
+      priority,
+      sortOrder,
+      groupName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GalleryDownloadedOldData &&
+          other.gid == this.gid &&
+          other.token == this.token &&
+          other.title == this.title &&
+          other.category == this.category &&
+          other.pageCount == this.pageCount &&
+          other.galleryUrl == this.galleryUrl &&
+          other.oldVersionGalleryUrl == this.oldVersionGalleryUrl &&
+          other.uploader == this.uploader &&
+          other.publishTime == this.publishTime &&
+          other.downloadStatusIndex == this.downloadStatusIndex &&
+          other.insertTime == this.insertTime &&
+          other.downloadOriginalImage == this.downloadOriginalImage &&
+          other.priority == this.priority &&
+          other.sortOrder == this.sortOrder &&
+          other.groupName == this.groupName);
+}
+
+class GalleryDownloadedOldCompanion
+    extends UpdateCompanion<GalleryDownloadedOldData> {
+  final Value<int> gid;
+  final Value<String> token;
+  final Value<String> title;
+  final Value<String> category;
+  final Value<int> pageCount;
+  final Value<String> galleryUrl;
+  final Value<String?> oldVersionGalleryUrl;
+  final Value<String?> uploader;
+  final Value<String> publishTime;
+  final Value<int> downloadStatusIndex;
+  final Value<String?> insertTime;
+  final Value<bool> downloadOriginalImage;
+  final Value<int?> priority;
+  final Value<int> sortOrder;
+  final Value<String?> groupName;
+  const GalleryDownloadedOldCompanion({
+    this.gid = const Value.absent(),
+    this.token = const Value.absent(),
+    this.title = const Value.absent(),
+    this.category = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.galleryUrl = const Value.absent(),
+    this.oldVersionGalleryUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    this.publishTime = const Value.absent(),
+    this.downloadStatusIndex = const Value.absent(),
+    this.insertTime = const Value.absent(),
+    this.downloadOriginalImage = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+  });
+  GalleryDownloadedOldCompanion.insert({
+    this.gid = const Value.absent(),
+    required String token,
+    required String title,
+    required String category,
+    required int pageCount,
+    required String galleryUrl,
+    this.oldVersionGalleryUrl = const Value.absent(),
+    this.uploader = const Value.absent(),
+    required String publishTime,
+    required int downloadStatusIndex,
+    this.insertTime = const Value.absent(),
+    this.downloadOriginalImage = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.groupName = const Value.absent(),
+  })  : token = Value(token),
+        title = Value(title),
+        category = Value(category),
+        pageCount = Value(pageCount),
+        galleryUrl = Value(galleryUrl),
+        publishTime = Value(publishTime),
+        downloadStatusIndex = Value(downloadStatusIndex);
+  static Insertable<GalleryDownloadedOldData> custom({
+    Expression<int>? gid,
+    Expression<String>? token,
+    Expression<String>? title,
+    Expression<String>? category,
+    Expression<int>? pageCount,
+    Expression<String>? galleryUrl,
+    Expression<String>? oldVersionGalleryUrl,
+    Expression<String>? uploader,
+    Expression<String>? publishTime,
+    Expression<int>? downloadStatusIndex,
+    Expression<String>? insertTime,
+    Expression<bool>? downloadOriginalImage,
+    Expression<int>? priority,
+    Expression<int>? sortOrder,
+    Expression<String>? groupName,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (token != null) 'token': token,
+      if (title != null) 'title': title,
+      if (category != null) 'category': category,
+      if (pageCount != null) 'pageCount': pageCount,
+      if (galleryUrl != null) 'galleryUrl': galleryUrl,
+      if (oldVersionGalleryUrl != null)
+        'oldVersionGalleryUrl': oldVersionGalleryUrl,
+      if (uploader != null) 'uploader': uploader,
+      if (publishTime != null) 'publishTime': publishTime,
+      if (downloadStatusIndex != null)
+        'downloadStatusIndex': downloadStatusIndex,
+      if (insertTime != null) 'insertTime': insertTime,
+      if (downloadOriginalImage != null)
+        'downloadOriginalImage': downloadOriginalImage,
+      if (priority != null) 'priority': priority,
+      if (sortOrder != null) 'sortOrder': sortOrder,
+      if (groupName != null) 'groupName': groupName,
+    });
+  }
+
+  GalleryDownloadedOldCompanion copyWith(
+      {Value<int>? gid,
+      Value<String>? token,
+      Value<String>? title,
+      Value<String>? category,
+      Value<int>? pageCount,
+      Value<String>? galleryUrl,
+      Value<String?>? oldVersionGalleryUrl,
+      Value<String?>? uploader,
+      Value<String>? publishTime,
+      Value<int>? downloadStatusIndex,
+      Value<String?>? insertTime,
+      Value<bool>? downloadOriginalImage,
+      Value<int?>? priority,
+      Value<int>? sortOrder,
+      Value<String?>? groupName}) {
+    return GalleryDownloadedOldCompanion(
+      gid: gid ?? this.gid,
+      token: token ?? this.token,
+      title: title ?? this.title,
+      category: category ?? this.category,
+      pageCount: pageCount ?? this.pageCount,
+      galleryUrl: galleryUrl ?? this.galleryUrl,
+      oldVersionGalleryUrl: oldVersionGalleryUrl ?? this.oldVersionGalleryUrl,
+      uploader: uploader ?? this.uploader,
+      publishTime: publishTime ?? this.publishTime,
+      downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+      insertTime: insertTime ?? this.insertTime,
+      downloadOriginalImage:
+          downloadOriginalImage ?? this.downloadOriginalImage,
+      priority: priority ?? this.priority,
+      sortOrder: sortOrder ?? this.sortOrder,
+      groupName: groupName ?? this.groupName,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (token.present) {
+      map['token'] = Variable<String>(token.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (pageCount.present) {
+      map['pageCount'] = Variable<int>(pageCount.value);
+    }
+    if (galleryUrl.present) {
+      map['galleryUrl'] = Variable<String>(galleryUrl.value);
+    }
+    if (oldVersionGalleryUrl.present) {
+      map['oldVersionGalleryUrl'] =
+          Variable<String>(oldVersionGalleryUrl.value);
+    }
+    if (uploader.present) {
+      map['uploader'] = Variable<String>(uploader.value);
+    }
+    if (publishTime.present) {
+      map['publishTime'] = Variable<String>(publishTime.value);
+    }
+    if (downloadStatusIndex.present) {
+      map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
+    }
+    if (insertTime.present) {
+      map['insertTime'] = Variable<String>(insertTime.value);
+    }
+    if (downloadOriginalImage.present) {
+      map['downloadOriginalImage'] =
+          Variable<bool>(downloadOriginalImage.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<int>(priority.value);
+    }
+    if (sortOrder.present) {
+      map['sortOrder'] = Variable<int>(sortOrder.value);
+    }
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GalleryDownloadedOldCompanion(')
+          ..write('gid: $gid, ')
+          ..write('token: $token, ')
+          ..write('title: $title, ')
+          ..write('category: $category, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('galleryUrl: $galleryUrl, ')
+          ..write('oldVersionGalleryUrl: $oldVersionGalleryUrl, ')
+          ..write('uploader: $uploader, ')
+          ..write('publishTime: $publishTime, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('insertTime: $insertTime, ')
+          ..write('downloadOriginalImage: $downloadOriginalImage, ')
+          ..write('priority: $priority, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('groupName: $groupName')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GalleryGroupTable extends GalleryGroup
+    with TableInfo<$GalleryGroupTable, GalleryGroupData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GalleryGroupTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _groupNameMeta =
+      const VerificationMeta('groupName');
+  @override
+  late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
+      'groupName', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sortOrderMeta =
+      const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+      'sortOrder', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [groupName, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gallery_group';
+  @override
+  VerificationContext validateIntegrity(Insertable<GalleryGroupData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('groupName')) {
+      context.handle(_groupNameMeta,
+          groupName.isAcceptableOrUnknown(data['groupName']!, _groupNameMeta));
+    } else if (isInserting) {
+      context.missing(_groupNameMeta);
+    }
+    if (data.containsKey('sortOrder')) {
+      context.handle(_sortOrderMeta,
+          sortOrder.isAcceptableOrUnknown(data['sortOrder']!, _sortOrderMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {groupName};
+  @override
+  GalleryGroupData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GalleryGroupData(
+      groupName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}groupName'])!,
+      sortOrder: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sortOrder'])!,
+    );
+  }
+
+  @override
+  $GalleryGroupTable createAlias(String alias) {
+    return $GalleryGroupTable(attachedDatabase, alias);
+  }
+}
+
+class GalleryGroupData extends DataClass
+    implements Insertable<GalleryGroupData> {
+  final String groupName;
+  final int sortOrder;
+  const GalleryGroupData({required this.groupName, required this.sortOrder});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['groupName'] = Variable<String>(groupName);
+    map['sortOrder'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  GalleryGroupCompanion toCompanion(bool nullToAbsent) {
+    return GalleryGroupCompanion(
+      groupName: Value(groupName),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory GalleryGroupData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GalleryGroupData(
+      groupName: serializer.fromJson<String>(json['groupName']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'groupName': serializer.toJson<String>(groupName),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  GalleryGroupData copyWith({String? groupName, int? sortOrder}) =>
+      GalleryGroupData(
+        groupName: groupName ?? this.groupName,
+        sortOrder: sortOrder ?? this.sortOrder,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GalleryGroupData(')
+          ..write('groupName: $groupName, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(groupName, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GalleryGroupData &&
+          other.groupName == this.groupName &&
+          other.sortOrder == this.sortOrder);
+}
+
+class GalleryGroupCompanion extends UpdateCompanion<GalleryGroupData> {
+  final Value<String> groupName;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const GalleryGroupCompanion({
+    this.groupName = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GalleryGroupCompanion.insert({
+    required String groupName,
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : groupName = Value(groupName);
+  static Insertable<GalleryGroupData> custom({
+    Expression<String>? groupName,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (groupName != null) 'groupName': groupName,
+      if (sortOrder != null) 'sortOrder': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GalleryGroupCompanion copyWith(
+      {Value<String>? groupName, Value<int>? sortOrder, Value<int>? rowid}) {
+    return GalleryGroupCompanion(
+      groupName: groupName ?? this.groupName,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (groupName.present) {
+      map['groupName'] = Variable<String>(groupName.value);
+    }
+    if (sortOrder.present) {
+      map['sortOrder'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GalleryGroupCompanion(')
+          ..write('groupName: $groupName, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImageTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
+  @override
+  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
+      'gid', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES gallery_downloaded_v2 (gid)'));
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _serialNoMeta =
+      const VerificationMeta('serialNo');
+  @override
+  late final GeneratedColumn<int> serialNo = GeneratedColumn<int>(
+      'serialNo', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  @override
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+      'path', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageHashMeta =
+      const VerificationMeta('imageHash');
+  @override
+  late final GeneratedColumn<String> imageHash = GeneratedColumn<String>(
+      'imageHash', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _downloadStatusIndexMeta =
+      const VerificationMeta('downloadStatusIndex');
+  @override
+  late final GeneratedColumn<int> downloadStatusIndex = GeneratedColumn<int>(
+      'downloadStatusIndex', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [gid, url, serialNo, path, imageHash, downloadStatusIndex];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'image';
+  @override
+  VerificationContext validateIntegrity(Insertable<ImageData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gid')) {
+      context.handle(
+          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
+    } else if (isInserting) {
+      context.missing(_gidMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('serialNo')) {
+      context.handle(_serialNoMeta,
+          serialNo.isAcceptableOrUnknown(data['serialNo']!, _serialNoMeta));
+    } else if (isInserting) {
+      context.missing(_serialNoMeta);
+    }
+    if (data.containsKey('path')) {
+      context.handle(
+          _pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('imageHash')) {
+      context.handle(_imageHashMeta,
+          imageHash.isAcceptableOrUnknown(data['imageHash']!, _imageHashMeta));
+    } else if (isInserting) {
+      context.missing(_imageHashMeta);
+    }
+    if (data.containsKey('downloadStatusIndex')) {
+      context.handle(
+          _downloadStatusIndexMeta,
+          downloadStatusIndex.isAcceptableOrUnknown(
+              data['downloadStatusIndex']!, _downloadStatusIndexMeta));
+    } else if (isInserting) {
+      context.missing(_downloadStatusIndexMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {gid, serialNo};
+  @override
+  ImageData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImageData(
+      gid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      serialNo: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}serialNo'])!,
+      path: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      imageHash: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}imageHash'])!,
+      downloadStatusIndex: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}downloadStatusIndex'])!,
+    );
+  }
+
+  @override
+  $ImageTable createAlias(String alias) {
+    return $ImageTable(attachedDatabase, alias);
+  }
+}
+
+class ImageData extends DataClass implements Insertable<ImageData> {
+  final int gid;
+  final String url;
+  final int serialNo;
+  final String path;
+  final String imageHash;
+  final int downloadStatusIndex;
+  const ImageData(
+      {required this.gid,
+      required this.url,
+      required this.serialNo,
+      required this.path,
+      required this.imageHash,
+      required this.downloadStatusIndex});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gid'] = Variable<int>(gid);
+    map['url'] = Variable<String>(url);
+    map['serialNo'] = Variable<int>(serialNo);
+    map['path'] = Variable<String>(path);
+    map['imageHash'] = Variable<String>(imageHash);
+    map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex);
+    return map;
+  }
+
+  ImageCompanion toCompanion(bool nullToAbsent) {
+    return ImageCompanion(
+      gid: Value(gid),
+      url: Value(url),
+      serialNo: Value(serialNo),
+      path: Value(path),
+      imageHash: Value(imageHash),
+      downloadStatusIndex: Value(downloadStatusIndex),
+    );
+  }
+
+  factory ImageData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImageData(
+      gid: serializer.fromJson<int>(json['gid']),
+      url: serializer.fromJson<String>(json['url']),
+      serialNo: serializer.fromJson<int>(json['serialNo']),
+      path: serializer.fromJson<String>(json['path']),
+      imageHash: serializer.fromJson<String>(json['imageHash']),
+      downloadStatusIndex:
+          serializer.fromJson<int>(json['downloadStatusIndex']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'gid': serializer.toJson<int>(gid),
+      'url': serializer.toJson<String>(url),
+      'serialNo': serializer.toJson<int>(serialNo),
+      'path': serializer.toJson<String>(path),
+      'imageHash': serializer.toJson<String>(imageHash),
+      'downloadStatusIndex': serializer.toJson<int>(downloadStatusIndex),
+    };
+  }
+
+  ImageData copyWith(
+          {int? gid,
+          String? url,
+          int? serialNo,
+          String? path,
+          String? imageHash,
+          int? downloadStatusIndex}) =>
+      ImageData(
+        gid: gid ?? this.gid,
+        url: url ?? this.url,
+        serialNo: serialNo ?? this.serialNo,
+        path: path ?? this.path,
+        imageHash: imageHash ?? this.imageHash,
+        downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ImageData(')
+          ..write('gid: $gid, ')
+          ..write('url: $url, ')
+          ..write('serialNo: $serialNo, ')
+          ..write('path: $path, ')
+          ..write('imageHash: $imageHash, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(gid, url, serialNo, path, imageHash, downloadStatusIndex);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImageData &&
+          other.gid == this.gid &&
+          other.url == this.url &&
+          other.serialNo == this.serialNo &&
+          other.path == this.path &&
+          other.imageHash == this.imageHash &&
+          other.downloadStatusIndex == this.downloadStatusIndex);
+}
+
+class ImageCompanion extends UpdateCompanion<ImageData> {
+  final Value<int> gid;
+  final Value<String> url;
+  final Value<int> serialNo;
+  final Value<String> path;
+  final Value<String> imageHash;
+  final Value<int> downloadStatusIndex;
+  final Value<int> rowid;
+  const ImageCompanion({
+    this.gid = const Value.absent(),
+    this.url = const Value.absent(),
+    this.serialNo = const Value.absent(),
+    this.path = const Value.absent(),
+    this.imageHash = const Value.absent(),
+    this.downloadStatusIndex = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImageCompanion.insert({
+    required int gid,
+    required String url,
+    required int serialNo,
+    required String path,
+    required String imageHash,
+    required int downloadStatusIndex,
+    this.rowid = const Value.absent(),
+  })  : gid = Value(gid),
+        url = Value(url),
+        serialNo = Value(serialNo),
+        path = Value(path),
+        imageHash = Value(imageHash),
+        downloadStatusIndex = Value(downloadStatusIndex);
+  static Insertable<ImageData> custom({
+    Expression<int>? gid,
+    Expression<String>? url,
+    Expression<int>? serialNo,
+    Expression<String>? path,
+    Expression<String>? imageHash,
+    Expression<int>? downloadStatusIndex,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (gid != null) 'gid': gid,
+      if (url != null) 'url': url,
+      if (serialNo != null) 'serialNo': serialNo,
+      if (path != null) 'path': path,
+      if (imageHash != null) 'imageHash': imageHash,
+      if (downloadStatusIndex != null)
+        'downloadStatusIndex': downloadStatusIndex,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImageCompanion copyWith(
+      {Value<int>? gid,
+      Value<String>? url,
+      Value<int>? serialNo,
+      Value<String>? path,
+      Value<String>? imageHash,
+      Value<int>? downloadStatusIndex,
+      Value<int>? rowid}) {
+    return ImageCompanion(
+      gid: gid ?? this.gid,
+      url: url ?? this.url,
+      serialNo: serialNo ?? this.serialNo,
+      path: path ?? this.path,
+      imageHash: imageHash ?? this.imageHash,
+      downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (gid.present) {
+      map['gid'] = Variable<int>(gid.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (serialNo.present) {
+      map['serialNo'] = Variable<int>(serialNo.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (imageHash.present) {
+      map['imageHash'] = Variable<String>(imageHash.value);
+    }
+    if (downloadStatusIndex.present) {
+      map['downloadStatusIndex'] = Variable<int>(downloadStatusIndex.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImageCompanion(')
+          ..write('gid: $gid, ')
+          ..write('url: $url, ')
+          ..write('serialNo: $serialNo, ')
+          ..write('path: $path, ')
+          ..write('imageHash: $imageHash, ')
+          ..write('downloadStatusIndex: $downloadStatusIndex, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   late final DioCache dioCache = DioCache(this);
@@ -4908,9 +5588,6 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final TagBrowseProgressTable tagBrowseProgress =
       TagBrowseProgressTable(this);
   late final GalleryHistory galleryHistory = GalleryHistory(this);
-  late final GalleryDownloaded galleryDownloaded = GalleryDownloaded(this);
-  late final Image image = Image(this);
-  late final GalleryGroup galleryGroup = GalleryGroup(this);
   late final $OldSuperResolutionInfoTable oldSuperResolutionInfo =
       $OldSuperResolutionInfoTable(this);
   late final $SuperResolutionInfoTable superResolutionInfo =
@@ -4921,16 +5598,28 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $ArchiveDownloadedOldTable archiveDownloadedOld =
       $ArchiveDownloadedOldTable(this);
   late final $ArchiveGroupTable archiveGroup = $ArchiveGroupTable(this);
+  late final $GalleryDownloadedTable galleryDownloaded =
+      $GalleryDownloadedTable(this);
+  late final $GalleryDownloadedOldTable galleryDownloadedOld =
+      $GalleryDownloadedOldTable(this);
+  late final $GalleryGroupTable galleryGroup = $GalleryGroupTable(this);
+  late final $ImageTable image = $ImageTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
       Index('idx_tagName', 'CREATE INDEX idx_tagName ON tag (tagName)');
-  late final Index idxInsertTime = Index('idx_insert_time',
-      'CREATE INDEX idx_insert_time ON archive_downloaded_v2 (insert_time)');
-  late final Index idxSoreOrder = Index('idx_sore_order',
-      'CREATE INDEX idx_sore_order ON archive_downloaded_v2 (sort_order)');
-  late final Index idxGroupName = Index('idx_group_name',
-      'CREATE INDEX idx_group_name ON archive_downloaded_v2 (group_name)');
+  late final Index aIdxInsertTime = Index('a_idx_insert_time',
+      'CREATE INDEX a_idx_insert_time ON archive_downloaded_v2 (insert_time)');
+  late final Index aIdxSortOrder = Index('a_idx_sort_order',
+      'CREATE INDEX a_idx_sort_order ON archive_downloaded_v2 (sort_order)');
+  late final Index aIdxGroupName = Index('a_idx_group_name',
+      'CREATE INDEX a_idx_group_name ON archive_downloaded_v2 (group_name)');
+  late final Index gIdxInsertTime = Index('g_idx_insert_time',
+      'CREATE INDEX g_idx_insert_time ON gallery_downloaded_v2 (insert_time)');
+  late final Index gIdxSortOrder = Index('g_idx_sort_order',
+      'CREATE INDEX g_idx_sort_order ON gallery_downloaded_v2 (sort_order)');
+  late final Index gIdxGroupName = Index('g_idx_group_name',
+      'CREATE INDEX g_idx_group_name ON gallery_downloaded_v2 (group_name)');
   Selectable<DioCacheData> selectByCacheKey(String cacheKey) {
     return customSelect('SELECT * FROM dio_cache WHERE cacheKey = ?1',
         variables: [
@@ -5073,264 +5762,6 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
-  Selectable<SelectGallerysWithImagesResult> selectGallerysWithImages() {
-    return customSelect(
-        'SELECT g.gid, g.token, g.title, g.category, g.pageCount, g.galleryUrl, g.oldVersionGalleryUrl, g.uploader, g.publishTime, g.downloadStatusIndex AS galleryDownloadStatusIndex, g.insertTime, g.downloadOriginalImage, g.priority, g.sortOrder, g.groupName, i.url, i.serialNo, i.path, i.imageHash, i.downloadStatusIndex AS imageDownloadStatusIndex FROM gallery_downloaded AS g LEFT JOIN image AS i ON g.gid = i.gid ORDER BY insertTime DESC, serialNo',
-        variables: [],
-        readsFrom: {
-          galleryDownloaded,
-          image,
-        }).map((QueryRow row) => SelectGallerysWithImagesResult(
-          gid: row.read<int>('gid'),
-          token: row.read<String>('token'),
-          title: row.read<String>('title'),
-          category: row.read<String>('category'),
-          pageCount: row.read<int>('pageCount'),
-          galleryUrl: row.read<String>('galleryUrl'),
-          oldVersionGalleryUrl:
-              row.readNullable<String>('oldVersionGalleryUrl'),
-          uploader: row.readNullable<String>('uploader'),
-          publishTime: row.read<String>('publishTime'),
-          galleryDownloadStatusIndex:
-              row.read<int>('galleryDownloadStatusIndex'),
-          insertTime: row.readNullable<String>('insertTime'),
-          downloadOriginalImage: row.read<bool>('downloadOriginalImage'),
-          priority: row.readNullable<int>('priority'),
-          sortOrder: row.read<int>('sortOrder'),
-          groupName: row.readNullable<String>('groupName'),
-          url: row.readNullable<String>('url'),
-          serialNo: row.readNullable<int>('serialNo'),
-          path: row.readNullable<String>('path'),
-          imageHash: row.readNullable<String>('imageHash'),
-          imageDownloadStatusIndex:
-              row.readNullable<int>('imageDownloadStatusIndex'),
-        ));
-  }
-
-  Selectable<GalleryDownloadedData> selectGallerys() {
-    return customSelect(
-        'SELECT * FROM gallery_downloaded ORDER BY insertTime DESC',
-        variables: [],
-        readsFrom: {
-          galleryDownloaded,
-        }).asyncMap(galleryDownloaded.mapFromRow);
-  }
-
-  Future<int> insertGallery(
-      int gid,
-      String token,
-      String title,
-      String category,
-      int pageCount,
-      String galleryUrl,
-      String? oldVersionGalleryUrl,
-      String? uploader,
-      String publishTime,
-      int downloadStatusIndex,
-      String? insertTime,
-      bool downloadOriginalImage,
-      int? priority,
-      String? groupName) {
-    return customInsert(
-      'INSERT INTO gallery_downloaded (gid, token, title, category, pageCount, galleryUrl, oldVersionGalleryUrl, uploader, publishTime, downloadStatusIndex, insertTime, downloadOriginalImage, priority, groupName) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)',
-      variables: [
-        Variable<int>(gid),
-        Variable<String>(token),
-        Variable<String>(title),
-        Variable<String>(category),
-        Variable<int>(pageCount),
-        Variable<String>(galleryUrl),
-        Variable<String>(oldVersionGalleryUrl),
-        Variable<String>(uploader),
-        Variable<String>(publishTime),
-        Variable<int>(downloadStatusIndex),
-        Variable<String>(insertTime),
-        Variable<bool>(downloadOriginalImage),
-        Variable<int>(priority),
-        Variable<String>(groupName)
-      ],
-      updates: {galleryDownloaded},
-    );
-  }
-
-  Future<int> deleteGallery(int gid) {
-    return customUpdate(
-      'DELETE FROM gallery_downloaded WHERE gid = ?1',
-      variables: [Variable<int>(gid)],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> updateGallery(int downloadStatusIndex, int gid) {
-    return customUpdate(
-      'UPDATE gallery_downloaded SET downloadStatusIndex = ?1 WHERE gid = ?2',
-      variables: [Variable<int>(downloadStatusIndex), Variable<int>(gid)],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateGalleryPriority(int? priority, int gid) {
-    return customUpdate(
-      'UPDATE gallery_downloaded SET priority = ?1 WHERE gid = ?2',
-      variables: [Variable<int>(priority), Variable<int>(gid)],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateGalleryOrder(int sortOrder, int gid) {
-    return customUpdate(
-      'UPDATE gallery_downloaded SET sortOrder = ?1 WHERE gid = ?2',
-      variables: [Variable<int>(sortOrder), Variable<int>(gid)],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateGalleryGroup(String? groupName, int gid) {
-    return customUpdate(
-      'UPDATE gallery_downloaded SET groupName = ?1 WHERE gid = ?2',
-      variables: [Variable<String>(groupName), Variable<int>(gid)],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Selectable<GalleryDownloadedData> selectImagesByGalleryId(int gid) {
-    return customSelect('SELECT * FROM gallery_downloaded WHERE gid = ?1',
-        variables: [
-          Variable<int>(gid)
-        ],
-        readsFrom: {
-          galleryDownloaded,
-        }).asyncMap(galleryDownloaded.mapFromRow);
-  }
-
-  Future<int> insertImage(String url, int serialNo, int gid, String path,
-      String imageHash, int downloadStatusIndex) {
-    return customInsert(
-      'INSERT INTO image VALUES (?1, ?2, ?3, ?4, ?5, ?6)',
-      variables: [
-        Variable<String>(url),
-        Variable<int>(serialNo),
-        Variable<int>(gid),
-        Variable<String>(path),
-        Variable<String>(imageHash),
-        Variable<int>(downloadStatusIndex)
-      ],
-      updates: {image},
-    );
-  }
-
-  Future<int> updateImageStatus(int downloadStatusIndex, int gid, String url) {
-    return customUpdate(
-      'UPDATE image SET downloadStatusIndex = ?1 WHERE gid = ?2 AND url = ?3',
-      variables: [
-        Variable<int>(downloadStatusIndex),
-        Variable<int>(gid),
-        Variable<String>(url)
-      ],
-      updates: {image},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateImagePath(String path, int gid, String url) {
-    return customUpdate(
-      'UPDATE image SET path = ?1 WHERE gid = ?2 AND url = ?3',
-      variables: [
-        Variable<String>(path),
-        Variable<int>(gid),
-        Variable<String>(url)
-      ],
-      updates: {image},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateImageUrl(String newUrl, int gid, int serialNo) {
-    return customUpdate(
-      'UPDATE image SET url = ?1 WHERE gid = ?2 AND serialNo = ?3',
-      variables: [
-        Variable<String>(newUrl),
-        Variable<int>(gid),
-        Variable<int>(serialNo)
-      ],
-      updates: {image},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> deleteImage(int gid, String url) {
-    return customUpdate(
-      'DELETE FROM image WHERE gid = ?1 AND url = ?2',
-      variables: [Variable<int>(gid), Variable<String>(url)],
-      updates: {image},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> deleteImagesWithGid(int gid) {
-    return customUpdate(
-      'DELETE FROM image WHERE gid = ?1',
-      variables: [Variable<int>(gid)],
-      updates: {image},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Selectable<GalleryGroupData> selectGalleryGroups() {
-    return customSelect('SELECT * FROM gallery_group ORDER BY sortOrder',
-        variables: [],
-        readsFrom: {
-          galleryGroup,
-        }).asyncMap(galleryGroup.mapFromRow);
-  }
-
-  Future<int> renameGalleryGroup(String newGroupName, String oldGroupName) {
-    return customUpdate(
-      'UPDATE gallery_group SET groupName = ?1 WHERE groupName = ?2',
-      variables: [
-        Variable<String>(newGroupName),
-        Variable<String>(oldGroupName)
-      ],
-      updates: {galleryGroup},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> updateGalleryGroupOrder(int sortOrder, String groupName) {
-    return customUpdate(
-      'UPDATE gallery_group SET sortOrder = ?1 WHERE groupName = ?2',
-      variables: [Variable<int>(sortOrder), Variable<String>(groupName)],
-      updates: {galleryGroup},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> reGroupGallery(String? newGroupName, String? oldGroupName) {
-    return customUpdate(
-      'UPDATE gallery_downloaded SET groupName = ?1 WHERE groupName = ?2',
-      variables: [
-        Variable<String>(newGroupName),
-        Variable<String>(oldGroupName)
-      ],
-      updates: {galleryDownloaded},
-      updateKind: UpdateKind.update,
-    );
-  }
-
-  Future<int> deleteGalleryGroup(String groupName) {
-    return customUpdate(
-      'DELETE FROM gallery_group WHERE groupName = ?1',
-      variables: [Variable<String>(groupName)],
-      updates: {galleryGroup},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5342,64 +5773,23 @@ abstract class _$AppDb extends GeneratedDatabase {
         tagCount,
         tagBrowseProgress,
         galleryHistory,
-        galleryDownloaded,
-        image,
-        galleryGroup,
         oldSuperResolutionInfo,
         superResolutionInfo,
         tag,
         archiveDownloaded,
         archiveDownloadedOld,
         archiveGroup,
+        galleryDownloaded,
+        galleryDownloadedOld,
+        galleryGroup,
+        image,
         idxKey,
         idxTagName,
-        idxInsertTime,
-        idxSoreOrder,
-        idxGroupName
+        aIdxInsertTime,
+        aIdxSortOrder,
+        aIdxGroupName,
+        gIdxInsertTime,
+        gIdxSortOrder,
+        gIdxGroupName
       ];
-}
-
-class SelectGallerysWithImagesResult {
-  final int gid;
-  final String token;
-  final String title;
-  final String category;
-  final int pageCount;
-  final String galleryUrl;
-  final String? oldVersionGalleryUrl;
-  final String? uploader;
-  final String publishTime;
-  final int galleryDownloadStatusIndex;
-  final String? insertTime;
-  final bool downloadOriginalImage;
-  final int? priority;
-  final int sortOrder;
-  final String? groupName;
-  final String? url;
-  final int? serialNo;
-  final String? path;
-  final String? imageHash;
-  final int? imageDownloadStatusIndex;
-  SelectGallerysWithImagesResult({
-    required this.gid,
-    required this.token,
-    required this.title,
-    required this.category,
-    required this.pageCount,
-    required this.galleryUrl,
-    this.oldVersionGalleryUrl,
-    this.uploader,
-    required this.publishTime,
-    required this.galleryDownloadStatusIndex,
-    this.insertTime,
-    required this.downloadOriginalImage,
-    this.priority,
-    required this.sortOrder,
-    this.groupName,
-    this.url,
-    this.serialNo,
-    this.path,
-    this.imageHash,
-    this.imageDownloadStatusIndex,
-  });
 }

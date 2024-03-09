@@ -331,6 +331,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// compatible with new field
       metadata.putIfAbsent('sortOrder', () => 0);
+      if (metadata['groupName'] == null) {
+        metadata['groupName'] = 'default'.tr;
+      }
 
       ArchiveDownloadedData archive = ArchiveDownloadedData.fromJson(metadata as Map<String, dynamic>);
 
@@ -763,8 +766,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           ArchiveDownloadedCompanion(
             gid: Value(archive.gid),
             archiveStatusIndex: Value(archiveDownloadInfo.archiveStatus.index),
-            downloadPageUrl: Value.ofNullable(archiveDownloadInfo.downloadPageUrl),
-            downloadUrl: Value.ofNullable(archiveDownloadInfo.downloadUrl),
+            downloadPageUrl: archiveDownloadInfo.downloadPageUrl == null ? const Value.absent() : Value(archiveDownloadInfo.downloadPageUrl),
+            downloadUrl: archiveDownloadInfo.downloadUrl == null ? const Value.absent() : Value(archiveDownloadInfo.downloadUrl),
             sortOrder: Value(archiveDownloadInfo.sortOrder),
             groupName: Value(archiveDownloadInfo.group),
           ),

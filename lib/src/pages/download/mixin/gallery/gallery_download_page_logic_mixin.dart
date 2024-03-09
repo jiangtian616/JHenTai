@@ -124,7 +124,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     downloadService.update([downloadService.galleryCountChangedId]);
   }
 
-  void handleAssignPriority(GalleryDownloadedData gallery, int? priority) {
+  void handleAssignPriority(GalleryDownloadedData gallery, int priority) {
     downloadService.assignPriority(gallery, priority);
     updateSafely([bodyId]);
   }
