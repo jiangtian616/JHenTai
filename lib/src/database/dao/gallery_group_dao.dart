@@ -3,7 +3,7 @@ import 'package:jhentai/src/database/database.dart';
 
 class GalleryGroupDao {
   static Future<List<GalleryGroupData>> selectGalleryGroups() {
-    return (appDb.select(appDb.galleryGroup)..orderBy([(gallery) => OrderingTerm(expression: gallery.sortOrder)])).get();
+    return (appDb.select(appDb.galleryGroup)..orderBy([(t) => OrderingTerm(expression: t.sortOrder)])).get();
   }
 
   static Future<int> insertGalleryGroup(GalleryGroupData galleryGroupData) {

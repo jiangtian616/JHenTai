@@ -4,7 +4,7 @@ import '../database.dart';
 
 class GalleryDao {
   static Future<List<GalleryDownloadedData>> selectGallerys() {
-    return (appDb.select(appDb.galleryDownloaded)..orderBy([(gallery) => OrderingTerm(expression: gallery.insertTime)])).get();
+    return appDb.select(appDb.galleryDownloaded).get();
   }
 
   static Future<int> insertGallery(GalleryDownloadedData gallery) {

@@ -444,8 +444,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return aOrder - bOrder;
       }
 
-      DateTime aTime = a.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime!);
-      DateTime bTime = b.insertTime == null ? DateTime.now() : DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime!);
+      DateTime aTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime);
+      DateTime bTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime);
 
       return bTime.difference(aTime).inMilliseconds;
     });
@@ -782,8 +782,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   // MEMORY
 
   void _initArchiveInMemory(ArchiveDownloadedData archive, {bool sort = true}) {
-    if (!allGroups.contains(archive.groupName ?? 'default'.tr)) {
-      allGroups.add(archive.groupName ?? 'default'.tr);
+    if (!allGroups.contains(archive.groupName)) {
+      allGroups.add(archive.groupName);
     }
     archives.add(archive);
 
@@ -797,7 +797,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       )..downloadedBytes = _computeDownloadedPackingFileBytes(archive) ?? 0,
       downloadedBytesBeforeDownload: _computeDownloadedPackingFileBytes(archive) ?? 0,
       sortOrder: archive.sortOrder,
-      group: archive.groupName ?? 'default'.tr,
+      group: archive.groupName,
     );
 
     if (sort) _sortArchives();

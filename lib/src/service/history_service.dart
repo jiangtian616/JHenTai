@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import '../model/gallery.dart';
 import '../utils/log.dart';
@@ -10,11 +9,7 @@ import '../utils/log.dart';
 class HistoryService extends GetxController {
   static const String historyUpdateId = 'historyUpdateId';
 
-  List<Gallery> history = [];
-
   static const int pageSize = 100;
-
-  int get pageCount => history.isEmpty ? 0 : (history.length - 1) ~/ pageSize + 1;
 
   static void init() {
     Get.put(HistoryService(), permanent: true);
@@ -22,46 +17,45 @@ class HistoryService extends GetxController {
 
   @override
   onInit() async {
-    history = (await appDb.selectHistorys().get()).map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
-
     Log.debug('init HistoryService success');
+
     super.onInit();
   }
 
-  List<Gallery> getByPageIndex(int pageIndex) {
-    return history.sublist(pageIndex * pageSize, min((pageIndex + 1) * pageSize, history.length));
+  Future<int> getPageCount() async {
+    int totalCount = await GalleryHistoryDao.selectTotalCount();
+    return totalCount == 0 ? 0 : (totalCount - 1) ~/ pageSize + 1;
+  }
+
+  Future<List<Gallery>> getByPageIndex(int pageIndex) async {
+    List<GalleryHistoryData> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
+    return historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
   }
 
   Future<void> record(Gallery gallery) async {
     Log.verbose('Record history: ${gallery.gid}');
 
-    Gallery? record = history.singleWhereOrNull((h) => h.gid == gallery.gid);
-
     try {
-      if (record == null) {
-        /// use a copy to deal with hero tag
-        history.insert(0, gallery.copyWith());
-        await appDb.insertHistory(gallery.gid, json.encode(gallery), DateTime.now().toString());
-      } else {
-        history.remove(record);
-        history.insert(0, record);
-        await appDb.updateHistoryLastReadTime(DateTime.now().toString(), gallery.gid);
-      }
+      await GalleryHistoryDao.replaceHistory(
+        GalleryHistoryData(
+          gid: gallery.gid,
+          jsonBody: json.encode(gallery),
+          lastReadTime: DateTime.now().toString(),
+        ),
+      );
     } on Exception catch (e) {
       Log.error('Record history failed!', e);
-      Log.error(e);
     }
   }
 
   Future<bool> delete(int gid) async {
     Log.info('Delete history: $gid');
-    history.removeWhere((h) => h.gid == gid);
-    return await appDb.deleteHistory(gid) > 0;
+
+    return await GalleryHistoryDao.deleteHistory(gid) > 0;
   }
 
   Future<bool> deleteAll() async {
     Log.info('Delete all historys');
-    history.clear();
-    return await appDb.deleteAllHistorys() > 0;
+    return await GalleryHistoryDao.deleteAllHistory() > 0;
   }
 }

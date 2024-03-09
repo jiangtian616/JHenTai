@@ -24,11 +24,14 @@ class HistoryPageLogic extends OldBasePageLogic {
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
     Log.info('Get history by page index $pageIndex');
 
+    int pageCount = await historyService.getPageCount();
+    List<Gallery> gallerys = await historyService.getByPageIndex(pageIndex);
+
     return [
-      historyService.getByPageIndex(pageIndex),
-      historyService.pageCount,
+      gallerys,
+      pageCount,
       pageIndex >= 1 ? pageIndex - 1 : null,
-      pageIndex < historyService.pageCount - 1 ? pageIndex + 1 : null,
+      pageIndex < pageCount - 1 ? pageIndex + 1 : null,
     ];
   }
 

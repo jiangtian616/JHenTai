@@ -91,6 +91,8 @@ Widget EHGalleryCollection({
               downloaded: galleryDownloadService.containGallery(gallerys[index].gid) || archiveDownloadService.containArchive(gallerys[index].gid),
               listMode: listMode,
               handleTapCard: handleTapCard,
+              handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
+              handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
             );
           },
           childCount: gallerys.length,

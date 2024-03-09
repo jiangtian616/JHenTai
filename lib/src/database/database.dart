@@ -9,11 +9,13 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/gallery_group_dao.dart';
+import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
 import 'package:jhentai/src/database/table/archive_downloaded.dart';
 import 'package:jhentai/src/database/table/archive_group.dart';
 import 'package:jhentai/src/database/table/gallery_downloaded.dart';
 import 'package:jhentai/src/database/table/gallery_group.dart';
+import 'package:jhentai/src/database/table/gallery_history.dart';
 import 'package:jhentai/src/database/table/image.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
@@ -35,7 +37,6 @@ part 'database.g.dart';
 
 @DriftDatabase(
   include: {
-    'gallery_history.drift',
     'tag_browse_progress.drift',
     'tag_count.drift',
     'dio_cache.drift',
@@ -51,13 +52,14 @@ part 'database.g.dart';
     GalleryDownloadedOld,
     GalleryGroup,
     Image,
+    GalleryHistory,
   ],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -127,6 +129,9 @@ class AppDb extends _$AppDb {
           if (from < 17) {
             await _migrateDownloadedInfo(m);
           }
+          if (from < 18) {
+            await m.createIndex(idxLastReadTime);
+          }
         } on Exception catch (e) {
           Log.error(e);
           Log.uploadError(e, extraInfos: {'from': from, 'to': to});
@@ -166,7 +171,13 @@ class AppDb extends _$AppDb {
         if (gallerys != null) {
           await appDb.transaction(() async {
             for (Gallery g in gallerys.reversed) {
-              await appDb.insertHistory(g.gid, json.encode(g), DateTime.now().toString());
+              await GalleryHistoryDao.insertHistory(
+                GalleryHistoryData(
+                  gid: g.gid,
+                  jsonBody: json.encode(g),
+                  lastReadTime: DateTime.now().toString(),
+                ),
+              );
             }
           });
         }
