@@ -30,6 +30,14 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   ThumbnailsPage({Key? key}) : super(key: key);
 
+  String get _mainTitleText =>
+      logic.detailsPageState.gallery?.title ??
+          logic.detailsPageState.galleryDetails?.japaneseTitle ??
+          logic.detailsPageState.galleryDetails?.rawTitle ??
+          logic.detailsPageState.galleryMetadata?.japaneseTitle ??
+          logic.detailsPageState.galleryMetadata?.title ??
+          '';
+  
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ThumbnailsPageLogic>(
@@ -44,7 +52,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   AppBar buildAppBar() {
     return AppBar(
-      title: Text(logic.detailsPageState.gallery?.title ?? '', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+      title: Text(_mainTitleText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
         IconButton(
           icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
@@ -84,7 +92,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   SchedulerBinding.instance.addPostFrameCallback((_) => logic.loadMoreThumbnails());
                 }
 
-                GalleryImage? downloadedImage = logic.detailsPageLogic.galleryDownloadService.galleryDownloadInfos[logic.detailsPageState.gallery!.gid]
+                GalleryImage? downloadedImage = logic.detailsPageLogic.galleryDownloadService.galleryDownloadInfos[logic.detailsPageState.galleryDetails!.galleryUrl.gid]
                     ?.images[state.absoluteIndexOfThumbnails[index]];
 
                 return KeepAliveWrapper(
