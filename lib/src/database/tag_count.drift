@@ -1,6 +1,0 @@
-CREATE TABLE tag_count
-(
-    namespaceWithKey TEXT NOT NULL, -- raw namespace&tagName
-    count            INT  NOT NULL, -- gallerys count with this tag
-    primary key (namespaceWithKey)
-);
