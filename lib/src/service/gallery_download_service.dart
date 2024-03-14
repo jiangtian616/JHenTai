@@ -319,7 +319,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     update(['$galleryDownloadSuccessId::${gallery.gid}', '$galleryDownloadProgressId::${gallery.gid}']);
 
-    _processImage(gallery, serialNo);
+    _reParseImageUrlAndDownload(gallery, serialNo);
   }
 
   Future<void> assignPriority(GalleryDownloadedData gallery, int priority) async {
