@@ -520,6 +520,7 @@ class zh_CN {
       'chooseGroup': '选择分组',
       'renameGroup': '重命名分组',
       'deleteGroup': '删除分组',
+      'existingGroup': '现有分组',
       'groupName': '分组名称',
       'drag2sort': '拖拽以排序',
       'switch2GridMode': '切换至网格模式',

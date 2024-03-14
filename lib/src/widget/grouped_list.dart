@@ -86,6 +86,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   void dispose() {
     super.dispose();
 
+    logic.dispose();
     controller.detach();
   }
 

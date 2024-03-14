@@ -520,6 +520,7 @@ class en_US {
       'chooseGroup': 'Choose Group',
       'renameGroup': 'Rename Group',
       'deleteGroup': 'Delete Group',
+      'existingGroup': 'Existing Group',
       'groupName': 'Group Name',
       'drag2sort': 'Drag to Sort',
       'switch2GridMode': 'Switch to Grid Mode',

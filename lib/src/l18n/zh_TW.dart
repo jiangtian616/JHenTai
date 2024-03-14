@@ -518,6 +518,7 @@ class zh_TW {
       'chooseGroup': '選擇分組',
       'renameGroup': '重命名分組',
       'deleteGroup': '刪除分組',
+      'existingGroup': '現有分組',
       'groupName': '分組名稱',
       'drag2sort': '拖拽以排序',
       'switch2GridMode': '切換至網格模式',

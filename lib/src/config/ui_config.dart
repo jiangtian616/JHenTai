@@ -409,8 +409,10 @@ class UIConfig {
   static TextStyle settingPageListTileTrailingTextStyle(BuildContext context) => TextStyle(color: onBackGroundColor(context), fontSize: 14);
 
   /// Group selector
-  static const double groupSelectorHeight = 100;
+  static const double groupSelectorHeight = 116;
   static const double groupSelectorWidth = 230;
+  static const double groupSelectorChipsHintHeight = 16;
+  static const double groupSelectorChipsHintTextSize = 9;
   static const double groupSelectorChipsHeight = 40;
   static const double groupSelectorChipTextSize = 11;
 

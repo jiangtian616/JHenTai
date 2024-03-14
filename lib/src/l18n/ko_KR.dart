@@ -520,6 +520,7 @@ class ko_KR {
       'chooseGroup': '선택한 그룹',
       'renameGroup': '그룹 이름 변경',
       'deleteGroup': '그룹 삭제',
+      'existingGroup': 'Existing Group',
       'groupName': '그룹 이름',
       'drag2sort': '드래그로 정렬',
       'switch2GridMode': '그리드 모드로 전환',

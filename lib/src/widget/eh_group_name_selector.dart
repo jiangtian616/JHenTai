@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
 import '../config/ui_config.dart';
+
+class EHGroupNameSelectorLogic extends GetxController {}
 
 class EHGroupNameSelector extends StatefulWidget {
   final String? currentGroup;
@@ -17,7 +20,13 @@ class EHGroupNameSelector extends StatefulWidget {
 }
 
 class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
+  EHGroupNameSelectorLogic logic = EHGroupNameSelectorLogic();
+
   TextEditingController textEditingController = TextEditingController();
+
+  bool hasSelectedCandidate = false;
+
+  static const String chipsId = 'chipsId';
 
   @override
   void initState() {
@@ -29,6 +38,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
 
     if (widget.currentGroup != null) {
       textEditingController.text = widget.currentGroup!;
+      _updateSelectedCandidate();
     }
 
     super.initState();
@@ -37,6 +47,8 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
   @override
   void dispose() {
     super.dispose();
+
+    logic.dispose();
     textEditingController.dispose();
   }
 
@@ -48,9 +60,22 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (widget.candidates.isNotEmpty) _buildChipsHint(),
           if (widget.candidates.isNotEmpty) _buildChips(),
           _buildTextField().marginOnly(left: 4),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChipsHint() {
+    return Container(
+      height: UIConfig.groupSelectorChipsHintHeight,
+      alignment: Alignment.centerLeft,
+      padding: const EdgeInsets.only(left: 6),
+      child: Text(
+        'existingGroup'.tr,
+        style: TextStyle(fontSize: UIConfig.groupSelectorChipsHintTextSize, color: UIConfig.primaryColor(context)),
       ),
     );
   }
@@ -59,11 +84,16 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
     return SizedBox(
       height: UIConfig.groupSelectorChipsHeight,
       child: Center(
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          padding: EdgeInsets.zero,
-          itemCount: widget.candidates.length,
-          itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
+        child: GetBuilder<EHGroupNameSelectorLogic>(
+          id: chipsId,
+          global: false,
+          init: logic,
+          builder: (_) => ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.zero,
+            itemCount: widget.candidates.length,
+            itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
+          ),
         ),
       ),
     );
@@ -74,7 +104,10 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
       text: widget.candidates[index],
       selected: textEditingController.value.text == widget.candidates[index],
       onTap: () {
-        setState(() => textEditingController.text = widget.candidates[index]);
+        setState(() {
+          textEditingController.text = widget.candidates[index];
+          _updateSelectedCandidate();
+        });
       },
     );
   }
@@ -90,8 +123,20 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
         ),
         style: const TextStyle(fontSize: UIConfig.groupSelectorTextFieldTextSize),
         controller: textEditingController,
+        onChanged: (value) {
+          bool hasSelectedCandidateBefore = hasSelectedCandidate;
+          _updateSelectedCandidate();
+          bool hasSelectedCandidateAfter = hasSelectedCandidate;
+          if (hasSelectedCandidateBefore != hasSelectedCandidateAfter) {
+            logic.updateSafely([chipsId]);
+          }
+        },
       ),
     );
+  }
+
+  void _updateSelectedCandidate() {
+    hasSelectedCandidate = widget.candidates.contains(textEditingController.text);
   }
 }
 

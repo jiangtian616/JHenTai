@@ -522,6 +522,7 @@ class pt_BR {
       'chooseGroup': 'Escolhar grupo',
       'renameGroup': 'Renomear grupo',
       'deleteGroup': 'Apagar grupo',
+      'existingGroup': 'Existing Group',
       'groupName': 'Nome do grupo',
       'drag2sort': 'Drag to Sort',
       'switch2GridMode': 'Switch to Grid Mode',
