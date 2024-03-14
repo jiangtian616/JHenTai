@@ -600,7 +600,7 @@ class en_US {
       'fileSearchFailed': 'File Search Failed',
       'tab': 'Tab',
       'openGallery': 'Open Gallery',
-      'tapChip2Delete': 'Tap chip to delete',
+      'tapChip2Delete': 'Tap chip to delete\nLong press button to delete all',
 
       /// about page
       'author': 'Author',

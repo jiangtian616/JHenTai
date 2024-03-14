@@ -600,7 +600,7 @@ class zh_CN {
       'fileSearchFailed': '以图搜图失败',
       'tab': '标签页',
       'openGallery': '打开画廊',
-      'tapChip2Delete': '点击小标签删除',
+      'tapChip2Delete': '点击小标签删除单条\n长按按钮删除全部',
 
       /// about page
       'author': '创作者',

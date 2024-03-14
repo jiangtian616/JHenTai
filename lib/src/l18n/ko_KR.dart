@@ -600,7 +600,7 @@ class ko_KR {
       'fileSearchFailed': '파일 검색 실패',
       'tab': '탭',
       'openGallery': 'Open Gallery',
-      'tapChip2Delete': 'Tap chip to delete',
+      'tapChip2Delete': 'Tap chip to delete\nLong press button to delete all',
 
       /// about page
       'author': '제작자',

@@ -598,7 +598,7 @@ class zh_TW {
       'fileSearchFailed': '以圖搜圖失敗',
       'tab': '標簽頁',
       'openGallery': '打开画廊',
-      'tapChip2Delete': '點擊小標簽刪除',
+      'tapChip2Delete': '點擊小標簽刪除單條\n長按按鈕刪除全部',
 
       /// about page
       'author': '創作者',
