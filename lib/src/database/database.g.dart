@@ -507,196 +507,6 @@ class TagCountCompanion extends UpdateCompanion<TagCountData> {
   }
 }
 
-class TagBrowseProgressTable extends Table
-    with TableInfo<TagBrowseProgressTable, TagBrowseProgress> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  TagBrowseProgressTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _keywordMeta =
-      const VerificationMeta('keyword');
-  late final GeneratedColumn<String> keyword = GeneratedColumn<String>(
-      'keyword', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
-  static const VerificationMeta _gidMeta = const VerificationMeta('gid');
-  late final GeneratedColumn<int> gid = GeneratedColumn<int>(
-      'gid', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  @override
-  List<GeneratedColumn> get $columns => [keyword, gid];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tag_browse_progress';
-  @override
-  VerificationContext validateIntegrity(Insertable<TagBrowseProgress> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('keyword')) {
-      context.handle(_keywordMeta,
-          keyword.isAcceptableOrUnknown(data['keyword']!, _keywordMeta));
-    } else if (isInserting) {
-      context.missing(_keywordMeta);
-    }
-    if (data.containsKey('gid')) {
-      context.handle(
-          _gidMeta, gid.isAcceptableOrUnknown(data['gid']!, _gidMeta));
-    } else if (isInserting) {
-      context.missing(_gidMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {keyword};
-  @override
-  TagBrowseProgress map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TagBrowseProgress(
-      keyword: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}keyword'])!,
-      gid: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
-    );
-  }
-
-  @override
-  TagBrowseProgressTable createAlias(String alias) {
-    return TagBrowseProgressTable(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class TagBrowseProgress extends DataClass
-    implements Insertable<TagBrowseProgress> {
-  final String keyword;
-  final int gid;
-  const TagBrowseProgress({required this.keyword, required this.gid});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['keyword'] = Variable<String>(keyword);
-    map['gid'] = Variable<int>(gid);
-    return map;
-  }
-
-  TagBrowseProgressCompanion toCompanion(bool nullToAbsent) {
-    return TagBrowseProgressCompanion(
-      keyword: Value(keyword),
-      gid: Value(gid),
-    );
-  }
-
-  factory TagBrowseProgress.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TagBrowseProgress(
-      keyword: serializer.fromJson<String>(json['keyword']),
-      gid: serializer.fromJson<int>(json['gid']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'keyword': serializer.toJson<String>(keyword),
-      'gid': serializer.toJson<int>(gid),
-    };
-  }
-
-  TagBrowseProgress copyWith({String? keyword, int? gid}) => TagBrowseProgress(
-        keyword: keyword ?? this.keyword,
-        gid: gid ?? this.gid,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('TagBrowseProgress(')
-          ..write('keyword: $keyword, ')
-          ..write('gid: $gid')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(keyword, gid);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TagBrowseProgress &&
-          other.keyword == this.keyword &&
-          other.gid == this.gid);
-}
-
-class TagBrowseProgressCompanion extends UpdateCompanion<TagBrowseProgress> {
-  final Value<String> keyword;
-  final Value<int> gid;
-  final Value<int> rowid;
-  const TagBrowseProgressCompanion({
-    this.keyword = const Value.absent(),
-    this.gid = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TagBrowseProgressCompanion.insert({
-    required String keyword,
-    required int gid,
-    this.rowid = const Value.absent(),
-  })  : keyword = Value(keyword),
-        gid = Value(gid);
-  static Insertable<TagBrowseProgress> custom({
-    Expression<String>? keyword,
-    Expression<int>? gid,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (keyword != null) 'keyword': keyword,
-      if (gid != null) 'gid': gid,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TagBrowseProgressCompanion copyWith(
-      {Value<String>? keyword, Value<int>? gid, Value<int>? rowid}) {
-    return TagBrowseProgressCompanion(
-      keyword: keyword ?? this.keyword,
-      gid: gid ?? this.gid,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (keyword.present) {
-      map['keyword'] = Variable<String>(keyword.value);
-    }
-    if (gid.present) {
-      map['gid'] = Variable<int>(gid.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TagBrowseProgressCompanion(')
-          ..write('keyword: $keyword, ')
-          ..write('gid: $gid, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $OldSuperResolutionInfoTable extends OldSuperResolutionInfo
     with TableInfo<$OldSuperResolutionInfoTable, OldSuperResolutionInfoData> {
   @override
@@ -5579,8 +5389,6 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final Index idxUrl =
       Index('idx_url', 'CREATE INDEX IF NOT EXISTS idx_url ON dio_cache (url)');
   late final TagCount tagCount = TagCount(this);
-  late final TagBrowseProgressTable tagBrowseProgress =
-      TagBrowseProgressTable(this);
   late final $OldSuperResolutionInfoTable oldSuperResolutionInfo =
       $OldSuperResolutionInfoTable(this);
   late final $SuperResolutionInfoTable superResolutionInfo =
@@ -5692,24 +5500,6 @@ abstract class _$AppDb extends GeneratedDatabase {
     );
   }
 
-  Selectable<TagBrowseProgress> selectTagBrowseProgress(String keyword) {
-    return customSelect('SELECT * FROM tag_browse_progress WHERE keyword = ?1',
-        variables: [
-          Variable<String>(keyword)
-        ],
-        readsFrom: {
-          tagBrowseProgress,
-        }).asyncMap(tagBrowseProgress.mapFromRow);
-  }
-
-  Future<int> updateTagBrowseProgress(String keyword, int gid) {
-    return customInsert(
-      'INSERT OR IGNORE INTO tag_browse_progress (keyword, gid) VALUES (?1, ?2) ON CONFLICT (keyword) DO UPDATE SET gid = ?2 AND gid > ?2 WHERE keyword = ?1',
-      variables: [Variable<String>(keyword), Variable<int>(gid)],
-      updates: {tagBrowseProgress},
-    );
-  }
-
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5719,7 +5509,6 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxExpireDate,
         idxUrl,
         tagCount,
-        tagBrowseProgress,
         oldSuperResolutionInfo,
         superResolutionInfo,
         tag,

@@ -37,7 +37,6 @@ part 'database.g.dart';
 
 @DriftDatabase(
   include: {
-    'tag_browse_progress.drift',
     'tag_count.drift',
     'dio_cache.drift',
   },
@@ -106,9 +105,6 @@ class AppDb extends _$AppDb {
           }
           if (from < 10) {
             await _deleteImageSizeColumn(m);
-          }
-          if (from < 12) {
-            await m.createTable(tagBrowseProgress);
           }
           if (from < 13) {
             await m.createTable(superResolutionInfo);

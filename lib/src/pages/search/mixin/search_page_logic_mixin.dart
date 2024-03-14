@@ -295,26 +295,4 @@ mixin SearchPageLogicMixin on BasePageLogic {
     storageService.write('enableSearchHistoryTranslation', state.enableSearchHistoryTranslation);
     update([suggestionBodyId]);
   }
-
-  void recordBrowseProgress(Gallery gallery) {
-    if (state.loadingState == LoadingState.loading) {
-      return;
-    }
-
-    String oldKeyword = state.searchConfig.computeFullKeywordsWithLanguage();
-
-    recordDebouncing.debounce(() {
-      if (state.loadingState == LoadingState.loading) {
-        return;
-      }
-
-      String currentKeyword = state.searchConfig.computeFullKeywordsWithLanguage();
-      if (oldKeyword != currentKeyword) {
-        return;
-      }
-
-      Log.verbose('record browse progress, keyword:$currentKeyword, gid:${gallery.gid},');
-      appDb.updateTagBrowseProgress(currentKeyword, gallery.gid);
-    });
-  }
 }
