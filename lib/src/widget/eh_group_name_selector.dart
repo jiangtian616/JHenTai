@@ -72,10 +72,10 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
     return Container(
       height: UIConfig.groupSelectorChipsHintHeight,
       alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.only(left: 6),
+      padding: const EdgeInsets.only(left: 4),
       child: Text(
         'existingGroup'.tr,
-        style: TextStyle(fontSize: UIConfig.groupSelectorChipsHintTextSize, color: UIConfig.primaryColor(context)),
+        style: TextStyle(fontSize: UIConfig.groupSelectorChipsHintTextSize),
       ),
     );
   }
