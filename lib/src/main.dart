@@ -117,7 +117,7 @@ Future<void> init() async {
       return;
     }
 
-    Log.error(details.exception, null, details.stack);
+    Log.error('Global Error', details.exception, details.stack);
     Log.uploadError(details.exception, stackTrace: details.stack);
   };
 
