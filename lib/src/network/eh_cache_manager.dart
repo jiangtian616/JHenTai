@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 
@@ -128,14 +129,14 @@ class EHCacheManager extends Interceptor {
   Future<void> _saveResponse(Response response, CacheOptions cacheOptions) async {
     CacheResponse cacheResponse = CacheResponse.fromResponse(response, cacheOptions);
 
-    await _getCacheStore(cacheOptions).insertOrUpdate(cacheResponse);
+    await _getCacheStore(cacheOptions).upsertCache(cacheResponse);
 
     response.extra[CacheResponse.extraKey] = cacheResponse.cacheKey;
   }
 
   Future<CacheResponse> _updateCacheResponse(CacheResponse cacheResponse, CacheOptions cacheOptions) async {
     CacheResponse newCacheResponse = cacheResponse.copyWith(expireDate: DateTime.now().add(cacheOptions.expire));
-    await _getCacheStore(cacheOptions).insertOrUpdate(newCacheResponse);
+    await _getCacheStore(cacheOptions).upsertCache(newCacheResponse);
     return newCacheResponse;
   }
 
@@ -285,23 +286,23 @@ class SqliteCacheStore {
   }
 
   Future<void> cleanExpired() {
-    return appDb.deleteCacheByDate(DateTime.now());
+    return DioCacheDao.deleteCacheByDate(DateTime.now());
   }
 
   Future<void> cleanAll() {
-    return appDb.deleteAllCache();
+    return DioCacheDao.deleteAllCache();
   }
 
   Future<void> delete(String key) {
-    return appDb.deleteByCacheKey(key);
+    return DioCacheDao.deleteByCacheKey(key);
   }
 
   Future<void> deleteWithUrlPrefix(String urlPrefix) {
-    return appDb.deleteCacheLikeUrl(urlPrefix + '%');
+    return DioCacheDao.deleteCacheLikeUrl(urlPrefix + '%');
   }
 
   Future<CacheResponse?> get(String key) {
-    Future<DioCacheData?> future = appDb.selectByCacheKey(key).getSingleOrNull();
+    Future<DioCacheData?> future = DioCacheDao.selectByCacheKey(key);
 
     return future.then((value) {
       if (value == null) {
@@ -311,13 +312,15 @@ class SqliteCacheStore {
     });
   }
 
-  Future<void> insertOrUpdate(CacheResponse response) {
-    return appDb.insertOrUpdateCache(
-      response.cacheKey,
-      response.url,
-      response.expireDate,
-      response.content,
-      response.headers,
+  Future<void> upsertCache(CacheResponse response) {
+    return DioCacheDao.upsertCache(
+      DioCacheData(
+        url: response.url,
+        cacheKey: response.cacheKey,
+        content: response.content,
+        headers: response.headers,
+        expireDate: response.expireDate,
+      ),
     );
   }
 }

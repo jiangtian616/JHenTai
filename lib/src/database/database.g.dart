@@ -3,510 +3,6 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class DioCache extends Table with TableInfo<DioCache, DioCacheData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  DioCache(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _cacheKeyMeta =
-      const VerificationMeta('cacheKey');
-  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
-      'cacheKey', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL PRIMARY KEY');
-  static const VerificationMeta _urlMeta = const VerificationMeta('url');
-  late final GeneratedColumn<String> url = GeneratedColumn<String>(
-      'url', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _expireDateMeta =
-      const VerificationMeta('expireDate');
-  late final GeneratedColumn<DateTime> expireDate = GeneratedColumn<DateTime>(
-      'expireDate', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _contentMeta =
-      const VerificationMeta('content');
-  late final GeneratedColumn<Uint8List> content = GeneratedColumn<Uint8List>(
-      'content', aliasedName, false,
-      type: DriftSqlType.blob,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _headersMeta =
-      const VerificationMeta('headers');
-  late final GeneratedColumn<Uint8List> headers = GeneratedColumn<Uint8List>(
-      'headers', aliasedName, false,
-      type: DriftSqlType.blob,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  @override
-  List<GeneratedColumn> get $columns =>
-      [cacheKey, url, expireDate, content, headers];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'dio_cache';
-  @override
-  VerificationContext validateIntegrity(Insertable<DioCacheData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('cacheKey')) {
-      context.handle(_cacheKeyMeta,
-          cacheKey.isAcceptableOrUnknown(data['cacheKey']!, _cacheKeyMeta));
-    } else if (isInserting) {
-      context.missing(_cacheKeyMeta);
-    }
-    if (data.containsKey('url')) {
-      context.handle(
-          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
-    } else if (isInserting) {
-      context.missing(_urlMeta);
-    }
-    if (data.containsKey('expireDate')) {
-      context.handle(
-          _expireDateMeta,
-          expireDate.isAcceptableOrUnknown(
-              data['expireDate']!, _expireDateMeta));
-    } else if (isInserting) {
-      context.missing(_expireDateMeta);
-    }
-    if (data.containsKey('content')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
-    } else if (isInserting) {
-      context.missing(_contentMeta);
-    }
-    if (data.containsKey('headers')) {
-      context.handle(_headersMeta,
-          headers.isAcceptableOrUnknown(data['headers']!, _headersMeta));
-    } else if (isInserting) {
-      context.missing(_headersMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {cacheKey};
-  @override
-  DioCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DioCacheData(
-      cacheKey: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}cacheKey'])!,
-      url: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
-      expireDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}expireDate'])!,
-      content: attachedDatabase.typeMapping
-          .read(DriftSqlType.blob, data['${effectivePrefix}content'])!,
-      headers: attachedDatabase.typeMapping
-          .read(DriftSqlType.blob, data['${effectivePrefix}headers'])!,
-    );
-  }
-
-  @override
-  DioCache createAlias(String alias) {
-    return DioCache(attachedDatabase, alias);
-  }
-
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class DioCacheData extends DataClass implements Insertable<DioCacheData> {
-  final String cacheKey;
-  final String url;
-  final DateTime expireDate;
-  final Uint8List content;
-  final Uint8List headers;
-  const DioCacheData(
-      {required this.cacheKey,
-      required this.url,
-      required this.expireDate,
-      required this.content,
-      required this.headers});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['cacheKey'] = Variable<String>(cacheKey);
-    map['url'] = Variable<String>(url);
-    map['expireDate'] = Variable<DateTime>(expireDate);
-    map['content'] = Variable<Uint8List>(content);
-    map['headers'] = Variable<Uint8List>(headers);
-    return map;
-  }
-
-  DioCacheCompanion toCompanion(bool nullToAbsent) {
-    return DioCacheCompanion(
-      cacheKey: Value(cacheKey),
-      url: Value(url),
-      expireDate: Value(expireDate),
-      content: Value(content),
-      headers: Value(headers),
-    );
-  }
-
-  factory DioCacheData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DioCacheData(
-      cacheKey: serializer.fromJson<String>(json['cacheKey']),
-      url: serializer.fromJson<String>(json['url']),
-      expireDate: serializer.fromJson<DateTime>(json['expireDate']),
-      content: serializer.fromJson<Uint8List>(json['content']),
-      headers: serializer.fromJson<Uint8List>(json['headers']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'cacheKey': serializer.toJson<String>(cacheKey),
-      'url': serializer.toJson<String>(url),
-      'expireDate': serializer.toJson<DateTime>(expireDate),
-      'content': serializer.toJson<Uint8List>(content),
-      'headers': serializer.toJson<Uint8List>(headers),
-    };
-  }
-
-  DioCacheData copyWith(
-          {String? cacheKey,
-          String? url,
-          DateTime? expireDate,
-          Uint8List? content,
-          Uint8List? headers}) =>
-      DioCacheData(
-        cacheKey: cacheKey ?? this.cacheKey,
-        url: url ?? this.url,
-        expireDate: expireDate ?? this.expireDate,
-        content: content ?? this.content,
-        headers: headers ?? this.headers,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('DioCacheData(')
-          ..write('cacheKey: $cacheKey, ')
-          ..write('url: $url, ')
-          ..write('expireDate: $expireDate, ')
-          ..write('content: $content, ')
-          ..write('headers: $headers')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(cacheKey, url, expireDate,
-      $driftBlobEquality.hash(content), $driftBlobEquality.hash(headers));
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is DioCacheData &&
-          other.cacheKey == this.cacheKey &&
-          other.url == this.url &&
-          other.expireDate == this.expireDate &&
-          $driftBlobEquality.equals(other.content, this.content) &&
-          $driftBlobEquality.equals(other.headers, this.headers));
-}
-
-class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
-  final Value<String> cacheKey;
-  final Value<String> url;
-  final Value<DateTime> expireDate;
-  final Value<Uint8List> content;
-  final Value<Uint8List> headers;
-  final Value<int> rowid;
-  const DioCacheCompanion({
-    this.cacheKey = const Value.absent(),
-    this.url = const Value.absent(),
-    this.expireDate = const Value.absent(),
-    this.content = const Value.absent(),
-    this.headers = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  DioCacheCompanion.insert({
-    required String cacheKey,
-    required String url,
-    required DateTime expireDate,
-    required Uint8List content,
-    required Uint8List headers,
-    this.rowid = const Value.absent(),
-  })  : cacheKey = Value(cacheKey),
-        url = Value(url),
-        expireDate = Value(expireDate),
-        content = Value(content),
-        headers = Value(headers);
-  static Insertable<DioCacheData> custom({
-    Expression<String>? cacheKey,
-    Expression<String>? url,
-    Expression<DateTime>? expireDate,
-    Expression<Uint8List>? content,
-    Expression<Uint8List>? headers,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (cacheKey != null) 'cacheKey': cacheKey,
-      if (url != null) 'url': url,
-      if (expireDate != null) 'expireDate': expireDate,
-      if (content != null) 'content': content,
-      if (headers != null) 'headers': headers,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  DioCacheCompanion copyWith(
-      {Value<String>? cacheKey,
-      Value<String>? url,
-      Value<DateTime>? expireDate,
-      Value<Uint8List>? content,
-      Value<Uint8List>? headers,
-      Value<int>? rowid}) {
-    return DioCacheCompanion(
-      cacheKey: cacheKey ?? this.cacheKey,
-      url: url ?? this.url,
-      expireDate: expireDate ?? this.expireDate,
-      content: content ?? this.content,
-      headers: headers ?? this.headers,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (cacheKey.present) {
-      map['cacheKey'] = Variable<String>(cacheKey.value);
-    }
-    if (url.present) {
-      map['url'] = Variable<String>(url.value);
-    }
-    if (expireDate.present) {
-      map['expireDate'] = Variable<DateTime>(expireDate.value);
-    }
-    if (content.present) {
-      map['content'] = Variable<Uint8List>(content.value);
-    }
-    if (headers.present) {
-      map['headers'] = Variable<Uint8List>(headers.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DioCacheCompanion(')
-          ..write('cacheKey: $cacheKey, ')
-          ..write('url: $url, ')
-          ..write('expireDate: $expireDate, ')
-          ..write('content: $content, ')
-          ..write('headers: $headers, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class TagCount extends Table with TableInfo<TagCount, TagCountData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  TagCount(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _namespaceWithKeyMeta =
-      const VerificationMeta('namespaceWithKey');
-  late final GeneratedColumn<String> namespaceWithKey = GeneratedColumn<String>(
-      'namespaceWithKey', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  static const VerificationMeta _countMeta = const VerificationMeta('count');
-  late final GeneratedColumn<int> count = GeneratedColumn<int>(
-      'count', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: true,
-      $customConstraints: 'NOT NULL');
-  @override
-  List<GeneratedColumn> get $columns => [namespaceWithKey, count];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tag_count';
-  @override
-  VerificationContext validateIntegrity(Insertable<TagCountData> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('namespaceWithKey')) {
-      context.handle(
-          _namespaceWithKeyMeta,
-          namespaceWithKey.isAcceptableOrUnknown(
-              data['namespaceWithKey']!, _namespaceWithKeyMeta));
-    } else if (isInserting) {
-      context.missing(_namespaceWithKeyMeta);
-    }
-    if (data.containsKey('count')) {
-      context.handle(
-          _countMeta, count.isAcceptableOrUnknown(data['count']!, _countMeta));
-    } else if (isInserting) {
-      context.missing(_countMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {namespaceWithKey};
-  @override
-  TagCountData map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return TagCountData(
-      namespaceWithKey: attachedDatabase.typeMapping.read(
-          DriftSqlType.string, data['${effectivePrefix}namespaceWithKey'])!,
-      count: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}count'])!,
-    );
-  }
-
-  @override
-  TagCount createAlias(String alias) {
-    return TagCount(attachedDatabase, alias);
-  }
-
-  @override
-  List<String> get customConstraints => const ['PRIMARY KEY(namespaceWithKey)'];
-  @override
-  bool get dontWriteConstraints => true;
-}
-
-class TagCountData extends DataClass implements Insertable<TagCountData> {
-  final String namespaceWithKey;
-
-  /// raw namespace&tagName
-  final int count;
-  const TagCountData({required this.namespaceWithKey, required this.count});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['namespaceWithKey'] = Variable<String>(namespaceWithKey);
-    map['count'] = Variable<int>(count);
-    return map;
-  }
-
-  TagCountCompanion toCompanion(bool nullToAbsent) {
-    return TagCountCompanion(
-      namespaceWithKey: Value(namespaceWithKey),
-      count: Value(count),
-    );
-  }
-
-  factory TagCountData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return TagCountData(
-      namespaceWithKey: serializer.fromJson<String>(json['namespaceWithKey']),
-      count: serializer.fromJson<int>(json['count']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'namespaceWithKey': serializer.toJson<String>(namespaceWithKey),
-      'count': serializer.toJson<int>(count),
-    };
-  }
-
-  TagCountData copyWith({String? namespaceWithKey, int? count}) => TagCountData(
-        namespaceWithKey: namespaceWithKey ?? this.namespaceWithKey,
-        count: count ?? this.count,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('TagCountData(')
-          ..write('namespaceWithKey: $namespaceWithKey, ')
-          ..write('count: $count')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(namespaceWithKey, count);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is TagCountData &&
-          other.namespaceWithKey == this.namespaceWithKey &&
-          other.count == this.count);
-}
-
-class TagCountCompanion extends UpdateCompanion<TagCountData> {
-  final Value<String> namespaceWithKey;
-  final Value<int> count;
-  final Value<int> rowid;
-  const TagCountCompanion({
-    this.namespaceWithKey = const Value.absent(),
-    this.count = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  TagCountCompanion.insert({
-    required String namespaceWithKey,
-    required int count,
-    this.rowid = const Value.absent(),
-  })  : namespaceWithKey = Value(namespaceWithKey),
-        count = Value(count);
-  static Insertable<TagCountData> custom({
-    Expression<String>? namespaceWithKey,
-    Expression<int>? count,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (namespaceWithKey != null) 'namespaceWithKey': namespaceWithKey,
-      if (count != null) 'count': count,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  TagCountCompanion copyWith(
-      {Value<String>? namespaceWithKey, Value<int>? count, Value<int>? rowid}) {
-    return TagCountCompanion(
-      namespaceWithKey: namespaceWithKey ?? this.namespaceWithKey,
-      count: count ?? this.count,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (namespaceWithKey.present) {
-      map['namespaceWithKey'] = Variable<String>(namespaceWithKey.value);
-    }
-    if (count.present) {
-      map['count'] = Variable<int>(count.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('TagCountCompanion(')
-          ..write('namespaceWithKey: $namespaceWithKey, ')
-          ..write('count: $count, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $OldSuperResolutionInfoTable extends OldSuperResolutionInfo
     with TableInfo<$OldSuperResolutionInfoTable, OldSuperResolutionInfoData> {
   @override
@@ -5381,14 +4877,497 @@ class GalleryHistoryCompanion extends UpdateCompanion<GalleryHistoryData> {
   }
 }
 
+class $TagCountTable extends TagCount
+    with TableInfo<$TagCountTable, TagCountData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TagCountTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _namespaceWithKeyMeta =
+      const VerificationMeta('namespaceWithKey');
+  @override
+  late final GeneratedColumn<String> namespaceWithKey = GeneratedColumn<String>(
+      'namespaceWithKey', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _countMeta = const VerificationMeta('count');
+  @override
+  late final GeneratedColumn<int> count = GeneratedColumn<int>(
+      'count', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [namespaceWithKey, count];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tag_count';
+  @override
+  VerificationContext validateIntegrity(Insertable<TagCountData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('namespaceWithKey')) {
+      context.handle(
+          _namespaceWithKeyMeta,
+          namespaceWithKey.isAcceptableOrUnknown(
+              data['namespaceWithKey']!, _namespaceWithKeyMeta));
+    } else if (isInserting) {
+      context.missing(_namespaceWithKeyMeta);
+    }
+    if (data.containsKey('count')) {
+      context.handle(
+          _countMeta, count.isAcceptableOrUnknown(data['count']!, _countMeta));
+    } else if (isInserting) {
+      context.missing(_countMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {namespaceWithKey};
+  @override
+  TagCountData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TagCountData(
+      namespaceWithKey: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}namespaceWithKey'])!,
+      count: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}count'])!,
+    );
+  }
+
+  @override
+  $TagCountTable createAlias(String alias) {
+    return $TagCountTable(attachedDatabase, alias);
+  }
+}
+
+class TagCountData extends DataClass implements Insertable<TagCountData> {
+  final String namespaceWithKey;
+  final int count;
+  const TagCountData({required this.namespaceWithKey, required this.count});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['namespaceWithKey'] = Variable<String>(namespaceWithKey);
+    map['count'] = Variable<int>(count);
+    return map;
+  }
+
+  TagCountCompanion toCompanion(bool nullToAbsent) {
+    return TagCountCompanion(
+      namespaceWithKey: Value(namespaceWithKey),
+      count: Value(count),
+    );
+  }
+
+  factory TagCountData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TagCountData(
+      namespaceWithKey: serializer.fromJson<String>(json['namespaceWithKey']),
+      count: serializer.fromJson<int>(json['count']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'namespaceWithKey': serializer.toJson<String>(namespaceWithKey),
+      'count': serializer.toJson<int>(count),
+    };
+  }
+
+  TagCountData copyWith({String? namespaceWithKey, int? count}) => TagCountData(
+        namespaceWithKey: namespaceWithKey ?? this.namespaceWithKey,
+        count: count ?? this.count,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TagCountData(')
+          ..write('namespaceWithKey: $namespaceWithKey, ')
+          ..write('count: $count')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(namespaceWithKey, count);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TagCountData &&
+          other.namespaceWithKey == this.namespaceWithKey &&
+          other.count == this.count);
+}
+
+class TagCountCompanion extends UpdateCompanion<TagCountData> {
+  final Value<String> namespaceWithKey;
+  final Value<int> count;
+  final Value<int> rowid;
+  const TagCountCompanion({
+    this.namespaceWithKey = const Value.absent(),
+    this.count = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TagCountCompanion.insert({
+    required String namespaceWithKey,
+    required int count,
+    this.rowid = const Value.absent(),
+  })  : namespaceWithKey = Value(namespaceWithKey),
+        count = Value(count);
+  static Insertable<TagCountData> custom({
+    Expression<String>? namespaceWithKey,
+    Expression<int>? count,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (namespaceWithKey != null) 'namespaceWithKey': namespaceWithKey,
+      if (count != null) 'count': count,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TagCountCompanion copyWith(
+      {Value<String>? namespaceWithKey, Value<int>? count, Value<int>? rowid}) {
+    return TagCountCompanion(
+      namespaceWithKey: namespaceWithKey ?? this.namespaceWithKey,
+      count: count ?? this.count,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (namespaceWithKey.present) {
+      map['namespaceWithKey'] = Variable<String>(namespaceWithKey.value);
+    }
+    if (count.present) {
+      map['count'] = Variable<int>(count.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TagCountCompanion(')
+          ..write('namespaceWithKey: $namespaceWithKey, ')
+          ..write('count: $count, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DioCacheTable extends DioCache
+    with TableInfo<$DioCacheTable, DioCacheData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DioCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cacheKeyMeta =
+      const VerificationMeta('cacheKey');
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+      'cacheKey', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _expireDateMeta =
+      const VerificationMeta('expireDate');
+  @override
+  late final GeneratedColumn<DateTime> expireDate = GeneratedColumn<DateTime>(
+      'expireDate', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<Uint8List> content = GeneratedColumn<Uint8List>(
+      'content', aliasedName, false,
+      type: DriftSqlType.blob, requiredDuringInsert: true);
+  static const VerificationMeta _headersMeta =
+      const VerificationMeta('headers');
+  @override
+  late final GeneratedColumn<Uint8List> headers = GeneratedColumn<Uint8List>(
+      'headers', aliasedName, false,
+      type: DriftSqlType.blob, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [cacheKey, url, expireDate, content, headers];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'dio_cache';
+  @override
+  VerificationContext validateIntegrity(Insertable<DioCacheData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cacheKey')) {
+      context.handle(_cacheKeyMeta,
+          cacheKey.isAcceptableOrUnknown(data['cacheKey']!, _cacheKeyMeta));
+    } else if (isInserting) {
+      context.missing(_cacheKeyMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('expireDate')) {
+      context.handle(
+          _expireDateMeta,
+          expireDate.isAcceptableOrUnknown(
+              data['expireDate']!, _expireDateMeta));
+    } else if (isInserting) {
+      context.missing(_expireDateMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('headers')) {
+      context.handle(_headersMeta,
+          headers.isAcceptableOrUnknown(data['headers']!, _headersMeta));
+    } else if (isInserting) {
+      context.missing(_headersMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cacheKey};
+  @override
+  DioCacheData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DioCacheData(
+      cacheKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cacheKey'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      expireDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}expireDate'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}content'])!,
+      headers: attachedDatabase.typeMapping
+          .read(DriftSqlType.blob, data['${effectivePrefix}headers'])!,
+    );
+  }
+
+  @override
+  $DioCacheTable createAlias(String alias) {
+    return $DioCacheTable(attachedDatabase, alias);
+  }
+}
+
+class DioCacheData extends DataClass implements Insertable<DioCacheData> {
+  final String cacheKey;
+  final String url;
+  final DateTime expireDate;
+  final Uint8List content;
+  final Uint8List headers;
+  const DioCacheData(
+      {required this.cacheKey,
+      required this.url,
+      required this.expireDate,
+      required this.content,
+      required this.headers});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cacheKey'] = Variable<String>(cacheKey);
+    map['url'] = Variable<String>(url);
+    map['expireDate'] = Variable<DateTime>(expireDate);
+    map['content'] = Variable<Uint8List>(content);
+    map['headers'] = Variable<Uint8List>(headers);
+    return map;
+  }
+
+  DioCacheCompanion toCompanion(bool nullToAbsent) {
+    return DioCacheCompanion(
+      cacheKey: Value(cacheKey),
+      url: Value(url),
+      expireDate: Value(expireDate),
+      content: Value(content),
+      headers: Value(headers),
+    );
+  }
+
+  factory DioCacheData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DioCacheData(
+      cacheKey: serializer.fromJson<String>(json['cacheKey']),
+      url: serializer.fromJson<String>(json['url']),
+      expireDate: serializer.fromJson<DateTime>(json['expireDate']),
+      content: serializer.fromJson<Uint8List>(json['content']),
+      headers: serializer.fromJson<Uint8List>(json['headers']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cacheKey': serializer.toJson<String>(cacheKey),
+      'url': serializer.toJson<String>(url),
+      'expireDate': serializer.toJson<DateTime>(expireDate),
+      'content': serializer.toJson<Uint8List>(content),
+      'headers': serializer.toJson<Uint8List>(headers),
+    };
+  }
+
+  DioCacheData copyWith(
+          {String? cacheKey,
+          String? url,
+          DateTime? expireDate,
+          Uint8List? content,
+          Uint8List? headers}) =>
+      DioCacheData(
+        cacheKey: cacheKey ?? this.cacheKey,
+        url: url ?? this.url,
+        expireDate: expireDate ?? this.expireDate,
+        content: content ?? this.content,
+        headers: headers ?? this.headers,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('DioCacheData(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('url: $url, ')
+          ..write('expireDate: $expireDate, ')
+          ..write('content: $content, ')
+          ..write('headers: $headers')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(cacheKey, url, expireDate,
+      $driftBlobEquality.hash(content), $driftBlobEquality.hash(headers));
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DioCacheData &&
+          other.cacheKey == this.cacheKey &&
+          other.url == this.url &&
+          other.expireDate == this.expireDate &&
+          $driftBlobEquality.equals(other.content, this.content) &&
+          $driftBlobEquality.equals(other.headers, this.headers));
+}
+
+class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
+  final Value<String> cacheKey;
+  final Value<String> url;
+  final Value<DateTime> expireDate;
+  final Value<Uint8List> content;
+  final Value<Uint8List> headers;
+  final Value<int> rowid;
+  const DioCacheCompanion({
+    this.cacheKey = const Value.absent(),
+    this.url = const Value.absent(),
+    this.expireDate = const Value.absent(),
+    this.content = const Value.absent(),
+    this.headers = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DioCacheCompanion.insert({
+    required String cacheKey,
+    required String url,
+    required DateTime expireDate,
+    required Uint8List content,
+    required Uint8List headers,
+    this.rowid = const Value.absent(),
+  })  : cacheKey = Value(cacheKey),
+        url = Value(url),
+        expireDate = Value(expireDate),
+        content = Value(content),
+        headers = Value(headers);
+  static Insertable<DioCacheData> custom({
+    Expression<String>? cacheKey,
+    Expression<String>? url,
+    Expression<DateTime>? expireDate,
+    Expression<Uint8List>? content,
+    Expression<Uint8List>? headers,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cacheKey != null) 'cacheKey': cacheKey,
+      if (url != null) 'url': url,
+      if (expireDate != null) 'expireDate': expireDate,
+      if (content != null) 'content': content,
+      if (headers != null) 'headers': headers,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DioCacheCompanion copyWith(
+      {Value<String>? cacheKey,
+      Value<String>? url,
+      Value<DateTime>? expireDate,
+      Value<Uint8List>? content,
+      Value<Uint8List>? headers,
+      Value<int>? rowid}) {
+    return DioCacheCompanion(
+      cacheKey: cacheKey ?? this.cacheKey,
+      url: url ?? this.url,
+      expireDate: expireDate ?? this.expireDate,
+      content: content ?? this.content,
+      headers: headers ?? this.headers,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cacheKey.present) {
+      map['cacheKey'] = Variable<String>(cacheKey.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (expireDate.present) {
+      map['expireDate'] = Variable<DateTime>(expireDate.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<Uint8List>(content.value);
+    }
+    if (headers.present) {
+      map['headers'] = Variable<Uint8List>(headers.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DioCacheCompanion(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('url: $url, ')
+          ..write('expireDate: $expireDate, ')
+          ..write('content: $content, ')
+          ..write('headers: $headers, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
-  late final DioCache dioCache = DioCache(this);
-  late final Index idxExpireDate = Index('idx_expire_date',
-      'CREATE INDEX IF NOT EXISTS idx_expire_date ON dio_cache (expireDate)');
-  late final Index idxUrl =
-      Index('idx_url', 'CREATE INDEX IF NOT EXISTS idx_url ON dio_cache (url)');
-  late final TagCount tagCount = TagCount(this);
   late final $OldSuperResolutionInfoTable oldSuperResolutionInfo =
       $OldSuperResolutionInfoTable(this);
   late final $SuperResolutionInfoTable superResolutionInfo =
@@ -5406,6 +5385,8 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $GalleryGroupTable galleryGroup = $GalleryGroupTable(this);
   late final $ImageTable image = $ImageTable(this);
   late final $GalleryHistoryTable galleryHistory = $GalleryHistoryTable(this);
+  late final $TagCountTable tagCount = $TagCountTable(this);
+  late final $DioCacheTable dioCache = $DioCacheTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -5424,91 +5405,15 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX g_idx_group_name ON gallery_downloaded_v2 (group_name)');
   late final Index idxLastReadTime = Index('idx_last_read_time',
       'CREATE INDEX idx_last_read_time ON gallery_history (lastReadTime)');
-  Selectable<DioCacheData> selectByCacheKey(String cacheKey) {
-    return customSelect('SELECT * FROM dio_cache WHERE cacheKey = ?1',
-        variables: [
-          Variable<String>(cacheKey)
-        ],
-        readsFrom: {
-          dioCache,
-        }).asyncMap(dioCache.mapFromRow);
-  }
-
-  Future<int> insertCache(String cacheKey, String url, DateTime date,
-      Uint8List content, Uint8List header) {
-    return customInsert(
-      'INSERT INTO dio_cache VALUES (?1, ?2, ?3, ?4, ?5)',
-      variables: [
-        Variable<String>(cacheKey),
-        Variable<String>(url),
-        Variable<DateTime>(date),
-        Variable<Uint8List>(content),
-        Variable<Uint8List>(header)
-      ],
-      updates: {dioCache},
-    );
-  }
-
-  Future<int> insertOrUpdateCache(String cacheKey, String url,
-      DateTime expireDate, Uint8List content, Uint8List headers) {
-    return customInsert(
-      'INSERT OR REPLACE INTO dio_cache VALUES (?1, ?2, ?3, ?4, ?5)',
-      variables: [
-        Variable<String>(cacheKey),
-        Variable<String>(url),
-        Variable<DateTime>(expireDate),
-        Variable<Uint8List>(content),
-        Variable<Uint8List>(headers)
-      ],
-      updates: {dioCache},
-    );
-  }
-
-  Future<int> deleteByCacheKey(String cacheKey) {
-    return customUpdate(
-      'DELETE FROM dio_cache WHERE cacheKey = ?1',
-      variables: [Variable<String>(cacheKey)],
-      updates: {dioCache},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> deleteCacheByDate(DateTime date) {
-    return customUpdate(
-      'DELETE FROM dio_cache WHERE expireDate < ?1',
-      variables: [Variable<DateTime>(date)],
-      updates: {dioCache},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> deleteCacheLikeUrl(String url) {
-    return customUpdate(
-      'DELETE FROM dio_cache WHERE url LIKE ?1',
-      variables: [Variable<String>(url)],
-      updates: {dioCache},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
-  Future<int> deleteAllCache() {
-    return customUpdate(
-      'DELETE FROM dio_cache',
-      variables: [],
-      updates: {dioCache},
-      updateKind: UpdateKind.delete,
-    );
-  }
-
+  late final Index idxExpireDate = Index('idx_expire_date',
+      'CREATE INDEX idx_expire_date ON dio_cache (expireDate)');
+  late final Index idxUrl =
+      Index('idx_url', 'CREATE INDEX idx_url ON dio_cache (url)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-        dioCache,
-        idxExpireDate,
-        idxUrl,
-        tagCount,
         oldSuperResolutionInfo,
         superResolutionInfo,
         tag,
@@ -5520,6 +5425,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         galleryGroup,
         image,
         galleryHistory,
+        tagCount,
+        dioCache,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -5528,6 +5435,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         gIdxInsertTime,
         gIdxSortOrder,
         gIdxGroupName,
-        idxLastReadTime
+        idxLastReadTime,
+        idxExpireDate,
+        idxUrl
       ];
 }

@@ -13,12 +13,14 @@ import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/dao/super_resolution_info_dao.dart';
 import 'package:jhentai/src/database/table/archive_downloaded.dart';
 import 'package:jhentai/src/database/table/archive_group.dart';
+import 'package:jhentai/src/database/table/dio_cache.dart';
 import 'package:jhentai/src/database/table/gallery_downloaded.dart';
 import 'package:jhentai/src/database/table/gallery_group.dart';
 import 'package:jhentai/src/database/table/gallery_history.dart';
 import 'package:jhentai/src/database/table/image.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
+import 'package:jhentai/src/database/table/tag_count.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -36,10 +38,6 @@ import 'dao/gallery_dao.dart';
 part 'database.g.dart';
 
 @DriftDatabase(
-  include: {
-    'tag_count.drift',
-    'dio_cache.drift',
-  },
   tables: [
     OldSuperResolutionInfo,
     SuperResolutionInfo,
@@ -52,6 +50,8 @@ part 'database.g.dart';
     GalleryGroup,
     Image,
     GalleryHistory,
+    TagCount,
+    DioCache,
   ],
 )
 class AppDb extends _$AppDb {
