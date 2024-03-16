@@ -1247,11 +1247,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         .map(
           (tag) => EHTag(
             tag: tag,
-            enableTapping: true,
-            gid: state.galleryUrl.gid,
-            token: state.galleryUrl.token,
-            apikey: state.apikey,
-            forceNewRoute: true,
+            onTap: logic.searchTag,
+            onSecondaryTap: logic.showTagDialog,
+            onLongPress: logic.showTagDialog,
             showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,
             onTagVoted: (bool isVoted) {
               logic.onTagVoted(tag, isVoted);

@@ -47,11 +47,13 @@ import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery_detail.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_metadata.dart';
+import '../../model/search_config.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/eh_setting.dart';
+import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
@@ -60,6 +62,7 @@ import '../../utils/toast_util.dart';
 import '../../widget/eh_download_dialog.dart';
 import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/eh_gallery_history_dialog.dart';
+import '../../widget/eh_tag_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
 import 'details_page_state.dart';
 
@@ -721,6 +724,43 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
       archiveDownloadService.deleteArchiveByGid(gid);
     }
+  }
+
+  void searchTag(GalleryTag tag) {
+    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritAll) {
+      return newSearch('${tag.tagData.namespace}:"${tag.tagData.key}\$"', true);
+    }
+
+    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritPartially) {
+      SearchConfig searchConfig = loadSearchPageConfig() ?? SearchConfig();
+      searchConfig.keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
+      searchConfig.language = null;
+      searchConfig.includeDoujinshi = true;
+      searchConfig.includeManga = true;
+      searchConfig.includeArtistCG = true;
+      searchConfig.includeGameCg = true;
+      searchConfig.includeWestern = true;
+      searchConfig.includeNonH = true;
+      searchConfig.includeImageSet = true;
+      searchConfig.includeCosplay = true;
+      searchConfig.includeAsianPorn = true;
+      searchConfig.includeMisc = true;
+      return newSearchWithConfig(searchConfig, true);
+    }
+
+    SearchConfig searchConfig = SearchConfig();
+    searchConfig.keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
+    return newSearchWithConfig(searchConfig, true);
+  }
+
+  void showTagDialog(GalleryTag tag) {
+    Get.dialog(EHTagDialog(
+      tagData: tag.tagData,
+      gid: state.galleryDetails!.galleryUrl.gid,
+      token: state.galleryDetails!.galleryUrl.token,
+      apikey: state.apikey!,
+      onTagVoted: (bool isVoted) => onTagVoted(tag, isVoted),
+    ));
   }
 
   Future<void> handleAddTag(BuildContext context) async {

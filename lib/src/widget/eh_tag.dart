@@ -1,38 +1,26 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/model/search_config.dart';
-import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
-import '../utils/search_util.dart';
-import 'eh_tag_dialog.dart';
 
 class EHTag extends StatefulWidget {
   final GalleryTag tag;
   final bool addNameSpaceColor;
-  final bool enableTapping;
-  final bool forceNewRoute;
+  final ValueChanged<GalleryTag>? onTap;
+  final ValueChanged<GalleryTag>? onSecondaryTap;
+  final ValueChanged<GalleryTag>? onLongPress;
   final bool showTagStatus;
-  final ValueChanged<bool>? onTagVoted;
-
-  final int? gid;
-  final String? token;
-  final String? apikey;
 
   const EHTag({
     Key? key,
     required this.tag,
     this.addNameSpaceColor = false,
-    this.enableTapping = false,
-    this.forceNewRoute = false,
+    this.onTap,
+    this.onSecondaryTap,
+    this.onLongPress,
     required this.showTagStatus,
-    this.onTagVoted,
-    this.gid,
-    this.token,
-    this.apikey,
   }) : super(key: key);
 
   @override
@@ -91,58 +79,23 @@ class _EHTagState extends State<EHTag> {
       child: child,
     );
 
-    if (widget.enableTapping) {
+    if (widget.onTap != null || widget.onSecondaryTap != null || widget.onLongPress != null) {
       child = MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: _searchTag,
-          onSecondaryTap: _showDialog,
-          onLongPress: () {
-            Feedback.forLongPress(context);
-            _showDialog();
-          },
+          onTap: widget.onTap != null ? () => widget.onTap!(widget.tag) : null,
+          onSecondaryTap: widget.onSecondaryTap != null ? () => widget.onSecondaryTap!(widget.tag) : null,
+          onLongPress: widget.onLongPress != null
+              ? () {
+                  Feedback.forLongPress(context);
+                  widget.onLongPress!(widget.tag);
+                }
+              : null,
           child: child,
         ),
       );
     }
 
     return child;
-  }
-
-  void _searchTag() {
-    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritAll) {
-      return newSearch('${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"', widget.forceNewRoute);
-    }
-
-    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritPartially) {
-      SearchConfig searchConfig = loadSearchPageConfig() ?? SearchConfig();
-      searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
-      searchConfig.language = null;
-      searchConfig.includeDoujinshi = true;
-      searchConfig.includeManga = true;
-      searchConfig.includeArtistCG = true;
-      searchConfig.includeGameCg = true;
-      searchConfig.includeWestern = true;
-      searchConfig.includeNonH = true;
-      searchConfig.includeImageSet = true;
-      searchConfig.includeCosplay = true;
-      searchConfig.includeAsianPorn = true;
-      searchConfig.includeMisc = true;
-      return newSearchWithConfig(searchConfig, widget.forceNewRoute);
-    }
-
-    SearchConfig searchConfig = SearchConfig();
-    searchConfig.keyword = '${widget.tag.tagData.namespace}:"${widget.tag.tagData.key}\$"';
-    return newSearchWithConfig(searchConfig, widget.forceNewRoute);
-  }
-
-  void _showDialog() {
-    Get.dialog(EHTagDialog(
-      tagData: widget.tag.tagData,
-      gid: widget.gid!,
-      token: widget.token!,
-      apikey: widget.apikey!,
-      onTagVoted: widget.onTagVoted,
-    ));
   }
 }
