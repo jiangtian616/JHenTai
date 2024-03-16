@@ -431,6 +431,10 @@ class UIConfig {
 
   static Color ehTagUnderLineColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
 
+  static Color ehTagDeleteButtonBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withOpacity(0.25);
+  
+  static Duration ehTagAnimationDuration = const Duration(milliseconds: 200);
+
   /// Gallery card favorite tag
   static const Color galleryCardFavoriteTagTextColor = Colors.white;
 

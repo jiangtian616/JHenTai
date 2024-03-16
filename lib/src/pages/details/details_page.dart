@@ -1238,7 +1238,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         ),
       ),
       addNameSpaceColor: true,
-      showTagStatus: false,
     );
   }
 
@@ -1251,9 +1250,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             onSecondaryTap: logic.showTagDialog,
             onLongPress: logic.showTagDialog,
             showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,
-            onTagVoted: (bool isVoted) {
-              logic.onTagVoted(tag, isVoted);
-            },
           ),
         )
         .toList();

@@ -172,7 +172,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
           child: Wrap(
             spacing: 8,
             runSpacing: 7,
-            children: logic.searchHistoryService.histories.map((history) => buildHistoryChip(history)).toList(),
+            children: logic.searchHistoryService.histories.map(buildHistoryChip).toList(),
           ),
         ),
       ],
@@ -196,27 +196,14 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
                 state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
                 logic.update([logic.searchFieldId]);
               },
-        child: Stack(
-          children: [
-            EHTag(
-              tag: GalleryTag(
-                tagData: TagData(
-                  namespace: '',
-                  key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
-                ),
-              ),
-              showTagStatus: false,
+        child: EHTag(
+          tag: GalleryTag(
+            tagData: TagData(
+              namespace: '',
+              key: state.enableSearchHistoryTranslation ? history.translatedKeyword ?? history.rawKeyword : history.rawKeyword,
             ),
-            if (state.inDeleteSearchHistoryMode)
-              Positioned(
-                right: 0,
-                child: Center(
-                  child: Container(
-                    child: const Icon(Icons.close, size: 12),
-                  ),
-                ),
-              )
-          ],
+          ),
+          inDeleteMode: state.inDeleteSearchHistoryMode,
         ),
       ),
     );
