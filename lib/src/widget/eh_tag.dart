@@ -83,9 +83,9 @@ class _EHTagState extends State<EHTag> with AnimationMixin {
           duration: UIConfig.ehTagAnimationDuration,
           child: inDeleteMode
               ? Container(
-                  child: const Icon(Icons.close, size: 12),
+                  child: const Icon(Icons.close, size: 10),
                   margin: const EdgeInsets.only(left: 4),
-                  padding: const EdgeInsets.all(1),
+                  padding: const EdgeInsets.all(1.5),
                   decoration: BoxDecoration(
                     color: UIConfig.ehTagDeleteButtonBackGroundColor(context),
                     borderRadius: BorderRadius.circular(8),
