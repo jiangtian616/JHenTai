@@ -145,7 +145,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     try {
       detailPageInfo = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
     } on DioException catch (e) {
-      Log.error('Get Gallery Detail Failed', e.errorMsg);
+      Log.error('Get Gallery Detail Failed', e.errorMsg, e.stackTrace);
       snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
@@ -900,8 +900,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         secondLink = state.galleryUrl.url;
       }
     } else {
-      firstLink = state.galleryUrl.url;
-      secondLink = state.galleryUrl.url.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex);
+      /// fallback to EX site only if user has logged in
+      firstLink = UserSetting.hasLoggedIn() ? state.galleryUrl.url : null;
+      secondLink = UserSetting.hasLoggedIn() ? state.galleryUrl.url.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex) : state.galleryUrl.url;
     }
 
     /// if we can't find gallery via firstLink, try second link
