@@ -37,10 +37,10 @@ packages:
     dependency: "direct main"
     description:
       name: animate_do
-      sha256: "4554744e604b841e2bde710398ef3f4f8a1935a182b48727afe2a1023527b883"
+      sha256: "7a3162729f0ea042f9dd84da217c5bde5472ad9cef644079929d4304a5dc4ca0"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.1.0"
+    version: "3.3.4"
   animated_flip_counter:
     dependency: "direct main"
     description:
