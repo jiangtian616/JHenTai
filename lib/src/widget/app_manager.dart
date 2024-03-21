@@ -119,9 +119,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     Log.debug("App state change: -> $state");
 
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      if (SecuritySetting.enableAuthOnResume.isTrue) {
-        lastInactiveTime ??= DateTime.now();
-      }
+      lastInactiveTime = DateTime.now();
 
       if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
         _addBlur();
