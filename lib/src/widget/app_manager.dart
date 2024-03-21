@@ -158,16 +158,14 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     /// so i choose to set FLAG_SECURE to do the same effect.
     if (GetPlatform.isAndroid) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    } else {
-      setState(() => inBlur = true);
     }
+    setState(() => inBlur = true);
   }
 
   void _removeBlur() {
     if (GetPlatform.isAndroid) {
       FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-    } else {
-      setState(() => inBlur = false);
     }
+    setState(() => inBlur = false);
   }
 }
