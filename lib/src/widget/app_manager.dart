@@ -64,9 +64,8 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
     AppManager.registerDidChangePlatformBrightnessCallback(_changeTheme);
-    AppManager.registerDidChangeAppLifecycleStateCallback(_lockAfterResume);
+    AppManager.registerDidChangeAppLifecycleStateCallback(_changeLockStatus);
 
     for (var callback in AppManager._appLaunchCallbacks) {
       callback.call(context);
@@ -103,14 +102,6 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     );
   }
 
-  /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
-  /// so i choose to set FLAG_SECURE to do the same effect.
-  void _addSecureFlagForAndroid(BuildContext context) {
-    if (GetPlatform.isAndroid && (SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue)) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    }
-  }
-
   void _changeTheme() {
     if (StyleSetting.themeMode.value != ThemeMode.system) {
       return;
@@ -124,7 +115,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     Get.rootController.updateSafely();
   }
 
-  void _lockAfterResume(AppLifecycleState state) {
+  void _changeLockStatus(AppLifecycleState state) {
     Log.debug("App state change: -> $state");
 
     if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
@@ -133,7 +124,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
       }
 
       if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
-        setState(() => inBlur = true);
+        _addBlur();
       }
     }
 
@@ -147,19 +138,36 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
       }
 
       if (SecuritySetting.enableAuthOnResume.isFalse) {
-        setState(() => inBlur = false);
+        _removeBlur();
         return;
       }
 
-      if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) &&
-          DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+      if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) && DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
         toRoute(Routes.lock);
-        Future.delayed(const Duration(milliseconds: 300), () => setState(() => inBlur = false));
+        Future.delayed(const Duration(milliseconds: 300), _removeBlur);
         lastInactiveTime = null;
       } else {
-        setState(() => inBlur = false);
+        _removeBlur();
         return;
       }
+    }
+  }
+
+  void _addBlur() {
+    /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
+    /// so i choose to set FLAG_SECURE to do the same effect.
+    if (GetPlatform.isAndroid) {
+      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+    } else {
+      setState(() => inBlur = true);
+    }
+  }
+
+  void _removeBlur() {
+    if (GetPlatform.isAndroid) {
+      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+    } else {
+      setState(() => inBlur = false);
     }
   }
 }

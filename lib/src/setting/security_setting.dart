@@ -1,8 +1,6 @@
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -43,19 +41,9 @@ class SecuritySetting {
     SecuritySetting.enableBlur.value = enableBlur;
     _save();
 
-    if (!GetPlatform.isAndroid) {
-      return;
-    }
-    if (enableBlur) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    } else {
-      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+    if (!enableBlur) {
       saveEnableAuthOnResume(false);
     }
-
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
-    );
   }
 
   static savePassword(String rawPassword) {
