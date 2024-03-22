@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
@@ -106,23 +107,19 @@ class Log {
   static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {}
 
   static Future<String> getSize() async {
-    Directory logDirectory = Directory(logDirPath);
-
-    return logDirectory
-        .exists()
-        .then<int>((exist) {
+    return compute(
+      (logDirPath) {
+        Directory logDirectory = Directory(logDirPath);
+        return logDirectory.exists().then<int>((exist) {
           if (!exist) {
             return 0;
           }
 
           return logDirectory.list().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
-        })
-        .then<String>((totalBytes) => byte2String(totalBytes.toDouble()))
-        .onError((e, stackTrace) {
-          Log.error('getSizeFailed'.tr, error, stackTrace);
-          Log.uploadError(e, extraInfos: {'files': logDirectory.listSync()});
-          return '-1B';
-        });
+        }).then<String>((totalBytes) => byte2String(totalBytes.toDouble()));
+      },
+      logDirPath,
+    );
   }
 
   static Future<void> clear() {
