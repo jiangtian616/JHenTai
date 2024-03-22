@@ -2,6 +2,7 @@ import 'dart:io' as io;
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -15,6 +16,7 @@ import 'package:path/path.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
+import '../../../utils/byte_util.dart';
 import '../../../utils/route_util.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
@@ -26,12 +28,17 @@ class SettingAdvancedPage extends StatefulWidget {
 
 class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _logLoadingState = LoadingState.idle;
-  String _logSize = '0B';
+  String _logSize = '...';
+
+  LoadingState _imageCacheLoadingState = LoadingState.idle;
+  String _imageCacheSize = '...';
 
   @override
   void initState() {
     super.initState();
-    loadingLogSize();
+
+    _loadingLogSize();
+    _getImagesCacheSize();
   }
 
   @override
@@ -97,48 +104,33 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               _logSize,
               style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
             ),
+            errorTapCallback: _loadingLogSize,
           ).marginOnly(right: 8)
         ],
       ),
-      onLongPress: clearAndLoadingLogSize,
+      onLongPress: _clearAndLoadingLogSize,
     );
-  }
-
-  Future<void> loadingLogSize() async {
-    if (_logLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    setStateSafely(() => _logLoadingState = LoadingState.loading);
-    _logSize = await Log.getSize();
-    setStateSafely(() => _logLoadingState = LoadingState.success);
-  }
-
-  Future<void> clearAndLoadingLogSize() async {
-    if (_logLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    setStateSafely(() => _logLoadingState = LoadingState.loading);
-    await Log.clear();
-    _logSize = await Log.getSize();
-    setStateSafely(() => _logLoadingState = LoadingState.success);
-
-    toast('clearSuccess'.tr, isCenter: false);
   }
 
   Widget _buildClearImageCache(BuildContext context) {
     return ListTile(
       title: Text('clearImagesCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
-      trailing:
-          Text(_getImagesCacheSize(), style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500)).marginOnly(right: 8),
-      onLongPress: () async {
-        await clearDiskCachedImages();
-        setState(() {
-          toast('clearSuccess'.tr, isCenter: false);
-        });
-      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _imageCacheLoadingState,
+            useCupertinoIndicator: true,
+            successWidgetBuilder: () => Text(
+              _imageCacheSize,
+              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
+            ),
+            errorTapCallback: _getImagesCacheSize,
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onLongPress: _clearAndLoadingImageCacheSize,
     );
   }
 
@@ -202,19 +194,77 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  String _getImagesCacheSize() {
-    try {
-      io.Directory cacheImagesDirectory = io.Directory(join(PathSetting.tempDir.path, cacheImageFolderName));
-      if (!cacheImagesDirectory.existsSync()) {
-        return '0KB';
-      }
-
-      int totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
-
-      return (totalBytes / 1024 / 1024).toStringAsFixed(2) + 'MB';
-    } on Exception catch (e) {
-      Log.uploadError(e);
-      return '0KB';
+  Future<void> _loadingLogSize() async {
+    if (_logLoadingState == LoadingState.loading) {
+      return;
     }
+
+    setStateSafely(() => _logLoadingState = LoadingState.loading);
+
+    try {
+      _logSize = await Log.getSize();
+    } catch (e) {
+      Log.error('loading log size error', e);
+      _logSize = '-1B';
+      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
+      return;
+    }
+
+    setStateSafely(() => _logLoadingState = LoadingState.success);
+  }
+
+  Future<void> _clearAndLoadingLogSize() async {
+    if (_logLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    await Log.clear();
+    await _loadingLogSize();
+
+    toast('clearSuccess'.tr, isCenter: false);
+  }
+
+  Future<void> _getImagesCacheSize() async {
+    if (_imageCacheLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() => _imageCacheLoadingState = LoadingState.loading);
+
+    try {
+      _imageCacheSize = await compute(
+        (dirPath) {
+          io.Directory cacheImagesDirectory = io.Directory(dirPath);
+
+          int totalBytes;
+          if (!cacheImagesDirectory.existsSync()) {
+            totalBytes = 0;
+          } else {
+            totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+          }
+
+          return byte2String(totalBytes.toDouble());
+        },
+        join(PathSetting.tempDir.path, cacheImageFolderName),
+      );
+    } catch (e) {
+      Log.error(e);
+      _imageCacheSize = '-1B';
+      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
+      return;
+    }
+
+    setStateSafely(() => _imageCacheLoadingState = LoadingState.success);
+  }
+
+  Future<void> _clearAndLoadingImageCacheSize() async {
+    if (_imageCacheLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    await clearDiskCachedImages();
+    await _getImagesCacheSize();
+
+    toast('clearSuccess'.tr, isCenter: false);
   }
 }
