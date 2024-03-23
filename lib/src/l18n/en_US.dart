@@ -257,8 +257,9 @@ class en_US {
       'nope': 'Nope',
       'getTagSetFailed': 'Get Tag Set Failed',
       'updateTagSetFailed': 'Update Tag Set Failed',
-      'deleteTagSetSuccess': 'Delete Tag Set Success',
-      'deleteTagSetFailed': 'Delete Tag Set Failed',
+      'updateTagFailed': 'Update Tag Failed',
+      'deleteTagSuccess': 'Delete Tag Success',
+      'deleteTagFailed': 'Delete Tag Failed',
       'addLocalTagHint': 'Search to add new tag',
 
       /// Profile Setting page

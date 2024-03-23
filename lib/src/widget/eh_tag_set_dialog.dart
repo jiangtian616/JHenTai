@@ -76,7 +76,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
       _loadingState = LoadingState.loading;
     });
 
-    ({List<({int number, String name})> tagSets, List<WatchedTag> tags, String apikey}) pageInfo;
+    ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
       pageInfo = await EHRequest.requestMyTagsPage(
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,

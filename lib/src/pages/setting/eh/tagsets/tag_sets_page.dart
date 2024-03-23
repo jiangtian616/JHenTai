@@ -24,18 +24,91 @@ class TagSetsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: GetBuilder<TagSetsLogic>(
-        id: TagSetsLogic.bodyId,
-        builder: (_) {
-          if (state.loadingState != LoadingState.success) {
-            return LoadingStateIndicator(
-              loadingState: state.loadingState,
-              errorTapCallback: logic.getTagSet,
-            );
-          }
+      appBar: _buildAppBar(context),
+      body: _buildBody(context),
+    );
+  }
 
-          return EHWheelSpeedController(
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      centerTitle: true,
+      title: GetBuilder<TagSetsLogic>(
+        id: TagSetsLogic.titleId,
+        builder: (_) => Text(state.tagSets.isEmpty ? 'myTags'.tr : state.tagSets.firstWhere((t) => t.number == state.currentTagSetNo).name),
+      ),
+      actions: [
+        _buildTagSetColor(context),
+        _buildTagSetSwitcher(),
+      ],
+    );
+  }
+
+  GetBuilder<TagSetsLogic> _buildTagSetColor(BuildContext context) {
+    return GetBuilder<TagSetsLogic>(
+      id: TagSetsLogic.tagSetId,
+      builder: (_) => LoadingStateIndicator(
+        loadingState: state.loadingState,
+        idleWidget: const SizedBox(),
+        loadingWidget: const SizedBox(),
+        errorWidgetSameWithIdle: true,
+        successWidgetBuilder: () => IconButton(
+          icon: Icon(
+            Icons.circle,
+            color: state.currentTagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor,
+          ),
+          onPressed: () async {
+            dynamic result = await showDialog(
+              context: context,
+              builder: (context) => _ColorSettingDialog(initialColor: state.currentTagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor),
+            );
+
+            if (result == null) {
+              return;
+            }
+
+            if (result == 'default') {
+              logic.handleUpdateTagSetColor(null);
+            }
+
+            if (result is Color) {
+              logic.handleUpdateTagSetColor(result);
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  GetBuilder<TagSetsLogic> _buildTagSetSwitcher() {
+    return GetBuilder<TagSetsLogic>(
+      id: TagSetsLogic.titleId,
+      builder: (_) => PopupMenuButton<int>(
+        initialValue: state.currentTagSetNo,
+        padding: EdgeInsets.zero,
+        onSelected: (value) {
+          if (state.currentTagSetNo == value) {
+            return;
+          }
+          state.currentTagSetNo = value;
+          logic.getCurrentTagSet();
+        },
+        itemBuilder: (_) => state.tagSets
+            .map(
+              (t) => PopupMenuItem<int>(value: t.number, child: Center(child: Text(t.name))),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return GetBuilder<TagSetsLogic>(
+      id: TagSetsLogic.bodyId,
+      builder: (_) {
+        return LoadingStateIndicator(
+          loadingState: state.loadingState,
+          errorTapCallback: logic.getCurrentTagSet,
+          successWidgetBuilder: () => EHWheelSpeedController(
             controller: state.scrollController,
             child: SafeArea(
               child: ListView.builder(
@@ -49,12 +122,13 @@ class TagSetsPage extends StatelessWidget {
                     loadingState: state.updateTagState,
                     idleWidget: FadeIn(
                       child: _Tag(
-                        tagSet: state.tags[index],
+                        tag: state.tags[index],
+                        tagSetBackgroundColor: state.currentTagSetBackgroundColor,
                         onTap: () => logic.showBottomSheet(index, context),
                         onLongPress: () => newSearch('${state.tags[index].tagData.namespace}:${state.tags[index].tagData.key}', true),
-                        onColorUpdated: (v) => logic.handleUpdateColor(index, v),
-                        onWeightUpdated: (v) => logic.handleUpdateWeight(index, v),
-                        onStatusUpdated: (v) => logic.handleUpdateStatus(index, v),
+                        onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
+                        onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
+                        onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),
                       ),
                     ),
                     errorWidgetSameWithIdle: true,
@@ -62,46 +136,16 @@ class TagSetsPage extends StatelessWidget {
                 ),
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      centerTitle: true,
-      title: GetBuilder<TagSetsLogic>(
-        id: TagSetsLogic.titleId,
-        builder: (_) => Text(state.tagSets.isEmpty ? 'myTags'.tr : state.tagSets.firstWhere((t) => t.number == state.currentTagSetNo).name),
-      ),
-      actions: [
-        GetBuilder<TagSetsLogic>(
-          id: TagSetsLogic.titleId,
-          builder: (_) => PopupMenuButton<int>(
-            initialValue: state.currentTagSetNo,
-            padding: EdgeInsets.zero,
-            onSelected: (value) {
-              if (state.currentTagSetNo == value) {
-                return;
-              }
-              state.currentTagSetNo = value;
-              logic.getTagSet();
-            },
-            itemBuilder: (_) => state.tagSets
-                .map(
-                  (t) => PopupMenuItem<int>(value: t.number, child: Center(child: Text(t.name))),
-                )
-                .toList(),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
 
 class _Tag extends StatelessWidget {
-  final WatchedTag tagSet;
+  final WatchedTag tag;
+  final Color? tagSetBackgroundColor;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final ValueChanged<Color?> onColorUpdated;
@@ -110,7 +154,8 @@ class _Tag extends StatelessWidget {
 
   const _Tag({
     Key? key,
-    required this.tagSet,
+    required this.tag,
+    this.tagSetBackgroundColor,
     this.onTap,
     this.onLongPress,
     required this.onColorUpdated,
@@ -126,15 +171,15 @@ class _Tag extends StatelessWidget {
         child: ListTile(
           dense: true,
           onTap: () {
-            Get.focusScope?.unfocus;
+            Get.focusScope?.unfocus();
             onTap?.call();
           },
           onLongPress: onLongPress,
           leading: _buildLeadingIcon(context),
-          title: Text(tagSet.tagData.translatedNamespace == null
-              ? '${tagSet.tagData.namespace}:${tagSet.tagData.key}'
-              : '${tagSet.tagData.translatedNamespace}:${tagSet.tagData.tagName}'),
-          subtitle: tagSet.tagData.translatedNamespace == null ? null : Text('${tagSet.tagData.namespace}:${tagSet.tagData.key}'),
+          title: Text(tag.tagData.translatedNamespace == null
+              ? '${tag.tagData.namespace}:${tag.tagData.key}'
+              : '${tag.tagData.translatedNamespace}:${tag.tagData.tagName}'),
+          subtitle: tag.tagData.translatedNamespace == null ? null : Text('${tag.tagData.namespace}:${tag.tagData.key}'),
           trailing: _buildWeight(),
         ),
       ),
@@ -144,17 +189,17 @@ class _Tag extends StatelessWidget {
   Widget _buildLeadingIcon(BuildContext context) {
     return IconButton(
       icon: Icon(
-        tagSet.watched
+        tag.watched
             ? Icons.favorite
-            : tagSet.hidden
+            : tag.hidden
                 ? Icons.not_interested
                 : Icons.question_mark,
-        color: tagSet.backgroundColor ?? UIConfig.tagSetsPageIconDefaultColor(context),
+        color: tag.backgroundColor ?? tagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor,
       ),
       onPressed: () async {
         dynamic result = await showDialog(
           context: context,
-          builder: (context) => _ColorSettingDialog(initialColor: tagSet.backgroundColor ?? UIConfig.tagSetsPageIconDefaultColor(context)),
+          builder: (context) => _ColorSettingDialog(initialColor: tag.backgroundColor ?? tagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor),
         );
 
         if (result == null) {
@@ -176,7 +221,7 @@ class _Tag extends StatelessWidget {
     return SizedBox(
       width: 40,
       child: TextField(
-        controller: TextEditingController(text: tagSet.weight.toString()),
+        controller: TextEditingController(text: tag.weight.toString()),
         style: const TextStyle(fontSize: 12),
         decoration: const InputDecoration(isDense: true),
         textAlign: TextAlign.center,

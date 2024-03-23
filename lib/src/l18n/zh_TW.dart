@@ -256,8 +256,9 @@ class zh_TW {
       'nope': '無',
       'getTagSetFailed': '獲取標籤數據失敗',
       'updateTagSetFailed': '更新標籤數據失敗',
-      'deleteTagSetSuccess': '刪除標籤數據成功',
-      'deleteTagSetFailed': '刪除標籤數據失敗',
+      'updateTagFailed': '更新標籤數據失敗',
+      'deleteTagSuccess': '刪除標籤數據成功',
+      'deleteTagFailed': '刪除標籤數據失敗',
       'addLocalTagHint': '搜索添加新标签',
 
       /// Profile Setting page

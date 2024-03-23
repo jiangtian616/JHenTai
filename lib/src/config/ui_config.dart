@@ -425,6 +425,8 @@ class UIConfig {
   static const double groupSelectorTextFieldTextSize = 14;
 
   /// EH Tag
+  static Color ehWatchedTagDefaultBackGroundColor = const Color(0xFF3377FF);
+
   static Color ehTagBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withOpacity(0.15);
 
   static Color ehTagTextColor(BuildContext context) => Theme.of(context).colorScheme.onBackground;
@@ -432,7 +434,7 @@ class UIConfig {
   static Color ehTagUnderLineColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
 
   static Color ehTagDeleteButtonBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withOpacity(0.25);
-  
+
   static Duration ehTagAnimationDuration = const Duration(milliseconds: 200);
 
   /// Gallery card favorite tag

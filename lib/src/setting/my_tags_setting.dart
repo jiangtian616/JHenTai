@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
@@ -13,8 +15,10 @@ import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
 
 class MyTagsSetting {
-  static List<WatchedTag> onlineTags = [];
+  static Map<int, ({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags})> onlineTags = {};
   static List<TagData> localTagSets = [];
+
+  static const int defaultTagSetNo = 1;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
@@ -28,27 +32,24 @@ class MyTagsSetting {
     /// listen to login and logout
     ever(UserSetting.ipbMemberId, (v) {
       if (UserSetting.hasLoggedIn()) {
-        refreshOnlineTagSets();
+        refreshAllOnlineTagSets();
       } else {
         _clearOnlineTagSets();
       }
     });
   }
 
-  static Future<void> refreshOnlineTagSets() async {
+  static Future<void> refreshAllOnlineTagSets() async {
     if (!UserSetting.hasLoggedIn()) {
       return;
     }
 
     Log.info('refresh MyTagsSetting');
 
-    ({List<({int number, String name})> tagSets, List<WatchedTag> tags, String apikey}) pageInfo;
+    ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) defaultTagSetPageInfo;
     try {
-      pageInfo = await retry(
-        () => EHRequest.requestMyTagsPage(
-          tagSetNo: 1,
-          parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
-        ),
+      defaultTagSetPageInfo = await retry(
+        () => EHRequest.requestMyTagsPage(tagSetNo: defaultTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
@@ -60,23 +61,71 @@ class MyTagsSetting {
       return;
     }
 
-    onlineTags = pageInfo.tags;
+    onlineTags[defaultTagSetNo] = (
+      enable: defaultTagSetPageInfo.tagSetEnable,
+      tagSetBackGroundColor: defaultTagSetPageInfo.tagSetBackgroundColor,
+      tags: defaultTagSetPageInfo.tags,
+    );
+    Log.info('refresh default tag set success, length: ${onlineTags[defaultTagSetNo]!.tags.length}');
 
-    Log.info('refresh MyTagsSetting success, length: ${onlineTags.length}');
+    /// fetch all tag sets
+    for (({int number, String name}) tagSet in defaultTagSetPageInfo.tagSets) {
+      if (tagSet.number == defaultTagSetNo) {
+        continue;
+      }
+      refreshOnlineTagSets(tagSet.number);
+    }
   }
 
-  static WatchedTag? getOnlineTagSetByTagData(TagData tagData) {
-    return onlineTags.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
+  static Future<void> refreshOnlineTagSets(int tagSetNo) async {
+    if (!UserSetting.hasLoggedIn()) {
+      return;
+    }
+
+    Log.info('refreshOnlineTagSets tagSetNo: $tagSetNo');
+
+    ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
+    try {
+      pageInfo = await retry(
+        () => EHRequest.requestMyTagsPage(tagSetNo: tagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
+        retryIf: (e) => e is DioException,
+        maxAttempts: 3,
+      );
+    } on DioException catch (e) {
+      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      return;
+    } on EHSiteException catch (e) {
+      Log.error('getTagSetFailed'.tr, e.message);
+      return;
+    }
+
+    onlineTags[tagSetNo] = (
+      enable: pageInfo.tagSetEnable,
+      tagSetBackGroundColor: pageInfo.tagSetBackgroundColor,
+      tags: pageInfo.tags,
+    );
+    Log.info('refresh tag set: $tagSetNo success, length: ${onlineTags[tagSetNo]!.tags.length}');
+  }
+
+  static ({Color? tagSetBackGroundColor, WatchedTag tag})? getOnlineTagSetByTagData(TagData tagData) {
+    for (({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags}) tagSetInfo in onlineTags.values) {
+      WatchedTag? tagSet = tagSetInfo.tags.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
+      if (tagSet != null) {
+        return (tagSetBackGroundColor: tagSetInfo.tagSetBackGroundColor, tag: tagSet);
+      }
+    }
+
+    return null;
   }
 
   static bool containWatchedOnlineLocalTag(TagData tagData) {
-    WatchedTag? tagSet = getOnlineTagSetByTagData(tagData);
-    return tagSet?.watched == true;
+    ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
+    return tagInfo?.tag.watched == true;
   }
 
   static bool containHiddenOnlineLocalTag(TagData tagData) {
-    WatchedTag? tagSet = getOnlineTagSetByTagData(tagData);
-    return tagSet?.hidden == true;
+    ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
+    return tagInfo?.tag.hidden == true;
   }
 
   static bool containLocalTag(TagData tagData) {

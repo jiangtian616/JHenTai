@@ -258,8 +258,9 @@ class pt_BR {
       'nope': 'Nope(Não)',
       'getTagSetFailed': 'Falha ao obter conjunto de tags',
       'updateTagSetFailed': 'Falha na atualização do conjunto de tags',
-      'deleteTagSetSuccess': 'Falha na atualização do conjunto de tags',
-      'deleteTagSetFailed': 'Falha ao excluir conjunto de tags',
+      'updateTagFailed': 'Falha na atualização do conjunto de tags',
+      'deleteTagSuccess': 'Falha na atualização do conjunto de tags',
+      'deleteTagFailed': 'Falha ao excluir conjunto de tags',
       'addLocalTagHint': 'Search to add new tag',
 
       /// Profile Setting page

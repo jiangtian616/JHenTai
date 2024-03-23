@@ -257,8 +257,9 @@ class ko_KR {
       'nope': '없음',
       'getTagSetFailed': '태그 목록 불러오기 실패',
       'updateTagSetFailed': '태그 목록 수정 실패',
-      'deleteTagSetSuccess': '태그 목록 삭제 성공',
-      'deleteTagSetFailed': '태그 목록 삭제 실패',
+      'updateTagFailed': '태그 목록 수정 실패',
+      'deleteTagSuccess': '태그 목록 삭제 성공',
+      'deleteTagFailed': '태그 목록 삭제 실패',
       'addLocalTagHint': 'Search to add new tag',
 
       /// Profile Setting page

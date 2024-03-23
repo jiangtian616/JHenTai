@@ -246,11 +246,11 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static void setConnectTimeout(int connectTimeout) {
     _dio.options.connectTimeout = Duration(milliseconds: connectTimeout);
   }
-  
+
   static void setReceiveTimeout(int receiveTimeout) {
     _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
   }
-  
+
   static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EForums,
@@ -599,6 +599,35 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<T> requestUpdateTagSet<T>({
+    required int tagSetNo,
+    required bool enable,
+    required String? color,
+    EHHtmlParser<T>? parser,
+  }) async {
+    Response response;
+    try {
+      response = await _postWithErrorHandler(
+        EHConsts.EMyTags,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+        queryParameters: {'tagset': tagSetNo},
+        data: {
+          'tagset_action': 'update',
+          'tagset_name': '',
+          if (enable) 'tagset_enable': 'on',
+          'tagset_color': color ?? '',
+        },
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 302) {
+        rethrow;
+      }
+      response = e.response!;
+    }
+
+    return _parseResponse(response, parser);
+  }
+
+  static Future<T> requestUpdateTag<T>({
     required int apiuid,
     required String apikey,
     required int tagId,

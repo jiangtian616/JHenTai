@@ -195,7 +195,7 @@ Future<void> onReady() async {
   FavoriteSetting.refresh();
   SiteSetting.refresh();
   EHSetting.refresh();
-  MyTagsSetting.refreshOnlineTagSets();
+  MyTagsSetting.refreshAllOnlineTagSets();
 
   VolumeService.init();
 }

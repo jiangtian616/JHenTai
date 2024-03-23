@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -1038,15 +1039,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           continue;
         }
 
-        WatchedTag? tagSet = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
-        if (tagSet == null) {
+        ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
+        if (tagInfo == null) {
           continue;
         }
 
-        tag.backgroundColor = tagSet.backgroundColor ?? const Color(0xFF3377FF);
-        tag.color = tagSet.backgroundColor == null
+        Color? backGroundColor = tagInfo.tag.backgroundColor ?? tagInfo.tagSetBackGroundColor;
+        tag.backgroundColor = backGroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor;
+        tag.color = backGroundColor == null
             ? const Color(0xFFF1F1F1)
-            : ThemeData.estimateBrightnessForColor(tagSet.backgroundColor!) == Brightness.light
+            : ThemeData.estimateBrightnessForColor(backGroundColor) == Brightness.light
                 ? const Color.fromRGBO(9, 9, 9, 1)
                 : const Color(0xFFF1F1F1);
       }

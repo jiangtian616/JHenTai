@@ -639,12 +639,15 @@ class EHSpiderParser {
     return map;
   }
 
-  static ({List<({int number, String name})> tagSets, List<WatchedTag> tags, String apikey}) myTagsPage2TagSetNamesAndTagSetsAndApikey(
-      Headers headers, dynamic data) {
+  static ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey})
+      myTagsPage2TagSetNamesAndTagSetsAndApikey(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
     List<({int number, String name})> tagSets = options.map((o) => (number: int.parse(o.attributes['value']!), name: o.text)).toList();
+
+    bool tagSetEnable = document.querySelector('#tagset_outer > div:nth-child(5) > label > input[checked=checked]') != null;
+    Color? tagSetBackgroundColor = aRGBString2Color(document.querySelector('#tagset_outer > div:nth-child(9) > input')?.attributes['value']);
 
     List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div');
     List<WatchedTag> tags = tagDivs.where((element) => element.id != 'usertag_0').map(
@@ -670,7 +673,13 @@ class EHSpiderParser {
 
     String apikey = RegExp(r'apikey = \"(.*)\"').firstMatch(document.querySelector('#outer > script:nth-child(1)')!.text)!.group(1)!;
 
-    return (tagSets: tagSets, tags: tags, apikey: apikey);
+    return (
+      tagSets: tagSets,
+      tagSetEnable: tagSetEnable,
+      tagSetBackgroundColor: tagSetBackgroundColor,
+      tags: tags,
+      apikey: apikey,
+    );
   }
 
   static GalleryStats statPage2GalleryStats(Headers headers, dynamic data) {

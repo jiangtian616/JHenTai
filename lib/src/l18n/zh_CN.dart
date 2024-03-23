@@ -254,10 +254,11 @@ class zh_CN {
       'addLocalTags': '添加标签',
       'hidden': '屏蔽',
       'nope': '无',
-      'getTagSetFailed': '获取标签数据失败',
+      'getTagSetFailed': '获取标签数据失败', 
       'updateTagSetFailed': '更新标签数据失败',
-      'deleteTagSetSuccess': '删除标签数据成功',
-      'deleteTagSetFailed': '删除标签数据失败',
+      'updateTagFailed': '更新标签数据失败',
+      'deleteTagSuccess': '删除标签数据成功',
+      'deleteTagFailed': '删除标签数据失败',
       'addLocalTagHint': '搜索添加新标签',
 
       /// Profile Setting page
