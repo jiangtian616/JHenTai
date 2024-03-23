@@ -640,10 +640,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void searchSimilar() {
-    if (state.galleryDetails?.rawTitle == null && state.galleryMetadata?.title == null) {
+    if (state.gallery == null && state.galleryDetails?.rawTitle == null && state.galleryMetadata?.title == null) {
       return;
     }
-    search('title:"${(state.galleryDetails?.rawTitle ?? state.galleryMetadata!.title).replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"');
+    search(
+      'title:"${(state.gallery?.title ?? state.galleryDetails?.rawTitle ?? state.galleryMetadata!.title).replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"',
+    );
   }
 
   void searchUploader() {

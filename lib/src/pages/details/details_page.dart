@@ -951,8 +951,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               color: disabled
                   ? UIConfig.detailsPageActionDisabledIconColor(context)
                   : favoriteTagIndex != null
-                  ? ColorConsts.favoriteTagColor[favoriteTagIndex]
-                  : UIConfig.detailsPageActionIconColor(context),
+                      ? ColorConsts.favoriteTagColor[favoriteTagIndex]
+                      : UIConfig.detailsPageActionIconColor(context),
             ),
             text: Text(
               favoriteTagName ?? 'favorite'.tr,
@@ -1086,7 +1086,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        bool disabled = state.galleryDetails == null && state.galleryMetadata == null;
+        bool disabled = state.gallery == null && state.galleryDetails == null && state.galleryMetadata == null;
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
