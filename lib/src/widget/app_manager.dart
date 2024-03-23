@@ -99,14 +99,16 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return ScrollConfiguration(
       behavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
-      child: inBlur
-          ? Blur(
-              blur: 100,
-              blurColor: Colors.grey.shade600,
-              colorOpacity: 1,
-              child: widget.child,
-            )
-          : widget.child,
+      child: GetPlatform.isAndroid
+          ? widget.child
+          : inBlur
+              ? Blur(
+                  blur: 100,
+                  blurColor: Colors.grey.shade600,
+                  colorOpacity: 1,
+                  child: widget.child,
+                )
+              : widget.child,
     );
   }
 
