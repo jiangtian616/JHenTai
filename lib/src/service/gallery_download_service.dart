@@ -98,7 +98,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   bool containGallery(int gid) => galleryDownloadInfos.containsKey(gid);
 
   Future<void> downloadGallery(GalleryDownloadedData gallery, {bool resume = false}) async {
-    if (!resume && galleryDownloadInfos.containsKey(gallery.gid)) {
+    if (!resume && containGallery(gallery.gid)) {
       return;
     }
 
@@ -279,6 +279,44 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     downloadGallery(newGallery);
+  }
+
+  Future<void> importGallery(GalleryDownloadedData gallery, List<GalleryImage> images) async {
+    if (containGallery(gallery.gid)) {
+      return;
+    }
+
+    Log.info('Import gallery: ${gallery.title}');
+
+    _ensureDownloadDirExists();
+
+    io.Directory galleryDir = io.Directory(computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
+    if (!galleryDir.existsSync()) {
+      galleryDir.createSync(recursive: true);
+    }
+
+    List<Future> futures = [];
+    List<GalleryImage> copiedImages = [];
+    for (int i = 0; i < images.length; i++) {
+      GalleryImage image = images[i];
+      String oldPath = computeImageDownloadAbsolutePathFromRelativePath(image.path!);
+      String newPath = _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, i);
+      futures.add(io.File(oldPath).copy(newPath));
+      
+      copiedImages.add(image.copyWith(path: _computeImageDownloadRelativePath(gallery.title, gallery.gid, image.url, i)));
+    }
+    
+    await Future.wait(futures);
+
+    if (!await _restoreInfoInDatabase(gallery, copiedImages)) {
+      Log.error('Import gallery failed: ${gallery.title}');
+      _clearGalleryDownloadInfoInDatabase(gallery.gid);
+      return;
+    }
+
+    _initGalleryInfoInMemory(gallery, images: copiedImages);
+
+    _saveGalleryInfoInDisk(gallery);
   }
 
   Future<void> reDownloadGalleryByGid(int gid) async {
@@ -480,6 +518,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           continue;
         }
         images[serialNo]!.path = _computeImageDownloadRelativePath(gallery.title, gallery.gid, images[serialNo]!.url, serialNo);
+        images[serialNo]!.imageHash ??= '';
       }
 
       /// For some reason, downloaded status is not updated correctly, check it again
@@ -627,7 +666,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return title;
   }
 
-  String computeGalleryDownloadPath(String rawTitle, int gid) {
+  String computeGalleryDownloadAbsolutePath(String rawTitle, int gid) {
     String title = _computeGalleryTitle(rawTitle);
     return path.join(DownloadSetting.downloadPath.value, '$gid - $title');
   }
@@ -637,7 +676,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     String? ext = imageUrl.contains('fullimg.php') ? 'jpg' : imageUrl.split('.').last;
 
     return path.join(
-      computeGalleryDownloadPath(title, gid),
+      computeGalleryDownloadAbsolutePath(title, gid),
       '$serialNo.$ext',
     );
   }
@@ -1264,7 +1303,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             serialNo: serialNo,
             url: image.url,
             path: image.path!,
-            imageHash: image.imageHash!,
+            imageHash: image.imageHash ?? '',
             downloadStatusIndex: image.downloadStatus.index,
           ),
         ) >
@@ -1336,7 +1375,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       'images': jsonEncode(galleryDownloadInfo.images),
     };
 
-    io.File file = io.File(path.join(computeGalleryDownloadPath(gallery.title, gallery.gid), metadataFileName));
+    io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }
@@ -1344,7 +1383,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   void _clearDownloadedImageInDisk(GalleryDownloadedData gallery) {
-    io.Directory directory = io.Directory(computeGalleryDownloadPath(gallery.title, gallery.gid));
+    io.Directory directory = io.Directory(computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     if (!directory.existsSync()) {
       return;
     }

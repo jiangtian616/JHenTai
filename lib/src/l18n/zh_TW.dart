@@ -537,6 +537,7 @@ class zh_TW {
       'multiDeleteHint': '你將會刪除所有選中的畫廊。',
       'gpNotEnoughHint': '高峰段下載原圖需要耗費GP，由于你的GP不足，下載已自動停止。',
       'deleteUpdatingDependentHint': '有其他畫廊的更新依賴當前畫廊，此時刪除會影響其他畫廊的更新速度，推薦在更新完畢後再執行刪除操作。',
+      'migrateToDownload': '遷移至「下載」',
 
       /// search dialog
       'searchConfig': '搜尋設定',

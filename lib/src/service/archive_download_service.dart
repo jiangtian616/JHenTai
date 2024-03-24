@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -13,13 +13,12 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/dao/archive_group_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
-import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
@@ -204,6 +203,45 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     downloadArchive(archive, resume: true);
   }
 
+  Future<void> migrate2Gallery(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
+    if (archive == null) {
+      Log.error('Archive not found: $gid');
+      return;
+    }
+
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
+    if (archiveDownloadInfo.archiveStatus != ArchiveStatus.completed) {
+      Log.error('Archive not completed: $gid');
+      return;
+    }
+
+    GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+      gid: archive.gid,
+      token: archive.token,
+      title: archive.title,
+      category: archive.category,
+      pageCount: archive.pageCount,
+      galleryUrl: archive.galleryUrl,
+      uploader: archive.uploader,
+      publishTime: archive.publishTime,
+      downloadStatusIndex: DownloadStatus.downloaded.index,
+      downloadOriginalImage: archive.isOriginal,
+      sortOrder: 0,
+      groupName: archiveDownloadInfo.group,
+      insertTime: DateTime.now().toString(),
+      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+    );
+    List<GalleryImage> images = await getUnpackedImages(gid);
+
+    if (images.length != archive.pageCount) {
+      Log.error('Unpacked images count not equal to page count: ${images.length} != ${archive.pageCount}');
+      return;
+    }
+
+    return Get.find<GalleryDownloadService>().importGallery(galleryDownloadedData, images);
+  }
+
   /// deal with 410
   Future<void> cancelUnlockArchiveAndDownload(ArchiveDownloadedData archive) async {
     Log.download('Re-Unlock archive: ${archive.title}, original: ${archive.isOriginal}');
@@ -313,14 +351,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<int> restoreTasks() async {
     await completed;
 
-    io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
+    Directory downloadDir = Directory(DownloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
     }
 
     int restoredCount = 0;
-    for (io.FileSystemEntity galleryDir in downloadDir.listSync()) {
-      io.File metadataFile = io.File(join(galleryDir.path, metadataFileName));
+    for (FileSystemEntity galleryDir in downloadDir.listSync()) {
+      File metadataFile = File(join(galleryDir.path, metadataFileName));
 
       /// metadata file does not exist
       if (!metadataFile.existsSync()) {
@@ -361,29 +399,35 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return restoredCount;
   }
 
-  List<GalleryImage> getUnpackedImages(int gid) {
+  Future<List<GalleryImage>> getUnpackedImages(int gid, {bool computeHash = false}) async {
     ArchiveDownloadedData archive = archives.firstWhere((a) => a.gid == gid);
-    io.Directory directory = io.Directory(computeArchiveUnpackingPath(archive));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive));
 
-    List<io.File> imageFiles;
-    try {
-      imageFiles = directory.listSync().whereType<io.File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-        ..sort(FileUtil.compareComicImagesOrderSimple);
-    } on Exception catch (e) {
-      toast('getUnpackedImagesFailedMsg'.tr, isShort: false);
-      Log.uploadError(e, extraInfos: {'dirs': directory.parent.listSync()});
-      throw NotUploadException(e);
-    }
+    return directory.list().toList().then((files) {
+      List<File> imageFiles = files.whereType<File>().where((file) => FileUtil.isImageExtension(file.path)).toList();
+      imageFiles.sort(FileUtil.compareComicImagesOrderSimple);
+      return imageFiles;
+    }).then((imageFiles) {
+      return imageFiles
+          .map(
+            (file) => GalleryImage(
+              url: '',
+              path: relative(file.path, from: PathSetting.getVisibleDir().path),
+              downloadStatus: DownloadStatus.downloaded,
+            ),
+          )
+          .toList();
+    }).then((images) {
+      if (!computeHash) {
+        return images;
+      }
 
-    return imageFiles
-        .map(
-          (file) => GalleryImage(
-            url: 'archive',
-            path: file.path,
-            downloadStatus: DownloadStatus.downloaded,
-          ),
-        )
-        .toList();
+      List<Future> futures = [];
+      for (GalleryImage image in images) {
+        futures.add(FileUtil.computeSha1Hash(File(join(PathSetting.getVisibleDir().path, image.path))).then((value) => image.imageHash = value));
+      }
+      return Future.wait(futures).then((_) => images);
+    });
   }
 
   String _computeArchiveTitle(String rawTitle) {
@@ -411,7 +455,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   /// if we have downloaded parts of this archive, return downloaded bytes length, otherwise null
   int? _computeDownloadedPackingFileBytes(ArchiveDownloadedData archive) {
     String packingFilePath = computePackingFileDownloadPath(archive);
-    io.File packingFile = io.File(packingFilePath);
+    File packingFile = File(packingFilePath);
     if (packingFile.existsSync()) {
       return packingFile.lengthSync();
     }
@@ -817,7 +861,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   // DISK
 
   void _saveArchiveInfoInDisk(ArchiveDownloadedData archive) {
-    io.File file = io.File(join(computeArchiveUnpackingPath(archive), metadataFileName));
+    File file = File(join(computeArchiveUnpackingPath(archive), metadataFileName));
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     }
@@ -826,7 +870,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
-    io.File file = io.File(computePackingFileDownloadPath(archive));
+    File file = File(computePackingFileDownloadPath(archive));
     if (file.existsSync()) {
       await file.delete();
     }
@@ -836,7 +880,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _deleteArchiveInDisk(ArchiveDownloadedData archive) async {
     await _deletePackingFileInDisk(archive);
 
-    io.Directory directory = io.Directory(computeArchiveUnpackingPath(archive));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive));
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }
@@ -844,7 +888,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   void _ensureDownloadDirExists() {
     try {
-      io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+      Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
     } on Exception catch (e) {
       Log.error(e);
       Log.uploadError(e);

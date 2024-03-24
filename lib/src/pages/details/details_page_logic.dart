@@ -580,7 +580,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (archiveStatus == ArchiveStatus.completed) {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
-      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive.gid);
+      List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
         Routes.read,
@@ -868,7 +868,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
 
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
+      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
       return;
     }
 

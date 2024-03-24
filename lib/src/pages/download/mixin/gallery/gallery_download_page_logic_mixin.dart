@@ -135,7 +135,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   void goToReadPage(GalleryDownloadedData gallery) {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(downloadService.computeGalleryDownloadPath(gallery.title, gallery.gid));
+      openThirdPartyViewer(downloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
       SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
       String storageKey = 'readIndexRecord::${gallery.gid}';

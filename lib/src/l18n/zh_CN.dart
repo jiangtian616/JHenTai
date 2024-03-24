@@ -539,6 +539,7 @@ class zh_CN {
       'multiDeleteHint': '你将会删除所有选中的画廊。',
       'gpNotEnoughHint': '高峰段下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
       'deleteUpdatingDependentHint': '有其他画廊的更新依赖当前画廊，此时删除会影响其他画廊的更新速度，推荐在更新完毕后再执行删除操作。',
+      'migrateToDownload': '迁移至「下载」',
 
       /// search dialog
       'searchConfig': '搜索配置',

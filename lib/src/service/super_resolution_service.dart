@@ -190,7 +190,7 @@ class SuperResolutionService extends GetxController {
       if (type == SuperResolutionType.gallery) {
         rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
       } else {
-        rawImages = archiveDownloadService.getUnpackedImages(gid);
+        rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
 
       superResolutionInfo = SuperResolutionInfo(
@@ -243,7 +243,7 @@ class SuperResolutionService extends GetxController {
 
     superResolutionInfo.currentProcess?.kill();
     superResolutionInfoTable.remove(gid, type);
-    await SuperResolutionInfoDao.deleteSuperResolutionInfo(gid,type.index);
+    await SuperResolutionInfoDao.deleteSuperResolutionInfo(gid, type.index);
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
@@ -251,7 +251,7 @@ class SuperResolutionService extends GetxController {
       if (gallery == null) {
         return;
       }
-      dirPath = join(galleryDownloadService.computeGalleryDownloadPath(gallery.title, gallery.gid), imageDirName);
+      dirPath = join(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid), imageDirName);
     } else {
       ArchiveDownloadedData? archive = archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
       if (archive == null) {
@@ -273,7 +273,7 @@ class SuperResolutionService extends GetxController {
     if (type == SuperResolutionType.gallery) {
       rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
     } else {
-      rawImages = archiveDownloadService.getUnpackedImages(gid);
+      rawImages = await archiveDownloadService.getUnpackedImages(gid);
     }
 
     SuperResolutionInfo superResolutionInfo = get(gid, type)!;

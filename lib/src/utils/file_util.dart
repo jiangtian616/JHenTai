@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:path/path.dart';
 
 class FileUtil {
@@ -56,6 +57,12 @@ class FileUtil {
     }
 
     return aName.compareTo(bName);
+  }
+
+  static Future<String> computeSha1Hash(File file) {
+    return file.readAsBytes().then((bytes) {
+      return sha1.convert(bytes).toString();
+    });
   }
 }
 

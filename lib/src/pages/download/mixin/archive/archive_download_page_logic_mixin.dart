@@ -132,7 +132,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     archiveDownloadService.update([archiveDownloadService.galleryCountChangedId]);
   }
 
-  void goToReadPage(ArchiveDownloadedData archive) {
+  Future<void> goToReadPage(ArchiveDownloadedData archive) async {
     if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus != ArchiveStatus.completed) {
       return;
     }
@@ -142,7 +142,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     } else {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
-      List<GalleryImage> images = archiveDownloadService.getUnpackedImages(archive.gid);
+      List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid, computeHash: true);
 
       toRoute(
         Routes.read,
@@ -197,7 +197,8 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
                 superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
               },
             ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused || superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
+          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
+              superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
             CupertinoActionSheetAction(
               child: Text('deleteSuperResolvedImage'.tr),
               onPressed: () async {

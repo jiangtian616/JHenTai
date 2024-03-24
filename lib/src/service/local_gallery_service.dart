@@ -12,6 +12,7 @@ import 'package:path/path.dart';
 import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../setting/download_setting.dart';
+import '../setting/path_setting.dart';
 import '../utils/log.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
@@ -102,8 +103,8 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     return imageFiles
         .map(
           (file) => GalleryImage(
-            url: 'localImage',
-            path: file.path,
+            url: '',
+            path: relative(file.path, from: PathSetting.getVisibleDir().path),
             downloadStatus: DownloadStatus.downloaded,
           ),
         )
@@ -245,8 +246,8 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
         title: basename(galleryDir.path),
         path: galleryDir.path,
         cover: GalleryImage(
-          url: 'localImage',
-          path: coverImage.path,
+          url: '',
+          path: relative(coverImage.path, from: PathSetting.getVisibleDir().path),
           downloadStatus: DownloadStatus.downloaded,
         ),
         galleryUrl: gid != null && token != null ? GalleryUrl(isEH: true, gid: gid!, token: token!) : null,

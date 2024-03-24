@@ -539,6 +539,7 @@ class ko_KR {
       'multiDeleteHint': 'You will delete all selected gallerys.',
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
       'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
+      'migrateToDownload': 'Migrate To 「Download」',
 
       /// search dialog
       'searchConfig': '검색 설정',
