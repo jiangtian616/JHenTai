@@ -711,9 +711,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDeleteDownload(BuildContext context, int gid, DownloadPageGalleryType downloadPageGalleryType) async {
+    bool isUpdatingDependent = galleryDownloadService.isUpdatingDependent(gid);
+
     bool? result = await showDialog(
       context: context,
-      builder: (_) => EHDialog(title: 'delete'.tr + '?'),
+      builder: (_) => EHDialog(
+        title: 'delete'.tr + '?',
+        content: isUpdatingDependent ? 'deleteUpdatingDependentHint'.tr : null,
+      ),
     );
 
     if (result == null || !result) {

@@ -196,7 +196,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           icon: Icons.delete,
           foregroundColor: UIConfig.alertColor(context),
           backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
-          onPressed: (BuildContext context) => logic.handleRemoveItem(gallery, true),
+          onPressed: (BuildContext context) => logic.handleRemoveItem(gallery, true, context),
         )
       ],
     );

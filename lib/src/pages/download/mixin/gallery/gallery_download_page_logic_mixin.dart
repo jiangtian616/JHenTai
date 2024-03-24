@@ -120,7 +120,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     downloadService.pauseAllDownloadGallery();
   }
 
-  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
+  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
     downloadService.update([downloadService.galleryCountChangedId]);
   }
 
@@ -190,16 +190,15 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
               child: Text('stopSuperResolution'.tr),
               onPressed: () async {
                 backRoute();
-
                 superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
               },
             ),
-          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused || superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
+          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
+              superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
             CupertinoActionSheetAction(
               child: Text('deleteSuperResolvedImage'.tr),
               onPressed: () async {
                 backRoute();
-
                 superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
               },
             ),
@@ -220,22 +219,22 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           CupertinoActionSheetAction(
             child: Text('reDownload'.tr),
             onPressed: () {
-              handleReDownloadItem(gallery);
               backRoute();
+              handleReDownloadItem(gallery);
             },
           ),
           CupertinoActionSheetAction(
             child: Text('deleteTask'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
-              handleRemoveItem(gallery, false);
               backRoute();
+              handleRemoveItem(gallery, false, context);
             },
           ),
           CupertinoActionSheetAction(
             child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
             onPressed: () {
-              handleRemoveItem(gallery, true);
               backRoute();
+              handleRemoveItem(gallery, true, context);
             },
           ),
         ],
@@ -349,8 +348,13 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   Future<void> handleMultiDelete() async {
+    bool isUpdatingDependent = multiSelectDownloadPageState.selectedGids.any(downloadService.isUpdatingDependent);
+
     bool? result = await Get.dialog(
-      EHDialog(title: 'delete'.tr, content: 'multiDeleteHint'.tr),
+      EHDialog(
+        title: 'delete'.tr,
+        content: 'multiDeleteHint'.tr + (isUpdatingDependent ? '\n\n' + 'deleteUpdatingDependentHint'.tr : ''),
+      ),
     );
 
     if (result == true) {

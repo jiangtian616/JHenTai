@@ -358,7 +358,7 @@ class pt_BR {
       /// performance setting page
       'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
-      
+
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',
       'ineffectiveInGalleryPage': 'Ineficaz na página da galeria agora.',
@@ -536,10 +536,11 @@ class pt_BR {
       'operationHasCompleted': 'The operation has completed',
       'operationInProgress': 'The operation is in progress',
       'startProcess': 'Start Process',
-      'multiReDownloadHint': 'You will re-download all selected gallerys',
-      'multiChangeGroupHint': 'You will change group of all selected gallerys',
-      'multiDeleteHint': 'You will delete all selected gallerys',
+      'multiReDownloadHint': 'You will re-download all selected gallerys.',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys.',
+      'multiDeleteHint': 'You will delete all selected gallerys.',
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
+      'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
 
       /// search dialog
       'searchConfig': 'Opções de pesquisa',

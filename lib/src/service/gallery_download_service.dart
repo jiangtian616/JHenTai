@@ -418,6 +418,20 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  bool isUpdatingDependent(int gid) {
+    GalleryDownloadedData? gallery = gallerys.firstWhereOrNull((g) => g.gid == gid);
+    if (gallery == null) {
+      return false;
+    }
+
+    GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((g) => g.oldVersionGalleryUrl == gallery.galleryUrl);
+    if (oldGallery == null) {
+      return false;
+    }
+
+    return galleryDownloadInfos[oldGallery.gid]!.downloadProgress.downloadStatus != DownloadStatus.downloaded;
+  }
+
   /// Use metadata in each gallery folder to restore download status, then sync to database.
   /// This is used after re-install app, or share download folder to another user.
   Future<int> restoreTasks() async {

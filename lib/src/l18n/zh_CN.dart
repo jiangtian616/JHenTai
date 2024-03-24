@@ -254,7 +254,7 @@ class zh_CN {
       'addLocalTags': '添加标签',
       'hidden': '屏蔽',
       'nope': '无',
-      'getTagSetFailed': '获取标签数据失败', 
+      'getTagSetFailed': '获取标签数据失败',
       'updateTagSetFailed': '更新标签数据失败',
       'updateTagFailed': '更新标签数据失败',
       'deleteTagSuccess': '删除标签数据成功',
@@ -357,7 +357,7 @@ class zh_CN {
       /// performance setting page
       'maxGalleryNum4Animation': '下载页支持列表动画的最大画廊个数',
       'maxGalleryNum4AnimationHint': '列表模式下，拥有超过此配置个数画廊的分组在展开/收起时取消动画效果',
-      
+
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',
       'ineffectiveInGalleryPage': '在画廊页面暂时无效',
@@ -534,10 +534,11 @@ class zh_CN {
       'operationHasCompleted': '操作已经结束',
       'operationInProgress': '操作正在进行中',
       'startProcess': '开始处理',
-      'multiReDownloadHint': '你将会重新下载所有选中的画廊',
-      'multiChangeGroupHint': '你将会改变所有选中画廊的分组',
-      'multiDeleteHint': '你将会删除所有选中的画廊',
+      'multiReDownloadHint': '你将会重新下载所有选中的画廊。',
+      'multiChangeGroupHint': '你将会改变所有选中画廊的分组。',
+      'multiDeleteHint': '你将会删除所有选中的画廊。',
       'gpNotEnoughHint': '高峰段下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
+      'deleteUpdatingDependentHint': '有其他画廊的更新依赖当前画廊，此时删除会影响其他画廊的更新速度，推荐在更新完毕后再执行删除操作。',
 
       /// search dialog
       'searchConfig': '搜索配置',

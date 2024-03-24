@@ -534,10 +534,11 @@ class en_US {
       'operationHasCompleted': 'The operation has completed',
       'operationInProgress': 'The operation is in progress',
       'startProcess': 'Start Process',
-      'multiReDownloadHint': 'You will re-download all selected gallerys',
-      'multiChangeGroupHint': 'You will change group of all selected gallerys',
-      'multiDeleteHint': 'You will delete all selected gallerys',
+      'multiReDownloadHint': 'You will re-download all selected gallerys.',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys.',
+      'multiDeleteHint': 'You will delete all selected gallerys.',
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
+      'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
 
       /// search dialog
       'searchConfig': 'Search Config',

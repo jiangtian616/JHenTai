@@ -356,7 +356,7 @@ class zh_TW {
       /// performance setting page
       'maxGalleryNum4Animation': '下載頁支持列表動畫的最大畫廊個數',
       'maxGalleryNum4AnimationHint': '列表模式下，擁有超過此配置個數畫廊的分組在展開/收起時取消動畫效果',
-      
+
       /// mouse wheel setting page
       'wheelScrollSpeed': '滑鼠滾輪速度',
       'ineffectiveInGalleryPage': '在畫廊頁面暫時無效',
@@ -532,10 +532,11 @@ class zh_TW {
       'operationHasCompleted': '操作已經結束',
       'operationInProgress': '操作正在進行中',
       'startProcess': '開始處理',
-      'multiReDownloadHint': '你將會重新下載所有選中的畫廊',
-      'multiChangeGroupHint': '你將會改變所有選中畫廊的分組',
-      'multiDeleteHint': '你將會刪除所有選中的畫廊',
-      'gpNotEnoughHint': '高峰段下載原圖需要耗費GP，由于妳的GP不足，下載已自動停止。',
+      'multiReDownloadHint': '你將會重新下載所有選中的畫廊。',
+      'multiChangeGroupHint': '你將會改變所有選中畫廊的分組。',
+      'multiDeleteHint': '你將會刪除所有選中的畫廊。',
+      'gpNotEnoughHint': '高峰段下載原圖需要耗費GP，由于你的GP不足，下載已自動停止。',
+      'deleteUpdatingDependentHint': '有其他畫廊的更新依賴當前畫廊，此時刪除會影響其他畫廊的更新速度，推薦在更新完畢後再執行刪除操作。',
 
       /// search dialog
       'searchConfig': '搜尋設定',

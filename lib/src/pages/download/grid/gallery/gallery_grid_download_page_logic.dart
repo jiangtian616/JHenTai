@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
@@ -12,6 +13,7 @@ import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
+import '../../../../widget/eh_alert_dialog.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_state_mixin.dart';
 import '../../mixin/gallery/gallery_download_page_logic_mixin.dart';
 import '../mixin/grid_download_page_logic_mixin.dart';
@@ -44,8 +46,23 @@ class GalleryGridDownloadPageLogic extends GetxController
   }
 
   @override
-  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages) {
-    downloadService.deleteGallery(gallery, deleteImages: deleteImages).then((_) => super.handleRemoveItem(gallery, deleteImages));
+  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
+    bool isUpdatingDependent = downloadService.isUpdatingDependent(gallery.gid);
+
+    if (isUpdatingDependent) {
+      bool? result = await showDialog(
+        context: context,
+        builder: (_) => EHDialog(
+          title: 'delete'.tr + '?',
+          content: 'deleteUpdatingDependentHint'.tr,
+        ),
+      );
+      if (result == null || !result) {
+        return;
+      }
+    }
+
+    downloadService.deleteGallery(gallery, deleteImages: deleteImages).then((_) => super.handleRemoveItem(gallery, deleteImages, context));
   }
 
   void goToDetailPage(GalleryDownloadedData gallery) {

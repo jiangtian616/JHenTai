@@ -355,7 +355,7 @@ class ko_KR {
       /// performance setting page
       'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
-      
+
       /// mouse wheel setting page
       'themeColorSettingHint': '라이트 모드와 다크 모드 각각에 다른 색을 지정합니다',
       'preview': '미리 보기',
@@ -534,10 +534,11 @@ class ko_KR {
       'operationHasCompleted': '작업이 완료되었습니다',
       'operationInProgress': '작업이 진행 중입니다',
       'startProcess': '작업을 시작합니다',
-      'multiReDownloadHint': 'You will re-download all selected gallerys',
-      'multiChangeGroupHint': 'You will change group of all selected gallerys',
-      'multiDeleteHint': 'You will delete all selected gallerys',
+      'multiReDownloadHint': 'You will re-download all selected gallerys.',
+      'multiChangeGroupHint': 'You will change group of all selected gallerys.',
+      'multiDeleteHint': 'You will delete all selected gallerys.',
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
+      'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
 
       /// search dialog
       'searchConfig': '검색 설정',
