@@ -142,7 +142,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     } else {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
-      List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid, computeHash: true);
+      List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
         Routes.read,
