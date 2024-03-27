@@ -732,6 +732,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
       archiveDownloadService.deleteArchiveByGid(gid);
     }
+
+    updateGlobalGalleryStatus();
   }
 
   void searchTag(GalleryTag tag) {
