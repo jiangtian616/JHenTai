@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
     try {
       latestVersion = (await retry(
-        () => EHRequest.request(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
+        () => EHRequest.get(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
         maxAttempts: 3,
       ))
           .trim()

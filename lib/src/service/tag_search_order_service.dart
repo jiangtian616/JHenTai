@@ -68,7 +68,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     String tag;
     try {
       tag = await retry(
-        () => EHRequest.request(
+        () => EHRequest.get(
           url: releaseUrl,
           options: Options(followRedirects: false, validateStatus: (status) => status == 302),
           parser: EHSpiderParser.latestReleaseResponse2Tag,

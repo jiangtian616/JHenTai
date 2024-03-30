@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 7.4.13+187
+version: 7.4.13+188
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -98,6 +98,8 @@ dependencies:
   crypto: 3.0.3
   csv: 5.1.1
   dotted_border: 2.1.0
+  j_downloader:
+    git: https://github.com/jiangtian616/JDownloader
 
 dependency_overrides:
   test_api: 0.6.0
@@ -105,6 +107,11 @@ dependency_overrides:
   chewie: 1.7.0
   http: 1.1.0
   cached_network_image: 3.3.0
+  dio:
+    git:
+      url: https://github.com/jiangtian616/dio
+      path: dio
+      ref: append-mode
 
 dev_dependencies:
   flutter_test:

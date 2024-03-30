@@ -62,6 +62,11 @@ class SpeedComputer {
     updateCallback?.call();
   }
 
+  void resetDownloadedBytes(int bytes) {
+    downloadedBytes = bytes;
+    downloadedBytesLastTime = bytes;
+  }
+
   void pause() {
     timer?.cancel();
     speed = '0 KB/s';

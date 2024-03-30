@@ -76,7 +76,7 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     setState(() => loadingState = LoadingState.loading);
 
     try {
-      hhInfo = await EHRequest.request(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2HHInfo);
+      hhInfo = await EHRequest.get(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2HHInfo);
     } on DioException catch (e) {
       Log.error('Get H@H download info failed', e.errorMsg);
       snack('failed'.tr, e.errorMsg ?? '');
