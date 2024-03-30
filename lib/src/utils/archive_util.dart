@@ -4,13 +4,14 @@ import 'package:flutter/foundation.dart';
 Future<bool> extractZipArchive(String archivePath, String extractPath) {
   return compute(
     (List<String> path) async {
-      InputFileStream inputStream = InputFileStream(path[0]);
+      InputFileStream? inputStream;
       try {
+        inputStream = InputFileStream(path[0]);
         extractArchiveToDisk(ZipDecoder().decodeBuffer(inputStream), path[1]);
       } on Exception catch (_) {
         return false;
       } finally {
-        inputStream.close();
+        inputStream?.close();
       }
       return true;
     },

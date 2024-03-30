@@ -859,8 +859,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<Response> head<T>({required String url, Options? options}) {
-    return _dio.head(url, options: options);
+  static Future<Response> head<T>({required String url, CancelToken? cancelToken, Options? options}) {
+    return _dio.head(
+      url,
+      cancelToken: cancelToken,
+      options: options,
+    );
   }
 
   static Future<T> _parseResponse<T>(Response response, EHHtmlParser<T>? parser) async {

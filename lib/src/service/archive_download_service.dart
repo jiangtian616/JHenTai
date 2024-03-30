@@ -248,6 +248,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     archiveDownloadInfo.downloadPageUrl = null;
     archiveDownloadInfo.downloadUrl = null;
     archiveDownloadInfo.cancelToken = CancelToken();
+    archiveDownloadInfo.downloadTask?.pause();
+    archiveDownloadInfo.downloadTask = null;
     await _updateArchiveInDatabase(archive);
     update(['$archiveStatusId::${archive.gid}']);
 
@@ -440,7 +442,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
     String title = _computeArchiveTitle(archive.title);
 
-    return join(DownloadSetting.downloadPath.value, 'Archive - ${archive.gid} - $title.zip');
+    return join(DownloadSetting.downloadPath.value, 'Archive - v2 - ${archive.gid} - $title.zip');
   }
 
   String computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
@@ -486,6 +488,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       url: url,
       savePath: computePackingFileDownloadPath(archive),
       isolateCount: isolateCount,
+      deleteWhenUrlMismatch: false,
       onProgress: (current, total) {
         archiveDownloadInfos[archive.gid]!.speedComputer.downloadedBytes = current;
       },
@@ -511,9 +514,44 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
   }
 
-  bool _invalidDownload(Response response) {
-    Headers headers = response.headers;
+  Future<void> _check410Reason(String url, ArchiveDownloadedData archive) async {
+    try {
+      await EHRequest.get(
+        url: url,
+        cancelToken: archiveDownloadInfos[archive.gid]?.cancelToken,
+      );
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        return;
+      }
 
+      if (e.response!.data is String && e.response!.data.contains('You have clocked too many downloaded bytes on this gallery')) {
+        Log.download('${'410Hints'.tr} Archive: ${archive.title}');
+        snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
+
+        return await pauseDownloadArchive(archive, needReUnlock: true);
+      } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
+        Log.download('IP quota exhausted! Archive: ${archive.title}');
+        snack('archiveError'.tr, 'IP quota exhausted!', longDuration: true);
+
+        return await pauseDownloadArchive(archive, needReUnlock: true);
+      } else {
+        Log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
+        return await _reParseDownloadUrlAndDownload(archive);
+      }
+    }
+  }
+
+  Future<void> _reParseDownloadUrlAndDownload(ArchiveDownloadedData archive) async {
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
+    archiveDownloadInfo.downloadUrl = null;
+    _updateArchiveInDatabase(archive);
+
+    await _getDownloadUrl(archive);
+    await _doDownloadArchiveViaMultiIsolate(archive);
+  }
+
+  bool _invalidDownload(Headers headers) {
     if (headers['content-transfer-encoding']?.contains('binary') ?? false) {
       return false;
     }
@@ -611,6 +649,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (e.type == DioExceptionType.cancel) {
         return;
       }
+
       return await _getDownloadUrl(archive);
     } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
@@ -660,33 +699,25 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     /// check if archive link is invalid
     Response response;
     try {
-      response = await EHRequest.head(url: archiveDownloadInfo.downloadUrl!);
+      response = await EHRequest.head(
+        url: archiveDownloadInfo.downloadUrl!,
+        cancelToken: archiveDownloadInfo.cancelToken,
+      );
     } on DioException catch (e) {
-      /// download too many bytes will cause 410
-      if (e.response?.statusCode == 410) {
-        if (e.response!.data is String && e.response!.data.contains('You have clocked too many downloaded bytes on this gallery')) {
-          Log.download('${'410Hints'.tr} Archive: ${archive.title}');
-          snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
-
-          return await pauseDownloadArchive(archive, needReUnlock: true);
-        } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
-          Log.download('IP quota exhausted! Archive: ${archive.title}');
-          snack('archiveError'.tr, 'IP quota exhausted!', longDuration: true);
-
-          return await pauseDownloadArchive(archive, needReUnlock: true);
-        } else {
-          Log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
-          return await _reParseDownloadUrlAndDownload(archive);
-        }
+      if (e.type == DioExceptionType.cancel) {
+        return;
       }
 
-      Log.download('Check archive ${archive.title} available failed, retry. Reason: ${e.message}, url:${archiveDownloadInfo.downloadUrl!}');
+      /// download too many bytes will cause 410
+      if (e.response?.statusCode == 410) {
+        return await _check410Reason(archiveDownloadInfo.downloadUrl!, archive);
+      }
 
       await Future.delayed(const Duration(milliseconds: 1000));
       return await _doDownloadArchiveViaMultiIsolate(archive);
     }
 
-    if (_invalidDownload(response)) {
+    if (_invalidDownload(response.headers)) {
       Log.error('Invalid archive!');
       Log.uploadError(Exception('Invalid archive!'), extraInfos: {
         'code': response.statusCode,
@@ -709,15 +740,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       return await pauseDownloadArchive(archive);
     }
-  }
-
-  Future<void> _reParseDownloadUrlAndDownload(ArchiveDownloadedData archive) async {
-    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-    archiveDownloadInfo.downloadUrl = null;
-    _updateArchiveInDatabase(archive);
-
-    await _getDownloadUrl(archive);
-    await _doDownloadArchiveViaMultiIsolate(archive);
   }
 
   Future<void> _unpackingArchive(ArchiveDownloadedData archive) async {
