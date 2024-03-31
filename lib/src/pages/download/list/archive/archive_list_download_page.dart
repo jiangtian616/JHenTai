@@ -421,7 +421,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                   GetBuilder<ArchiveDownloadService>(
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                     builder: (_) => Text(
-                      '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archive.size.toDouble())}',
+                      '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archiveDownloadInfo.size.toDouble())}',
                       style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
                     ),
                   ),
@@ -438,7 +438,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 child: GetBuilder<ArchiveDownloadService>(
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => LinearProgressIndicator(
-                    value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
+                    value: archiveDownloadInfo.speedComputer.downloadedBytes / archiveDownloadInfo.size,
                     color: archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
                         ? UIConfig.downloadPageProgressPausedIndicatorColor(context)
                         : UIConfig.downloadPageProgressIndicatorColor(context),

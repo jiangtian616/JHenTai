@@ -224,7 +224,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
           ),
           child: CircularProgressIndicator(
-            value: archiveDownloadInfo.speedComputer.downloadedBytes / archive.size,
+            value: archiveDownloadInfo.speedComputer.downloadedBytes / archiveDownloadInfo.size,
             color: UIConfig.downloadPageGridProgressColor,
             backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
           ),
@@ -238,7 +238,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: GetBuilder<ArchiveDownloadService>(
         id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
         builder: (_) => Text(
-          '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archive.size.toDouble())}',
+          '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())} / ${byte2String(archiveDownloadInfo.size.toDouble())}',
           style: const TextStyle(fontSize: UIConfig.downloadPageGridViewInfoTextSize, color: UIConfig.downloadPageGridTextColor),
         ),
       ).marginOnly(top: 60),

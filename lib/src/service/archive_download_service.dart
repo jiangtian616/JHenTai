@@ -725,7 +725,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return _doDownloadArchiveViaMultiIsolate(archive);
       }
 
-      Log.download('${archive.title} size: ${response.headers.value('content-length')}');
+      int archiveSize = int.tryParse(response.headers.value(HttpHeaders.contentLengthHeader) ?? '') ?? archiveDownloadInfo.size;
+      Log.download('${archive.title} size: $archiveSize');
+      if (archiveSize != archiveDownloadInfo.size) {
+        archiveDownloadInfo.size = archiveSize;
+        await _updateArchiveInDatabase(archive);
+      }
 
       try {
         await task.start();
@@ -845,6 +850,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             archiveStatusIndex: Value(archiveDownloadInfo.archiveStatus.index),
             downloadPageUrl: archiveDownloadInfo.downloadPageUrl == null ? const Value.absent() : Value(archiveDownloadInfo.downloadPageUrl),
             downloadUrl: archiveDownloadInfo.downloadUrl == null ? const Value.absent() : Value(archiveDownloadInfo.downloadUrl),
+            size: Value(archiveDownloadInfo.size),
             sortOrder: Value(archiveDownloadInfo.sortOrder),
             groupName: Value(archiveDownloadInfo.group),
           ),
@@ -865,6 +871,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     archives.add(archive);
 
     archiveDownloadInfos[archive.gid] = ArchiveDownloadInfo(
+      size: archive.size,
       downloadPageUrl: archive.downloadPageUrl,
       downloadUrl: archive.downloadUrl,
       archiveStatus: ArchiveStatus.values[archive.archiveStatusIndex],
@@ -936,6 +943,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 }
 
 class ArchiveDownloadInfo {
+  /// Archive true size is different from which displayed in detail page
+  int size;
+
   String? downloadPageUrl;
 
   String? downloadUrl;
@@ -955,6 +965,7 @@ class ArchiveDownloadInfo {
   String group;
 
   ArchiveDownloadInfo({
+    required this.size,
     this.downloadPageUrl,
     this.downloadUrl,
     required this.archiveStatus,
@@ -968,7 +979,7 @@ class ArchiveDownloadInfo {
 
   @override
   String toString() {
-    return 'ArchiveDownloadInfo{downloadPageUrl: $downloadPageUrl, downloadUrl: $downloadUrl, archiveStatus: $archiveStatus, cancelToken: $cancelToken, speedComputer: $speedComputer, sortOrder: $sortOrder, group: $group}';
+    return 'ArchiveDownloadInfo{size: $size, downloadPageUrl: $downloadPageUrl, downloadUrl: $downloadUrl, archiveStatus: $archiveStatus, cancelToken: $cancelToken, speedComputer: $speedComputer, sortOrder: $sortOrder, group: $group}';
   }
 }
 
