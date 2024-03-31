@@ -48,7 +48,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
-  static const int isolateCount = 4;
+  static const int isolateCount = 8;
 
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
@@ -535,6 +535,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         snack('archiveError'.tr, 'IP quota exhausted!', longDuration: true);
 
         return await pauseDownloadArchive(archive, needReUnlock: true);
+      } else if (e.response!.data is String && e.response!.data.contains('Expired or invalid session')) {
+        Log.download('Expired or invalid session! Archive: ${archive.title}');
+        snack('archiveError'.tr, 'Expired or invalid session!', longDuration: true);
+
+        return await pauseDownloadArchive(archive);
       } else {
         Log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
         return await _reParseDownloadUrlAndDownload(archive);
