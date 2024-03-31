@@ -48,7 +48,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
-  static const int isolateCount = 8;
+  static const int isolateCount = 4;
 
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
@@ -116,6 +116,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index && !_taskHasBeenPausedOrRemoved(archive)) {
       await _doDownloadArchiveViaMultiIsolate(archive);
     }
+
+    /// step 5: unpacking files
+    if (archiveDownloadInfos[archive.gid]!.archiveStatus.index <= ArchiveStatus.unpacking.index && !_taskHasBeenPausedOrRemoved(archive)) {
+      await _unpackingArchive(archive);
+    }
+
+    _saveArchiveInfoInDisk(archive);
   }
 
   Future<void> deleteArchiveByGid(int gid) async {
@@ -493,17 +500,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         archiveDownloadInfos[archive.gid]!.speedComputer.downloadedBytes = current;
       },
       onDone: () async {
-        Log.download('Download archive success: ${archive.title}, original: ${archive.isOriginal}');
-        archiveDownloadInfos[archive.gid]!.speedComputer.dispose();
-        archiveDownloadInfos[archive.gid]!.archiveStatus = ArchiveStatus.downloaded;
-        await _updateArchiveInDatabase(archive);
-        update(['$archiveStatusId::${archive.gid}']);
-
-        /// step 5: unpacking files
-        if (archiveDownloadInfos[archive.gid]!.archiveStatus.index <= ArchiveStatus.unpacking.index && !_taskHasBeenPausedOrRemoved(archive)) {
-          await _unpackingArchive(archive);
-        }
-        _saveArchiveInfoInDisk(archive);
+        archiveDownloadInfos[archive.gid]!.downloadCompleter!.complete();
       },
       onError: (String? message) async {
         Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $message');
@@ -693,58 +690,60 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     /// multi-isolate download task
     JDownloadTask task = archiveDownloadInfo.downloadTask ??= _generateDownloadTask(archiveDownloadInfo.downloadUrl!, archive);
-
     archiveDownloadInfo.speedComputer.resetDownloadedBytes(task.currentBytes);
     Log.download('${archive.title} downloaded bytes: ${task.currentBytes}');
 
+    archiveDownloadInfo.downloadCompleter = Completer();
     if (task.status == TaskStatus.completed) {
-      return;
-    }
+      archiveDownloadInfo.downloadCompleter!.complete();
+    } else {
+      /// check if archive link is invalid
+      Response response;
+      try {
+        response = await EHRequest.head(
+          url: archiveDownloadInfo.downloadUrl!,
+          cancelToken: archiveDownloadInfo.cancelToken,
+        );
+      } on DioException catch (e) {
+        if (e.type == DioExceptionType.cancel) {
+          return;
+        }
 
-    /// check if archive link is invalid
-    Response response;
-    try {
-      response = await EHRequest.head(
-        url: archiveDownloadInfo.downloadUrl!,
-        cancelToken: archiveDownloadInfo.cancelToken,
-      );
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.cancel) {
-        return;
+        /// download too many bytes will cause 410
+        if (e.response?.statusCode == 410) {
+          return await _check410Reason(archiveDownloadInfo.downloadUrl!, archive);
+        }
+
+        await Future.delayed(const Duration(milliseconds: 1000));
+        return _doDownloadArchiveViaMultiIsolate(archive);
       }
 
-      /// download too many bytes will cause 410
-      if (e.response?.statusCode == 410) {
-        return await _check410Reason(archiveDownloadInfo.downloadUrl!, archive);
+      if (_invalidDownload(response.headers)) {
+        Log.error('Invalid archive!');
+        await _deletePackingFileInDisk(archive);
+        await Future.delayed(const Duration(milliseconds: 5000));
+        return _doDownloadArchiveViaMultiIsolate(archive);
       }
 
-      await Future.delayed(const Duration(milliseconds: 1000));
-      return await _doDownloadArchiveViaMultiIsolate(archive);
+      Log.download('${archive.title} size: ${response.headers.value('content-length')}');
+
+      try {
+        await task.start();
+      } on Exception catch (e) {
+        Log.download('Download archive ${archive.title} failed, retry. Reason: $e');
+        snack('archiveError'.tr, 'internalError'.tr, longDuration: true);
+
+        return await pauseDownloadArchive(archive);
+      }
     }
 
-    if (_invalidDownload(response.headers)) {
-      Log.error('Invalid archive!');
-      Log.uploadError(Exception('Invalid archive!'), extraInfos: {
-        'code': response.statusCode,
-        'headers': response.headers,
-        'body': response.data.toString(),
-        'archive': archiveDownloadInfo.toString(),
-      });
-      await _deletePackingFileInDisk(archive);
-      await Future.delayed(const Duration(milliseconds: 5000));
-      return _doDownloadArchiveViaMultiIsolate(archive);
-    }
+    await archiveDownloadInfo.downloadCompleter!.future;
 
-    Log.download('${archive.title} size: ${response.headers.value('content-length')}');
-
-    try {
-      await task.start();
-    } on Exception catch (e) {
-      Log.download('Download archive ${archive.title} failed, retry. Reason: $e');
-      snack('archiveError'.tr, 'internalError'.tr, longDuration: true);
-
-      return await pauseDownloadArchive(archive);
-    }
+    Log.download('Download archive success: ${archive.title}, original: ${archive.isOriginal}');
+    archiveDownloadInfo.speedComputer.dispose();
+    archiveDownloadInfo.archiveStatus = ArchiveStatus.downloaded;
+    await _updateArchiveInDatabase(archive);
+    update(['$archiveStatusId::${archive.gid}']);
   }
 
   Future<void> _unpackingArchive(ArchiveDownloadedData archive) async {
@@ -947,6 +946,8 @@ class ArchiveDownloadInfo {
 
   JDownloadTask? downloadTask;
 
+  Completer? downloadCompleter;
+
   SpeedComputer speedComputer;
 
   int sortOrder;
@@ -959,6 +960,7 @@ class ArchiveDownloadInfo {
     required this.archiveStatus,
     required this.cancelToken,
     this.downloadTask,
+    this.downloadCompleter,
     required this.speedComputer,
     required this.sortOrder,
     required this.group,
