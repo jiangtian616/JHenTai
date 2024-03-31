@@ -642,6 +642,8 @@ class ko_KR {
       'alwaysUseDefaultGroup': '항상 기본 그룹 사용',
       'enableStoreMetadataForRestore': '복원을 위한 저장소 메타데이터 사용',
       'enableStoreMetadataForRestoreHint': '사용하지 않으면 다운로드 작업을 복원할 수 없습니다.',
+      'archiveDownloadIsolateCount': 'Archive Download Thread Count',
+      'archiveDownloadIsolateCountHint': 'Too many threads may cause download failed',
       'deleteArchiveFileAfterDownload': '다운로드 완료 후 아카이브 .zip 파일 삭제',
       'restoreDownloadTasks': '다운로드 작업 복원',
       'restoreDownloadTasksHint': '메타데이터로 다운로드 작업 복원',

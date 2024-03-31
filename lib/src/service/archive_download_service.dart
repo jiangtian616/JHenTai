@@ -48,9 +48,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
-  static const int isolateCount = 4;
-
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
+
+  late Worker isolateCountListener;
 
   static void init() {
     Get.put(ArchiveDownloadService(), permanent: true);
@@ -70,11 +70,20 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
+    isolateCountListener = ever(DownloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
+
     if (DownloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();
     }
 
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    super.dispose();
+
+    isolateCountListener.dispose();
   }
 
   bool containArchive(int gid) {
@@ -494,13 +503,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return JDownloadTask.newTask(
       url: url,
       savePath: computePackingFileDownloadPath(archive),
-      isolateCount: isolateCount,
+      isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       onProgress: (current, total) {
-        archiveDownloadInfos[archive.gid]!.speedComputer.downloadedBytes = current;
+        archiveDownloadInfos[archive.gid]?.speedComputer.downloadedBytes = current;
       },
       onDone: () async {
-        archiveDownloadInfos[archive.gid]!.downloadCompleter!.complete();
+        archiveDownloadInfos[archive.gid]?.downloadCompleter?.complete();
       },
       onError: (String? message) async {
         Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $message');
@@ -565,6 +574,15 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     return true;
+  }
+
+  void _onIsolateCountChange() {
+    for (ArchiveDownloadedData archive in archives) {
+      ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
+      if (archiveDownloadInfo.archiveStatus.index < ArchiveStatus.downloaded.index && archiveDownloadInfo.downloadTask != null) {
+        archiveDownloadInfo.downloadTask!.changeIsolateCount(DownloadSetting.archiveDownloadIsolateCount.value);
+      }
+    }
   }
 
   bool _taskHasBeenPausedOrRemoved(ArchiveDownloadedData archive) {
@@ -765,6 +783,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       Log.uploadError(Exception('Unpacking error!'), extraInfos: {'archive': archive});
       snack('error'.tr, '${'failedToDealWith'.tr}:${archive.title}', longDuration: true);
       archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
+      await archiveDownloadInfo.downloadTask!.dispose();
+      archiveDownloadInfo.downloadTask = null;
       await _deletePackingFileInDisk(archive);
       return pauseDownloadArchive(archive);
     }
@@ -894,12 +914,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     update([galleryCountChangedId, '$archiveStatusId::${archive.gid}']);
   }
 
-  void _deleteArchiveInMemory(int gid, bool isOriginal) {
+  Future<void> _deleteArchiveInMemory(int gid, bool isOriginal) async {
     archives.removeWhere((a) => a.gid == gid && a.isOriginal == isOriginal);
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos.remove(gid);
 
     archiveDownloadInfo?.cancelToken.cancel();
     archiveDownloadInfo?.speedComputer.dispose();
+    await archiveDownloadInfo?.downloadTask?.dispose();
 
     update([galleryCountChangedId]);
   }

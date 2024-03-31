@@ -67,6 +67,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
+              _buildArchiveDownloadIsolateCount(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
               _buildRestoreTasksAutomatically(),
@@ -248,6 +249,29 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       trailing: Switch(
         value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
         onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
+      ),
+    );
+  }
+
+  Widget _buildArchiveDownloadIsolateCount() {
+    return ListTile(
+      title: Text('archiveDownloadIsolateCount'.tr),
+      subtitle: Text('archiveDownloadIsolateCountHint'.tr),
+      trailing: DropdownButton<int>(
+        value: DownloadSetting.archiveDownloadIsolateCount.value,
+        elevation: 4,
+        onChanged: (int? newValue) => DownloadSetting.saveArchiveDownloadIsolateCount(newValue!),
+        items: const [
+          DropdownMenuItem(child: Text('1'), value: 1),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('3'), value: 3),
+          DropdownMenuItem(child: Text('4'), value: 4),
+          DropdownMenuItem(child: Text('5'), value: 5),
+          DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('10'), value: 10),
+          DropdownMenuItem(child: Text('12'), value: 12),
+        ],
       ),
     );
   }

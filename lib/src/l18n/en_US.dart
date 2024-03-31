@@ -643,6 +643,8 @@ class en_US {
       'alwaysUseDefaultGroup': 'Always Use Default Group',
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
       'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
+      'archiveDownloadIsolateCount': 'Archive Download Thread Count',
+      'archiveDownloadIsolateCountHint': 'Too many threads may cause download failed',
       'deleteArchiveFileAfterDownload': 'Delete Archive .zip File After Download',
       'restoreDownloadTasks': 'Restore Download Tasks',
       'restoreDownloadTasksHint': 'Restore download tasks by metadata',

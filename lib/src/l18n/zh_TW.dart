@@ -641,6 +641,8 @@ class zh_TW {
       'restoreDownloadTasks': '恢復下載任務',
       'enableStoreMetadataForRestore': '允許儲存下載元數據用來恢復下載記錄',
       'enableStoreMetadataForRestoreHint': '關閉此項後無法再恢復下載記錄',
+      'archiveDownloadIsolateCount': '歸檔下載線程數',
+      'archiveDownloadIsolateCountHint': '線程過多可能會導致下載禁止或歸檔鏈接失效',
       'deleteArchiveFileAfterDownload': '歸檔下載完成後刪除原壓縮包',
       'restoreDownloadTasksHint': '通過下載元數據來恢復下載記錄',
       'restoreDownloadTasksSuccess': '恢復下載任務成功',
