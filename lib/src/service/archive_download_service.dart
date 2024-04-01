@@ -732,6 +732,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           return await _check410Reason(archiveDownloadInfo.downloadUrl!, archive);
         }
 
+        /// too many download thread will cause 410
+        if (e.response?.statusCode == 429) {
+          Log.download('${'429Hints'.tr} Archive: ${archive.title}');
+          snack('archiveError'.tr, '429Hints'.tr, longDuration: true);
+
+          return await pauseDownloadArchive(archive);
+        }
+
         await Future.delayed(const Duration(milliseconds: 1000));
         return _doDownloadArchiveViaMultiIsolate(archive);
       }

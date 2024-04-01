@@ -156,6 +156,7 @@ class ko_KR {
       'failedToDealWith': '처리 실패',
       'hasDownloaded': '다운로드 완료',
       '410Hints': '이 아카이브에서 다운로드한 용량이 너무 많아서 다시 시작하려면 아카이브의 잠금을 다시 해제해야 합니다.',
+      '429Hints': 'Too many download requests!',
       'getUnpackedImagesFailedMsg': 'JHenTai에서 이 아카이브 이미지를 가져올 수 없습니다. 로컬 파일을 확인하세요.',
       'getGalleryTorrentsFailed': '토렌트 불러오기 실패',
       'chooseArchive': '아카이브 선택',
