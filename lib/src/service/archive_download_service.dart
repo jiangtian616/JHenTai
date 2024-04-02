@@ -506,16 +506,36 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       onProgress: (current, total) {
-        archiveDownloadInfos[archive.gid]?.speedComputer.downloadedBytes = current;
+        archiveDownloadInfos[archive.gid]!.speedComputer.downloadedBytes = current;
+        if (total != archiveDownloadInfos[archive.gid]!.size) {
+          archiveDownloadInfos[archive.gid]!.size = total;
+          _updateArchiveInDatabase(archive);
+        }
       },
       onDone: () async {
         archiveDownloadInfos[archive.gid]?.downloadCompleter?.complete();
       },
-      onError: (String? message) async {
-        Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $message');
-        snack('archiveError'.tr, message ?? '', longDuration: true);
+      onError: (JDownloadException e) async {
+        Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $e');
 
-        await pauseDownloadArchive(archive);
+        if (e.type != JDownloadExceptionType.downloadFailed) {
+          snack('archiveError'.tr, e.error.toString() ?? '', longDuration: true);
+          return pauseDownloadArchive(archive);
+        }
+
+        Response response = e.data;
+        /// download too many bytes will cause 410
+        if (response.statusCode == 410) {
+          return await _check410Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
+        }
+        /// too many download thread will cause 410
+        if (response.statusCode == 429) {
+          Log.download('${'429Hints'.tr} Archive: ${archive.title}');
+          snack('archiveError'.tr, '429Hints'.tr, longDuration: true);
+          return await pauseDownloadArchive(archive);
+        }
+        await Future.delayed(const Duration(milliseconds: 1000));
+        return _doDownloadArchiveViaMultiIsolate(archive);
       },
     );
   }
@@ -560,20 +580,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _getDownloadUrl(archive);
     await _doDownloadArchiveViaMultiIsolate(archive);
-  }
-
-  bool _invalidDownload(Headers headers) {
-    if (headers['content-transfer-encoding']?.contains('binary') ?? false) {
-      return false;
-    }
-    if (headers['accept-ranges']?.contains('bytes') ?? false) {
-      return false;
-    }
-    if (headers['content-type']?.contains('application/zip') ?? false) {
-      return false;
-    }
-
-    return true;
   }
 
   void _onIsolateCountChange() {
@@ -715,49 +721,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     if (task.status == TaskStatus.completed) {
       archiveDownloadInfo.downloadCompleter!.complete();
     } else {
-      /// check if archive link is invalid
-      Response response;
-      try {
-        response = await EHRequest.head(
-          url: archiveDownloadInfo.downloadUrl!,
-          cancelToken: archiveDownloadInfo.cancelToken,
-        );
-      } on DioException catch (e) {
-        if (e.type == DioExceptionType.cancel) {
-          return;
-        }
-
-        /// download too many bytes will cause 410
-        if (e.response?.statusCode == 410) {
-          return await _check410Reason(archiveDownloadInfo.downloadUrl!, archive);
-        }
-
-        /// too many download thread will cause 410
-        if (e.response?.statusCode == 429) {
-          Log.download('${'429Hints'.tr} Archive: ${archive.title}');
-          snack('archiveError'.tr, '429Hints'.tr, longDuration: true);
-
-          return await pauseDownloadArchive(archive);
-        }
-
-        await Future.delayed(const Duration(milliseconds: 1000));
-        return _doDownloadArchiveViaMultiIsolate(archive);
-      }
-
-      if (_invalidDownload(response.headers)) {
-        Log.error('Invalid archive!');
-        await _deletePackingFileInDisk(archive);
-        await Future.delayed(const Duration(milliseconds: 5000));
-        return _doDownloadArchiveViaMultiIsolate(archive);
-      }
-
-      int archiveSize = int.tryParse(response.headers.value(HttpHeaders.contentLengthHeader) ?? '') ?? archiveDownloadInfo.size;
-      Log.download('${archive.title} size: $archiveSize');
-      if (archiveSize != archiveDownloadInfo.size) {
-        archiveDownloadInfo.size = archiveSize;
-        await _updateArchiveInDatabase(archive);
-      }
-
       try {
         await task.start();
       } on Exception catch (e) {
@@ -768,6 +731,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
+    // todo: after pause
     await archiveDownloadInfo.downloadCompleter!.future;
 
     Log.download('Download archive success: ${archive.title}, original: ${archive.isOriginal}');
