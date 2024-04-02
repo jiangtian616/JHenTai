@@ -186,6 +186,9 @@ class DownloadSetting {
     period.value = Duration(milliseconds: map['period']);
     downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
     archiveDownloadIsolateCount.value = map['archiveDownloadIsolateCount'] ?? archiveDownloadIsolateCount.value;
+    if (archiveDownloadIsolateCount.value > 10) {
+      archiveDownloadIsolateCount.value = 10;
+    }
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
     restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
   }
