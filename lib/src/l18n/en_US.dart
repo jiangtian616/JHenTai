@@ -645,7 +645,7 @@ class en_US {
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
       'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
       'archiveDownloadIsolateCount': 'Archive Download Thread Count',
-      'archiveDownloadIsolateCountHint': 'Too many threads may cause download failed',
+      'archiveDownloadIsolateCountHint': 'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
       'deleteArchiveFileAfterDownload': 'Delete Archive .zip File After Download',
       'restoreDownloadTasks': 'Restore Download Tasks',
       'restoreDownloadTasksHint': 'Restore download tasks by metadata',

@@ -645,7 +645,7 @@ class zh_CN {
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',
       'enableStoreMetadataForRestoreHint': '关闭此项后无法再恢复下载记录',
       'archiveDownloadIsolateCount': '归档下载线程数',
-      'archiveDownloadIsolateCountHint': '线程过多可能会导致下载禁止或归档链接失效',
+      'archiveDownloadIsolateCountHint': '所有任务活跃线程数之和若超过10将导致下载失败',
       'deleteArchiveFileAfterDownload': '归档下载完成后删除原压缩包',
       'restoreDownloadTasksHint': '通过下载元数据来恢复下载记录',
       'restoreDownloadTasksSuccess': '恢复下载任务成功',

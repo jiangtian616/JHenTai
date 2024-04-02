@@ -647,7 +647,7 @@ class pt_BR {
       'enableStoreMetadataForRestore': 'Ativar metadados da loja para restauração',
       'enableStoreMetadataForRestoreHint': 'Se desabilitar isso, você não poderá restaurar as tarefas de download',
       'archiveDownloadIsolateCount': 'Archive Download Thread Count',
-      'archiveDownloadIsolateCountHint': 'Too many threads may cause download failed',
+      'archiveDownloadIsolateCountHint': 'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
       'deleteArchiveFileAfterDownload': 'Delete Archive .zip File After Download',
       'restoreDownloadTasks': 'Restaurar tarefas de download',
       'restoreDownloadTasksHint': 'Restaurar tarefas de download por metadados',
