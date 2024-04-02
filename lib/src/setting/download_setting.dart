@@ -22,7 +22,7 @@ class DownloadSetting {
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxBool downloadAllGallerysOfSamePriority = false.obs;
-  static RxInt archiveDownloadIsolateCount = 4.obs;
+  static RxInt archiveDownloadIsolateCount = 1.obs;
   static RxBool deleteArchiveFileAfterDownload = true.obs;
   static RxBool restoreTasksAutomatically = false.obs;
 
