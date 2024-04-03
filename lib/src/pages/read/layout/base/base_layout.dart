@@ -160,7 +160,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// failed for online mode
   Widget _failedWidgetBuilder(int index, ExtendedImageState state) {
-    Log.warning(state.lastException);
+    Log.warning('online image widget build failed', state.lastException);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -355,7 +355,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// failed for local mode
   Widget _failedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
-    Log.warning(state.lastException);
+    Log.warning('local image widget build failed', state.lastException);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

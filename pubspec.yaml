@@ -24,7 +24,7 @@ dependencies:
   extended_nested_scroll_view: 6.1.1
   flukit: 3.0.1
   html: 0.15.1
-  logger: 1.1.0
+  logger: 2.2.0
   flutter_rating_bar: 4.0.1
   waterfall_flow: 3.0.2
   extended_image: 8.1.0

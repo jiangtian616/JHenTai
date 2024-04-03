@@ -190,7 +190,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> _handleGalleryDeleted(bool refreshPageImmediately, EHSiteException exception) async {
-    Log.verbose('Gallery deleted: ${state.galleryUrl.url}, try to get metadata');
+    Log.trace('Gallery deleted: ${state.galleryUrl.url}, try to get metadata');
 
     try {
       state.galleryMetadata = await EHRequest.requestGalleryMetadata<GalleryMetadata>(
@@ -918,7 +918,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// if we can't find gallery via firstLink, try second link
     EHSiteException? firstException;
     if (!isEmptyOrNull(firstLink)) {
-      Log.verbose('Try to find gallery via firstLink: $firstLink');
+      Log.trace('Try to find gallery via firstLink: $firstLink');
       try {
         ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
           galleryUrl: firstLink!,
@@ -930,13 +930,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         state.galleryDetails?.galleryUrl = state.galleryUrl;
         return detailPageInfo;
       } on EHSiteException catch (e) {
-        Log.verbose('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
+        Log.trace('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
         firstException = e;
       }
     }
 
     try {
-      Log.verbose('Try to find gallery via secondLink: $secondLink');
+      Log.trace('Try to find gallery via secondLink: $secondLink');
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
         galleryUrl: secondLink,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
@@ -947,7 +947,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       state.galleryDetails?.galleryUrl = state.galleryUrl;
       return detailPageInfo;
     } on EHSiteException catch (e) {
-      Log.verbose('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
+      Log.trace('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
       throw firstException ?? e;
     }
   }

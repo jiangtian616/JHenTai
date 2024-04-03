@@ -362,7 +362,7 @@ class SuperResolutionService extends GetxController {
     superResolutionInfo.currentProcess = process;
 
     process.stderr.listen((event) {
-      Log.verbose(String.fromCharCodes(event).trim());
+      Log.trace(String.fromCharCodes(event).trim());
     });
 
     int exitCode = await process.exitCode;
@@ -394,7 +394,7 @@ class SuperResolutionService extends GetxController {
 
     ModelType modelType = SuperResolutionSetting.model.value;
 
-    Log.verbose(
+    Log.trace(
       'Run: ${join(
         SuperResolutionSetting.modelDirectoryPath.value!,
         GetPlatform.isWindows

@@ -33,7 +33,7 @@ class HistoryService extends GetxController {
   }
 
   Future<void> record(Gallery gallery) async {
-    Log.verbose('Record history: ${gallery.gid}');
+    Log.trace('Record history: ${gallery.gid}');
 
     try {
       await GalleryHistoryDao.replaceHistory(

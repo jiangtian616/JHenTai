@@ -20,6 +20,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
@@ -505,6 +506,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       savePath: computePackingFileDownloadPath(archive),
       isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
+      onLog: (OutputEvent event) {
+        if (event.level.value >= Level.debug.value) {
+          Log.log(event);
+        }
+      },
       onProgress: (current, total) {
         archiveDownloadInfos[archive.gid]!.speedComputer.downloadedBytes = current;
         if (total != archiveDownloadInfos[archive.gid]!.size) {
@@ -524,10 +530,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         }
 
         Response response = e.data;
+
         /// download too many bytes will cause 410
         if (response.statusCode == 410) {
           return await _check410Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
         }
+
         /// too many download thread will cause 410
         if (response.statusCode == 429) {
           Log.download('${'429Hints'.tr} Archive: ${archive.title}');
@@ -700,7 +708,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
     archiveDownloadInfo.downloadUrl = 'https://' + Uri.parse(archiveDownloadInfo.downloadPageUrl!).host + downloadPath;
-    Log.verbose('Archive download url: ${archiveDownloadInfo.downloadUrl}');
+    Log.trace('Archive download url: ${archiveDownloadInfo.downloadUrl}');
 
     await _updateArchiveInDatabase(archive);
     update(['$archiveStatusId::${archive.gid}']);

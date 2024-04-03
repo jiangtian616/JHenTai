@@ -49,7 +49,7 @@ class EHCacheManager extends Interceptor {
         return handler.next(options);
       }
 
-      Log.verbose('cache hit: ${options.uri.toString()}');
+      Log.trace('cache hit: ${options.uri.toString()}');
       cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
       return handler.resolve(cacheResponse.toResponse(options), true);
     }

@@ -214,7 +214,7 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> _parseImageHref(int index) async {
-    Log.verbose('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
+    Log.trace('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
     update(['$parseImageHrefsStateId::$index']);
 
     int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
