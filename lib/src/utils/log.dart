@@ -98,10 +98,28 @@ class Log {
     _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
   }
 
-  static void log(OutputEvent event) {
-    _consoleLogger?.log(event.level, event.origin.message, time: event.origin.time, error: event.origin.error, stackTrace: event.origin.stackTrace);
-    _verboseFileLogger?.log(event.level, event.origin.message, time: event.origin.time, error: event.origin.error, stackTrace: event.origin.stackTrace);
-    _warningFileLogger?.log(event.level, event.origin.message, time: event.origin.time, error: event.origin.error, stackTrace: event.origin.stackTrace);
+  static void log(OutputEvent event, {bool withStack = true}) {
+    _consoleLogger?.log(
+      event.level,
+      event.origin.message,
+      time: event.origin.time,
+      error: event.origin.error,
+      stackTrace: withStack ? event.origin.stackTrace : StackTrace.empty,
+    );
+    _verboseFileLogger?.log(
+      event.level,
+      event.origin.message,
+      time: event.origin.time,
+      error: event.origin.error,
+      stackTrace: withStack ? event.origin.stackTrace : StackTrace.empty,
+    );
+    _warningFileLogger?.log(
+      event.level,
+      event.origin.message,
+      time: event.origin.time,
+      error: event.origin.error,
+      stackTrace: withStack ? event.origin.stackTrace : StackTrace.empty,
+    );
   }
 
   static void download(Object msg) {

@@ -508,7 +508,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       deleteWhenUrlMismatch: false,
       onLog: (OutputEvent event) {
         if (event.level.value >= Level.debug.value) {
-          Log.log(event);
+          Log.log(event, withStack: false);
         }
       },
       onProgress: (current, total) {
