@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_logic.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
-import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -221,7 +220,7 @@ class LoginPage extends StatelessWidget {
           width: 56,
           icon: Icon(Icons.public, color: UIConfig.loginPageFormIconColor(context)),
           text: const Text('Web', style: TextStyle(fontSize: 10)),
-          onPressed: GetPlatform.isDesktop ? () => toast('webLoginIsDisabled'.tr) : logic.handleWebLogin,
+          onPressed: logic.handleWebLogin,
         ),
         ElevatedButton(
           onPressed: logic.handleLogin,

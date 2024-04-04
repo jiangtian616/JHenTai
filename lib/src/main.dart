@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,7 +47,11 @@ import 'package:jhentai/src/utils/log.dart';
 
 import 'config/theme_config.dart';
 
-void main() async {
+void main(List<String> args) async {
+  if (GetPlatform.isDesktop && runWebViewTitleBarWidget(args)) {
+    return;
+  }
+
   await init();
   runApp(const MyApp());
 }
@@ -92,6 +97,7 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (GetPlatform.isDesktop) {
     await windowManager.ensureInitialized();
   }

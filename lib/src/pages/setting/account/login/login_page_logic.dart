@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
@@ -229,17 +231,79 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> handleWebLogin() async {
-    toRoute(
-      Routes.webview,
-      arguments: {
-        'title': 'login'.tr,
-        'url': EHConsts.ELogin,
-        'onPageStarted': _onPageStarted,
-      },
-    );
+    if (GetPlatform.isDesktop) {
+      if (!await WebviewWindow.isWebviewAvailable()) {
+        toast('webLoginIsDisabled'.tr);
+        return;
+      }
+      Webview webview = await WebviewWindow.create(
+        configuration: CreateConfiguration(
+          windowWidth: 800,
+          windowHeight: 600,
+          title: EHConsts.appName,
+          userDataFolderWindows: PathSetting.getVisibleDir().path,
+        ),
+      );
+      webview.addOnUrlRequestCallback((url) => _onDesktopPageStarted(webview, url));
+      webview.launch(EHConsts.ELogin);
+    } else {
+      toRoute(
+        Routes.webview,
+        arguments: {
+          'title': 'login'.tr,
+          'url': EHConsts.ELogin,
+          'onPageStarted': _onMobilePageStarted,
+        },
+      );
+    }
   }
 
-  Future<void> _onPageStarted(String url, WebViewController controller) async {
+  Future<void> _onDesktopPageStarted(Webview webview, String url) async {
+    if (cookieLoginLoadingState != LoadingState.idle) {
+      return;
+    }
+
+    String cookieString = await webview.evaluateJavaScript('document.cookie') as String;
+    cookieString = cookieString.replaceAll('"', '');
+    if (!CookieUtil.validateCookiesString(cookieString)) {
+      return;
+    }
+
+    Log.info('Login success by web.');
+    cookieLoginLoadingState = LoadingState.loading;
+
+    try {
+      List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
+      EHRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
+
+      int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
+      String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
+
+      /// temporary name
+      UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+
+      webview.close();
+      toast('loginSuccess'.tr);
+      untilRoute(
+        currentRoute: Routes.login,
+        predicate: (route) => route.settings.name == Routes.settingAccount || route.settings.name == Routes.blank || route.settings.name == Routes.home,
+      );
+
+      /// get username and avatar
+      Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      UserSetting.saveUserNameAndAvatarAndNickName(
+        userName: userInfo!['userName']!,
+        avatarImgUrl: userInfo['avatarImgUrl'],
+        nickName: userInfo['nickName']!,
+      );
+
+      cookieLoginLoadingState = LoadingState.success;
+    } finally {
+      cookieLoginLoadingState = LoadingState.idle;
+    }
+  }
+
+  Future<void> _onMobilePageStarted(String url, WebViewController controller) async {
     if (cookieLoginLoadingState != LoadingState.idle) {
       return;
     }

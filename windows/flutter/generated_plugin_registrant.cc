@@ -7,6 +7,7 @@
 #include "generated_plugin_registrant.h"
 
 #include <battery_plus/battery_plus_windows_plugin.h>
+#include <desktop_webview_window/desktop_webview_window_plugin.h>
 #include <local_auth_windows/local_auth_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <screen_brightness_windows/screen_brightness_windows_plugin.h>
@@ -19,6 +20,8 @@
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   BatteryPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("BatteryPlusWindowsPlugin"));
+  DesktopWebviewWindowPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("DesktopWebviewWindowPlugin"));
   LocalAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocalAuthPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(

@@ -345,6 +345,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.7.8"
+  desktop_webview_window:
+    dependency: "direct main"
+    description:
+      name: desktop_webview_window
+      sha256: "57cf20d81689d5cbb1adfd0017e96b669398a669d927906073b0e42fc64111c0"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.2.3"
   dio:
     dependency: "direct main"
     description:
@@ -1963,12 +1971,11 @@ packages:
   window_manager:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "64c058e59e993042f05fbde4dc8ad22435b6a0a8"
-      url: "https://github.com/damywise/window_manager"
-    source: git
-    version: "0.3.4"
+      name: window_manager
+      sha256: b3c895bdf936c77b83c5254bec2e6b3f066710c1f89c38b20b8acc382b525494
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.3.8"
   xdg_directories:
     dependency: transitive
     description:

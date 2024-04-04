@@ -47,6 +47,7 @@ dependencies:
   like_button:
     git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
+  desktop_webview_window: 0.2.3
   # rewrite double tap & tap drag gesture
   photo_view:
     git:
@@ -65,11 +66,7 @@ dependencies:
   battery_plus: 3.0.2
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
-  window_manager:
-    # https://github.com/leanflutter/window_manager/pull/409
-    git:
-      url: https://github.com/damywise/window_manager
-      branch: fullscreen-events
+  window_manager: 0.3.8
   permission_handler: 9.2.0
   grouped_list: 5.1.2
   resizable_widget:

@@ -19,6 +19,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_timeout_translator.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -26,6 +27,7 @@ import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/proxy_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
+import 'package:path/path.dart';
 import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../setting/network_setting.dart';
 import 'eh_cache_manager.dart';
@@ -299,8 +301,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<void> requestLogout() async {
     removeAllCookies();
     UserSetting.clear();
-    if (!GetPlatform.isDesktop) {
-      WebViewCookieManager().clearCookies();
+    if (GetPlatform.isDesktop) {
+      await Directory(join(PathSetting.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName)).delete(recursive: true);
+    } else {
+      await WebViewCookieManager().clearCookies();
     }
   }
 
