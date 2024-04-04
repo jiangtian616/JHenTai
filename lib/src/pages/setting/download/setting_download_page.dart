@@ -68,6 +68,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
               _buildArchiveDownloadIsolateCount(),
+              _buildManageArchiveDownloadConcurrency(),
               _buildDeleteArchiveFileAfterDownload(),
               _buildRestore(),
               _buildRestoreTasksAutomatically(),
@@ -268,10 +269,20 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
           DropdownMenuItem(child: Text('4'), value: 4),
           DropdownMenuItem(child: Text('5'), value: 5),
           DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('7'), value: 7),
           DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('9'), value: 9),
           DropdownMenuItem(child: Text('10'), value: 10),
         ],
       ),
+    );
+  }
+
+  Widget _buildManageArchiveDownloadConcurrency() {
+    return ListTile(
+      title: Text('manageArchiveDownloadConcurrency'.tr),
+      subtitle: Text('manageArchiveDownloadConcurrencyHint'.tr),
+      trailing: Switch(value: DownloadSetting.manageArchiveDownloadConcurrency.value, onChanged: DownloadSetting.saveManageArchiveDownloadConcurrency),
     );
   }
 

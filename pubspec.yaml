@@ -99,7 +99,7 @@ dependencies:
   csv: 5.1.1
   dotted_border: 2.1.0
   j_downloader:
-    path: C:\Users\JTMonster\IdeaProjects\J_Downloader
+    git: https://github.com/jiangtian616/JDownloader
 
 dependency_overrides:
   test_api: 0.6.0

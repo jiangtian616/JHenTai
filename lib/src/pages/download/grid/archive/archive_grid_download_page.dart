@@ -153,42 +153,44 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       title: archive.title,
       widget: GetBuilder<ArchiveGridDownloadPageLogic>(
         id: '${logic.itemCardId}::${archive.gid}',
-        builder: (_) => GetBuilder<ArchiveDownloadService>(
-          id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
-          builder: (_) {
-            Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
+        builder: (_) {
+          ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
-            if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
-              if (state.selectedGids.contains(archive.gid)) {
-                return Stack(
-                  children: [cover, _buildSelectedIcon()],
-                );
-              } else {
-                return cover;
+          return GetBuilder<ArchiveDownloadService>(
+            id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+            builder: (_) {
+              Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
+
+              if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+                if (state.selectedGids.contains(archive.gid)) {
+                  return Stack(
+                    children: [cover, _buildSelectedIcon()],
+                  );
+                } else {
+                  return cover;
+                }
               }
-            }
 
-            ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
-
-            return Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Blur(
-                    blur: 1,
-                    blurColor: UIConfig.downloadPageGridCoverBlurColor,
-                    colorOpacity: 0.6,
-                    child: cover,
+              return Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Blur(
+                      blur: 1,
+                      blurColor: UIConfig.downloadPageGridCoverBlurColor,
+                      colorOpacity: 0.6,
+                      child: cover,
+                    ),
                   ),
-                ),
-                _buildCircularProgressIndicator(archive, archiveDownloadInfo),
-                _buildDownloadProgress(archive, archiveDownloadInfo),
-                _buildActionButton(archiveDownloadInfo, archive),
-                if (state.selectedGids.contains(archive.gid)) _buildSelectedIcon(),
-              ],
-            );
-          },
-        ),
+                  _buildCircularProgressIndicator(archive, archiveDownloadInfo),
+                  _buildDownloadProgress(archive, archiveDownloadInfo),
+                  _buildActionButton(archiveDownloadInfo, archive),
+                  if (state.selectedGids.contains(archive.gid)) _buildSelectedIcon(),
+                ],
+              );
+            },
+          );
+        },
       ),
       isOriginal: archive.isOriginal,
       gid: archive.gid,
@@ -255,25 +257,25 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: Center(
         child: GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
-          builder: (_) => archiveDownloadInfo.archiveStatus.code >= ArchiveStatus.unlocking.code &&
-                  archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code
-              ? GetBuilder<ArchiveDownloadService>(
-                  id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
-                  builder: (_) => Text(
-                    archiveDownloadInfo.speedComputer.speed,
-                    style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
-                  ),
-                )
-              : Icon(
-                  archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
-                      ? Icons.lock_open
-                      : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
-                          ? Icons.play_arrow
-                          : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
-                              ? Icons.done
-                              : Icons.file_open,
-                  color: UIConfig.downloadPageGridTextColor,
-                ),
+          builder: (_) =>
+              archiveDownloadInfo.archiveStatus.code >= ArchiveStatus.unlocking.code && archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code
+                  ? GetBuilder<ArchiveDownloadService>(
+                      id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+                      builder: (_) => Text(
+                        archiveDownloadInfo.speedComputer.speed,
+                        style: const TextStyle(fontSize: UIConfig.downloadPageGridViewSpeedTextSize, color: UIConfig.downloadPageGridTextColor),
+                      ),
+                    )
+                  : Icon(
+                      archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
+                          ? Icons.lock_open
+                          : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
+                              ? Icons.play_arrow
+                              : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                                  ? Icons.done
+                                  : Icons.file_open,
+                      color: UIConfig.downloadPageGridTextColor,
+                    ),
         ),
       ),
     );

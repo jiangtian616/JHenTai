@@ -23,6 +23,7 @@ class DownloadSetting {
   static Rx<Duration> period = const Duration(seconds: 1).obs;
   static RxBool downloadAllGallerysOfSamePriority = false.obs;
   static RxInt archiveDownloadIsolateCount = 1.obs;
+  static RxBool manageArchiveDownloadConcurrency = true.obs;
   static RxBool deleteArchiveFileAfterDownload = true.obs;
   static RxBool restoreTasksAutomatically = false.obs;
 
@@ -115,6 +116,12 @@ class DownloadSetting {
     archiveDownloadIsolateCount.value = count;
     _save();
   }
+  
+  static saveManageArchiveDownloadConcurrency(bool value) {
+    Log.debug('saveManageArchiveDownloadConcurrency:$value');
+    manageArchiveDownloadConcurrency.value = value;
+    _save();
+  }
 
   static saveDeleteArchiveFileAfterDownload(bool value) {
     Log.debug('saveDeleteArchiveFileAfterDownload:$value');
@@ -164,6 +171,7 @@ class DownloadSetting {
       'period': period.value.inMilliseconds,
       'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
       'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
+      'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
       'restoreTasksAutomatically': restoreTasksAutomatically.value,
     };
@@ -189,6 +197,7 @@ class DownloadSetting {
     if (archiveDownloadIsolateCount.value > 10) {
       archiveDownloadIsolateCount.value = 10;
     }
+    manageArchiveDownloadConcurrency.value = map['manageArchiveDownloadConcurrency'] ?? manageArchiveDownloadConcurrency.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
     restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
   }

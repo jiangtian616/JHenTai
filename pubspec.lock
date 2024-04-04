@@ -818,9 +818,11 @@ packages:
   j_downloader:
     dependency: "direct main"
     description:
-      path: "C:\\Users\\JTMonster\\IdeaProjects\\J_Downloader"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: "6c512731426d06bf86771093d2adb6af2db5e4ea"
+      url: "https://github.com/jiangtian616/JDownloader"
+    source: git
     version: "0.0.1"
   js:
     dependency: transitive

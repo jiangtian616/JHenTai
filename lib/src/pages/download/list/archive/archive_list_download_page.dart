@@ -303,11 +303,11 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildReUnlockButton(BuildContext context, ArchiveDownloadedData archive) {
+    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
-        ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
-
         if (archiveDownloadInfo.archiveStatus != ArchiveStatus.needReUnlock) {
           return const SizedBox();
         }
@@ -315,7 +315,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         return GestureDetector(
           onTap: () => logic.handleReUnlockArchive(archive),
           child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor(context)),
-        ).marginSymmetric(horizontal: 6);
+        ).marginOnly(right: 8);
       },
     );
   }
@@ -327,7 +327,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     }
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
+      margin: const EdgeInsets.only(right: 8),
       padding: const EdgeInsets.symmetric(horizontal: 2),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
@@ -376,25 +376,22 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildButton(BuildContext context, ArchiveDownloadedData archive) {
+    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
-        ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return GestureDetector(
-          onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
-              ? null
-              : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
-                  ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
-                  : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
+          onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
+              ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
+              : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
           child: Icon(
-            archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
-                ? Icons.not_interested
-                : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
-                    ? Icons.play_arrow
-                    : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
-                        ? Icons.done
-                        : Icons.pause,
-            size: 26,
+            archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.paused.code
+                ? Icons.play_arrow
+                : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                    ? Icons.done
+                    : Icons.pause,
+            size: 22,
             color: UIConfig.resumePauseButtonColor(context),
           ),
         );
@@ -403,10 +400,11 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildInfoFooter(BuildContext context, ArchiveDownloadedData archive) {
+    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
-        ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [

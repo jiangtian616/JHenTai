@@ -41,6 +41,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const int _retryTimes = 3;
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
+  static const int _maxIsolateCountsTotal = 10;
 
   final Completer<bool> _completer = Completer();
 
@@ -162,7 +163,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.downloadCompleter?.completeError(CancelException());
       archiveDownloadInfo.speedComputer.pause();
 
-      return _updateArchiveStatus(gid, needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused);
+      await _updateArchiveStatus(gid, needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused);
+
+      _tryWakeWaitingTasks();
     }
   }
 
@@ -369,6 +372,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// compatible with new field
       metadata.putIfAbsent('sortOrder', () => 0);
+      metadata.putIfAbsent('archiveStatusCode', () => ArchiveStatus.completed.code);
       if (metadata['groupName'] == null) {
         metadata['groupName'] = 'default'.tr;
       }
@@ -492,11 +496,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       proxyConfig: EHRequest.currentProxyConfig(),
-      onLog: (OutputEvent event) {
-        if (event.level.value > Level.trace.value) {
-          Log.log(event..origin.message, withStack: false);
-        }
-      },
+      onLog: (OutputEvent event) {},
       onProgress: (current, total) {
         ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
         archiveDownloadInfo.speedComputer.downloadedBytes = current;
@@ -554,6 +554,29 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     return _doDownloadArchiveViaMultiIsolate(archive);
+  }
+
+  Future<void> _tryWakeWaitingTasks() async {
+    int currentActiveIsolateCount = archiveDownloadInfos.values
+        .where((a) => a.archiveStatus == ArchiveStatus.downloading)
+        .fold(0, (previousValue, a) => previousValue + a.downloadTask!.activeIsolateCount);
+    if (currentActiveIsolateCount >= _maxIsolateCountsTotal) {
+      return;
+    }
+
+    List<int> gids = archiveDownloadInfos.entries.where((e) => e.value.archiveStatus == ArchiveStatus.waitingIsolate).map((e) => e.key).toList();
+    List<ArchiveDownloadedData> waitingArchives = archives.where((a) => gids.contains(a.gid)).toList();
+    waitingArchives.sort((a, b) => a.insertTime.compareTo(b.insertTime));
+
+    for (ArchiveDownloadedData a in waitingArchives) {
+      ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[a.gid]!;
+      if (currentActiveIsolateCount + archiveDownloadInfo.downloadTask!.isolateCount <= _maxIsolateCountsTotal) {
+        Log.download('Archive ${a.title} gain isolates.');
+        await _updateArchiveStatus(a.gid, ArchiveStatus.downloading);
+        downloadArchive(a, resume: true);
+        return;
+      }
+    }
   }
 
   void _onIsolateCountChange() {
@@ -765,6 +788,22 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     Log.download('${archive.title} downloaded bytes: ${task.currentBytes}');
 
     if (task.status != TaskStatus.completed) {
+      if (DownloadSetting.manageArchiveDownloadConcurrency.isTrue) {
+        int currentActiveIsolateCount = archiveDownloadInfos.entries
+            .where((e) => e.value.archiveStatus == ArchiveStatus.downloading)
+            .where((e) => e.key != archive.gid)
+            .map((e) => e.value)
+            .fold(
+              0,
+              (previousValue, a) =>
+                  previousValue + (a.downloadTask!.activeIsolateCount > 0 ? a.downloadTask!.activeIsolateCount : a.downloadTask!.isolateCount),
+            );
+        if (currentActiveIsolateCount + task.isolateCount > _maxIsolateCountsTotal) {
+          Log.download('Archive ${archive.title} is waiting isolates...');
+          return _updateArchiveStatus(archive.gid, ArchiveStatus.waitingIsolate);
+        }
+      }
+
       try {
         await task.start();
 
@@ -845,7 +884,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _saveArchiveInfoInDisk(archive);
 
-    return _updateArchiveStatus(archive.gid, ArchiveStatus.completed);
+    await _updateArchiveStatus(archive.gid, ArchiveStatus.completed);
+
+    _tryWakeWaitingTasks();
   }
 
   // ALL
@@ -1061,6 +1102,7 @@ enum ArchiveStatus {
   parsedDownloadPageUrl(45),
   parsingDownloadUrl(50),
   parsedDownloadUrl(55),
+  waitingIsolate(58),
   downloading(60),
   downloaded(70),
   unpacking(80),
