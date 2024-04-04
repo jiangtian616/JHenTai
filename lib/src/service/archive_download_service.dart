@@ -17,6 +17,7 @@ import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -54,6 +55,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
   late Worker isolateCountListener;
+  late Worker proxyConfigListener;
 
   static void init() {
     Get.put(ArchiveDownloadService(), permanent: true);
@@ -76,6 +78,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     _completer.complete(true);
 
     isolateCountListener = ever(DownloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
+    proxyConfigListener = everAll([NetworkSetting.proxyAddress, NetworkSetting.proxyUsername, NetworkSetting.proxyPassword], (_) => _onProxyConfigChange());
 
     if (DownloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();
@@ -87,6 +90,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     super.dispose();
 
     isolateCountListener.dispose();
+    proxyConfigListener.dispose();
   }
 
   bool containArchive(int gid) {
@@ -580,10 +584,17 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   void _onIsolateCountChange() {
-    for (ArchiveDownloadedData archive in archives) {
-      ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
+    for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
       if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.unpacking.code && archiveDownloadInfo.downloadTask != null) {
         archiveDownloadInfo.downloadTask!.changeIsolateCount(DownloadSetting.archiveDownloadIsolateCount.value);
+      }
+    }
+  }
+
+  void _onProxyConfigChange() {
+    for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
+      if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code && archiveDownloadInfo.downloadTask != null) {
+        archiveDownloadInfo.downloadTask!.setProxy(EHRequest.currentProxyConfig());
       }
     }
   }
