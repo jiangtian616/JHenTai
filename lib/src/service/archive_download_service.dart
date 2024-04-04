@@ -491,9 +491,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       savePath: computePackingFileDownloadPath(archive),
       isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
+      proxyConfig: EHRequest.currentProxyConfig(),
       onLog: (OutputEvent event) {
         if (event.level.value > Level.trace.value) {
-          print('$url log:');
           Log.log(event..origin.message, withStack: false);
         }
       },
@@ -506,11 +506,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         }
       },
       onDone: () async {
-        Log.info('$url done');
         archiveDownloadInfos[archive.gid]!.downloadCompleter?.complete();
       },
       onError: (JDownloadException e) async {
-        Log.info('$url error');
         archiveDownloadInfos[archive.gid]!.downloadCompleter?.completeError(e);
       },
     );

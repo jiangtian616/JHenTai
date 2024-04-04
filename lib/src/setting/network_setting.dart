@@ -6,13 +6,13 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import '../service/storage_service.dart';
 import '../utils/log.dart';
 
-enum ProxyType { system, http, socks5, socks4, direct }
+enum JProxyType { system, http, socks5, socks4, direct }
 
 class NetworkSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   static RxBool enableDomainFronting =
       PreferenceSetting.locale.value.languageCode == 'zh' && PreferenceSetting.locale.value.countryCode == 'CN' ? true.obs : false.obs;
-  static Rx<ProxyType> proxyType = ProxyType.system.obs;
+  static Rx<JProxyType> proxyType = JProxyType.system.obs;
   static RxString proxyAddress = 'localhost:1080'.obs;
   static RxnString proxyUsername = RxnString();
   static RxnString proxyPassword = RxnString();
@@ -67,7 +67,7 @@ class NetworkSetting {
     _save();
   }
 
-  static saveProxy(ProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) {
+  static saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) {
     Log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
     NetworkSetting.proxyType.value = proxyType;
     NetworkSetting.proxyAddress.value = proxyAddress;
@@ -145,7 +145,7 @@ class NetworkSetting {
   static _initFromMap(Map<String, dynamic> map) {
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value);
     enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
-    proxyType.value = ProxyType.values[map['proxyType'] ?? proxyType.value.index];
+    proxyType.value = JProxyType.values[map['proxyType'] ?? proxyType.value.index];
     proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;
     proxyUsername.value = map['proxyUsername'] ?? proxyUsername.value;
     proxyPassword.value = map['proxyPassword'] ?? proxyPassword.value;

@@ -13,7 +13,7 @@ class SettingProxyPage extends StatefulWidget {
 }
 
 class _SettingProxyPageState extends State<SettingProxyPage> {
-  ProxyType proxyType = NetworkSetting.proxyType.value;
+  JProxyType proxyType = NetworkSetting.proxyType.value;
   String proxyAddress = NetworkSetting.proxyAddress.value;
   String? proxyUsername = NetworkSetting.proxyUsername.value;
   String? proxyPassword = NetworkSetting.proxyPassword.value;
@@ -52,17 +52,17 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
     return ListTile(
       title: Text('proxyType'.tr),
       trailing: Obx(
-        () => DropdownButton<ProxyType>(
+        () => DropdownButton<JProxyType>(
           value: NetworkSetting.proxyType.value,
           alignment: Alignment.center,
           items: [
-            DropdownMenuItem(child: Text('systemProxy'.tr), value: ProxyType.system),
-            DropdownMenuItem(child: Text('httpProxy'.tr), value: ProxyType.http),
-            DropdownMenuItem(child: Text('socks5Proxy'.tr), value: ProxyType.socks5),
-            DropdownMenuItem(child: Text('socks4Proxy'.tr), value: ProxyType.socks4),
-            DropdownMenuItem(child: Text('directProxy'.tr), value: ProxyType.direct),
+            DropdownMenuItem(child: Text('systemProxy'.tr), value: JProxyType.system),
+            DropdownMenuItem(child: Text('httpProxy'.tr), value: JProxyType.http),
+            DropdownMenuItem(child: Text('socks5Proxy'.tr), value: JProxyType.socks5),
+            DropdownMenuItem(child: Text('socks4Proxy'.tr), value: JProxyType.socks4),
+            DropdownMenuItem(child: Text('directProxy'.tr), value: JProxyType.direct),
           ],
-          onChanged: (ProxyType? value) {
+          onChanged: (JProxyType? value) {
             proxyType = value!;
             NetworkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
           },
@@ -81,10 +81,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyAddress = value,
-          enabled: NetworkSetting.proxyType.value != ProxyType.system,
+          enabled: NetworkSetting.proxyType.value != JProxyType.system,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != ProxyType.system,
+      enabled: NetworkSetting.proxyType.value != JProxyType.system,
     );
   }
 
@@ -98,10 +98,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyUsername = value,
-          enabled: NetworkSetting.proxyType.value != ProxyType.system,
+          enabled: NetworkSetting.proxyType.value != JProxyType.system,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != ProxyType.system,
+      enabled: NetworkSetting.proxyType.value != JProxyType.system,
     );
   }
 
@@ -116,10 +116,10 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyPassword = value,
           obscureText: true,
-          enabled: NetworkSetting.proxyType.value != ProxyType.system,
+          enabled: NetworkSetting.proxyType.value != JProxyType.system,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != ProxyType.system,
+      enabled: NetworkSetting.proxyType.value != JProxyType.system,
     );
   }
 }

@@ -8,9 +8,9 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
-import 'package:http_proxy/http_proxy.dart';
 import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
+import 'package:j_downloader/j_downloader.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
@@ -23,8 +23,8 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/proxy_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
-import 'package:system_network_proxy/system_network_proxy.dart';
 import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../setting/network_setting.dart';
@@ -36,6 +36,7 @@ class EHRequest {
   static late final EHCookieManager _cookieManager;
   static late final EHCacheManager _cacheManager;
   static late final StatefulIsolate _isolate;
+  static late final String systemProxyAddress;
 
   static List<Cookie> get cookies => _cookieManager.cookies;
 
@@ -44,6 +45,8 @@ class EHRequest {
       connectTimeout: Duration(milliseconds: NetworkSetting.connectTimeout.value),
       receiveTimeout: Duration(milliseconds: NetworkSetting.receiveTimeout.value),
     ));
+
+    systemProxyAddress = await getSystemProxyAddress();
 
     _initDomainFronting();
 
@@ -87,49 +90,11 @@ class EHRequest {
   }
 
   static Future<void> _initProxy() async {
-    /// proxy setting
-    String systemProxyAddress = '';
-
-    if (GetPlatform.isDesktop) {
-      SystemNetworkProxy.init();
-      systemProxyAddress = await SystemNetworkProxy.getProxyServer();
-    }
-    if (GetPlatform.isMobile) {
-      HttpProxy httpProxy = await HttpProxy.createHttpProxy();
-      if (!isEmptyOrNull(httpProxy.host) && !isEmptyOrNull(httpProxy.port)) {
-        systemProxyAddress = '${httpProxy.host}:${httpProxy.port}';
-      }
-    }
-    Log.info('System Proxy Address: $systemProxyAddress');
-
-    String getConfigAddress() {
-      String configAddress;
-      if (isEmptyOrNull(NetworkSetting.proxyUsername.value) && isEmptyOrNull(NetworkSetting.proxyPassword.value)) {
-        configAddress = NetworkSetting.proxyAddress.value;
-      } else {
-        configAddress = '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
-      }
-      return configAddress;
-    }
-
     SocksProxy.initProxy(
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
         return NetworkSetting.allIPs.contains(host);
       },
-      findProxy: (_) {
-        switch (NetworkSetting.proxyType.value) {
-          case ProxyType.system:
-            return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
-          case ProxyType.http:
-            return 'PROXY ${getConfigAddress()}; DIRECT';
-          case ProxyType.socks5:
-            return 'SOCKS5 ${getConfigAddress()}; DIRECT';
-          case ProxyType.socks4:
-            return 'SOCKS4 ${getConfigAddress()}; DIRECT';
-          case ProxyType.direct:
-            return 'DIRECT';
-        }
-      },
+      findProxy: await findProxySetting(),
     );
   }
 
@@ -241,6 +206,69 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<void> removeAllCache() {
     return _cacheManager.removeAllCache();
+  }
+
+  static Future<String Function(Uri)> findProxySetting() async {
+    String configProxyAddress() {
+      String configAddress;
+      if (isEmptyOrNull(NetworkSetting.proxyUsername.value?.trim()) && isEmptyOrNull(NetworkSetting.proxyPassword.value?.trim())) {
+        configAddress = NetworkSetting.proxyAddress.value;
+      } else {
+        configAddress = '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
+      }
+      return configAddress;
+    }
+
+    return (_) {
+      switch (NetworkSetting.proxyType.value) {
+        case JProxyType.system:
+          return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
+        case JProxyType.http:
+          return 'PROXY ${configProxyAddress()}; DIRECT';
+        case JProxyType.socks5:
+          return 'SOCKS5 ${configProxyAddress()}; DIRECT';
+        case JProxyType.socks4:
+          return 'SOCKS4 ${configProxyAddress()}; DIRECT';
+        case JProxyType.direct:
+          return 'DIRECT';
+      }
+    };
+  }
+
+  static ProxyConfig currentProxyConfig() {
+    switch (NetworkSetting.proxyType.value) {
+      case JProxyType.system:
+        return ProxyConfig(
+          type: ProxyType.http,
+          address: systemProxyAddress,
+        );
+      case JProxyType.http:
+        return ProxyConfig(
+          type: ProxyType.http,
+          address: NetworkSetting.proxyAddress.value,
+          username: NetworkSetting.proxyUsername.value,
+          password: NetworkSetting.proxyPassword.value,
+        );
+      case JProxyType.socks5:
+        return ProxyConfig(
+          type: ProxyType.socks5,
+          address: NetworkSetting.proxyAddress.value,
+          username: NetworkSetting.proxyUsername.value,
+          password: NetworkSetting.proxyPassword.value,
+        );
+      case JProxyType.socks4:
+        return ProxyConfig(
+          type: ProxyType.socks4,
+          address: NetworkSetting.proxyAddress.value,
+          username: NetworkSetting.proxyUsername.value,
+          password: NetworkSetting.proxyPassword.value,
+        );
+      case JProxyType.direct:
+        return ProxyConfig(
+          type: ProxyType.direct,
+          address: '',
+        );
+    }
   }
 
   static void setConnectTimeout(int connectTimeout) {
