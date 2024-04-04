@@ -247,16 +247,16 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
   GestureDetector _buildActionButton(ArchiveDownloadInfo archiveDownloadInfo, ArchiveDownloadedData archive) {
     return GestureDetector(
-      onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+      onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
           ? logic.handleReUnlockArchive(archive)
-          : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-              ? logic.archiveDownloadService.resumeDownloadArchive(archive)
-              : logic.archiveDownloadService.pauseDownloadArchive(archive),
+          : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
+              ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
+              : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
       child: Center(
         child: GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
-          builder: (_) => archiveDownloadInfo.archiveStatus.index > ArchiveStatus.paused.index &&
-                  archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index
+          builder: (_) => archiveDownloadInfo.archiveStatus.code >= ArchiveStatus.unlocking.code &&
+                  archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code
               ? GetBuilder<ArchiveDownloadService>(
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => Text(
@@ -265,9 +265,9 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                   ),
                 )
               : Icon(
-                  archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.needReUnlock.index
+                  archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
                       ? Icons.lock_open
-                      : archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                      : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
                           ? Icons.play_arrow
                           : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
                               ? Icons.done

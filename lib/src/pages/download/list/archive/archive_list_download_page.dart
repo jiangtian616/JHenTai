@@ -381,15 +381,19 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       builder: (_) {
         ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
         return GestureDetector(
-          onTap: () => archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-              ? logic.archiveDownloadService.resumeDownloadArchive(archive)
-              : logic.archiveDownloadService.pauseDownloadArchive(archive),
+          onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
+              ? null
+              : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
+                  ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
+                  : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
           child: Icon(
-            archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
-                ? Icons.play_arrow
-                : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
-                    ? Icons.done
-                    : Icons.pause,
+            archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
+                ? Icons.not_interested
+                : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
+                    ? Icons.play_arrow
+                    : archiveDownloadInfo.archiveStatus == ArchiveStatus.completed
+                        ? Icons.done
+                        : Icons.pause,
             size: 26,
             color: UIConfig.resumePauseButtonColor(context),
           ),
@@ -417,7 +421,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     ),
                   ),
                 const Expanded(child: SizedBox()),
-                if (archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.downloading.index)
+                if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code)
                   GetBuilder<ArchiveDownloadService>(
                     id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                     builder: (_) => Text(
@@ -432,14 +436,14 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                   ).marginOnly(left: 8),
               ],
             ),
-            if (archiveDownloadInfo.archiveStatus.index < ArchiveStatus.downloaded.index)
+            if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code)
               SizedBox(
                 height: UIConfig.downloadPageProgressIndicatorHeight,
                 child: GetBuilder<ArchiveDownloadService>(
                   id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
                   builder: (_) => LinearProgressIndicator(
                     value: archiveDownloadInfo.speedComputer.downloadedBytes / archiveDownloadInfo.size,
-                    color: archiveDownloadInfo.archiveStatus.index <= ArchiveStatus.paused.index
+                    color: archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.paused.code
                         ? UIConfig.downloadPageProgressPausedIndicatorColor(context)
                         : UIConfig.downloadPageProgressIndicatorColor(context),
                   ),

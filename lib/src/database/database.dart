@@ -30,6 +30,7 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../model/gallery.dart';
+import '../service/archive_download_service.dart';
 import '../service/storage_service.dart';
 import 'dao/archive_dao.dart';
 import 'dao/archive_group_dao.dart';
@@ -58,7 +59,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -127,6 +128,9 @@ class AppDb extends _$AppDb {
           }
           if (from < 18) {
             await m.createIndex(idxLastReadTime);
+          }
+          if (from < 19) {
+            await _migrateArchiveStatus(m);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -290,7 +294,7 @@ class AppDb extends _$AppDb {
               uploader: a.uploader,
               size: a.size,
               publishTime: a.publishTime,
-              archiveStatusIndex: a.archiveStatusIndex,
+              archiveStatusCode: a.archiveStatusIndex,
               archivePageUrl: a.archivePageUrl,
               downloadPageUrl: a.downloadPageUrl,
               downloadUrl: a.downloadUrl,
@@ -306,6 +310,19 @@ class AppDb extends _$AppDb {
       Log.error('Migrate downloaded info failed!', e);
       Log.uploadError(e);
     }
+  }
+
+  Future<void> _migrateArchiveStatus(Migrator m) async {
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.none.index, ArchiveStatus.unlocking.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.needReUnlock.index, ArchiveStatus.needReUnlock.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.paused.index, ArchiveStatus.paused.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.unlocking.index, ArchiveStatus.unlocking.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.parsingDownloadPageUrl.index, ArchiveStatus.parsingDownloadPageUrl.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.parsingDownloadUrl.index, ArchiveStatus.parsingDownloadUrl.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.downloading.index, ArchiveStatus.downloading.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.downloaded.index, ArchiveStatus.downloaded.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.unpacking.index, ArchiveStatus.unpacking.code);
+    await ArchiveDao.updateArchiveStatus(OldArchiveStatus.completed.index, ArchiveStatus.completed.code);
   }
 }
 

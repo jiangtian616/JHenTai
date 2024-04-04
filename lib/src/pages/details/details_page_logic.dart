@@ -65,6 +65,7 @@ import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/eh_gallery_history_dialog.dart';
 import '../../widget/eh_tag_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
+import '../../widget/re_unlock_dialog.dart';
 import 'details_page_state.dart';
 
 class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
@@ -518,7 +519,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     toast('ratingSuccess'.tr, isCenter: false);
   }
 
-  Future<void> handleTapArchive() async {
+  Future<void> handleTapArchive(BuildContext context) async {
     ArchiveStatus? archiveStatus = archiveDownloadService.archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
 
     /// new download
@@ -551,7 +552,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         size: result.size,
         coverUrl: state.galleryDetails!.cover.url,
         publishTime: state.galleryDetails!.publishTime,
-        archiveStatusIndex: ArchiveStatus.unlocking.index,
+        archiveStatusCode: ArchiveStatus.unlocking.code,
         archivePageUrl: state.galleryDetails!.archivePageUrl,
         isOriginal: result.isOriginal,
         insertTime: DateTime.now().toString(),
@@ -568,13 +569,22 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == state.galleryUrl.gid);
-
+    
+    if (archiveStatus == ArchiveStatus.needReUnlock) {
+      bool? ok = await showDialog(context: context, builder: (_) => const ReUnlockDialog());
+      if (ok ?? false) {
+        await archiveDownloadService.cancelArchive(archive.gid);
+        await archiveDownloadService.downloadArchive(archive, resume: true);
+      }
+      return;
+    }
+    
     if (archiveStatus == ArchiveStatus.paused) {
-      return archiveDownloadService.resumeDownloadArchive(archive);
+      return archiveDownloadService.resumeDownloadArchive(archive.gid);
     }
 
-    if (ArchiveStatus.unlocking.index <= archiveStatus.index && archiveStatus.index < ArchiveStatus.downloaded.index) {
-      return archiveDownloadService.pauseDownloadArchive(archive);
+    if (ArchiveStatus.unlocking.code <= archiveStatus.code && archiveStatus.code < ArchiveStatus.downloaded.code) {
+      return archiveDownloadService.pauseDownloadArchive(archive.gid);
     }
 
     if (archiveStatus == ArchiveStatus.completed) {
@@ -730,7 +740,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
-      archiveDownloadService.deleteArchiveByGid(gid);
+      archiveDownloadService.deleteArchive(gid);
     }
 
     updateGlobalGalleryStatus();

@@ -27,7 +27,7 @@ class ArchiveDownloaded extends Table {
 
   TextColumn get publishTime => text()();
 
-  IntColumn get archiveStatusIndex => integer()();
+  IntColumn get archiveStatusCode => integer().named('archive_status_index')();
 
   TextColumn get archivePageUrl => text()();
 

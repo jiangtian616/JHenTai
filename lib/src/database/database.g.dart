@@ -960,10 +960,10 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
   late final GeneratedColumn<String> publishTime = GeneratedColumn<String>(
       'publish_time', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _archiveStatusIndexMeta =
-      const VerificationMeta('archiveStatusIndex');
+  static const VerificationMeta _archiveStatusCodeMeta =
+      const VerificationMeta('archiveStatusCode');
   @override
-  late final GeneratedColumn<int> archiveStatusIndex = GeneratedColumn<int>(
+  late final GeneratedColumn<int> archiveStatusCode = GeneratedColumn<int>(
       'archive_status_index', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _archivePageUrlMeta =
@@ -1025,7 +1025,7 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
         uploader,
         size,
         publishTime,
-        archiveStatusIndex,
+        archiveStatusCode,
         archivePageUrl,
         downloadPageUrl,
         downloadUrl,
@@ -1107,11 +1107,11 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
     }
     if (data.containsKey('archive_status_index')) {
       context.handle(
-          _archiveStatusIndexMeta,
-          archiveStatusIndex.isAcceptableOrUnknown(
-              data['archive_status_index']!, _archiveStatusIndexMeta));
+          _archiveStatusCodeMeta,
+          archiveStatusCode.isAcceptableOrUnknown(
+              data['archive_status_index']!, _archiveStatusCodeMeta));
     } else if (isInserting) {
-      context.missing(_archiveStatusIndexMeta);
+      context.missing(_archiveStatusCodeMeta);
     }
     if (data.containsKey('archive_page_url')) {
       context.handle(
@@ -1188,7 +1188,7 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           .read(DriftSqlType.int, data['${effectivePrefix}size'])!,
       publishTime: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}publish_time'])!,
-      archiveStatusIndex: attachedDatabase.typeMapping.read(
+      archiveStatusCode: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}archive_status_index'])!,
       archivePageUrl: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}archive_page_url'])!,
@@ -1225,7 +1225,7 @@ class ArchiveDownloadedData extends DataClass
   final String? uploader;
   final int size;
   final String publishTime;
-  final int archiveStatusIndex;
+  final int archiveStatusCode;
   final String archivePageUrl;
   final String? downloadPageUrl;
   final String? downloadUrl;
@@ -1244,7 +1244,7 @@ class ArchiveDownloadedData extends DataClass
       this.uploader,
       required this.size,
       required this.publishTime,
-      required this.archiveStatusIndex,
+      required this.archiveStatusCode,
       required this.archivePageUrl,
       this.downloadPageUrl,
       this.downloadUrl,
@@ -1267,7 +1267,7 @@ class ArchiveDownloadedData extends DataClass
     }
     map['size'] = Variable<int>(size);
     map['publish_time'] = Variable<String>(publishTime);
-    map['archive_status_index'] = Variable<int>(archiveStatusIndex);
+    map['archive_status_index'] = Variable<int>(archiveStatusCode);
     map['archive_page_url'] = Variable<String>(archivePageUrl);
     if (!nullToAbsent || downloadPageUrl != null) {
       map['download_page_url'] = Variable<String>(downloadPageUrl);
@@ -1296,7 +1296,7 @@ class ArchiveDownloadedData extends DataClass
           : Value(uploader),
       size: Value(size),
       publishTime: Value(publishTime),
-      archiveStatusIndex: Value(archiveStatusIndex),
+      archiveStatusCode: Value(archiveStatusCode),
       archivePageUrl: Value(archivePageUrl),
       downloadPageUrl: downloadPageUrl == null && nullToAbsent
           ? const Value.absent()
@@ -1325,7 +1325,7 @@ class ArchiveDownloadedData extends DataClass
       uploader: serializer.fromJson<String?>(json['uploader']),
       size: serializer.fromJson<int>(json['size']),
       publishTime: serializer.fromJson<String>(json['publishTime']),
-      archiveStatusIndex: serializer.fromJson<int>(json['archiveStatusIndex']),
+      archiveStatusCode: serializer.fromJson<int>(json['archiveStatusCode']),
       archivePageUrl: serializer.fromJson<String>(json['archivePageUrl']),
       downloadPageUrl: serializer.fromJson<String?>(json['downloadPageUrl']),
       downloadUrl: serializer.fromJson<String?>(json['downloadUrl']),
@@ -1349,7 +1349,7 @@ class ArchiveDownloadedData extends DataClass
       'uploader': serializer.toJson<String?>(uploader),
       'size': serializer.toJson<int>(size),
       'publishTime': serializer.toJson<String>(publishTime),
-      'archiveStatusIndex': serializer.toJson<int>(archiveStatusIndex),
+      'archiveStatusCode': serializer.toJson<int>(archiveStatusCode),
       'archivePageUrl': serializer.toJson<String>(archivePageUrl),
       'downloadPageUrl': serializer.toJson<String?>(downloadPageUrl),
       'downloadUrl': serializer.toJson<String?>(downloadUrl),
@@ -1371,7 +1371,7 @@ class ArchiveDownloadedData extends DataClass
           Value<String?> uploader = const Value.absent(),
           int? size,
           String? publishTime,
-          int? archiveStatusIndex,
+          int? archiveStatusCode,
           String? archivePageUrl,
           Value<String?> downloadPageUrl = const Value.absent(),
           Value<String?> downloadUrl = const Value.absent(),
@@ -1390,7 +1390,7 @@ class ArchiveDownloadedData extends DataClass
         uploader: uploader.present ? uploader.value : this.uploader,
         size: size ?? this.size,
         publishTime: publishTime ?? this.publishTime,
-        archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+        archiveStatusCode: archiveStatusCode ?? this.archiveStatusCode,
         archivePageUrl: archivePageUrl ?? this.archivePageUrl,
         downloadPageUrl: downloadPageUrl.present
             ? downloadPageUrl.value
@@ -1414,7 +1414,7 @@ class ArchiveDownloadedData extends DataClass
           ..write('uploader: $uploader, ')
           ..write('size: $size, ')
           ..write('publishTime: $publishTime, ')
-          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archiveStatusCode: $archiveStatusCode, ')
           ..write('archivePageUrl: $archivePageUrl, ')
           ..write('downloadPageUrl: $downloadPageUrl, ')
           ..write('downloadUrl: $downloadUrl, ')
@@ -1438,7 +1438,7 @@ class ArchiveDownloadedData extends DataClass
       uploader,
       size,
       publishTime,
-      archiveStatusIndex,
+      archiveStatusCode,
       archivePageUrl,
       downloadPageUrl,
       downloadUrl,
@@ -1460,7 +1460,7 @@ class ArchiveDownloadedData extends DataClass
           other.uploader == this.uploader &&
           other.size == this.size &&
           other.publishTime == this.publishTime &&
-          other.archiveStatusIndex == this.archiveStatusIndex &&
+          other.archiveStatusCode == this.archiveStatusCode &&
           other.archivePageUrl == this.archivePageUrl &&
           other.downloadPageUrl == this.downloadPageUrl &&
           other.downloadUrl == this.downloadUrl &&
@@ -1482,7 +1482,7 @@ class ArchiveDownloadedCompanion
   final Value<String?> uploader;
   final Value<int> size;
   final Value<String> publishTime;
-  final Value<int> archiveStatusIndex;
+  final Value<int> archiveStatusCode;
   final Value<String> archivePageUrl;
   final Value<String?> downloadPageUrl;
   final Value<String?> downloadUrl;
@@ -1501,7 +1501,7 @@ class ArchiveDownloadedCompanion
     this.uploader = const Value.absent(),
     this.size = const Value.absent(),
     this.publishTime = const Value.absent(),
-    this.archiveStatusIndex = const Value.absent(),
+    this.archiveStatusCode = const Value.absent(),
     this.archivePageUrl = const Value.absent(),
     this.downloadPageUrl = const Value.absent(),
     this.downloadUrl = const Value.absent(),
@@ -1521,7 +1521,7 @@ class ArchiveDownloadedCompanion
     this.uploader = const Value.absent(),
     required int size,
     required String publishTime,
-    required int archiveStatusIndex,
+    required int archiveStatusCode,
     required String archivePageUrl,
     this.downloadPageUrl = const Value.absent(),
     this.downloadUrl = const Value.absent(),
@@ -1537,7 +1537,7 @@ class ArchiveDownloadedCompanion
         coverUrl = Value(coverUrl),
         size = Value(size),
         publishTime = Value(publishTime),
-        archiveStatusIndex = Value(archiveStatusIndex),
+        archiveStatusCode = Value(archiveStatusCode),
         archivePageUrl = Value(archivePageUrl),
         isOriginal = Value(isOriginal),
         insertTime = Value(insertTime),
@@ -1553,7 +1553,7 @@ class ArchiveDownloadedCompanion
     Expression<String>? uploader,
     Expression<int>? size,
     Expression<String>? publishTime,
-    Expression<int>? archiveStatusIndex,
+    Expression<int>? archiveStatusCode,
     Expression<String>? archivePageUrl,
     Expression<String>? downloadPageUrl,
     Expression<String>? downloadUrl,
@@ -1573,8 +1573,7 @@ class ArchiveDownloadedCompanion
       if (uploader != null) 'uploader': uploader,
       if (size != null) 'size': size,
       if (publishTime != null) 'publish_time': publishTime,
-      if (archiveStatusIndex != null)
-        'archive_status_index': archiveStatusIndex,
+      if (archiveStatusCode != null) 'archive_status_index': archiveStatusCode,
       if (archivePageUrl != null) 'archive_page_url': archivePageUrl,
       if (downloadPageUrl != null) 'download_page_url': downloadPageUrl,
       if (downloadUrl != null) 'download_url': downloadUrl,
@@ -1596,7 +1595,7 @@ class ArchiveDownloadedCompanion
       Value<String?>? uploader,
       Value<int>? size,
       Value<String>? publishTime,
-      Value<int>? archiveStatusIndex,
+      Value<int>? archiveStatusCode,
       Value<String>? archivePageUrl,
       Value<String?>? downloadPageUrl,
       Value<String?>? downloadUrl,
@@ -1615,7 +1614,7 @@ class ArchiveDownloadedCompanion
       uploader: uploader ?? this.uploader,
       size: size ?? this.size,
       publishTime: publishTime ?? this.publishTime,
-      archiveStatusIndex: archiveStatusIndex ?? this.archiveStatusIndex,
+      archiveStatusCode: archiveStatusCode ?? this.archiveStatusCode,
       archivePageUrl: archivePageUrl ?? this.archivePageUrl,
       downloadPageUrl: downloadPageUrl ?? this.downloadPageUrl,
       downloadUrl: downloadUrl ?? this.downloadUrl,
@@ -1659,8 +1658,8 @@ class ArchiveDownloadedCompanion
     if (publishTime.present) {
       map['publish_time'] = Variable<String>(publishTime.value);
     }
-    if (archiveStatusIndex.present) {
-      map['archive_status_index'] = Variable<int>(archiveStatusIndex.value);
+    if (archiveStatusCode.present) {
+      map['archive_status_index'] = Variable<int>(archiveStatusCode.value);
     }
     if (archivePageUrl.present) {
       map['archive_page_url'] = Variable<String>(archivePageUrl.value);
@@ -1699,7 +1698,7 @@ class ArchiveDownloadedCompanion
           ..write('uploader: $uploader, ')
           ..write('size: $size, ')
           ..write('publishTime: $publishTime, ')
-          ..write('archiveStatusIndex: $archiveStatusIndex, ')
+          ..write('archiveStatusCode: $archiveStatusCode, ')
           ..write('archivePageUrl: $archivePageUrl, ')
           ..write('downloadPageUrl: $downloadPageUrl, ')
           ..write('downloadUrl: $downloadUrl, ')

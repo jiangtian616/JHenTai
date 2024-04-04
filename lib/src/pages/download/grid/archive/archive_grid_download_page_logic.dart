@@ -48,7 +48,7 @@ class ArchiveGridDownloadPageLogic extends GetxController
 
   @override
   void handleRemoveItem(ArchiveDownloadedData archive) {
-    archiveDownloadService.deleteArchive(archive).then((_) => super.handleRemoveItem(archive));
+    archiveDownloadService.deleteArchive(archive.gid).then((_) => super.handleRemoveItem(archive));
   }
 
   void goToDetailPage(ArchiveDownloadedData archive) {
@@ -101,7 +101,7 @@ class ArchiveGridDownloadPageLogic extends GetxController
       }
     }
 
-    await archiveDownloadService.updateArchiveOrder(archives);
+    await archiveDownloadService.batchUpdateArchiveInDatabase(archives);
   }
 
   @override

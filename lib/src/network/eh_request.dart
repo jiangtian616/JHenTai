@@ -809,9 +809,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestCancelUnlockArchive<T>({required String url, EHHtmlParser<T>? parser}) async {
+  static Future<T> requestCancelArchive<T>({required String url, CancelToken? cancelToken, EHHtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       url,
+      cancelToken: cancelToken,
       data: FormData.fromMap({'invalidate_sessions': 1}),
     );
 

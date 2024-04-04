@@ -119,8 +119,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           builder: (_) => GetBuilder<GalleryDownloadService>(
             id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.galleryUrl.gid}',
             builder: (_) {
-              GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
-              ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
+              bool containGallery = logic.galleryDownloadService.containGallery(state.galleryUrl.gid);
+              bool containArchive = logic.archiveDownloadService.containArchive(state.galleryUrl.gid);
 
               return PopupMenuButton(
                 itemBuilder: (context) {
@@ -148,7 +148,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('addTag'.tr), const Icon(Icons.bookmark_border)],
                         ),
                       ),
-                    if (downloadProgress != null || archiveStatus != null)
+                    if (containGallery || containArchive)
                       PopupMenuItem(
                         value: 3,
                         child: Row(
@@ -180,7 +180,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                     logic.handleTapDeleteDownload(
                       context,
                       state.galleryUrl.gid,
-                      downloadProgress != null ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
+                      containGallery ? DownloadPageGalleryType.download : DownloadPageGalleryType.archive,
                     );
                   }
                   if (value == 4) {
@@ -1028,11 +1028,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
             Icon icon = archiveStatus == null
                 ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
-                : archiveStatus == ArchiveStatus.paused
-                    ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
-                    : archiveStatus == ArchiveStatus.completed
-                        ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
-                        : Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context));
+                : archiveStatus == ArchiveStatus.needReUnlock
+                    ? Icon(Icons.lock_open, color: UIConfig.alertColor(context))
+                    : archiveStatus == ArchiveStatus.paused
+                        ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
+                        : archiveStatus == ArchiveStatus.completed
+                            ? Icon(Icons.done, color: UIConfig.resumePauseButtonColor(context))
+                            : Icon(Icons.pause_circle_outline, color: UIConfig.resumePauseButtonColor(context));
 
             return IconTextButton(
               width: UIConfig.detailsPageActionExtent,
@@ -1045,7 +1047,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   height: 1,
                 ),
               ),
-              onPressed: disabled ? null : logic.handleTapArchive,
+              onPressed: disabled ? null : () => logic.handleTapArchive(context),
               onLongPress: () => toRoute(Routes.download),
             );
           },

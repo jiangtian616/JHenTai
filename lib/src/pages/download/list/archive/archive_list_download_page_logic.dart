@@ -59,7 +59,7 @@ class ArchiveListDownloadPageLogic extends GetxController
   void handleRemoveItem(ArchiveDownloadedData archive) {
     state.groupedListController.removeElement(archive).then((_) {
       state.selectedGids.remove(archive.gid);
-      archiveDownloadService.deleteArchive(archive);
+      archiveDownloadService.deleteArchive(archive.gid);
       updateGlobalGalleryStatus();
     });
   }

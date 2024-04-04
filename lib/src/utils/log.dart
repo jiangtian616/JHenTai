@@ -127,7 +127,9 @@ class Log {
     _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
   }
 
-  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {}
+  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
+    /// sentry is removed
+  }
 
   static Future<String> getSize() async {
     return compute(

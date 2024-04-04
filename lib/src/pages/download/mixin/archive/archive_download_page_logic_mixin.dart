@@ -54,7 +54,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       return;
     }
 
-    await archiveDownloadService.updateArchiveGroup(archive, newGroup);
+    await archiveDownloadService.updateArchiveGroup(archive.gid, newGroup);
     update([bodyId]);
   }
 
@@ -233,13 +233,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   Future<void> handleReUnlockArchive(ArchiveDownloadedData archive) async {
     bool? ok = await Get.dialog(const ReUnlockDialog());
     if (ok ?? false) {
-      archiveDownloadService.cancelUnlockArchiveAndDownload(archive);
+      await archiveDownloadService.cancelArchive(archive.gid);
+      await archiveDownloadService.downloadArchive(archive, resume: true);
     }
   }
 
   Future<void> handleMultiResumeTasks() async {
     for (int gid in multiSelectDownloadPageState.selectedGids) {
-      archiveDownloadService.resumeDownloadArchiveByGid(gid);
+      archiveDownloadService.resumeDownloadArchive(gid);
     }
 
     exitSelectMode();
@@ -247,7 +248,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   Future<void> handleMultiPauseTasks() async {
     for (int gid in multiSelectDownloadPageState.selectedGids) {
-      archiveDownloadService.pauseDownloadArchiveByGid(gid);
+      archiveDownloadService.pauseDownloadArchive(gid);
     }
 
     exitSelectMode();
@@ -268,7 +269,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     String newGroup = result.group;
 
     for (int gid in multiSelectDownloadPageState.selectedGids) {
-      await archiveDownloadService.updateArchiveGroupByGid(gid, newGroup);
+      await archiveDownloadService.updateArchiveGroup(gid, newGroup);
     }
 
     multiSelectDownloadPageState.inMultiSelectMode = false;
@@ -283,7 +284,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
     if (result == true) {
       for (int gid in multiSelectDownloadPageState.selectedGids) {
-        archiveDownloadService.deleteArchiveByGid(gid);
+        archiveDownloadService.deleteArchive(gid);
       }
 
       exitSelectMode();
