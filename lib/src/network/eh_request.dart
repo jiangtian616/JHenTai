@@ -237,9 +237,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     };
   }
 
-  static ProxyConfig currentProxyConfig() {
+  static ProxyConfig? currentProxyConfig() {
     switch (NetworkSetting.proxyType.value) {
       case JProxyType.system:
+        if (systemProxyAddress.trim().isEmpty) {
+          return null;
+        }
         return ProxyConfig(
           type: ProxyType.http,
           address: systemProxyAddress,
