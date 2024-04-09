@@ -84,7 +84,7 @@ Linux更新（不维护）： 直接删除旧包后，下载最新的包使用�
 标签热度排序:
 
 - [e-hentai-db](https://github.com/ccloli/e-hentai-db)
-- [e-hentai-tag-count](https://github.com/poly000/e-hentai-tag-count)
+- [e-hentai-tag-count](https://github.com/mokurin000/e-hentai-tag-count)
 
 
 App翻译：
