@@ -576,10 +576,11 @@ packages:
   flutter_socks_proxy:
     dependency: "direct main"
     description:
-      name: flutter_socks_proxy
-      sha256: "5603ad90c2849d2e6f2b4ed3d337653b3a6c8fb471f535e3715254913a9206ce"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "52759af6c6b245db4ba5bfa9ccc64d74f3ceb2fb"
+      url: "https://github.com/jiangtian616/socks_proxy"
+    source: git
     version: "0.0.3"
   flutter_svg:
     dependency: transitive
@@ -828,7 +829,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "6c512731426d06bf86771093d2adb6af2db5e4ea"
+      resolved-ref: a4d39a14b3d0b0c8de782d37176f240c6564e682
       url: "https://github.com/jiangtian616/JDownloader"
     source: git
     version: "0.0.1"
