@@ -27,7 +27,7 @@ class TagSearchOrderOptimizationService extends GetxService {
 
   final String savePath = join(PathSetting.getVisibleDir().path, 'tid_count_tag.csv.gz');
 
-  static const String releaseUrl = 'https://github.com/poly000/e-hentai-tag-count/releases/latest';
+  static const String releaseUrl = 'https://github.com/mokurin000/e-hentai-tag-count/releases/latest';
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString version = RxnString(null);
@@ -94,7 +94,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     try {
       await retry(
         () => EHRequest.download(
-          url: 'https://github.com/poly000/e-hentai-tag-count/releases/download/$tag/tid_count_tag.csv.gz',
+          url: 'https://github.com/mokurin000/e-hentai-tag-count/releases/download/$tag/tid_count_tag.csv.gz',
           path: savePath,
           receiveTimeout: 10 * 60 * 1000,
           onReceiveProgress: (count, total) => downloadProgress.value = byte2String(count.toDouble()),

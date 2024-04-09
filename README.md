@@ -95,7 +95,7 @@ Tag translation:
 Tag order optimization:
 
 - [e-hentai-db](https://github.com/ccloli/e-hentai-db)
-- [e-hentai-tag-count](https://github.com/poly000/e-hentai-tag-count)
+- [e-hentai-tag-count](https://github.com/mokurin000/e-hentai-tag-count)
 
 App translation：
 
