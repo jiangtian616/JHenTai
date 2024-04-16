@@ -829,7 +829,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "782ca95bfe4320cde4c69dae5f8c8d84f7e49d37"
+      resolved-ref: "3f5a14d435d151d161cec3e2a16e098f6286ad72"
       url: "https://github.com/jiangtian616/JDownloader"
     source: git
     version: "0.0.1"
