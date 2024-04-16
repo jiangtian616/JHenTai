@@ -209,11 +209,11 @@ class ReadPageLogic extends GetxController {
 
     /// limit the rate of parsing to decrease the lagging of build
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      executor.scheduleTask(0, () => _parseImageHref(index));
+      executor.scheduleTask(0, () => parseImageHref(index));
     });
   }
 
-  Future<void> _parseImageHref(int index) async {
+  Future<void> parseImageHref(int index) async {
     Log.trace('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
     update(['$parseImageHrefsStateId::$index']);
 
@@ -272,22 +272,17 @@ class ReadPageLogic extends GetxController {
 
     state.parseImageUrlStates[index] = LoadingState.loading;
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      executor.scheduleTask(0, () => _parseImageUrl(index, reParse, reloadKey));
+      executor.scheduleTask(0, () => parseImageUrl(index, reParse, reloadKey));
     });
   }
 
-  Future<void> _parseImageUrl(int index, bool reParse, String? reloadKey) async {
+  Future<void> parseImageUrl(int index, bool reParse, String? reloadKey) async {
     update(['$parseImageUrlStateId::$index']);
 
     GalleryImage image;
     try {
       image = await retry(
-        () => EHRequest.requestImagePage(
-          state.thumbnails[index]!.href,
-          reloadKey: reloadKey,
-          parser: EHSpiderParser.imagePage2GalleryImage,
-          useCacheIfAvailable: !reParse,
-        ),
+        () => requestImage(index, reParse, reloadKey),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
         onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioException).message),
@@ -312,6 +307,15 @@ class ReadPageLogic extends GetxController {
     state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
     update(['$onlineImageId::$index']);
+  }
+
+  Future<GalleryImage> requestImage(int index, bool reParse, String? reloadKey) {
+    return EHRequest.requestImagePage(
+      state.thumbnails[index]!.href,
+      reloadKey: reloadKey,
+      parser: EHSpiderParser.imagePage2GalleryImage,
+      useCacheIfAvailable: !reParse,
+    );
   }
 
   Future<void> reloadImage(int index) async {

@@ -3,10 +3,16 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:clipboard/clipboard.dart';
+import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
-import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:image_save/image_save.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -18,8 +24,10 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../../model/gallery_image.dart';
 import '../../../../setting/path_setting.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../read_page_logic.dart';
@@ -262,14 +270,41 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     String fileName =
-        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.originalImageUrl!)}';
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
 
     String downloadPath = join(DownloadSetting.singleImageSavePath.value, fileName);
     toast('downloading'.tr);
-    await EHRequest.download(
-      url: readPageState.images[index]!.originalImageUrl!,
-      path: downloadPath,
-    );
+    Response response = await EHRequest.download(url: readPageState.images[index]!.originalImageUrl!, path: downloadPath);
+
+    /// what we downloaded is not an image
+    if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+      String data = File(downloadPath).readAsStringSync();
+
+      /// Sometimes we need gp to download original image, but gp is not enough, we should pause this gallery
+      if (data.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
+        Log.error('Download ${readPageState.readPageInfo.galleryTitle} image: $index failed, gp not enough');
+        toast('gpNotEnoughHint'.tr, isShort: false);
+        return;
+      }
+
+      /// We need a token in url to get the original image download url, expired token will leads to a failed request,
+      if (data.contains('Invalid token')) {
+        Log.warning('Invalid original image token, url: ${readPageState.images[index]!.url}');
+
+        GalleryImage image;
+        try {
+          image = await readPageLogic.requestImage(index, true, null);
+        } catch(e) {
+          Log.error('Save original image failed: $e');
+          toast('saveFailed'.tr);
+          return;
+        }
+
+        readPageState.images[index]!.originalImageUrl = image.originalImageUrl;
+        
+        return saveOriginalOnlineImage(index);
+      }
+    }
 
     if (GetPlatform.isDesktop) {
       toast('saveSuccess'.tr);

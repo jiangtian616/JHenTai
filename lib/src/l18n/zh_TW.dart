@@ -371,6 +371,7 @@ class zh_TW {
       'proxyAddress': '代理服務器地址',
       'proxyAddressHint': '如果你使用了代理服務器，務必正確設定',
       'saveSuccess': '保存成功',
+      'saveFailed': '保存失敗',
       'updateSuccess': '更新成功',
       'connectTimeout': '建立連接超時時間',
       'receiveTimeout': '接收數據超時時間',

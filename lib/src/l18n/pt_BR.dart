@@ -373,6 +373,7 @@ class pt_BR {
       'proxyAddress': 'Endereço de proxy',
       'proxyAddressHint': 'Se você usa servidor proxy, certifique-se de configurá-lo corretamente',
       'saveSuccess': 'Salvo com sucesso',
+      'saveFailed': 'Save failed',
       'updateSuccess': 'Atualizado com sucesso',
       'connectTimeout': 'Tempo limite de conexão',
       'receiveTimeout': 'Tempo limite de recebimento de dados',

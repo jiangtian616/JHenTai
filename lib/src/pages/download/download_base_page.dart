@@ -1,11 +1,8 @@
-import 'package:collection/collection.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import '../../config/ui_config.dart';

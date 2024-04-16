@@ -372,6 +372,7 @@ class en_US {
       'proxyAddress': 'Proxy Address',
       'proxyAddressHint': 'If you use proxy server, make sure to set it up correctly',
       'saveSuccess': 'Save success',
+      'saveFailed': 'Save failed',
       'updateSuccess': 'Update success',
       'connectTimeout': 'Connect Timeout',
       'receiveTimeout': 'Receive Data Timeout',
