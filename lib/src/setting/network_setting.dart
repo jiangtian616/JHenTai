@@ -152,6 +152,9 @@ class NetworkSetting {
     connectTimeout.value = map['connectTimeout'] ?? connectTimeout.value;
     receiveTimeout.value = map['receiveTimeout'] ?? receiveTimeout.value;
     eHentaiIP.value = map['eHentaiIP'] ?? eHentaiIP.value;
+    if (!host2IPs['e-hentai.org']!.contains(eHentaiIP.value)) {
+      eHentaiIP.value = host2IPs['e-hentai.org']!.first;
+    }
     exHentaiIP.value = map['exHentaiIP'] ?? exHentaiIP.value;
     upldIP.value = map['upldIP'] ?? upldIP.value;
     apiIP.value = map['apiIP'] ?? apiIP.value;
