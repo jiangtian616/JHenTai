@@ -27,10 +27,10 @@ class NetworkSetting {
 
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['172.67.2.238', '104.20.18.168', '104.20.19.168'],
-    'exhentai.org': ['178.175.129.254', '178.175.132.20', '178.175.132.22', '178.175.128.252', '178.175.128.254', '178.175.129.252'],
+    'exhentai.org': ['172.67.187.219', '104.21.56.202'],
     'upld.e-hentai.org': ['94.100.18.249', '94.100.18.247'],
     'api.e-hentai.org': ['178.162.147.246', '81.171.10.55', '178.162.139.18', '37.48.89.16'],
-    'forums.e-hentai.org': ['94.100.18.243', '104.20.134.21', '104.20.135.21', '172.67.0.127'],
+    'forums.e-hentai.org': ['172.67.2.238', '104.20.18.168', '104.20.19.168'],
   };
 
   static Map<String, String> get currentHost2IP => {
@@ -156,8 +156,20 @@ class NetworkSetting {
       eHentaiIP.value = host2IPs['e-hentai.org']!.first;
     }
     exHentaiIP.value = map['exHentaiIP'] ?? exHentaiIP.value;
+    if (!host2IPs['exhentai.org']!.contains(exHentaiIP.value)) {
+      exHentaiIP.value = host2IPs['exhentai.org']!.first;
+    }
     upldIP.value = map['upldIP'] ?? upldIP.value;
+    if (!host2IPs['upld.e-hentai.org']!.contains(upldIP.value)) {
+      upldIP.value = host2IPs['upld.e-hentai.org']!.first;
+    }
     apiIP.value = map['apiIP'] ?? apiIP.value;
+    if (!host2IPs['api.e-hentai.org']!.contains(apiIP.value)) {
+      apiIP.value = host2IPs['api.e-hentai.org']!.first;
+    }
     forumsIP.value = map['forumsIP'] ?? forumsIP.value;
+    if (!host2IPs['forums.e-hentai.org']!.contains(forumsIP.value)) {
+      forumsIP.value = host2IPs['forums.e-hentai.org']!.first;
+    }
   }
 }
