@@ -20,10 +20,10 @@ class NetworkSetting {
   static RxInt receiveTimeout = 6000.obs;
 
   static RxString eHentaiIP = '172.67.2.238'.obs;
-  static RxString exHentaiIP = '178.175.129.254'.obs;
+  static RxString exHentaiIP = '172.67.187.219'.obs;
   static RxString upldIP = '94.100.18.249'.obs;
   static RxString apiIP = '178.162.147.246'.obs;
-  static RxString forumsIP = '94.100.18.243'.obs;
+  static RxString forumsIP = '172.67.2.238'.obs;
 
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['172.67.2.238', '104.20.18.168', '104.20.19.168'],
