@@ -69,9 +69,10 @@ body:
     attributes:
       label: 应用设置 / App Settings
       description: |
-        请附上与你的提问相关的所有应用设置截图，如您确定您的问题与应用设置无关，可以跳过此项。
-        Attach all app settings screenshots related to your question. If you are sure that your question is not related to the app settings, you can skip this item.
-      placeholder: [截图] / [Screenshots]
+        请附上与你的提问相关的所有应用设置截图，如您确定您的问题与应用设置无关，可以跳过此项
+        Attach all app settings screenshots related to your question. If you are sure that your question is not related to the app settings, you can skip this item
+      placeholder: |
+        [截图] / [Screenshots]
     validations:
       required: false
 
