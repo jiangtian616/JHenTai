@@ -33,6 +33,7 @@ class EHComment extends StatefulWidget {
   final GalleryComment comment;
   final bool inDetailPage;
   final bool disableButtons;
+  final Function(bool isVotingUp, String score)? onVoted;
   final Function(int commentId)? handleTapUpdateCommentButton;
 
   const EHComment({
@@ -40,6 +41,7 @@ class EHComment extends StatefulWidget {
     required this.comment,
     required this.inDetailPage,
     this.disableButtons = false,
+    this.onVoted,
     this.handleTapUpdateCommentButton,
   }) : super(key: key);
 
@@ -72,6 +74,9 @@ class _EHCommentState extends State<EHComment> {
             lastEditTime: widget.comment.lastEditTime,
             fromMe: widget.comment.fromMe,
             disableButtons: widget.disableButtons,
+            votedUp: widget.comment.votedUp,
+            votedDown: widget.comment.votedDown,
+            onVoted: widget.onVoted,
             handleTapUpdateCommentButton: widget.handleTapUpdateCommentButton,
           ),
         ],
@@ -369,7 +374,10 @@ class _EHCommentFooter extends StatefulWidget {
   final List<String> scoreDetails;
   final bool fromMe;
   final bool disableButtons;
+  final bool votedUp;
+  final bool votedDown;
   final Function(int commentId)? handleTapUpdateCommentButton;
+  final Function(bool isVotingUp, String score)? onVoted;
 
   const _EHCommentFooter({
     Key? key,
@@ -380,6 +388,9 @@ class _EHCommentFooter extends StatefulWidget {
     required this.scoreDetails,
     required this.fromMe,
     required this.disableButtons,
+    required this.votedUp,
+    required this.votedDown,
+    this.onVoted,
     this.handleTapUpdateCommentButton,
   }) : super(key: key);
 
@@ -411,12 +422,20 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         if (score.isNotEmpty && !widget.fromMe && !widget.disableButtons) ...[
           LikeButton(
             size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
-            likeBuilder: (_) => Icon(Icons.thumb_up, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor(context)),
+            likeBuilder: (_) => Icon(
+              Icons.thumb_up,
+              size: UIConfig.commentButtonSizeInDetailPage,
+              color: widget.votedUp ? UIConfig.commentButtonVotedColor(context) : UIConfig.commentButtonColor(context),
+            ),
             onTap: (_) => _handleVotingComment(true),
           ).marginOnly(right: 18),
           LikeButton(
             size: widget.inDetailPage ? UIConfig.commentButtonSizeInDetailPage : UIConfig.commentButtonSizeInCommentPage,
-            likeBuilder: (_) => Icon(Icons.thumb_down, size: UIConfig.commentButtonSizeInDetailPage, color: UIConfig.commentButtonColor(context)),
+            likeBuilder: (_) => Icon(
+              Icons.thumb_down,
+              size: UIConfig.commentButtonSizeInDetailPage,
+              color: widget.votedDown ? UIConfig.commentButtonVotedColor(context) : UIConfig.commentButtonColor(context),
+            ),
             onTap: (_) => _handleVotingComment(false),
           ),
         ],
@@ -443,11 +462,9 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
                         color: UIConfig.commentFooterTextColor(context),
                       ),
                     )
-                  : AnimatedFlipCounter(
-                      prefix: score.substring(0, 1),
-                      value: int.parse(score.substring(1)),
-                      duration: const Duration(milliseconds: 700),
-                      textStyle: TextStyle(
+                  : Text(
+                      score,
+                      style: TextStyle(
                         fontSize: widget.inDetailPage ? UIConfig.commentScoreSizeInDetailPage : UIConfig.commentScoreSizeInCommentPage,
                         color: UIConfig.commentFooterTextColor(context),
                       ),
@@ -508,5 +525,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
     setStateSafely(() {
       score = newScore! >= 0 ? '+' + newScore.toString() : newScore.toString();
     });
+
+    widget.onVoted?.call(isVotingUp, score);
   }
 }

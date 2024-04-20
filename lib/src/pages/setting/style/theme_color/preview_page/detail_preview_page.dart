@@ -309,6 +309,8 @@ class DetailsPreviewPageState extends DetailsPageState {
           content: dom.Element.html('<p>Comment - This is a comment from mine, you can see the color of the uploader is different</p>'),
           time: '2022-02-22',
           fromMe: true,
+          votedUp: true,
+          votedDown: false,
         ),
         GalleryComment(
           id: 0,
@@ -318,6 +320,8 @@ class DetailsPreviewPageState extends DetailsPageState {
           content: dom.Element.html('<p>Comment - This is a comment from others</p>'),
           time: '2022-02-22',
           fromMe: false,
+          votedUp: false,
+          votedDown: true,
         ),
       ],
       thumbnails: [

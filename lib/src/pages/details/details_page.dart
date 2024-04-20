@@ -21,7 +21,6 @@ import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
@@ -1293,7 +1292,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                       itemExtent: UIConfig.detailsPageCommentsWidth,
                       children: state.galleryDetails!.comments
                           .map(
-                            (comment) => EHComment(comment: comment, inDetailPage: true, disableButtons: disableButtons),
+                            (comment) => EHComment(
+                              key: ValueKey(comment.score),
+                              comment: comment,
+                              inDetailPage: true,
+                              disableButtons: disableButtons,
+                              onVoted: (bool isVotingUp, String score) => logic.onCommentVoted(comment, isVotingUp, score),
+                            ),
                           )
                           .toList(),
                     ),

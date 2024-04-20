@@ -380,6 +380,8 @@ class UIConfig {
   static const double commentButtonSizeInDetailPage = 12;
   static const double commentButtonSizeInCommentPage = 14;
 
+  static Color commentButtonVotedColor(BuildContext context) => Theme.of(context).colorScheme.error;
+
   static Color commentButtonColor(BuildContext context) => Theme.of(context).colorScheme.outline;
   static const double commentScoreSizeInDetailPage = 10;
   static const double commentScoreSizeInCommentPage = 10;

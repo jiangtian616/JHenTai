@@ -13,6 +13,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
@@ -428,7 +429,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     }
 
-    _removeCache();
+    removeCache();
 
     state.favoriteState = LoadingState.idle;
     updateSafely([favoriteId]);
@@ -509,7 +510,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.galleryDetails?.realRating = ratingInfo['rating_avg'];
     state.galleryDetails?.ratingCount = ratingInfo['rating_cnt'];
 
-    _removeCache();
+    removeCache();
 
     state.ratingState = LoadingState.idle;
     updateSafely();
@@ -569,7 +570,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     ArchiveDownloadedData archive = archiveDownloadService.archives.firstWhere((a) => a.gid == state.galleryUrl.gid);
-    
+
     if (archiveStatus == ArchiveStatus.needReUnlock) {
       bool? ok = await showDialog(context: context, builder: (_) => const ReUnlockDialog());
       if (ok ?? false) {
@@ -578,7 +579,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
       return;
     }
-    
+
     if (archiveStatus == ArchiveStatus.paused) {
       return archiveDownloadService.resumeDownloadArchive(archive.gid);
     }
@@ -703,6 +704,21 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         childrenGallerys: state.galleryDetails?.childrenGallerys,
       ),
     );
+  }
+
+  void onCommentVoted(GalleryComment comment, bool isVotingUp, String score) {
+    comment.score = score;
+    if (isVotingUp) {
+      comment.votedUp = !comment.votedUp;
+      comment.votedDown = false;
+    } else {
+      comment.votedDown = !comment.votedDown;
+      comment.votedUp = false;
+    }
+
+    updateSafely([DetailsPageLogic.detailsId]);
+
+    removeCache();
   }
 
   Future<void> shareGallery() async {
@@ -831,7 +847,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     } else {
       toast('addTagSuccess'.tr);
-      _removeCache();
+      removeCache();
     }
   }
 
@@ -845,7 +861,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     updateSafely([detailsId]);
-    _removeCache();
+    removeCache();
   }
 
   void goToReadPage([int? forceIndex]) {
@@ -1074,7 +1090,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
-  void _removeCache() {
+  void removeCache() {
     EHRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl.url, 0);
   }
 }

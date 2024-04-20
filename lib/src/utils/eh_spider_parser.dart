@@ -1293,6 +1293,8 @@ class EHSpiderParser {
             time: _parsePostedLocalTime(element),
             lastEditTime: _parsePostedEditedTime(element),
             fromMe: element.querySelector('.c2 > .c4.nosel > a')?.text == 'Edit',
+            votedUp: element.querySelector('.c2 > .c4.nosel > a[style="color:blue"]:nth-child(1)') != null,
+            votedDown: element.querySelector('.c2 > .c4.nosel > a[style="color:blue"]:nth-child(3)') != null,
           ),
         )
         .toList();

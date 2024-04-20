@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/extensions/widget_extensions.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -50,6 +51,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
                   comment: comment,
                   inDetailPage: false,
                   disableButtons: disableButtons,
+                  onVoted: (bool isVotingUp, String score) => onVoted(comment, isVotingUp, score),
                   handleTapUpdateCommentButton: _handleTapUpdateCommentButton,
                 ).marginOnly(bottom: 4),
               )
@@ -89,6 +91,21 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     });
 
     DetailsPageLogic.current?.update();
+  }
+
+  Future<void> onVoted(GalleryComment comment, bool isVotingUp, String score) async {
+    comment.score = score;
+    if (isVotingUp) {
+      comment.votedUp = !comment.votedUp;
+      comment.votedDown = false;
+    } else {
+      comment.votedDown = !comment.votedDown;
+      comment.votedUp = false;
+    }
+    
+    setState(() {});
+    DetailsPageLogic.current!.updateSafely([DetailsPageLogic.detailsId]);
+    DetailsPageLogic.current!.removeCache();
   }
 
   Future<void> _handleTapUpdateCommentButton(int commentId) async {

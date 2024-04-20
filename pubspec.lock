@@ -358,10 +358,10 @@ packages:
     description:
       path: dio
       ref: append-mode
-      resolved-ref: "5821ebc528d913702eb24db25f6cefc79c5a4e35"
+      resolved-ref: bcf81dc13a0ebb67fef3b4ac0b1885fc583106f5
       url: "https://github.com/jiangtian616/dio"
     source: git
-    version: "5.4.0"
+    version: "5.4.3+1"
   dotted_border:
     dependency: "direct main"
     description:

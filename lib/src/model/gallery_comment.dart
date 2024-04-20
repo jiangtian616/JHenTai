@@ -9,6 +9,8 @@ class GalleryComment {
   String time;
   String? lastEditTime;
   bool fromMe;
+  bool votedUp;
+  bool votedDown;
 
   GalleryComment({
     required this.id,
@@ -19,5 +21,7 @@ class GalleryComment {
     required this.time,
     this.lastEditTime,
     required this.fromMe,
+    required this.votedUp,
+    required this.votedDown,
   });
 }
