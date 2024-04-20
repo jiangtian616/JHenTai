@@ -458,7 +458,7 @@ class UIConfig {
   static Color groupDialogCheckBoxColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
   /// Archive dialog
-  static const double archiveDialogBodyHeight = 230;
+  static const double archiveDialogBodyHeight = 240;
   static const double archiveDialogCostTextSize = 10;
   static const double archiveDialogDownloadTextSize = 14;
   static const double archiveDialogDownloadIconSize = 16;
