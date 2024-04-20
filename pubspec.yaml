@@ -63,7 +63,7 @@ dependencies:
   syncfusion_flutter_charts: 22.2.11
   archive: 3.4.10
   fluttertoast: 8.1.2
-  battery_plus: 3.0.2
+  battery_plus: 6.0.1
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
   window_manager: 0.3.8

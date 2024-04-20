@@ -50,4 +50,9 @@ class GalleryUrl {
       token: token ?? this.token,
     );
   }
+
+  @override
+  String toString() {
+    return 'GalleryUrl{isEH: $isEH, gid: $gid, token: $token}';
+  }
 }
