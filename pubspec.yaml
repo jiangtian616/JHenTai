@@ -59,7 +59,7 @@ dependencies:
   blur: 3.1.0
   flutter_windowmanager: 0.2.0
   animate_do: 3.3.4
-  share_plus: 4.5.3
+  share_plus: 8.0.3
   syncfusion_flutter_charts: 22.2.11
   archive: 3.4.10
   fluttertoast: 8.1.2
@@ -91,7 +91,7 @@ dependencies:
   material_color_utilities: 0.8.0
   flex_color_picker: 3.1.0
   zoom_widget: 2.0.1
-  android_intent_plus: 3.1.7
+  android_intent_plus: 5.0.2
   integral_isolates: 0.4.1
   screen_brightness: 0.2.2+1
   crypto: 3.0.3

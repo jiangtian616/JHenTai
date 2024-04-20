@@ -13,7 +13,7 @@ import package_info_plus
 import path_provider_foundation
 import screen_brightness_macos
 import screen_retriever
-import share_plus_macos
+import share_plus
 import smart_auth
 import sqflite
 import sqlite3_flutter_libs

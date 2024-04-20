@@ -36,7 +36,11 @@ class _LogPageState extends State<LogPage> {
         title: Text(basename(log.path)),
         centerTitle: true,
         elevation: 1,
-        titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+        titleTextStyle: Theme
+            .of(context)
+            .textTheme
+            .titleMedium
+            ?.copyWith(fontWeight: FontWeight.bold),
         actions: [
           if (!GetPlatform.isDesktop) IconButton(onPressed: _shareLog, icon: const Icon(Icons.share)),
           IconButton(onPressed: _copyLog, icon: const Icon(Icons.copy)),
@@ -57,8 +61,8 @@ class _LogPageState extends State<LogPage> {
   }
 
   void _shareLog() {
-    Share.shareFiles(
-      [log.path],
+    Share.shareXFiles(
+      [XFile(log.path)],
       text: basename(log.path),
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, screenHeight * 2 / 3),
     );
