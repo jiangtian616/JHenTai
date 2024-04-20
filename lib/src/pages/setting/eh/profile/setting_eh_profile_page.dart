@@ -104,7 +104,7 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
       return;
     }
 
-    setState(() {
+    setStateSafely(() {
       profiles = settings.profiles;
       loadingState = LoadingState.success;
     });
