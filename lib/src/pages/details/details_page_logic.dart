@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -16,6 +15,7 @@ import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
+import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
@@ -922,38 +922,38 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<({GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
-    final String? firstLink;
-    final String secondLink;
+    final GalleryUrl? firstLink;
+    final GalleryUrl secondLink;
 
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
-    if (state.galleryUrl.url.contains(EHConsts.EXIndex)) {
+    if (!state.galleryUrl.isEH) {
       if (EHSetting.redirect2Eh.isTrue && !_galleryOnlyInExSite()) {
-        firstLink = state.galleryUrl.url.replaceFirst(EHConsts.EXIndex, EHConsts.EHIndex);
-        secondLink = state.galleryUrl.url;
+        firstLink = state.galleryUrl.copyWith(isEH: true);
+        secondLink = state.galleryUrl;
       } else {
         firstLink = null;
-        secondLink = state.galleryUrl.url;
+        secondLink = state.galleryUrl;
       }
     } else {
       /// fallback to EX site only if user has logged in
-      firstLink = UserSetting.hasLoggedIn() ? state.galleryUrl.url : null;
-      secondLink = UserSetting.hasLoggedIn() ? state.galleryUrl.url.replaceFirst(EHConsts.EHIndex, EHConsts.EXIndex) : state.galleryUrl.url;
+      firstLink = UserSetting.hasLoggedIn() ? state.galleryUrl : null;
+      secondLink = UserSetting.hasLoggedIn() ? state.galleryUrl.copyWith(isEH: false) : state.galleryUrl;
     }
 
     /// if we can't find gallery via firstLink, try second link
     EHSiteException? firstException;
-    if (!isEmptyOrNull(firstLink)) {
+    if (firstLink != null) {
       Log.trace('Try to find gallery via firstLink: $firstLink');
       try {
         ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
-          galleryUrl: firstLink!,
+          galleryUrl: firstLink.url,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
         );
-        state.galleryUrl = state.galleryUrl.copyWith(isEH: true);
-        state.gallery?.galleryUrl = state.galleryUrl;
-        state.galleryDetails?.galleryUrl = state.galleryUrl;
+        state.galleryUrl = firstLink;
+        state.gallery?.galleryUrl = firstLink;
+        state.galleryDetails?.galleryUrl = firstLink;
         return detailPageInfo;
       } on EHSiteException catch (e) {
         Log.trace('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
@@ -964,13 +964,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     try {
       Log.trace('Try to find gallery via secondLink: $secondLink');
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
-        galleryUrl: secondLink,
+        galleryUrl: secondLink.url,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: useCache,
       );
-      state.galleryUrl = state.galleryUrl.copyWith(isEH: false);
-      state.gallery?.galleryUrl = state.galleryUrl;
-      state.galleryDetails?.galleryUrl = state.galleryUrl;
+      state.galleryUrl = secondLink;
+      state.gallery?.galleryUrl = secondLink;
+      state.galleryDetails?.galleryUrl = secondLink;
       return detailPageInfo;
     } on EHSiteException catch (e) {
       Log.trace('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');

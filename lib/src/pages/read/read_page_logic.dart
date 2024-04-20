@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
@@ -229,7 +230,7 @@ class ReadPageLogic extends GetxController {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) => Log.error('Get thumbnails error!', (e as DioException).message),
+        onRetry: (e) => Log.error('Get thumbnails error!', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
       state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
@@ -285,7 +286,7 @@ class ReadPageLogic extends GetxController {
         () => requestImage(index, reParse, reloadKey),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioException).message),
+        onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
