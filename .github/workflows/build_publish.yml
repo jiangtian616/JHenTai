@@ -78,12 +78,12 @@ jobs:
           path: ${{ matrix.cache_pod_path }}
           restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
       # Setup JDK
-      - name: Setup JDK 11 (Android)
+      - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17'
           cache: gradle
       # Xcodebuild
       - name: Build Xcode
