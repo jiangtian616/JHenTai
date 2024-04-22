@@ -1029,6 +1029,19 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
       }
 
+      if (!gallery.downloadOriginalImage &&
+          !response.isRedirect &&
+          (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+        String data = io.File(path).readAsStringSync();
+
+        /// server error
+        if (data.contains('Invalid request')) {
+          Log.warning('Invalid image data, url: ${image.url}');
+          return _reParseImageUrlAndDownload(gallery, serialNo);
+        }
+      }
+      
+
       Log.download('Download ${gallery.title} image: $serialNo success');
 
       await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
