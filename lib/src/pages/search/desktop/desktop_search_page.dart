@@ -12,6 +12,7 @@ import '../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
 import 'desktop_search_page_logic.dart';
 import 'desktop_search_page_state.dart';
+import 'desktop_search_page_tab_logic.dart';
 
 class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
   const DesktopSearchPage({Key? key}) : super(key: key);
@@ -79,21 +80,30 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
     return state.tabLogics
         .mapIndexed<Widget>(
           (index, tabLogic) => FadeSlideWidget(
+            key: ValueKey(tabLogic),
             show: true,
             animateWhenInitialization: true,
             enableOpacityTransition: false,
             slideCurve: Curves.ease,
             axis: Axis.horizontal,
             duration: UIConfig.desktopSearchTabAnimationDuration,
-            child: _SearchTab(
-              name: tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
-              selected: index == state.currentTabIndex,
-              selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
-              unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
-              selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
-              unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
-              onTap: () => logic.handleTapTab(index),
-              onDelete: () => logic.deleteTab(index),
+            child: GetBuilder<DesktopSearchPageTabLogic>(
+              global: false,
+              init: tabLogic,
+              builder: (_) => _SearchTab(
+                name: index == state.currentTabIndex
+                    ? (tabLogic.state.totalCount != null
+                        ? tabLogic.state.totalCount!.toPrintString()
+                        : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'))
+                    : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
+                selected: index == state.currentTabIndex,
+                selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+                unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
+                selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
+                unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
+                onTap: () => logic.handleTapTab(index),
+                onDelete: () => logic.deleteTab(index),
+              ),
             ),
           ),
         )

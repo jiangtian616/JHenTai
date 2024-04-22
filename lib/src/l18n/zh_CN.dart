@@ -612,6 +612,9 @@ class zh_CN {
       'tab': '标签页',
       'openGallery': '打开画廊',
       'tapChip2Delete': '点击标签删除单条\n长按按钮删除全部',
+      'accurateCountTemplate': '%s个结果',
+      'hundredsOfCountTemplate': '数百个结果',
+      'thousandsOfCountTemplate': '数千个结果',
 
       /// about page
       'author': '创作者',

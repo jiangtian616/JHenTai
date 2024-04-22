@@ -612,6 +612,9 @@ class en_US {
       'tab': 'Tab',
       'openGallery': 'Open Gallery',
       'tapChip2Delete': 'Tap chip to delete\nLong press button to delete all',
+      'accurateCountTemplate': '%s results',
+      'hundredsOfCountTemplate': 'Hundreds of results',
+      'thousandsOfCountTemplate': 'Thousands of results',
 
       /// about page
       'author': 'Author',

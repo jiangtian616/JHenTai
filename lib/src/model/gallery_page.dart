@@ -1,9 +1,11 @@
+import 'package:jhentai/src/model/gallery_count.dart';
+
 import 'gallery.dart';
 
 enum FavoriteSortOrder { favoritedTime, publishedTime }
 
 class GalleryPageInfo {
-  final String? totalCount;
+  final GalleryCount? totalCount;
 
   final FavoriteSortOrder? favoriteSortOrder;
 

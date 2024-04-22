@@ -610,6 +610,9 @@ class zh_TW {
       'tab': '標簽頁',
       'openGallery': '打开画廊',
       'tapChip2Delete': '點擊標簽刪除單條\n長按按鈕刪除全部',
+      'accurateCountTemplate': '%s個結果',
+      'hundredsOfCountTemplate': '數百個結果',
+      'thousandsOfCountTemplate': '數千個結果',
 
       /// about page
       'author': '創作者',

@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
+import 'package:jhentai/src/model/gallery_count.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_hh_archive.dart';
 import 'package:jhentai/src/model/gallery_hh_info.dart';
@@ -90,7 +91,7 @@ class EHSpiderParser {
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
-          .map((e) => _parseMinimalGallery(e))
+          .map(_parseMinimalGallery)
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
@@ -99,6 +100,7 @@ class EHSpiderParser {
           : sortOrderText == 'Favorited Time'
               ? FavoriteSortOrder.favoritedTime
               : null,
+      totalCount: _galleryPageDocument2TotalCount(document),
     );
   }
 
@@ -111,7 +113,7 @@ class EHSpiderParser {
 
           /// remove ad
           .where((element) => element.children.length != 1)
-          .map((e) => _parseExtendedGallery(e))
+          .map(_parseExtendedGallery)
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
@@ -120,6 +122,7 @@ class EHSpiderParser {
           : sortOrderText == 'Favorited Time'
               ? FavoriteSortOrder.favoritedTime
               : null,
+      totalCount: _galleryPageDocument2TotalCount(document),
     );
   }
 
@@ -132,7 +135,7 @@ class EHSpiderParser {
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
-          .map((e) => _parseCompactGallery(e))
+          .map(_parseCompactGallery)
           .toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
@@ -141,6 +144,7 @@ class EHSpiderParser {
           : sortOrderText == 'Favorited Time'
               ? FavoriteSortOrder.favoritedTime
               : null,
+      totalCount: _galleryPageDocument2TotalCount(document),
     );
   }
 
@@ -149,7 +153,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements.map((e) => _parseThumbnailGallery(e)).toList(),
+      gallerys: galleryListElements.map(_parseThumbnailGallery).toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
       favoriteSortOrder: sortOrderText == 'Published Time'
@@ -157,6 +161,7 @@ class EHSpiderParser {
           : sortOrderText == 'Favorited Time'
               ? FavoriteSortOrder.favoritedTime
               : null,
+      totalCount: _galleryPageDocument2TotalCount(document),
     );
   }
 
@@ -172,6 +177,33 @@ class EHSpiderParser {
     String? href = document.querySelector('#uprev')?.attributes['href'];
 
     return RegExp(r'prev=([\d-]+)').firstMatch(href ?? '')?.group(1);
+  }
+
+  static GalleryCount? _galleryPageDocument2TotalCount(Document document) {
+    /// null when No hits found
+    /// Found 1,465,200 results.
+    /// Found 702 results.
+    /// Found about 232,805 results.
+    /// Found 50,000+ results.
+    /// Found hundreds of results.
+    /// Found thousands of results.
+    String? text = document.querySelector('.searchtext')?.text;
+    if (text == null) {
+      return null;
+    }
+
+    if (text.contains('hundreds of')) {
+      return const GalleryCount(type: GalleryCountType.hundreds);
+    }
+    if (text.contains('thousands of')) {
+      return const GalleryCount(type: GalleryCountType.thousands);
+    }
+
+    String? count = RegExp(r'([\d,\\+]+)').firstMatch(text)?.group(1);
+    if (count == null) {
+      return null;
+    }
+    return GalleryCount(type: GalleryCountType.accurate, count: count);
   }
 
   static List<dynamic> ranklistPage2GalleryPageInfo(Headers headers, dynamic data) {

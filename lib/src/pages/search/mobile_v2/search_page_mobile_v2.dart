@@ -52,6 +52,9 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
+      title: state.totalCount == null ? null : Text(state.totalCount!.toPrintString()),
+      titleSpacing: 0,
+      titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
       bottom: PreferredSize(child: buildSearchField(), preferredSize: const Size(double.infinity, UIConfig.mobileV2SearchBarHeight)),
       actions: buildActionButtons(visualDensity: const VisualDensity(horizontal: -4)),
     );
