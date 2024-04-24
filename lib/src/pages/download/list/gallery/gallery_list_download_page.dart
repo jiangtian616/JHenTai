@@ -156,7 +156,11 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         child: Row(
           children: [
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
-            Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
+            Text(
+              '$groupName${'(' + logic.downloadService.gallerysWithGroup(groupName).length.toString() + ')'}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             const Expanded(child: SizedBox()),
             GroupOpenIndicator(isOpen: isOpen).marginOnly(right: 8),
           ],

@@ -122,6 +122,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     List<GalleryDownloadedData> gallerys = state.galleryObjectsWithGroup(groupName);
     return GridGroup(
       groupName: groupName,
+      contentSize: gallerys.length,
       widgets: gallerys
           .sublist(0, min(GridGroup.maxWidgetCount, gallerys.length))
           .map(
@@ -277,8 +278,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  GestureDetector _buildActionButton(
-      GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
+  GestureDetector _buildActionButton(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
     return GestureDetector(
       onTap: () {
         downloadProgress.downloadStatus == DownloadStatus.paused

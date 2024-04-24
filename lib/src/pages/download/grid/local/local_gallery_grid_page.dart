@@ -59,6 +59,7 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
     return GridGroup(
       groupName: logic.transformDisplayPath(logic.isAtRootPath ? groupName : relative(groupName, from: state.currentGroup)),
+      contentSize: null,
       widgets: const [],
       emptyIcon: state.isAtRoot ? Icons.folder_special : null,
       onTap: () => logic.enterGroup(groupName),

@@ -367,6 +367,7 @@ class GridGroup extends StatelessWidget {
   static const int maxWidgetCount = 4;
 
   final String groupName;
+  final int? contentSize;
   final List<Widget> widgets;
   final VoidCallback? onTap;
   final IconData? emptyIcon;
@@ -376,6 +377,7 @@ class GridGroup extends StatelessWidget {
   const GridGroup({
     Key? key,
     required this.groupName,
+    required this.contentSize,
     required this.widgets,
     this.onTap,
     this.emptyIcon,
@@ -421,7 +423,7 @@ class GridGroup extends StatelessWidget {
                     ),
             ),
           ),
-          Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text('$groupName${contentSize == null ? '' : '(' + contentSize.toString() + ')'}', maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

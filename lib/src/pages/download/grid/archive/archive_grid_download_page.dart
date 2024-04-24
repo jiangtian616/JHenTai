@@ -115,6 +115,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
     return GridGroup(
       groupName: groupName,
+      contentSize: archives.length,
       widgets: archives
           .sublist(0, min(GridGroup.maxWidgetCount, archives.length))
           .map(
