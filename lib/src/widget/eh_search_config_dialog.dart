@@ -323,11 +323,35 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               category: 'Doujinshi',
               enabled: searchConfig.includeDoujinshi,
               onTap: () => setState(() => searchConfig.includeDoujinshi = !searchConfig.includeDoujinshi),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeDoujinshi = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeDoujinshi = true;
+                });
+              },
             ),
             _buildTag(
               category: 'Manga',
               enabled: searchConfig.includeManga,
               onTap: () => setState(() => searchConfig.includeManga = !searchConfig.includeManga),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeManga = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeManga = true;
+                });
+              },
             ),
           ],
         ),
@@ -338,11 +362,35 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               category: 'Image Set',
               enabled: searchConfig.includeImageSet,
               onTap: () => setState(() => searchConfig.includeImageSet = !searchConfig.includeImageSet),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeImageSet = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeImageSet = true;
+                });
+              },
             ),
             _buildTag(
               category: 'Game CG',
               enabled: searchConfig.includeGameCg,
               onTap: () => setState(() => searchConfig.includeGameCg = !searchConfig.includeGameCg),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeGameCg = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeGameCg = true;
+                });
+              },
             ),
           ],
         ).marginOnly(top: 4),
@@ -353,11 +401,35 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               category: 'Artist CG',
               enabled: searchConfig.includeArtistCG,
               onTap: () => setState(() => searchConfig.includeArtistCG = !searchConfig.includeArtistCG),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeArtistCG = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeArtistCG = true;
+                });
+              },
             ),
             _buildTag(
               category: 'Cosplay',
               enabled: searchConfig.includeCosplay,
               onTap: () => setState(() => searchConfig.includeCosplay = !searchConfig.includeCosplay),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeCosplay = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeCosplay = true;
+                });
+              },
             ),
           ],
         ).marginOnly(top: 4),
@@ -368,11 +440,35 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               category: 'Non-H',
               enabled: searchConfig.includeNonH,
               onTap: () => setState(() => searchConfig.includeNonH = !searchConfig.includeNonH),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeNonH = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeNonH = true;
+                });
+              },
             ),
             _buildTag(
               category: 'Asian Porn',
               enabled: searchConfig.includeAsianPorn,
               onTap: () => setState(() => searchConfig.includeAsianPorn = !searchConfig.includeAsianPorn),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeAsianPorn = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeAsianPorn = true;
+                });
+              },
             ),
           ],
         ).marginOnly(top: 4),
@@ -383,11 +479,35 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
               category: 'Western',
               enabled: searchConfig.includeWestern,
               onTap: () => setState(() => searchConfig.includeWestern = !searchConfig.includeWestern),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeWestern = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeWestern = true;
+                });
+              },
             ),
             _buildTag(
               category: 'Misc',
               enabled: searchConfig.includeMisc,
               onTap: () => setState(() => searchConfig.includeMisc = !searchConfig.includeMisc),
+              onLongPress: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeMisc = true;
+                });
+              },
+              onSecondaryTap: () {
+                setState(() {
+                  searchConfig.disableAllCategories();
+                  searchConfig.includeMisc = true;
+                });
+              },
             ),
           ],
         ).marginOnly(top: 4),
@@ -562,7 +682,14 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
-  Widget _buildTag({required String category, required bool enabled, Color? color, VoidCallback? onTap}) {
+  Widget _buildTag({
+    required String category,
+    required bool enabled,
+    Color? color,
+    VoidCallback? onTap,
+    VoidCallback? onLongPress,
+    VoidCallback? onSecondaryTap,
+  }) {
     return EHGalleryCategoryTag(
       category: category,
       width: 115,
@@ -571,6 +698,8 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       color: color,
       textStyle: const TextStyle(height: 1, fontSize: 16, color: UIConfig.galleryCategoryTagTextColor),
       onTap: onTap,
+      onLongPress: onLongPress,
+      onSecondaryTap: onSecondaryTap,
     );
   }
 

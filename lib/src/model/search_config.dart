@@ -75,6 +75,19 @@ class SearchConfig {
     this.searchFavoriteCategoryIndex,
   });
 
+  void disableAllCategories() {
+    includeDoujinshi = false;
+    includeManga = false;
+    includeArtistCG = false;
+    includeGameCg = false;
+    includeWestern = false;
+    includeNonH = false;
+    includeImageSet = false;
+    includeCosplay = false;
+    includeAsianPorn = false;
+    includeMisc = false;
+  }
+
   /// search path
   String toPath() {
     switch (searchType) {

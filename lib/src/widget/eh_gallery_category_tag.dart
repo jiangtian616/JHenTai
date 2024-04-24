@@ -12,6 +12,8 @@ class EHGalleryCategoryTag extends StatelessWidget {
   final EdgeInsets padding;
   final TextStyle textStyle;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSecondaryTap;
 
   const EHGalleryCategoryTag({
     Key? key,
@@ -24,12 +26,16 @@ class EHGalleryCategoryTag extends StatelessWidget {
     this.padding = const EdgeInsets.only(top: 3, bottom: 4, left: 6, right: 6),
     this.textStyle = const TextStyle(height: 1, fontSize: 15, color: UIConfig.galleryCategoryTagTextColor),
     this.onTap,
+    this.onLongPress,
+    this.onSecondaryTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
+      onSecondaryTap: onSecondaryTap,
       child: Container(
         alignment: Alignment.center,
         height: height,
