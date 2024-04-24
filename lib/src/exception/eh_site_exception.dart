@@ -1,9 +1,15 @@
 class EHSiteException implements Exception {
   EHSiteExceptionType type;
   String message;
+  String? referLink;
   bool shouldPauseAllDownloadTasks;
 
-  EHSiteException({required this.type, required this.message, this.shouldPauseAllDownloadTasks = true});
+  EHSiteException({
+    required this.type,
+    required this.message,
+    this.referLink,
+    this.shouldPauseAllDownloadTasks = true,
+  });
 
   @override
   String toString() {

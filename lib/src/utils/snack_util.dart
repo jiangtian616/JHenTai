@@ -9,7 +9,7 @@ void snack(
   String message, {
   bool longDuration = false,
   VoidCallback? onPressed,
-}) {
+}) async {
   if (StyleSetting.isInMobileLayout) {
     ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
     ScaffoldMessenger.of(Get.context!).showSnackBar(
@@ -35,7 +35,7 @@ void snack(
       ),
     );
   } else {
-    Get.closeAllSnackbars();
+    await Get.closeCurrentSnackbar();
     Get.snackbar(
       title,
       message,
@@ -44,6 +44,7 @@ void snack(
       backgroundColor: UIConfig.snackBackGroundColor,
       colorText: UIConfig.snackTextColor,
       margin: GetPlatform.isDesktop ? const EdgeInsets.all(20) : null,
+      instantInit: false,
       onTap: (_) => onPressed?.call(),
     );
   }

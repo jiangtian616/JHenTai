@@ -77,7 +77,8 @@ class ko_KR {
       'igneousHint': 'igneous(EX required)',
 
       /// request
-      'sadPanda': '슬픈 판다: 데이터 없음',
+      'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
+      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
 
       /// gallery card
       'filtered': 'Filtered',

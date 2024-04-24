@@ -77,7 +77,8 @@ class zh_CN {
       'igneousHint': 'igneous（里站必带）',
 
       /// request
-      'sadPanda': 'Sad Panda: 无响应数据',
+      'sadPanda': 'Sad Panda(无响应数据). 解决参考Github Wiki: https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
+      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
 
       /// gallery card
       'filtered': '已过滤',

@@ -78,7 +78,8 @@ class pt_BR {
       'igneousHint': 'igneous(EX required)',
 
       /// request
-      'sadPanda': 'Panda triste: Sem dados',
+      'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
 
       /// gallery card
       'filtered': 'Filtered',

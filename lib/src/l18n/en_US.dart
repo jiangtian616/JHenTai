@@ -77,7 +77,8 @@ class en_US {
       'igneousHint': 'igneous(EX required)',
 
       /// request
-      'sadPanda': 'Sad Panda: No Data',
+      'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
 
       /// gallery card
       'filtered': 'Filtered',

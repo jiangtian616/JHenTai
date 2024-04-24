@@ -994,7 +994,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       String data = response.data.toString();
 
       if (data.isEmpty) {
-        throw EHSiteException(type: EHSiteExceptionType.blankBody, message: 'sadPanda'.tr);
+        throw EHSiteException(type: EHSiteExceptionType.blankBody, message: 'sadPanda'.tr, referLink: 'sadPandaReferLink'.tr);
       }
 
       if (data.startsWith('Your IP address')) {

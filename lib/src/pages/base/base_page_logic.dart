@@ -9,6 +9,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../exception/eh_site_exception.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
@@ -101,7 +102,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     } on EHSiteException catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.message);
-      snack('refreshGalleryFailed'.tr, e.message, longDuration: true);
+      snack(
+        'refreshGalleryFailed'.tr,
+        e.message,
+        longDuration: true,
+        onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
+      );
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
@@ -178,7 +184,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true);
+      snack(
+        'getGallerysFailed'.tr,
+        e.message,
+        longDuration: true,
+        onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
+      );
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
@@ -220,7 +231,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true);
+      snack(
+        'getGallerysFailed'.tr,
+        e.message,
+        longDuration: true,
+        onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
+      );
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -272,7 +288,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     } on EHSiteException catch (e) {
       Log.error('getGallerysFailed'.tr, e.message);
-      snack('getGallerysFailed'.tr, e.message, longDuration: true);
+      snack(
+        'getGallerysFailed'.tr,
+        e.message,
+        longDuration: true,
+        onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
+      );
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
