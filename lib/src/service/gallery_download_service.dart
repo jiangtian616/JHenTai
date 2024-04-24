@@ -884,7 +884,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
                 : EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
-          onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioException).toString()}'),
+          onRetry: (e) => Log.download('Parse image url failed, retry. Reason: ${(e as DioException).errorMsg}'),
           maxAttempts: _maxRetryTimes,
         );
       } on DioException catch (e) {
@@ -987,7 +987,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
               (e.response == null || e.response!.statusCode != 403) &&
               galleryDownloadInfo.speedComputer.getImageDownloadedBytes(serialNo) > 0,
           onRetry: (e) {
-            Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioException).toString()}. Url:${image.url}');
+            Log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioException).errorMsg}. Url:${image.url}');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
           },
         );
@@ -995,7 +995,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         if (e.type == DioExceptionType.cancel) {
           return;
         }
-        Log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.message}. Url:${image.url}');
+        Log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:${image.url}');
         return _reParseImageUrlAndDownload(gallery, serialNo);
       } on EHSiteException catch (e) {
         Log.download('Download Error, reason: ${e.message}');
