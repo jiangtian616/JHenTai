@@ -610,8 +610,13 @@ class EHSpiderParser {
     ).toList();
   }
 
-  static ({List<Profile> profiles, FrontPageDisplayType frontPageDisplayType, bool isLargeThumbnail, int thumbnailRows}) settingPage2SiteSetting(
-      Headers headers, dynamic data) {
+  static ({
+    bool preferJapaneseTitle,
+    List<Profile> profiles,
+    FrontPageDisplayType frontPageDisplayType,
+    bool isLargeThumbnail,
+    int thumbnailRows,
+  }) settingPage2SiteSetting(Headers headers, dynamic data) {
     Document document = parse(data as String);
     List<Element> items = document.querySelectorAll('.optouter');
 
@@ -648,10 +653,12 @@ class EHSpiderParser {
         frontPageDisplayType = FrontPageDisplayType.minimal;
     }
 
+    bool preferJapaneseTitle = document.querySelector('#tl_1')?.attributes['checked'] != null;
     bool isLargeThumbnail = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
     int thumbnailRows = int.parse(document.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
 
     return (
+      preferJapaneseTitle: preferJapaneseTitle,
       profiles: profiles,
       frontPageDisplayType: frontPageDisplayType,
       isLargeThumbnail: isLargeThumbnail,

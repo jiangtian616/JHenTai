@@ -83,7 +83,13 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
     }
 
     loadingState = LoadingState.loading;
-    ({List<Profile> profiles, FrontPageDisplayType frontPageDisplayType, bool isLargeThumbnail, int thumbnailRows}) settings;
+    ({
+      bool preferJapaneseTitle,
+      List<Profile> profiles,
+      FrontPageDisplayType frontPageDisplayType,
+      bool isLargeThumbnail,
+      int thumbnailRows,
+    }) settings;
     try {
       settings = await retry(
         () => EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),

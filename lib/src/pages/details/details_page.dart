@@ -79,29 +79,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         id: DetailsPageLogic.galleryId,
         global: false,
         init: logic,
-        builder: (_) => Text(_mainTitleTextWithBreakWord, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        builder: (_) => Text(logic.mainTitleText.breakWord, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       ),
       actions: [
         _buildMenuButton(context),
       ],
     );
   }
-
-  String get _mainTitleText =>
-      state.gallery?.title ??
-      state.galleryDetails?.japaneseTitle ??
-      state.galleryDetails?.rawTitle ??
-      state.galleryMetadata?.japaneseTitle ??
-      state.galleryMetadata?.title ??
-      '';
-
-  String get _mainTitleTextWithBreakWord =>
-      state.gallery?.title.breakWord ??
-      state.galleryDetails?.japaneseTitle?.breakWord ??
-      state.galleryDetails?.rawTitle.breakWord ??
-      state.galleryMetadata?.japaneseTitle.breakWord ??
-      state.galleryMetadata?.title.breakWord ??
-      '';
 
   Widget _buildMenuButton(BuildContext context) {
     return GetBuilder<DetailsPageLogic>(
@@ -299,7 +283,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         return ScrollConfiguration(
           behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
           child: SelectableText(
-            _mainTitleText,
+            logic.mainTitleText,
             minLines: 1,
             maxLines: 5,
             style: const TextStyle(
@@ -349,13 +333,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             }
 
             String? subTitle;
-            if (state.galleryDetails?.japaneseTitle != null && state.galleryDetails!.japaneseTitle!.breakWord != _mainTitleText) {
+            if (state.galleryDetails?.japaneseTitle != null && state.galleryDetails!.japaneseTitle! != logic.mainTitleText) {
+              subTitle = state.galleryDetails!.japaneseTitle;
+            } else if (state.galleryDetails?.rawTitle != null && state.galleryDetails!.rawTitle != logic.mainTitleText) {
               subTitle = state.galleryDetails!.rawTitle;
-            } else if (state.galleryDetails?.japaneseTitle != null && state.galleryDetails!.japaneseTitle!.breakWord != _mainTitleText) {
-              subTitle = state.galleryDetails!.japaneseTitle!;
-            } else if (state.galleryMetadata?.title != null && state.galleryMetadata!.title.breakWord != _mainTitleText) {
+            } else if (state.galleryMetadata?.title != null && state.galleryMetadata!.title != logic.mainTitleText) {
               subTitle = state.galleryMetadata!.title;
-            } else if (state.galleryMetadata?.japaneseTitle != null && state.galleryMetadata!.japaneseTitle.breakWord != _mainTitleText) {
+            } else if (state.galleryMetadata?.japaneseTitle != null && state.galleryMetadata!.japaneseTitle != logic.mainTitleText) {
               subTitle = state.galleryMetadata!.japaneseTitle;
             }
 

@@ -12,6 +12,8 @@ import '../service/storage_service.dart';
 import '../utils/log.dart';
 
 class SiteSetting {
+  static RxBool preferJapaneseTitle = true.obs;
+
   /// unused now
   static Rx<FrontPageDisplayType> frontPageDisplayType = FrontPageDisplayType.compact.obs;
 
@@ -45,7 +47,13 @@ class SiteSetting {
 
     Log.info('refresh SiteSetting');
 
-    ({List<Profile> profiles, FrontPageDisplayType frontPageDisplayType, bool isLargeThumbnail, int thumbnailRows}) settings;
+    ({
+      bool preferJapaneseTitle,
+      List<Profile> profiles,
+      FrontPageDisplayType frontPageDisplayType,
+      bool isLargeThumbnail,
+      int thumbnailRows,
+    }) settings;
     try {
       settings = await retry(
         () => EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
@@ -60,6 +68,7 @@ class SiteSetting {
       return;
     }
 
+    preferJapaneseTitle.value = settings.preferJapaneseTitle;
     frontPageDisplayType.value = settings.frontPageDisplayType;
     isLargeThumbnail.value = settings.isLargeThumbnail;
     thumbnailRows.value = settings.thumbnailRows;
@@ -74,6 +83,7 @@ class SiteSetting {
   }
 
   static Future<void> _clear() async {
+    preferJapaneseTitle.value = true;
     frontPageDisplayType.value = FrontPageDisplayType.compact;
     isLargeThumbnail.value = false;
     thumbnailRows.value = 4;
@@ -84,6 +94,7 @@ class SiteSetting {
 
   static Map<String, dynamic> _toMap() {
     return {
+      'preferJapaneseTitle': preferJapaneseTitle.value,
       'frontPageDisplayType': frontPageDisplayType.value.index,
       'isLargeThumbnail': isLargeThumbnail.value,
       'thumbnailRows': thumbnailRows.value,
@@ -92,6 +103,7 @@ class SiteSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
+    preferJapaneseTitle.value = map['preferJapaneseTitle'] ?? true;
     frontPageDisplayType.value = FrontPageDisplayType.values[map['frontPageDisplayType']];
     isLargeThumbnail.value = map['isLargeThumbnail'];
     thumbnailRows.value = map['thumbnailRows'];

@@ -57,6 +57,7 @@ import '../../service/storage_service.dart';
 import '../../setting/eh_setting.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
+import '../../setting/site_setting.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
@@ -130,6 +131,26 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   void onClose() {
     super.onClose();
     _stack.remove(this);
+  }
+
+  String get mainTitleText {
+    if (state.gallery?.title != null) {
+      return state.gallery!.title;
+    }
+
+    if (SiteSetting.preferJapaneseTitle.isTrue) {
+      return state.galleryDetails?.japaneseTitle ??
+          state.galleryDetails?.rawTitle ??
+          state.galleryMetadata?.japaneseTitle ??
+          state.galleryMetadata?.title ??
+          '';
+    } else {
+      return state.galleryDetails?.rawTitle ??
+          state.galleryDetails?.japaneseTitle ??
+          state.galleryMetadata?.title ??
+          state.galleryMetadata?.japaneseTitle ??
+          '';
+    }
   }
 
   Future<void> getDetails({bool refreshPageImmediately = true, bool useCacheIfAvailable = true}) async {
@@ -314,7 +335,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
         gid: state.galleryDetails?.galleryUrl.gid ?? state.gallery!.galleryUrl.gid,
         token: state.galleryDetails?.galleryUrl.token ?? state.gallery!.galleryUrl.token,
-        title: state.gallery?.title ?? state.galleryDetails?.japaneseTitle ?? state.galleryDetails!.rawTitle,
+        title: mainTitleText,
         category: state.galleryDetails?.category ?? state.gallery!.category,
         pageCount: state.galleryDetails?.pageCount ?? state.gallery!.pageCount!,
         galleryUrl: state.galleryDetails?.galleryUrl.url ?? state.gallery!.galleryUrl.url,
@@ -545,7 +566,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       ArchiveDownloadedData archive = ArchiveDownloadedData(
         gid: state.galleryDetails!.galleryUrl.gid,
         token: state.galleryDetails!.galleryUrl.token,
-        title: state.gallery?.title ?? state.galleryDetails!.japaneseTitle ?? state.galleryDetails!.rawTitle,
+        title: mainTitleText,
         category: state.galleryDetails!.category,
         pageCount: state.galleryDetails!.pageCount,
         galleryUrl: state.galleryDetails!.galleryUrl.url,
