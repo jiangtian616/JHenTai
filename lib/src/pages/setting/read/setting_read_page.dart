@@ -45,7 +45,9 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile && ReadSetting.readDirection.value == ReadDirection.top2bottomList) _buildNotchOptimization().center(),
               if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) _buildImageRegionWidthRatio(context).center(),
               if (ReadSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
+              if (ReadSetting.isInListReadDirection) _buildPreloadDistanceInLocalMode(context).fadeIn(const Key('preloadDistanceInLocalMode')).center(),
               if (!ReadSetting.isInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
+              if (!ReadSetting.isInListReadDirection) _buildPreloadPageCountInLocalMode().fadeIn(const Key('preloadPageCountInLocalMode')).center(),
               if (ReadSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               if (ReadSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (ReadSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
@@ -329,30 +331,41 @@ class SettingReadPage extends StatelessWidget {
               ReadSetting.savePreloadDistance(newValue!);
             },
             items: const [
-              DropdownMenuItem(
-                child: Text('0'),
-                value: 0,
-              ),
-              DropdownMenuItem(
-                child: Text('1'),
-                value: 1,
-              ),
-              DropdownMenuItem(
-                child: Text('2'),
-                value: 2,
-              ),
-              DropdownMenuItem(
-                child: Text('3'),
-                value: 3,
-              ),
-              DropdownMenuItem(
-                child: Text('5'),
-                value: 5,
-              ),
-              DropdownMenuItem(
-                child: Text('10'),
-                value: 10,
-              ),
+              DropdownMenuItem(child: Text('0'), value: 0),
+              DropdownMenuItem(child: Text('1'), value: 1),
+              DropdownMenuItem(child: Text('2'), value: 2),
+              DropdownMenuItem(child: Text('3'), value: 3),
+              DropdownMenuItem(child: Text('5'), value: 5),
+              DropdownMenuItem(child: Text('8'), value: 8),
+              DropdownMenuItem(child: Text('10'), value: 10),
+            ],
+          ),
+          Text('ScreenHeight'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)).marginSymmetric(horizontal: 12),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreloadDistanceInLocalMode(BuildContext context) {
+    return ListTile(
+      title: Text('preloadDistanceInLocalMode'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButton<int>(
+            value: ReadSetting.preloadDistanceLocal.value,
+            elevation: 4,
+            onChanged: (int? newValue) {
+              ReadSetting.savePreloadDistanceLocal(newValue!);
+            },
+            items: const [
+              DropdownMenuItem(child: Text('0'), value: 0),
+              DropdownMenuItem(child: Text('1'), value: 1),
+              DropdownMenuItem(child: Text('2'), value: 2),
+              DropdownMenuItem(child: Text('3'), value: 3),
+              DropdownMenuItem(child: Text('5'), value: 5),
+              DropdownMenuItem(child: Text('8'), value: 8),
+              DropdownMenuItem(child: Text('10'), value: 10),
             ],
           ),
           Text('ScreenHeight'.tr, style: UIConfig.settingPageListTileTrailingTextStyle(context)).marginSymmetric(horizontal: 12),
@@ -371,30 +384,35 @@ class SettingReadPage extends StatelessWidget {
           ReadSetting.savePreloadPageCount(newValue!);
         },
         items: const [
-          DropdownMenuItem(
-            child: Text('0'),
-            value: 0,
-          ),
-          DropdownMenuItem(
-            child: Text('1'),
-            value: 1,
-          ),
-          DropdownMenuItem(
-            child: Text('2'),
-            value: 2,
-          ),
-          DropdownMenuItem(
-            child: Text('3'),
-            value: 3,
-          ),
-          DropdownMenuItem(
-            child: Text('5'),
-            value: 5,
-          ),
-          DropdownMenuItem(
-            child: Text('10'),
-            value: 10,
-          ),
+          DropdownMenuItem(child: Text('0'), value: 0),
+          DropdownMenuItem(child: Text('1'), value: 1),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('3'), value: 3),
+          DropdownMenuItem(child: Text('5'), value: 5),
+          DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('10'), value: 10),
+        ],
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildPreloadPageCountInLocalMode() {
+    return ListTile(
+      title: Text('preloadPageCountInLocalMode'.tr),
+      trailing: DropdownButton<int>(
+        value: ReadSetting.preloadPageCountLocal.value,
+        elevation: 4,
+        onChanged: (int? newValue) {
+          ReadSetting.savePreloadPageCountLocal(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(child: Text('0'), value: 0),
+          DropdownMenuItem(child: Text('1'), value: 1),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('3'), value: 3),
+          DropdownMenuItem(child: Text('5'), value: 5),
+          DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('10'), value: 10),
         ],
       ).marginOnly(right: 12),
     );

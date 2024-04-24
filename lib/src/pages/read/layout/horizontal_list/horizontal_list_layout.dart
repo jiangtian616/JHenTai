@@ -37,7 +37,9 @@ class HorizontalListLayout extends BaseLayout {
             scrollDirection: Axis.horizontal,
             reverse: ReadSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
-            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online ? ReadSetting.preloadDistance * screenHeight * 1 : 3 * fullScreenWidth,
+            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                ? ReadSetting.preloadDistance * screenHeight * 1
+                : ReadSetting.preloadDistanceLocal * screenHeight * 1,
             initialScrollIndex: readPageState.readPageInfo.initialIndex,
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,

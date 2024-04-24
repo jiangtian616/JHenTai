@@ -37,9 +37,7 @@ class VerticalListLayout extends BaseLayout {
               physics: const ClampingScrollPhysics(),
               minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
                   ? ReadSetting.preloadDistance * screenHeight * 1
-                  : GetPlatform.isIOS
-                      ? 3 * screenHeight
-                      : 8 * screenHeight,
+                  : ReadSetting.preloadDistanceLocal * screenHeight * 1,
               initialScrollIndex: readPageState.readPageInfo.initialIndex,
               itemCount: readPageState.readPageInfo.pageCount,
               itemScrollController: state.itemScrollController,

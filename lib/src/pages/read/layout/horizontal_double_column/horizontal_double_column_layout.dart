@@ -27,7 +27,9 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       child: PhotoViewGallery.builder(
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: state.pageController,
-        cacheExtent: (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2,
+        cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+            ? (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2
+            : (ReadSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
         reverse: ReadSetting.isInRight2LeftDirection,
         itemCount: state.pageCount,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(

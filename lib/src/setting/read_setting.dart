@@ -55,7 +55,10 @@ class ReadSetting {
   static Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
+  static RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
+
   static RxInt preloadPageCount = 1.obs;
+  static RxInt preloadPageCountLocal = 3.obs;
   static RxBool displayFirstPageAlone = true.obs;
   static RxBool reverseTurnPageDirection = false.obs;
   static RxBool disablePageTurningOnTap = false.obs;
@@ -241,9 +244,21 @@ class ReadSetting {
     _save();
   }
 
+  static savePreloadDistanceLocal(int value) {
+    Log.debug('savePreloadDistanceLocal:$value');
+    preloadDistanceLocal.value = value;
+    _save();
+  }
+
   static savePreloadPageCount(int value) {
     Log.debug('savePreloadPageCount:$value');
     preloadPageCount.value = value;
+    _save();
+  }
+
+  static savePreloadPageCountLocal(int value) {
+    Log.debug('savePreloadPageCountLocal:$value');
+    preloadPageCountLocal.value = value;
     _save();
   }
 
@@ -294,7 +309,9 @@ class ReadSetting {
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
+      'preloadDistanceLocal': preloadDistanceLocal.value,
       'preloadPageCount': preloadPageCount.value,
+      'preloadPageCountLocal': preloadPageCountLocal.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'reverseTurnPageDirection': reverseTurnPageDirection.value,
       'disablePageTurningOnTap': disablePageTurningOnTap.value,
@@ -325,7 +342,9 @@ class ReadSetting {
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
+    preloadDistanceLocal.value = map['preloadDistanceLocal'] ?? preloadDistanceLocal.value;
     preloadPageCount.value = map['preloadPageCount'];
+    preloadPageCountLocal.value = map['preloadPageCountLocal'] ?? preloadPageCountLocal.value;
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
     disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;

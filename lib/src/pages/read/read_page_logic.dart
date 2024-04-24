@@ -80,6 +80,7 @@ class ReadPageLogic extends GetxController {
   late Worker displayFirstPageAloneListener;
   late Worker enableCustomBrightnessListener;
   late Worker customBrightnessListener;
+  late Worker preloadListener;
 
   final EHExecutor executor = EHExecutor(
     concurrency: 10,
@@ -163,6 +164,11 @@ class ReadPageLogic extends GetxController {
     customBrightnessListener = ever(ReadSetting.customBrightness, (_) {
       applyCurrentBrightness();
     });
+
+    preloadListener = everAll(
+      [ReadSetting.preloadPageCountLocal, ReadSetting.preloadPageCount, ReadSetting.preloadDistanceLocal, ReadSetting.preloadDistance],
+      (_) => updateSafely([layoutId]),
+    );
   }
 
   @override
@@ -178,6 +184,7 @@ class ReadPageLogic extends GetxController {
     displayFirstPageAloneListener.dispose();
     enableCustomBrightnessListener.dispose();
     customBrightnessListener.dispose();
+    preloadListener.dispose();
 
     restoreVolumeListener();
 

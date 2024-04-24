@@ -25,7 +25,9 @@ class HorizontalPageLayout extends BaseLayout {
         itemCount: readPageState.readPageInfo.pageCount,
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: logic.pageController,
-        cacheExtent: ReadSetting.preloadPageCount.value.toDouble(),
+        cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+            ? ReadSetting.preloadPageCount.value.toDouble()
+            : ReadSetting.preloadPageCountLocal.value.toDouble(),
         reverse: ReadSetting.isInRight2LeftDirection,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           initialScale: 1.0,
