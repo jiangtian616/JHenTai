@@ -11,7 +11,7 @@ class GalleryCount {
       case GalleryCountType.accurate:
         return 'accurateCountTemplate'.trArgs([count!]);
       case GalleryCountType.hundreds:
-        return 'accurateCountTemplate'.tr;
+        return 'hundredsOfCountTemplate'.tr;
       case GalleryCountType.thousands:
         return 'thousandsOfCountTemplate'.tr;
     }
