@@ -89,9 +89,14 @@ mixin SearchPageLogicMixin on BasePageLogic {
   Future<void> handleFileSearch() async {
     FilePickerResult? result;
     try {
-      result = await FilePicker.platform.pickFiles(type: FileType.image);
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowCompression: false,
+        compressionQuality: 0,
+      );
     } on Exception catch (e) {
       Log.error('Pick file failed', e);
+      return;
     }
 
     if (result == null) {
@@ -114,7 +119,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
 
     state.loadingState = LoadingState.loading;
     state.searchConfig.keyword = null;
-    update();
+    updateSafely();
 
     try {
       state.redirectUrl = await EHRequest.requestLookup(
@@ -125,18 +130,21 @@ mixin SearchPageLogicMixin on BasePageLogic {
     } on DioException catch (e) {
       Log.error('fileSearchFailed'.tr, e.errorMsg);
       snack('fileSearchFailed'.tr, e.errorMsg ?? '');
+      state.hasSearched = false;
       state.loadingState = LoadingState.idle;
-      update([loadingStateId]);
+      updateSafely();
       return;
     } on EHSiteException catch (e) {
       Log.error('fileSearchFailed'.tr, e.message);
       snack('fileSearchFailed'.tr, e.message);
+      state.hasSearched = false;
       state.loadingState = LoadingState.idle;
-      update([loadingStateId]);
+      updateSafely();
       return;
     } on CheckException catch (_) {
+      state.hasSearched = false;
       state.loadingState = LoadingState.idle;
-      update([loadingStateId]);
+      updateSafely();
       rethrow;
     }
 
