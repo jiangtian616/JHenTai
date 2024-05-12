@@ -414,7 +414,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     return directory.list().toList().then((files) {
       List<File> imageFiles = files.whereType<File>().where((file) => FileUtil.isImageExtension(file.path)).toList();
-      imageFiles.sort(FileUtil.compareComicImagesOrderSimple);
+      imageFiles.sort(FileUtil.naturalCompareFile);
       return imageFiles;
     }).then((imageFiles) {
       return imageFiles

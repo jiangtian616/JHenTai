@@ -83,7 +83,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
   List<GalleryImage> getGalleryImages(LocalGallery gallery) {
     List<File> imageFiles = Directory(gallery.path).listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList()
-      ..sort(FileUtil.compareComicImagesOrder);
+      ..sort(FileUtil.naturalCompareFile);
 
     return imageFiles
         .map(
@@ -130,9 +130,9 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
       Log.error('_loadGalleriesFromDisk failed, path: ${DownloadSetting.extraGalleryScanPath}', error, stackTrace);
       return [];
     }).whenComplete(() {
-      allGallerys.sort((a, b) => a.title.compareTo(b.title));
+      allGallerys.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
       for (List<LocalGallery> dirs in path2GalleryDir.values) {
-        dirs.sort((a, b) => a.title.compareTo(b.title));
+        dirs.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
       }
     });
   }
@@ -185,7 +185,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
                   if (subResult.isLegalGalleryDir || subResult.isLegalNestedGalleryDir) {
                     result.isLegalNestedGalleryDir = true;
                     (path2SubDir[parentPath] ??= []).addIfNotExists(directory.path);
-                    path2SubDir[parentPath]!.sort((a, b) => basename(a).compareTo(basename(b)));
+                    path2SubDir[parentPath]!.sort((a, b) => FileUtil.naturalCompare(basenameWithoutExtension(a), basenameWithoutExtension(b)));
                   }
                 }),
               );

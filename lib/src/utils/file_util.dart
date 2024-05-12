@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart';
@@ -20,43 +19,37 @@ class FileUtil {
     return basename(file.path) == '.nomedia' || _galleryPathPattern.hasMatch(file.parent.path) || _archivePathPattern.hasMatch(file.parent.path);
   }
 
-  static int compareComicImagesOrderSimple(File a, File b) {
-    String aName = basenameWithoutExtension(a.path);
-    String bName = basenameWithoutExtension(b.path);
-
-    int? aIndex = int.tryParse(aName);
-    int? bIndex = int.tryParse(bName);
-
-    if (aIndex != null && bIndex != null) {
-      return aIndex - bIndex;
-    }
-
-    return aName.compareTo(bName);
+  static int naturalCompareFile(File aFile, File bFile) {
+    return naturalCompare(basenameWithoutExtension(aFile.path), basenameWithoutExtension(bFile.path));
   }
 
-  static int compareComicImagesOrder(File a, File b) {
-    final RegExp regExp = RegExp(r'(\d+)');
+  static int naturalCompare(String a, String b) {
+    List<RegExpMatch> aParts = RegExp(r'(\d+|\D+)').allMatches(a).toList();
+    List<RegExpMatch> bParts = RegExp(r'(\d+|\D+)').allMatches(b).toList();
 
-    String aName = basenameWithoutExtension(a.path);
-    String bName = basenameWithoutExtension(b.path);
+    var minParts = aParts.length < bParts.length ? aParts.length : bParts.length;
 
-    final Iterable<Match> matchesA = regExp.allMatches(aName);
-    final Iterable<Match> matchesB = regExp.allMatches(bName);
+    for (var i = 0; i < minParts; i++) {
+      String aPart = aParts[i].group(0)!;
+      String bPart = bParts[i].group(0)!;
 
-    List<int> numbersA = matchesA.map((m) => int.parse(m.group(0)!)).toList();
-    List<int> numbersB = matchesB.map((m) => int.parse(m.group(0)!)).toList();
+      if (aPart == bPart) {
+        continue;
+      }
 
-    if (numbersA.isEmpty || numbersB.isEmpty) {
-      return aName.compareTo(bName);
-    }
+      int? aNum = int.tryParse(aPart);
+      int? bNum = int.tryParse(bPart);
 
-    for (int i = 0; i < min(numbersA.length, numbersB.length); i++) {
-      if (numbersA[i] != numbersB[i]) {
-        return numbersA[i].compareTo(numbersB[i]);
+      if (aNum != null && bNum != null && aNum - bNum != 0) {
+        return aNum - bNum;
+      }
+
+      if (aPart.compareTo(bPart) != 0) {
+        return aPart.compareTo(bPart);
       }
     }
 
-    return aName.compareTo(bName);
+    return aParts.length - bParts.length;
   }
 
   static Future<String> computeSha1Hash(File file) {
@@ -64,8 +57,4 @@ class FileUtil {
       return sha1.convert(bytes).toString();
     });
   }
-}
-
-void main() {
-  print(FileUtil.compareComicImagesOrderSimple(File('image10_1.jpg'), File('image1_1.jpg')));
 }
