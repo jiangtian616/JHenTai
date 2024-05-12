@@ -37,7 +37,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
   }
 
   Future<void> _handleAddPath() async {
-    await requestPermission();
+    await requestStoragePermission();
 
     String? newPath;
     try {

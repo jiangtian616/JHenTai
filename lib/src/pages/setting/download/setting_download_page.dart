@@ -321,7 +321,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
-    await requestPermission();
+    await requestStoragePermission();
 
     String oldDownloadPath = DownloadSetting.downloadPath.value;
 

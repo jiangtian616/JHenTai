@@ -13,16 +13,16 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:image_save/image_save.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/permission_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../setting/path_setting.dart';
@@ -294,14 +294,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         GalleryImage image;
         try {
           image = await readPageLogic.requestImage(index, true, null);
-        } catch(e) {
+        } catch (e) {
           Log.error('Save original image failed: $e');
           toast('saveFailed'.tr);
           return;
         }
 
         readPageState.images[index]!.originalImageUrl = image.originalImageUrl;
-        
+
         return saveOriginalOnlineImage(index);
       }
     }
@@ -357,6 +357,17 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
-    return await ImageSave.saveImage(imageData, fileName, albumName: EHConsts.appName) == true;
+    await requestAlbumPermission();
+
+    SaveResult saveResult = await SaverGallery.saveImage(
+      imageData,
+      name: fileName,
+      androidRelativePath: "Pictures/JHenTai",
+      androidExistNotSave: false,
+    );
+
+    Log.info('Save image to album: $saveResult');
+
+    return saveResult.isSuccess;
   }
 }
