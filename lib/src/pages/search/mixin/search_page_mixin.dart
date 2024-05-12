@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
+import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/pages/search/mixin/search_page_logic_mixin.dart';
 import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -116,7 +118,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
   }
 
   Widget buildOpenGalleryArea() {
-    if (state.inputGalleryUrl == null) {
+    if (state.inputGalleryUrl == null && state.inputGalleryImagePageUrl == null) {
       return const SizedBox();
     }
 
@@ -124,12 +126,17 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       margin: const EdgeInsets.only(top: 8),
       child: ListTile(
         title: Text('openGallery'.tr),
-        subtitle: Text(state.inputGalleryUrl!.url, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(state.inputGalleryUrl?.url ?? state.inputGalleryImagePageUrl!.url, maxLines: 1, overflow: TextOverflow.ellipsis),
         leading: const Icon(Icons.open_in_new),
-        onTap: () => toRoute(
-          Routes.details,
-          arguments: {'galleryUrl': state.inputGalleryUrl!},
-        ),
+        onTap: () {
+          state.searchFieldFocusNode.unfocus();
+          
+          if (state.inputGalleryUrl != null) {
+            toRoute(Routes.details, arguments: DetailsPageArgument(galleryUrl: state.inputGalleryUrl!));
+          } else if (state.inputGalleryImagePageUrl != null) {
+            toRoute(Routes.imagePage, arguments: GalleryImagePageArgument(galleryImagePageUrl: state.inputGalleryImagePageUrl!));
+          }
+        },
       ),
     );
   }

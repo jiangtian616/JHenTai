@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/base/base_page_state.dart';
 
@@ -22,6 +23,8 @@ mixin SearchPageStateMixin on BasePageState {
   bool inDeleteSearchHistoryMode = false;
 
   GalleryUrl? inputGalleryUrl;
+
+  GalleryImagePageUrl? inputGalleryImagePageUrl;
 
   List<TagData> suggestions = <TagData>[];
 

@@ -207,10 +207,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
           borderRadius: BorderRadius.circular(15),
           child: Row(
             children: [
-              GestureDetector(
-                onTap: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : null,
-                child: _buildCover(gallery, context),
-              ),
+              _buildCover(gallery, context),
               Expanded(child: _buildInfo(context, gallery)),
             ],
           ),
@@ -235,15 +232,6 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(gallery.title, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2)),
-        const Expanded(child: SizedBox()),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (gallery.isFromEHViewer)
-              Text('EHViewer', style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)))
-                  .marginOnly(right: 8),
-          ],
-        ),
       ],
     ).paddingOnly(left: 6, right: 10, top: 8, bottom: 5);
   }

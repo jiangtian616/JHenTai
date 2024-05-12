@@ -73,10 +73,10 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
       widget: buildGalleryImage(gallery.cover),
       isOriginal: false,
       onTapWidget: () => logic.goToReadPage(gallery),
-      onTapTitle: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : () => logic.goToReadPage(gallery),
+      onTapTitle: () => logic.goToReadPage(gallery),
       onLongPress: () => logic.showBottomSheet(gallery, context),
       onSecondTap: () => logic.showBottomSheet(gallery, context),
-      onTertiaryTap: gallery.isFromEHViewer ? () => logic.goToDetailPage(gallery) : () => logic.goToReadPage(gallery),
+      onTertiaryTap: () => logic.goToReadPage(gallery),
     );
   }
 }

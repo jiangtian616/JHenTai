@@ -22,22 +22,7 @@ class LocalGallery {
   String path;
   GalleryImage cover;
 
-  GalleryUrl? _galleryUrl;
-
-  bool get isFromEHViewer => _galleryUrl != null;
-
-  GalleryUrl? get galleryUrl => isFromEHViewer
-      ? UserSetting.hasLoggedIn()
-          ? _galleryUrl!.copyWith(isEH: false)
-          : _galleryUrl!.copyWith(isEH: true)
-      : null;
-
-  LocalGallery({
-    required this.title,
-    required this.path,
-    required this.cover,
-    GalleryUrl? galleryUrl,
-  }) : _galleryUrl = galleryUrl;
+  LocalGallery({required this.title, required this.path, required this.cover});
 }
 
 class LocalGalleryParseResult {
@@ -193,7 +178,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
           (entity) {
             if (entity is File && FileUtil.isImageExtension(entity.path) && result.isLegalGalleryDir == false) {
               result.isLegalGalleryDir = true;
-              subFutures.add(_initGalleryInfoInMemory(directory, entity, parentPath));
+              _initGalleryInfoInMemory(directory, entity, parentPath);
             } else if (entity is Directory) {
               subFutures.add(
                 _parseDirectory(entity, false).then((subResult) {
@@ -225,43 +210,18 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     return completer.future;
   }
 
-  Future<void> _initGalleryInfoInMemory(Directory galleryDir, File coverImage, String parentPath) {
-    /// if the gallery is downloaded by ehviewer, read its metadata file to gain gallery url
-    File ehvMetadata = File(join(galleryDir.path, '.ehviewer'));
-    int? gid;
-    String? token;
+  void _initGalleryInfoInMemory(Directory galleryDir, File coverImage, String parentPath) {
+    LocalGallery gallery = LocalGallery(
+      title: basename(galleryDir.path),
+      path: galleryDir.path,
+      cover: GalleryImage(
+        url: '',
+        path: relative(coverImage.path, from: PathSetting.getVisibleDir().path),
+        downloadStatus: DownloadStatus.downloaded,
+      ),
+    );
 
-    return ehvMetadata.exists().then((success) {
-      if (success) {
-        return ehvMetadata.readAsLines().then((lines) {
-          gid = int.tryParse(lines[2]);
-          token = lines[3];
-        }).catchError((e) {
-          /// EhViewer-NekoInverter supported
-          /// Ehviewer-Overhauled not supported
-        });
-      }
-    }).then((_) {
-      LocalGallery gallery = LocalGallery(
-        title: basename(galleryDir.path),
-        path: galleryDir.path,
-        cover: GalleryImage(
-          url: '',
-          path: relative(coverImage.path, from: PathSetting.getVisibleDir().path),
-          downloadStatus: DownloadStatus.downloaded,
-        ),
-        galleryUrl: gid != null && token != null ? GalleryUrl(isEH: true, gid: gid!, token: token!) : null,
-      );
-
-      allGallerys.add(gallery);
-      (path2GalleryDir[parentPath] ??= []).add(gallery);
-      if (gallery.isFromEHViewer) {
-        gid2EHViewerGallery[gid!] = gallery;
-      }
-    }).catchError((e) {
-      Log.error('Parse gallery url from ehv metadata failed!', e);
-      Log.uploadError(e, extraInfos: {'ehvMetadata': ehvMetadata});
-      return null;
-    });
+    allGallerys.add(gallery);
+    (path2GalleryDir[parentPath] ??= []).add(gallery);
   }
 }

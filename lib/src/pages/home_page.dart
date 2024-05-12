@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
+import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
@@ -54,7 +57,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   final StorageService storageService = Get.find();
 
   StreamSubscription? _intentDataStreamSubscription;
-  String? _lastDetectedUrl;
+  String? _lastDetectedText;
 
   @override
   void initState() {
@@ -165,31 +168,51 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         }
 
         GalleryUrl? galleryUrl = GalleryUrl.tryParse(rawText!);
-        if (galleryUrl == null) {
-          toast('Invalid jump link', isShort: false);
-        } else {
+        if (galleryUrl != null) {
           toRoute(
             Routes.details,
-            arguments: {'galleryUrl': galleryUrl},
+            arguments: DetailsPageArgument(galleryUrl: galleryUrl),
             offAllBefore: false,
             preventDuplicates: false,
           );
+          return;
         }
+
+        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(rawText);
+        if (galleryImagePageUrl != null) {
+          toRoute(
+            Routes.imagePage,
+            arguments: GalleryImagePageArgument(galleryImagePageUrl: galleryImagePageUrl),
+            offAllBefore: false,
+          );
+          return;
+        }
+
+        toast('Invalid jump link', isShort: false);
       },
     );
 
     _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
       (String url) {
         GalleryUrl? galleryUrl = GalleryUrl.tryParse(url);
-        if (galleryUrl == null) {
-          toast('Invalid jump link', isShort: false);
-        } else {
+        if (galleryUrl != null) {
           toRoute(
             Routes.details,
-            arguments: {'galleryUrl': galleryUrl},
+            arguments: DetailsPageArgument(galleryUrl: galleryUrl),
             offAllBefore: false,
             preventDuplicates: false,
           );
+          return;
+        }
+
+        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(url);
+        if (galleryImagePageUrl != null) {
+          toRoute(
+            Routes.imagePage,
+            arguments: GalleryImagePageArgument(galleryImagePageUrl: galleryImagePageUrl),
+            offAllBefore: false,
+          );
+          return;
         }
       },
       onError: (e) {
@@ -205,34 +228,55 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       return;
     }
 
-    GalleryUrl? galleryUrl = GalleryUrl.tryParse(await FlutterClipboard.paste());
-    if (galleryUrl == null) {
+    String rawText = await FlutterClipboard.paste();
+    GalleryUrl? galleryUrl = GalleryUrl.tryParse(rawText);
+    GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(rawText);
+
+    if (galleryUrl == null && galleryImagePageUrl == null) {
       return;
     }
 
     /// show snack only once
-    if (galleryUrl.url == _lastDetectedUrl) {
+    if (rawText == _lastDetectedText) {
       return;
     }
 
-    _lastDetectedUrl = galleryUrl.url;
-
-    snack(
-      'galleryUrlDetected'.tr,
-      '${'galleryUrlDetectedHint'.tr}: ${galleryUrl.url}',
-      onPressed: () {
-        if (!galleryUrl.isEH && !UserSetting.hasLoggedIn()) {
-          showLoginToast();
-          return;
-        }
-        toRoute(
-          Routes.details,
-          arguments: {'galleryUrl': galleryUrl},
-          offAllBefore: false,
-          preventDuplicates: false,
-        );
-      },
-      longDuration: true,
-    );
+    _lastDetectedText = rawText;
+    if (galleryUrl != null) {
+      snack(
+        'galleryUrlDetected'.tr,
+        '${'galleryUrlDetectedHint'.tr}: ${galleryUrl.url}',
+        onPressed: () {
+          if (!galleryUrl.isEH && !UserSetting.hasLoggedIn()) {
+            showLoginToast();
+            return;
+          }
+          toRoute(
+            Routes.details,
+            arguments: DetailsPageArgument(galleryUrl: galleryUrl),
+            offAllBefore: false,
+            preventDuplicates: false,
+          );
+        },
+        longDuration: true,
+      );
+    } else if (galleryImagePageUrl != null) {
+      snack(
+        'galleryUrlDetected'.tr,
+        '${'galleryUrlDetectedHint'.tr}: ${galleryImagePageUrl.url}',
+        onPressed: () {
+          if (!galleryImagePageUrl.isEH && !UserSetting.hasLoggedIn()) {
+            showLoginToast();
+            return;
+          }
+          toRoute(
+            Routes.imagePage,
+            arguments: GalleryImagePageArgument(galleryImagePageUrl: galleryImagePageUrl),
+            offAllBefore: false,
+          );
+        },
+        longDuration: true,
+      );
+    }
   }
 }

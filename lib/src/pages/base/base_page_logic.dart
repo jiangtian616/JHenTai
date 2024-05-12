@@ -25,6 +25,7 @@ import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/loading_state_indicator.dart';
+import '../details/details_page_logic.dart';
 import 'base_page_state.dart';
 
 abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
@@ -361,10 +362,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   void handleTapGalleryCard(Gallery gallery) async {
     toRoute(
       Routes.details,
-      arguments: {
-        'galleryUrl': gallery.galleryUrl,
-        'gallery': gallery,
-      },
+      arguments: DetailsPageArgument(galleryUrl: gallery.galleryUrl, gallery: gallery),
     );
   }
 

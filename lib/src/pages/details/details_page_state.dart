@@ -17,12 +17,12 @@ class DetailsPageState with Scroll2TopStateMixin {
 
   GalleryDetail? galleryDetails;
 
+  /// used for rating
+  String? apikey;
+
   /// If the gallery is deleted due to copyright, we use metadata to render page
   GalleryMetadata? galleryMetadata;
   String? copyRighter;
-  
-  /// used for rating
-  String? apikey;
 
   int nextPageIndexToLoadThumbnails = 1;
   LoadingState loadingState = LoadingState.idle;

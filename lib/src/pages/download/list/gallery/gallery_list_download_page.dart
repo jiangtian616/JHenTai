@@ -18,6 +18,7 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../details/details_page_logic.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -232,7 +233,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(
         Routes.details,
-        arguments: {'galleryUrl': GalleryUrl.parse(gallery.galleryUrl)},
+        arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(gallery.galleryUrl)),
       ),
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',

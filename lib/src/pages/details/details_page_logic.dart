@@ -12,6 +12,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
@@ -70,6 +71,16 @@ import '../../widget/jump_page_dialog.dart';
 import '../../widget/re_unlock_dialog.dart';
 import 'details_page_state.dart';
 
+class DetailsPageArgument {
+  final GalleryUrl galleryUrl;
+
+  final Gallery? gallery;
+
+  final ({GalleryDetail galleryDetails, String apikey})? detailsPageInfo;
+
+  const DetailsPageArgument({required this.galleryUrl, this.gallery, this.detailsPageInfo});
+}
+
 class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   static const String galleryId = 'galleryId';
   static const String uploaderId = 'uploaderId';
@@ -113,18 +124,25 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   void onInit() {
     super.onInit();
 
-    if (Get.arguments is! Map) {
+    if (Get.arguments is! DetailsPageArgument) {
       return;
     }
 
-    state.galleryUrl = Get.arguments['galleryUrl'];
-    state.gallery = Get.arguments['gallery'];
+    DetailsPageArgument argument = Get.arguments;
+
+    state.galleryUrl = argument.galleryUrl;
+    state.gallery = argument.gallery;
+    state.galleryDetails = argument.detailsPageInfo?.galleryDetails;
+    state.apikey = argument.detailsPageInfo?.apikey;
   }
 
   @override
   void onReady() async {
     super.onReady();
-    getDetails();
+
+    if (state.galleryDetails == null || state.apikey == null) {
+      getDetails();
+    }
   }
 
   @override
@@ -623,7 +641,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           galleryTitle: archive.title,
           galleryUrl: archive.galleryUrl,
           initialIndex: readIndexRecord,
-          currentImageIndex: readIndexRecord,
           pageCount: images.length,
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,
@@ -897,14 +914,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           mode: ReadMode.online,
           gid: state.galleryUrl.gid,
           token: state.galleryUrl.token,
-          galleryTitle: state.gallery?.title ??
-              state.galleryDetails?.japaneseTitle ??
-              state.galleryDetails?.rawTitle ??
-              state.galleryMetadata?.japaneseTitle ??
-              state.galleryMetadata!.title,
+          galleryTitle: mainTitleText,
           galleryUrl: state.galleryUrl.url,
           initialIndex: forceIndex ?? readIndexRecord,
-          currentImageIndex: forceIndex ?? readIndexRecord,
           readProgressRecordStorageKey: storageKey,
           pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
@@ -930,7 +942,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         galleryTitle: gallery.title,
         galleryUrl: gallery.galleryUrl,
         initialIndex: forceIndex ?? readIndexRecord,
-        currentImageIndex: forceIndex ?? readIndexRecord,
         readProgressRecordStorageKey: storageKey,
         pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,

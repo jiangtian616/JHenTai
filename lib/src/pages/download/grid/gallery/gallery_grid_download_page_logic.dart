@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/download/mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
 import '../../../../database/database.dart';
@@ -68,7 +69,7 @@ class GalleryGridDownloadPageLogic extends GetxController
   void goToDetailPage(GalleryDownloadedData gallery) {
     toRoute(
       Routes.details,
-      arguments: {'galleryUrl': GalleryUrl.parse(gallery.galleryUrl)},
+      arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(gallery.galleryUrl)),
     );
   }
 

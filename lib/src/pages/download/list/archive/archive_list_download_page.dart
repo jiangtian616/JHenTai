@@ -22,6 +22,7 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../details/details_page_logic.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
 import '../../mixin/archive/archive_download_page_mixin.dart';
@@ -222,7 +223,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(
         Routes.details,
-        arguments: {'galleryUrl': GalleryUrl.parse(archive.galleryUrl)},
+        arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
       child: EHImage(
         galleryImage: GalleryImage(url: archive.coverUrl),

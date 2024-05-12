@@ -784,7 +784,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 child: Text('thisGalleryHasANewVersion'.tr),
                 onPressed: () => toRoute(
                   Routes.details,
-                  arguments: {'galleryUrl': state.galleryDetails!.newVersionGalleryUrl!},
+                  arguments: DetailsPageArgument(galleryUrl: state.galleryDetails!.newVersionGalleryUrl!),
                   offAllBefore: false,
                   preventDuplicates: false,
                 ),
@@ -1150,6 +1150,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         init: logic,
         builder: (_) => LoadingStateIndicator(
           indicatorRadius: 16,
+          idleWidget: const SizedBox(),
           loadingState: state.loadingState,
           errorTapCallback: () => logic.getDetails(useCacheIfAvailable: false),
         ),

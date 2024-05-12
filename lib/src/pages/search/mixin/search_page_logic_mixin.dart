@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/search_history.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
@@ -158,11 +159,22 @@ mixin SearchPageLogicMixin on BasePageLogic {
     GalleryUrl? galleryUrl = GalleryUrl.tryParse(text);
     if (galleryUrl != null) {
       state.inputGalleryUrl = galleryUrl;
+      state.inputGalleryImagePageUrl = null;
       updateSafely([suggestionBodyId]);
-    } else {
-      state.inputGalleryUrl = null;
-      waitAndSearchTags();
+      return;
     }
+
+    GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(text);
+    if (galleryImagePageUrl != null) {
+      state.inputGalleryUrl = null;
+      state.inputGalleryImagePageUrl = galleryImagePageUrl;
+      updateSafely([suggestionBodyId]);
+      return;
+    }
+
+    state.inputGalleryUrl = null;
+    state.inputGalleryImagePageUrl = null;
+    waitAndSearchTags();
   }
 
   /// search only if there's no timer active (300ms)

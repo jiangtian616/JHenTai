@@ -3,6 +3,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/pages/gallery_image/gallery_image_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
@@ -81,6 +82,7 @@ class Routes {
   static const String thumbnails = "/thumbnails";
   static const String webview = "/webview";
   static const String quickSearch = "/qucik_search";
+  static const String imagePage = "/image_page";
 
   static const String settingPrefix = "/setting_";
   static const String settingAccount = "/setting_account";
@@ -166,6 +168,11 @@ class Routes {
     EHPage(
       name: details,
       page: () => DetailsPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+    ),
+    EHPage(
+      name: imagePage,
+      page: () => GalleryImagePage(),
       transition: defaultTransition,
     ),
     EHPage(

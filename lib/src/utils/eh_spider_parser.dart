@@ -493,6 +493,14 @@ class EHSpiderParser {
     };
   }
 
+  static GalleryUrl imagePage2GalleryUrl(Headers headers, dynamic data) {
+    String html = data as String;
+    Document document = parse(html);
+
+    String href = document.querySelector('#i5 > .sb > a')!.attributes['href']!;
+    return GalleryUrl.parse(href);
+  }
+
   static GalleryImage imagePage2GalleryImage(Headers headers, dynamic data) {
     String html = data as String;
     Document document = parse(html);

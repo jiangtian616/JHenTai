@@ -39,11 +39,10 @@ class ReadPageInfo {
     required this.galleryTitle,
     this.galleryUrl,
     required this.initialIndex,
-    required this.currentImageIndex,
     required this.pageCount,
     this.isOriginal = false,
     required this.readProgressRecordStorageKey,
     this.images,
     required this.useSuperResolution,
-  });
+  }) : currentImageIndex = initialIndex;
 }

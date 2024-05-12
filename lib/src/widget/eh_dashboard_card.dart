@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import '../config/ui_config.dart';
 
@@ -32,10 +33,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
         behavior: HitTestBehavior.opaque,
         onTap: () => toRoute(
           Routes.details,
-          arguments: {
-            'galleryUrl': widget.gallery.galleryUrl,
-            'gallery': widget.gallery,
-          },
+          arguments: DetailsPageArgument(galleryUrl: widget.gallery.galleryUrl, gallery: widget.gallery),
         ),
 
         /// show info after image load success

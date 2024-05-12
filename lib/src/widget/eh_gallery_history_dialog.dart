@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
@@ -41,7 +42,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 backRoute();
                 toRoute(
                   Routes.details,
-                  arguments: {'galleryUrl': e.galleryUrl},
+                  arguments: DetailsPageArgument(galleryUrl: e.galleryUrl),
                   offAllBefore: false,
                   preventDuplicates: false,
                 );
@@ -71,7 +72,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
                 backRoute();
                 toRoute(
                   Routes.details,
-                  arguments: {'galleryUrl': parentUrl!},
+                  arguments: DetailsPageArgument(galleryUrl: parentUrl!),
                   offAllBefore: false,
                   preventDuplicates: false,
                 );

@@ -152,7 +152,6 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           galleryTitle: archive.title,
           galleryUrl: archive.galleryUrl,
           initialIndex: readIndexRecord,
-          currentImageIndex: readIndexRecord,
           pageCount: images.length,
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: storageKey,

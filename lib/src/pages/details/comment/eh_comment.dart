@@ -9,9 +9,12 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
+import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
+import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
+import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -356,7 +359,17 @@ class _EHCommentTextBody extends StatelessWidget {
     if (galleryUrl != null) {
       toRoute(
         Routes.details,
-        arguments: {'galleryUrl': galleryUrl},
+        arguments: DetailsPageArgument(galleryUrl: galleryUrl),
+        offAllBefore: false,
+      );
+      return true;
+    }
+
+    GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(url);
+    if (galleryImagePageUrl != null) {
+      toRoute(
+        Routes.imagePage,
+        arguments: GalleryImagePageArgument(galleryImagePageUrl: galleryImagePageUrl),
         offAllBefore: false,
       );
       return true;

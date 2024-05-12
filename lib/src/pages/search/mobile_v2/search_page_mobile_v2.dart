@@ -69,7 +69,9 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
             id: logic.suggestionBodyId,
             global: false,
             init: logic,
-            builder: (_) => state.inputGalleryUrl == null ? Expanded(child: buildSuggestionAndHistoryBody(context)) : buildOpenGalleryArea(),
+            builder: (_) => state.inputGalleryUrl == null && state.inputGalleryImagePageUrl == null
+                ? Expanded(child: buildSuggestionAndHistoryBody(context))
+                : buildOpenGalleryArea(),
           )
         else if (state.hasSearched)
           Expanded(

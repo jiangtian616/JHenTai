@@ -86,7 +86,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String storageKey = 'readIndexRecord::${gallery.galleryUrl?.gid ?? gallery.title}';
+      String storageKey = 'readIndexRecord::${gallery.title}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
@@ -97,7 +97,6 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           mode: ReadMode.local,
           galleryTitle: gallery.title,
           initialIndex: readIndexRecord,
-          currentImageIndex: readIndexRecord,
           pageCount: images.length,
           readProgressRecordStorageKey: storageKey,
           images: localGalleryService.getGalleryImages(gallery),
@@ -105,13 +104,6 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
         ),
       );
     }
-  }
-
-  void goToDetailPage(LocalGallery gallery) {
-    route.toRoute(
-      Routes.details,
-      arguments: {'galleryUrl': gallery.galleryUrl},
-    );
   }
 
   Future<void> handleRefreshLocalGallery() async {
