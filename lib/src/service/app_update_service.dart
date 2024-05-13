@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -55,6 +56,16 @@ class AppUpdateService extends GetxService {
   }
 
   void handleFirstOpen() {
+    /// temp
+    PreferenceSetting.saveSimpleDashboardMode(true);
+
+    StorageService storageService = Get.find();
+    SearchConfig searchConfig = SearchConfig()
+      ..disableAllCategories()
+      ..includeNonH = true;
+    storageService.write('searchConfig: DashboardPageLogic', searchConfig.toJson());
+    storageService.write('searchConfig: GallerysPageLogic', searchConfig.toJson());
+
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
         PreferenceSetting.saveEnableTagZHTranslation(true);
