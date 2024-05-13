@@ -98,7 +98,7 @@ App翻译：
 
 ### 手机模式
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
+<img width="250" src="screenshot/mobile_v2.jpg"/>
 
 ### 平板模式
 
@@ -110,24 +110,19 @@ App翻译：
 
 ### 画廊页 & 搜索页
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
-<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 画廊详情页
 
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" />
-<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 
 ### 设置 & 下载
 
-<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" />
-<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 阅读
 
-<img width="250" src="screenshot/read.jpg" />
-<img src="screenshot/read_double_column.png" />
-<img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img  src="screenshot/read_continuous_scroll.png" />
 
 ## 主要功能
 

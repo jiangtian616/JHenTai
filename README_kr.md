@@ -72,7 +72,7 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 모바일 레이아웃
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
+<img width="250" src="screenshot/mobile_v2.jpg"/>
 
 ### 태블릿 레이아웃
 
@@ -84,24 +84,19 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 갤러리 & 검색
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
-<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 갤러리 세부 정보
 
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" />
-<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 
 ### 설정 & 다운로드
 
-<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" />
-<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 보기
 
-<img width="250" src="screenshot/read.jpg" />
-<img src="screenshot/read_double_column.png" />
-<img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img  src="screenshot/read_continuous_scroll.png" />
 
 ## 주 기능
 
