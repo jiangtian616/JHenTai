@@ -100,11 +100,11 @@ App翻译：
 
 ### 手机模式
 
-<img width="250" style="margin-right:10px" src="screenshot/mobileV2_zh.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
 
 ### 平板模式
 
-<img width="770" src="screenshot/tabletV2_zh.png"/>
+<img width="770" src="screenshot/tabletV2.png"/>
 
 ### 桌面模式
 
@@ -112,21 +112,25 @@ App翻译：
 
 ### 画廊页 & 搜索页
 
-<img width="250" style="margin-right:10px" src="screenshot/mobileV2_zh.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh_2.jpg"/>
-<img width="250" src="screenshot/search_filter_zh.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 画廊详情页
 
-<img width="250" src="screenshot/detail_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_zh.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" /> 
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_zh.jpg"/>
 
 ### 设置 & 下载
 
-<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_zh.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /> 
+<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 阅读
 
-<img width="250" src="screenshot/read.jpg" /> <img src="screenshot/read_double_column.png" /> <img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" /> 
+<img src="screenshot/read_double_column.png" /> 
+<img  src="screenshot/read_continuous_scroll.png" />
 
 ## 主要功能
 
@@ -163,11 +167,6 @@ App翻译：
    的keys方法中增加一条键值对`{your_languageCode}_{your_countryCode} : {your_className}.keys()`
 5. 在 `/lib/src/consts/locale_consts.dart` 的 `localeCode2Description`
    属性中增加一条键值对`{your_languageCode}_{your_countryCode} : {languageDescription}`，用于描述你的语言
-
-## 已知bug
-
-1. 三星用户与剪切板相关的操作可能无法正常进行: 为Flutter自身bug。
-2. 自定义下载路径不支持外置SD卡: Flutter自身尚未支持。
 
 ## 项目编译相关
 

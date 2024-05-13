@@ -68,11 +68,11 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 모바일 레이아웃
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
 
 ### 태블릿 레이아웃
 
-<img width="770" src="screenshot/tabletV2_zh.png"/>
+<img width="770" src="screenshot/tabletV2.png"/>
 
 ### 데스크톱 레이아웃
 
@@ -80,21 +80,24 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 갤러리 & 검색
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh_2.jpg"/>
-<img width="250" src="screenshot/search_filter_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 갤러리 세부 정보
 
-<img width="250" src="screenshot/detail_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" /> 
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
 
 ### 설정 & 다운로드
 
-<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 보기
 
-<img width="250" src="screenshot/read.jpg" /> <img src="screenshot/read_double_column.png" /> <img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" /> 
+<img src="screenshot/read_double_column.png" /> 
+<img  src="screenshot/read_continuous_scroll.png" />
 
 ## 주 기능
 
@@ -130,11 +133,6 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 4. `/lib/src/l18n/locale_text.dart`에 들어간 후, 새로운 k-v 쌍을 메서드 `keys`에 추가하세요.
    => `{사용자의_언어_코드}_{사용자의_지역_코드} : {사용자의_클래스명}.keys()`
 5. Enter `/lib/src/consts/locale_consts.dart`에 들어간 후, `localeCode2Description` 속성에 새로운 k-v 쌍을 추가하세요 : `{사용자의_언어_코드}_{사용자의_지역_코드} : {언어 설명}` 형식으로 사용자 언어의 설명을 작성하세요.
-
-## 버그
-
-1. Flutter 자체 버그로 인해 삼성 기기에서 클립보드와 관련된 작업이 제대로 작동하지 않을 수 있습니다.
-2. 다운로드 경로를 SD 카드로 변경하는 것은 현재 지원되지 않습니다.
 
 ## 컴파일 정보
 

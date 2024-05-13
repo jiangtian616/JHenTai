@@ -23,14 +23,14 @@ class NetworkSetting {
   static RxString exHentaiIP = '178.175.129.254'.obs;
   static RxString upldIP = '94.100.18.249'.obs;
   static RxString apiIP = '178.162.147.246'.obs;
-  static RxString forumsIP = '172.67.2.238'.obs;
+  static RxString forumsIP = '104.20.18.168'.obs;
 
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238'],
     'exhentai.org': ['178.175.129.254', '178.175.132.20', '178.175.132.22', '178.175.128.252', '178.175.128.254', '178.175.129.252'],
     'upld.e-hentai.org': ['94.100.18.249', '94.100.18.247'],
     'api.e-hentai.org': ['178.162.147.246', '81.171.10.55', '178.162.139.18', '37.48.89.16'],
-    'forums.e-hentai.org': ['172.67.2.238', '104.20.18.168', '104.20.19.168'],
+    'forums.e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238'],
   };
 
   static Map<String, String> get currentHost2IP => {

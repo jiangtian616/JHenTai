@@ -41,7 +41,8 @@ Install for MacOS(No maintenance): download .dmg.
 - Trust it in system setting.
 - If you use a proxy server, set proxy address at network setting page.
 
-Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install or execute it.
+Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install
+or execute it.
 
 - If you use a proxy server, set proxy address at network setting page.
 
@@ -110,11 +111,11 @@ mush thanks to these projects and people🙇‍
 
 ### Mobile Layout
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
 
 ### Tablet Layout
 
-<img width="770" src="screenshot/tabletV2_zh.png"/>
+<img width="770" src="screenshot/tabletV2.png"/>
 
 ### Desktop Layout
 
@@ -122,21 +123,25 @@ mush thanks to these projects and people🙇‍
 
 ### Gallery & Search
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_en.jpg"/> <img width="250" style="margin-right:10px" src="screenshot/search_mobile_v2_zh_2.jpg"/>
-<img width="250" src="screenshot/search_filter_en.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### Gallery Detail
 
-<img width="250" src="screenshot/detail_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/torrent_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/archive_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" /> 
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 <img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
 
 ### Setting & Download
 
-<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download_en.jpg" style="margin-right:10px" />
+<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" /> 
+<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### Read
 
-<img width="250" src="screenshot/read.jpg" /> <img src="screenshot/read_double_column.png" /> <img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" /> 
+<img src="screenshot/read_double_column.png" /> 
+<img  src="screenshot/read_continuous_scroll.png" />
 
 ## Main Features
 
@@ -175,11 +180,6 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 5. Enter `/lib/src/consts/locale_consts.dart`, add a new k-v pair in
    property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}` to describe your
    language.
-
-## Bug
-
-1. Operations related to the clipboard may not work properly on Samsung devices due to a bug in Flutter itself.
-2. Change download path to SD card is not supported now.
 
 ## About compiling
 
