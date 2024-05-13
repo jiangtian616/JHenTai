@@ -187,6 +187,7 @@ class en_US {
       'voteCommentFailedHint': 'Try to pull-down to refresh details page first',
       'unknownUser': 'Unknown User',
       'atLeast3Characters': 'At least 3 characters',
+      'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
 
       /// EHImage
       'reloadImage': "Reload Image",

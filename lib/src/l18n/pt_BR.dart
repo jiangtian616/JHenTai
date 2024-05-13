@@ -188,6 +188,7 @@ class pt_BR {
       'voteCommentFailedHint': 'Tente puxar para baixo para atualizar a página de detalhes primeiro',
       'unknownUser': 'Usuário desconhecido',
       'atLeast3Characters': 'Pelo menos 3 caracteres',
+      'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
 
       /// EHImage
       'reloadImage': "Recarregar imagem",

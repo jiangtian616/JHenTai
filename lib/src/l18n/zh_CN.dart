@@ -186,6 +186,7 @@ class zh_CN {
       'voteCommentFailed': '投票评论失败',
       'unknownUser': '未知用户',
       'atLeast3Characters': '至少3个字符',
+      'noJHenTaiHints': '请不要提及JHenTai，感谢理解',
 
       /// EHImage
       'reloadImage': "重新加载图片",

@@ -77,6 +77,11 @@ class EHCommentDialogState extends State<EHCommentDialog> {
       return;
     }
 
+    if (content.removeAllWhitespace.toLowerCase().contains('jhentai')) {
+      toast('noJHenTaiHints'.tr, isShort: false);
+      return;
+    }
+
     if (sendCommentState == LoadingState.loading) {
       return;
     }

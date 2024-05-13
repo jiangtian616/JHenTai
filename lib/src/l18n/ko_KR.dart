@@ -187,6 +187,7 @@ class ko_KR {
       'voteCommentFailedHint': '맨 처음 상세 페이지에서 아래로 내려 새로고침을 시도하세요',
       'unknownUser': '알 수 없는 사용자',
       'atLeast3Characters': '3글자 이상',
+      'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
 
       /// EHImage
       'reloadImage': "이미지 다시 불러오기",

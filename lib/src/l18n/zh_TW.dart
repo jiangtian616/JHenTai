@@ -186,6 +186,7 @@ class zh_TW {
       'unknownUser': '未知用戶',
       'failedToDealWith': '處理失敗',
       'atLeast3Characters': '至少3個字符',
+      'noJHenTaiHints': '請不要提及JHenTai，感謝理解',
 
       /// EHImage
       'reloadImage': "重新載入圖片",
