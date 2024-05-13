@@ -30,7 +30,8 @@ Android 설치: 사용자의 디바이스 아키텍처에 맞는 .apk 파일을 
 
 iOS 설치: [AltStore](https://altstore.io)나 SideLoadly를 이용해 .ipa 파일을 다운로드하고 접속하세요.
 
-Windows 설치: download Windows_xxx.zip 파일을 다운로드하고 압축 해제를 하세요. 만약 프록시 서버를 이용한다면 네트워크 설정에서 프록시 주소를 설정해 주세요. Windows 11을 사용하는데 앱 실행이 되지 않는다면 호환성 모드를 켠 상태에서 실행해 보세요. Windows Defender에 차단된 경우라면 허용으로 바꿔주세요.
+Windows 설치: download Windows_xxx.zip 파일을 다운로드하고 압축 해제를 하세요. 만약 프록시 서버를 이용한다면 네트워크 설정에서 프록시 주소를 설정해 주세요. Windows 11을
+사용하는데 앱 실행이 되지 않는다면 호환성 모드를 켠 상태에서 실행해 보세요. Windows Defender에 차단된 경우라면 허용으로 바꿔주세요.
 
 MacOS 설치(지원 중지): .dmg 파일을 다운로드합니다. 만약 프록시 서버를 이용한다면 네트워크 설정에서 프록시 주소를 설정해 주세요.
 
@@ -38,9 +39,12 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ## 개발 동기
 
-저의 첫 Flutter 프로젝트입니다. 저는 개발 중에 Flutter에 익숙해지는 것을 목표로 합니다. 제가 사용하는 기기는 Android 폰, iPad, Windows 컴퓨터입니다. 기존 E-hentai 앱들은 버그가 있고, Android, iOS의 개발 경험이 없어서 소스 코드를 이해할 수도 없어서 JHenTia를 제 첫 Flutter 프로젝트로 정했습니다.
+저의 첫 Flutter 프로젝트입니다. 저는 개발 중에 Flutter에 익숙해지는 것을 목표로 합니다. 제가 사용하는 기기는 Android 폰, iPad, Windows 컴퓨터입니다. 기존 E-hentai 앱들은
+버그가 있고, Android, iOS의 개발 경험이 없어서 소스 코드를 이해할 수도 없어서 JHenTia를 제 첫 Flutter 프로젝트로 정했습니다.
 
-2022.08.20 JHenTai는 5개월의 개발 기간을 거치며 점점 견고해졌고 초기 단계에서 작성된 갤러리 페이지, 보기 페이지, 다운로드 등의 일부 코드를 완전히 리팩토링했습니다. 새로운 기능 개발에 도움이 되도록 서로 다른 페이지와 스타일 간의 공통점을 추출해 결합을 줄이도록 노력했습니다. 코딩 스타일, 디자인 패턴 등 Flutter 개발에 관한 조언을 해주시거나 JHenTai 개발에 참여해 주시면 정말 감사하겠습니다.
+2022.08.20 JHenTai는 5개월의 개발 기간을 거치며 점점 견고해졌고 초기 단계에서 작성된 갤러리 페이지, 보기 페이지, 다운로드 등의 일부 코드를 완전히 리팩토링했습니다. 새로운 기능 개발에 도움이
+되도록 서로 다른 페이지와 스타일 간의 공통점을 추출해 결합을 줄이도록 노력했습니다. 코딩 스타일, 디자인 패턴 등 Flutter 개발에 관한 조언을 해주시거나 JHenTai 개발에 참여해 주시면 정말
+감사하겠습니다.
 
 2022.10.29 저는 이제 기본적인 Flutter 개발에 더 익숙해졌고 앞으로는 다른 영역에 집중할 것입니다. 그래서 JHenTai의 업데이트는 전보다는 줄어들겠지만 버그나 오류는 제때 처리하겠습니다.
 
@@ -80,19 +84,24 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 갤러리 & 검색
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 갤러리 세부 정보
 
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" /><img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" />
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 
 ### 설정 & 다운로드
 
-<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" /> <img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 보기
 
-<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" />
+<img src="screenshot/read_double_column.png" />
+<img  src="screenshot/read_continuous_scroll.png" />
 
 ## 주 기능
 
@@ -127,7 +136,8 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 4. `/lib/src/l18n/locale_text.dart`에 들어간 후, 새로운 k-v 쌍을 메서드 `keys`에 추가하세요.
    => `{사용자의_언어_코드}_{사용자의_지역_코드} : {사용자의_클래스명}.keys()`
-5. Enter `/lib/src/consts/locale_consts.dart`에 들어간 후, `localeCode2Description` 속성에 새로운 k-v 쌍을 추가하세요 : `{사용자의_언어_코드}_{사용자의_지역_코드} : {언어 설명}` 형식으로 사용자 언어의 설명을 작성하세요.
+5. Enter `/lib/src/consts/locale_consts.dart`에 들어간 후, `localeCode2Description` 속성에 새로운 k-v 쌍을
+   추가하세요 : `{사용자의_언어_코드}_{사용자의_지역_코드} : {언어 설명}` 형식으로 사용자 언어의 설명을 작성하세요.
 
 ## 컴파일 정보
 

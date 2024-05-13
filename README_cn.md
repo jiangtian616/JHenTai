@@ -81,12 +81,10 @@ Linux更新（不维护）： 直接删除旧包后，下载最新的包使用�
 
 - [EhTagTranslation](https://github.com/EhTagTranslation/Database)
 
-
 标签热度排序:
 
 - [e-hentai-db](https://github.com/ccloli/e-hentai-db)
 - [e-hentai-tag-count](https://github.com/mokurin000/e-hentai-tag-count)
-
 
 App翻译：
 
@@ -112,19 +110,24 @@ App翻译：
 
 ### 画廊页 & 搜索页
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### 画廊详情页
 
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" /><img width="250" src="screenshot/stat_zh.jpg"/>
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" />
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 
 ### 设置 & 下载
 
-<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/setting_zh.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### 阅读
 
-<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" />
+<img src="screenshot/read_double_column.png" />
+<img  src="screenshot/read_continuous_scroll.png" />
 
 ## 主要功能
 

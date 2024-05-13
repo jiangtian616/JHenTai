@@ -123,19 +123,24 @@ mush thanks to these projects and people🙇‍
 
 ### Gallery & Search
 
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
+<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/>
+<img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
 
 ### Gallery Detail
 
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" /><img width="250" src="screenshot/stat_en.jpg" style="margin-right:10px" />
+<img width="250" src="screenshot/detail.png" style="margin-right:10px" />
+<img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
 
 ### Setting & Download
 
-<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
+<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" />
+img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
 
 ### Read
 
-<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img  src="screenshot/read_continuous_scroll.png" />
+<img width="250" src="screenshot/read.jpg" />
+<img src="screenshot/read_double_column.png" />
+<img src="screenshot/read_continuous_scroll.png" />
 
 ## Main Features
 
