@@ -108,7 +108,7 @@ App翻译：
 
 ### 桌面模式
 
-<img width="770" src="screenshot/desktop.png"/>
+<img width="770" src="screenshot/desktop1.png"/>
 
 ### 画廊页 & 搜索页
 

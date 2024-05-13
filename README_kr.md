@@ -76,7 +76,7 @@ Linux 설치(지원 중지): Linux_xxx.zip 파일을 다운로드하고 압축 �
 
 ### 데스크톱 레이아웃
 
-<img width="770" src="screenshot/desktop.png"/>
+<img width="770" src="screenshot/desktop1.png"/>
 
 ### 갤러리 & 검색
 

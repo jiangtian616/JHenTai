@@ -119,7 +119,7 @@ mush thanks to these projects and people🙇‍
 
 ### Desktop Layout
 
-<img width="770" src="screenshot/desktop.png"/>
+<img width="770" src="screenshot/desktop1.png"/>
 
 ### Gallery & Search
 
