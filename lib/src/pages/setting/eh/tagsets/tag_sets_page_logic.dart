@@ -179,7 +179,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely(['$tagId::${tag.tagId}']);
 
     try {
-      await EHRequest.requestDeleteTagSet(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
+      await EHRequest.requestDeleteWatchedTag(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
     } on DioException catch (e) {
       Log.error('deleteTagFailed'.tr, e.errorMsg);
       snack('deleteTagFailed'.tr, e.errorMsg ?? '', longDuration: true);
@@ -281,7 +281,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely(['$tagId::${tag.tagId}']);
 
     try {
-      await EHRequest.requestUpdateTag(
+      await EHRequest.requestUpdateWatchedTag(
         apiuid: UserSetting.ipbMemberId.value!,
         apikey: state.apikey,
         tagId: tag.tagId,
@@ -316,6 +316,8 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
     toast('success'.tr);
     updateSafely(['$tagId::${tag.tagId}']);
+
+    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> _translateTagNamesIfNeeded() async {

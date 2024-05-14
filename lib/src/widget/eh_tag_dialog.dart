@@ -357,5 +357,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
 
     toast(watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr);
+    
+    MyTagsSetting.refreshOnlineTagSets(tagSetNumber);
   }
 }

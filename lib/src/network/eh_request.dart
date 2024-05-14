@@ -607,7 +607,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestDeleteTagSet<T>({required int watchedTagId, int tagSetNo = 1, EHHtmlParser<T>? parser}) async {
+  static Future<T> requestDeleteWatchedTag<T>({required int watchedTagId, int tagSetNo = 1, EHHtmlParser<T>? parser}) async {
     Response response;
     try {
       response = await _postWithErrorHandler(
@@ -662,7 +662,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestUpdateTag<T>({
+  static Future<T> requestUpdateWatchedTag<T>({
     required int apiuid,
     required String apikey,
     required int tagId,
