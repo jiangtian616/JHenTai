@@ -438,14 +438,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
-    /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _getWithErrorHandler(EHConsts.EFavorite);
 
     return _parseResponse(response, parser);
   }
 
   static Future<T> requestChangeFavoriteSortOrder<T>(FavoriteSortOrder sortOrder, {EHHtmlParser<T>? parser}) async {
-    /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _getWithErrorHandler(
       EHConsts.EFavorite,
       queryParameters: {
@@ -457,7 +455,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   /// favcat: the favorite tag index
-  static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, {EHHtmlParser<T>? parser}) async {
+  static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, String note, {EHHtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _postWithErrorHandler(
       EHConsts.EPopup,
@@ -469,7 +467,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       },
       data: {
         'favcat': favcat,
-        'favnote': '',
+        'favnote': note,
         'apply': 'Add to Favorites',
         'update': 1,
       },

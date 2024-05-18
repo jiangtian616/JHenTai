@@ -50,6 +50,7 @@ import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery_detail.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_metadata.dart';
+import '../../model/gallery_note.dart';
 import '../../model/search_config.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
@@ -390,8 +391,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapFavorite({required bool useDefault}) async {
-    if (!UserSetting.hasLoggedIn()) {
-      showLoginToast();
+    if (!checkLogin()) {
       return;
     }
 
@@ -405,30 +405,83 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     int? currentFavIndex = state.galleryDetails?.favoriteTagIndex ?? state.gallery?.favoriteTagIndex;
 
-    int favIndex;
+    ({bool isDelete, int favIndex, String note, bool remember}) operation;
     if (useDefault && UserSetting.defaultFavoriteIndex.value != null) {
-      favIndex = UserSetting.defaultFavoriteIndex.value!;
+      state.favoriteState = LoadingState.loading;
+      updateSafely([favoriteId]);
+
+      /// need to get current favorite note if we have favorite this gallery and we are not unfavoriting it.
+      GalleryNote? galleryNote;
+      if (currentFavIndex != null && currentFavIndex != UserSetting.defaultFavoriteIndex.value) {
+        Log.info('Get gallery favorite info: ${state.galleryUrl.gid}');
+        try {
+          galleryNote = await EHRequest.requestPopupPage<GalleryNote>(
+            state.galleryUrl.gid,
+            state.galleryUrl.token,
+            'addfav',
+            EHSpiderParser.favoritePopup2GalleryNote,
+          );
+        } on DioException catch (e) {
+          Log.error('getGalleryFavoriteInfoFailed'.tr, e.errorMsg);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', longDuration: true);
+          state.favoriteState = LoadingState.error;
+          updateSafely([favoriteId]);
+          return;
+        } on EHSiteException catch (e) {
+          Log.error('getGalleryFavoriteInfoFailed'.tr, e.message);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.message, longDuration: true);
+          state.favoriteState = LoadingState.error;
+          updateSafely([favoriteId]);
+          return;
+        } catch (e, s) {
+          Log.error('getGalleryFavoriteInfoFailed'.tr, e, s);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), longDuration: true);
+          state.favoriteState = LoadingState.error;
+          updateSafely([favoriteId]);
+          return;
+        }
+      }
+
+      operation = (
+        isDelete: currentFavIndex == UserSetting.defaultFavoriteIndex.value,
+        favIndex: UserSetting.defaultFavoriteIndex.value!,
+        note: galleryNote?.note ?? '',
+        remember: false,
+      );
     } else {
-      ({int favIndex, bool remember})? result = await Get.dialog(EHFavoriteDialog(selectedIndex: currentFavIndex));
+      /// we need to get current favorite note after opening the dialog if we have favorite this gallery.
+      ({bool isDelete, int favIndex, String note, bool remember})? result = await Get.dialog(
+        EHFavoriteDialog(
+          selectedIndex: currentFavIndex,
+          needInitNote: currentFavIndex != null,
+          initNoteFuture: () => EHRequest.requestPopupPage<GalleryNote>(
+            state.galleryUrl.gid,
+            state.galleryUrl.token,
+            'addfav',
+            EHSpiderParser.favoritePopup2GalleryNote,
+          ),
+        ),
+      );
+
       if (result == null) {
         return;
       }
-      if (result.remember == true) {
-        UserSetting.saveDefaultFavoriteIndex(result.favIndex);
-      }
-      favIndex = result.favIndex;
+
+      operation = result;
+      state.favoriteState = LoadingState.loading;
+      updateSafely([favoriteId]);
+    }
+
+    if (operation.remember == true) {
+      UserSetting.saveDefaultFavoriteIndex(operation.favIndex);
     }
 
     Log.info('Favorite gallery: ${state.galleryUrl.gid}');
 
-    state.favoriteState = LoadingState.loading;
-    updateSafely([favoriteId]);
-
-    bool isRemoveFavorite = favIndex == currentFavIndex;
     try {
-      if (isRemoveFavorite) {
+      if (operation.isDelete) {
         await EHRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
-        FavoriteSetting.decrementFavByIndex(favIndex);
+        FavoriteSetting.decrementFavByIndex(operation.favIndex);
         state.gallery
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
@@ -436,33 +489,33 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
       } else {
-        await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, favIndex);
-        FavoriteSetting.incrementFavByIndex(favIndex);
+        await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, operation.favIndex, operation.note);
+        FavoriteSetting.incrementFavByIndex(operation.favIndex);
         FavoriteSetting.decrementFavByIndex(currentFavIndex);
         state.gallery
-          ?..favoriteTagIndex = favIndex
-          ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
+          ?..favoriteTagIndex = operation.favIndex
+          ..favoriteTagName = FavoriteSetting.favoriteTagNames[operation.favIndex];
         state.galleryDetails
-          ?..favoriteTagIndex = favIndex
-          ..favoriteTagName = FavoriteSetting.favoriteTagNames[favIndex];
+          ?..favoriteTagIndex = operation.favIndex
+          ..favoriteTagName = FavoriteSetting.favoriteTagNames[operation.favIndex];
       }
 
       FavoriteSetting.save();
     } on DioException catch (e) {
-      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg);
-      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
-      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
     } catch (e, s) {
-      Log.error(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e, s);
-      snack(isRemoveFavorite ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.toString(), longDuration: true);
+      Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e, s);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.toString(), longDuration: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
@@ -476,7 +529,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     updateGlobalGalleryStatus();
 
     toast(
-      isRemoveFavorite ? 'removeFavoriteSuccess'.tr : 'favoriteGallerySuccess'.tr,
+      operation.isDelete ? 'removeFavoriteSuccess'.tr : 'favoriteGallerySuccess'.tr,
       isCenter: false,
     );
   }

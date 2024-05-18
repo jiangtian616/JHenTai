@@ -16,6 +16,7 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_hh_archive.dart';
 import 'package:jhentai/src/model/gallery_hh_info.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_note.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
@@ -456,6 +457,18 @@ class EHSpiderParser {
     Document document = parse(data as String);
     List<Element> divs = document.querySelectorAll('.nosel > div');
     return divs.map((div) => div.querySelector('div:nth-child(5)')?.text ?? '').toList();
+  }
+
+  static GalleryNote favoritePopup2GalleryNote(Headers headers, dynamic data) {
+    Document document = parse(data as String);
+
+    String note = document.querySelector('#galpop > div > div:nth-child(3) > textarea')!.text;
+
+    /// 1 / 1000 favorite note slots used. [?]
+    String usedSlotDesc = document.querySelector('#galpop > div > div:nth-child(3) > div:nth-child(6)')!.text;
+    int usedSlot = int.parse(RegExp(r'(\d+) / 1000').firstMatch(usedSlotDesc)!.group(1)!);
+
+    return GalleryNote(note: note, usedSlot: usedSlot);
   }
 
   static Map<String, List> favoritePage2FavoriteTagsAndCounts(Headers headers, dynamic data) {
