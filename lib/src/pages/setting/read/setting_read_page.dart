@@ -346,7 +346,7 @@ class SettingReadPage extends StatelessWidget {
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 10, maxValue: 90),
+                IntRangeTextInputFormatter(minValue: 0, maxValue: 100),
               ],
               onSubmitted: (_) {
                 _saveGestureRegionWidthRatio();
@@ -368,6 +368,14 @@ class SettingReadPage extends StatelessWidget {
     if (value == null) {
       return;
     }
+
+    if (value <= 0) {
+      value = 1;
+    }
+    if (value >= 100) {
+      value = 99;
+    }
+
     ReadSetting.saveGestureRegionWidthRatio(value);
     toast('saveSuccess'.tr);
   }
