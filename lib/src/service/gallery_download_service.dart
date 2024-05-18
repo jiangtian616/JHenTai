@@ -1115,7 +1115,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     io.File? cachedImageFile = await getCachedImageFile(image.url);
     if (cachedImageFile != null && cachedImageFile.existsSync()) {
       Log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
-      cachedImageFile.copySync(path);
+      await cachedImageFile.copy(path);
       await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
       await _updateProgressAfterImageDownloaded(gallery, serialNo);
     }
