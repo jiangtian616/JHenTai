@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/log.dart';
 
@@ -56,12 +58,16 @@ class ReadSetting {
   static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
   static RxInt preloadDistance = 1.obs;
   static RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
-
   static RxInt preloadPageCount = 1.obs;
   static RxInt preloadPageCountLocal = 3.obs;
   static RxBool displayFirstPageAlone = true.obs;
   static RxBool reverseTurnPageDirection = false.obs;
   static RxBool disablePageTurningOnTap = false.obs;
+  static RxBool enableMaxImageKilobyte =
+      (GetPlatform.isDesktop || PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600)
+          ? false.obs
+          : true.obs;
+  static RxInt maxImageKilobyte = (1024 * 5).obs;
 
   static bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
@@ -141,7 +147,7 @@ class ReadSetting {
     showThumbnails.value = value;
     _save();
   }
-  
+
   static saveShowScrollBar(bool value) {
     Log.debug('saveShowScrollBar:$value');
     showScrollBar.value = value;
@@ -280,6 +286,18 @@ class ReadSetting {
     _save();
   }
 
+  static saveEnableMaxImageKilobyte(bool value) {
+    Log.debug('saveEnableMaxImageKilobyte:$value');
+    enableMaxImageKilobyte.value = value;
+    _save();
+  }
+
+  static saveMaxImageKilobyte(int value) {
+    Log.debug('saveMaxImageKilobyte:$value');
+    maxImageKilobyte.value = value;
+    _save();
+  }
+
   static Future<void> _save() async {
     await Get.find<StorageService>().write('readSetting', _toMap());
   }
@@ -315,6 +333,8 @@ class ReadSetting {
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'reverseTurnPageDirection': reverseTurnPageDirection.value,
       'disablePageTurningOnTap': disablePageTurningOnTap.value,
+      'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
+      'maxImageKilobyte': maxImageKilobyte.value,
     };
   }
 
@@ -348,5 +368,7 @@ class ReadSetting {
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
     disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
+    enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
+    maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
   }
 }

@@ -12,6 +12,7 @@ import '../../../utils/toast_util.dart';
 
 class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: ReadSetting.imageRegionWidthRatio.value.toString());
+  final TextEditingController imageMaxKilobytesController = TextEditingController(text: ReadSetting.maxImageKilobyte.value.toString() ?? '');
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -38,6 +39,8 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableBottomMenu().center(),
               _buildReverseTurnPageDirection().center(),
               _buildDisableTurnPageOnTap().center(),
+              _buildEnableImageMaxKilobytes().center(),
+              if (ReadSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -207,6 +210,45 @@ class SettingReadPage extends StatelessWidget {
     return ListTile(
       title: Text('disablePageTurningOnTap'.tr),
       trailing: Switch(value: ReadSetting.disablePageTurningOnTap.value, onChanged: ReadSetting.saveDisablePageTurningOnTap),
+    );
+  }
+
+  Widget _buildEnableImageMaxKilobytes() {
+    return ListTile(
+      title: Text('enableImageMaxKilobytes'.tr),
+      trailing: Switch(value: ReadSetting.enableMaxImageKilobyte.value, onChanged: ReadSetting.saveEnableMaxImageKilobyte),
+    );
+  }
+
+  Widget _buildImageMaxKilobytes(BuildContext context) {
+    return ListTile(
+      title: Text('imageMaxKilobytes'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: imageMaxKilobytesController,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly, IntRangeTextInputFormatter(minValue: 1)],
+            ),
+          ),
+          Text('KB', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(imageMaxKilobytesController.value.text);
+              if (value == null) {
+                return;
+              }
+              ReadSetting.saveMaxImageKilobyte(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
     );
   }
 
