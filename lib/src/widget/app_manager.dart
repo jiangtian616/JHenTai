@@ -63,6 +63,8 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   DateTime? lastInactiveTime;
   bool inBlur = false;
 
+  late AppLifecycleState _currentState;
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +74,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     _listener = AppLifecycleListener(
       onInactive: _onInactive,
       onResume: _onResume,
+      onStateChange: (AppLifecycleState state) => _currentState = state,
     );
 
     AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
@@ -111,8 +114,10 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
 
   @override
   void didHaveMemoryPressure() {
-    for (DidHaveMemoryPressureCallback callback in AppManager._didHaveMemoryPressureCallbacks) {
-      callback.call();
+    if (_currentState == AppLifecycleState.resumed) {
+      for (DidHaveMemoryPressureCallback callback in AppManager._didHaveMemoryPressureCallbacks) {
+        callback.call();
+      }
     }
     super.didHaveMemoryPressure();
   }
