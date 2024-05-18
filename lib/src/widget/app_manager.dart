@@ -16,11 +16,14 @@ import '../utils/route_util.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
 typedef DidChangeAppLifecycleStateCallback = void Function(AppLifecycleState state);
+typedef DidHaveMemoryPressureCallback = void Function();
 typedef AppLaunchCallback = void Function(BuildContext context);
 
 class AppManager extends StatefulWidget {
   static final List<DidChangePlatformBrightnessCallback> _didChangePlatformBrightnessCallbacks = [];
   static final List<DidChangeAppLifecycleStateCallback> _didChangeAppLifecycleStateCallbacks = [];
+  static final List<DidHaveMemoryPressureCallback> _didHaveMemoryPressureCallbacks = [];
+
   static final List<AppLaunchCallback> _appLaunchCallbacks = [];
 
   final Widget child;
@@ -46,6 +49,14 @@ class AppManager extends StatefulWidget {
     _didChangeAppLifecycleStateCallbacks.remove(callback);
   }
 
+  static void registerDidHaveMemoryPressureCallback(DidHaveMemoryPressureCallback callback) {
+    _didHaveMemoryPressureCallbacks.add(callback);
+  }
+
+  static void unRegisterDidHaveMemoryPressureCallback(DidHaveMemoryPressureCallback callback) {
+    _didHaveMemoryPressureCallbacks.remove(callback);
+  }
+
   static void registerAppLaunchCallback(AppLaunchCallback callback) {
     _appLaunchCallbacks.add(callback);
   }
@@ -66,6 +77,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
 
     AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
     AppManager.registerDidChangePlatformBrightnessCallback(_changeTheme);
+    AppManager.registerDidHaveMemoryPressureCallback(_logMemoryPressure);
     AppManager.registerDidChangeAppLifecycleStateCallback(_changeLockStatus);
 
     for (var callback in AppManager._appLaunchCallbacks) {
@@ -76,6 +88,10 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    AppManager.unRegisterDidChangePlatformBrightnessCallback(_changeTheme);
+    AppManager.unRegisterDidHaveMemoryPressureCallback(_logMemoryPressure);
+    AppManager.unRegisterDidChangeAppLifecycleStateCallback(_changeLockStatus);
+    AppManager.unRegisterDidChangeAppLifecycleStateCallback(_changeLockStatus);
     super.dispose();
   }
 
@@ -93,6 +109,14 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
       callback.call(state);
     }
     super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void didHaveMemoryPressure() {
+    for (DidHaveMemoryPressureCallback callback in AppManager._didHaveMemoryPressureCallbacks) {
+      callback.call();
+    }
+    super.didHaveMemoryPressure();
   }
 
   @override
@@ -121,6 +145,10 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     }
 
     Get.rootController.updateSafely();
+  }
+
+  void _logMemoryPressure() {
+    Log.warning('Memory pressure');
   }
 
   void _changeLockStatus(AppLifecycleState state) {
