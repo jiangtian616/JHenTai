@@ -59,6 +59,8 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedText;
 
+  late final AppLifecycleListener _listener;
+
   @override
   void initState() {
     super.initState();
@@ -67,13 +69,14 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
     _checkUpdate();
     _handleUrlInClipBoard();
 
-    AppManager.registerDidChangeAppLifecycleStateCallback(resumeAndHandleUrlInClipBoard);
+    _listener = AppLifecycleListener(onResume: _handleUrlInClipBoard);
   }
 
   @override
   void dispose() {
     super.dispose();
     _intentDataStreamSubscription?.cancel();
+    _listener.dispose();
   }
 
   @override
@@ -108,13 +111,6 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         ),
       ),
     );
-  }
-
-  /// a gallery url exists in clipboard, show dialog to check whether enter detail page
-  void resumeAndHandleUrlInClipBoard(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _handleUrlInClipBoard();
-    }
   }
 
   Future<void> _checkUpdate() async {

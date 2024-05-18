@@ -41,14 +41,6 @@ class AppManager extends StatefulWidget {
     _didChangePlatformBrightnessCallbacks.remove(callback);
   }
 
-  static void registerDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
-    _didChangeAppLifecycleStateCallbacks.add(callback);
-  }
-
-  static void unRegisterDidChangeAppLifecycleStateCallback(DidChangeAppLifecycleStateCallback callback) {
-    _didChangeAppLifecycleStateCallbacks.remove(callback);
-  }
-
   static void registerDidHaveMemoryPressureCallback(DidHaveMemoryPressureCallback callback) {
     _didHaveMemoryPressureCallbacks.add(callback);
   }
@@ -67,18 +59,24 @@ class AppManager extends StatefulWidget {
 }
 
 class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
+  late final AppLifecycleListener _listener;
   DateTime? lastInactiveTime;
   bool inBlur = false;
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addObserver(this);
+
+    _listener = AppLifecycleListener(
+      onHide: _onHide,
+      onShow: _onShow,
+    );
 
     AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
     AppManager.registerDidChangePlatformBrightnessCallback(_changeTheme);
     AppManager.registerDidHaveMemoryPressureCallback(_logMemoryPressure);
-    AppManager.registerDidChangeAppLifecycleStateCallback(_changeLockStatus);
 
     for (var callback in AppManager._appLaunchCallbacks) {
       callback.call(context);
@@ -88,10 +86,10 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _listener.dispose();
+    AppManager.unRegisterAppLaunchCallback(_addSecureFlagForAndroid);
     AppManager.unRegisterDidChangePlatformBrightnessCallback(_changeTheme);
     AppManager.unRegisterDidHaveMemoryPressureCallback(_logMemoryPressure);
-    AppManager.unRegisterDidChangeAppLifecycleStateCallback(_changeLockStatus);
-    AppManager.unRegisterDidChangeAppLifecycleStateCallback(_changeLockStatus);
     super.dispose();
   }
 
@@ -151,42 +149,42 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     Log.warning('Memory pressure');
   }
 
-  void _changeLockStatus(AppLifecycleState state) {
-    Log.debug("App state change: -> $state");
+  void _onHide() {
+    Log.info('App is hidden');
 
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-      if (SecuritySetting.enableAuthOnResume.isTrue) {
-        lastInactiveTime ??= DateTime.now();
-      }
-
-      if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
-        setState(() => inBlur = true);
-      }
+    if (SecuritySetting.enableAuthOnResume.isTrue) {
+      lastInactiveTime ??= DateTime.now();
     }
 
-    if (state == AppLifecycleState.resumed) {
-      if (!inBlur) {
-        return;
-      }
+    if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
+      setState(() => inBlur = true);
+    }
+  }
 
-      if (SecuritySetting.enableBlur.isFalse) {
-        return;
-      }
+  void _onShow() {
+    Log.info('App is shown');
 
-      if (SecuritySetting.enableAuthOnResume.isFalse) {
-        setState(() => inBlur = false);
-        return;
-      }
+    if (!inBlur) {
+      return;
+    }
 
-      if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) &&
-          DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
-        toRoute(Routes.lock);
-        Future.delayed(const Duration(milliseconds: 300), () => setState(() => inBlur = false));
-        lastInactiveTime = null;
-      } else {
-        setState(() => inBlur = false);
-        return;
-      }
+    if (SecuritySetting.enableBlur.isFalse) {
+      return;
+    }
+
+    if (SecuritySetting.enableAuthOnResume.isFalse) {
+      setState(() => inBlur = false);
+      return;
+    }
+
+    if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) &&
+        DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
+      toRoute(Routes.lock);
+      Future.delayed(const Duration(milliseconds: 300), () => setState(() => inBlur = false));
+      lastInactiveTime = null;
+    } else {
+      setState(() => inBlur = false);
+      return;
     }
   }
 
