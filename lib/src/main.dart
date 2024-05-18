@@ -9,6 +9,7 @@ import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
@@ -128,6 +129,7 @@ Future<void> init() async {
   };
 
   await FrameRateSetting.init();
+  IsolateService.init();
 
   await PathSetting.init();
   await StorageService.init();

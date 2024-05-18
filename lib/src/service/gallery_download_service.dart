@@ -302,10 +302,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       String oldPath = computeImageDownloadAbsolutePathFromRelativePath(image.path!);
       String newPath = _computeImageDownloadAbsolutePath(gallery.title, gallery.gid, image.url, i);
       futures.add(io.File(oldPath).copy(newPath));
-      
+
       copiedImages.add(image.copyWith(path: _computeImageDownloadRelativePath(gallery.title, gallery.gid, image.url, i)));
     }
-    
+
     await Future.wait(futures);
 
     if (!await _restoreInfoInDatabase(gallery, copiedImages)) {
@@ -1104,7 +1104,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryImage newImage = galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!;
 
     io.File oldFile = io.File(path.join(PathSetting.getVisibleDir().path, oldImage.path!));
-    oldFile.copySync(path.join(PathSetting.getVisibleDir().path, newImage.path!));
+    await oldFile.copy(path.join(PathSetting.getVisibleDir().path, newImage.path!));
 
     await _updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 

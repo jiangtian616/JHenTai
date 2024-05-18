@@ -524,7 +524,7 @@ class SuperResolutionService extends GetxController {
 
     try {
       File imageFile = File(oldPath);
-      imageFile.copySync(newPath);
+      await imageFile.copy(newPath);
     } on Exception catch (e) {
       Log.error('copy super resolution image failed', e);
       Log.uploadError(e);

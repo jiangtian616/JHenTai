@@ -8,7 +8,6 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
-import 'package:integral_isolates/integral_isolates.dart';
 import 'package:intl/intl.dart';
 import 'package:j_downloader/j_downloader.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -18,6 +17,7 @@ import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_timeout_translator.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
@@ -37,7 +37,6 @@ class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager _cookieManager;
   static late final EHCacheManager _cacheManager;
-  static late final StatefulIsolate _isolate;
   static late final String systemProxyAddress;
 
   static List<Cookie> get cookies => _cookieManager.cookies;
@@ -61,8 +60,6 @@ class EHRequest {
     _initCacheManager();
 
     _initTimeOutTranslator();
-
-    _isolate = StatefulIsolate();
 
     Log.debug('init EHRequest success');
   }
@@ -907,7 +904,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (parser == null) {
       return response as T;
     }
-    return _isolate.isolate((list) => parser(list[0], list[1]), [response.headers, response.data]);
+    return IsolateService.run((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
   static Future<Response> _getWithErrorHandler<T>(
