@@ -442,6 +442,7 @@ class zh_TW {
       'notchOptimization': '劉海屏優化',
       'notchOptimizationHint': '在第一張圖片之前加入空白區域，以應對劉海屏與狀態欄',
       'imageRegionWidthRatio': '圖片區域寬度比例',
+      'gestureRegionWidthRatio': '菜單手勢區域寬度比例',
       'useThirdPartyViewer': '使用第三方閱讀器',
       'thirdPartyViewerPath': '第三方閱讀器路徑（可執行文件）',
       'showThumbnails': '顯示快取圖',

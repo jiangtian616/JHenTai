@@ -232,13 +232,21 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
     return Row(
       children: [
         /// left region
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque)),
+        Expanded(
+          flex: (100 - ReadSetting.gestureRegionWidthRatio.value) ~/ 2,
+          child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque),
+        ),
 
         /// center region
-        Expanded(flex: 3, child: GestureDetector(onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque)),
+        Expanded(
+          flex: ReadSetting.gestureRegionWidthRatio.value,
+          child: GestureDetector(onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque),
+        ),
 
         /// right region: toRight
-        Expanded(flex: 1, child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
+        Expanded(
+            flex: (100 - ReadSetting.gestureRegionWidthRatio.value) ~/ 2,
+            child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
       ],
     );
   }

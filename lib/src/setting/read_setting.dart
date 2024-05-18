@@ -51,6 +51,7 @@ class ReadSetting {
   static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
   static RxBool notchOptimization = false.obs;
   static RxInt imageRegionWidthRatio = 100.obs;
+  static RxInt gestureRegionWidthRatio = 60.obs;
   static RxBool useThirdPartyViewer = false.obs;
   static RxnString thirdPartyViewerPath = RxnString();
   static RxDouble autoModeInterval = 2.0.obs;
@@ -195,6 +196,12 @@ class ReadSetting {
     imageRegionWidthRatio.value = value;
     _save();
   }
+  
+  static saveGestureRegionWidthRatio(int value) {
+    Log.debug('saveGestureRegionWidthRatio:$value');
+    gestureRegionWidthRatio.value = value;
+    _save();
+  }
 
   static saveUseThirdPartyViewer(bool value) {
     Log.debug('saveUseThirdPartyViewer:$value');
@@ -323,6 +330,7 @@ class ReadSetting {
       'readDirection': readDirection.value.index,
       'notchOptimization': notchOptimization.value,
       'imageRegionWidthRatio': imageRegionWidthRatio.value,
+      'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
@@ -358,6 +366,7 @@ class ReadSetting {
     readDirection.value = ReadDirection.values[map['readDirection']];
     notchOptimization.value = map['notchOptimization'] ?? notchOptimization.value;
     imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
+    gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];

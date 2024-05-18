@@ -12,6 +12,7 @@ import '../../../utils/toast_util.dart';
 
 class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: ReadSetting.imageRegionWidthRatio.value.toString());
+  final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: ReadSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: ReadSetting.maxImageKilobyte.value.toString() ?? '');
 
   SettingReadPage({Key? key}) : super(key: key);
@@ -41,6 +42,7 @@ class SettingReadPage extends StatelessWidget {
               _buildDisableTurnPageOnTap().center(),
               _buildEnableImageMaxKilobytes().center(),
               if (ReadSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
+              _buildGestureRegionWidthRatio(context).center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isMobile) _buildDeviceDirection().center(),
@@ -326,6 +328,47 @@ class SettingReadPage extends StatelessWidget {
       return;
     }
     ReadSetting.saveImageRegionWidthRatio(value);
+    toast('saveSuccess'.tr);
+  }
+
+  Widget _buildGestureRegionWidthRatio(BuildContext context) {
+    return ListTile(
+      title: Text('gestureRegionWidthRatio'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: gestureRegionWidthRatioController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 10, maxValue: 90),
+              ],
+              onSubmitted: (_) {
+                _saveGestureRegionWidthRatio();
+              },
+            ),
+          ),
+          const Text('%'),
+          IconButton(
+            onPressed: _saveGestureRegionWidthRatio,
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    ).marginOnly(right: 12);
+  }
+
+  void _saveGestureRegionWidthRatio() {
+    int? value = int.tryParse(gestureRegionWidthRatioController.value.text);
+    if (value == null) {
+      return;
+    }
+    ReadSetting.saveGestureRegionWidthRatio(value);
     toast('saveSuccess'.tr);
   }
 

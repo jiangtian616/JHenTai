@@ -443,6 +443,7 @@ class ko_KR {
       'notchOptimization': 'Notch Optimization',
       'notchOptimizationHint': 'Add padding before the first image to avoid the notch and status bar',
       'imageRegionWidthRatio': 'Image Region Width Ratio',
+      'gestureRegionWidthRatio': 'Gesture Region Width Ratio',
       'useThirdPartyViewer': '커스텀 뷰어 사용',
       'thirdPartyViewerPath': '커스텀 뷰어 경로(실행 파일)',
       'showThumbnails': '섬네일 보기',

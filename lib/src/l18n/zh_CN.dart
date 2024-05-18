@@ -443,6 +443,7 @@ class zh_CN {
       'notchOptimization': '刘海屏优化',
       'notchOptimizationHint': '在第一张图片之前加入空白区域，以应对刘海屏与状态栏',
       'imageRegionWidthRatio': '图片区域宽度比例',
+      'gestureRegionWidthRatio': '菜单手势区域宽度比例',
       'useThirdPartyViewer': '使用第三方阅读器',
       'thirdPartyViewerPath': '第三方阅读器路径（可执行文件）',
       'showThumbnails': '显示缩略图',

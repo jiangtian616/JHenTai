@@ -443,6 +443,7 @@ class en_US {
       'notchOptimization': 'Notch Optimization',
       'notchOptimizationHint': 'Add padding before the first image to avoid the notch and status bar',
       'imageRegionWidthRatio': 'Image Region Width Ratio',
+      'gestureRegionWidthRatio': 'Gesture Region Width Ratio',
       'useThirdPartyViewer': 'Use Custom Viewer',
       'thirdPartyViewerPath': 'Custom Viewer Path(Executable file)',
       'showThumbnails': 'Show Thumbnails',
