@@ -70,8 +70,8 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
 
     _listener = AppLifecycleListener(
-      onHide: _onHide,
-      onShow: _onShow,
+      onInactive: _onInactive,
+      onResume: _onResume,
     );
 
     AppManager.registerAppLaunchCallback(_addSecureFlagForAndroid);
@@ -149,7 +149,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     Log.warning('Memory pressure');
   }
 
-  void _onHide() {
+  void _onInactive() {
     Log.info('App is hidden');
 
     if (SecuritySetting.enableAuthOnResume.isTrue) {
@@ -161,7 +161,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     }
   }
 
-  void _onShow() {
+  void _onResume() {
     Log.info('App is shown');
 
     if (!inBlur) {
