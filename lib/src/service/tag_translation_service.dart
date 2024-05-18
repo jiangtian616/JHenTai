@@ -172,7 +172,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<List<TagData>> searchTags(String keyword) async {
-    List<TagData> tagDatas = await TagDao.searchTags('%$keyword%', 100);
+    List<TagData> tagDatas = await TagDao.searchTags('%$keyword%', 200);
     tagDatas = tagDatas.where((tag) => tag.namespace != 'rows' && tag.namespace != 'reclass').toList();
 
     TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
