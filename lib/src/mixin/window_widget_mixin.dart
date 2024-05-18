@@ -150,9 +150,12 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   Future<void> toggleFullScreen() async {
     bool isFullScreen = await windowManager.isFullScreen();
     if (isFullScreen) {
-      windowManager.setFullScreen(false);
+      return windowManager.setFullScreen(false);
     } else {
-      windowManager.setFullScreen(true);
+      if (await windowManager.isMaximized()) {
+        await windowManager.unmaximize();
+      }
+      return windowManager.setFullScreen(true);
     }
   }
 
