@@ -83,8 +83,6 @@ class FavoritePageLogic extends BasePageLogic {
 
     cleanDuplicateGallery(galleryPage.gallerys);
 
-    handleGalleryByLocalTags(galleryPage.gallerys);
-
     List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(filteredGallerys);

@@ -82,7 +82,6 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
             _buildVoteDownButton(),
             _buildWatchTagButton(),
             _buildHideTagButton(),
-            _buildFilterLocalTagButton(),
             if (UserSetting.hasLoggedIn()) _buildGoToTagSetsButton(),
           ],
         ).marginOnly(top: 12),
@@ -149,7 +148,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
   Widget _buildWatchTagButton() {
     return LikeButton(
-      isLiked: MyTagsSetting.containWatchedOnlineLocalTag(widget.tagData),
+      isLiked: MyTagsSetting.containWatchedOnlineTag(widget.tagData),
       likeBuilder: (bool liked) => Icon(
         Icons.favorite,
         size: UIConfig.tagDialogButtonSize,
@@ -163,7 +162,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
   Widget _buildHideTagButton() {
     return LikeButton(
-      isLiked: MyTagsSetting.containHiddenOnlineLocalTag(widget.tagData),
+      isLiked: MyTagsSetting.containHiddenOnlineTag(widget.tagData),
       likeBuilder: (bool liked) => Icon(
         Icons.visibility_off,
         size: UIConfig.tagDialogButtonSize,
@@ -172,26 +171,6 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: PreferenceSetting.enableDefaultTagSet.isTrue),
       onLongPress:
           PreferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: false),
-    );
-  }
-
-  Widget _buildFilterLocalTagButton() {
-    return LikeButton(
-      isLiked: MyTagsSetting.containLocalTag(widget.tagData),
-      likeBuilder: (bool liked) => Icon(
-        Icons.cancel_outlined,
-        size: UIConfig.tagDialogButtonSize,
-        color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
-      ),
-      onTap: (bool liked) {
-        if (liked) {
-          MyTagsSetting.removeLocalTagSet(widget.tagData);
-          return Future.value(false);
-        } else {
-          MyTagsSetting.addLocalTagSet(widget.tagData);
-          return Future.value(true);
-        }
-      },
     );
   }
 

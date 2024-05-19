@@ -6,6 +6,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -14,6 +15,7 @@ import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
+import '../database/database.dart';
 import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
@@ -21,7 +23,7 @@ import '../utils/locale_util.dart';
 import '../utils/log.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 9;
+  static const int appVersion = 10;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -197,6 +199,36 @@ class AppUpdateService extends GetxService {
 
         Log.info('migrate cookies: $cookies');
         EHRequest.storeEHCookies(cookies);
+      }
+
+      if (oldVersion <= 9) {
+        Log.info('Migrate local filtered tags');
+        
+        Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
+        if (map != null) {
+          LocalBlockRuleService localBlockRuleService = Get.find();
+          List<TagData> localTagSets = (map['localTagSets'] as List).map((e) => TagData.fromJson(e)).toList();
+          for (TagData tagData in localTagSets) {
+            localBlockRuleService.upsertBlockRule(
+              LocalBlockRule(
+                target: LocalBlockTargetEnum.gallery,
+                attribute: LocalBlockAttributeEnum.tag,
+                pattern: LocalBlockPatternEnum.equal,
+                expression: '${tagData.namespace}:${tagData.key}',
+              ),
+            );
+            if (tagData.translatedNamespace != null && tagData.tagName != null) {
+              localBlockRuleService.upsertBlockRule(
+                LocalBlockRule(
+                  target: LocalBlockTargetEnum.gallery,
+                  attribute: LocalBlockAttributeEnum.tag,
+                  pattern: LocalBlockPatternEnum.equal,
+                  expression: '${tagData.translatedNamespace}:${tagData.tagName}',
+                ),
+              );
+            }
+          }
+        }
       }
     });
   }

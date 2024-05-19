@@ -116,8 +116,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    handleGalleryByLocalTags(galleryPage.gallerys);
-
     List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(filteredGallerys);
@@ -202,8 +200,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     cleanDuplicateGallery(galleryPage.gallerys);
 
-    handleGalleryByLocalTags(galleryPage.gallerys);
-
     List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
     await translateGalleryTagsIfNeeded(filteredGallerys);
@@ -250,8 +246,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     cleanDuplicateGallery(galleryPage.gallerys);
-
-    handleGalleryByLocalTags(galleryPage.gallerys);
 
     List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
@@ -307,8 +301,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       updateSafely([loadingStateId]);
       return;
     }
-
-    handleGalleryByLocalTags(galleryPage.gallerys);
 
     List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
@@ -405,25 +397,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   /// deal with the first and last page
   void cleanDuplicateGallery(List<Gallery> newGallerys) {
     newGallerys.removeWhere((newGallery) => state.gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
-  }
-
-  void handleGalleryByLocalTags(List<Gallery> newGallerys) {
-    if (newGallerys.isEmpty) {
-      return;
-    }
-    if (MyTagsSetting.localTagSets.isEmpty) {
-      return;
-    }
-    newGallerys.where((newGallery) => newGallery.tags.values.flattened.any((tag) => MyTagsSetting.containLocalTag(tag.tagData))).forEach((gallery) {
-      gallery.blockedByLocalRules = true;
-    });
-
-    // if all gallerys are filtered, we keep the first one to indicate
-    if (newGallerys.every((gallery) => gallery.blockedByLocalRules)) {
-      newGallerys.removeRange(1, newGallerys.length);
-    } else {
-      newGallerys.removeWhere((gallery) => gallery.blockedByLocalRules);
-    }
   }
 
   Future<List<Gallery>> filterByBlockingRules(List<Gallery> newGallerys) async {

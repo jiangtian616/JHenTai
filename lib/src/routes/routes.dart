@@ -48,8 +48,6 @@ import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/setting/advanced/super_resolution/setting_super_resolution_page.dart';
 import '../pages/setting/network/host_mapping/host_mapping_page.dart';
 import '../pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page.dart';
-import '../pages/setting/preference/local_tag/add_local_tag/add_local_tag_page.dart';
-import '../pages/setting/preference/local_tag/local_tag_sets_page.dart';
 import '../pages/setting/style/page_list_style/setting_page_list_style_page.dart';
 import '../pages/setting/style/theme_color/setting_theme_color_page.dart';
 import '../pages/single_image/single_image.dart';
@@ -109,8 +107,6 @@ class Routes {
   static const String profile = "/setting_EH/profile";
   static const String tagSets = "/setting_EH/tagSets";
 
-  static const String localTagSets = "/setting_preference/localTagSets";
-  static const String addLocalTag = "/setting_preference/localTagSets/addLocalTag";
   static const String blockingRules = "/setting_preference/blockingRules";
   static const String configureBlockingRules = "/setting_preference/blockRules/configureBlockingRules";
 
@@ -344,18 +340,6 @@ class Routes {
     EHPage(
       name: tagSets,
       page: () => TagSetsPage().withEscOrFifthButton2BackRightRoute(),
-      transition: defaultTransition,
-      offAllBefore: false,
-    ),
-    EHPage(
-      name: localTagSets,
-      page: () => LocalTagSetsPage().withEscOrFifthButton2BackRightRoute(),
-      transition: defaultTransition,
-      offAllBefore: false,
-    ),
-    EHPage(
-      name: addLocalTag,
-      page: () => AddLocalTagPage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

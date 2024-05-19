@@ -80,8 +80,6 @@ class DashboardPageLogic extends BasePageLogic {
     await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
     state.ranklistGallerys = gallerysAndPageInfo[0];
 
-    handleGalleryByLocalTags(state.ranklistGallerys);
-
     state.ranklistGallerys = await filterByBlockingRules(state.ranklistGallerys);
 
     state.ranklistLoadingState = LoadingState.success;
@@ -124,8 +122,6 @@ class DashboardPageLogic extends BasePageLogic {
     await translateGalleryTagsIfNeeded(gallerysPage.gallerys);
 
     state.popularGallerys = gallerysPage.gallerys;
-
-    handleGalleryByLocalTags(state.popularGallerys);
 
     state.popularGallerys = await filterByBlockingRules(state.popularGallerys);
 
