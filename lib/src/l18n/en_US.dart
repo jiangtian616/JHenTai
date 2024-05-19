@@ -31,6 +31,7 @@ class en_US {
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
+      'edit': 'Edit',
 
       'home': "Home",
       'gallery': "Gallery",
@@ -685,6 +686,24 @@ class en_US {
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',
       'passwordNotMatchHint': 'Password not match, try again',
+
+      /// block rule page
+      'configureBlockRuleFailed': 'Configure block rule failed',
+      'removeBlockRuleFailed': 'Remove block rule failed',
+      'inputNumberHint': 'Please input a correct number',
+      'inputRegexHint': 'Please input a correct regex',
+      'blockingRules': 'Block Rules',
+      'blockingRulesHint': 'Additional blocking rules for gallerys and comments',
+      'blockingTarget': 'Blocking Target',
+      'blockingAttribute': 'Blocking Attribute',
+      'blockingPattern': 'Blocking Pattern',
+      'blockingExpression': 'Blocking Expression',
+      'like': 'like',
+      'regex': 'regex',
+      'comment': 'Comment',
+      'tag': 'Tag',
+      'userId': 'UserId',
+      'incompleteInformation': 'Incomplete information',
 
       /// quick search page
       'quickSearch': 'Quick Search',

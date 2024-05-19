@@ -3,6 +3,7 @@ import 'package:html/dom.dart';
 class GalleryComment {
   int id;
   String? username;
+  int? userId;
   String score;
   List<String> scoreDetails;
   Element content;
@@ -15,6 +16,7 @@ class GalleryComment {
   GalleryComment({
     required this.id,
     this.username,
+    this.userId,
     required this.score,
     required this.scoreDetails,
     required this.content,
@@ -24,4 +26,9 @@ class GalleryComment {
     required this.votedUp,
     required this.votedDown,
   });
+
+  @override
+  String toString() {
+    return 'GalleryComment{id: $id, username: $username, userId: $userId, score: $score, scoreDetails: $scoreDetails, content: $content, time: $time, lastEditTime: $lastEditTime, fromMe: $fromMe, votedUp: $votedUp, votedDown: $votedDown}';
+  }
 }

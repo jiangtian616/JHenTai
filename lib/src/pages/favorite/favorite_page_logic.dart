@@ -8,6 +8,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/widget/eh_favorite_sort_order_dialog.dart';
 
 import '../../exception/eh_site_exception.dart';
+import '../../model/gallery.dart';
 import '../../model/search_config.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/log.dart';
@@ -84,9 +85,11 @@ class FavoritePageLogic extends BasePageLogic {
 
     handleGalleryByLocalTags(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
-    state.gallerys.addAll(galleryPage.gallerys);
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys.addAll(filteredGallerys);
     state.totalCount = galleryPage.totalCount;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;

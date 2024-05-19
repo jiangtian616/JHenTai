@@ -130,7 +130,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         leading: const Icon(Icons.open_in_new),
         onTap: () {
           state.searchFieldFocusNode.unfocus();
-          
+
           if (state.inputGalleryUrl != null) {
             toRoute(Routes.details, arguments: DetailsPageArgument(galleryUrl: state.inputGalleryUrl!));
           } else if (state.inputGalleryImagePageUrl != null) {

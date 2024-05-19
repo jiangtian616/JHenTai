@@ -55,6 +55,7 @@ import '../../model/search_config.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
 import '../../service/gallery_download_service.dart';
+import '../../service/local_block_rule_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/eh_setting.dart';
 import '../../setting/preference_setting.dart';
@@ -114,6 +115,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
+  final LocalBlockRuleService localBlockRuleService = Get.find();
 
   DetailsPageLogic() {
     _stack.add(this);
@@ -224,6 +226,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     await tagTranslationService.translateTagsIfNeeded(state.galleryDetails!.tags);
 
     _addColor2WatchedTags(state.galleryDetails!.tags);
+
+    state.galleryDetails!.comments = await localBlockRuleService.executeRules(state.galleryDetails!.comments);
 
     state.loadingState = LoadingState.success;
     updateSafely(_judgeUpdateIds());

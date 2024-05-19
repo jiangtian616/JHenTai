@@ -31,6 +31,7 @@ class zh_TW {
       'connectionTimeoutHint': '建立網絡連接超時',
       'receiveDataTimeoutHint': '網絡接收數據超時',
       'archiveError': '下載歸檔錯誤',
+      'edit': '編輯',
 
       'home': "主畫面",
       'gallery': "畫廊",
@@ -682,6 +683,24 @@ class zh_TW {
       'setPasswordHint': '請輸入您的密碼',
       'confirmPasswordHint': '請再次輸入您的密碼',
       'passwordNotMatchHint': '密碼不匹配，請重試',
+
+      /// block rule page
+      'configureBlockRuleFailed': '设置屏蔽规则失败',
+      'removeBlockRuleFailed': '刪除屏蔽規則失敗',
+      'inputNumberHint': '請輸入正確的數字',
+      'inputRegexHint': '請輸入合法的正則表達式',
+      'blockingRules': '屏蔽規則',
+      'blockingRulesHint': '針對畫廊和評論設置額外的屏蔽規則',
+      'blockingTarget': '屏蔽目標',
+      'blockingAttribute': '屏蔽屬性',
+      'blockingPattern': '屏蔽規則',
+      'blockingExpression': '屏蔽表達式',
+      'like': '包含',
+      'regex': '正則',
+      'comment': '評論',
+      'tag': '標簽',
+      'userId': '用戶id',
+      'incompleteInformation': '請補充完整的信息',
 
       /// quick search page
       'quickSearch': '快速搜尋',

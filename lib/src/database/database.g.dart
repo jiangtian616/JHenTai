@@ -5365,6 +5365,296 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
   }
 }
 
+class $BlockRuleTable extends BlockRule
+    with TableInfo<$BlockRuleTable, BlockRuleData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BlockRuleTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _targetMeta = const VerificationMeta('target');
+  @override
+  late final GeneratedColumn<int> target = GeneratedColumn<int>(
+      'target', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _attributeMeta =
+      const VerificationMeta('attribute');
+  @override
+  late final GeneratedColumn<int> attribute = GeneratedColumn<int>(
+      'attribute', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _patternMeta =
+      const VerificationMeta('pattern');
+  @override
+  late final GeneratedColumn<int> pattern = GeneratedColumn<int>(
+      'pattern', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _expressionMeta =
+      const VerificationMeta('expression');
+  @override
+  late final GeneratedColumn<String> expression = GeneratedColumn<String>(
+      'expression', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, target, attribute, pattern, expression];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'block_rule';
+  @override
+  VerificationContext validateIntegrity(Insertable<BlockRuleData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('target')) {
+      context.handle(_targetMeta,
+          target.isAcceptableOrUnknown(data['target']!, _targetMeta));
+    } else if (isInserting) {
+      context.missing(_targetMeta);
+    }
+    if (data.containsKey('attribute')) {
+      context.handle(_attributeMeta,
+          attribute.isAcceptableOrUnknown(data['attribute']!, _attributeMeta));
+    } else if (isInserting) {
+      context.missing(_attributeMeta);
+    }
+    if (data.containsKey('pattern')) {
+      context.handle(_patternMeta,
+          pattern.isAcceptableOrUnknown(data['pattern']!, _patternMeta));
+    } else if (isInserting) {
+      context.missing(_patternMeta);
+    }
+    if (data.containsKey('expression')) {
+      context.handle(
+          _expressionMeta,
+          expression.isAcceptableOrUnknown(
+              data['expression']!, _expressionMeta));
+    } else if (isInserting) {
+      context.missing(_expressionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BlockRuleData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BlockRuleData(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      target: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}target'])!,
+      attribute: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}attribute'])!,
+      pattern: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pattern'])!,
+      expression: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}expression'])!,
+    );
+  }
+
+  @override
+  $BlockRuleTable createAlias(String alias) {
+    return $BlockRuleTable(attachedDatabase, alias);
+  }
+}
+
+class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
+  final int id;
+  final int target;
+  final int attribute;
+  final int pattern;
+  final String expression;
+  const BlockRuleData(
+      {required this.id,
+      required this.target,
+      required this.attribute,
+      required this.pattern,
+      required this.expression});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['target'] = Variable<int>(target);
+    map['attribute'] = Variable<int>(attribute);
+    map['pattern'] = Variable<int>(pattern);
+    map['expression'] = Variable<String>(expression);
+    return map;
+  }
+
+  BlockRuleCompanion toCompanion(bool nullToAbsent) {
+    return BlockRuleCompanion(
+      id: Value(id),
+      target: Value(target),
+      attribute: Value(attribute),
+      pattern: Value(pattern),
+      expression: Value(expression),
+    );
+  }
+
+  factory BlockRuleData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BlockRuleData(
+      id: serializer.fromJson<int>(json['id']),
+      target: serializer.fromJson<int>(json['target']),
+      attribute: serializer.fromJson<int>(json['attribute']),
+      pattern: serializer.fromJson<int>(json['pattern']),
+      expression: serializer.fromJson<String>(json['expression']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'target': serializer.toJson<int>(target),
+      'attribute': serializer.toJson<int>(attribute),
+      'pattern': serializer.toJson<int>(pattern),
+      'expression': serializer.toJson<String>(expression),
+    };
+  }
+
+  BlockRuleData copyWith(
+          {int? id,
+          int? target,
+          int? attribute,
+          int? pattern,
+          String? expression}) =>
+      BlockRuleData(
+        id: id ?? this.id,
+        target: target ?? this.target,
+        attribute: attribute ?? this.attribute,
+        pattern: pattern ?? this.pattern,
+        expression: expression ?? this.expression,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('BlockRuleData(')
+          ..write('id: $id, ')
+          ..write('target: $target, ')
+          ..write('attribute: $attribute, ')
+          ..write('pattern: $pattern, ')
+          ..write('expression: $expression')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, target, attribute, pattern, expression);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BlockRuleData &&
+          other.id == this.id &&
+          other.target == this.target &&
+          other.attribute == this.attribute &&
+          other.pattern == this.pattern &&
+          other.expression == this.expression);
+}
+
+class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
+  final Value<int> id;
+  final Value<int> target;
+  final Value<int> attribute;
+  final Value<int> pattern;
+  final Value<String> expression;
+  const BlockRuleCompanion({
+    this.id = const Value.absent(),
+    this.target = const Value.absent(),
+    this.attribute = const Value.absent(),
+    this.pattern = const Value.absent(),
+    this.expression = const Value.absent(),
+  });
+  BlockRuleCompanion.insert({
+    this.id = const Value.absent(),
+    required int target,
+    required int attribute,
+    required int pattern,
+    required String expression,
+  })  : target = Value(target),
+        attribute = Value(attribute),
+        pattern = Value(pattern),
+        expression = Value(expression);
+  static Insertable<BlockRuleData> custom({
+    Expression<int>? id,
+    Expression<int>? target,
+    Expression<int>? attribute,
+    Expression<int>? pattern,
+    Expression<String>? expression,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (target != null) 'target': target,
+      if (attribute != null) 'attribute': attribute,
+      if (pattern != null) 'pattern': pattern,
+      if (expression != null) 'expression': expression,
+    });
+  }
+
+  BlockRuleCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? target,
+      Value<int>? attribute,
+      Value<int>? pattern,
+      Value<String>? expression}) {
+    return BlockRuleCompanion(
+      id: id ?? this.id,
+      target: target ?? this.target,
+      attribute: attribute ?? this.attribute,
+      pattern: pattern ?? this.pattern,
+      expression: expression ?? this.expression,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (target.present) {
+      map['target'] = Variable<int>(target.value);
+    }
+    if (attribute.present) {
+      map['attribute'] = Variable<int>(attribute.value);
+    }
+    if (pattern.present) {
+      map['pattern'] = Variable<int>(pattern.value);
+    }
+    if (expression.present) {
+      map['expression'] = Variable<String>(expression.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BlockRuleCompanion(')
+          ..write('id: $id, ')
+          ..write('target: $target, ')
+          ..write('attribute: $attribute, ')
+          ..write('pattern: $pattern, ')
+          ..write('expression: $expression')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   late final $OldSuperResolutionInfoTable oldSuperResolutionInfo =
@@ -5386,6 +5676,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $GalleryHistoryTable galleryHistory = $GalleryHistoryTable(this);
   late final $TagCountTable tagCount = $TagCountTable(this);
   late final $DioCacheTable dioCache = $DioCacheTable(this);
+  late final $BlockRuleTable blockRule = $BlockRuleTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -5408,6 +5699,8 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX idx_expire_date ON dio_cache (expireDate)');
   late final Index idxUrl =
       Index('idx_url', 'CREATE INDEX idx_url ON dio_cache (url)');
+  late final Index idxTarget =
+      Index('idx_target', 'CREATE INDEX idx_target ON block_rule (target)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5426,6 +5719,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         galleryHistory,
         tagCount,
         dioCache,
+        blockRule,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -5436,6 +5730,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         gIdxGroupName,
         idxLastReadTime,
         idxExpireDate,
-        idxUrl
+        idxUrl,
+        idxTarget
       ];
 }

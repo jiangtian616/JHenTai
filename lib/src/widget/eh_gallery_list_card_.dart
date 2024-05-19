@@ -94,7 +94,7 @@ class EHGalleryListCard extends StatelessWidget {
       child: Row(children: children),
     );
 
-    if (gallery.hasLocalFilteredTag) {
+    if (gallery.blockedByLocalRules) {
       child = Blur(
         blur: 8,
         blurColor: UIConfig.backGroundColor(context),
@@ -119,7 +119,7 @@ class EHGalleryListCard extends StatelessWidget {
       containerColor: UIConfig.galleryCardBackGroundColor(context),
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
-      heroTag: gallery.hasLocalFilteredTag ? null : gallery.cover,
+      heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
       fit: BoxFit.fitWidth,
     );
   }

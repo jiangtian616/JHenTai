@@ -51,6 +51,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildTagSearchConfig(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildLocalTags(),
+              _buildBlockRules(),
             ],
           ).withListTileTheme(context),
         ),
@@ -411,6 +412,15 @@ class SettingPreferencePage extends StatelessWidget {
       subtitle: Text('localTagsHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.localTagSets),
+    );
+  }
+
+  Widget _buildBlockRules() {
+    return ListTile(
+      title: Text('blockingRules'.tr),
+      subtitle: Text('blockingRulesHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.blockingRules),
     );
   }
 }

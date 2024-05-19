@@ -36,7 +36,7 @@ class Gallery {
   bool isExpunged;
   LinkedHashMap<String, List<GalleryTag>> tags;
 
-  bool hasLocalFilteredTag;
+  bool blockedByLocalRules;
 
   int get gid => galleryUrl.gid;
 
@@ -59,7 +59,7 @@ class Gallery {
     required this.publishTime,
     required this.isExpunged,
     required this.tags,
-    this.hasLocalFilteredTag = false,
+    this.blockedByLocalRules = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -112,7 +112,7 @@ class Gallery {
 
   @override
   String toString() {
-    return 'Gallery{galleryUrl: $galleryUrl, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, tags: $tags, hasLocalFilteredTag: $hasLocalFilteredTag}';
+    return 'Gallery{galleryUrl: $galleryUrl, title: $title, category: $category, cover: $cover, pageCount: $pageCount, rating: $rating, hasRated: $hasRated, favoriteTagIndex: $favoriteTagIndex, favoriteTagName: $favoriteTagName, language: $language, uploader: $uploader, publishTime: $publishTime, isExpunged: $isExpunged, tags: $tags, hasLocalFilteredTag: $blockedByLocalRules}';
   }
 
   Gallery copyWith({
@@ -130,7 +130,7 @@ class Gallery {
     String? publishTime,
     bool? isExpunged,
     LinkedHashMap<String, List<GalleryTag>>? tags,
-    bool? hasLocalFilteredTag,
+    bool? blockedByLocalRules,
   }) {
     return Gallery(
       galleryUrl: galleryUrl ?? this.galleryUrl,
@@ -147,7 +147,7 @@ class Gallery {
       publishTime: publishTime ?? this.publishTime,
       isExpunged: isExpunged ?? this.isExpunged,
       tags: tags ?? this.tags,
-      hasLocalFilteredTag: hasLocalFilteredTag ?? this.hasLocalFilteredTag,
+      blockedByLocalRules: blockedByLocalRules ?? this.blockedByLocalRules,
     );
   }
 }

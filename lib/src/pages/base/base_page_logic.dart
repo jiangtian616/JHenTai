@@ -17,6 +17,7 @@ import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
+import '../../service/local_block_rule_service.dart';
 import '../../service/tag_translation_service.dart';
 import '../../setting/user_setting.dart';
 import '../../utils/eh_spider_parser.dart';
@@ -49,6 +50,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   final TagTranslationService tagTranslationService = Get.find();
   final StorageService storageService = Get.find();
+  final LocalBlockRuleService localBlockRuleService = Get.find();
 
   @override
   void onInit() {
@@ -116,9 +118,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     handleGalleryByLocalTags(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
-    state.gallerys = galleryPage.gallerys;
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys = filteredGallerys;
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
@@ -200,9 +204,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     handleGalleryByLocalTags(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
-    state.gallerys.insertAll(0, galleryPage.gallerys);
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys.insertAll(0, filteredGallerys);
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
@@ -247,9 +253,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     handleGalleryByLocalTags(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
-    state.gallerys.addAll(galleryPage.gallerys);
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys.addAll(filteredGallerys);
     state.totalCount = galleryPage.totalCount;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
@@ -302,9 +310,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     handleGalleryByLocalTags(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(galleryPage.gallerys);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
 
-    state.gallerys = galleryPage.gallerys;
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys = filteredGallerys;
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
@@ -405,14 +415,28 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
     newGallerys.where((newGallery) => newGallery.tags.values.flattened.any((tag) => MyTagsSetting.containLocalTag(tag.tagData))).forEach((gallery) {
-      gallery.hasLocalFilteredTag = true;
+      gallery.blockedByLocalRules = true;
     });
 
     // if all gallerys are filtered, we keep the first one to indicate
-    if (newGallerys.every((gallery) => gallery.hasLocalFilteredTag)) {
+    if (newGallerys.every((gallery) => gallery.blockedByLocalRules)) {
       newGallerys.removeRange(1, newGallerys.length);
     } else {
-      newGallerys.removeWhere((gallery) => gallery.hasLocalFilteredTag);
+      newGallerys.removeWhere((gallery) => gallery.blockedByLocalRules);
+    }
+  }
+
+  Future<List<Gallery>> filterByBlockingRules(List<Gallery> newGallerys) async {
+    if (newGallerys.isEmpty) {
+      newGallerys;
+    }
+
+    // if all gallerys are filtered, we keep the first one to indicate it
+    List<Gallery> filteredGallerys = await localBlockRuleService.executeRules(newGallerys);
+    if (filteredGallerys.isNotEmpty) {
+      return filteredGallerys;
+    } else {
+      return newGallerys.sublist(0, 1).map((g) => g..blockedByLocalRules = true).toList();
     }
   }
 }

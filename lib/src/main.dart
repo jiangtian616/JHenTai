@@ -10,6 +10,7 @@ import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
+import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
@@ -172,6 +173,8 @@ Future<void> init() async {
   SuperResolutionService.init();
 
   ReadSetting.init();
+  
+  LocalBlockRuleService.init();
 
   if (GetPlatform.isDesktop) {
     WindowService windowService = Get.find();

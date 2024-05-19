@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
-import 'package:get/get_utils/src/extensions/widget_extensions.dart';
+import 'package:get/get.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
@@ -12,6 +9,7 @@ import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../mixin/login_required_logic_mixin.dart';
+import '../../../service/local_block_rule_service.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../widget/eh_comment_dialog.dart';
@@ -28,6 +26,8 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   late bool disableButtons = comments.any((comment) => comment.fromMe);
 
   final ScrollController _scrollController = ScrollController();
+
+  final LocalBlockRuleService localBlockRuleService = Get.find();
 
   @override
   void dispose() {
@@ -84,6 +84,8 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
       useCacheIfAvailable: false,
     );
 
+    newComments = await localBlockRuleService.executeRules(newComments);
+
     setState(() {
       disableButtons = true;
       comments.clear();
@@ -102,7 +104,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
       comment.votedDown = !comment.votedDown;
       comment.votedUp = false;
     }
-    
+
     setState(() {});
     DetailsPageLogic.current!.updateSafely([DetailsPageLogic.detailsId]);
     DetailsPageLogic.current!.removeCache();
@@ -134,6 +136,8 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
       parser: EHSpiderParser.detailPage2Comments,
       useCacheIfAvailable: false,
     );
+
+    newComments = await localBlockRuleService.executeRules(newComments);
 
     setState(() {
       comments.clear();

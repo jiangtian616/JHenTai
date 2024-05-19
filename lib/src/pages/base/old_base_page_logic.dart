@@ -77,9 +77,11 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
 
-    state.gallerys = gallerysAndPageInfo[0];
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys = filteredGallerys;
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
@@ -128,9 +130,11 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
 
-    state.gallerys.insertAll(0, gallerysAndPageInfo[0]);
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys.insertAll(0, filteredGallerys);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
 
@@ -171,9 +175,11 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     handleGalleryByLocalTags(gallerysAndPageInfo[0]);
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
 
-    state.gallerys.addAll(gallerysAndPageInfo[0]);
+    await translateGalleryTagsIfNeeded(filteredGallerys);
+
+    state.gallerys.addAll(filteredGallerys);
     state.pageCount = gallerysAndPageInfo[1];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
 

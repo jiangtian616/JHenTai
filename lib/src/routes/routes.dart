@@ -26,6 +26,7 @@ import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.da
 import 'package:jhentai/src/pages/setting/network/proxy/setting_proxy_page.dart';
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
 import 'package:jhentai/src/pages/setting/performance/setting_performace_page.dart';
+import 'package:jhentai/src/pages/setting/preference/block_rule/blocking_rule_page.dart';
 import 'package:jhentai/src/pages/setting/preference/setting_preference_page.dart';
 import 'package:jhentai/src/pages/setting/read/setting_read_page.dart';
 import 'package:jhentai/src/pages/setting/security/setting_security_page.dart';
@@ -46,6 +47,7 @@ import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/setting/advanced/super_resolution/setting_super_resolution_page.dart';
 import '../pages/setting/network/host_mapping/host_mapping_page.dart';
+import '../pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page.dart';
 import '../pages/setting/preference/local_tag/add_local_tag/add_local_tag_page.dart';
 import '../pages/setting/preference/local_tag/local_tag_sets_page.dart';
 import '../pages/setting/style/page_list_style/setting_page_list_style_page.dart';
@@ -106,9 +108,11 @@ class Routes {
 
   static const String profile = "/setting_EH/profile";
   static const String tagSets = "/setting_EH/tagSets";
-  static const String addLocalTag = "/setting_EH/addLocalTag";
 
   static const String localTagSets = "/setting_preference/localTagSets";
+  static const String addLocalTag = "/setting_preference/localTagSets/addLocalTag";
+  static const String blockingRules = "/setting_preference/blockingRules";
+  static const String configureBlockingRules = "/setting_preference/blockRules/configureBlockingRules";
 
   static const String hostMapping = "/setting_network/hostMapping";
   static const String proxy = "/setting_network/proxy";
@@ -352,6 +356,18 @@ class Routes {
     EHPage(
       name: addLocalTag,
       page: () => AddLocalTagPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: blockingRules,
+      page: () => BlockingRulePage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: configureBlockingRules,
+      page: () => ConfigureBlockingRulePage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

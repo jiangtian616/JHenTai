@@ -31,6 +31,7 @@ class ko_KR {
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
+      'edit': 'Edit',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -109,7 +110,7 @@ class ko_KR {
       'update': '업데이트',
       'submit': '등록',
       'chooseFavorite': '즐겨찾기 선택',
-      'asYourDefault': 'As Default', 
+      'asYourDefault': 'As Default',
       'Note': 'Note',
       'addNoteHint': 'Choose a slot before adding note',
       'uploader': '업로더',
@@ -684,6 +685,24 @@ class ko_KR {
       'setPasswordHint': '비밀번호를 넣어주세요.',
       'confirmPasswordHint': '비밀번호를 다시 넣어주세요.',
       'passwordNotMatchHint': '두 비밀번호가 서로 맞지 않습니다. 다시 넣어주세요.',
+
+      /// block rule page
+      'configureBlockRuleFailed': 'Configure block rule failed',
+      'removeBlockRuleFailed': 'Remove block rule failed',
+      'inputNumberHint': 'Please input a correct number',
+      'inputRegexHint': 'Please input a correct regex',
+      'blockingRules': 'Block Rules',
+      'blockingRulesHint': 'Additional blocking rules for gallerys and comments',
+      'blockingTarget': 'Blocking Target',
+      'blockingAttribute': 'Blocking Attribute',
+      'blockingPattern': 'Blocking Pattern',
+      'blockingExpression': 'Blocking Expression',
+      'like': 'like',
+      'regex': 'regex',
+      'comment': 'Comment',
+      'tag': 'Tag',
+      'userId': 'UserId',
+      'incompleteInformation': 'Incomplete information',
 
       /// quick search page
       'quickSearch': '빠른 검색',

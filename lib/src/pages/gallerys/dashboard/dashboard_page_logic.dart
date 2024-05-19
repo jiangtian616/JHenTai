@@ -82,6 +82,8 @@ class DashboardPageLogic extends BasePageLogic {
 
     handleGalleryByLocalTags(state.ranklistGallerys);
 
+    state.ranklistGallerys = await filterByBlockingRules(state.ranklistGallerys);
+
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
   }
@@ -124,6 +126,8 @@ class DashboardPageLogic extends BasePageLogic {
     state.popularGallerys = gallerysPage.gallerys;
 
     handleGalleryByLocalTags(state.popularGallerys);
+
+    state.popularGallerys = await filterByBlockingRules(state.popularGallerys);
 
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);

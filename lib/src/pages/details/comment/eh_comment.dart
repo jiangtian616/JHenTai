@@ -1,4 +1,3 @@
-import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/gestures.dart';
@@ -14,7 +13,6 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
-import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';

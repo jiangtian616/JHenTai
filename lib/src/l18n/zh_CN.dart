@@ -31,6 +31,7 @@ class zh_CN {
       'connectionTimeoutHint': '建立网络连接超时',
       'receiveDataTimeoutHint': '网络接收数据超时',
       'archiveError': '下载归档错误',
+      'edit': '编辑',
 
       'home': "主页",
       'gallery': "画廊",
@@ -684,6 +685,24 @@ class zh_CN {
       'setPasswordHint': '请输入您的密码',
       'confirmPasswordHint': '请再次输入您的密码',
       'passwordNotMatchHint': '密码不匹配，请重试',
+
+      /// block rule page
+      'configureBlockRuleFailed': '设置屏蔽规则失败',
+      'removeBlockRuleFailed': '删除屏蔽规则失败',
+      'inputNumberHint': '请输入正确的数字',
+      'inputRegexHint': '请输入合法的正则表达式',
+      'blockingRules': '屏蔽规则',
+      'blockingRulesHint': '针对画廊和评论设置额外的屏蔽规则',
+      'blockingTarget': '屏蔽目标',
+      'blockingAttribute': '屏蔽属性',
+      'blockingPattern': '屏蔽规则',
+      'blockingExpression': '屏蔽表达式',
+      'like': '包含',
+      'regex': '正则',
+      'comment': '评论',
+      'tag': '标签',
+      'userId': '用户id',
+      'incompleteInformation': '请补充完整的信息',
 
       /// quick search page
       'quickSearch': '快速搜索',

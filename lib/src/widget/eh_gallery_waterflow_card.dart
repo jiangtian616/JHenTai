@@ -56,7 +56,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               : _buildBigCard(context),
     );
 
-    if (gallery.hasLocalFilteredTag) {
+    if (gallery.blockedByLocalRules) {
       child = Blur(
         blur: 8,
         blurColor: UIConfig.backGroundColor(context),
@@ -159,7 +159,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
           containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
-          heroTag: gallery.hasLocalFilteredTag ? null : gallery.cover,
+          heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
             topRight: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
