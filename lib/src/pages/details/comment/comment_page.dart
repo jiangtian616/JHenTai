@@ -6,6 +6,7 @@ import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../../mixin/login_required_logic_mixin.dart';
@@ -53,6 +54,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
                   disableButtons: disableButtons,
                   onVoted: (bool isVotingUp, String score) => onVoted(comment, isVotingUp, score),
                   handleTapUpdateCommentButton: _handleTapUpdateCommentButton,
+                  onBlockUser: () => _onBlockUser(comment),
                 ).marginOnly(bottom: 4),
               )
               .toList(),
@@ -168,5 +170,29 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     }
 
     return result;
+  }
+
+  Future<void> _onBlockUser(GalleryComment comment) async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        target: LocalBlockTargetEnum.comment,
+        attribute: LocalBlockAttributeEnum.userName,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: comment.username!,
+      ),
+    );
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        target: LocalBlockTargetEnum.comment,
+        attribute: LocalBlockAttributeEnum.userId,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: comment.userId!.toString(),
+      ),
+    );
+
+    comments = await localBlockRuleService.executeRules(comments);
+    
+    setState(() {});
+    toast('success'.tr);
   }
 }

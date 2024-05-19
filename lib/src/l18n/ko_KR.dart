@@ -193,6 +193,7 @@ class ko_KR {
       'unknownUser': '알 수 없는 사용자',
       'atLeast3Characters': '3글자 이상',
       'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
+      'blockUser': 'Block user',
 
       /// EHImage
       'reloadImage': "이미지 다시 불러오기",

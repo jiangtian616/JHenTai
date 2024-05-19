@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
@@ -36,6 +37,7 @@ class EHComment extends StatefulWidget {
   final bool disableButtons;
   final Function(bool isVotingUp, String score)? onVoted;
   final Function(int commentId)? handleTapUpdateCommentButton;
+  final Function()? onBlockUser;
 
   const EHComment({
     Key? key,
@@ -44,6 +46,7 @@ class EHComment extends StatefulWidget {
     this.disableButtons = false,
     this.onVoted,
     this.handleTapUpdateCommentButton,
+    this.onBlockUser,
   }) : super(key: key);
 
   @override
@@ -65,7 +68,11 @@ class _EHCommentState extends State<EHComment> {
             fromMe: widget.comment.fromMe,
           ),
           Flexible(
-            child: _EHCommentTextBody(inDetailPage: widget.inDetailPage, element: widget.comment.content).paddingOnly(top: 4, bottom: 8),
+            child: _EHCommentTextBody(
+              inDetailPage: widget.inDetailPage,
+              onBlockUser: widget.comment.username == null || widget.comment.userId == null ? null : widget.onBlockUser,
+              element: widget.comment.content,
+            ).paddingOnly(top: 4, bottom: 8),
           ),
           _EHCommentFooter(
             inDetailPage: widget.inDetailPage,
@@ -131,11 +138,13 @@ class _EHCommentHeader extends StatelessWidget {
 
 class _EHCommentTextBody extends StatelessWidget {
   final bool inDetailPage;
+  final Function()? onBlockUser;
   final dom.Element element;
 
   const _EHCommentTextBody({
     Key? key,
     required this.inDetailPage,
+    this.onBlockUser,
     required this.element,
   }) : super(key: key);
 
@@ -158,7 +167,26 @@ class _EHCommentTextBody extends StatelessWidget {
     );
 
     if (!inDetailPage) {
-      widget = SelectionArea(child: widget);
+      widget = SelectionArea(
+        child: widget,
+        contextMenuBuilder: (BuildContext context, SelectableRegionState selectableRegionState) {
+          AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.selectableRegion(
+            selectableRegionState: selectableRegionState,
+          );
+
+          toolbar.buttonItems?.add(
+            ContextMenuButtonItem(
+              label: 'blockUser'.tr,
+              onPressed: () {
+                ContextMenuController.removeAny();
+                onBlockUser?.call();
+              },
+            ),
+          );
+
+          return toolbar;
+        },
+      );
     }
 
     return widget;

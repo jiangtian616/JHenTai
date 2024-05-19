@@ -194,6 +194,7 @@ class pt_BR {
       'unknownUser': 'Usuário desconhecido',
       'atLeast3Characters': 'Pelo menos 3 caracteres',
       'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
+      'blockUser': 'Block user',
 
       /// EHImage
       'reloadImage': "Recarregar imagem",

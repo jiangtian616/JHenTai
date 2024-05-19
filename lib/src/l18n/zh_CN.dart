@@ -192,6 +192,7 @@ class zh_CN {
       'unknownUser': '未知用户',
       'atLeast3Characters': '至少3个字符',
       'noJHenTaiHints': '请不要提及JHenTai，感谢理解',
+      'blockUser': '屏蔽用户',
 
       /// EHImage
       'reloadImage': "重新加载图片",

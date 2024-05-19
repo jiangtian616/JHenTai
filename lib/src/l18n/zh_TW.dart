@@ -192,6 +192,7 @@ class zh_TW {
       'failedToDealWith': '處理失敗',
       'atLeast3Characters': '至少3個字符',
       'noJHenTaiHints': '請不要提及JHenTai，感謝理解',
+      'blockUser': '屏蔽用戶',
 
       /// EHImage
       'reloadImage': "重新載入圖片",

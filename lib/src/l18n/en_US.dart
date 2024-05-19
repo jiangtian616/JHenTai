@@ -193,6 +193,7 @@ class en_US {
       'unknownUser': 'Unknown User',
       'atLeast3Characters': 'At least 3 characters',
       'noJHenTaiHints': 'Please don\'t mention JHenTai, thanks',
+      'blockUser': 'Block user',
 
       /// EHImage
       'reloadImage': "Reload Image",
