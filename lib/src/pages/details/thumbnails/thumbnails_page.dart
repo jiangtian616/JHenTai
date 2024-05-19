@@ -1,4 +1,3 @@
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,6 +7,7 @@ import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_logic.dart'
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/keep_alive.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../mixin/scroll_to_top_logic_mixin.dart';

@@ -1,8 +1,6 @@
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:animate_do/animate_do.dart';
-import 'package:flukit/flukit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -27,6 +25,7 @@ import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
+import 'package:jhentai/src/widget/keep_alive.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../database/database.dart';

@@ -51,10 +51,37 @@ class CachedPageView extends PageView {
 class _CachedPageViewState extends State<CachedPageView> {
   int _lastReportedPage = 0;
 
+  late PageController _controller;
+
   @override
   void initState() {
     super.initState();
-    _lastReportedPage = widget.controller.initialPage;
+    _initController();
+    _lastReportedPage = _controller.initialPage;
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+
+  void _initController() {
+    _controller = widget.controller ?? PageController();
+  }
+
+  @override
+  void didUpdateWidget(CachedPageView oldWidget) {
+    if (oldWidget.controller != widget.controller) {
+      if (oldWidget.controller == null) {
+        _controller.dispose();
+      }
+      _initController();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   AxisDirection _getDirection(BuildContext context) {
@@ -62,11 +89,8 @@ class _CachedPageViewState extends State<CachedPageView> {
       case Axis.horizontal:
         assert(debugCheckHasDirectionality(context));
         final TextDirection textDirection = Directionality.of(context);
-        final AxisDirection axisDirection =
-            textDirectionToAxisDirection(textDirection);
-        return widget.reverse
-            ? flipAxisDirection(axisDirection)
-            : axisDirection;
+        final AxisDirection axisDirection = textDirectionToAxisDirection(textDirection);
+        return widget.reverse ? flipAxisDirection(axisDirection) : axisDirection;
       case Axis.vertical:
         return widget.reverse ? AxisDirection.up : AxisDirection.down;
     }
@@ -79,16 +103,13 @@ class _CachedPageViewState extends State<CachedPageView> {
       allowImplicitScrolling: widget.allowImplicitScrolling,
     ).applyTo(
       widget.pageSnapping
-          ? _kPagePhysics.applyTo(widget.physics ??
-              widget.scrollBehavior?.getScrollPhysics(context))
+          ? _kPagePhysics.applyTo(widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context))
           : widget.physics ?? widget.scrollBehavior?.getScrollPhysics(context),
     );
 
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification notification) {
-        if (notification.depth == 0 &&
-            widget.onPageChanged != null &&
-            notification is ScrollUpdateNotification) {
+        if (notification.depth == 0 && widget.onPageChanged != null && notification is ScrollUpdateNotification) {
           final PageMetrics metrics = notification.metrics as PageMetrics;
           final int currentPage = metrics.page!.round();
           if (currentPage != _lastReportedPage) {
@@ -101,13 +122,15 @@ class _CachedPageViewState extends State<CachedPageView> {
       child: Scrollable(
         dragStartBehavior: widget.dragStartBehavior,
         axisDirection: axisDirection,
-        controller: widget.controller,
+        controller: _controller,
         physics: physics,
         restorationId: widget.restorationId,
-        scrollBehavior:
-            widget.scrollBehavior ?? ScrollConfiguration.of(context),
+        scrollBehavior: widget.scrollBehavior ?? ScrollConfiguration.of(context).copyWith(scrollbars: false),
         viewportBuilder: (BuildContext context, ViewportOffset position) {
           return Viewport(
+            // TODO(dnfield): we should provide a way to set cacheExtent
+            // independent of implicit scrolling:
+            // https://github.com/flutter/flutter/issues/45632
             cacheExtent: widget.cacheExtent,
             cacheExtentStyle: CacheExtentStyle.viewport,
             axisDirection: axisDirection,
@@ -115,7 +138,7 @@ class _CachedPageViewState extends State<CachedPageView> {
             clipBehavior: widget.clipBehavior,
             slivers: <Widget>[
               SliverFillViewport(
-                viewportFraction: widget.controller.viewportFraction,
+                viewportFraction: _controller.viewportFraction,
                 delegate: widget.childrenDelegate,
                 padEnds: widget.padEnds,
               ),
@@ -129,21 +152,12 @@ class _CachedPageViewState extends State<CachedPageView> {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder description) {
     super.debugFillProperties(description);
-    description
-        .add(EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
-    description.add(
-        FlagProperty('reverse', value: widget.reverse, ifTrue: 'reversed'));
-    description.add(DiagnosticsProperty<PageController>(
-        'controller', widget.controller,
-        showName: false));
-    description.add(DiagnosticsProperty<ScrollPhysics>(
-        'physics', widget.physics,
-        showName: false));
-    description.add(FlagProperty('pageSnapping',
-        value: widget.pageSnapping, ifFalse: 'snapping disabled'));
-    description.add(FlagProperty('allowImplicitScrolling',
-        value: widget.allowImplicitScrolling,
-        ifTrue: 'allow implicit scrolling'));
+    description.add(EnumProperty<Axis>('scrollDirection', widget.scrollDirection));
+    description.add(FlagProperty('reverse', value: widget.reverse, ifTrue: 'reversed'));
+    description.add(DiagnosticsProperty<PageController>('controller', _controller, showName: false));
+    description.add(DiagnosticsProperty<ScrollPhysics>('physics', widget.physics, showName: false));
+    description.add(FlagProperty('pageSnapping', value: widget.pageSnapping, ifFalse: 'snapping disabled'));
+    description.add(FlagProperty('allowImplicitScrolling', value: widget.allowImplicitScrolling, ifTrue: 'allow implicit scrolling'));
   }
 }
 

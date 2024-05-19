@@ -142,9 +142,9 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
       return;
     }
     if (PlatformDispatcher.instance.platformBrightness == Brightness.light) {
-      Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
+      Get.rootController.theme = ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light);
     } else {
-      Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
+      Get.rootController.darkTheme = ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark);
     }
 
     Get.rootController.updateSafely();

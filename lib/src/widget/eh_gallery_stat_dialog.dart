@@ -220,7 +220,7 @@ class _LineGraph extends StatelessWidget {
             ),
           ],
           legend: Legend(isVisible: true, position: LegendPosition.bottom),
-          series: <ChartSeries<VisitStat, String>>[
+          series: <CartesianSeries<VisitStat, String>>[
             LineSeries<VisitStat, String>(
               name: 'visits'.tr,
               dataSource: datasource,

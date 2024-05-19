@@ -22,8 +22,8 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
   @override
   Widget build(BuildContext context) {
     ThemeData previewThemeData = selectedBrightness == Brightness.light
-        ? ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light)
-        : ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
+        ? ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light)
+        : ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark);
 
     return Theme(
       data: previewThemeData,
@@ -73,10 +73,10 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
                     if (selectedBrightness == Brightness.light) {
                       StyleSetting.saveLightThemeColor(newColor);
-                      Get.rootController.theme = ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light);
+                      Get.rootController.theme = ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light);
                     } else {
                       StyleSetting.saveDarkThemeColor(newColor);
-                      Get.rootController.darkTheme = ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark);
+                      Get.rootController.darkTheme = ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark);
                     }
 
                     if (selectedBrightness == StyleSetting.currentBrightness()) {

@@ -1,11 +1,9 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:flukit/flukit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -16,6 +14,7 @@ import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:jhentai/src/widget/keep_alive.dart';
 
 import '../../../../../config/ui_config.dart';
 import '../../../../../widget/eh_thumbnail.dart';

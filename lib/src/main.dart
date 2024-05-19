@@ -65,8 +65,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'JHenTai',
       themeMode: StyleSetting.themeMode.value,
-      theme: ThemeConfig.generateThemeData(StyleSetting.lightThemeColor.value, Brightness.light),
-      darkTheme: ThemeConfig.generateThemeData(StyleSetting.darkThemeColor.value, Brightness.dark),
+      theme: ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light),
+      darkTheme: ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark),
 
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
