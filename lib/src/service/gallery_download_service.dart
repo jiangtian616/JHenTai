@@ -559,7 +559,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
           String newPath = _computeImageDownloadRelativePath(gallery.title, gallery.gid, images[serialNo]!.url, serialNo);
 
-          if (await _updateImageInDatabase(
+          if (!await _updateImageInDatabase(
             ImageCompanion(gid: Value(gallery.gid), serialNo: Value(serialNo), path: Value(newPath)),
           )) {
             Log.error('Update image path after download path changed failed');
