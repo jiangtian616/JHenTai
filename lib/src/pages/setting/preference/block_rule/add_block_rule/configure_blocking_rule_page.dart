@@ -94,7 +94,9 @@ class ConfigureBlockingRulePage extends StatelessWidget {
                   controller: state.textEditingController,
                   textAlign: TextAlign.right,
                   decoration: InputDecoration(isDense: true),
-                  onChanged: (text) => state.blockingExpression = text,
+                  onChanged: (text) {
+                    state.blockingExpression = text;
+                  },
                 ),
               ),
             ),

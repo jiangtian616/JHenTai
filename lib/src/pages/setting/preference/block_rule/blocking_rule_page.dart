@@ -47,7 +47,7 @@ class BlockingRulePage extends StatelessWidget {
                 groups: Map.fromEntries(state.rules.map((rule) => MapEntry('${rule.target.desc.tr} - ${rule.attribute.desc.tr}', true))),
                 elements: state.rules,
                 elementGroup: (LocalBlockRule rule) => '${rule.target.desc.tr} - ${rule.attribute.desc.tr}',
-                groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
+                groupBuilder: (context, group, isOpen) => _groupBuilder(context, group, isOpen).marginAll(5),
                 elementBuilder: (BuildContext context, LocalBlockRule rule, isOpen) => _itemBuilder(context, rule),
                 groupUniqueKey: (String group) => group,
                 elementUniqueKey: (LocalBlockRule rule) => rule.id.toString(),
@@ -97,10 +97,21 @@ class BlockingRulePage extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            GroupOpenIndicator(isOpen: isOpen).marginOnly(right: 8),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                toRoute(
+                  Routes.configureBlockingRules,
+                  arguments: ConfigureBlockingRulePageArgument(
+                    mode: ConfigureBlockingRulePageMode.add,
+                  ),
+                )?.then((_) => logic.getBlockRules());
+              },
+            ),
+            const SizedBox(width: 8),
           ],
         ),
       ),
@@ -114,6 +125,7 @@ class BlockingRulePage extends StatelessWidget {
       title: Text(rule.expression),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       trailing: _buildListTileTrailing(context, rule),
+      contentPadding: const EdgeInsets.only(left: 16, right: 8),
       onTap: () => _showOperationBottomSheet(context, rule),
     ).paddingSymmetric(horizontal: 5);
   }
