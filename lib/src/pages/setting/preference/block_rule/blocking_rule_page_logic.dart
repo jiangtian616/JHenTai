@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 
 import '../../../../service/local_block_rule_service.dart';
@@ -10,12 +11,30 @@ class BlockingRulePageLogic extends GetxController {
 
   final BlockingRulePageState state = BlockingRulePageState();
 
+  final StorageService storageService = Get.find();
   final LocalBlockRuleService localBlockRuleService = Get.find();
+
+  @override
+  void onInit() {
+    state.showGroup = storageService.read('displayBlockingRulesGroup') ?? false;
+    super.onInit();
+  }
 
   @override
   void onReady() {
     getBlockRules();
     super.onReady();
+  }
+
+  void toggleShowGroup() {
+    state.showGroup = !state.showGroup;
+    updateSafely([bodyId]);
+    
+    storageService.write('displayBlockingRulesGroup', state.showGroup);
+  }
+
+  void toggleDisplayGroups(String groupName) {
+    state.groupedListController.toggleGroup(groupName);
   }
 
   Future<void> getBlockRules() async {

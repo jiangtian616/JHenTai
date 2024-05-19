@@ -143,10 +143,10 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       onLongPress: () => logic.handleLongPressGroup(groupName),
       onSecondaryTap: () => logic.handleLongPressGroup(groupName),
       child: Container(
-        height: UIConfig.downloadPageGroupHeight,
+        height: UIConfig.groupListHeight,
         decoration: BoxDecoration(
-          color: UIConfig.downloadPageGroupColor(context),
-          boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow(context)],
+          color: UIConfig.groupListColor(context),
+          boxShadow: [if (!Get.isDarkMode) UIConfig.groupListShadow(context)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(

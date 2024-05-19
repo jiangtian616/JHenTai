@@ -7,8 +7,6 @@ import '../../mixin/basic/multi_select/multi_select_download_page_state_mixin.da
 
 class GalleryListDownloadPageState with Scroll2TopStateMixin, GalleryDownloadPageStateMixin, MultiSelectDownloadPageStateMixin {
   Set<String> displayGroups = {};
-  final Set<int> removedGids = {};
-  final Set<int> removedGidsWithoutImages = {};
-  
+
   final GroupedListController<String, GalleryDownloadedData> groupedListController = GroupedListController<String, GalleryDownloadedData>();
 }

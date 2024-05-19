@@ -138,10 +138,10 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget _buildDirectory(BuildContext context, String displayPath, IconData iconData) {
     return Container(
-      height: UIConfig.downloadPageGroupHeight,
+      height: UIConfig.groupListHeight,
       decoration: BoxDecoration(
-        color: UIConfig.downloadPageGroupColor(context),
-        boxShadow: [if (!Get.isDarkMode) UIConfig.downloadPageGroupShadow(context)],
+        color: UIConfig.groupListColor(context),
+        boxShadow: [if (!Get.isDarkMode) UIConfig.groupListShadow(context)],
         borderRadius: BorderRadius.circular(15),
       ),
       padding: const EdgeInsets.only(right: 40),

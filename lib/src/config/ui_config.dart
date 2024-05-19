@@ -208,12 +208,12 @@ class UIConfig {
 
   static Color resumePauseButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
-  static const double downloadPageGroupHeight = 50;
+  static const double groupListHeight = 50;
 
-  static Color downloadPageGroupColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color groupListColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
 
-  static BoxShadow downloadPageGroupShadow(BuildContext context) => BoxShadow(
-        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
+  static BoxShadow groupListShadow(BuildContext context) => BoxShadow(
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
         blurRadius: 2,
         offset: const Offset(0.3, 1),
       );
