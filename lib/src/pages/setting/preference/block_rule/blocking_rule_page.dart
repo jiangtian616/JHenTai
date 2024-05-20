@@ -104,6 +104,8 @@ class BlockingRulePage extends StatelessWidget {
       leading: Text(rules.length == 1 ? rules.first.pattern.desc.tr : 'other'.tr, style: const TextStyle(fontSize: 14)),
       title: Text(
         rules.length == 1 ? rules.first.expression : rules.map((rule) => '(${rule.attribute.desc.tr} ${rule.pattern.desc.tr} ${rule.expression})').join(' && '),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       trailing: _buildListTileTrailing(context, rules.first.groupId!, rules),
@@ -118,8 +120,16 @@ class BlockingRulePage extends StatelessWidget {
     return ListTile(
       minLeadingWidth: 70,
       leading: Text(entry.value.first.target.desc.tr, style: const TextStyle(fontSize: 14)),
-      title: Text(entry.value.map((rule) => rule.attribute.desc.tr).join('+')),
-      subtitle: Text(entry.value.map((rule) => '(${rule.attribute.desc.tr} ${rule.pattern.desc.tr} ${rule.expression})').join(' && ')),
+      title: Text(
+        entry.value.map((rule) => rule.attribute.desc.tr).join('+'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(
+        entry.value.map((rule) => '(${rule.attribute.desc.tr} ${rule.pattern.desc.tr} ${rule.expression})').join(' && '),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
       trailing: _buildListTileTrailing(context, entry.key, entry.value),
       onTap: () => _showOperationBottomSheet(context, entry.key, entry.value),
     );
