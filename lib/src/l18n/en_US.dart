@@ -707,6 +707,17 @@ class en_US {
       'incompleteInformation': 'Incomplete information',
       'noBlockingRuleHint': 'Add at least 1 rule',
       'notSameBlockingRuleTargetHint': 'All sub-rules should have the same blocking target',
+      'blockingRuleHelp': '''
+Blocking Target: Filter galleries on the list page or filter comments on the details page. All sub-rules under the same rule must have the same blocking target.
+
+Blocking Attribute: Specify the attribute of the target based on which the rule is written to block.
+
+Blocking Pattern: Use regular expressions for complex scenarios.
+
+Blocking Expression: Simple strings or regular expressions.
+
+Note: Different rules have an OR (||) relationship, while all sub-rules under the same rule have an AND (&&) relationship.
+    ''',
 
       /// quick search page
       'quickSearch': 'Quick Search',

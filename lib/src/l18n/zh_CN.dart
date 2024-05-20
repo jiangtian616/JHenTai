@@ -706,6 +706,17 @@ class zh_CN {
       'incompleteInformation': '请补充完整的信息',
       'noBlockingRuleHint': '请至少配置一条规则',
       'notSameBlockingRuleTargetHint': '所有子规则的屏蔽目标徐需要相同',
+      'blockingRuleHelp': '''
+    屏蔽目标：在列表页过滤画廊或者在详情页过滤评论，同一规则下所有子规则的屏蔽目标必须相同。
+    
+    屏蔽属性：根据目标的哪个属性来编写规则进行屏蔽。
+    
+    屏蔽规则：复杂场景可使用正则表达式匹配。
+    
+    屏蔽表达式：简单字符串或者正则表达式。
+    
+    注意：不同规则之间是||的关系，同一规则下所有子规则之间是&&的关系。
+    ''',
 
       /// quick search page
       'quickSearch': '快速搜索',

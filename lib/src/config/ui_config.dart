@@ -552,6 +552,9 @@ class UIConfig {
   static Color lockPageFilledDashColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
 
   static Color lockPageUnfilledDashColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
+  
+  /// blocking rule page
+  static Color blockingRulePageHelpTextColor(BuildContext context) => Colors.grey.shade600;
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {

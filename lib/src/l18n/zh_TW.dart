@@ -704,6 +704,17 @@ class zh_TW {
       'incompleteInformation': '請補充完整的信息',
       'noBlockingRuleHint': '請至少配置壹條規則',
       'notSameBlockingRuleTargetHint': '所有子規則的屏蔽目標徐需要相同',
+      'blockingRuleHelp': '''
+    屏蔽目標：在列表頁過濾畫廊或者在詳情頁過濾評論，同壹規則下所有子規則的屏蔽目標必須相同。
+    
+    屏蔽屬性：根據目標的哪個屬性來編寫規則進行屏蔽。
+    
+    屏蔽規則：複雜場景可使用正則表達式匹配。
+    
+    屏蔽表達式：簡單字符串或者正則表達式。
+    
+    注意：不同規則之間是||的關系，同壹規則下所有子規則之間是&&的關系。
+    ''',
 
       /// quick search page
       'quickSearch': '快速搜尋',

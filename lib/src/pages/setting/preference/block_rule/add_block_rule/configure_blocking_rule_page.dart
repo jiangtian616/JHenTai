@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
@@ -47,6 +48,8 @@ class ConfigureBlockingRulePage extends StatelessWidget {
                 ),
               ],
             ).marginOnly(top: 12),
+            const Divider(height: 48),
+            _buildHelp(context).marginOnly(),
           ],
         ),
       ),
@@ -135,6 +138,16 @@ class ConfigureBlockingRulePage extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildHelp(BuildContext context) {
+    return Text(
+      'blockingRuleHelp'.tr,
+      style: TextStyle(
+        fontSize: 12,
+        color: UIConfig.blockingRulePageHelpTextColor(context),
+      ),
     );
   }
 }
