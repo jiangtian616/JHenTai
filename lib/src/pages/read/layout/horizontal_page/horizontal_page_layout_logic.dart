@@ -50,7 +50,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   @override
   void toNext() {
     int targetIndex = (pageController.page! + 1).toInt();
-    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount));
+    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount - 1));
   }
 
   @override

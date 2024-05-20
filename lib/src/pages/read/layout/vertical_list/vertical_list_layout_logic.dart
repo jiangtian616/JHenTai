@@ -125,7 +125,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
     }
 
     int targetIndex = (lastPosition.itemLeadingEdge > 0 && lastPosition.itemTrailingEdge > 1) ? lastPosition.index : lastPosition.index + 1;
-    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount));
+    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount - 1));
   }
 
   void _toPrevScreen() {

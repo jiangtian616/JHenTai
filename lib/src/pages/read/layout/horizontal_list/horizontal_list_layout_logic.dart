@@ -111,7 +111,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
       return;
     }
 
-    toImageIndex(min(firstPosition.index + 1, readPageState.readPageInfo.pageCount));
+    toImageIndex(min(firstPosition.index + 1, readPageState.readPageInfo.pageCount - 1));
   }
 
   void _toPrevScreen() {
