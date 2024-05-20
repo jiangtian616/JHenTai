@@ -3,9 +3,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
-import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 

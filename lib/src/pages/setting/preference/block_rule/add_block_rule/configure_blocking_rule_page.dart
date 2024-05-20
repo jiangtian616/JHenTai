@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
-import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/utils/route_util.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
 import '../../../../../widget/eh_wheel_speed_controller.dart';

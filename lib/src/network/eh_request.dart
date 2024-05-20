@@ -302,7 +302,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     removeAllCookies();
     UserSetting.clear();
     if (GetPlatform.isDesktop) {
-      await Directory(join(PathSetting.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName)).delete(recursive: true);
+      Directory directory = Directory(join(PathSetting.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName));
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+      }
     } else {
       await WebViewCookieManager().clearCookies();
     }

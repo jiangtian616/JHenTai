@@ -1,5 +1,4 @@
 import 'package:animate_do/animate_do.dart';
-import 'package:collection/collection.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

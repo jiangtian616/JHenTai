@@ -3,9 +3,6 @@ import 'dart:collection';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 
-import '../database/database.dart';
-import '../service/archive_download_service.dart';
-import '../service/gallery_download_service.dart';
 import 'gallery_comment.dart';
 import 'gallery_image.dart';
 import 'gallery_tag.dart';

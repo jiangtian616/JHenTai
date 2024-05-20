@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,7 +6,6 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 

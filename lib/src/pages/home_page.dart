@@ -33,7 +33,6 @@ import '../utils/route_util.dart';
 import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
 import '../utils/string_uril.dart';
-import '../widget/app_manager.dart';
 import '../widget/update_dialog.dart';
 
 const int left = 1;

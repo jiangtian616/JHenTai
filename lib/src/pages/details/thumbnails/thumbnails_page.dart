@@ -32,12 +32,12 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
   String get _mainTitleText =>
       logic.detailsPageState.gallery?.title ??
-          logic.detailsPageState.galleryDetails?.japaneseTitle ??
-          logic.detailsPageState.galleryDetails?.rawTitle ??
-          logic.detailsPageState.galleryMetadata?.japaneseTitle ??
-          logic.detailsPageState.galleryMetadata?.title ??
-          '';
-  
+      logic.detailsPageState.galleryDetails?.japaneseTitle ??
+      logic.detailsPageState.galleryDetails?.rawTitle ??
+      logic.detailsPageState.galleryMetadata?.japaneseTitle ??
+      logic.detailsPageState.galleryMetadata?.title ??
+      '';
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ThumbnailsPageLogic>(
@@ -60,6 +60,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
           onPressed: logic.handleTapJumpButton,
         ),
       ],
+      forceMaterialTransparency: true,
     );
   }
 
@@ -92,8 +93,8 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   SchedulerBinding.instance.addPostFrameCallback((_) => logic.loadMoreThumbnails());
                 }
 
-                GalleryImage? downloadedImage = logic.detailsPageLogic.galleryDownloadService.galleryDownloadInfos[logic.detailsPageState.galleryDetails!.galleryUrl.gid]
-                    ?.images[state.absoluteIndexOfThumbnails[index]];
+                GalleryImage? downloadedImage = logic.detailsPageLogic.galleryDownloadService
+                    .galleryDownloadInfos[logic.detailsPageState.galleryDetails!.galleryUrl.gid]?.images[state.absoluteIndexOfThumbnails[index]];
 
                 return KeepAliveWrapper(
                   child: Column(

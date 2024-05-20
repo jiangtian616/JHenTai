@@ -6,7 +6,6 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
-import '../model/gallery.dart';
 import '../utils/toast_util.dart';
 
 class EHGalleryDetailDialog extends StatelessWidget {

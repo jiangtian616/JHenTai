@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 
 import '../setting/mouse_setting.dart';

@@ -13,7 +13,7 @@ import '../../../utils/toast_util.dart';
 class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: ReadSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: ReadSetting.gestureRegionWidthRatio.value.toString());
-  final TextEditingController imageMaxKilobytesController = TextEditingController(text: ReadSetting.maxImageKilobyte.value.toString() ?? '');
+  final TextEditingController imageMaxKilobytesController = TextEditingController(text: ReadSetting.maxImageKilobyte.value.toString());
 
   SettingReadPage({Key? key}) : super(key: key);
 

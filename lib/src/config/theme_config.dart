@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ThemeConfig {
   static ThemeData theme(Color color, Brightness brightness) {
-    return ThemeData(
+    ThemeData themeData = ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorSchemeSeed: color,
@@ -16,6 +16,10 @@ class ThemeConfig {
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       ),
       popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
+    );
+
+    return themeData.copyWith(
+      appBarTheme: themeData.appBarTheme.copyWith(backgroundColor: themeData.colorScheme.surface),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
 typedef AfterAnimationCallBack = void Function(bool show, bool isInit);
