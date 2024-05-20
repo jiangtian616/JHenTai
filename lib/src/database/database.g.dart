@@ -5380,6 +5380,12 @@ class $BlockRuleTable extends BlockRule
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _groupIdMeta =
+      const VerificationMeta('groupId');
+  @override
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+      'group_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _targetMeta = const VerificationMeta('target');
   @override
   late final GeneratedColumn<int> target = GeneratedColumn<int>(
@@ -5405,7 +5411,7 @@ class $BlockRuleTable extends BlockRule
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, target, attribute, pattern, expression];
+      [id, groupId, target, attribute, pattern, expression];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5418,6 +5424,12 @@ class $BlockRuleTable extends BlockRule
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta,
+          groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
     }
     if (data.containsKey('target')) {
       context.handle(_targetMeta,
@@ -5456,6 +5468,8 @@ class $BlockRuleTable extends BlockRule
     return BlockRuleData(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      groupId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}group_id'])!,
       target: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}target'])!,
       attribute: attachedDatabase.typeMapping
@@ -5475,12 +5489,14 @@ class $BlockRuleTable extends BlockRule
 
 class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
   final int id;
+  final String groupId;
   final int target;
   final int attribute;
   final int pattern;
   final String expression;
   const BlockRuleData(
       {required this.id,
+      required this.groupId,
       required this.target,
       required this.attribute,
       required this.pattern,
@@ -5489,6 +5505,7 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['group_id'] = Variable<String>(groupId);
     map['target'] = Variable<int>(target);
     map['attribute'] = Variable<int>(attribute);
     map['pattern'] = Variable<int>(pattern);
@@ -5499,6 +5516,7 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
   BlockRuleCompanion toCompanion(bool nullToAbsent) {
     return BlockRuleCompanion(
       id: Value(id),
+      groupId: Value(groupId),
       target: Value(target),
       attribute: Value(attribute),
       pattern: Value(pattern),
@@ -5511,6 +5529,7 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return BlockRuleData(
       id: serializer.fromJson<int>(json['id']),
+      groupId: serializer.fromJson<String>(json['groupId']),
       target: serializer.fromJson<int>(json['target']),
       attribute: serializer.fromJson<int>(json['attribute']),
       pattern: serializer.fromJson<int>(json['pattern']),
@@ -5522,6 +5541,7 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'groupId': serializer.toJson<String>(groupId),
       'target': serializer.toJson<int>(target),
       'attribute': serializer.toJson<int>(attribute),
       'pattern': serializer.toJson<int>(pattern),
@@ -5531,12 +5551,14 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
 
   BlockRuleData copyWith(
           {int? id,
+          String? groupId,
           int? target,
           int? attribute,
           int? pattern,
           String? expression}) =>
       BlockRuleData(
         id: id ?? this.id,
+        groupId: groupId ?? this.groupId,
         target: target ?? this.target,
         attribute: attribute ?? this.attribute,
         pattern: pattern ?? this.pattern,
@@ -5546,6 +5568,7 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
   String toString() {
     return (StringBuffer('BlockRuleData(')
           ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
           ..write('target: $target, ')
           ..write('attribute: $attribute, ')
           ..write('pattern: $pattern, ')
@@ -5555,12 +5578,14 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
   }
 
   @override
-  int get hashCode => Object.hash(id, target, attribute, pattern, expression);
+  int get hashCode =>
+      Object.hash(id, groupId, target, attribute, pattern, expression);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is BlockRuleData &&
           other.id == this.id &&
+          other.groupId == this.groupId &&
           other.target == this.target &&
           other.attribute == this.attribute &&
           other.pattern == this.pattern &&
@@ -5569,12 +5594,14 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
 
 class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
   final Value<int> id;
+  final Value<String> groupId;
   final Value<int> target;
   final Value<int> attribute;
   final Value<int> pattern;
   final Value<String> expression;
   const BlockRuleCompanion({
     this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.target = const Value.absent(),
     this.attribute = const Value.absent(),
     this.pattern = const Value.absent(),
@@ -5582,16 +5609,19 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
   });
   BlockRuleCompanion.insert({
     this.id = const Value.absent(),
+    required String groupId,
     required int target,
     required int attribute,
     required int pattern,
     required String expression,
-  })  : target = Value(target),
+  })  : groupId = Value(groupId),
+        target = Value(target),
         attribute = Value(attribute),
         pattern = Value(pattern),
         expression = Value(expression);
   static Insertable<BlockRuleData> custom({
     Expression<int>? id,
+    Expression<String>? groupId,
     Expression<int>? target,
     Expression<int>? attribute,
     Expression<int>? pattern,
@@ -5599,6 +5629,7 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
       if (target != null) 'target': target,
       if (attribute != null) 'attribute': attribute,
       if (pattern != null) 'pattern': pattern,
@@ -5608,12 +5639,14 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
 
   BlockRuleCompanion copyWith(
       {Value<int>? id,
+      Value<String>? groupId,
       Value<int>? target,
       Value<int>? attribute,
       Value<int>? pattern,
       Value<String>? expression}) {
     return BlockRuleCompanion(
       id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
       target: target ?? this.target,
       attribute: attribute ?? this.attribute,
       pattern: pattern ?? this.pattern,
@@ -5626,6 +5659,9 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
     }
     if (target.present) {
       map['target'] = Variable<int>(target.value);
@@ -5646,6 +5682,7 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
   String toString() {
     return (StringBuffer('BlockRuleCompanion(')
           ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
           ..write('target: $target, ')
           ..write('attribute: $attribute, ')
           ..write('pattern: $pattern, ')
@@ -5699,6 +5736,8 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX idx_expire_date ON dio_cache (expireDate)');
   late final Index idxUrl =
       Index('idx_url', 'CREATE INDEX idx_url ON dio_cache (url)');
+  late final Index idxGroupId = Index(
+      'idx_group_id', 'CREATE INDEX idx_group_id ON block_rule (group_id)');
   late final Index idxTarget =
       Index('idx_target', 'CREATE INDEX idx_target ON block_rule (target)');
   @override
@@ -5731,6 +5770,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxLastReadTime,
         idxExpireDate,
         idxUrl,
+        idxGroupId,
         idxTarget
       ];
 }

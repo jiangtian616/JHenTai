@@ -696,12 +696,14 @@ class zh_TW {
       'blockingAttribute': '屏蔽屬性',
       'blockingPattern': '屏蔽規則',
       'blockingExpression': '屏蔽表達式',
-      'like': '包含',
+      'contain': '包含',
       'regex': '正則',
       'comment': '評論',
       'tag': '標簽',
       'userId': '用戶id',
       'incompleteInformation': '請補充完整的信息',
+      'noBlockingRuleHint': '請至少配置壹條規則',
+      'notSameBlockingRuleTargetHint': '所有子規則的屏蔽目標徐需要相同',
 
       /// quick search page
       'quickSearch': '快速搜尋',

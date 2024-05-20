@@ -51,6 +51,7 @@ class LocalBlockRuleService extends GetxService {
         .map(
           (data) => LocalBlockRule(
             id: data.id,
+            groupId: data.groupId,
             target: LocalBlockTargetEnum.fromCode(data.target),
             attribute: LocalBlockAttributeEnum.fromCode(data.attribute),
             pattern: LocalBlockPatternEnum.fromCode(data.pattern),
@@ -73,6 +74,7 @@ class LocalBlockRuleService extends GetxService {
     await BlockRuleDao.upsertBlockRule(
       BlockRuleCompanion(
         id: rule.id == null ? const Value.absent() : Value(rule.id!),
+        groupId: Value(rule.groupId!),
         target: Value(rule.target.code),
         attribute: Value(rule.attribute.code),
         pattern: Value(rule.pattern.code),
@@ -83,10 +85,41 @@ class LocalBlockRuleService extends GetxService {
     return Future.value((success: true, msg: null));
   }
 
-  Future<({bool success, String? msg})> removeLocalBlockRule(int id) async {
-    Log.info('Remove block rule: $id');
+  Future<({bool success, String? msg})> replaceBlockRulesByGroup(String groupId, List<LocalBlockRule> rules) async {
+    Log.info('Replace block rules, groupId:$groupId, rules:$rules');
 
-    bool success = await BlockRuleDao.deleteBlockRule(id) > 0;
+    for (LocalBlockRule rule in rules) {
+      LocalBlockRuleHandler handler = getHandlerByRule(rule);
+      ({bool success, String? msg}) validateResult = handler.validateRule(rule);
+      if (!validateResult.success) {
+        Log.info('Replace block rule failed, rule:$rule, result:$validateResult');
+        return validateResult;
+      }
+    }
+
+    await appDb.transaction(() async {
+      await BlockRuleDao.deleteBlockRuleByGroupId(groupId);
+
+      for (LocalBlockRule rule in rules) {
+        await BlockRuleDao.insertBlockRule(
+          BlockRuleCompanion.insert(
+            groupId: groupId,
+            target: rule.target.code,
+            attribute: rule.attribute.code,
+            pattern: rule.pattern.code,
+            expression: rule.expression,
+          ),
+        );
+      }
+    });
+
+    return Future.value((success: true, msg: null));
+  }
+
+  Future<({bool success, String? msg})> removeLocalBlockRulesByGroupId(String groupId) async {
+    Log.info('Remove block rules, group id: $groupId');
+
+    bool success = await BlockRuleDao.deleteBlockRuleByGroupId(groupId) > 0;
     if (!success) {
       Log.error('Remove block rule failed, update database failed.');
       return Future.value((success: false, msg: 'Update database failed'));
@@ -105,17 +138,28 @@ class LocalBlockRuleService extends GetxService {
 
     try {
       List<BlockRuleData> datas = await BlockRuleDao.selectBlockRulesByTarget(targetEnum.code);
-      for (BlockRuleData data in datas) {
-        LocalBlockRule rule = LocalBlockRule(
-          target: LocalBlockTargetEnum.fromCode(data.target),
-          attribute: LocalBlockAttributeEnum.fromCode(data.attribute),
-          pattern: LocalBlockPatternEnum.fromCode(data.pattern),
-          expression: data.expression,
-        );
 
-        LocalBlockRuleHandler handler = getHandlerByRule(rule);
-        results.removeWhere((item) => handler.executeRule(item, rule));
-      }
+      Map<String, List<LocalBlockRule>> groupedRules = datas
+          .map((data) => LocalBlockRule(
+                id: data.id,
+                groupId: data.groupId,
+                target: LocalBlockTargetEnum.fromCode(data.target),
+                attribute: LocalBlockAttributeEnum.fromCode(data.attribute),
+                pattern: LocalBlockPatternEnum.fromCode(data.pattern),
+                expression: data.expression,
+              ))
+          .groupListsBy((rule) => rule.groupId!);
+
+      groupedRules.forEach((groupId, rules) {
+        results.removeWhere((item) {
+          bool hit = true;
+          for (LocalBlockRule rule in rules) {
+            LocalBlockRuleHandler handler = getHandlerByRule(rule);
+            hit = hit && handler.executeRule(item, rule);
+          }
+          return hit;
+        });
+      });
     } catch (e) {
       Log.error('executeRules failed, items:$items', e);
     }
@@ -471,7 +515,7 @@ enum LocalBlockPatternEnum {
   gte(2, [LocalBlockAttributeEnum.score], '>='),
   st(3, [LocalBlockAttributeEnum.score], '<'),
   ste(4, [LocalBlockAttributeEnum.score], '<='),
-  like(5, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'like'),
+  like(5, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'contain'),
   regex(6, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'regex'),
   ;
 
@@ -492,6 +536,8 @@ enum LocalBlockPatternEnum {
 class LocalBlockRule {
   int? id;
 
+  String? groupId;
+
   LocalBlockTargetEnum target;
 
   LocalBlockAttributeEnum attribute;
@@ -502,6 +548,7 @@ class LocalBlockRule {
 
   LocalBlockRule({
     this.id,
+    this.groupId,
     required this.target,
     required this.attribute,
     required this.pattern,
@@ -510,7 +557,7 @@ class LocalBlockRule {
 
   @override
   String toString() {
-    return 'LocalBlockRule{id: $id, target: $target, attribute: $attribute, pattern: $pattern, expression: $expression}';
+    return 'LocalBlockRule{id: $id, groupId: $groupId, target: $target, attribute: $attribute, pattern: $pattern, expression: $expression}';
   }
 
   bool match(Object item) => target.model == item.runtimeType;

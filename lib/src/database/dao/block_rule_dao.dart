@@ -9,15 +9,15 @@ class BlockRuleDao {
     return (appDb.select(appDb.blockRule)..where((r) => r.target.equals(target))).get();
   }
 
+  static Future<int> insertBlockRule(BlockRuleCompanion rule) {
+    return appDb.into(appDb.blockRule).insert(rule);
+  }
+
   static Future<int> upsertBlockRule(BlockRuleCompanion rule) {
     return appDb.into(appDb.blockRule).insertOnConflictUpdate(rule);
   }
 
-  static Future<int> updateBlockRule(BlockRuleData rule) {
-    return (appDb.update(appDb.blockRule)..where((r) => r.id.equals(rule.id))).write(rule);
-  }
-
-  static Future<int> deleteBlockRule(int id) {
-    return (appDb.delete(appDb.blockRule)..where((r) => r.id.equals(id))).go();
+  static Future<int> deleteBlockRuleByGroupId(String groupId) {
+    return (appDb.delete(appDb.blockRule)..where((r) => r.groupId.equals(groupId))).go();
   }
 }

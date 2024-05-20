@@ -18,7 +18,7 @@ class GroupedList<G, E> extends StatefulWidget {
   final String Function(G group) groupUniqueKey;
   final String Function(E element) elementUniqueKey;
   final Widget Function(BuildContext context, G group, bool isOpen) groupBuilder;
-  final Widget Function(BuildContext context, E element, bool isOpen) elementBuilder;
+  final Widget Function(BuildContext context, G group, E element, bool isOpen) elementBuilder;
 
   final int maxGalleryNum4Animation;
 
@@ -222,7 +222,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
               show: isOpen && !_deletingElements.containsKey(widget.elementUniqueKey(element)),
               enableOpacityTransition: enableAnimation,
               enableSlideTransition: enableAnimation,
-              child: widget.elementBuilder(context, element, isOpen),
+              child: widget.elementBuilder(context, group, element, isOpen),
               afterAnimation: (bool show, bool isInit) {
                 if (!show && !isInit) {
                   _deletingElements.remove(widget.elementUniqueKey(element))?.complete();
@@ -242,7 +242,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
     G group = widget.elementGroup(element);
     _group2Elements[group]!.remove(element);
-    
+
     logic.update(['element::$elementKey']);
     return completer.future;
   }

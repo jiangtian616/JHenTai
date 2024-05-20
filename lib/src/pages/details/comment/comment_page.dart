@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:uuid/v1.dart';
 
 import '../../../mixin/login_required_logic_mixin.dart';
 import '../../../service/local_block_rule_service.dart';
@@ -175,6 +176,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   Future<void> _onBlockUser(GalleryComment comment) async {
     await localBlockRuleService.upsertBlockRule(
       LocalBlockRule(
+        groupId: const UuidV1().generate(),
         target: LocalBlockTargetEnum.comment,
         attribute: LocalBlockAttributeEnum.userName,
         pattern: LocalBlockPatternEnum.equal,
@@ -183,6 +185,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     );
     await localBlockRuleService.upsertBlockRule(
       LocalBlockRule(
+        groupId: const UuidV1().generate(),
         target: LocalBlockTargetEnum.comment,
         attribute: LocalBlockAttributeEnum.userId,
         pattern: LocalBlockPatternEnum.equal,
@@ -191,7 +194,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     );
 
     comments = await localBlockRuleService.executeRules(comments);
-    
+
     setState(() {});
     toast('success'.tr);
   }

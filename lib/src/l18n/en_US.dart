@@ -699,12 +699,14 @@ class en_US {
       'blockingAttribute': 'Blocking Attribute',
       'blockingPattern': 'Blocking Pattern',
       'blockingExpression': 'Blocking Expression',
-      'like': 'like',
-      'regex': 'regex',
+      'contain': 'Contain',
+      'regex': 'Regex',
       'comment': 'Comment',
       'tag': 'Tag',
       'userId': 'UserId',
       'incompleteInformation': 'Incomplete information',
+      'noBlockingRuleHint': 'Add at least 1 rule',
+      'notSameBlockingRuleTargetHint': 'All sub-rules should have the same blocking target',
 
       /// quick search page
       'quickSearch': 'Quick Search',

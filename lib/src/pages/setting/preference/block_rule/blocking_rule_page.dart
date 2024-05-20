@@ -31,7 +31,14 @@ class BlockingRulePage extends StatelessWidget {
         ],
       ),
       body: _buildBody(context),
-      floatingActionButton: _buildFloatingActionButton(),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          toRoute(Routes.configureBlockingRules, arguments: const ConfigureBlockingRulePageArgument(mode: ConfigureBlockingRulePageMode.add))?.then((_) {
+            logic.getBlockRules();
+          });
+        },
+      ),
     );
   }
 
@@ -40,47 +47,31 @@ class BlockingRulePage extends StatelessWidget {
       id: logic.bodyId,
       builder: (_) {
         Widget child = state.showGroup
-            ? GroupedList<String, LocalBlockRule>(
+            ? GroupedList<String, List<LocalBlockRule>>(
                 maxGalleryNum4Animation: 50,
                 scrollController: state.scrollController,
                 controller: state.groupedListController,
-                groups: Map.fromEntries(state.rules.map((rule) => MapEntry('${rule.target.desc.tr} - ${rule.attribute.desc.tr}', true))),
-                elements: state.rules,
-                elementGroup: (LocalBlockRule rule) => '${rule.target.desc.tr} - ${rule.attribute.desc.tr}',
+                groups: state.groupedRules.map(
+                  (groupId, rules) => MapEntry('${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}', true),
+                ),
+                elements: state.groupedRules.values.toList(),
+                elementGroup: (List<LocalBlockRule> rules) => '${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}',
                 groupBuilder: (context, group, isOpen) => _groupBuilder(context, group, isOpen).marginAll(5),
-                elementBuilder: (BuildContext context, LocalBlockRule rule, isOpen) => _itemBuilder(context, rule),
+                elementBuilder: (BuildContext context, String group, List<LocalBlockRule> rules, isOpen) => _elementBuilder(context, group, rules),
                 groupUniqueKey: (String group) => group,
-                elementUniqueKey: (LocalBlockRule rule) => rule.id.toString(),
+                elementUniqueKey: (List<LocalBlockRule> rules) => rules.first.groupId!,
               )
             : ListView.builder(
                 padding: const EdgeInsets.only(bottom: 80),
-                itemCount: state.rules.length,
+                itemCount: state.groupedRules.keys.length,
                 controller: state.scrollController,
-                itemBuilder: (_, int index) => ListTile(
-                  minLeadingWidth: 60,
-                  leading: Text(state.rules[index].target.desc.tr, style: const TextStyle(fontSize: 14)),
-                  title: Text(state.rules[index].attribute.desc.tr),
-                  subtitle: Text('${state.rules[index].pattern.desc.tr} ${state.rules[index].expression}'),
-                  trailing: _buildListTileTrailing(context, state.rules[index]),
-                  onTap: () => _showOperationBottomSheet(context, state.rules[index]),
-                ),
+                itemBuilder: _itemBuilder,
               );
 
         return EHWheelSpeedController(
           controller: state.scrollController,
           child: SafeArea(child: child..withListTileTheme(context)),
         );
-      },
-    );
-  }
-
-  Widget _buildFloatingActionButton() {
-    return FloatingActionButton(
-      child: const Icon(Icons.add),
-      onPressed: () {
-        toRoute(Routes.configureBlockingRules, arguments: const ConfigureBlockingRulePageArgument(mode: ConfigureBlockingRulePageMode.add))?.then((_) {
-          logic.getBlockRules();
-        });
       },
     );
   }
@@ -100,37 +91,41 @@ class BlockingRulePage extends StatelessWidget {
             const SizedBox(width: 16),
             Text(groupName, maxLines: 1, overflow: TextOverflow.ellipsis),
             const Expanded(child: SizedBox()),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                toRoute(
-                  Routes.configureBlockingRules,
-                  arguments: ConfigureBlockingRulePageArgument(
-                    mode: ConfigureBlockingRulePageMode.add,
-                  ),
-                )?.then((_) => logic.getBlockRules());
-              },
-            ),
-            const SizedBox(width: 8),
+            GroupOpenIndicator(isOpen: isOpen).marginOnly(right: 8),
           ],
         ),
       ),
     );
   }
 
-  Widget _itemBuilder(BuildContext context, LocalBlockRule rule) {
+  Widget _elementBuilder(BuildContext context, String group, List<LocalBlockRule> rules) {
     return ListTile(
-      minLeadingWidth: 40,
-      leading: Text(rule.pattern.desc.tr, style: const TextStyle(fontSize: 14)),
-      title: Text(rule.expression),
+      minLeadingWidth: 60,
+      leading: Text(rules.length == 1 ? rules.first.pattern.desc.tr : 'other'.tr, style: const TextStyle(fontSize: 14)),
+      title: Text(
+        rules.length == 1 ? rules.first.expression : rules.map((rule) => '(${rule.attribute.desc.tr} ${rule.pattern.desc.tr} ${rule.expression})').join(' && '),
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      trailing: _buildListTileTrailing(context, rule),
-      contentPadding: const EdgeInsets.only(left: 16, right: 8),
-      onTap: () => _showOperationBottomSheet(context, rule),
-    ).paddingSymmetric(horizontal: 5);
+      trailing: _buildListTileTrailing(context, rules.first.groupId!, rules),
+      contentPadding: const EdgeInsets.only(left: 16),
+      onTap: () => _showOperationBottomSheet(context, rules.first.groupId!, rules),
+    ).paddingSymmetric(horizontal: 4);
   }
 
-  Row _buildListTileTrailing(BuildContext context, LocalBlockRule rule) {
+  Widget _itemBuilder(BuildContext context, int index) {
+    MapEntry<String, List<LocalBlockRule>> entry = state.groupedRules.entries.toList()[index];
+
+    return ListTile(
+      minLeadingWidth: 70,
+      leading: Text(entry.value.first.target.desc.tr, style: const TextStyle(fontSize: 14)),
+      title: Text(entry.value.map((rule) => rule.attribute.desc.tr).join('+')),
+      subtitle: Text(entry.value.map((rule) => '(${rule.attribute.desc.tr} ${rule.pattern.desc.tr} ${rule.expression})').join(' && ')),
+      trailing: _buildListTileTrailing(context, entry.key, entry.value),
+      onTap: () => _showOperationBottomSheet(context, entry.key, entry.value),
+    );
+  }
+
+  Row _buildListTileTrailing(BuildContext context, String groupId, List<LocalBlockRule> rules) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -139,7 +134,10 @@ class BlockingRulePage extends StatelessWidget {
           onPressed: () async {
             toRoute(
               Routes.configureBlockingRules,
-              arguments: ConfigureBlockingRulePageArgument(mode: ConfigureBlockingRulePageMode.edit, rule: rule),
+              arguments: ConfigureBlockingRulePageArgument(
+                mode: ConfigureBlockingRulePageMode.edit,
+                groupRules: (groupId: groupId, rules: rules),
+              ),
             )?.then((_) => logic.getBlockRules());
           },
         ),
@@ -148,7 +146,7 @@ class BlockingRulePage extends StatelessWidget {
           onPressed: () async {
             bool? result = await showDialog(context: context, builder: (_) => EHDialog(title: 'delete'.tr + '?'));
             if (result == true) {
-              await logic.removeLocalBlockRule(rule.id!);
+              await logic.removeLocalBlockRulesByGroupId(groupId);
               logic.getBlockRules();
             }
           },
@@ -157,7 +155,7 @@ class BlockingRulePage extends StatelessWidget {
     );
   }
 
-  void _showOperationBottomSheet(BuildContext context, LocalBlockRule rule) {
+  void _showOperationBottomSheet(BuildContext context, String groupId, List<LocalBlockRule> rules) {
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext _context) => CupertinoActionSheet(
@@ -174,7 +172,10 @@ class BlockingRulePage extends StatelessWidget {
               backRoute();
               toRoute(
                 Routes.configureBlockingRules,
-                arguments: ConfigureBlockingRulePageArgument(mode: ConfigureBlockingRulePageMode.edit, rule: rule),
+                arguments: ConfigureBlockingRulePageArgument(
+                  mode: ConfigureBlockingRulePageMode.edit,
+                  groupRules: (groupId: groupId, rules: rules),
+                ),
               )?.then((_) => logic.getBlockRules());
             },
           ),
@@ -188,7 +189,7 @@ class BlockingRulePage extends StatelessWidget {
             ),
             onPressed: () async {
               backRoute();
-              await logic.removeLocalBlockRule(rule.id!);
+              await logic.removeLocalBlockRulesByGroupId(groupId);
               logic.getBlockRules();
             },
           ),

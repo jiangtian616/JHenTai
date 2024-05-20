@@ -698,12 +698,14 @@ class zh_CN {
       'blockingAttribute': '屏蔽属性',
       'blockingPattern': '屏蔽规则',
       'blockingExpression': '屏蔽表达式',
-      'like': '包含',
+      'contain': '包含',
       'regex': '正则',
       'comment': '评论',
       'tag': '标签',
       'userId': '用户id',
       'incompleteInformation': '请补充完整的信息',
+      'noBlockingRuleHint': '请至少配置一条规则',
+      'notSameBlockingRuleTargetHint': '所有子规则的屏蔽目标徐需要相同',
 
       /// quick search page
       'quickSearch': '快速搜索',

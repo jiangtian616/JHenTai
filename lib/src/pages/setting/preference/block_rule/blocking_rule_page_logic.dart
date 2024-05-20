@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -29,7 +32,7 @@ class BlockingRulePageLogic extends GetxController {
   void toggleShowGroup() {
     state.showGroup = !state.showGroup;
     updateSafely([bodyId]);
-    
+
     storageService.write('displayBlockingRulesGroup', state.showGroup);
   }
 
@@ -38,12 +41,40 @@ class BlockingRulePageLogic extends GetxController {
   }
 
   Future<void> getBlockRules() async {
-    state.rules = await localBlockRuleService.getBlockRules();
+    List<LocalBlockRule> rules = await localBlockRuleService.getBlockRules();
+    rules.sort((a, b) {
+      if (a.target.code - b.target.code != 0) {
+        return a.target.code - b.target.code;
+      }
+      if (a.attribute.code - b.attribute.code != 0) {
+        return a.attribute.code - b.attribute.code;
+      }
+      if (a.pattern.code - b.pattern.code != 0) {
+        return a.pattern.code - b.pattern.code;
+      }
+      return a.expression.compareTo(b.expression);
+    });
+
+    state.groupedRules = rules.groupListsBy((rule) => rule.groupId!);
+    List<String> keys = state.groupedRules.keys.toList();
+    keys.sort((a, b) {
+      int code = state.groupedRules[a]!.first.target.code - state.groupedRules[b]!.first.target.code;
+      if (code != 0) {
+        return code;
+      }
+      return state.groupedRules[b]!.length - state.groupedRules[a]!.length;
+    });
+    state.groupedRules = LinkedHashMap.fromIterable(
+      keys,
+      key: (k) => k,
+      value: (k) => state.groupedRules[k]!,
+    );
+
     updateSafely([bodyId]);
   }
 
-  Future<void> removeLocalBlockRule(int id) async {
-    ({bool success, String? msg}) result = await localBlockRuleService.removeLocalBlockRule(id);
+  Future<void> removeLocalBlockRulesByGroupId(String groupId) async {
+    ({bool success, String? msg}) result = await localBlockRuleService.removeLocalBlockRulesByGroupId(groupId);
     if (!result.success) {
       snack('removeBlockRuleFailed'.tr, result.msg ?? '');
     }
