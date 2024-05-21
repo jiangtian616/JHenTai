@@ -412,6 +412,27 @@ abstract class LikeLocalBlockRuleHandler<ITEM> implements LocalBlockRuleHandler<
   }
 }
 
+abstract class NotContainLocalBlockRuleHandler<ITEM> implements LocalBlockRuleHandler<ITEM>, AttributeGetter<String, ITEM> {
+  @override
+  int get order => 10;
+
+  @override
+  bool executeRule(ITEM item, LocalBlockRule rule) {
+    List<String> attribute = getItemAttributes(item);
+    return attribute.every((a) => !a.contains(rule.expression));
+  }
+
+  @override
+  bool matchRule(LocalBlockRule rule) {
+    return rule.pattern == LocalBlockPatternEnum.notContain && matchRuleAttribute(rule.attribute);
+  }
+
+  @override
+  ({String? msg, bool success}) validateRule(LocalBlockRule rule) {
+    return (success: true, msg: null);
+  }
+}
+
 abstract class RegexLocalBlockRuleHandler<ITEM> implements LocalBlockRuleHandler<ITEM>, AttributeGetter<String, ITEM> {
   @override
   int get order => 10;
@@ -463,6 +484,14 @@ class GalleryUploaderLikeLocalBlockRuleHandler extends LikeLocalBlockRuleHandler
 
 class CommentUserNameLikeLocalBlockRuleHandler extends LikeLocalBlockRuleHandler<GalleryComment> with CommentUsernameAttributeGetter {}
 
+class GalleryTitleNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<Gallery> with GalleryTitleAttributeGetter {}
+
+class GalleryTagNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<Gallery> with GalleryTagAttributeGetter {}
+
+class GalleryUploaderNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<Gallery> with GalleryUploaderAttributeGetter {}
+
+class CommentUserNameNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<GalleryComment> with CommentUsernameAttributeGetter {}
+
 class GalleryTitleRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<Gallery> with GalleryTitleAttributeGetter {}
 
 class GalleryTagRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<Gallery> with GalleryTagAttributeGetter {}
@@ -511,12 +540,13 @@ enum LocalBlockAttributeEnum {
 
 enum LocalBlockPatternEnum {
   equal(0, [LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName, LocalBlockAttributeEnum.userId], '='),
-  gt(1, [LocalBlockAttributeEnum.score], '>'),
-  gte(2, [LocalBlockAttributeEnum.score], '>='),
-  st(3, [LocalBlockAttributeEnum.score], '<'),
-  ste(4, [LocalBlockAttributeEnum.score], '<='),
-  like(5, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'contain'),
-  regex(6, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'regex'),
+  gt(10, [LocalBlockAttributeEnum.score], '>'),
+  gte(20, [LocalBlockAttributeEnum.score], '>='),
+  st(30, [LocalBlockAttributeEnum.score], '<'),
+  ste(40, [LocalBlockAttributeEnum.score], '<='),
+  like(50, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'contain'),
+  notContain(60, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'notContain'),
+  regex(70, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'regex'),
   ;
 
   final int code;

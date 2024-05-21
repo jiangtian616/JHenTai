@@ -112,6 +112,7 @@ dependency_overrides:
       url: https://github.com/jiangtian616/dio
       path: dio
       ref: append-mode
+  intl: 0.19.0
 
 dev_dependencies:
   flutter_test:
@@ -122,7 +123,6 @@ dev_dependencies:
   build_runner: 2.4.8
   build_runner_core: 7.2.9
   flutter_launcher_icons: 0.11.0
-
 
 
 flutter:

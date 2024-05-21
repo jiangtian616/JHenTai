@@ -702,6 +702,7 @@ class pt_BR {
       'blockingPattern': 'Blocking Pattern',
       'blockingExpression': 'Blocking Expression',
       'contain': 'Contain',
+      'notContain': 'Not Contain',
       'regex': 'Regex',
       'comment': 'Comment',
       'tag': 'Tag',
@@ -718,7 +719,9 @@ Blocking Pattern: Use regular expressions for complex scenarios.
 
 Blocking Expression: Simple strings or regular expressions.
 
-Note: Different rules have an OR (||) relationship, while all sub-rules under the same rule have an AND (&&) relationship.
+Note1: Different rules have an OR (||) relationship, while all sub-rules under the same rule have an AND (&&) relationship.
+
+Note2: When blocking tag, the rule will check each tag in the gallery, the expression should be written for a single tag.
     ''',
 
       /// quick search page
