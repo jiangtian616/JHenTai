@@ -466,9 +466,8 @@ class EHSpiderParser {
 
     /// 1 / 1000 favorite note slots used. [?]
     String usedSlotDesc = document.querySelector('#galpop > div > div:nth-child(3) > div:nth-child(6)')!.text;
-    int usedSlot = int.parse(RegExp(r'(\d+) / 1000').firstMatch(usedSlotDesc)!.group(1)!);
 
-    return GalleryNote(note: note, usedSlot: usedSlot);
+    return GalleryNote(note: note);
   }
 
   static Map<String, List> favoritePage2FavoriteTagsAndCounts(Headers headers, dynamic data) {
