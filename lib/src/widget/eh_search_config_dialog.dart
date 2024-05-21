@@ -138,9 +138,11 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           if (searchConfig.searchType == SearchType.favorite)
             Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildFavoriteTags().marginOnly(top: 20),
-                _buildKeywordTextField().marginOnly(top: 20, bottom: 180),
+                _buildKeywordTextField().marginOnly(top: 20),
+                _buildFavoriteHint().marginOnly(top: 8),
               ],
             )
           else
@@ -272,6 +274,17 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
             addSearchTag(TagData(namespace: '', key: keyword));
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildFavoriteHint() {
+    return Text(
+      'favoriteHint'.tr,
+      style: TextStyle(
+        fontSize: 12,
+        height: 1.6,
+        color: UIConfig.searchConfigDialogHintTextColor,
       ),
     );
   }

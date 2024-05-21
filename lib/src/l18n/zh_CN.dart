@@ -608,6 +608,13 @@ class zh_CN {
       'year': '年',
       'month': '月',
       'day': '日',
+      'favoriteHint': '''
+限定词：
+tag： 匹配全命名空间内的标签
+title：同时匹配罗马音和日文的标题
+comment：匹配评论
+favnote：匹配收藏备注
+      ''',
 
       /// popular page
       'getPopularListFailed': '获取热门画廊列表失败',

@@ -610,6 +610,7 @@ class pt_BR {
       'year': 'Ano',
       'month': 'Mês',
       'day': 'Dia',
+      'favoriteHint': 'Qualifiers: tag/title/comment/favnote',
 
       /// popular page
       'getPopularListFailed': 'Falha ao obter lista de popularidade',

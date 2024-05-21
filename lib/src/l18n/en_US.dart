@@ -608,6 +608,7 @@ class en_US {
       'year': 'Year',
       'month': 'Mon',
       'day': 'Day',
+      'favoriteHint': 'Qualifiers: tag/title/comment/favnote',
 
       /// popular page
       'getPopularListFailed': 'Get Popular List Failed',

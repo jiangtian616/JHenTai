@@ -537,6 +537,8 @@ class UIConfig {
 
   static Color searchConfigDialogFieldHintTextColor(BuildContext context) => Theme.of(context).colorScheme.outline.withOpacity(0.5);
 
+  static Color searchConfigDialogHintTextColor = Colors.grey.shade600;
+
   /// gallery detail dialog
   static BorderRadius galleryDetailDialogItemBorderRadius = BorderRadius.circular(32);
 
@@ -552,7 +554,7 @@ class UIConfig {
   static Color lockPageFilledDashColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
 
   static Color lockPageUnfilledDashColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
-  
+
   /// blocking rule page
   static Color blockingRulePageHelpTextColor(BuildContext context) => Colors.grey.shade600;
 }

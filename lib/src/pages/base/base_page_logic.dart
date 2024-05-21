@@ -400,7 +400,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   Future<List<Gallery>> filterByBlockingRules(List<Gallery> newGallerys) async {
     if (newGallerys.isEmpty) {
-      newGallerys;
+      return newGallerys;
     }
 
     // if all gallerys are filtered, we keep the first one to indicate it

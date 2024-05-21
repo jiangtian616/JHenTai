@@ -606,6 +606,13 @@ class zh_TW {
       'year': '年',
       'month': '月',
       'day': '日',
+      'favoriteHint': '''
+限定詞：
+tag： 匹配全命名空間內的標簽
+title：同時匹配羅馬音和日文的標題
+comment：匹配評論
+favnote：匹配收藏備注
+      ''',
 
       /// popular page
       'getPopularListFailed': '獲取熱門畫廊列表失敗',

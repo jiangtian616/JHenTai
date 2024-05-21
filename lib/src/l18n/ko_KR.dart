@@ -608,6 +608,7 @@ class ko_KR {
       'year': '연도별',
       'month': '월별',
       'day': '일별',
+      'favoriteHint': 'Qualifiers: tag/title/comment/favnote',
 
       /// popular page
       'getPopularListFailed': '인기 있는 리스트 불러오기 실패',
