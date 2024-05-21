@@ -28,39 +28,39 @@ class SettingSecurityPage extends StatelessWidget {
   }
 
   Widget _buildEnableBlurBackgroundApp() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableBlurBackgroundApp'.tr),
-      trailing: Switch(value: SecuritySetting.enableBlur.value, onChanged: SecuritySetting.saveEnableBlur),
+      value: SecuritySetting.enableBlur.value,
+      onChanged: SecuritySetting.saveEnableBlur,
     );
   }
 
   Widget _buildEnablePasswordAuth() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enablePasswordAuth'.tr),
-      trailing: Switch(
-        value: SecuritySetting.enablePasswordAuth.value,
-        onChanged: (value) async {
-          if (value) {
-            String? password = await Get.dialog(const EHAppPasswordSettingDialog());
+      value: SecuritySetting.enablePasswordAuth.value,
+      onChanged: (value) async {
+        if (value) {
+          String? password = await Get.dialog(const EHAppPasswordSettingDialog());
 
-            if (password != null) {
-              SecuritySetting.savePassword(password);
-              toast('success'.tr);
-            } else {
-              return;
-            }
+          if (password != null) {
+            SecuritySetting.savePassword(password);
+            toast('success'.tr);
+          } else {
+            return;
           }
+        }
 
-          SecuritySetting.saveEnablePasswordAuth(value);
-        },
-      ),
+        SecuritySetting.saveEnablePasswordAuth(value);
+      },
     );
   }
 
   Widget _buildEnableBiometricAuth() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableBiometricAuth'.tr),
-      trailing: Switch(value: SecuritySetting.enableBiometricAuth.value, onChanged: SecuritySetting.saveEnableBiometricAuth),
+      value: SecuritySetting.enableBiometricAuth.value,
+      onChanged: SecuritySetting.saveEnableBiometricAuth,
     );
   }
 

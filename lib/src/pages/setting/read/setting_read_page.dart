@@ -65,24 +65,43 @@ class SettingReadPage extends StatelessWidget {
   }
 
   Widget _buildEnableImmersiveMode() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableImmersiveMode'.tr),
       subtitle: GetPlatform.isMobile ? Text('enableImmersiveHint'.tr) : Text('enableImmersiveHint4Windows'.tr),
-      trailing: Switch(value: ReadSetting.enableImmersiveMode.value, onChanged: ReadSetting.saveEnableImmersiveMode),
+      value: ReadSetting.enableImmersiveMode.value,
+      onChanged: ReadSetting.saveEnableImmersiveMode,
     );
   }
 
   Widget _buildKeepScreenAwake() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('keepScreenAwakeWhenReading'.tr),
-      trailing: Switch(value: ReadSetting.keepScreenAwakeWhenReading.value, onChanged: ReadSetting.saveKeepScreenAwakeWhenReading),
+      value: ReadSetting.keepScreenAwakeWhenReading.value,
+      onChanged: ReadSetting.saveKeepScreenAwakeWhenReading,
     );
   }
 
   Widget _buildEnableCustomReadBrightness() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableCustomReadBrightness'.tr),
-      trailing: Switch(value: ReadSetting.enableCustomReadBrightness.value, onChanged: ReadSetting.saveEnableCustomReadBrightness),
+      value: ReadSetting.enableCustomReadBrightness.value,
+      onChanged: ReadSetting.saveEnableCustomReadBrightness,
+    );
+  }
+
+  Widget _buildShowThumbnails() {
+    return SwitchListTile(
+      title: Text('showThumbnails'.tr),
+      value: ReadSetting.showThumbnails.value,
+      onChanged: ReadSetting.saveShowThumbnails,
+    );
+  }
+
+  Widget _buildShowScrollBar() {
+    return SwitchListTile(
+      title: Text('showScrollBar'.tr),
+      value: ReadSetting.showScrollBar.value,
+      onChanged: ReadSetting.saveShowScrollBar,
     );
   }
 
@@ -145,80 +164,75 @@ class SettingReadPage extends StatelessWidget {
     ).marginOnly(right: 12);
   }
 
-  Widget _buildShowThumbnails() {
-    return ListTile(
-      title: Text('showThumbnails'.tr),
-      trailing: Switch(value: ReadSetting.showThumbnails.value, onChanged: ReadSetting.saveShowThumbnails),
-    );
-  }
-
-  Widget _buildShowScrollBar() {
-    return ListTile(
-      title: Text('showScrollBar'.tr),
-      trailing: Switch(value: ReadSetting.showScrollBar.value, onChanged: ReadSetting.saveShowScrollBar),
-    );
-  }
-
   Widget _buildShowStatusInfo() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('showStatusInfo'.tr),
-      trailing: Switch(value: ReadSetting.showStatusInfo.value, onChanged: ReadSetting.saveShowStatusInfo),
+      value: ReadSetting.showStatusInfo.value,
+      onChanged: ReadSetting.saveShowStatusInfo,
     );
   }
 
   Widget _buildEnablePageTurnByVolumeKeys() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enablePageTurnByVolumeKeys'.tr),
-      trailing: Switch(value: ReadSetting.enablePageTurnByVolumeKeys.value, onChanged: ReadSetting.saveEnablePageTurnByVolumeKeys),
+      value: ReadSetting.enablePageTurnByVolumeKeys.value,
+      onChanged: ReadSetting.saveEnablePageTurnByVolumeKeys,
     );
   }
 
   Widget _buildEnablePageTurnAnime() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enablePageTurnAnime'.tr),
-      trailing: Switch(value: ReadSetting.enablePageTurnAnime.value, onChanged: ReadSetting.saveEnablePageTurnAnime),
+      value: ReadSetting.enablePageTurnAnime.value,
+      onChanged: ReadSetting.saveEnablePageTurnAnime,
     );
   }
 
   Widget _buildEnableDoubleTapToScaleUp() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableDoubleTapToScaleUp'.tr),
-      trailing: Switch(value: ReadSetting.enableDoubleTapToScaleUp.value, onChanged: ReadSetting.saveEnableDoubleTapToScaleUp),
+      value: ReadSetting.enableDoubleTapToScaleUp.value,
+      onChanged: ReadSetting.saveEnableDoubleTapToScaleUp,
     );
   }
 
   Widget _buildEnableTapDragToScaleUp() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableTapDragToScaleUp'.tr),
-      trailing: Switch(value: ReadSetting.enableTapDragToScaleUp.value, onChanged: ReadSetting.saveEnableTapDragToScaleUp),
+      value: ReadSetting.enableTapDragToScaleUp.value,
+      onChanged: ReadSetting.saveEnableTapDragToScaleUp,
     );
   }
 
   Widget _buildEnableBottomMenu() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableBottomMenu'.tr),
-      trailing: Switch(value: ReadSetting.enableBottomMenu.value, onChanged: ReadSetting.saveEnableBottomMenu),
+      value: ReadSetting.enableBottomMenu.value,
+      onChanged: ReadSetting.saveEnableBottomMenu,
     );
   }
 
   Widget _buildReverseTurnPageDirection() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('reverseTurnPageDirection'.tr),
-      trailing: Switch(value: ReadSetting.reverseTurnPageDirection.value, onChanged: ReadSetting.saveReverseTurnPageDirection),
+      value: ReadSetting.reverseTurnPageDirection.value,
+      onChanged: ReadSetting.saveReverseTurnPageDirection,
     );
   }
 
   Widget _buildDisableTurnPageOnTap() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('disablePageTurningOnTap'.tr),
-      trailing: Switch(value: ReadSetting.disablePageTurningOnTap.value, onChanged: ReadSetting.saveDisablePageTurningOnTap),
+      value: ReadSetting.disablePageTurningOnTap.value,
+      onChanged: ReadSetting.saveDisablePageTurningOnTap,
     );
   }
 
   Widget _buildEnableImageMaxKilobytes() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableImageMaxKilobytes'.tr),
-      trailing: Switch(value: ReadSetting.enableMaxImageKilobyte.value, onChanged: ReadSetting.saveEnableMaxImageKilobyte),
+      value: ReadSetting.enableMaxImageKilobyte.value,
+      onChanged: ReadSetting.saveEnableMaxImageKilobyte,
     );
   }
 
@@ -512,9 +526,10 @@ class SettingReadPage extends StatelessWidget {
   }
 
   Widget _buildDisplayFirstPageAlone() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('displayFirstPageAloneGlobally'.tr),
-      trailing: Switch(value: ReadSetting.displayFirstPageAlone.value, onChanged: ReadSetting.saveDisplayFirstPageAlone),
+      value: ReadSetting.displayFirstPageAlone.value,
+      onChanged: ReadSetting.saveDisplayFirstPageAlone,
     );
   }
 

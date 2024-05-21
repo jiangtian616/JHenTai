@@ -75,10 +75,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildRecordAllLogs() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableVerboseLogging'.tr),
       subtitle: Text('needRestart'.tr),
-      trailing: Switch(value: AdvancedSetting.enableVerboseLogging.value, onChanged: AdvancedSetting.saveEnableVerboseLogging),
+      value: AdvancedSetting.enableVerboseLogging.value,
+      onChanged: AdvancedSetting.saveEnableVerboseLogging,
     );
   }
 
@@ -154,16 +155,18 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildCheckUpdate() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
-      trailing: Switch(value: AdvancedSetting.enableCheckUpdate.value, onChanged: AdvancedSetting.saveEnableCheckUpdate),
+      value: AdvancedSetting.enableCheckUpdate.value,
+      onChanged: AdvancedSetting.saveEnableCheckUpdate,
     );
   }
 
   Widget _buildCheckClipboard() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('checkClipboard'.tr),
-      trailing: Switch(value: AdvancedSetting.enableCheckClipboard.value, onChanged: AdvancedSetting.saveEnableCheckClipboard),
+      value: AdvancedSetting.enableCheckClipboard.value,
+      onChanged: AdvancedSetting.saveEnableCheckClipboard,
     );
   }
 
@@ -188,9 +191,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildInNoImageMode() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('noImageMode'.tr),
-      trailing: Switch(value: AdvancedSetting.inNoImageMode.value, onChanged: AdvancedSetting.saveInNoImageMode),
+      value: AdvancedSetting.inNoImageMode.value,
+      onChanged: AdvancedSetting.saveInNoImageMode,
     );
   }
 

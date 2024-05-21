@@ -67,6 +67,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
   Widget _buildSiteSegmentControl() {
     return ListTile(
       title: Text('site'.tr),
+      onTap: () => EHSetting.saveSite(EHSetting.site.value == 'EH' ? 'EX' : 'EH'),
       trailing: CupertinoSlidingSegmentedControl<String>(
         groupValue: EHSetting.site.value,
         children: const {
@@ -83,11 +84,12 @@ class _SettingEHPageState extends State<SettingEHPage> {
       return const SizedBox();
     }
 
-    return ListTile(
+    return SwitchListTile(
       title: Text('redirect2Eh'.tr),
       subtitle: Text('redirect2EhHint'.tr),
-      trailing: Switch(value: EHSetting.redirect2Eh.value, onChanged: EHSetting.saveRedirect2Eh).fadeIn(),
-    );
+      value: EHSetting.redirect2Eh.value,
+      onChanged: EHSetting.saveRedirect2Eh,
+    ).fadeIn();
   }
 
   Widget _buildProfile() {

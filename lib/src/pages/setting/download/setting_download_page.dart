@@ -120,18 +120,16 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Widget _buildDownloadOriginalImage() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('downloadOriginalImageByDefault'.tr),
-      trailing: Switch(
-        value: DownloadSetting.downloadOriginalImageByDefault.value,
-        onChanged: (value) {
-          if (!UserSetting.hasLoggedIn()) {
-            toast('needLoginToOperate'.tr);
-            return;
-          }
-          DownloadSetting.saveDownloadOriginalImageByDefault(value);
-        },
-      ),
+      value: DownloadSetting.downloadOriginalImageByDefault.value,
+      onChanged: (value) {
+        if (!UserSetting.hasLoggedIn()) {
+          toast('needLoginToOperate'.tr);
+          return;
+        }
+        DownloadSetting.saveDownloadOriginalImageByDefault(value);
+      },
     );
   }
 
@@ -244,13 +242,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Widget _buildDownloadAllGallerysOfSamePriority() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('downloadAllGallerysOfSamePriority'.tr),
       subtitle: Text('${'downloadAllGallerysOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
-      trailing: Switch(
-        value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
-        onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
-      ),
+      value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
+      onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
     );
   }
 
@@ -279,17 +275,19 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Widget _buildManageArchiveDownloadConcurrency() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('manageArchiveDownloadConcurrency'.tr),
       subtitle: Text('manageArchiveDownloadConcurrencyHint'.tr),
-      trailing: Switch(value: DownloadSetting.manageArchiveDownloadConcurrency.value, onChanged: DownloadSetting.saveManageArchiveDownloadConcurrency),
+      value: DownloadSetting.manageArchiveDownloadConcurrency.value,
+      onChanged: DownloadSetting.saveManageArchiveDownloadConcurrency,
     );
   }
 
   Widget _buildDeleteArchiveFileAfterDownload() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('deleteArchiveFileAfterDownload'.tr),
-      trailing: Switch(value: DownloadSetting.deleteArchiveFileAfterDownload.value, onChanged: DownloadSetting.saveDeleteArchiveFileAfterDownload),
+      value: DownloadSetting.deleteArchiveFileAfterDownload.value,
+      onChanged: DownloadSetting.saveDeleteArchiveFileAfterDownload,
     );
   }
 
@@ -302,13 +300,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Widget _buildRestoreTasksAutomatically() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('restoreTasksAutomatically'.tr),
       subtitle: Text('restoreTasksAutomaticallyHint'.tr),
-      trailing: Switch(
-        value: DownloadSetting.restoreTasksAutomatically.value,
-        onChanged: DownloadSetting.saveRestoreTasksAutomatically,
-      ),
+      value: DownloadSetting.restoreTasksAutomatically.value,
+      onChanged: DownloadSetting.saveRestoreTasksAutomatically,
     );
   }
 

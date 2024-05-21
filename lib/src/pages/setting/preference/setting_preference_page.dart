@@ -191,13 +191,11 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildSimpleDashboardMode() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('simpleDashboardMode'.tr),
       subtitle: Text('simpleDashboardModeHint'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.simpleDashboardMode.value,
-        onChanged: PreferenceSetting.saveSimpleDashboardMode,
-      ),
+      value: PreferenceSetting.simpleDashboardMode.value,
+      onChanged: PreferenceSetting.saveSimpleDashboardMode,
     );
   }
 
@@ -257,12 +255,10 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildQuickSearch() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableQuickSearchDrawerGesture'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.enableQuickSearchDrawerGesture.value,
-        onChanged: PreferenceSetting.saveEnableQuickSearchDrawerGesture,
-      ),
+      value: PreferenceSetting.enableQuickSearchDrawerGesture.value,
+      onChanged: PreferenceSetting.saveEnableQuickSearchDrawerGesture,
     );
   }
 
@@ -330,45 +326,37 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowR18GImageDirectly() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('showR18GImageDirectly'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.showR18GImageDirectly.value,
-        onChanged: PreferenceSetting.saveShowR18GImageDirectly,
-      ),
+      value: PreferenceSetting.showR18GImageDirectly.value,
+      onChanged: PreferenceSetting.saveShowR18GImageDirectly,
     );
   }
 
   Widget _buildEnableDefaultFavorite() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableDefaultFavorite'.tr),
       subtitle: Text(PreferenceSetting.enableDefaultFavorite.isTrue ? 'enableDefaultFavoriteHint'.tr : 'disableDefaultFavoriteHint'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.enableDefaultFavorite.value,
-        onChanged: PreferenceSetting.saveEnableDefaultFavorite,
-      ),
+      value: PreferenceSetting.enableDefaultFavorite.value,
+      onChanged: PreferenceSetting.saveEnableDefaultFavorite,
     );
   }
 
   Widget _buildEnableDefaultTagSet() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('enableDefaultTagSet'.tr),
       subtitle: Text(PreferenceSetting.enableDefaultTagSet.isTrue ? 'enableDefaultTagSetHint'.tr : 'disableDefaultTagSetHint'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.enableDefaultTagSet.value,
-        onChanged: PreferenceSetting.saveEnableDefaultTagSet,
-      ),
+      value: PreferenceSetting.enableDefaultTagSet.value,
+      onChanged: PreferenceSetting.saveEnableDefaultTagSet,
     );
   }
 
   Widget _buildLaunchInFullScreen() {
-    return ListTile(
+    return SwitchListTile(
       title: Text('launchInFullScreen'.tr),
       subtitle: Text('launchInFullScreenHint'.tr),
-      trailing: Switch(
-        value: PreferenceSetting.launchInFullScreen.value,
-        onChanged: PreferenceSetting.saveLaunchInFullScreen,
-      ),
+      value: PreferenceSetting.launchInFullScreen.value,
+      onChanged: PreferenceSetting.saveLaunchInFullScreen,
     );
   }
 
