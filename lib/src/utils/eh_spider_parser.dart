@@ -1349,8 +1349,7 @@ class EHSpiderParser {
             username: element.querySelector('.c2 > .c3 > a')?.text,
 
             /// https://forums.e-hentai.org/index.php?showuser=7806074
-            userId:
-                int.tryParse(RegExp(r'showuser=(\d+)').firstMatch(element.querySelector('.c2 > .c3 > a:nth-child(3)')!.attributes['href']!)?.group(1) ?? ''),
+            userId: int.tryParse(RegExp(r'showuser=(\d+)').firstMatch(element.querySelector('.c2 > .c3 > a:nth-child(3)')?.attributes['href'] ?? '')?.group(1) ?? ''),
             score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
             scoreDetails: element.querySelector('.c7')?.text.split(',').map((detail) => detail.trim()).toList() ?? [],
             content: element.querySelector('.c6')!,

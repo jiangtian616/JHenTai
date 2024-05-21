@@ -183,15 +183,17 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
         expression: comment.username!,
       ),
     );
-    await localBlockRuleService.upsertBlockRule(
-      LocalBlockRule(
-        groupId: const UuidV1().generate(),
-        target: LocalBlockTargetEnum.comment,
-        attribute: LocalBlockAttributeEnum.userId,
-        pattern: LocalBlockPatternEnum.equal,
-        expression: comment.userId!.toString(),
-      ),
-    );
+    if (comment.userId != null) {
+      await localBlockRuleService.upsertBlockRule(
+        LocalBlockRule(
+          groupId: const UuidV1().generate(),
+          target: LocalBlockTargetEnum.comment,
+          attribute: LocalBlockAttributeEnum.userId,
+          pattern: LocalBlockPatternEnum.equal,
+          expression: comment.userId!.toString(),
+        ),
+      );
+    }
 
     comments = await localBlockRuleService.executeRules(comments);
 
