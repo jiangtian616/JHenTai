@@ -55,7 +55,7 @@ jobs:
     steps:
       # Checkout branch
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
@@ -208,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Make tmp dir
         run: mkdir /tmp/artifacts
       - name: Download all Artifacts
