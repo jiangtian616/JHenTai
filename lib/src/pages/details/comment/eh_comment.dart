@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
@@ -17,6 +16,7 @@ import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
 import 'package:like_button/like_button.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -56,7 +56,7 @@ class EHComment extends StatefulWidget {
 class _EHCommentState extends State<EHComment> {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    Widget child = Card(
       elevation: 2,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -90,6 +90,23 @@ class _EHCommentState extends State<EHComment> {
         ],
       ).paddingOnly(left: 8, right: 8, top: 8, bottom: 6),
     );
+
+    if (widget.inDetailPage && widget.onBlockUser != null) {
+      child = GestureDetector(
+        child: child,
+        onLongPress: widget.onBlockUser == null ? null : () => _handleBlockUser(context),
+        onSecondaryTap: widget.onBlockUser == null ? null : () => _handleBlockUser(context),
+      );
+    }
+
+    return child;
+  }
+
+  Future<void> _handleBlockUser(BuildContext context) async {
+    bool? result = await showDialog(context: context, builder: (_) => EHDialog(title: 'blockUser'.tr + '?'));
+    if (result == true) {
+      widget.onBlockUser?.call();
+    }
   }
 }
 

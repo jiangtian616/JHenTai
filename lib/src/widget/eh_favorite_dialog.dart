@@ -92,18 +92,14 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                           style: TextStyle(fontSize: UIConfig.favoriteDialogTrailingTextSize, color: UIConfig.favoriteDialogCountTextColor(context)),
                         ),
                         onTap: () {
-                          if (inNoteMode) {
-                            setState(() => selectedIndex = (selectedIndex == index) ? null : index);
-                          } else {
-                            backRoute(
-                              result: (
-                                isDelete: index == selectedIndex,
-                                favIndex: index,
-                                note: _controller.text,
-                                remember: remember,
-                              ),
-                            );
-                          }
+                          backRoute(
+                            result: (
+                              isDelete: index == selectedIndex,
+                              favIndex: index,
+                              note: _controller.text,
+                              remember: remember,
+                            ),
+                          );
                         },
                       ),
                     )
@@ -124,9 +120,6 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                     onPressed: () {
                       setState(() {
                         inNoteMode = !inNoteMode;
-                        if (!inNoteMode) {
-                          selectedIndex = widget.selectedIndex;
-                        }
                       });
                     },
                   ),

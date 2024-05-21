@@ -65,6 +65,7 @@ import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/search_util.dart';
 import '../../utils/toast_util.dart';
+import '../../utils/uuid_util.dart';
 import '../../widget/eh_download_dialog.dart';
 import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/eh_gallery_history_dialog.dart';
@@ -962,6 +963,33 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     updateSafely([detailsId]);
     removeCache();
+  }
+
+  Future<void> blockUser(GalleryComment comment) async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        groupId: newUUID(),
+        target: LocalBlockTargetEnum.comment,
+        attribute: LocalBlockAttributeEnum.userName,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: comment.username!,
+      ),
+    );
+    if (comment.userId != null) {
+      await localBlockRuleService.upsertBlockRule(
+        LocalBlockRule(
+          groupId: newUUID(),
+          target: LocalBlockTargetEnum.comment,
+          attribute: LocalBlockAttributeEnum.userId,
+          pattern: LocalBlockPatternEnum.equal,
+          expression: comment.userId!.toString(),
+        ),
+      );
+    }
+
+    state.galleryDetails!.comments = await localBlockRuleService.executeRules(state.galleryDetails!.comments);
+    updateSafely([detailsId]);
+    toast('success'.tr);
   }
 
   void goToReadPage([int? forceIndex]) {

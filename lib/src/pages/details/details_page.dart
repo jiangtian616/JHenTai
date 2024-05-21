@@ -1283,6 +1283,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                               inDetailPage: true,
                               disableButtons: disableButtons,
                               onVoted: (bool isVotingUp, String score) => logic.onCommentVoted(comment, isVotingUp, score),
+                              onBlockUser: () => logic.blockUser(comment),
                             ),
                           )
                           .toList(),
