@@ -19,6 +19,7 @@ import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/utils/uuid_util.dart';
 import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
@@ -41,7 +42,7 @@ import 'details_page_logic.dart';
 import 'details_page_state.dart';
 
 class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
-  final String tag = UniqueKey().toString();
+  final String tag = newUUID();
 
   late final DetailsPageLogic logic;
   late final DetailsPageState state;

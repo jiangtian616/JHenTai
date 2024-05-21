@@ -2,11 +2,11 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
-import 'package:uuid/v1.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
 import '../../../../../utils/snack_util.dart';
 import '../../../../../utils/toast_util.dart';
+import '../../../../../utils/uuid_util.dart';
 import 'configure_blocking_rule_page_state.dart';
 
 enum ConfigureBlockingRulePageMode { add, edit }
@@ -29,7 +29,7 @@ class ConfigureBlockingRulePageLogic extends GetxController {
   void onInit() {
     ConfigureBlockingRulePageArgument argument = Get.arguments;
     if (argument.groupRules == null) {
-      state.groupId = const UuidV1().generate();
+      state.groupId = newUUID();
       state.rules.add(
         LocalBlockRule(
           target: LocalBlockTargetEnum.gallery,

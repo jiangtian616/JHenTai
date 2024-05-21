@@ -81,6 +81,11 @@ class DetailsPageArgument {
   final ({GalleryDetail galleryDetails, String apikey})? detailsPageInfo;
 
   const DetailsPageArgument({required this.galleryUrl, this.gallery, this.detailsPageInfo});
+
+  @override
+  String toString() {
+    return 'DetailsPageArgument{galleryUrl: $galleryUrl, gallery: $gallery, detailsPageInfo: $detailsPageInfo}';
+  }
 }
 
 class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {

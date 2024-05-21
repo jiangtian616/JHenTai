@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/search/desktop/desktop_search_page_state.dart'
 
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../../utils/uuid_util.dart';
 import 'desktop_search_page_tab_logic.dart';
 import 'desktop_search_page_tab_view.dart';
 
@@ -49,7 +50,7 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
 
     state.currentTabIndex = state.tabs.length - 1;
     state.pageController = PageController(initialPage: state.currentTabIndex);
-    state.tabViewKey = UniqueKey();
+    state.tabViewKey = Key(newUUID());
     updateSafely([pageId]);
 
     state.tabController.jumpTo(state.tabController.position.maxScrollExtent);
@@ -78,7 +79,7 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
     if (index == state.currentTabIndex) {
       state.currentTabIndex = min(state.tabs.length - 1, state.currentTabIndex);
       state.pageController = PageController(initialPage: state.currentTabIndex);
-      state.tabViewKey = UniqueKey();
+      state.tabViewKey = Key(newUUID());
       updateSafely([pageId]);
     }
 

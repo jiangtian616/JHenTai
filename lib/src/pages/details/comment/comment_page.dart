@@ -8,12 +8,12 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/comment/eh_comment.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
-import 'package:uuid/v1.dart';
 
 import '../../../mixin/login_required_logic_mixin.dart';
 import '../../../service/local_block_rule_service.dart';
 import '../../../setting/user_setting.dart';
 import '../../../utils/eh_spider_parser.dart';
+import '../../../utils/uuid_util.dart';
 import '../../../widget/eh_comment_dialog.dart';
 
 class CommentPage extends StatefulWidget {
@@ -176,7 +176,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   Future<void> _onBlockUser(GalleryComment comment) async {
     await localBlockRuleService.upsertBlockRule(
       LocalBlockRule(
-        groupId: const UuidV1().generate(),
+        groupId: newUUID(),
         target: LocalBlockTargetEnum.comment,
         attribute: LocalBlockAttributeEnum.userName,
         pattern: LocalBlockPatternEnum.equal,
@@ -186,7 +186,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
     if (comment.userId != null) {
       await localBlockRuleService.upsertBlockRule(
         LocalBlockRule(
-          groupId: const UuidV1().generate(),
+          groupId: newUUID(),
           target: LocalBlockTargetEnum.comment,
           attribute: LocalBlockAttributeEnum.userId,
           pattern: LocalBlockPatternEnum.equal,

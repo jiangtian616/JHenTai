@@ -14,7 +14,6 @@ import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
-import 'package:uuid/v1.dart';
 
 import '../database/database.dart';
 import '../pages/search/mixin/search_page_logic_mixin.dart';
@@ -22,6 +21,7 @@ import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
 import '../utils/locale_util.dart';
 import '../utils/log.dart';
+import '../utils/uuid_util.dart';
 
 class AppUpdateService extends GetxService {
   static const int appVersion = 10;
@@ -204,7 +204,7 @@ class AppUpdateService extends GetxService {
 
       if (oldVersion <= 9) {
         Log.info('Migrate local filtered tags');
-        
+
         Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
         if (map != null) {
           LocalBlockRuleService localBlockRuleService = Get.find();
@@ -212,7 +212,7 @@ class AppUpdateService extends GetxService {
           for (TagData tagData in localTagSets) {
             localBlockRuleService.upsertBlockRule(
               LocalBlockRule(
-                groupId: const UuidV1().generate(),
+                groupId: newUUID(),
                 target: LocalBlockTargetEnum.gallery,
                 attribute: LocalBlockAttributeEnum.tag,
                 pattern: LocalBlockPatternEnum.equal,
@@ -222,7 +222,7 @@ class AppUpdateService extends GetxService {
             if (tagData.translatedNamespace != null && tagData.tagName != null) {
               localBlockRuleService.upsertBlockRule(
                 LocalBlockRule(
-                  groupId: const UuidV1().generate(),
+                  groupId: newUUID(),
                   target: LocalBlockTargetEnum.gallery,
                   attribute: LocalBlockAttributeEnum.tag,
                   pattern: LocalBlockPatternEnum.equal,

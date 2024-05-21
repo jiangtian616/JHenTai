@@ -10,6 +10,7 @@ import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
 import '../../utils/log.dart';
 import '../../utils/snack_util.dart';
+import '../../utils/uuid_util.dart';
 import '../../widget/jump_page_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'old_base_page_state.dart';
@@ -83,7 +84,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
-    state.galleryCollectionKey = UniqueKey();
+    state.galleryCollectionKey = Key(newUUID());
 
     state.refreshState = LoadingState.idle;
     if (state.pageCount == 0) {

@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.d
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/utils/uuid_util.dart';
 
 import '../../base/base_page.dart';
 import '../mixin/search_page_mixin.dart';
@@ -14,7 +15,7 @@ import '../quick_search/quick_search_page.dart';
 
 class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMobileV2State>
     with SearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
-  final String tag = UniqueKey().toString();
+  final String tag = newUUID();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
   SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {

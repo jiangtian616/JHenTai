@@ -23,6 +23,7 @@ import '../../utils/log.dart';
 import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
 import '../../utils/toast_util.dart';
+import '../../utils/uuid_util.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../details/details_page_logic.dart';
 import 'base_page_state.dart';
@@ -123,7 +124,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
-    state.galleryCollectionKey = UniqueKey();
+    state.galleryCollectionKey = Key(newUUID());
 
     state.refreshState = LoadingState.idle;
 
@@ -309,7 +310,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
-    state.galleryCollectionKey = UniqueKey();
+    state.galleryCollectionKey = Key(newUUID());
 
     state.seek = dateTime;
 
