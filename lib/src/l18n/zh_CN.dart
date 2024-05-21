@@ -706,7 +706,7 @@ class zh_CN {
       'userId': '用户id',
       'incompleteInformation': '请补充完整的信息',
       'noBlockingRuleHint': '请至少配置一条规则',
-      'notSameBlockingRuleTargetHint': '所有子规则的屏蔽目标徐需要相同',
+      'notSameBlockingRuleTargetHint': '所有子规则的屏蔽目标需要相同',
       'blockingRuleHelp': '''
     屏蔽目标：在列表页过滤画廊或者在详情页过滤评论，同一规则下所有子规则的屏蔽目标必须相同。
     
