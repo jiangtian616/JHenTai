@@ -92,7 +92,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               ),
               prefixIconConstraints: BoxConstraints(
                 minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: StyleSetting.isInDesktopLayout ? 36 : 52,
+                minWidth: StyleSetting.isInDesktopLayout ? 32: 52,
               ),
               suffixIcon: MouseRegion(
                 cursor: SystemMouseCursors.click,
