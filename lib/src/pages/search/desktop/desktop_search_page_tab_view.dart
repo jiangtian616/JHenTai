@@ -54,7 +54,7 @@ class DesktopSearchPageTabView extends BasePage<DesktopSearchPageTabLogic, Deskt
       margin: const EdgeInsets.only(left: 2, right: 2),
       child: Row(
         children: [
-          Expanded(child: buildSearchField().marginOnly(left: 16)),
+          Expanded(child: buildSearchField().marginOnly(left: 8)),
           ...buildActionButtons(),
         ],
       ),

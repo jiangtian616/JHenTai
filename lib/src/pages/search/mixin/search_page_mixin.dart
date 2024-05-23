@@ -92,7 +92,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               ),
               prefixIconConstraints: BoxConstraints(
                 minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: 52,
+                minWidth: StyleSetting.isInDesktopLayout ? 36 : 52,
               ),
               suffixIcon: MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -100,7 +100,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               ),
               suffixIconConstraints: BoxConstraints(
                 minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: 40,
+                minWidth: StyleSetting.isInDesktopLayout ? 24 : 40,
               ),
             ),
             onTap: () {
