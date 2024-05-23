@@ -92,7 +92,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               ),
               prefixIconConstraints: BoxConstraints(
                 minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: StyleSetting.isInDesktopLayout ? 32: 52,
+                minWidth: StyleSetting.isInDesktopLayout ? 32 : 52,
               ),
               suffixIcon: MouseRegion(
                 cursor: SystemMouseCursors.click,
@@ -276,6 +276,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
                         segments.removeLast();
                         segments.add('${tagData.namespace}:"${tagData.key}\$"');
                         state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
+                        state.searchFieldFocusNode.requestFocus();
                         logic.update([logic.searchFieldId]);
                       },
                     ),
