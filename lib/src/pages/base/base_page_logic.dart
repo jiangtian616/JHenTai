@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -6,6 +7,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -383,6 +385,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
 
     await _translateGalleryTagsIfNeeded(filteredGallerys);
+
+    if (PreferenceSetting.preloadGalleryCover.isTrue) {
+      for (Gallery gallery in gallerys) {
+        getNetworkImageData(gallery.cover.url, useCache: true).then((_) => print(gallery.cover.url));
+      }
+    }
 
     return filteredGallerys;
   }

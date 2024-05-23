@@ -20,6 +20,7 @@ class PreferenceSetting {
   static RxBool simpleDashboardMode = false.obs;
   static RxBool hideBottomBar = false.obs;
   static Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
+  static RxBool preloadGalleryCover = false.obs;
   static RxBool enableSwipeBackGesture = true.obs;
   static RxBool enableLeftMenuDrawerGesture = true.obs;
   static RxBool enableQuickSearchDrawerGesture = true.obs;
@@ -79,6 +80,12 @@ class PreferenceSetting {
   static saveHideBottomBar(bool hideBottomBar) {
     Log.debug('saveHideBottomBar:$hideBottomBar');
     PreferenceSetting.hideBottomBar.value = hideBottomBar;
+    _save();
+  }
+
+  static savePreloadGalleryCover(bool preloadGalleryCover) {
+    Log.debug('savePreloadGalleryCover:$preloadGalleryCover');
+    PreferenceSetting.preloadGalleryCover.value = preloadGalleryCover;
     _save();
   }
 
@@ -177,6 +184,7 @@ class PreferenceSetting {
       'enableTagZHTranslation': enableTagZHTranslation.value,
       'enableTagZHSearchOrderOptimization': enableTagZHSearchOrderOptimization.value,
       'defaultTab': defaultTab.value.index,
+      'preloadGalleryCover': preloadGalleryCover.value,
       'enableSwipeBackGesture': enableSwipeBackGesture.value,
       'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
       'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
@@ -204,6 +212,7 @@ class PreferenceSetting {
     enableTagZHTranslation.value = map['enableTagZHTranslation'] ?? enableTagZHTranslation.value;
     enableTagZHSearchOrderOptimization.value = map['enableTagZHSearchOrderOptimization'] ?? enableTagZHSearchOrderOptimization.value;
     defaultTab.value = TabBarIconNameEnum.values[map['defaultTab'] ?? TabBarIconNameEnum.home.index];
+    preloadGalleryCover.value = map['preloadGalleryCover'] ?? preloadGalleryCover.value;
     enableLeftMenuDrawerGesture.value = map['enableLeftMenuDrawerGesture'] ?? enableLeftMenuDrawerGesture.value;
     enableQuickSearchDrawerGesture.value = map['enableQuickSearchDrawerGesture'] ?? enableQuickSearchDrawerGesture.value;
     drawerGestureEdgeWidth.value = map['drawerGestureEdgeWidth'] ?? drawerGestureEdgeWidth.value;

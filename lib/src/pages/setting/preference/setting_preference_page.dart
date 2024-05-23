@@ -37,6 +37,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (StyleSetting.isInV2Layout) _buildSimpleDashboardMode(),
               if (StyleSetting.isInV2Layout) _buildShowBottomNavigation(),
               if (StyleSetting.isInV2Layout || StyleSetting.actualLayout == LayoutMode.desktop) _buildHideScroll2TopButton(),
+              _buildPreloadGalleryCover(),
               _buildEnableSwipeBackGesture(),
               if (StyleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
               if (StyleSetting.isInV2Layout) _buildQuickSearch(),
@@ -237,6 +238,15 @@ class SettingPreferencePage extends StatelessWidget {
     );
   }
 
+  Widget _buildPreloadGalleryCover() {
+    return SwitchListTile(
+      title: Text('preloadGalleryCover'.tr),
+      subtitle: Text('preloadGalleryCoverHint'.tr),
+      value: PreferenceSetting.preloadGalleryCover.value,
+      onChanged: PreferenceSetting.savePreloadGalleryCover,
+    );
+  }
+  
   Widget _buildEnableSwipeBackGesture() {
     return SwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),

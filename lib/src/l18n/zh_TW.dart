@@ -328,6 +328,8 @@ class zh_TW {
       'hideScroll2TopButton': '隱藏快速回頂按鈕',
       'whenScrollUp': '向上滾動時',
       'whenScrollDown': '向下滾動時',
+      'preloadGalleryCover': '預載畫廊封面',
+      'preloadGalleryCoverHint': '預先加載還未顯示在頁面上的畫廊的封面',
       'enableSwipeBackGesture': '允許通過左滑手勢返回',
       'enableLeftMenuDrawerGesture': '允許通過手勢喚起左側菜單',
       'enableQuickSearchDrawerGesture': '允許通過手勢喚起快捷搜尋',

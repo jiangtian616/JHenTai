@@ -329,6 +329,8 @@ class ko_KR {
       'hideScroll2TopButton': 'Hide Scroll to Top Button',
       'whenScrollUp': 'When Scroll Up',
       'whenScrollDown': 'When Scroll Down',
+      'preloadGalleryCover': 'Preload gallery cover',
+      'preloadGalleryCoverHint': 'Preload the covers of galleries that are not yet displayed on the page',
       'enableSwipeBackGesture': '스와이프 제스처로 뒤로 가기 활성화',
       'enableLeftMenuDrawerGesture': '좌측 서랍 메뉴 제스처로 열기 활성화',
       'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화',

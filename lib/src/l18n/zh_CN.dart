@@ -329,6 +329,8 @@ class zh_CN {
       'hideScroll2TopButton': '隐藏快速回顶按钮',
       'whenScrollUp': '向上滚动时',
       'whenScrollDown': '向下滚动时',
+      'preloadGalleryCover': '预载画廊封面',
+      'preloadGalleryCoverHint': '预先加载还未显示在页面上的画廊的封面',
       'enableSwipeBackGesture': '允许通过左滑手势返回',
       'enableLeftMenuDrawerGesture': '允许通过手势唤起左侧菜单',
       'enableQuickSearchDrawerGesture': '允许通过手势唤起快速搜索',
