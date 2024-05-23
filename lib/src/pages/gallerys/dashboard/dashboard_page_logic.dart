@@ -8,6 +8,7 @@ import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import '../../../consts/eh_consts.dart';
 import '../../../exception/eh_site_exception.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
@@ -77,10 +78,7 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
-    state.ranklistGallerys = gallerysAndPageInfo[0];
-
-    state.ranklistGallerys = await filterByBlockingRules(state.ranklistGallerys);
+    state.ranklistGallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0], cleanDuplicate: false);
 
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
@@ -119,11 +117,7 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    await translateGalleryTagsIfNeeded(gallerysPage.gallerys);
-
-    state.popularGallerys = gallerysPage.gallerys;
-
-    state.popularGallerys = await filterByBlockingRules(state.popularGallerys);
+    state.popularGallerys = await super.postHandleNewGallerys(gallerysPage.gallerys, cleanDuplicate: false);
 
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);

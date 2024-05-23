@@ -81,13 +81,9 @@ class FavoritePageLogic extends BasePageLogic {
       return;
     }
 
-    cleanDuplicateGallery(galleryPage.gallerys);
+    List<Gallery> gallerys = await super.postHandleNewGallerys(galleryPage.gallerys);
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
-
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys.addAll(filteredGallerys);
+    state.gallerys.addAll(gallerys);
     state.totalCount = galleryPage.totalCount;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;

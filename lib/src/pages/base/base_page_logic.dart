@@ -115,11 +115,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
+    List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys, cleanDuplicate: false);
 
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys = filteredGallerys;
+    state.gallerys = gallerys;
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
@@ -197,13 +195,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    cleanDuplicateGallery(galleryPage.gallerys);
+    List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys);
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
-
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys.insertAll(0, filteredGallerys);
+    state.gallerys.insertAll(0, gallerys);
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
@@ -244,13 +238,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    cleanDuplicateGallery(galleryPage.gallerys);
+    List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys);
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
-
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys.addAll(filteredGallerys);
+    state.gallerys.addAll(gallerys);
     state.totalCount = galleryPage.totalCount;
     state.nextGid = galleryPage.nextGid;
     state.favoriteSortOrder = galleryPage.favoriteSortOrder;
@@ -301,11 +291,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(galleryPage.gallerys);
+    List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys);
 
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys = filteredGallerys;
+    state.gallerys = gallerys;
     state.totalCount = galleryPage.totalCount;
     state.prevGid = galleryPage.prevGid;
     state.nextGid = galleryPage.nextGid;
@@ -387,18 +375,24 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     storageService.write('searchConfig: $searchConfigKey', searchConfig.toJson());
   }
 
-  Future<void> translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
-    await Future.wait(gallerys.map((gallery) {
-      return tagTranslationService.translateTagsIfNeeded(gallery.tags);
-    }).toList());
+  Future<List<Gallery>> postHandleNewGallerys(List<Gallery> gallerys, {bool cleanDuplicate = true}) async {
+    if (cleanDuplicate) {
+      _cleanDuplicateGallery(gallerys);
+    }
+
+    List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
+
+    await _translateGalleryTagsIfNeeded(filteredGallerys);
+
+    return filteredGallerys;
   }
 
   /// deal with the first and last page
-  void cleanDuplicateGallery(List<Gallery> newGallerys) {
+  void _cleanDuplicateGallery(List<Gallery> newGallerys) {
     newGallerys.removeWhere((newGallery) => state.gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.galleryUrl) != null);
   }
 
-  Future<List<Gallery>> filterByBlockingRules(List<Gallery> newGallerys) async {
+  Future<List<Gallery>> _filterByBlockingRules(List<Gallery> newGallerys) async {
     if (newGallerys.isEmpty) {
       return newGallerys;
     }
@@ -410,5 +404,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     } else {
       return newGallerys.sublist(0, 1).map((g) => g..blockedByLocalRules = true).toList();
     }
+  }
+
+  Future<void> _translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {
+    await Future.wait(gallerys.map((gallery) {
+      return tagTranslationService.translateTagsIfNeeded(gallery.tags);
+    }).toList());
   }
 }

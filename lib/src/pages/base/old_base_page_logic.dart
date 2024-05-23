@@ -76,11 +76,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
+    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0], cleanDuplicate: false);
 
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys = filteredGallerys;
+    state.gallerys = gallerys;
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
@@ -125,13 +123,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
+    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0]);
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
-
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys.insertAll(0, filteredGallerys);
+    state.gallerys.insertAll(0, gallerys);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
 
@@ -168,13 +162,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    cleanDuplicateGallery(gallerysAndPageInfo[0] as List<Gallery>);
+    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0]);
 
-    List<Gallery> filteredGallerys = await filterByBlockingRules(gallerysAndPageInfo[0]);
-
-    await translateGalleryTagsIfNeeded(filteredGallerys);
-
-    state.gallerys.addAll(filteredGallerys);
+    state.gallerys.addAll(gallerys);
     state.pageCount = gallerysAndPageInfo[1];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
 
@@ -216,9 +206,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    await translateGalleryTagsIfNeeded(gallerysAndPageInfo[0]);
+    List<Gallery> gallerys = await postHandleNewGallerys(gallerysAndPageInfo[0]);
 
-    state.gallerys.addAll(gallerysAndPageInfo[0]);
+    state.gallerys.addAll(gallerys);
     state.pageCount = gallerysAndPageInfo[1];
     state.prevPageIndexToLoad = gallerysAndPageInfo[2];
     state.nextPageIndexToLoad = gallerysAndPageInfo[3];
