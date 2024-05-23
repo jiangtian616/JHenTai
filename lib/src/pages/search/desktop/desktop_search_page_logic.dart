@@ -46,7 +46,7 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
   void addNewTab({String? keyword, SearchConfig? searchConfig, required bool loadImmediately}) {
     DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic();
     state.tabLogics.add(newTabLogic);
-    state.tabs.add(DesktopSearchPageTabView(key: ValueKey(newTabLogic.hashCode.toString()), logic: newTabLogic));
+    state.tabs.add(DesktopSearchPageTabView(key: ValueKey(newUUID()), logic: newTabLogic));
 
     state.currentTabIndex = state.tabs.length - 1;
     state.pageController = PageController(initialPage: state.currentTabIndex);
