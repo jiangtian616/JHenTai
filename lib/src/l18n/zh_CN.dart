@@ -172,6 +172,7 @@ class zh_CN {
       'addTagSuccess': '添加标签成功',
       'addTagFailed': '添加标签失败',
       'parentGallery': '父画廊',
+      'blockUploaderLocally': '本地屏蔽上传者',
 
       /// detail dialog
       'galleryUrl': '画廊链接',

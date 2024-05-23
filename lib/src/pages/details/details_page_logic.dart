@@ -180,6 +180,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
+  String get uploader => state.galleryDetails?.uploader ?? state.gallery?.uploader ?? state.galleryMetadata?.uploader ?? '';
+
   Future<void> getDetails({bool refreshPageImmediately = true, bool useCacheIfAvailable = true}) async {
     if (state.loadingState == LoadingState.loading) {
       return;
@@ -989,6 +991,19 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     state.galleryDetails!.comments = await localBlockRuleService.executeRules(state.galleryDetails!.comments);
     updateSafely([detailsId]);
+    toast('success'.tr);
+  }
+
+  Future<void> blockUploader(String uploader) async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        groupId: newUUID(),
+        target: LocalBlockTargetEnum.gallery,
+        attribute: LocalBlockAttributeEnum.uploader,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: uploader,
+      ),
+    );
     toast('success'.tr);
   }
 

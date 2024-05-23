@@ -20,6 +20,7 @@ import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
+import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
@@ -37,6 +38,7 @@ import '../../setting/preference_setting.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
+import '../../utils/string_uril.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import 'details_page_logic.dart';
 import 'details_page_state.dart';
@@ -388,10 +390,37 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        return SelectableText(
-          state.galleryDetails?.uploader ?? state.gallery?.uploader ?? state.galleryMetadata?.uploader ?? '',
-          style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor(context)),
-          onTap: logic.searchUploader,
+        return GestureDetector(
+          onLongPress: isEmptyOrNull(logic.uploader)
+              ? null
+              : () async {
+                  bool? result = await showDialog(context: context, builder: (_) => EHDialog(title: 'blockUploaderLocally'.tr + '?'));
+                  if (result == true) {
+                    logic.blockUploader(logic.uploader);
+                  }
+                },
+          child: SelectableText(
+            logic.uploader,
+            style: TextStyle(fontSize: UIConfig.detailsPageUploaderTextSize, color: UIConfig.detailsPageUploaderTextColor(context)),
+            onTap: logic.searchUploader,
+            contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
+              AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.editableText(
+                editableTextState: editableTextState,
+              );
+
+              toolbar.buttonItems?.add(
+                ContextMenuButtonItem(
+                  label: 'blockUploaderLocally'.tr,
+                  onPressed: () {
+                    ContextMenuController.removeAny();
+                    logic.blockUploader(logic.uploader);
+                  },
+                ),
+              );
+
+              return toolbar;
+            },
+          ),
         );
       },
     );

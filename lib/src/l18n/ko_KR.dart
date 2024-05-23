@@ -172,6 +172,7 @@ class ko_KR {
       'addTagSuccess': 'Add Tag Success',
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
+      'blockUploaderLocally': 'Block user locally',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',

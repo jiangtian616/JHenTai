@@ -171,6 +171,7 @@ class zh_TW {
       'addTagSuccess': '添加標簽成功',
       'addTagFailed': '添加標簽失敗',
       'parentGallery': '父畫廊',
+      'blockUploaderLocally': '本地屏蔽上傳者',
 
       /// detail dialog
       'galleryUrl': '畫廊鏈接',
