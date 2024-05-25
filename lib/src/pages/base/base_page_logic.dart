@@ -388,7 +388,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     if (PreferenceSetting.preloadGalleryCover.isTrue) {
       for (Gallery gallery in gallerys) {
-        getNetworkImageData(gallery.cover.url, useCache: true).then((_) => print(gallery.cover.url));
+        getNetworkImageData(gallery.cover.url, useCache: true);
       }
     }
 

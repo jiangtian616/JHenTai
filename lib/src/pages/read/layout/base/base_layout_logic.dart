@@ -309,7 +309,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (GetPlatform.isDesktop) {
       toast('saveSuccess'.tr);
     } else {
-      _saveImage2Album(File(downloadPath).readAsBytesSync(), fileName).then((_) {
+      _saveFile2Album(downloadPath, fileName).then((_) {
         toast('saveSuccess'.tr);
         File(downloadPath).delete();
       });
@@ -317,11 +317,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   void saveLocalImage(int index) {
-    File image = File(
-      GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-        galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
-      ),
+    String filePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+      galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
     );
+    File image = File(filePath);
 
     String fileName = basename(image.path);
     if (readPageState.readPageInfo.gid != null && readPageState.readPageInfo.token != null) {
@@ -331,7 +330,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (GetPlatform.isDesktop) {
       image.copy(join(DownloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
     } else {
-      image.readAsBytes().then((bytes) => _saveImage2Album(bytes, fileName)).then((_) => toast('success'.tr));
+      _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
     }
   }
 
@@ -361,6 +360,21 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     SaveResult saveResult = await SaverGallery.saveImage(
       imageData,
+      name: fileName,
+      androidRelativePath: "Pictures/JHenTai",
+      androidExistNotSave: false,
+    );
+
+    Log.info('Save image to album: $saveResult');
+
+    return saveResult.isSuccess;
+  }
+
+  Future<bool> _saveFile2Album(String filePath, String fileName) async {
+    await requestAlbumPermission();
+
+    SaveResult saveResult = await SaverGallery.saveFile(
+      file: filePath,
       name: fileName,
       androidRelativePath: "Pictures/JHenTai",
       androidExistNotSave: false,
