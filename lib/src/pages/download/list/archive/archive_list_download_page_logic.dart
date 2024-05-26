@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../../../database/database.dart';
@@ -45,7 +46,7 @@ class ArchiveListDownloadPageLogic extends GetxController
       state.displayGroups.add(groupName);
     }
 
-    storageService.write('displayArchiveGroups', state.displayGroups.toList());
+    storageService.write(StorageEnum.displayArchiveGroups.name, state.displayGroups.toList());
     state.groupedListController.toggleGroup(groupName);
   }
 

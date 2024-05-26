@@ -956,7 +956,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return LoadingStateIndicator(
           loadingState: state.favoriteState,
-          idleWidget: IconTextButton(
+          idleWidgetBuilder: () => IconTextButton(
             width: UIConfig.detailsPageActionExtent,
             icon: Icon(
               favoriteTagIndex != null ? Icons.favorite : Icons.favorite_border,
@@ -997,7 +997,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return LoadingStateIndicator(
           loadingState: state.ratingState,
-          idleWidget: IconTextButton(
+          idleWidgetBuilder: () => IconTextButton(
             width: UIConfig.detailsPageActionExtent,
             icon: Icon(
               hasRated ? Icons.star : Icons.star_border,
@@ -1179,7 +1179,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         init: logic,
         builder: (_) => LoadingStateIndicator(
           indicatorRadius: 16,
-          idleWidget: const SizedBox(),
+          idleWidgetBuilder: () => const SizedBox(),
           loadingState: state.loadingState,
           errorTapCallback: () => logic.getDetails(useCacheIfAvailable: false),
         ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
@@ -66,8 +67,8 @@ class AppUpdateService extends GetxService {
     SearchConfig searchConfig = SearchConfig()
       ..disableAllCategories()
       ..includeNonH = true;
-    storageService.write('searchConfig: DashboardPageLogic', searchConfig.toJson());
-    storageService.write('searchConfig: GallerysPageLogic', searchConfig.toJson());
+    storageService.write('${StorageEnum.searchConfig.key}: DashboardPageLogic', searchConfig.toJson());
+    storageService.write('${StorageEnum.searchConfig.key}: GallerysPageLogic', searchConfig.toJson());
 
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
@@ -169,7 +170,7 @@ class AppUpdateService extends GetxService {
         Map<String, dynamic>? map =
             storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
         if (map != null) {
-          storageService.write('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}', map);
+          storageService.write('${StorageEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
       }
 

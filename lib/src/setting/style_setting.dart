@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../model/jh_layout.dart';
@@ -140,7 +141,7 @@ class StyleSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write('styleSetting', _toMap());
+    await Get.find<StorageService>().write(StorageEnum.styleSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

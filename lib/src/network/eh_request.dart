@@ -53,7 +53,7 @@ class EHRequest {
 
     await _initProxy();
 
-    _initCookies();
+    _initCookieManager();
 
     _initCertificateForAndroidWithOldVersion();
 
@@ -93,11 +93,11 @@ class EHRequest {
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
         return NetworkSetting.allIPs.contains(host);
       },
-      findProxy: await findProxySetting(),
+      findProxy: await findProxySettingFunc(() => systemProxyAddress),
     );
   }
 
-  static void _initCookies() {
+  static void _initCookieManager() {
     _cookieManager = EHCookieManager(Get.find<StorageService>());
     _dio.interceptors.add(_cookieManager);
   }
@@ -207,33 +207,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _cacheManager.removeAllCache();
   }
 
-  static Future<String Function(Uri)> findProxySetting() async {
-    String configProxyAddress() {
-      String configAddress;
-      if (isEmptyOrNull(NetworkSetting.proxyUsername.value?.trim()) && isEmptyOrNull(NetworkSetting.proxyPassword.value?.trim())) {
-        configAddress = NetworkSetting.proxyAddress.value;
-      } else {
-        configAddress = '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
-      }
-      return configAddress;
-    }
-
-    return (_) {
-      switch (NetworkSetting.proxyType.value) {
-        case JProxyType.system:
-          return isEmptyOrNull(systemProxyAddress) ? 'DIRECT' : 'PROXY $systemProxyAddress; DIRECT';
-        case JProxyType.http:
-          return 'PROXY ${configProxyAddress()}; DIRECT';
-        case JProxyType.socks5:
-          return 'SOCKS5 ${configProxyAddress()}; DIRECT';
-        case JProxyType.socks4:
-          return 'SOCKS4 ${configProxyAddress()}; DIRECT';
-        case JProxyType.direct:
-          return 'DIRECT';
-      }
-    };
-  }
-
   static ProxyConfig? currentProxyConfig() {
     switch (NetworkSetting.proxyType.value) {
       case JProxyType.system:
@@ -281,7 +254,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
   }
 
-  static Future<T> requestLogin<T>(String userName, String passWord, EHHtmlParser<T> parser) async {
+  static Future<T> requestLogin<T>(String userName, String passWord, HtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EForums,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -311,12 +284,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
   }
 
-  static Future<T> requestHomePage<T>({EHHtmlParser<T>? parser}) async {
+  static Future<T> requestHomePage<T>({HtmlParser<T>? parser}) async {
     Response response = await _getWithErrorHandler(EHConsts.EHome);
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestForum<T>(int ipbMemberId, EHHtmlParser<T> parser) async {
+  static Future<T> requestForum<T>(int ipbMemberId, HtmlParser<T> parser) async {
     Response response = await _getWithErrorHandler(
       EHConsts.EForums,
       queryParameters: {
@@ -333,7 +306,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     String? nextGid,
     DateTime? seek,
     SearchConfig? searchConfig,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
       url ?? searchConfig!.toPath(),
@@ -352,7 +325,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     int thumbnailsPageIndex = 0,
     bool useCacheIfAvailable = true,
     CancelToken? cancelToken,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
       galleryUrl,
@@ -372,7 +345,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required int gid,
     required String token,
     bool useCacheIfAvailable = true,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EHApi,
@@ -388,7 +361,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestRanklistPage<T>({required RanklistType ranklistType, required int pageNo, required EHHtmlParser<T> parser}) async {
+  static Future<T> requestRanklistPage<T>({required RanklistType ranklistType, required int pageNo, required HtmlParser<T> parser}) async {
     int tl;
 
     switch (ranklistType) {
@@ -412,7 +385,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating, EHHtmlParser<T> parser) async {
+  static Future<T> requestSubmitRating<T>(int gid, String token, int apiuid, String apikey, int rating, HtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
@@ -427,7 +400,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestPopupPage<T>(int gid, String token, String act, EHHtmlParser<T> parser) async {
+  static Future<T> requestPopupPage<T>(int gid, String token, String act, HtmlParser<T> parser) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _getWithErrorHandler(
       EHConsts.EPopup,
@@ -440,13 +413,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestFavoritePage<T>(EHHtmlParser<T> parser) async {
+  static Future<T> requestFavoritePage<T>(HtmlParser<T> parser) async {
     Response response = await _getWithErrorHandler(EHConsts.EFavorite);
 
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestChangeFavoriteSortOrder<T>(FavoriteSortOrder sortOrder, {EHHtmlParser<T>? parser}) async {
+  static Future<T> requestChangeFavoriteSortOrder<T>(FavoriteSortOrder sortOrder, {HtmlParser<T>? parser}) async {
     Response response = await _getWithErrorHandler(
       EHConsts.EFavorite,
       queryParameters: {
@@ -458,7 +431,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   /// favcat: the favorite tag index
-  static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, String note, {EHHtmlParser<T>? parser}) async {
+  static Future<T> requestAddFavorite<T>(int gid, String token, int favcat, String note, {HtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _postWithErrorHandler(
       EHConsts.EPopup,
@@ -478,7 +451,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestRemoveFavorite<T>(int gid, String token, {EHHtmlParser<T>? parser}) async {
+  static Future<T> requestRemoveFavorite<T>(int gid, String token, {HtmlParser<T>? parser}) async {
     /// eg: ?gid=2165080&t=725f6a7a58&act=addfav
     Response response = await _postWithErrorHandler(
       EHConsts.EPopup,
@@ -503,7 +476,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     String? reloadKey,
     CancelToken? cancelToken,
     bool useCacheIfAvailable = true,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
       href,
@@ -516,7 +489,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestTorrentPage<T>(int gid, String token, EHHtmlParser<T> parser) async {
+  static Future<T> requestTorrentPage<T>(int gid, String token, HtmlParser<T> parser) async {
     Response response = await _getWithErrorHandler(
       EHConsts.ETorrent,
       queryParameters: {
@@ -528,12 +501,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestSettingPage<T>(EHHtmlParser<T> parser) async {
+  static Future<T> requestSettingPage<T>(HtmlParser<T> parser) async {
     Response response = await _getWithErrorHandler(EHConsts.EUconfig);
     return _parseResponse(response, parser);
   }
 
-  static Future<T> createProfile<T>({EHHtmlParser<T>? parser}) async {
+  static Future<T> createProfile<T>({HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EUconfig,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -546,7 +519,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required EHHtmlParser<T> parser}) async {
+  static Future<T> requestMyTagsPage<T>({int tagSetNo = 1, required HtmlParser<T> parser}) async {
     Response response = await _getWithErrorHandler(
       EHConsts.EMyTags,
       queryParameters: {'tagset': tagSetNo},
@@ -554,7 +527,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestStatPage<T>({required int gid, required String token, required EHHtmlParser<T> parser}) async {
+  static Future<T> requestStatPage<T>({required int gid, required String token, required HtmlParser<T> parser}) async {
     Response response = await _getWithErrorHandler(
       '${EHConsts.EStat}?gid=$gid&t=$token',
       options: CacheOptions.cacheOptions.toOptions(),
@@ -569,7 +542,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required bool watch,
     required bool hidden,
     int tagSetNo = 1,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Map<String, dynamic> data = {
       'usertag_action': "add",
@@ -605,7 +578,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestDeleteWatchedTag<T>({required int watchedTagId, int tagSetNo = 1, EHHtmlParser<T>? parser}) async {
+  static Future<T> requestDeleteWatchedTag<T>({required int watchedTagId, int tagSetNo = 1, HtmlParser<T>? parser}) async {
     Response response;
     try {
       response = await _postWithErrorHandler(
@@ -635,7 +608,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required int tagSetNo,
     required bool enable,
     required String? color,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Response response;
     try {
@@ -668,7 +641,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required int tagWeight,
     required bool watch,
     required bool hidden,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EHApi,
@@ -697,7 +670,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     int? receiveTimeout,
     String? range,
     bool deleteOnError = true,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Response response = await _dio.download(
       url,
@@ -719,7 +692,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return parser(response.headers, response.data);
   }
 
-  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String tag, bool isVotingUp, {EHHtmlParser<T>? parser}) async {
+  static Future<T> voteTag<T>(int gid, String token, int apiuid, String apikey, String tag, bool isVotingUp, {HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
@@ -735,7 +708,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp, {EHHtmlParser<T>? parser}) async {
+  static Future<T> voteComment<T>(int gid, String token, int apiuid, String apikey, int commentId, bool isVotingUp, {HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
@@ -751,7 +724,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestTagSuggestion<T>(String keyword, EHHtmlParser<T> parser) async {
+  static Future<T> requestTagSuggestion<T>(String keyword, HtmlParser<T> parser) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EApi,
       data: {
@@ -765,7 +738,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestSendComment<T>({
     required String galleryUrl,
     required String content,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _postWithErrorHandler(
       galleryUrl,
@@ -781,7 +754,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required String galleryUrl,
     required String content,
     required int commentId,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     Response response = await _postWithErrorHandler(
       galleryUrl,
@@ -797,7 +770,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestLookup<T>({
     required String imagePath,
     required String imageName,
-    required EHHtmlParser<T> parser,
+    required HtmlParser<T> parser,
   }) async {
     try {
       await _postWithErrorHandler(
@@ -828,7 +801,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required String url,
     required bool isOriginal,
     CancelToken? cancelToken,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Response response = await _postWithErrorHandler(
       url,
@@ -842,7 +815,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestCancelArchive<T>({required String url, CancelToken? cancelToken, EHHtmlParser<T>? parser}) async {
+  static Future<T> requestCancelArchive<T>({required String url, CancelToken? cancelToken, HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       url,
       cancelToken: cancelToken,
@@ -855,7 +828,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestHHDownload<T>({
     required String url,
     required String resolution,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
     Response response = await _postWithErrorHandler(
       url,
@@ -865,13 +838,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestExchangePage<T>({EHHtmlParser<T>? parser}) async {
+  static Future<T> requestExchangePage<T>({HtmlParser<T>? parser}) async {
     Response response = await _getWithErrorHandler(EHConsts.EExchange);
 
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestResetImageLimit<T>({EHHtmlParser<T>? parser}) async {
+  static Future<T> requestResetImageLimit<T>({HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EHome,
       data: FormData.fromMap({
@@ -884,11 +857,36 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<T> get<T>({
     required String url,
+    Map<String, dynamic>? queryParameters,
     CancelToken? cancelToken,
     Options? options,
-    EHHtmlParser<T>? parser,
+    HtmlParser<T>? parser,
   }) async {
-    Response response = await _getWithErrorHandler(url, cancelToken: cancelToken, options: options);
+    Response response = await _getWithErrorHandler(
+      url,
+      cancelToken: cancelToken,
+      queryParameters: queryParameters,
+      options: options,
+    );
+
+    return _parseResponse(response, parser);
+  }
+
+  static Future<T> post<T>({
+    required String url,
+    data,
+    Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken,
+    Options? options,
+    HtmlParser<T>? parser,
+  }) async {
+    Response response = await _postWithErrorHandler(
+      url,
+      data: data,
+      cancelToken: cancelToken,
+      queryParameters: queryParameters,
+      options: options,
+    );
 
     return _parseResponse(response, parser);
   }
@@ -901,7 +899,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     );
   }
 
-  static Future<T> _parseResponse<T>(Response response, EHHtmlParser<T>? parser) async {
+  static Future<T> _parseResponse<T>(Response response, HtmlParser<T>? parser) async {
     if (parser == null) {
       return response as T;
     }
@@ -930,7 +928,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     try {
-      emitEHExceptionIfFailed(response);
+      _emitEHExceptionIfFailed(response);
     } on EHSiteException catch (_) {
       removeCacheByUrl(response.requestOptions.uri.toString());
       rethrow;
@@ -963,7 +961,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       throw _convertExceptionIfGalleryDeleted(e);
     }
 
-    emitEHExceptionIfFailed(response);
+    _emitEHExceptionIfFailed(response);
 
     return response;
   }
@@ -983,7 +981,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return e;
   }
 
-  static void emitEHExceptionIfFailed(Response response) {
+  static void _emitEHExceptionIfFailed(Response response) {
     if (!NetworkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
       return;
     }

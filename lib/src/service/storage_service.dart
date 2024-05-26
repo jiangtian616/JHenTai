@@ -41,6 +41,11 @@ class StorageService extends GetxService {
     _storage.erase();
   }
 
+  Map<String, dynamic>? getData() {
+    Map<String, dynamic>? datas = _storage.listenable.value;
+    return datas == null ? null : Map.of(datas);
+  }
+
   static void _migrateOldConfigFile() {
     try {
       File oldConfigFile = File(join(PathSetting.getVisibleDir().path, '.GetStorage.gs'));

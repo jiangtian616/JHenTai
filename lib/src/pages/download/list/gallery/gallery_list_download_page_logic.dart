@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_logic_mixin.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
@@ -48,7 +49,7 @@ class GalleryListDownloadPageLogic extends GetxController
       state.displayGroups.add(groupName);
     }
 
-    storageService.write('displayGalleryGroups', state.displayGroups.toList());
+    storageService.write(StorageEnum.displayGalleryGroups.key, state.displayGroups.toList());
     state.groupedListController.toggleGroup(groupName);
   }
 
@@ -74,7 +75,7 @@ class GalleryListDownloadPageLogic extends GetxController
         return;
       }
     }
-    
+
     state.groupedListController.removeElement(gallery).then((_) {
       state.selectedGids.remove(gallery.gid);
       downloadService.deleteGallery(gallery, deleteImages: deleteImages);

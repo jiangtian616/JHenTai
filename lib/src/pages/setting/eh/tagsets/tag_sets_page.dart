@@ -47,7 +47,7 @@ class TagSetsPage extends StatelessWidget {
       id: TagSetsLogic.tagSetId,
       builder: (_) => LoadingStateIndicator(
         loadingState: state.loadingState,
-        idleWidget: const SizedBox(),
+        idleWidgetBuilder: () => const SizedBox(),
         loadingWidget: const SizedBox(),
         errorWidgetSameWithIdle: true,
         successWidgetBuilder: () => IconButton(
@@ -119,7 +119,7 @@ class TagSetsPage extends StatelessWidget {
                   id: '${TagSetsLogic.tagId}::${state.tags[index].tagId}',
                   builder: (_) => LoadingStateIndicator(
                     loadingState: state.updateTagState,
-                    idleWidget: FadeIn(
+                    idleWidgetBuilder: () => FadeIn(
                       child: _Tag(
                         tag: state.tags[index],
                         tagSetBackgroundColor: state.currentTagSetBackgroundColor,

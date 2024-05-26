@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_image_page_url.dart';
@@ -311,7 +312,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
 
   void toggleEnableSearchHistoryTranslation() {
     state.enableSearchHistoryTranslation = !state.enableSearchHistoryTranslation;
-    storageService.write('enableSearchHistoryTranslation', state.enableSearchHistoryTranslation);
+    storageService.write(StorageEnum.enableSearchHistoryTranslation.key, state.enableSearchHistoryTranslation);
     update([suggestionBodyId]);
   }
 }

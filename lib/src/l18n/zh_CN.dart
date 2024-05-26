@@ -224,6 +224,7 @@ class zh_CN {
       'performance': '性能',
       'mouseWheel': '鼠标滚轮',
       'advanced': '高级',
+      'cloud': '云',
       'about': '关于',
       'security': '安全',
       'accountSetting': '账户设置',
@@ -696,6 +697,22 @@ favnote：匹配收藏备注
       'setPasswordHint': '请输入您的密码',
       'confirmPasswordHint': '请再次输入您的密码',
       'passwordNotMatchHint': '密码不匹配，请重试',
+
+      /// cloud setting page
+      'serverCondition': '服务器状态',
+      'configSync': '配置同步',
+      'configSyncHint': '将您的配置数据存储至云(最多50条)',
+      'upload2cloud': '上传至云',
+      'upload2cloudHint': '上传您当前的本地配置',
+      'tap2upload': '点击上传',
+      'copyIdentificationCodeSuccess': '上传配置成功，已自动复制您的配置标识码',
+      'copyShareCode': '复制分享码',
+      'import': '导入',
+      'save2Local': '保存至本地',
+      'settings': '设置信息(部分)',
+      'blockRules': '屏蔽规则',
+      'histories': '画廊历史',
+      'needRestartApp': '需要重启应用',
 
       /// block rule page
       'configureBlockRuleFailed': '设置屏蔽规则失败',

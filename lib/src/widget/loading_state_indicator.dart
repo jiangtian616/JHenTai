@@ -20,7 +20,7 @@ enum LoadingState {
 
 typedef ErrorTapCallback = void Function();
 typedef NoDataTapCallback = void Function();
-typedef SuccessWidgetBuilder = Widget Function();
+typedef WidgetBuilder = Widget Function();
 
 /// A widget that change itself when [loadingState] changes
 class LoadingStateIndicator extends StatelessWidget {
@@ -32,12 +32,12 @@ class LoadingStateIndicator extends StatelessWidget {
   final bool useCupertinoIndicator;
   final double indicatorRadius;
   final Color? indicatorColor;
-  final Widget? idleWidget;
+  final WidgetBuilder? idleWidgetBuilder;
   final Widget? loadingWidget;
   final Widget? noMoreWidget;
   final Widget? noDataWidget;
-  final SuccessWidgetBuilder? successWidgetBuilder;
-  final Widget? errorWidget;
+  final WidgetBuilder? successWidgetBuilder;
+  final WidgetBuilder? errorWidgetBuilder;
   final bool errorWidgetSameWithIdle;
   final bool successWidgetSameWithIdle;
 
@@ -51,12 +51,12 @@ class LoadingStateIndicator extends StatelessWidget {
     this.useCupertinoIndicator = false,
     this.indicatorRadius = 12,
     this.indicatorColor,
-    this.idleWidget,
+    this.idleWidgetBuilder,
     this.loadingWidget,
     this.noMoreWidget,
     this.noDataWidget,
     this.successWidgetBuilder,
-    this.errorWidget,
+    this.errorWidgetBuilder,
     this.errorWidgetSameWithIdle = false,
     this.successWidgetSameWithIdle = false,
   }) : super(key: key);
@@ -69,38 +69,30 @@ class LoadingStateIndicator extends StatelessWidget {
       case LoadingState.loading:
         child = loadingWidget ??
             (useCupertinoIndicator
-                ? CupertinoActivityIndicator(
-                    radius: indicatorRadius, color: indicatorColor)
+                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
                 : Center(child: UIConfig.loadingAnimation(context)));
         break;
       case LoadingState.error:
-        child = errorWidget ??
+        child = errorWidgetBuilder?.call() ??
             (errorWidgetSameWithIdle
-                ? idleWidget!
+                ? idleWidgetBuilder!.call()
                 : GestureDetector(
                     onTap: errorTapCallback,
-                    child: Icon(FontAwesomeIcons.redoAlt,
-                        size: indicatorRadius * 2,
-                        color:
-                            UIConfig.loadingStateIndicatorButtonColor(context)),
+                    child: Icon(FontAwesomeIcons.redoAlt, size: indicatorRadius * 2, color: UIConfig.loadingStateIndicatorButtonColor(context)),
                   ));
         break;
       case LoadingState.idle:
-        child = idleWidget ??
+        child = idleWidgetBuilder?.call() ??
             (useCupertinoIndicator
-                ? CupertinoActivityIndicator(
-                    radius: indicatorRadius, color: indicatorColor)
+                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
                 : Center(child: UIConfig.loadingAnimation(context)));
         break;
       case LoadingState.noMore:
-        child = noMoreWidget ??
-            Text('noMoreData'.tr,
-                style: TextStyle(
-                    color: UIConfig.loadingStateIndicatorButtonColor(context)));
+        child = noMoreWidget ?? Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context)));
         break;
       case LoadingState.success:
         if (successWidgetSameWithIdle == true) {
-          return idleWidget!;
+          return idleWidgetBuilder!.call();
         }
         if (successWidgetBuilder != null) {
           return successWidgetBuilder!();
@@ -110,11 +102,7 @@ class LoadingStateIndicator extends StatelessWidget {
       case LoadingState.noData:
         child = GestureDetector(
           onTap: noDataTapCallback,
-          child: noDataWidget ??
-              Text('noData'.tr,
-                  style: TextStyle(
-                      color:
-                          UIConfig.loadingStateIndicatorButtonColor(context))),
+          child: noDataWidget ?? Text('noData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context))),
         );
         break;
     }

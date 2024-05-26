@@ -16,7 +16,7 @@ class HistoryService extends GetxController {
   }
 
   @override
-  onInit() async {
+  Future<void> onInit() async {
     Log.debug('init HistoryService success');
 
     super.onInit();
@@ -32,6 +32,11 @@ class HistoryService extends GetxController {
     return historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
   }
 
+  Future<List<Gallery>> getAllHistory() async {
+    List<GalleryHistoryData> historys = await GalleryHistoryDao.selectAll();
+    return historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
+  }
+
   Future<void> record(Gallery gallery) async {
     Log.trace('Record history: ${gallery.gid}');
 
@@ -42,6 +47,26 @@ class HistoryService extends GetxController {
           jsonBody: json.encode(gallery),
           lastReadTime: DateTime.now().toString(),
         ),
+      );
+    } on Exception catch (e) {
+      Log.error('Record history failed!', e);
+    }
+  }
+
+  Future<void> batchRecord(List<Gallery> gallerys) async {
+    Log.trace('Batch record history: $gallerys');
+
+    try {
+      await GalleryHistoryDao.batchInsertHistory(
+        gallerys
+            .map(
+              (gallery) => GalleryHistoryData(
+                gid: gallery.gid,
+                jsonBody: json.encode(gallery),
+                lastReadTime: DateTime.now().toString(),
+              ),
+            )
+            .toList(),
       );
     } on Exception catch (e) {
       Log.error('Record history failed!', e);

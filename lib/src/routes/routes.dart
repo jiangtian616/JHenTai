@@ -17,6 +17,8 @@ import 'package:jhentai/src/pages/setting/about/setting_about_page.dart';
 import 'package:jhentai/src/pages/setting/account/cookie/cookie_page.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page.dart';
 import 'package:jhentai/src/pages/setting/advanced/setting_advanced_page.dart';
+import 'package:jhentai/src/pages/setting/cloud/config_sync/config_sync_page.dart';
+import 'package:jhentai/src/pages/setting/cloud/setting_cloud_page.dart';
 import 'package:jhentai/src/pages/setting/download/extra_gallery_scan_path/extra_gallery_scan_path_page.dart';
 import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/profile/setting_eh_profile_page.dart';
@@ -95,6 +97,7 @@ class Routes {
   static const String settingAdvanced = "/setting_advanced";
   static const String settingPerformance = "/setting_performance";
   static const String settingMouseWheel = "/setting_mouse_wheel";
+  static const String settingCloud = "/setting_cloud";
   static const String settingSecurity = "/setting_security";
   static const String settingAbout = "/setting_about";
 
@@ -118,6 +121,8 @@ class Routes {
   static const String superResolution = "/setting_advanced/superResolution";
   static const String logList = "/setting_advanced/logList";
   static const String log = "/setting_advanced/logList/log";
+
+  static const String configSync = "/setting_cloud/configSync";
 
   static final Transition defaultTransition = PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
 
@@ -295,6 +300,16 @@ class Routes {
     EHPage(
       name: settingAdvanced,
       page: () => const SettingAdvancedPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+    ),
+    EHPage(
+      name: settingCloud,
+      page: () => const SettingCloudPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+    ),
+    EHPage(
+      name: configSync,
+      page: () => const ConfigSyncPage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
     ),
     EHPage(

@@ -7,6 +7,7 @@ import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/widget/eh_favorite_sort_order_dialog.dart';
 
+import '../../enum/storage_enum.dart';
 import '../../exception/eh_site_exception.dart';
 import '../../model/gallery.dart';
 import '../../model/search_config.dart';
@@ -101,6 +102,6 @@ class FavoritePageLogic extends BasePageLogic {
 
   @override
   void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('searchConfig: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
+    storageService.write('${StorageEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
   }
 }

@@ -239,7 +239,7 @@ class LoginPage extends StatelessWidget {
               loadingState: state.loginState,
               indicatorRadius: 10,
               indicatorColor: UIConfig.loginPageIndicatorColor(context),
-              idleWidget: const Icon(Icons.arrow_forward),
+              idleWidgetBuilder: () => const Icon(Icons.arrow_forward),
               successWidgetBuilder: () => const Icon(Icons.check),
               errorWidgetSameWithIdle: true,
             ),

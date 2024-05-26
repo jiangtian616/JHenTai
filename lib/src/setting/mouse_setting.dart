@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 
 import '../service/storage_service.dart';
 import '../utils/log.dart';
@@ -23,7 +24,7 @@ class MouseSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write('mouseSetting', _toMap());
+    await Get.find<StorageService>().write(StorageEnum.mouseSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

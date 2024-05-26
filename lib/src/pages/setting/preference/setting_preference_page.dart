@@ -100,7 +100,7 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagTranslationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidget: IconButton(onPressed: tagTranslationService.refresh, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => IconButton(onPressed: tagTranslationService.refresh, icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
@@ -139,7 +139,7 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagSearchOrderOptimizationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidget: IconButton(onPressed: tagSearchOrderOptimizationService.refresh, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => IconButton(onPressed: tagSearchOrderOptimizationService.refresh, icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
@@ -246,7 +246,7 @@ class SettingPreferencePage extends StatelessWidget {
       onChanged: PreferenceSetting.savePreloadGalleryCover,
     );
   }
-  
+
   Widget _buildEnableSwipeBackGesture() {
     return SwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),

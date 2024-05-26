@@ -49,7 +49,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
             loadingState: loadingState,
             indicatorRadius: 16,
             successWidgetBuilder: () => _TorrentList(galleryTorrents: galleryTorrents),
-            errorWidget: GestureDetector(
+            errorWidgetBuilder: () => GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: _getTorrent,
               child: Icon(Icons.refresh, size: 32, color: UIConfig.loadingStateIndicatorButtonColor(context)),

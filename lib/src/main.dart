@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
@@ -153,6 +155,7 @@ Future<void> init() async {
 
   DownloadSetting.init();
   await EHRequest.init();
+  await JHRequest.init();
 
   PreferenceSetting.init();
 
@@ -209,4 +212,6 @@ Future<void> onReady() async {
   MyTagsSetting.refreshAllOnlineTagSets();
 
   VolumeService.init();
+  
+  CloudConfigService.init();
 }

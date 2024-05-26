@@ -224,6 +224,7 @@ class zh_TW {
       'performance': '性能',
       'mouseWheel': '滑鼠滾輪',
       'advanced': '進階',
+      'cloud': '云',
       'about': '關於',
       'security': '安全',
       'accountSetting': '帳戶設定',
@@ -689,6 +690,22 @@ favnote：匹配收藏備注
       'restoreTasksAutomaticallyHint': '應用每次啓動時嘗試恢複下載任務',
       'brokenDownloadPathHint': '似乎你的下載路徑已經損壞，下載功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默認本地畫廊路徑已經損壞，本地畫廊可能無法被識別',
+
+      /// cloud setting page
+      'serverCondition': '伺服器狀態',
+      'configSync': '配置同步',
+      'configSyncHint': '將您的配置數據儲存至雲端(最多50條)',
+      'upload2cloud': '上傳至雲端',
+      'upload2cloudHint': '上傳您當前的本地配置',
+      'tap2upload': '點擊上傳',
+      'copyIdentificationCodeSuccess': '上傳配置成功，已自動複製您的配置標識碼',
+      'copyShareCode': '複制分享碼',
+      'import': '導入',
+      'save2Local': '保存至本地',
+      'settings': '設置信息(部分)',
+      'blockRules': '屏蔽規則',
+      'histories': '畫廊曆史',
+      'needRestartApp': '需要重啓應用',
 
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',

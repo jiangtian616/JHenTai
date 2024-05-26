@@ -38,7 +38,7 @@ import 'byte_util.dart';
 import 'check_util.dart';
 import 'log.dart';
 
-typedef EHHtmlParser<T> = T Function(Headers headers, dynamic data);
+typedef HtmlParser<T> = T Function(Headers headers, dynamic data);
 
 class EHSpiderParser {
   static Map<String, dynamic> loginPage2UserInfoOrErrorMsg(Headers headers, dynamic data) {

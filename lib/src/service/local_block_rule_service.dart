@@ -549,7 +549,8 @@ enum LocalBlockPatternEnum {
   st(30, [LocalBlockAttributeEnum.score], '<'),
   ste(40, [LocalBlockAttributeEnum.score], '<='),
   like(50, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'contain'),
-  notContain(60, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'notContain'),
+  notContain(
+      60, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'notContain'),
   regex(70, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'regex'),
   ;
 
@@ -595,4 +596,27 @@ class LocalBlockRule {
   }
 
   bool match(Object item) => target.model == item.runtimeType;
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": this.id,
+      "groupId": this.groupId,
+      "target": this.target.code,
+      "attribute": this.attribute.code,
+      "pattern": this.pattern.code,
+      "expression": this.expression,
+    };
+  }
+
+  factory LocalBlockRule.fromJson(Map<String, dynamic> json) {
+    return LocalBlockRule(
+      id: json["id"],
+      groupId: json["groupId"],
+      target: LocalBlockTargetEnum.fromCode(json["target"]),
+      attribute: LocalBlockAttributeEnum.fromCode(json["attribute"]),
+      pattern: LocalBlockPatternEnum.fromCode(json["pattern"]),
+      expression: json["expression"],
+    );
+  }
+//
 }

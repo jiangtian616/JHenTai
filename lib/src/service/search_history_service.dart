@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/model/search_history.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -49,12 +50,12 @@ class SearchHistoryService extends GetxService {
       histories = histories.sublist(0, _maxLength);
     }
 
-    storageService.write('searchHistory', histories.map((history) => history.rawKeyword).toList());
+    storageService.write(StorageEnum.searchHistory.key, histories.map((history) => history.rawKeyword).toList());
   }
 
   Future<void> deleteHistory(SearchHistory searchHistory) async {
     if (histories.remove(searchHistory)) {
-      storageService.write('searchHistory', histories.map((history) => history.rawKeyword).toList());
+      storageService.write(StorageEnum.searchHistory.key, histories.map((history) => history.rawKeyword).toList());
     }
   }
 

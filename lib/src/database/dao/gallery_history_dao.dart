@@ -6,6 +6,10 @@ class GalleryHistoryDao {
     return appDb.galleryHistory.count().getSingle();
   }
 
+  static Future<List<GalleryHistoryData>> selectAll() {
+    return appDb.select(appDb.galleryHistory).get();
+  }
+
   static Future<List<GalleryHistoryData>> selectByPageIndex(int pageIndex, int pageSize) {
     return (appDb.select(appDb.galleryHistory)
           ..orderBy([(tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.desc)])
@@ -15,6 +19,12 @@ class GalleryHistoryDao {
 
   static Future<int> insertHistory(GalleryHistoryData history) {
     return appDb.into(appDb.galleryHistory).insert(history);
+  }
+
+  static Future<void> batchInsertHistory(List<GalleryHistoryData> histories) {
+    return appDb.batch((batch) {
+      return batch.insertAll(appDb.galleryHistory, histories);
+    });
   }
 
   static Future<int> replaceHistory(GalleryHistoryData history) {

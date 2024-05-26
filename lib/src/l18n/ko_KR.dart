@@ -225,6 +225,7 @@ class ko_KR {
       'performance': 'Performance',
       'mouseWheel': '마우스 휠',
       'advanced': '고급',
+      'cloud': 'Cloud',
       'security': '보안',
       'about': '앱 정보',
       'accountSetting': '계정 설정',
@@ -690,6 +691,22 @@ class ko_KR {
       'setPasswordHint': '비밀번호를 넣어주세요.',
       'confirmPasswordHint': '비밀번호를 다시 넣어주세요.',
       'passwordNotMatchHint': '두 비밀번호가 서로 맞지 않습니다. 다시 넣어주세요.',
+
+      /// cloud setting page
+      'serverCondition': 'Server Condition',
+      'configSync': 'Config Sync',
+      'configSyncHint': 'Store your config data in cloud(up to 50 entries)',
+      'upload2cloud': 'Upload to Cloud',
+      'upload2cloudHint': 'Upload your current local configuration',
+      'tap2upload': 'Tap to upload',
+      'copyIdentificationCodeSuccess': 'Upload successfully. Identification code has been copied',
+      'copyShareCode': 'Copy Share Code',
+      'import': 'Import',
+      'save2Local': 'Save to Local',
+      'settings': 'Settings (Partial)',
+      'blockRules': 'Block Rules',
+      'histories': 'Gallery Histories',
+      'needRestartApp': 'Need Restart App',
 
       /// block rule page
       'configureBlockRuleFailed': 'Configure block rule failed',

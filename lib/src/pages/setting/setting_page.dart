@@ -77,6 +77,11 @@ class SettingPage extends StatelessWidget {
               onTap: () => toRoute(Routes.settingPrefix + 'advanced'),
             ),
             ListTile(
+              leading: const Icon(Icons.cloud),
+              title: Text('cloud'.tr),
+              onTap: () => toRoute(Routes.settingPrefix + 'cloud'),
+            ),
+            ListTile(
               leading: const Icon(Icons.security),
               title: Text('security'.tr),
               onTap: () => toRoute(Routes.settingPrefix + 'security'),

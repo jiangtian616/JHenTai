@@ -225,6 +225,7 @@ class en_US {
       'performance': 'Performance',
       'mouseWheel': 'Mouse Wheel',
       'advanced': 'Advanced',
+      'cloud': 'Cloud',
       'security': 'Security',
       'about': 'About',
       'accountSetting': 'Account Setting',
@@ -691,6 +692,22 @@ class en_US {
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',
       'passwordNotMatchHint': 'Password not match, try again',
+
+      /// cloud setting page
+      'serverCondition': 'Server Condition',
+      'configSync': 'Config Sync',
+      'configSyncHint': 'Store your config data in cloud(up to 50 entries)',
+      'upload2cloud': 'Upload to Cloud',
+      'upload2cloudHint': 'Upload your current local configuration',
+      'tap2upload': 'Tap to upload',
+      'copyIdentificationCodeSuccess': 'Upload successfully. Identification code has been copied',
+      'copyShareCode': 'Copy Share Code',
+      'import': 'Import',
+      'save2Local': 'Save to Local',
+      'settings': 'Settings (Partial)',
+      'blockRules': 'Block Rules',
+      'histories': 'Gallery Histories',
+      'needRestartApp': 'Need Restart App',
 
       /// block rule page
       'configureBlockRuleFailed': 'Configure block rule failed',

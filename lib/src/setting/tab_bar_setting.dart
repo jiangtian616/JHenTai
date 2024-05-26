@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -70,7 +71,7 @@ class TabBarSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write('tabBarSetting', _toMap());
+    await Get.find<StorageService>().write(StorageEnum.tabBarSetting.key, _toMap());
   }
 
   static Future<void> reset() async {

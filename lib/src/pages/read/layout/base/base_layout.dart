@@ -86,8 +86,8 @@ abstract class BaseLayout extends StatelessWidget {
             children: [
               LoadingStateIndicator(
                 loadingState: readPageState.parseImageHrefsStates[index],
-                idleWidget: const CircularProgressIndicator(),
-                errorWidget: const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
+                idleWidgetBuilder: () => const CircularProgressIndicator(),
+                errorWidgetBuilder: () => const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
               ),
               Text(
                 readPageState.parseImageHrefsStates[index] == LoadingState.error ? readPageState.parseImageHrefErrorMsg! : 'parsingPage'.tr,
@@ -116,8 +116,8 @@ abstract class BaseLayout extends StatelessWidget {
             children: [
               LoadingStateIndicator(
                 loadingState: readPageState.parseImageUrlStates[index],
-                idleWidget: const CircularProgressIndicator(),
-                errorWidget: const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
+                idleWidgetBuilder: () => const CircularProgressIndicator(),
+                errorWidgetBuilder: () => const Icon(Icons.warning, color: UIConfig.readPageWarningButtonColor),
               ),
               Text(
                 readPageState.parseImageUrlStates[index] == LoadingState.error ? readPageState.parseImageUrlErrorMsg[index]! : 'parsingURL'.tr,
