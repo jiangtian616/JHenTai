@@ -32,6 +32,7 @@ import 'package:jhentai/src/utils/string_uril.dart';
 import '../consts/eh_consts.dart';
 import '../database/database.dart';
 import '../exception/eh_parse_exception.dart';
+import '../model/detail_page_info.dart';
 import '../model/gallery.dart';
 import '../model/gallery_metadata.dart';
 import 'byte_util.dart';
@@ -364,18 +365,20 @@ class EHSpiderParser {
     return _detailPageDocument2Thumbnails(document);
   }
 
-  static Map<String, dynamic> detailPage2RangeAndThumbnails(Headers headers, dynamic data) {
+  static DetailPageInfo detailPage2RangeAndThumbnails(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    /// eg. Showing 161 - 200 of 680 images
+    /// eg1. Showing 161 - 200 of 1,034 images
     String desc = document.querySelector('.gtb > .gpc')!.text.replaceAll(',', '');
-    RegExpMatch match = RegExp(r'Showing (\d+) - (\d+) of').firstMatch(desc)!;
+    RegExpMatch match = RegExp(r'Showing (\d+) - (\d+) of (\d+) images').firstMatch(desc)!;
 
-    return {
-      'rangeIndexFrom': int.parse(match.group(1)!) - 1,
-      'rangeIndexTo': int.parse(match.group(2)!) - 1,
-      'thumbnails': _detailPageDocument2Thumbnails(document),
-    };
+    return DetailPageInfo(
+      rangeIndexFrom: int.parse(match.group(1)!) - 1,
+      rangeIndexTo: int.parse(match.group(2)!) - 1,
+      imageCount: int.parse(match.group(3)!),
+      currentPageNo: int.parse(document.querySelector('.ptds > a')!.text),
+      thumbnails: _detailPageDocument2Thumbnails(document),
+    );
   }
 
   static List<GalleryThumbnail> _detailPageDocument2Thumbnails(Document document) {
@@ -1348,7 +1351,8 @@ class EHSpiderParser {
             username: element.querySelector('.c2 > .c3 > a')?.text,
 
             /// https://forums.e-hentai.org/index.php?showuser=7806074
-            userId: int.tryParse(RegExp(r'showuser=(\d+)').firstMatch(element.querySelector('.c2 > .c3 > a:nth-child(3)')?.attributes['href'] ?? '')?.group(1) ?? ''),
+            userId: int.tryParse(
+                RegExp(r'showuser=(\d+)').firstMatch(element.querySelector('.c2 > .c3 > a:nth-child(3)')?.attributes['href'] ?? '')?.group(1) ?? ''),
             score: element.querySelector('.c2 > .c5.nosel > span')?.text ?? '',
             scoreDetails: element.querySelector('.c7')?.text.split(',').map((detail) => detail.trim()).toList() ?? [],
             content: element.querySelector('.c6')!,

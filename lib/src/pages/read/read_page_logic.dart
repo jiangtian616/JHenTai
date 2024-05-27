@@ -27,6 +27,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:throttling/throttling.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../model/detail_page_info.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
 import '../../model/read_page_info.dart';
@@ -227,9 +228,9 @@ class ReadPageLogic extends GetxController {
 
     int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
 
-    Map<String, dynamic> rangeAndThumbnails;
+    DetailPageInfo detailPageInfo;
     try {
-      rangeAndThumbnails = await retry(
+      detailPageInfo = await retry(
         () => EHRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: requestPageIndex,
@@ -251,22 +252,18 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    int rangeFrom = rangeAndThumbnails['rangeIndexFrom'];
-    int rangeTo = rangeAndThumbnails['rangeIndexTo'];
-    List<GalleryThumbnail> newThumbnails = rangeAndThumbnails['thumbnails'];
-
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
     /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-    if (state.readPageInfo.pageCount != rangeTo - 1) {
-      state.thumbnailsCountPerPage = (newThumbnails.length / 20).ceil() * 20;
+    if (state.readPageInfo.pageCount != detailPageInfo.rangeIndexTo - 1) {
+      state.thumbnailsCountPerPage = (detailPageInfo.thumbnails.length / 20).ceil() * 20;
     }
 
     state.parseImageHrefsStates[index] = LoadingState.idle;
-    for (int i = rangeFrom; i <= rangeTo; i++) {
-      state.thumbnails[i] = newThumbnails[i - rangeFrom];
+    for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
+      state.thumbnails[i] = detailPageInfo.thumbnails[i - detailPageInfo.rangeIndexFrom];
     }
 
-    if (index < rangeFrom || index > rangeTo) {
+    if (index <  detailPageInfo.rangeIndexFrom || index > detailPageInfo.rangeIndexTo) {
       EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
     }
 

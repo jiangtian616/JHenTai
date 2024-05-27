@@ -9,7 +9,7 @@ import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart'
 
 import '../../../exception/eh_site_exception.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
-import '../../../model/gallery_thumbnail.dart';
+import '../../../model/detail_page_info.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../utils/log.dart';
@@ -50,9 +50,9 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
     state.loadingState = LoadingState.loading;
     updateSafely([loadingStateId]);
 
-    Map<String, dynamic> rangeAndThumbnails;
+    DetailPageInfo detailPageInfo;
     try {
-      rangeAndThumbnails = await EHRequest.requestDetailPage(
+      detailPageInfo = await EHRequest.requestDetailPage(
         galleryUrl: detailsPageState.galleryUrl.url,
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2RangeAndThumbnails,
@@ -71,12 +71,8 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    int rangeIndexFrom = rangeAndThumbnails['rangeIndexFrom'];
-    int rangeIndexTo = rangeAndThumbnails['rangeIndexTo'];
-    List<GalleryThumbnail> newThumbnails = rangeAndThumbnails['thumbnails'];
-
-    state.thumbnails.addAll(newThumbnails);
-    for (int i = rangeIndexFrom; i <= rangeIndexTo; i++) {
+    state.thumbnails.addAll(detailPageInfo.thumbnails);
+    for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
       state.absoluteIndexOfThumbnails.add(i);
     }
     state.nextPageIndexToLoadThumbnails++;

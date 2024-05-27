@@ -38,6 +38,7 @@ import 'package:drift/drift.dart';
 import '../database/dao/gallery_image_dao.dart';
 import '../exception/cancel_exception.dart';
 import '../exception/eh_site_exception.dart';
+import '../model/detail_page_info.dart';
 import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
 import '../network/eh_request.dart';
@@ -798,9 +799,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
-      Map<String, dynamic> rangeAndThumbnails;
+      DetailPageInfo detailPageInfo;
       try {
-        rangeAndThumbnails = await retry(
+        detailPageInfo = await retry(
           () => EHRequest.requestDetailPage(
             galleryUrl: gallery.galleryUrl,
             thumbnailsPageIndex: serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage,
@@ -831,16 +832,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      int rangeFrom = rangeAndThumbnails['rangeIndexFrom'];
-      int rangeTo = rangeAndThumbnails['rangeIndexTo'];
-      List<GalleryThumbnail> thumbnails = rangeAndThumbnails['thumbnails'];
-
       /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
       /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-      galleryDownloadInfo.thumbnailsCountPerPage = (thumbnails.length / 20).ceil() * 20;
+      galleryDownloadInfo.thumbnailsCountPerPage = (detailPageInfo.thumbnails.length / 20).ceil() * 20;
 
-      for (int i = rangeFrom; i <= rangeTo; i++) {
-        galleryDownloadInfo.imageHrefs[i] = thumbnails[i - rangeFrom];
+      for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
+        galleryDownloadInfo.imageHrefs[i] = detailPageInfo.thumbnails[i - detailPageInfo.rangeIndexFrom];
       }
 
       /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
@@ -1040,7 +1037,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           return _reParseImageUrlAndDownload(gallery, serialNo);
         }
       }
-      
 
       Log.download('Download ${gallery.title} image: $serialNo success');
 
