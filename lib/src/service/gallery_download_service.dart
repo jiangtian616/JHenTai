@@ -798,13 +798,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
+      int requestPageIndex = serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage;
 
       DetailPageInfo detailPageInfo;
       try {
         detailPageInfo = await retry(
           () => EHRequest.requestDetailPage(
             galleryUrl: gallery.galleryUrl,
-            thumbnailsPageIndex: serialNo ~/ galleryDownloadInfo.thumbnailsCountPerPage,
+            thumbnailsPageIndex: requestPageIndex,
             cancelToken: galleryDownloadInfo.cancelToken,
             parser: EHSpiderParser.detailPage2RangeAndThumbnails,
           ),
@@ -834,16 +835,22 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
       /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-      galleryDownloadInfo.thumbnailsCountPerPage = (detailPageInfo.thumbnails.length / 20).ceil() * 20;
+      bool thumbnailsCountPerPageChanged = galleryDownloadInfo.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
+      galleryDownloadInfo.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 
-      for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
-        galleryDownloadInfo.imageHrefs[i] = detailPageInfo.thumbnails[i - detailPageInfo.rangeIndexFrom];
+      for (int i = detailPageInfo.imageNoFrom; i <= detailPageInfo.imageNoTo; i++) {
+        galleryDownloadInfo.imageHrefs[i] = detailPageInfo.thumbnails[i - detailPageInfo.imageNoFrom];
       }
 
       /// if gallery's [thumbnailsCountPerPage] is not equal to default setting, we probably can't get target thumbnails this turn
       /// because the [thumbnailsPageIndex] we computed before is wrong, so we need to parse again
       if (galleryDownloadInfo.imageHrefs[serialNo] == null) {
-        Log.download('Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again');
+        Log.download(
+          'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
+        );
+        if (!thumbnailsCountPerPageChanged) {
+          await EHRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
+        }
         return _submitTask(
           gid: gallery.gid,
           priority: _computeImageTaskPriority(gallery, serialNo),

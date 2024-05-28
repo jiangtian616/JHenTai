@@ -252,19 +252,26 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
+    state.parseImageHrefsStates[index] = LoadingState.idle;
+
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
     /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-    if (state.readPageInfo.pageCount != detailPageInfo.rangeIndexTo - 1) {
-      state.thumbnailsCountPerPage = (detailPageInfo.thumbnails.length / 20).ceil() * 20;
+    bool thumbnailsCountPerPageChanged = state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
+    state.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
+
+    for (int i = detailPageInfo.imageNoFrom; i <= detailPageInfo.imageNoTo; i++) {
+      state.thumbnails[i] = detailPageInfo.thumbnails[i - detailPageInfo.imageNoFrom];
     }
 
-    state.parseImageHrefsStates[index] = LoadingState.idle;
-    for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
-      state.thumbnails[i] = detailPageInfo.thumbnails[i - detailPageInfo.rangeIndexFrom];
-    }
-
-    if (index <  detailPageInfo.rangeIndexFrom || index > detailPageInfo.rangeIndexTo) {
-      EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
+    /// If we changed profile setting in EH site and have cached in JHenTai, we need to remove the cache to get the latest page info before re-parsing
+    if (state.thumbnails[index] == null) {
+      Log.download(
+        'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
+      );
+      if (!thumbnailsCountPerPageChanged) {
+        await EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
+      }
+      return beginToParseImageHref(index);
     }
 
     update(['$onlineImageId::$index']);

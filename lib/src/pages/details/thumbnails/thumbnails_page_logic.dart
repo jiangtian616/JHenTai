@@ -72,7 +72,7 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
     }
 
     state.thumbnails.addAll(detailPageInfo.thumbnails);
-    for (int i = detailPageInfo.rangeIndexFrom; i <= detailPageInfo.rangeIndexTo; i++) {
+    for (int i = detailPageInfo.imageNoFrom; i <= detailPageInfo.imageNoTo; i++) {
       state.absoluteIndexOfThumbnails.add(i);
     }
     state.nextPageIndexToLoadThumbnails++;

@@ -373,10 +373,11 @@ class EHSpiderParser {
     RegExpMatch match = RegExp(r'Showing (\d+) - (\d+) of (\d+) images').firstMatch(desc)!;
 
     return DetailPageInfo(
-      rangeIndexFrom: int.parse(match.group(1)!) - 1,
-      rangeIndexTo: int.parse(match.group(2)!) - 1,
+      imageNoFrom: int.parse(match.group(1)!) - 1,
+      imageNoTo: int.parse(match.group(2)!) - 1,
       imageCount: int.parse(match.group(3)!),
       currentPageNo: int.parse(document.querySelector('.ptds > a')!.text),
+      pageCount: _detailPageDocument2ThumbnailsPageCount(document),
       thumbnails: _detailPageDocument2Thumbnails(document),
     );
   }
