@@ -848,9 +848,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         Log.download(
           'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
         );
-        if (!thumbnailsCountPerPageChanged) {
-          await EHRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
-        }
+        await EHRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
         return _submitTask(
           gid: gallery.gid,
           priority: _computeImageTaskPriority(gallery, serialNo),

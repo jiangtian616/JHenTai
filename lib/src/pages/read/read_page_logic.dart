@@ -268,9 +268,7 @@ class ReadPageLogic extends GetxController {
       Log.download(
         'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
       );
-      if (!thumbnailsCountPerPageChanged) {
-        await EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
-      }
+      await EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
       return beginToParseImageHref(index);
     }
 
