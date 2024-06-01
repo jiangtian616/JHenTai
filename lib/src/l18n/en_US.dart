@@ -565,6 +565,7 @@ class en_US {
       'gpNotEnoughHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
       'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
       'migrateToDownload': 'Migrate To 「Download」',
+      'refresh': 'Refresh',
 
       /// search dialog
       'searchConfig': 'Search Config',

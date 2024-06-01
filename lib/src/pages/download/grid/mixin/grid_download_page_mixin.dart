@@ -133,57 +133,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
   }
 
   List<Widget> buildAppBarActions(BuildContext context) {
-    return [
-      GetBuilder<GridBasePageLogic>(
-        global: false,
-        init: logic,
-        id: logic.editButtonId,
-        builder: (_) => IconButton(
-          icon: const Icon(Icons.sort),
-          selectedIcon: const Icon(Icons.save),
-          onPressed: logic.toggleEditMode,
-          isSelected: state.inEditMode,
-        ),
-      ),
-      PopupMenuButton(
-        itemBuilder: (context) {
-          return [
-            PopupMenuItem(
-              value: 0,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
-              ),
-            ),
-            PopupMenuItem(
-              value: 1,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
-              ),
-            ),
-            PopupMenuItem(
-              value: 2,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
-              ),
-            ),
-          ];
-        },
-        onSelected: (value) {
-          if (value == 0) {
-            DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
-          }
-          if (value == 2) {
-            logic.handleResumeAllTasks();
-          }
-          if (value == 3) {
-            logic.handlePauseAllTasks();
-          }
-        },
-      ),
-    ];
+    return [];
   }
 
   Widget? buildGridBottomAppBar(BuildContext context) {

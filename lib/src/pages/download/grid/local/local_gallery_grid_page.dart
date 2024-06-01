@@ -32,13 +32,33 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh, size: 26),
-          onPressed: logic.handleRefreshLocalGallery,
-        ),
-        IconButton(
-          icon: const Icon(Icons.view_list),
-          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context),
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                value: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 1,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.refresh), const SizedBox(width: 12), Text('refresh'.tr)],
+                ),
+              ),
+            ];
+          },
+          onSelected: (value) {
+            if (value == 0) {
+              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
+            }
+            if (value == 1) {
+              logic.handleRefreshLocalGallery();
+            }
+          },
         ),
       ],
     );

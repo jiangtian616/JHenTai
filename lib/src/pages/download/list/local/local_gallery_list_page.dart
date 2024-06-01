@@ -48,13 +48,33 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
         onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.refresh, size: 26),
-          onPressed: logic.handleRefreshLocalGallery,
-        ),
-        IconButton(
-          icon: const Icon(Icons.grid_view),
-          onPressed: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context),
+        PopupMenuButton(
+          itemBuilder: (context) {
+            return [
+              PopupMenuItem(
+                value: 0,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.grid_view), const SizedBox(width: 12), Text('switch2GridMode'.tr)],
+                ),
+              ),
+              PopupMenuItem(
+                value: 1,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.refresh), const SizedBox(width: 12), Text('refresh'.tr)],
+                ),
+              ),
+            ];
+          },
+          onSelected: (value) {
+            if (value == 0) {
+              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.grid).dispatch(context);
+            }
+            if (value == 1) {
+              logic.handleRefreshLocalGallery();
+            }
+          },
         ),
       ],
     );
