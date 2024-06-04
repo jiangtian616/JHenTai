@@ -358,10 +358,10 @@ packages:
     description:
       path: "packages/desktop_webview_window"
       ref: HEAD
-      resolved-ref: e86c2167856a7e96b712d4386169106127dff0a9
+      resolved-ref: "16e16cfa22912da300315c15e33d4ffe31392aff"
       url: "https://github.com/jiangtian616/flutter-plugins"
     source: git
-    version: "0.2.3"
+    version: "0.1.6"
   device_info_plus:
     dependency: "direct main"
     description:
