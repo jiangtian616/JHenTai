@@ -356,10 +356,11 @@ packages:
   desktop_webview_window:
     dependency: "direct main"
     description:
-      name: desktop_webview_window
-      sha256: "57cf20d81689d5cbb1adfd0017e96b669398a669d927906073b0e42fc64111c0"
-      url: "https://pub.flutter-io.cn"
-    source: hosted
+      path: "packages/desktop_webview_window"
+      ref: HEAD
+      resolved-ref: e86c2167856a7e96b712d4386169106127dff0a9
+      url: "https://github.com/jiangtian616/flutter-plugins"
+    source: git
     version: "0.2.3"
   device_info_plus:
     dependency: "direct main"

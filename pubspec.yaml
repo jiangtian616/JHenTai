@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 7.5.5+230
+version: 7.5.5+231
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -46,7 +46,10 @@ dependencies:
   like_button:
     git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
-  desktop_webview_window: 0.2.3
+  desktop_webview_window: 
+    git:
+      url: https://github.com/jiangtian616/flutter-plugins
+      path: packages/desktop_webview_window
   # rewrite double tap & tap drag gesture
   photo_view:
     git:
