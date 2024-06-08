@@ -19,6 +19,7 @@ import smart_auth
 import sqflite
 import sqlite3_flutter_libs
 import url_launcher_macos
+import video_player_avfoundation
 import wakelock_plus
 import window_manager
 
@@ -37,6 +38,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   SqflitePlugin.register(with: registry.registrar(forPlugin: "SqflitePlugin"))
   Sqlite3FlutterLibsPlugin.register(with: registry.registrar(forPlugin: "Sqlite3FlutterLibsPlugin"))
   UrlLauncherPlugin.register(with: registry.registrar(forPlugin: "UrlLauncherPlugin"))
+  FVPVideoPlayerPlugin.register(with: registry.registrar(forPlugin: "FVPVideoPlayerPlugin"))
   WakelockPlusMacosPlugin.register(with: registry.registrar(forPlugin: "WakelockPlusMacosPlugin"))
   WindowManagerPlugin.register(with: registry.registrar(forPlugin: "WindowManagerPlugin"))
 }

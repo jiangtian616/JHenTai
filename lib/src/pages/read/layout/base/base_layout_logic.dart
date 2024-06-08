@@ -251,13 +251,19 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
 
-    if (GetPlatform.isDesktop) {
-      File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
-      file.create(recursive: true).then((_) => file.writeAsBytesSync(data)).then((_) => toast('success'.tr));
-      return;
-    }
+    File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
+    await file.create(recursive: true);
+    await file.writeAsBytes(data);
 
-    _saveImage2Album(data, fileName).then((_) => toast('success'.tr));
+    if (GetPlatform.isDesktop) {
+      toast('success'.tr);
+      return;
+    } else {
+      _saveFile2Album(file.path, fileName).then((_) {
+        toast('saveSuccess'.tr);
+        file.delete();
+      });
+    }
   }
 
   Future<void> saveOriginalOnlineImage(int index) async {
