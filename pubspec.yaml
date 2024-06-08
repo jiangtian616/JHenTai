@@ -48,7 +48,7 @@ dependencies:
   webview_flutter: 4.2.2
   desktop_webview_window: 
     git:
-      url: https://github.com/jiangtian616/flutter-plugins
+      url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_webview_window
   # rewrite double tap & tap drag gesture
   photo_view:
