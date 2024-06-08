@@ -73,7 +73,7 @@ class UIConfig {
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
-  static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant;
 
   static Color desktopLeftTabIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
   static const double desktopTitleBarHeight = 32;
@@ -83,7 +83,7 @@ class UIConfig {
   static const double desktopLeftTabBarTextHeight = 18;
 
   /// mobile home page
-  static Color loginAvatarBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color loginAvatarBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant;
 
   static Color loginAvatarForeGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6);
 
@@ -109,7 +109,7 @@ class UIConfig {
   static const double galleryCardTitleSize = 15;
   static const double galleryCardTextSize = 12;
 
-  static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.8);
+  static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8);
 
   static Color galleryCardShadowColor(BuildContext context) => Theme.of(context).colorScheme.onSurface.withOpacity(0.2);
 
@@ -242,7 +242,7 @@ class UIConfig {
 
   static Color downloadPageProgressIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.primary;
 
-  static Color downloadPageProgressPausedIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color downloadPageProgressPausedIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.surfaceVariant;
 
   static Color downloadPageLoadingIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
 
@@ -418,7 +418,7 @@ class UIConfig {
 
   static Color groupSelectorSelectedChipColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
 
-  static Color groupSelectorChipColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainer;
+  static Color groupSelectorChipColor(BuildContext context) => Theme.of(context).colorScheme.background;
 
   static Color groupSelectorTextColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
   static const double groupSelectorTextFieldLabelTextSize = 12;
