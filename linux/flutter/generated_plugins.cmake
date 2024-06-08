@@ -3,7 +3,6 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  desktop_webview_window
   screen_retriever
   smart_auth
   sqlite3_flutter_libs

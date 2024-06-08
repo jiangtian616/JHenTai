@@ -244,9 +244,8 @@ class LoginPageLogic extends GetxController {
           userDataFolderWindows: PathSetting.getVisibleDir().path,
         ),
       );
-      webview.setOnUrlRequestCallback((url) {
+      webview.addOnUrlRequestCallback((url) {
         _onDesktopPageStarted(webview, url);
-        return true;
       });
       webview.launch(EHConsts.ELogin);
     } else {
