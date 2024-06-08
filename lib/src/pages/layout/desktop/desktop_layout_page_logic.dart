@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 
 import '../../../mixin/double_tap_to_refresh_logic_mixin.dart';
 import '../../home_page.dart';
@@ -25,6 +27,10 @@ class DesktopLayoutPageLogic extends GetxController with DoubleTapToRefreshLogic
 
     int prevIndex = state.selectedTabIndex;
     state.selectedTabIndex = index;
+
+    if (!isRouteAtTop(Routes.desktopHome)) {
+      untilRoute2DesktopHomePage();
+    }
 
     if (prevIndex != index) {
       leftRouting.args = null;

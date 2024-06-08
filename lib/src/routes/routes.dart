@@ -3,10 +3,12 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/details/details_page.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/pages/download_search/download_search_page.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
+import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/lock_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page.dart';
@@ -64,6 +66,7 @@ class Routes {
   static const String singleImagePage = "/single_image_page";
 
   /// left
+  static const String desktopHome = "/desktop_home";
   static const String mobileLayoutV2 = "/mobile_layout_v2";
   static const String gallerys = "/gallerys";
   static const String dashboard = "/dashboard";
@@ -77,6 +80,7 @@ class Routes {
   static const String search = "/search";
   static const String desktopSearch = "/desktop_search";
   static const String mobileV2Search = "/mobile_v2_search";
+  static const String downloadSearch = "/download_search";
 
   /// right
   static const String details = "/details";
@@ -165,6 +169,12 @@ class Routes {
       side: Side.left,
     ),
     EHPage(
+      name: desktopHome,
+      page: () => DesktopHomePage(),
+      transition: defaultTransition,
+      side: Side.left,
+    ),
+    EHPage(
       name: mobileLayoutV2,
       page: () => MobileLayoutPageV2(),
       transition: defaultTransition,
@@ -231,6 +241,12 @@ class Routes {
     EHPage(
       name: mobileV2Search,
       page: () => SearchPageMobileV2(),
+      transition: defaultTransition,
+      side: Side.left,
+    ),
+    EHPage(
+      name: downloadSearch,
+      page: () => DownloadSearchPage(),
       transition: defaultTransition,
       side: Side.left,
     ),

@@ -12,7 +12,9 @@ import 'package:jhentai/src/pages/download/mixin/basic/multi_select/multi_select
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_logic_mixin.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_mixin.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_state_mixin.dart';
+import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../config/ui_config.dart';
@@ -89,6 +91,13 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
               ),
             ),
+            PopupMenuItem(
+              value: 4,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.search), const SizedBox(width: 12), Text('search'.tr)],
+              ),
+            ),
           ];
         },
         onSelected: (value) {
@@ -106,6 +115,9 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           }
           if (value == 3) {
             logic.handlePauseAllTasks();
+          }
+          if (value == 4) {
+            toRoute(Routes.downloadSearch);
           }
         },
       ),

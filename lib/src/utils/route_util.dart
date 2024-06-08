@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/routes/eh_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -30,12 +31,22 @@ Future<T?>? toRoute<T>(
   }
 
   if (page.side == Side.left) {
-    /// There's no [Route] in desktop layout
     if (StyleSetting.layout.value == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
-      logic.handleTapTabBarButton(logic.state.icons.indexWhere((icon) => icon.routeName == routeName));
-      return Future.value(null);
+      int? tabIndex = logic.state.icons.firstIndexWhereOrNull((icon) => icon.routeName == routeName);
+      if (tabIndex != null) {
+        logic.handleTapTabBarButton(tabIndex);
+        return Future.value(null);
+      } else {
+        return Get.toNamed(
+          routeName,
+          arguments: arguments,
+          id: left,
+          parameters: parameters,
+          preventDuplicates: preventDuplicates,
+        );
+      }
     }
 
     /// left [Route]
@@ -71,6 +82,7 @@ Future<T?>? toRoute<T>(
   if (preventDuplicates && isRouteAtTop(routeName)) {
     return null;
   }
+
   return Get.toNamed(
     routeName,
     arguments: arguments,
@@ -201,6 +213,11 @@ void untilRoute2BlankPage() {
   }
 }
 
+/// pop all pages in right screen if exists
+void untilRoute2DesktopHomePage() {
+  Get.until((route) => route.settings.name == Routes.desktopHome, id: left);
+}
+
 /// check if route with [routeName] is at top
 bool isRouteAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
@@ -212,7 +229,7 @@ bool isRouteAtTop(String routeName) {
   if (side == Side.left) {
     if (StyleSetting.actualLayout == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
-      return logic.state.icons[logic.state.selectedTabIndex].routeName == routeName;
+      return logic.state.icons[logic.state.selectedTabIndex].routeName == routeName || leftRouting.current == routeName;
     }
     return leftRouting.current == routeName;
   }

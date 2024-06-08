@@ -2,12 +2,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
+import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../service/windows_service.dart';
+import '../../../setting/preference_setting.dart';
 import '../../../widget/eh_separator.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
@@ -114,17 +116,32 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 
   Widget _leftColumn() {
-    return GetBuilder<DesktopLayoutPageLogic>(
-      id: logic.leftColumnId,
-      builder: (_) => Stack(
-        children: state.icons
-            .where((icon) => icon.shouldRender)
-            .mapIndexed((index, icon) => Offstage(
-                  offstage: state.selectedTabOrder != index,
-                  child: icon.page.call(),
-                ))
-            .toList(),
-      ),
+    return Navigator(
+      key: Get.nestedKey(left),
+      observers: [GetObserver(null, leftRouting)],
+      onGenerateInitialRoutes: (_, __) => [
+        GetPageRoute(
+          settings: const RouteSettings(name: Routes.desktopHome),
+          page: () => DesktopHomePage(),
+          popGesture: false,
+          transition: Transition.fadeIn,
+          showCupertinoParallax: false,
+        ),
+      ],
+      onGenerateRoute: (settings) {
+        Get.routing.args = settings.arguments;
+        Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
+        return GetPageRoute(
+          settings: settings,
+
+          /// setting name may include path params
+          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
+
+          popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,
+          transition: Transition.fadeIn,
+          transitionDuration: const Duration(milliseconds: 150),
+        );
+      },
     );
   }
 
