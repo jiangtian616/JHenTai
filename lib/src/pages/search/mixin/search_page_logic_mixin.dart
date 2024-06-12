@@ -248,7 +248,6 @@ mixin SearchPageLogicMixin on BasePageLogic {
     super.handleTapGalleryCard(gallery);
   }
 
-  /// double tap to clear tags
   void handleTapClearButton() {
     if (isEmptyOrNull(state.searchConfig.keyword)) {
       state.searchConfig.tags?.clear();

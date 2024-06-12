@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
+import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
+import '../../config/ui_config.dart';
+import '../../model/gallery_image.dart';
+import '../../model/gallery_url.dart';
+import '../../routes/routes.dart';
+import '../../service/gallery_download_service.dart';
+import '../../service/super_resolution_service.dart';
+import '../../utils/byte_util.dart';
+import '../../utils/date_util.dart';
+import '../../utils/route_util.dart';
+import '../../widget/eh_gallery_category_tag.dart';
+import '../details/details_page_logic.dart';
 import 'download_search_logic.dart';
 
 class DownloadSearchPage extends StatelessWidget {
@@ -16,31 +31,463 @@ class DownloadSearchPage extends StatelessWidget {
       appBar: AppBar(centerTitle: true, title: Text('search'.tr)),
       body: Column(
         children: [
-          TextField(
-            textInputAction: TextInputAction.search,
-            textAlignVertical: TextAlignVertical.center,
-            focusNode: state.searchFocusNode,
-            onTapOutside: (_) => state.searchFocusNode.unfocus(),
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              prefixIcon: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(child: const Icon(Icons.search)),
-              ),
-              suffixIcon: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(child: const Icon(Icons.cancel)),
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 1,
-              itemBuilder: (context, index) => ListTile(title: Text('Item $index')),
-            ),
-          ),
+          _buildSearchField(),
+          const SizedBox(height: 10),
+          Expanded(child: _buildBody()),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return GetBuilder<DownloadSearchLogic>(
+      id: logic.searchFieldId,
+      builder: (_) => TextField(
+        controller: logic.textEditingController,
+        textInputAction: TextInputAction.search,
+        textAlignVertical: TextAlignVertical.center,
+        focusNode: logic.searchFocusNode,
+        onTapOutside: (_) => logic.searchFocusNode.unfocus(),
+        decoration: InputDecoration(
+          isDense: true,
+          contentPadding: EdgeInsets.zero,
+          prefixIcon: TextButton(
+            child: Text(state.searchType.desc.tr),
+            onPressed: logic.toggleSearchType,
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 52),
+          suffixIcon: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
+          ),
+        ),
+        onChanged: logic.handleSearchFieldChanged,
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return GetBuilder<DownloadSearchLogic>(
+      id: logic.bodyId,
+      builder: (_) => EHWheelSpeedController(
+        controller: logic.scrollController,
+        child: CustomScrollView(
+          controller: logic.scrollController,
+          slivers: [
+            SliverList.separated(
+              itemBuilder: (context, index) => _buildGallery(context, state.gallerys[index]),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemCount: state.gallerys.length,
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            SliverList.separated(
+              itemBuilder: (context, index) => _buildArchive(context, state.archives[index]),
+              separatorBuilder: (context, index) => const SizedBox(height: 10),
+              itemCount: state.archives.length,
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGallery(BuildContext context, GalleryDownloadedData gallery) {
+    return SizedBox(
+      height: 130,
+      child: GetBuilder<GalleryDownloadService>(
+        id: '${logic.galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
+        builder: (_) {
+          GalleryImage? cover = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
+          String? groupName = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
+
+          return Row(
+            children: [
+              _buildGalleryCover(gallery, context),
+              const SizedBox(width: 6),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => logic.goToGalleryReadPage(gallery),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildGalleryTitle(gallery),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildGalleryUploader(gallery, context),
+                        ],
+                      ),
+                      const Expanded(child: SizedBox()),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          EHGalleryCategoryTag(category: gallery.category),
+                          const Expanded(child: SizedBox()),
+                          _buildGalleryIsOriginal(context, gallery),
+                          const SizedBox(width: 6),
+                          _buildGallerySuperResolutionLabel(context, gallery),
+                          const SizedBox(width: 6),
+                          _buildGalleryPublishTime(gallery, context),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const SizedBox(width: 2),
+                          _buildGalleryGroup(groupName, context),
+                          const Expanded(child: SizedBox()),
+                          _buildGalleryDownloadProgressText(downloadProgress, context),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      _buildGalleryDownloadProgressIndicator(downloadProgress, context),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ).paddingOnly(left: 4, right: 16);
+  }
+
+  Text _buildGalleryPublishTime(GalleryDownloadedData gallery, BuildContext context) {
+    return Text(
+      DateUtil.transform2LocalTimeString(gallery.publishTime),
+      style: TextStyle(
+        fontSize: UIConfig.galleryCardTextSize,
+        color: UIConfig.galleryCardTextColor(context),
+      ),
+    );
+  }
+
+  Widget _buildGalleryCover(GalleryDownloadedData gallery, BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => toRoute(
+        Routes.details,
+        arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(gallery.galleryUrl)),
+      ),
+      child: GetBuilder<GalleryDownloadService>(
+        id: '${logic.galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
+        builder: (_) {
+          GalleryImage? image = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+
+          /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
+          if (image?.downloadStatus != DownloadStatus.downloaded) {
+            return SizedBox(
+              width: UIConfig.downloadPageCoverWidth,
+              height: UIConfig.downloadPageCoverHeight,
+              child: Center(child: UIConfig.loadingAnimation(context)),
+            );
+          }
+
+          return EHImage(
+            galleryImage: image!,
+            containerWidth: UIConfig.downloadPageCoverWidth,
+            containerHeight: UIConfig.downloadPageCoverHeight,
+            containerColor: UIConfig.galleryCardBackGroundColor(context),
+            borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+            fit: BoxFit.fitWidth,
+            maxBytes: 2 * 1024 * 1024,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGalleryTitle(GalleryDownloadedData gallery) {
+    return Text(
+      gallery.title,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: UIConfig.galleryCardTitleSize, height: 1.2),
+    );
+  }
+
+  Widget _buildGalleryUploader(GalleryDownloadedData gallery, BuildContext context) {
+    if (gallery.uploader == null) {
+      return const SizedBox();
+    }
+
+    return Text(
+      gallery.uploader!,
+      style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)),
+    );
+  }
+
+  Widget _buildGalleryIsOriginal(BuildContext context, GalleryDownloadedData gallery) {
+    bool isOriginal = gallery.downloadOriginalImage;
+    if (!isOriginal) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+      ),
+      child: Text(
+        'original'.tr,
+        style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildGallerySuperResolutionLabel(BuildContext context, GalleryDownloadedData gallery) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
+      builder: (_) {
+        SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(gallery.gid, SuperResolutionType.gallery);
+
+        if (superResolutionInfo == null) {
+          return const SizedBox();
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: superResolutionInfo.status == SuperResolutionStatus.success ? null : BorderRadius.circular(4),
+            border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+            shape: superResolutionInfo.status == SuperResolutionStatus.success ? BoxShape.circle : BoxShape.rectangle,
+          ),
+          child: Text(
+            superResolutionInfo.status == SuperResolutionStatus.paused
+                ? 'AI'
+                : superResolutionInfo.status == SuperResolutionStatus.success
+                    ? 'AI'
+                    : 'AI(${superResolutionInfo.imageStatuses.fold<int>(0, (previousValue, element) => previousValue + (element == SuperResolutionStatus.success ? 1 : 0))}/${superResolutionInfo.imageStatuses.length})',
+            style: TextStyle(
+              fontSize: 9,
+              color: UIConfig.resumePauseButtonColor(context),
+              decoration: superResolutionInfo.status == SuperResolutionStatus.paused ? TextDecoration.lineThrough : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildGalleryDownloadProgressText(GalleryDownloadProgress? downloadProgress, BuildContext context) {
+    if (downloadProgress == null) {
+      return const SizedBox();
+    }
+
+    return Text(
+      '${downloadProgress.curCount}/${downloadProgress.totalCount}',
+      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+    );
+  }
+
+  Widget _buildGalleryDownloadProgressIndicator(GalleryDownloadProgress? downloadProgress, BuildContext context) {
+    if (downloadProgress == null || downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+      return const SizedBox();
+    }
+
+    return SizedBox(
+      height: UIConfig.downloadPageProgressIndicatorHeight,
+      child: LinearProgressIndicator(
+        value: downloadProgress.curCount / downloadProgress.totalCount,
+        color: UIConfig.downloadPageProgressIndicatorColor(context),
+      ),
+    );
+  }
+
+  Widget _buildGalleryGroup(String? groupName, BuildContext context) {
+    return Text(
+      '${'gallery'.tr} > $groupName',
+      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+    );
+  }
+
+  Widget _buildArchive(BuildContext context, ArchiveDownloadedData archive) {
+    return SizedBox(
+      height: 130,
+      child: GetBuilder<ArchiveDownloadService>(
+        id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
+        builder: (_) {
+          ArchiveDownloadInfo? archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid];
+          String? groupName = archiveDownloadInfo?.group;
+
+          return Row(
+            children: [
+              _buildArchiveCover(archive, context),
+              const SizedBox(width: 6),
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => logic.goToArchiveReadPage(archive),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(archive.title),
+                      _buildArchiveUploader(archive, context),
+                      const Expanded(child: SizedBox()),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          EHGalleryCategoryTag(category: archive.category),
+                          const Expanded(child: SizedBox()),
+                          _buildArchiveIsOriginal(context, archive),
+                          const SizedBox(width: 6),
+                          _buildArchiveSuperResolutionLabel(context, archive),
+                          const SizedBox(width: 6),
+                          _buildArchivePublishTime(context, archive),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const SizedBox(width: 2),
+                          _buildArchiveGroup(groupName, context),
+                          const Expanded(child: SizedBox()),
+                          _buildArchiveDownloadProgressText(archive, archiveDownloadInfo, context),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      _buildArchiveDownloadProgressIndicator(archive, archiveDownloadInfo, context),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    ).paddingOnly(left: 4, right: 16);
+  }
+
+  Widget _buildArchiveCover(ArchiveDownloadedData archive, BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => toRoute(
+        Routes.details,
+        arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
+      ),
+      child: EHImage(
+        galleryImage: GalleryImage(url: archive.coverUrl),
+        containerWidth: UIConfig.downloadPageCoverWidth,
+        containerHeight: UIConfig.downloadPageCoverHeight,
+        containerColor: UIConfig.galleryCardBackGroundColor(context),
+        borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+        fit: BoxFit.fitWidth,
+        maxBytes: 2 * 1024 * 1024,
+      ),
+    );
+  }
+
+  Widget _buildArchiveUploader(ArchiveDownloadedData archive, BuildContext context) {
+    if (archive.uploader == null) {
+      return const SizedBox();
+    }
+
+    return Text(
+      archive.uploader!,
+      style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)),
+    );
+  }
+
+  Widget _buildArchiveIsOriginal(BuildContext context, ArchiveDownloadedData archive) {
+    bool isOriginal = archive.isOriginal;
+    if (!isOriginal) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+      ),
+      child: Text(
+        'original'.tr,
+        style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.bold, fontSize: 9),
+      ),
+    );
+  }
+
+  Widget _buildArchiveSuperResolutionLabel(BuildContext context, ArchiveDownloadedData archive) {
+    return GetBuilder<SuperResolutionService>(
+      id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
+      builder: (_) {
+        SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(archive.gid, SuperResolutionType.archive);
+
+        if (superResolutionInfo == null) {
+          return const SizedBox();
+        }
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            borderRadius: superResolutionInfo.status == SuperResolutionStatus.success ? null : BorderRadius.circular(4),
+            border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+            shape: superResolutionInfo.status == SuperResolutionStatus.success ? BoxShape.circle : BoxShape.rectangle,
+          ),
+          child: Text(
+            superResolutionInfo.status == SuperResolutionStatus.paused
+                ? 'AI'
+                : superResolutionInfo.status == SuperResolutionStatus.success
+                    ? 'AI'
+                    : 'AI(${superResolutionInfo.imageStatuses.fold<int>(0, (previousValue, element) => previousValue + (element == SuperResolutionStatus.success ? 1 : 0))}/${superResolutionInfo.imageStatuses.length})',
+            style: TextStyle(
+              fontSize: 9,
+              color: UIConfig.resumePauseButtonColor(context),
+              decoration: superResolutionInfo.status == SuperResolutionStatus.paused ? TextDecoration.lineThrough : null,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildArchivePublishTime(BuildContext context, ArchiveDownloadedData archive) {
+    return Text(
+      DateUtil.transform2LocalTimeString(archive.publishTime),
+      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+    );
+  }
+
+  Widget _buildArchiveGroup(String? groupName, BuildContext context) {
+    return Text(
+      '${'archive'.tr} > $groupName',
+      style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+    );
+  }
+
+  Widget _buildArchiveDownloadProgressText(ArchiveDownloadedData archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
+    if (archiveDownloadInfo == null || archiveDownloadInfo.archiveStatus.code > ArchiveStatus.downloading.code) {
+      return const SizedBox();
+    }
+
+    return GetBuilder<ArchiveDownloadService>(
+      id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+      builder: (_) => Text(
+        '${byte2String(archiveDownloadInfo.speedComputer.downloadedBytes.toDouble())}/${byte2String(archiveDownloadInfo.size.toDouble())}',
+        style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
+      ),
+    );
+  }
+
+  Widget _buildArchiveDownloadProgressIndicator(ArchiveDownloadedData archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
+    if (archiveDownloadInfo == null || archiveDownloadInfo.archiveStatus.code > ArchiveStatus.downloading.code) {
+      return const SizedBox();
+    }
+
+    return SizedBox(
+      height: UIConfig.downloadPageProgressIndicatorHeight,
+      child: GetBuilder<ArchiveDownloadService>(
+        id: '${ArchiveDownloadService.archiveSpeedComputerId}::${archive.gid}::${archive.isOriginal}',
+        builder: (_) => LinearProgressIndicator(
+          value: archiveDownloadInfo.speedComputer.downloadedBytes / archiveDownloadInfo.size,
+          color: archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.paused.code
+              ? UIConfig.downloadPageProgressPausedIndicatorColor(context)
+              : UIConfig.downloadPageProgressIndicatorColor(context),
+        ),
       ),
     );
   }

@@ -569,6 +569,10 @@ class pt_BR {
       'migrateToDownload': 'Migrate To 「Download」',
       'refresh': 'Refresh',
 
+      /// download search page
+      'simpleSearch': 'Simple',
+      'regexSearch': 'Regex',
+
       /// search dialog
       'searchConfig': 'Opções de pesquisa',
       'addTabBar': 'Adicionar barra de guias',

@@ -567,6 +567,10 @@ class en_US {
       'migrateToDownload': 'Migrate To 「Download」',
       'refresh': 'Refresh',
 
+      /// download search page
+      'simpleSearch': 'Simple',
+      'regexSearch': 'Regex',
+
       /// search dialog
       'searchConfig': 'Search Config',
       'addTabBar': 'Add Tab Bar',

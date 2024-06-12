@@ -565,6 +565,10 @@ class zh_TW {
       'migrateToDownload': '遷移至「下載」',
       'refresh': '刷新',
 
+      /// download search page
+      'simpleSearch': '簡單',
+      'regexSearch': '正則',
+
       /// search dialog
       'searchConfig': '搜尋設定',
       'addTabBar': '添加標籤欄',

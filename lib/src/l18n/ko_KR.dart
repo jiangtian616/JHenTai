@@ -567,6 +567,10 @@ class ko_KR {
       'migrateToDownload': 'Migrate To 「Download」',
       'refresh': 'Refresh',
 
+      /// download search page
+      'simpleSearch': 'Simple',
+      'regexSearch': 'Regex',
+
       /// search dialog
       'searchConfig': '검색 설정',
       'addTabBar': '탭 추가',

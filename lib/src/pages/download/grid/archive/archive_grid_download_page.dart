@@ -13,8 +13,10 @@ import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_s
 import 'package:jhentai/src/service/super_resolution_service.dart';
 
 import '../../../../model/gallery_image.dart';
+import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
 import '../../../../utils/byte_util.dart';
+import '../../../../utils/route_util.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_mixin.dart';
 import '../mixin/grid_download_page_mixin.dart';
 import 'archive_grid_download_page_logic.dart';
@@ -81,6 +83,13 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
               ),
             ),
+            PopupMenuItem(
+              value: 4,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Icon(Icons.search), const SizedBox(width: 12), Text('search'.tr)],
+              ),
+            ),
           ];
         },
         onSelected: (value) {
@@ -98,6 +107,9 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           }
           if (value == 3) {
             logic.handlePauseAllTasks();
+          }
+          if (value == 4) {
+            toRoute(Routes.downloadSearch);
           }
         },
       ),

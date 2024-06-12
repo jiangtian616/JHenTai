@@ -97,6 +97,13 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                   children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
                 ),
               ),
+              PopupMenuItem(
+                value: 4,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.search), const SizedBox(width: 12), Text('search'.tr)],
+                ),
+              ),
             ];
           },
           onSelected: (value) {
@@ -111,6 +118,9 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             }
             if (value == 3) {
               logic.downloadService.pauseAllDownloadGallery();
+            }
+            if (value == 4) {
+              toRoute(Routes.downloadSearch);
             }
           },
         ),

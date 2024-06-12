@@ -567,6 +567,10 @@ class zh_CN {
       'migrateToDownload': '迁移至「下载」',
       'refresh': '刷新',
 
+      /// download search page
+      'simpleSearch': '简单',
+      'regexSearch': '正则',
+
       /// search dialog
       'searchConfig': '搜索配置',
       'addTabBar': '添加标签栏',

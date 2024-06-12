@@ -26,6 +26,7 @@ enum StorageEnum {
   superResolutionSetting('SuperResolutionSetting'),
   tabBarSetting('tabBarSetting'),
   userSetting('userSetting'),
+  downloadSearchPageType('downloadSearchPageType'),
   ;
 
   final String key;
