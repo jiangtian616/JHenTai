@@ -304,11 +304,15 @@ class _EHCommentTextBody extends StatelessWidget {
 
     /// link
     if (node.localName == 'a') {
-      return TextSpan(
-        text: node.text,
-        style: const TextStyle(color: UIConfig.commentLinkColor),
-        recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(node.attributes['href'] ?? node.text)),
-        children: node.children.map((childTag) => buildTag(context, childTag)).toList(),
+      return WidgetSpan(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => _handleTapUrl(node.attributes['href'] ?? node.text),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: node.children.map((childTag) => Text.rich(buildTag(context, childTag))).toList(),
+          ),
+        ),
       );
     }
 
