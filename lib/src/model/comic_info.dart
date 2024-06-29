@@ -1,4 +1,9 @@
-interface class ComicInfo {
+import 'package:collection/collection.dart';
+import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:xml/xml.dart';
+
+abstract interface class ComicInfo {
   String? get title => null;
 
   /// Title of the series the book is part of
@@ -97,7 +102,7 @@ interface class ComicInfo {
   /// Locations mentioned in the book.
   String? get locations => null;
 
-  /// Main character or team mentioned in the book. 
+  /// Main character or team mentioned in the book.
   String? get mainCharacterOrTeam => null;
 
   /// A free text field, usually used to store information about who scanned the book.
@@ -121,6 +126,8 @@ interface class ComicInfo {
   String? get GTIN => null;
 
   List<ComicPageInfo>? get pages => null;
+
+  XmlDocument toXmlDocument();
 }
 
 class ComicPageInfo {
@@ -299,5 +306,118 @@ enum ComicPageTypeEnum {
       default:
         return other;
     }
+  }
+}
+
+class EHGalleryComicInfo extends ComicInfo {
+  String rawTitle;
+  String? japaneseTitle;
+  final String category;
+  @override
+  final int pageCount;
+  final String galleryUrl;
+  final String? uploader;
+  final String publishTime;
+  final String? languageAbbreviation;
+  @override
+  final List<TagData> tagDatas;
+  final double rating;
+
+  @override
+  String get title => rawTitle;
+
+  @override
+  String get series => rawTitle;
+
+  @override
+  String? get alternateSeries => japaneseTitle;
+
+  @override
+  String? get writer => tagDatas.where((tagData) => tagData.namespace == 'artist').map((tagData) => tagData.key).join(',');
+
+  @override
+  String? get penciller => tagDatas.where((tagData) => tagData.namespace == 'artist').map((tagData) => tagData.key).join(',');
+
+  @override
+  String get genre => category;
+
+  @override
+  String? get tags => tagDatas.map((tagData) => '${tagData.namespace}:${tagData.key}').join(',');
+
+  @override
+  String get web => galleryUrl;
+
+  @override
+  String? get languageISO => languageAbbreviation;
+
+  @override
+  YesEnum get blackAndWhite => tagDatas.none((tagData) => tagData.key == 'full color') ? YesEnum.yes : YesEnum.no;
+
+  @override
+  MangaEnum get manga => category == 'Manga' ? MangaEnum.yes : MangaEnum.no;
+
+  @override
+  String get characters => tagDatas.where((tagData) => tagData.namespace == 'character').map((tagData) => tagData.key).join(',');
+
+  @override
+  AgeRatingEnum get ageRating => category == 'Non-H' ? AgeRatingEnum.kidsToAdults : AgeRatingEnum.adults;
+
+  @override
+  double get communityRating => rating;
+
+  EHGalleryComicInfo({
+    required this.rawTitle,
+    this.japaneseTitle,
+    required this.category,
+    required this.pageCount,
+    required this.galleryUrl,
+    this.uploader,
+    required this.publishTime,
+    this.languageAbbreviation,
+    required this.tagDatas,
+    required this.rating,
+  });
+
+  @override
+  XmlDocument toXmlDocument() {
+    XmlBuilder builder = XmlBuilder();
+
+    builder.processing('xml', 'version="1.0"');
+
+    builder.element(
+      'ComicInfo',
+      nest: () {
+        builder.attribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        builder.attribute('xmlns:xsn', 'http://www.w3.org/2001/XMLSchema');
+
+        builder.element('Title', nest: title);
+        builder.element('Series', nest: series);
+        if (!isEmptyOrNull(alternateSeries)) {
+          builder.element('AlternateSeries', nest: alternateSeries);
+        }
+        if (!isEmptyOrNull(writer)) {
+          builder.element('Writer', nest: writer);
+        }
+        if (!isEmptyOrNull(penciller)) {
+          builder.element('Penciller', nest: penciller);
+        }
+        builder.element('Genre', nest: genre);
+        builder.element('Tags', nest: tags);
+        builder.element('Web', nest: web);
+        builder.element('PageCount', nest: pageCount);
+        if (!isEmptyOrNull(languageISO)) {
+          builder.element('LanguageISO', nest: languageISO);
+        }
+        builder.element('BlackAndWhite', nest: blackAndWhite.desc);
+        builder.element('Manga', nest: manga.desc);
+        if (!isEmptyOrNull(characters)) {
+          builder.element('Characters', nest: characters);
+        }
+        builder.element('AgeRating', nest: ageRating.desc);
+        builder.element('CommunityRating', nest: communityRating.toStringAsFixed(1));
+      },
+    );
+
+    return builder.buildDocument();
   }
 }

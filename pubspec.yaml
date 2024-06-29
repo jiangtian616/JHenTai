@@ -46,7 +46,7 @@ dependencies:
   like_button:
     git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
-  desktop_webview_window: 
+  desktop_webview_window:
     git:
       url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_webview_window
@@ -103,6 +103,7 @@ dependencies:
   device_info_plus: 10.1.0
   template_expressions: 3.2.0+7
   uuid: 4.4.0
+  xml: 6.5.0
 
 dependency_overrides:
   test_api: 0.6.0

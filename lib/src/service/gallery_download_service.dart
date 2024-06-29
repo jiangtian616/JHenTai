@@ -36,9 +36,11 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 import 'package:drift/drift.dart';
 
+import '../consts/locale_consts.dart';
 import '../database/dao/gallery_image_dao.dart';
 import '../exception/cancel_exception.dart';
 import '../exception/eh_site_exception.dart';
+import '../model/comic_info.dart';
 import '../model/detail_page_info.dart';
 import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
@@ -114,6 +116,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     galleryDownloadInfos[gallery.gid]!.speedComputer.start();
 
     Log.info('Begin to download gallery: ${gallery.title}, original: ${gallery.downloadOriginalImage}');
+
+    _generateComicInfoInDisk(gallery);
 
     _submitTask(
       gid: gallery.gid,
@@ -582,6 +586,48 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  Future<void> _generateComicInfoInDisk(GalleryDownloadedData gallery) async {
+    GalleryDetail galleryDetail;
+    try {
+      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
+        () => EHRequest.requestDetailPage(galleryUrl: gallery.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        retryIf: (e) => e is DioException,
+        maxAttempts: _maxRetryTimes,
+      );
+      galleryDetail = detailPageInfo.galleryDetails;
+    } catch (e) {
+      Log.error('Get gallery detail failed, gallery: ${gallery.gid}', e);
+      return;
+    }
+
+    if (_taskHasBeenRemoved(gallery)) {
+      return;
+    }
+
+    EHGalleryComicInfo galleryComicInfo = EHGalleryComicInfo(
+      rawTitle: galleryDetail.rawTitle,
+      japaneseTitle: galleryDetail.japaneseTitle,
+      category: galleryDetail.category,
+      pageCount: galleryDetail.pageCount,
+      galleryUrl: galleryDetail.galleryUrl.url,
+      uploader: galleryDetail.uploader,
+      publishTime: galleryDetail.publishTime,
+      languageAbbreviation: LocaleConsts.language2Abbreviation[galleryDetail.language]?.toLowerCase(),
+      tagDatas: galleryDetail.tags.values.flattened.map((galleryTag) => galleryTag.tagData).toList(),
+      rating: galleryDetail.realRating,
+    );
+
+    try {
+      io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(galleryDetail.rawTitle, gallery.gid), 'ComicInfo.xml'));
+      if (!await file.exists()) {
+        await file.create(recursive: true);
+      }
+      await file.writeAsString(galleryComicInfo.toXmlDocument().toXmlString(pretty: true));
+    } catch (e) {
+      Log.error('Write comic info failed, gallery: ${gallery.gid}', e);
+    }
+  }
+
   void updateExecutor() {
     executor.concurrency = DownloadSetting.downloadTaskConcurrency.value;
     executor.rate = Rate(DownloadSetting.maximum.value, DownloadSetting.period.value);
@@ -746,6 +792,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
     return galleryDownloadInfos[gallery.gid] == null || galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus == DownloadStatus.paused;
+  }
+
+  bool _taskHasBeenRemoved(GalleryDownloadedData gallery) {
+    return galleryDownloadInfos[gallery.gid] == null;
   }
 
   // Task

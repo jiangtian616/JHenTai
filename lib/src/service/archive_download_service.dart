@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
@@ -25,8 +26,11 @@ import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
+import '../consts/locale_consts.dart';
 import '../database/dao/archive_dao.dart';
 import '../exception/cancel_exception.dart';
+import '../model/comic_info.dart';
+import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
@@ -39,7 +43,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String archiveStatusId = 'archiveStatusId';
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
-  static const int _retryTimes = 3;
+  static const int _maxRetryTimes = 3;
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
   static const int _maxIsolateCountsTotal = 10;
@@ -111,6 +115,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     Log.info('Begin to handle archive: ${archive.title}, original: ${archive.isOriginal}');
 
+    _generateComicInfoInDisk(archive);
+    
     /// step 1: request to unlock archive: if we have unlocked before or unlock has completed,
     /// we can get [downloadPageUrl] immediately, otherwise we must wait for a second
     await _unlock(archive);
@@ -224,7 +230,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => Log.download('Cancel archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
-          maxAttempts: _retryTimes,
+          maxAttempts: _maxRetryTimes,
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
@@ -447,6 +453,48 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  Future<void> _generateComicInfoInDisk(ArchiveDownloadedData archive) async {
+    GalleryDetail galleryDetail;
+    try {
+      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
+        () => EHRequest.requestDetailPage(galleryUrl: archive.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        retryIf: (e) => e is DioException,
+        maxAttempts: _maxRetryTimes,
+      );
+      galleryDetail = detailPageInfo.galleryDetails;
+    } catch (e) {
+      Log.error('Get gallery detail failed, gallery: ${archive.gid}', e);
+      return;
+    }
+
+    if (!archiveDownloadInfos.containsKey(archive.gid)) {
+      return;
+    }
+
+    EHGalleryComicInfo galleryComicInfo = EHGalleryComicInfo(
+      rawTitle: galleryDetail.rawTitle,
+      japaneseTitle: galleryDetail.japaneseTitle,
+      category: galleryDetail.category,
+      pageCount: galleryDetail.pageCount,
+      galleryUrl: galleryDetail.galleryUrl.url,
+      uploader: galleryDetail.uploader,
+      publishTime: galleryDetail.publishTime,
+      languageAbbreviation: LocaleConsts.language2Abbreviation[galleryDetail.language]?.toLowerCase(),
+      tagDatas: galleryDetail.tags.values.flattened.map((galleryTag) => galleryTag.tagData).toList(),
+      rating: galleryDetail.realRating,
+    );
+
+    try {
+      File file = File(join(computeArchiveUnpackingPath(galleryDetail.rawTitle, archive.gid), 'ComicInfo.xml'));
+      if (!await file.exists()) {
+        await file.create(recursive: true);
+      }
+      await file.writeAsString(galleryComicInfo.toXmlDocument().toXmlString(pretty: true));
+    } catch (e) {
+      Log.error('Write comic info failed, gallery: ${archive.gid}', e);
+    }
+  }
+
   String _computeArchiveTitle(String rawTitle) {
     String title = rawTitle.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
 
@@ -649,7 +697,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         ),
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => Log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
-        maxAttempts: _retryTimes,
+        maxAttempts: _maxRetryTimes,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
@@ -700,7 +748,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         ),
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => Log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
-        maxAttempts: _retryTimes,
+        maxAttempts: _maxRetryTimes,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
@@ -753,7 +801,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         ),
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => Log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
-        maxAttempts: _retryTimes,
+        maxAttempts: _maxRetryTimes,
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
