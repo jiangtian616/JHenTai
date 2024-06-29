@@ -460,7 +460,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
     String title = _computeArchiveTitle(archive.title);
 
-    return join(DownloadSetting.downloadPath.value, 'Archive - v2 - ${archive.gid} - $title.zip');
+    return join(DownloadSetting.downloadPath.value, 'ArchiveV2 - ${archive.gid} - $title.zip');
   }
 
   String computeArchiveUnpackingPath(String rawTitle, int gid) {
