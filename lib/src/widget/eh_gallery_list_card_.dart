@@ -161,6 +161,17 @@ class EHGalleryListCard extends StatelessWidget {
     gallery.tags.forEach((namespace, galleryTags) {
       mergedList.addAll(galleryTags);
     });
+    mergedList.sort((a, b) {
+      bool aWatched = a.backgroundColor != null;
+      bool bWatched = b.backgroundColor != null;
+      if (aWatched && !bWatched) {
+        return -1;
+      } else if (!aWatched && bWatched) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
 
     return SizedBox(
       height: UIConfig.galleryCardTagsHeight,
