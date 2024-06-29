@@ -13,6 +13,8 @@ class LocaleConsts {
     'polish': 'PL',
     'hungarian': 'HU',
     'thai': 'TH',
+    'Dutch': 'NL',
+    'Vietnamese': 'VI',
   };
 
   static Map<String, String> localeCode2Description = {
