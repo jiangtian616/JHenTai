@@ -277,7 +277,6 @@ class _EHCommentTextBody extends StatelessWidget {
           builder: (context, constraints) {
             return ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: imageMinHeight,
                 maxWidth: _computeImageMaxWidth(constraints, node),
               ),
               child: ExtendedImage.network(
@@ -308,8 +307,7 @@ class _EHCommentTextBody extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _handleTapUrl(node.attributes['href'] ?? node.text),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
             children: node.children.map((childTag) => Text.rich(buildTag(context, childTag))).toList(),
           ),
         ),
@@ -365,16 +363,16 @@ class _EHCommentTextBody extends StatelessWidget {
   }
 
   /// make sure align several images into one line
-  double _computeImageMaxWidth(BoxConstraints constraints, dom.Element element) {
+  double _computeImageMaxWidth(BoxConstraints constraints, dom.Element imageElement) {
     /// wrapped in a <a>
-    if (element.parent?.localName == 'a') {
-      element = element.parent!;
+    if (imageElement.parent?.localName == 'a' && imageElement.parent!.children.length == 1) {
+      imageElement = imageElement.parent!;
     }
 
     int previousImageCount = 0;
     int followingImageCount = 0;
-    dom.Element? previousElement = element.previousElementSibling;
-    dom.Element? nextElement = element.nextElementSibling;
+    dom.Element? previousElement = imageElement.previousElementSibling;
+    dom.Element? nextElement = imageElement.nextElementSibling;
 
     while (previousElement != null && _containsImage(previousElement)) {
       previousImageCount++;
@@ -385,8 +383,12 @@ class _EHCommentTextBody extends StatelessWidget {
       nextElement = nextElement.nextElementSibling;
     }
 
-    /// tolerance = 1
-    return constraints.maxWidth / (1 + previousImageCount + followingImageCount) - 1;
+    int showImageCount = previousImageCount + followingImageCount + 1;
+    showImageCount = showImageCount < 3 ? 3 : showImageCount;
+    showImageCount = showImageCount > 5 ? 5 : showImageCount;
+
+    /// tolerance = 3
+    return constraints.maxWidth / showImageCount - 3;
   }
 
   bool _containsImage(dom.Element element) {
