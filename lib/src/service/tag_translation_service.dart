@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
@@ -165,6 +166,17 @@ class TagTranslationService extends GetxService {
     });
 
     await Future.wait(futures);
+  }
+
+  /// won't translate keys
+  Future<List<TagData>> translateTagDatasIfNeeded(List<TagData> tags) async {
+    if (!isReady) {
+      return [];
+    }
+
+    List<Future<TagData?>> futures = tags.map((tag) => getTagTranslation(tag.namespace, tag.key)).toList();
+    List<TagData?> translatedTagDatas = await Future.wait(futures);
+    return translatedTagDatas.whereNotNull().toList();
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {

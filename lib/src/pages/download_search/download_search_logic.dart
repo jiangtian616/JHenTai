@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -19,6 +20,7 @@ import '../../service/super_resolution_service.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
+import '../../utils/table.dart' as t;
 import 'download_search_state.dart';
 
 class DownloadSearchLogic extends GetxController {
@@ -32,6 +34,7 @@ class DownloadSearchLogic extends GetxController {
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final SuperResolutionService superResolutionService = Get.find();
   final StorageService storageService = Get.find();
+  final TagTranslationService tagTranslationService = Get.find();
 
   late final TextEditingController textEditingController;
   late final FocusNode searchFocusNode;
@@ -85,6 +88,15 @@ class DownloadSearchLogic extends GetxController {
     state.archives.clear();
     updateSafely([loadingStateId]);
 
+    List<TagData> allGalleryTags = galleryDownloadService.gallerys.map((g) => g.tags).mapMany(tagDataString2TagDataList).toList();
+    List<TagData> allArchiveTags = archiveDownloadService.archives.map((a) => a.tags).mapMany(tagDataString2TagDataList).toList();
+    List<TagData> allTags = {...allGalleryTags, ...allArchiveTags}.toList();
+    List<TagData> translatedTags = await tagTranslationService.translateTagDatasIfNeeded(allTags);
+    t.Table<String, String, TagData> translatedTagDataTable = t.Table();
+    for (TagData tag in translatedTags) {
+      translatedTagDataTable.put(tag.namespace, tag.key, tag);
+    }
+
     if (state.searchType == DownloadSearchConfigTypeEnum.regex) {
       RegExp? regExp;
       try {
@@ -95,16 +107,100 @@ class DownloadSearchLogic extends GetxController {
         return;
       }
 
-      state.gallerys =
-          galleryDownloadService.gallerys.where((g) => regExp!.hasMatch(g.title) || (!isEmptyOrNull(g.uploader) && regExp.hasMatch(g.uploader!))).toList();
-      state.archives =
-          archiveDownloadService.archives.where((a) => regExp!.hasMatch(a.title) || (!isEmptyOrNull(a.uploader) && regExp.hasMatch(a.uploader!))).toList();
+      state.gallerys = galleryDownloadService.gallerys.where((g) {
+        if (regExp!.hasMatch(g.title)) {
+          return true;
+        }
+
+        if (!isEmptyOrNull(g.uploader) && regExp.hasMatch(g.uploader!)) {
+          return true;
+        }
+
+        List<TagData> tagDatas = tagDataString2TagDataList(g.tags);
+        for (TagData tagData in tagDatas) {
+          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
+
+          if (regExp.hasMatch('${tagData.namespace}:${tagData.key}')) {
+            return true;
+          }
+          if (translatedTagData != null && regExp.hasMatch('${translatedTagData.translatedNamespace}:${translatedTagData.tagName}')) {
+            return true;
+          }
+        }
+
+        return false;
+      }).toList();
+
+      state.archives = archiveDownloadService.archives.where((a) {
+        if (regExp!.hasMatch(a.title)) {
+          return true;
+        }
+
+        if (!isEmptyOrNull(a.uploader) && regExp.hasMatch(a.uploader!)) {
+          return true;
+        }
+
+        List<TagData> tagDatas = tagDataString2TagDataList(a.tags);
+        for (TagData tagData in tagDatas) {
+          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
+
+          if (regExp.hasMatch('${tagData.namespace}:${tagData.key}')) {
+            return true;
+          }
+          if (translatedTagData != null && regExp.hasMatch('${translatedTagData.translatedNamespace}:${translatedTagData.tagName}')) {
+            return true;
+          }
+        }
+        return false;
+      }).toList();
     } else {
-      state.gallerys =
-          galleryDownloadService.gallerys.where((g) => g.title.contains(value) || (!isEmptyOrNull(g.uploader) && g.uploader!.contains(value))).toList();
-      state.archives =
-          archiveDownloadService.archives.where((a) => a.title.contains(value) || (!isEmptyOrNull(a.uploader) && a.uploader!.contains(value))).toList();
+      state.gallerys = galleryDownloadService.gallerys.where((g) {
+        if (g.title.contains(value)) {
+          return true;
+        }
+
+        if (!isEmptyOrNull(g.uploader) && g.uploader!.contains(value)) {
+          return true;
+        }
+
+        List<TagData> tagDatas = tagDataString2TagDataList(g.tags);
+        for (TagData tagData in tagDatas) {
+          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
+
+          if ('${tagData.namespace}:${tagData.key}'.contains(value)) {
+            return true;
+          }
+          if (translatedTagData != null && '${translatedTagData.translatedNamespace}:${translatedTagData.tagName}'.contains(value)) {
+            return true;
+          }
+        }
+
+        return false;
+      }).toList();
+      state.archives = archiveDownloadService.archives.where((a) {
+        if (a.title.contains(value)) {
+          return true;
+        }
+
+        if (!isEmptyOrNull(a.uploader) && a.uploader!.contains(value)) {
+          return true;
+        }
+
+        List<TagData> tagDatas = tagDataString2TagDataList(a.tags);
+        for (TagData tagData in tagDatas) {
+          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
+
+          if ('${tagData.namespace}:${tagData.key}'.contains(value)) {
+            return true;
+          }
+          if (translatedTagData != null && '${translatedTagData.translatedNamespace}:${translatedTagData.tagName}'.contains(value)) {
+            return true;
+          }
+        }
+        return false;
+      }).toList();
     }
+
     loadingState = LoadingState.success;
     updateSafely([loadingStateId, bodyId]);
   }
