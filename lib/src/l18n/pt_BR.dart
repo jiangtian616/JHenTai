@@ -733,6 +733,7 @@ class pt_BR {
       'comment': 'Comment',
       'tag': 'Tag',
       'userId': 'UserId',
+      'content': 'Content',
       'incompleteInformation': 'Incomplete information',
       'noBlockingRuleHint': 'Add at least 1 rule',
       'notSameBlockingRuleTargetHint': 'All sub-rules should have the same blocking target',

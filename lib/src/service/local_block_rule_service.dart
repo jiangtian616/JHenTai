@@ -33,6 +33,7 @@ class LocalBlockRuleService extends GetxService {
       GalleryTagLikeLocalBlockRuleHandler(),
       GalleryUploaderLikeLocalBlockRuleHandler(),
       CommentUserNameLikeLocalBlockRuleHandler(),
+      CommentContentLikeLocalBlockRuleHandler(),
       GalleryTitleNotContainLocalBlockRuleHandler(),
       GalleryTagNotContainLocalBlockRuleHandler(),
       GalleryUploaderNotContainLocalBlockRuleHandler(),
@@ -274,6 +275,18 @@ mixin CommentScoreAttributeGetter on AttributeGetter<double, GalleryComment> {
   }
 }
 
+mixin CommentContentAttributeGetter on AttributeGetter<String, GalleryComment> {
+  @override
+  bool matchRuleAttribute(LocalBlockAttributeEnum attribute) {
+    return attribute == LocalBlockAttributeEnum.content;
+  }
+
+  @override
+  List<String> getItemAttributes(covariant GalleryComment item) {
+    return [item.content.text];
+  }
+}
+
 abstract class EqualLocalBlockRuleHandler<ITEM> implements LocalBlockRuleHandler<ITEM>, AttributeGetter<String, ITEM> {
   @override
   int get order => 10;
@@ -488,6 +501,8 @@ class GalleryUploaderLikeLocalBlockRuleHandler extends LikeLocalBlockRuleHandler
 
 class CommentUserNameLikeLocalBlockRuleHandler extends LikeLocalBlockRuleHandler<GalleryComment> with CommentUsernameAttributeGetter {}
 
+class CommentContentLikeLocalBlockRuleHandler extends LikeLocalBlockRuleHandler<GalleryComment> with CommentContentAttributeGetter {}
+
 class GalleryTitleNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<Gallery> with GalleryTitleAttributeGetter {}
 
 class GalleryTagNotContainLocalBlockRuleHandler extends NotContainLocalBlockRuleHandler<Gallery> with GalleryTagAttributeGetter {}
@@ -503,6 +518,8 @@ class GalleryTagRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<Ga
 class GalleryUploaderRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<Gallery> with GalleryUploaderAttributeGetter {}
 
 class CommentUserNameRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<GalleryComment> with CommentUsernameAttributeGetter {}
+
+class CommentContentRegexLocalBlockRuleHandler extends RegexLocalBlockRuleHandler<GalleryComment> with CommentContentAttributeGetter {}
 
 enum LocalBlockTargetEnum {
   gallery(0, 'gallery', Gallery),
@@ -527,6 +544,7 @@ enum LocalBlockAttributeEnum {
   userName(100, LocalBlockTargetEnum.comment, 'userName'),
   userId(110, LocalBlockTargetEnum.comment, 'userId'),
   score(120, LocalBlockTargetEnum.comment, 'score'),
+  content(130, LocalBlockTargetEnum.comment, 'content'),
   ;
 
   final int code;
@@ -543,15 +561,52 @@ enum LocalBlockAttributeEnum {
 }
 
 enum LocalBlockPatternEnum {
-  equal(0, [LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName, LocalBlockAttributeEnum.userId], '='),
+  equal(
+    0,
+    [
+      LocalBlockAttributeEnum.tag,
+      LocalBlockAttributeEnum.uploader,
+      LocalBlockAttributeEnum.userName,
+      LocalBlockAttributeEnum.userId,
+    ],
+    '=',
+  ),
   gt(10, [LocalBlockAttributeEnum.score], '>'),
   gte(20, [LocalBlockAttributeEnum.score], '>='),
   st(30, [LocalBlockAttributeEnum.score], '<'),
   ste(40, [LocalBlockAttributeEnum.score], '<='),
-  like(50, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'contain'),
+  like(
+    50,
+    [
+      LocalBlockAttributeEnum.title,
+      LocalBlockAttributeEnum.tag,
+      LocalBlockAttributeEnum.uploader,
+      LocalBlockAttributeEnum.userName,
+      LocalBlockAttributeEnum.content,
+    ],
+    'contain',
+  ),
   notContain(
-      60, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'notContain'),
-  regex(70, [LocalBlockAttributeEnum.title, LocalBlockAttributeEnum.tag, LocalBlockAttributeEnum.uploader, LocalBlockAttributeEnum.userName], 'regex'),
+    60,
+    [
+      LocalBlockAttributeEnum.title,
+      LocalBlockAttributeEnum.tag,
+      LocalBlockAttributeEnum.uploader,
+      LocalBlockAttributeEnum.userName,
+    ],
+    'notContain',
+  ),
+  regex(
+    70,
+    [
+      LocalBlockAttributeEnum.title,
+      LocalBlockAttributeEnum.tag,
+      LocalBlockAttributeEnum.uploader,
+      LocalBlockAttributeEnum.userName,
+      LocalBlockAttributeEnum.content,
+    ],
+    'regex',
+  ),
   ;
 
   final int code;

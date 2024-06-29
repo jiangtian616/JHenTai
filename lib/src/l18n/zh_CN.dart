@@ -736,6 +736,7 @@ favnote：匹配收藏备注
       'comment': '评论',
       'tag': '标签',
       'userId': '用户id',
+      'content': '内容',
       'incompleteInformation': '请补充完整的信息',
       'noBlockingRuleHint': '请至少配置一条规则',
       'notSameBlockingRuleTargetHint': '所有子规则的屏蔽目标需要相同',
