@@ -114,7 +114,7 @@ class DownloadSearchLogic extends GetxController {
             priority: g.priority,
             sortOrder: g.sortOrder,
             groupName: g.groupName,
-            tags: tagDataString2TagDataList(g.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key)!).toList(),
+            tags: tagDataString2TagDataList(g.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key) ?? tagData).toList(),
             tagRefreshTime: g.tagRefreshTime,
           ),
         )
@@ -138,7 +138,7 @@ class DownloadSearchLogic extends GetxController {
         insertTime: a.insertTime,
         sortOrder: a.sortOrder,
         groupName: a.groupName,
-        tags: tagDataString2TagDataList(a.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key)!).toList(),
+        tags: tagDataString2TagDataList(a.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key) ?? tagData).toList(),
         tagRefreshTime: a.tagRefreshTime,
       );
     }).toList();

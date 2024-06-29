@@ -22,6 +22,15 @@ class GalleryDao {
     return (appDb.update(appDb.galleryDownloaded)..where((a) => a.gid.equals(gallery.gid.value))).write(gallery);
   }
 
+  static Future<int> updateGalleryTags(int gid, String tags) {
+    return (appDb.update(appDb.galleryDownloaded)..where((g) => g.gid.equals(gid))).write(
+      GalleryDownloadedCompanion(
+        tags: Value(tags),
+        tagRefreshTime: Value(DateTime.now().toString()),
+      ),
+    );
+  }
+
   static Future<void> batchUpdateGallery(List<GalleryDownloadedCompanion> gallerys) {
     return appDb.batch((batch) async {
       for (GalleryDownloadedCompanion gallery in gallerys) {

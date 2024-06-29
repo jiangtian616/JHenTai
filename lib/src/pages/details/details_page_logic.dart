@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/database/dao/archive_dao.dart';
+import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -241,7 +243,18 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.loadingState = LoadingState.success;
     updateSafely(_judgeUpdateIds());
 
-    SchedulerBinding.instance.scheduleTask(() => historyService.record(state.galleryDetails!.toGallery()), Priority.animation);
+    SchedulerBinding.instance.scheduleTask(
+      () => historyService.record(state.galleryDetails!.toGallery()),
+      Priority.animation,
+    );
+    SchedulerBinding.instance.scheduleTask(
+      () => GalleryDao.updateGalleryTags(state.galleryDetails!.galleryUrl.gid, tagMap2TagString(state.galleryDetails!.tags)),
+      Priority.animation,
+    );
+    SchedulerBinding.instance.scheduleTask(
+      () => ArchiveDao.updateArchiveTags(state.galleryDetails!.galleryUrl.gid, tagMap2TagString(state.galleryDetails!.tags)),
+      Priority.animation,
+    );
   }
 
   Future<void> _handleGalleryDeleted(bool refreshPageImmediately, EHSiteException exception) async {

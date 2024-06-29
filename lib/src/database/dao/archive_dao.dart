@@ -22,6 +22,15 @@ class ArchiveDao {
     return (appDb.update(appDb.archiveDownloaded)..where((a) => a.gid.equals(archive.gid.value))).write(archive);
   }
 
+  static Future<int> updateArchiveTags(int gid, String tags) {
+    return (appDb.update(appDb.archiveDownloaded)..where((a) => a.gid.equals(gid))).write(
+      ArchiveDownloadedCompanion(
+        tags: Value(tags),
+        tagRefreshTime: Value(DateTime.now().toString()),
+      ),
+    );
+  }
+
   static Future<void> batchUpdateArchive(List<ArchiveDownloadedCompanion> archives) {
     return appDb.batch((batch) async {
       for (ArchiveDownloadedCompanion archive in archives) {
