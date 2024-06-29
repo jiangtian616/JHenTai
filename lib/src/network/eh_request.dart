@@ -344,7 +344,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   static Future<T> requestGalleryMetadata<T>({
     required int gid,
     required String token,
-    bool useCacheIfAvailable = true,
     required HtmlParser<T> parser,
   }) async {
     Response response = await _postWithErrorHandler(
@@ -355,6 +354,22 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'gidlist': [
           [gid, token]
         ],
+        "namespace": 1,
+      },
+    );
+    return _parseResponse(response, parser);
+  }
+
+  static Future<T> requestGalleryMetadatas<T>({
+    required List<({int gid, String token})> list,
+    required HtmlParser<T> parser,
+  }) async {
+    Response response = await _postWithErrorHandler(
+      EHConsts.EHApi,
+      options: Options(contentType: Headers.jsonContentType),
+      data: {
+        'method': 'gdata',
+        'gidlist': list.map((item) => [item.gid, item.token]).toList(),
         "namespace": 1,
       },
     );

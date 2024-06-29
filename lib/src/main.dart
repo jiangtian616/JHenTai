@@ -15,6 +15,7 @@ import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
+import 'package:jhentai/src/service/schedule_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
@@ -214,4 +215,6 @@ Future<void> onReady() async {
   VolumeService.init();
   
   CloudConfigService.init();
+  
+  ScheduleService.init();
 }

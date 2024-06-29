@@ -7,12 +7,27 @@ class ArchiveDao {
     return (appDb.select(appDb.archiveDownloaded)..orderBy([(archive) => OrderingTerm(expression: archive.sortOrder)])).get();
   }
 
+  static Future<List<ArchiveDownloadedData>> selectArchivesForTagRefresh(int pageNo, int pageSize) {
+    return (appDb.select(appDb.archiveDownloaded)
+          ..orderBy([(archive) => OrderingTerm(expression: archive.tagRefreshTime)])
+          ..limit(pageSize, offset: (pageNo - 1) * pageSize))
+        .get();
+  }
+
   static Future<int> insertArchive(ArchiveDownloadedCompanion archive) {
     return appDb.into(appDb.archiveDownloaded).insert(archive);
   }
 
   static Future<int> updateArchive(ArchiveDownloadedCompanion archive) {
     return (appDb.update(appDb.archiveDownloaded)..where((a) => a.gid.equals(archive.gid.value))).write(archive);
+  }
+
+  static Future<void> batchUpdateArchive(List<ArchiveDownloadedCompanion> archives) {
+    return appDb.batch((batch) async {
+      for (ArchiveDownloadedCompanion archive in archives) {
+        batch.update(appDb.archiveDownloaded, archive, where: (a) => a.gid.equals(archive.gid.value));
+      }
+    });
   }
 
   static Future<int> reGroupArchive(String oldGroupName, String newGroupName) {

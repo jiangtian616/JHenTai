@@ -442,6 +442,44 @@ class EHSpiderParser {
     );
   }
 
+  static List<GalleryMetadata> galleryMetadataJson2GalleryMetadatas(Headers headers, dynamic data) {
+    Map? body = json.decode(data);
+    if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {
+      throw EHParseException(type: EHParseExceptionType.getMetaDataFailed, message: 'getMetaDataFailed'.tr, shouldPauseAllDownloadTasks: false);
+    }
+
+    List list = body['gmetadata'];
+    return list.map<GalleryMetadata>((item) {
+      List<GalleryTag> tags = (item['tags'] as List).cast<String>().map((str) {
+        List<String> list = str.split(':').toList();
+        String namespace = list.length == 2 ? list[0] : 'temp';
+        String key = list.length == 2 ? list[1] : list[0];
+        return GalleryTag(tagData: TagData(namespace: namespace, key: key));
+      }).toList();
+
+      LinkedHashMap<String, List<GalleryTag>> tagsMap = LinkedHashMap.of(tags.groupListsBy((tag) => tag.tagData.namespace));
+      String? language = tagsMap['language']?.firstWhereOrNull((tag) => tag.tagData.key != 'translated')?.tagData.key;
+
+      return GalleryMetadata(
+        galleryUrl: GalleryUrl(isEH: true, gid: item['gid'], token: item['token']),
+        archiveKey: item['archiver_key'],
+        title: item['title'],
+        japaneseTitle: item['title_jpn'],
+        category: item['category'],
+        cover: GalleryImage(url: item['thumb']),
+        pageCount: int.parse(item['filecount']),
+        rating: double.parse(item['rating']),
+        language: language ?? 'Japanese',
+        uploader: item['uploader'] != '(Disowned)' ? item['uploader'] : null,
+        publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(item['posted']) * 1000).toString(),
+        isExpunged: item['expunged'],
+        size: byte2String(item['filesize'].toDouble()),
+        torrentCount: int.parse(item['torrentcount']),
+        tags: tagsMap,
+      );
+    }).toList();
+  }
+
   static Map<String, String?>? forumPage2UserInfo(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
