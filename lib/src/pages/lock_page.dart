@@ -39,64 +39,67 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
   @override
   Widget build(BuildContext context) {
     return buildWindow(
-      child: Material(
-        child: ColoredBox(
-          color: UIConfig.backGroundColor(context),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (SecuritySetting.enablePasswordAuth.isTrue)
-                Pinput(
-                  length: 4,
-                  controller: controller,
-                  pinAnimationType: PinAnimationType.fade,
-                  obscureText: true,
-                  preFilledWidget: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        width: UIConfig.lockPagePinCodeRegionWidth,
-                        height: UIConfig.lockPageCursorHeight,
-                        color: UIConfig.lockPageFilledDashColor(context),
-                      )
-                    ],
-                  ),
-                  cursor: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        width: UIConfig.lockPagePinCodeRegionWidth,
-                        height: UIConfig.lockPageCursorHeight,
-                        color: UIConfig.lockPageUnfilledDashColor(context),
-                      )
-                    ],
-                  ),
-                  defaultPinTheme: const PinTheme(
-                    width: UIConfig.lockPagePinCodeRegionWidth,
-                    height: UIConfig.lockPagePinCodeRegionWidth,
-                    textStyle: TextStyle(fontSize: 24),
-                  ),
-                  onCompleted: (String value) {
-                    if (keyToMd5(value) != SecuritySetting.encryptedPassword.value) {
-                      setState(() {
-                        controller.clear();
-                        hintText = 'passwordErrorHint'.tr;
-                      });
-                      return;
-                    }
+      child: PopScope(
+        canPop: false,
+        child: Material(
+          child: ColoredBox(
+            color: UIConfig.backGroundColor(context),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (SecuritySetting.enablePasswordAuth.isTrue)
+                  Pinput(
+                    length: 4,
+                    controller: controller,
+                    pinAnimationType: PinAnimationType.fade,
+                    obscureText: true,
+                    preFilledWidget: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: UIConfig.lockPagePinCodeRegionWidth,
+                          height: UIConfig.lockPageCursorHeight,
+                          color: UIConfig.lockPageFilledDashColor(context),
+                        )
+                      ],
+                    ),
+                    cursor: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: UIConfig.lockPagePinCodeRegionWidth,
+                          height: UIConfig.lockPageCursorHeight,
+                          color: UIConfig.lockPageUnfilledDashColor(context),
+                        )
+                      ],
+                    ),
+                    defaultPinTheme: const PinTheme(
+                      width: UIConfig.lockPagePinCodeRegionWidth,
+                      height: UIConfig.lockPagePinCodeRegionWidth,
+                      textStyle: TextStyle(fontSize: 24),
+                    ),
+                    onCompleted: (String value) {
+                      if (keyToMd5(value) != SecuritySetting.encryptedPassword.value) {
+                        setState(() {
+                          controller.clear();
+                          hintText = 'passwordErrorHint'.tr;
+                        });
+                        return;
+                      }
 
-                    unlock();
-                  },
-                  closeKeyboardWhenCompleted: false,
+                      unlock();
+                    },
+                    closeKeyboardWhenCompleted: false,
+                  ),
+                Container(
+                  padding: const EdgeInsets.only(top: 32),
+                  alignment: Alignment.center,
+                  child: Text(hintText),
                 ),
-              Container(
-                padding: const EdgeInsets.only(top: 32),
-                alignment: Alignment.center,
-                child: Text(hintText),
-              ),
-              if (SecuritySetting.enableBiometricAuth.isTrue)
-                IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
-            ],
+                if (SecuritySetting.enableBiometricAuth.isTrue)
+                  IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
+              ],
+            ),
           ),
         ),
       ),
