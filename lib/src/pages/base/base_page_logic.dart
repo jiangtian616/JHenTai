@@ -382,10 +382,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     if (cleanDuplicate) {
       _cleanDuplicateGallery(gallerys);
     }
-
+    
+    await _translateGalleryTagsIfNeeded(gallerys);
+    
     List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
-
-    await _translateGalleryTagsIfNeeded(filteredGallerys);
 
     if (PreferenceSetting.preloadGalleryCover.isTrue) {
       for (Gallery gallery in gallerys) {
