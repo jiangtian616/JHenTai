@@ -52,7 +52,13 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
   @override
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
-      leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () => backRoute(currentRoute: Routes.mobileV2Search)),
+      leading: GestureDetector(
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => backRoute(currentRoute: Routes.mobileV2Search),
+        ),
+        onLongPress: () => untilRoute(currentRoute: Routes.mobileV2Search, predicate: (route) => route.isFirst),
+      ),
       title: state.totalCount == null ? null : Text(state.totalCount!.toPrintString()),
       titleSpacing: 0,
       titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),

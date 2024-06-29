@@ -193,7 +193,9 @@ void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
     id: StyleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? left
+            ? StyleSetting.isInV2Layout
+                ? leftV2
+                : left
             : side == Side.right
                 ? StyleSetting.isInV2Layout
                     ? rightV2
