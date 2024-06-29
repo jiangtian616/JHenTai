@@ -61,7 +61,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -136,6 +136,14 @@ class AppDb extends _$AppDb {
           }
           if (from < 20) {
             await m.createTable(blockRule);
+          }
+          if (from < 21) {
+            await m.addColumn(galleryDownloaded, galleryDownloaded.tags);
+            await m.addColumn(galleryDownloaded, galleryDownloaded.tagRefreshTime);
+            await m.createIndex(gIdxTagRefreshTime);
+            await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
+            await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
+            await m.createIndex(aIdxTagRefreshTime);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -263,22 +271,23 @@ class AppDb extends _$AppDb {
       await appDb.transaction(() async {
         for (GalleryDownloadedOldData g in gallerys) {
           await GalleryDao.insertGallery(
-            GalleryDownloadedData(
-              gid: g.gid,
+            GalleryDownloadedCompanion.insert(
+              gid: Value(g.gid),
               token: g.token,
               title: g.title,
               category: g.category,
               pageCount: g.pageCount,
               galleryUrl: g.galleryUrl,
-              oldVersionGalleryUrl: g.oldVersionGalleryUrl,
-              uploader: g.uploader,
+              oldVersionGalleryUrl: Value(g.oldVersionGalleryUrl),
+              uploader: Value(g.uploader),
               publishTime: g.publishTime,
               downloadStatusIndex: g.downloadStatusIndex,
               insertTime: g.insertTime!,
-              downloadOriginalImage: g.downloadOriginalImage,
+              downloadOriginalImage: Value(g.downloadOriginalImage),
               priority: g.priority ?? 0,
-              sortOrder: g.sortOrder,
+              sortOrder: Value(g.sortOrder),
               groupName: g.groupName!,
+              tagRefreshTime: Value(DateTime.now().toString()),
             ),
           );
         }
@@ -288,25 +297,26 @@ class AppDb extends _$AppDb {
       await appDb.transaction(() async {
         for (ArchiveDownloadedOldData a in archives) {
           await ArchiveDao.insertArchive(
-            ArchiveDownloadedData(
-              gid: a.gid,
+            ArchiveDownloadedCompanion.insert(
+              gid: Value(a.gid),
               token: a.token,
               title: a.title,
               category: a.category,
               pageCount: a.pageCount,
               galleryUrl: a.galleryUrl,
               coverUrl: a.coverUrl,
-              uploader: a.uploader,
+              uploader: Value(a.uploader),
               size: a.size,
               publishTime: a.publishTime,
               archiveStatusCode: a.archiveStatusIndex,
               archivePageUrl: a.archivePageUrl,
-              downloadPageUrl: a.downloadPageUrl,
-              downloadUrl: a.downloadUrl,
+              downloadPageUrl: Value(a.downloadPageUrl),
+              downloadUrl: Value(a.downloadUrl),
               isOriginal: a.isOriginal,
               insertTime: a.insertTime!,
-              sortOrder: a.sortOrder,
+              sortOrder: Value(a.sortOrder),
               groupName: a.groupName!,
+              tagRefreshTime: Value(DateTime.now().toString()),
             ),
           );
         }

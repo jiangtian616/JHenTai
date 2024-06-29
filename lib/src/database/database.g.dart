@@ -1013,6 +1013,19 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
   late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
       'group_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _tagRefreshTimeMeta =
+      const VerificationMeta('tagRefreshTime');
+  @override
+  late final GeneratedColumn<String> tagRefreshTime = GeneratedColumn<String>(
+      'tag_refresh_time', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -1032,7 +1045,9 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
         isOriginal,
         insertTime,
         sortOrder,
-        groupName
+        groupName,
+        tags,
+        tagRefreshTime
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1159,6 +1174,16 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
     } else if (isInserting) {
       context.missing(_groupNameMeta);
     }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
+    if (data.containsKey('tag_refresh_time')) {
+      context.handle(
+          _tagRefreshTimeMeta,
+          tagRefreshTime.isAcceptableOrUnknown(
+              data['tag_refresh_time']!, _tagRefreshTimeMeta));
+    }
     return context;
   }
 
@@ -1204,6 +1229,10 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
       groupName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}group_name'])!,
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
+      tagRefreshTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tag_refresh_time']),
     );
   }
 
@@ -1233,6 +1262,8 @@ class ArchiveDownloadedData extends DataClass
   final String insertTime;
   final int sortOrder;
   final String groupName;
+  final String tags;
+  final String? tagRefreshTime;
   const ArchiveDownloadedData(
       {required this.gid,
       required this.token,
@@ -1251,7 +1282,9 @@ class ArchiveDownloadedData extends DataClass
       required this.isOriginal,
       required this.insertTime,
       required this.sortOrder,
-      required this.groupName});
+      required this.groupName,
+      required this.tags,
+      this.tagRefreshTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1279,6 +1312,10 @@ class ArchiveDownloadedData extends DataClass
     map['insert_time'] = Variable<String>(insertTime);
     map['sort_order'] = Variable<int>(sortOrder);
     map['group_name'] = Variable<String>(groupName);
+    map['tags'] = Variable<String>(tags);
+    if (!nullToAbsent || tagRefreshTime != null) {
+      map['tag_refresh_time'] = Variable<String>(tagRefreshTime);
+    }
     return map;
   }
 
@@ -1308,6 +1345,10 @@ class ArchiveDownloadedData extends DataClass
       insertTime: Value(insertTime),
       sortOrder: Value(sortOrder),
       groupName: Value(groupName),
+      tags: Value(tags),
+      tagRefreshTime: tagRefreshTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tagRefreshTime),
     );
   }
 
@@ -1333,6 +1374,8 @@ class ArchiveDownloadedData extends DataClass
       insertTime: serializer.fromJson<String>(json['insertTime']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       groupName: serializer.fromJson<String>(json['groupName']),
+      tags: serializer.fromJson<String>(json['tags']),
+      tagRefreshTime: serializer.fromJson<String?>(json['tagRefreshTime']),
     );
   }
   @override
@@ -1357,6 +1400,8 @@ class ArchiveDownloadedData extends DataClass
       'insertTime': serializer.toJson<String>(insertTime),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'groupName': serializer.toJson<String>(groupName),
+      'tags': serializer.toJson<String>(tags),
+      'tagRefreshTime': serializer.toJson<String?>(tagRefreshTime),
     };
   }
 
@@ -1378,7 +1423,9 @@ class ArchiveDownloadedData extends DataClass
           bool? isOriginal,
           String? insertTime,
           int? sortOrder,
-          String? groupName}) =>
+          String? groupName,
+          String? tags,
+          Value<String?> tagRefreshTime = const Value.absent()}) =>
       ArchiveDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -1400,6 +1447,9 @@ class ArchiveDownloadedData extends DataClass
         insertTime: insertTime ?? this.insertTime,
         sortOrder: sortOrder ?? this.sortOrder,
         groupName: groupName ?? this.groupName,
+        tags: tags ?? this.tags,
+        tagRefreshTime:
+            tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
       );
   @override
   String toString() {
@@ -1421,7 +1471,9 @@ class ArchiveDownloadedData extends DataClass
           ..write('isOriginal: $isOriginal, ')
           ..write('insertTime: $insertTime, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
+          ..write('groupName: $groupName, ')
+          ..write('tags: $tags, ')
+          ..write('tagRefreshTime: $tagRefreshTime')
           ..write(')'))
         .toString();
   }
@@ -1445,7 +1497,9 @@ class ArchiveDownloadedData extends DataClass
       isOriginal,
       insertTime,
       sortOrder,
-      groupName);
+      groupName,
+      tags,
+      tagRefreshTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1467,7 +1521,9 @@ class ArchiveDownloadedData extends DataClass
           other.isOriginal == this.isOriginal &&
           other.insertTime == this.insertTime &&
           other.sortOrder == this.sortOrder &&
-          other.groupName == this.groupName);
+          other.groupName == this.groupName &&
+          other.tags == this.tags &&
+          other.tagRefreshTime == this.tagRefreshTime);
 }
 
 class ArchiveDownloadedCompanion
@@ -1490,6 +1546,8 @@ class ArchiveDownloadedCompanion
   final Value<String> insertTime;
   final Value<int> sortOrder;
   final Value<String> groupName;
+  final Value<String> tags;
+  final Value<String?> tagRefreshTime;
   const ArchiveDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -1509,6 +1567,8 @@ class ArchiveDownloadedCompanion
     this.insertTime = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.groupName = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.tagRefreshTime = const Value.absent(),
   });
   ArchiveDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -1529,6 +1589,8 @@ class ArchiveDownloadedCompanion
     required String insertTime,
     this.sortOrder = const Value.absent(),
     required String groupName,
+    this.tags = const Value.absent(),
+    this.tagRefreshTime = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -1561,6 +1623,8 @@ class ArchiveDownloadedCompanion
     Expression<String>? insertTime,
     Expression<int>? sortOrder,
     Expression<String>? groupName,
+    Expression<String>? tags,
+    Expression<String>? tagRefreshTime,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -1581,6 +1645,8 @@ class ArchiveDownloadedCompanion
       if (insertTime != null) 'insert_time': insertTime,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (groupName != null) 'group_name': groupName,
+      if (tags != null) 'tags': tags,
+      if (tagRefreshTime != null) 'tag_refresh_time': tagRefreshTime,
     });
   }
 
@@ -1602,7 +1668,9 @@ class ArchiveDownloadedCompanion
       Value<bool>? isOriginal,
       Value<String>? insertTime,
       Value<int>? sortOrder,
-      Value<String>? groupName}) {
+      Value<String>? groupName,
+      Value<String>? tags,
+      Value<String?>? tagRefreshTime}) {
     return ArchiveDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -1622,6 +1690,8 @@ class ArchiveDownloadedCompanion
       insertTime: insertTime ?? this.insertTime,
       sortOrder: sortOrder ?? this.sortOrder,
       groupName: groupName ?? this.groupName,
+      tags: tags ?? this.tags,
+      tagRefreshTime: tagRefreshTime ?? this.tagRefreshTime,
     );
   }
 
@@ -1682,6 +1752,12 @@ class ArchiveDownloadedCompanion
     if (groupName.present) {
       map['group_name'] = Variable<String>(groupName.value);
     }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (tagRefreshTime.present) {
+      map['tag_refresh_time'] = Variable<String>(tagRefreshTime.value);
+    }
     return map;
   }
 
@@ -1705,7 +1781,9 @@ class ArchiveDownloadedCompanion
           ..write('isOriginal: $isOriginal, ')
           ..write('insertTime: $insertTime, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
+          ..write('groupName: $groupName, ')
+          ..write('tags: $tags, ')
+          ..write('tagRefreshTime: $tagRefreshTime')
           ..write(')'))
         .toString();
   }
@@ -2826,6 +2904,19 @@ class $GalleryDownloadedTable extends GalleryDownloaded
   late final GeneratedColumn<String> groupName = GeneratedColumn<String>(
       'group_name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
+  @override
+  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
+      'tags', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _tagRefreshTimeMeta =
+      const VerificationMeta('tagRefreshTime');
+  @override
+  late final GeneratedColumn<String> tagRefreshTime = GeneratedColumn<String>(
+      'tag_refresh_time', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -2842,7 +2933,9 @@ class $GalleryDownloadedTable extends GalleryDownloaded
         downloadOriginalImage,
         priority,
         sortOrder,
-        groupName
+        groupName,
+        tags,
+        tagRefreshTime
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2947,6 +3040,16 @@ class $GalleryDownloadedTable extends GalleryDownloaded
     } else if (isInserting) {
       context.missing(_groupNameMeta);
     }
+    if (data.containsKey('tags')) {
+      context.handle(
+          _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
+    }
+    if (data.containsKey('tag_refresh_time')) {
+      context.handle(
+          _tagRefreshTimeMeta,
+          tagRefreshTime.isAcceptableOrUnknown(
+              data['tag_refresh_time']!, _tagRefreshTimeMeta));
+    }
     return context;
   }
 
@@ -2988,6 +3091,10 @@ class $GalleryDownloadedTable extends GalleryDownloaded
           .read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
       groupName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}group_name'])!,
+      tags: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
+      tagRefreshTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}tag_refresh_time']),
     );
   }
 
@@ -3014,6 +3121,8 @@ class GalleryDownloadedData extends DataClass
   final int priority;
   final int sortOrder;
   final String groupName;
+  final String tags;
+  final String? tagRefreshTime;
   const GalleryDownloadedData(
       {required this.gid,
       required this.token,
@@ -3029,7 +3138,9 @@ class GalleryDownloadedData extends DataClass
       required this.downloadOriginalImage,
       required this.priority,
       required this.sortOrder,
-      required this.groupName});
+      required this.groupName,
+      required this.tags,
+      this.tagRefreshTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3052,6 +3163,10 @@ class GalleryDownloadedData extends DataClass
     map['priority'] = Variable<int>(priority);
     map['sort_order'] = Variable<int>(sortOrder);
     map['group_name'] = Variable<String>(groupName);
+    map['tags'] = Variable<String>(tags);
+    if (!nullToAbsent || tagRefreshTime != null) {
+      map['tag_refresh_time'] = Variable<String>(tagRefreshTime);
+    }
     return map;
   }
 
@@ -3076,6 +3191,10 @@ class GalleryDownloadedData extends DataClass
       priority: Value(priority),
       sortOrder: Value(sortOrder),
       groupName: Value(groupName),
+      tags: Value(tags),
+      tagRefreshTime: tagRefreshTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tagRefreshTime),
     );
   }
 
@@ -3101,6 +3220,8 @@ class GalleryDownloadedData extends DataClass
       priority: serializer.fromJson<int>(json['priority']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       groupName: serializer.fromJson<String>(json['groupName']),
+      tags: serializer.fromJson<String>(json['tags']),
+      tagRefreshTime: serializer.fromJson<String?>(json['tagRefreshTime']),
     );
   }
   @override
@@ -3122,6 +3243,8 @@ class GalleryDownloadedData extends DataClass
       'priority': serializer.toJson<int>(priority),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'groupName': serializer.toJson<String>(groupName),
+      'tags': serializer.toJson<String>(tags),
+      'tagRefreshTime': serializer.toJson<String?>(tagRefreshTime),
     };
   }
 
@@ -3140,7 +3263,9 @@ class GalleryDownloadedData extends DataClass
           bool? downloadOriginalImage,
           int? priority,
           int? sortOrder,
-          String? groupName}) =>
+          String? groupName,
+          String? tags,
+          Value<String?> tagRefreshTime = const Value.absent()}) =>
       GalleryDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -3160,6 +3285,9 @@ class GalleryDownloadedData extends DataClass
         priority: priority ?? this.priority,
         sortOrder: sortOrder ?? this.sortOrder,
         groupName: groupName ?? this.groupName,
+        tags: tags ?? this.tags,
+        tagRefreshTime:
+            tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
       );
   @override
   String toString() {
@@ -3178,7 +3306,9 @@ class GalleryDownloadedData extends DataClass
           ..write('downloadOriginalImage: $downloadOriginalImage, ')
           ..write('priority: $priority, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
+          ..write('groupName: $groupName, ')
+          ..write('tags: $tags, ')
+          ..write('tagRefreshTime: $tagRefreshTime')
           ..write(')'))
         .toString();
   }
@@ -3199,7 +3329,9 @@ class GalleryDownloadedData extends DataClass
       downloadOriginalImage,
       priority,
       sortOrder,
-      groupName);
+      groupName,
+      tags,
+      tagRefreshTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3218,7 +3350,9 @@ class GalleryDownloadedData extends DataClass
           other.downloadOriginalImage == this.downloadOriginalImage &&
           other.priority == this.priority &&
           other.sortOrder == this.sortOrder &&
-          other.groupName == this.groupName);
+          other.groupName == this.groupName &&
+          other.tags == this.tags &&
+          other.tagRefreshTime == this.tagRefreshTime);
 }
 
 class GalleryDownloadedCompanion
@@ -3238,6 +3372,8 @@ class GalleryDownloadedCompanion
   final Value<int> priority;
   final Value<int> sortOrder;
   final Value<String> groupName;
+  final Value<String> tags;
+  final Value<String?> tagRefreshTime;
   const GalleryDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -3254,6 +3390,8 @@ class GalleryDownloadedCompanion
     this.priority = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.groupName = const Value.absent(),
+    this.tags = const Value.absent(),
+    this.tagRefreshTime = const Value.absent(),
   });
   GalleryDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -3271,6 +3409,8 @@ class GalleryDownloadedCompanion
     required int priority,
     this.sortOrder = const Value.absent(),
     required String groupName,
+    this.tags = const Value.absent(),
+    this.tagRefreshTime = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -3297,6 +3437,8 @@ class GalleryDownloadedCompanion
     Expression<int>? priority,
     Expression<int>? sortOrder,
     Expression<String>? groupName,
+    Expression<String>? tags,
+    Expression<String>? tagRefreshTime,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -3317,6 +3459,8 @@ class GalleryDownloadedCompanion
       if (priority != null) 'priority': priority,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (groupName != null) 'group_name': groupName,
+      if (tags != null) 'tags': tags,
+      if (tagRefreshTime != null) 'tag_refresh_time': tagRefreshTime,
     });
   }
 
@@ -3335,7 +3479,9 @@ class GalleryDownloadedCompanion
       Value<bool>? downloadOriginalImage,
       Value<int>? priority,
       Value<int>? sortOrder,
-      Value<String>? groupName}) {
+      Value<String>? groupName,
+      Value<String>? tags,
+      Value<String?>? tagRefreshTime}) {
     return GalleryDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -3353,6 +3499,8 @@ class GalleryDownloadedCompanion
       priority: priority ?? this.priority,
       sortOrder: sortOrder ?? this.sortOrder,
       groupName: groupName ?? this.groupName,
+      tags: tags ?? this.tags,
+      tagRefreshTime: tagRefreshTime ?? this.tagRefreshTime,
     );
   }
 
@@ -3406,6 +3554,12 @@ class GalleryDownloadedCompanion
     if (groupName.present) {
       map['group_name'] = Variable<String>(groupName.value);
     }
+    if (tags.present) {
+      map['tags'] = Variable<String>(tags.value);
+    }
+    if (tagRefreshTime.present) {
+      map['tag_refresh_time'] = Variable<String>(tagRefreshTime.value);
+    }
     return map;
   }
 
@@ -3426,7 +3580,9 @@ class GalleryDownloadedCompanion
           ..write('downloadOriginalImage: $downloadOriginalImage, ')
           ..write('priority: $priority, ')
           ..write('sortOrder: $sortOrder, ')
-          ..write('groupName: $groupName')
+          ..write('groupName: $groupName, ')
+          ..write('tags: $tags, ')
+          ..write('tagRefreshTime: $tagRefreshTime')
           ..write(')'))
         .toString();
   }
@@ -5724,12 +5880,16 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX a_idx_sort_order ON archive_downloaded_v2 (sort_order)');
   late final Index aIdxGroupName = Index('a_idx_group_name',
       'CREATE INDEX a_idx_group_name ON archive_downloaded_v2 (group_name)');
+  late final Index aIdxTagRefreshTime = Index('a_idx_tag_refresh_time',
+      'CREATE INDEX a_idx_tag_refresh_time ON archive_downloaded_v2 (tag_refresh_time)');
   late final Index gIdxInsertTime = Index('g_idx_insert_time',
       'CREATE INDEX g_idx_insert_time ON gallery_downloaded_v2 (insert_time)');
   late final Index gIdxSortOrder = Index('g_idx_sort_order',
       'CREATE INDEX g_idx_sort_order ON gallery_downloaded_v2 (sort_order)');
   late final Index gIdxGroupName = Index('g_idx_group_name',
       'CREATE INDEX g_idx_group_name ON gallery_downloaded_v2 (group_name)');
+  late final Index gIdxTagRefreshTime = Index('g_idx_tag_refresh_time',
+      'CREATE INDEX g_idx_tag_refresh_time ON gallery_downloaded_v2 (tag_refresh_time)');
   late final Index idxLastReadTime = Index('idx_last_read_time',
       'CREATE INDEX idx_last_read_time ON gallery_history (lastReadTime)');
   late final Index idxExpireDate = Index('idx_expire_date',
@@ -5764,9 +5924,11 @@ abstract class _$AppDb extends GeneratedDatabase {
         aIdxInsertTime,
         aIdxSortOrder,
         aIdxGroupName,
+        aIdxTagRefreshTime,
         gIdxInsertTime,
         gIdxSortOrder,
         gIdxGroupName,
+        gIdxTagRefreshTime,
         idxLastReadTime,
         idxExpireDate,
         idxUrl,

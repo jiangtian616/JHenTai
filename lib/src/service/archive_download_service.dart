@@ -265,6 +265,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       groupName: archiveDownloadInfo.group,
       insertTime: DateTime.now().toString(),
       priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      tags: archive.tags,
+      tagRefreshTime: archive.tagRefreshTime,
     );
     List<GalleryImage> images = await getUnpackedImages(gid);
 
@@ -379,6 +381,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       metadata.putIfAbsent('archiveStatusCode', () => ArchiveStatus.completed.code);
       if (metadata['groupName'] == null) {
         metadata['groupName'] = 'default'.tr;
+      }
+      if (metadata['tags'] == null) {
+        metadata['tags'] = '';
+      }
+      if (metadata['tagRefreshTime'] == null) {
+        metadata['tagRefreshTime'] = DateTime.now().toString();
       }
 
       ArchiveDownloadedData archive = ArchiveDownloadedData.fromJson(metadata as Map<String, dynamic>);
@@ -937,25 +945,27 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: archive.groupName, sortOrder: 0));
 
       return await ArchiveDao.insertArchive(
-            ArchiveDownloadedData(
-              gid: archive.gid,
+        ArchiveDownloadedCompanion.insert(
+              gid: Value(archive.gid),
               token: archive.token,
               title: archive.title,
               category: archive.category,
               pageCount: archive.pageCount,
               galleryUrl: archive.galleryUrl,
               coverUrl: archive.coverUrl,
-              uploader: archive.uploader,
+              uploader: Value(archive.uploader),
               size: archive.size,
               publishTime: archive.publishTime,
               archiveStatusCode: archive.archiveStatusCode,
               archivePageUrl: archive.archivePageUrl,
-              downloadPageUrl: null,
-              downloadUrl: null,
-              sortOrder: archive.sortOrder,
+              downloadPageUrl: const Value(null),
+              downloadUrl: const Value(null),
+              sortOrder: Value(archive.sortOrder),
               groupName: archive.groupName,
               isOriginal: archive.isOriginal,
               insertTime: archive.insertTime,
+              tags: Value(archive.tags),
+              tagRefreshTime: Value(archive.tagRefreshTime),
             ),
           ) >
           0;

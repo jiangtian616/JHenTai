@@ -23,6 +23,7 @@ import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_add_tag_dialog.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
@@ -378,6 +379,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         groupName: result.group,
         insertTime: DateTime.now().toString(),
         priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+        tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
+        tagRefreshTime: DateTime.now().toString(),
       );
       downloadService.downloadGallery(galleryDownloadedData);
 
@@ -663,6 +666,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         insertTime: DateTime.now().toString(),
         sortOrder: 0,
         groupName: result.group,
+        tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
+        tagRefreshTime: DateTime.now().toString(),
       );
       archiveDownloadService.downloadArchive(archive);
 

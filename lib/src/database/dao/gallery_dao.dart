@@ -7,7 +7,7 @@ class GalleryDao {
     return appDb.select(appDb.galleryDownloaded).get();
   }
 
-  static Future<int> insertGallery(GalleryDownloadedData gallery) {
+  static Future<int> insertGallery(GalleryDownloadedCompanion gallery) {
     return appDb.into(appDb.galleryDownloaded).insert(gallery);
   }
 
@@ -27,6 +27,4 @@ class GalleryDao {
   static Future<List<GalleryDownloadedOldData>> selectOldGallerys() {
     return (appDb.select(appDb.galleryDownloadedOld)..orderBy([(gallery) => OrderingTerm(expression: gallery.insertTime)])).get();
   }
-  
-  
 }

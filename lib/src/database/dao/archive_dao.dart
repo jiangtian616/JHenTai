@@ -7,7 +7,7 @@ class ArchiveDao {
     return (appDb.select(appDb.archiveDownloaded)..orderBy([(archive) => OrderingTerm(expression: archive.sortOrder)])).get();
   }
 
-  static Future<int> insertArchive(ArchiveDownloadedData archive) {
+  static Future<int> insertArchive(ArchiveDownloadedCompanion archive) {
     return appDb.into(appDb.archiveDownloaded).insert(archive);
   }
 

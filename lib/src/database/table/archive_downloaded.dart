@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 @TableIndex(name: 'a_idx_insert_time', columns: {#insertTime})
 @TableIndex(name: 'a_idx_sort_order', columns: {#sortOrder})
 @TableIndex(name: 'a_idx_group_name', columns: {#groupName})
+@TableIndex(name: 'a_idx_tag_refresh_time', columns: {#tagRefreshTime})
 class ArchiveDownloaded extends Table {
   @override
   String? get tableName => 'archive_downloaded_v2';
@@ -42,6 +43,10 @@ class ArchiveDownloaded extends Table {
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
 
   TextColumn get groupName => text()();
+
+  TextColumn get tags => text().withDefault(const Constant(''))();
+
+  TextColumn get tagRefreshTime => text().nullable()();
 
   @override
   Set<Column<Object>>? get primaryKey => {gid};

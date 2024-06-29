@@ -27,6 +27,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -277,6 +278,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       priority: GalleryDownloadService.defaultDownloadGalleryPriority,
       sortOrder: 0,
       groupName: galleryDownloadInfos[oldGallery.gid]!.group,
+      tags: tagMap2TagString(newGalleryDetail.tags),
+      tagRefreshTime: DateTime.now().toString(),
     );
 
     downloadGallery(newGallery);
@@ -503,6 +506,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
       if ((metadata['gallery'] as Map)['groupName'] == null) {
         (metadata['gallery'] as Map)['groupName'] = 'default'.tr;
+      }
+      if (metadata['tags'] == null) {
+        (metadata['gallery'] as Map)['tags'] = '';
+      }
+      if (metadata['tagRefreshTime'] == null) {
+        (metadata['gallery'] as Map)['tagRefreshTime'] = DateTime.now().toString();
       }
 
       GalleryDownloadedData gallery = GalleryDownloadedData.fromJson(metadata['gallery']);
@@ -1288,22 +1297,24 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await GalleryGroupDao.insertGalleryGroup(GalleryGroupData(groupName: gallery.groupName, sortOrder: 0));
 
       return await GalleryDao.insertGallery(
-            GalleryDownloadedData(
-              gid: gallery.gid,
+            GalleryDownloadedCompanion.insert(
+              gid: Value(gallery.gid),
               token: gallery.token,
               title: gallery.title,
               category: gallery.category,
               pageCount: gallery.pageCount,
               galleryUrl: gallery.galleryUrl,
-              oldVersionGalleryUrl: gallery.oldVersionGalleryUrl,
-              uploader: gallery.uploader,
+              oldVersionGalleryUrl: Value(gallery.oldVersionGalleryUrl),
+              uploader: Value(gallery.uploader),
               publishTime: gallery.publishTime,
               downloadStatusIndex: gallery.downloadStatusIndex,
               insertTime: gallery.insertTime,
-              downloadOriginalImage: gallery.downloadOriginalImage,
+              downloadOriginalImage: Value(gallery.downloadOriginalImage),
               priority: gallery.priority,
-              sortOrder: gallery.sortOrder,
+              sortOrder: Value(gallery.sortOrder),
               groupName: gallery.groupName,
+              tags: Value(gallery.tags),
+              tagRefreshTime: Value(gallery.tagRefreshTime),
             ),
           ) >
           0;
