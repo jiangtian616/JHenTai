@@ -257,7 +257,7 @@ class SuperResolutionService extends GetxController {
       if (archive == null) {
         return;
       }
-      dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive), imageDirName);
+      dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid), imageDirName);
     }
 
     Directory directory = Directory(dirPath);

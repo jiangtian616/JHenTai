@@ -418,7 +418,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<List<GalleryImage>> getUnpackedImages(int gid, {bool computeHash = false}) async {
     ArchiveDownloadedData archive = archives.firstWhere((a) => a.gid == gid);
-    Directory directory = Directory(computeArchiveUnpackingPath(archive));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive.title, archive.gid));
 
     return directory.list().toList().then((files) {
       List<File> imageFiles = files.whereType<File>().where((file) => FileUtil.isImageExtension(file.path)).toList();
@@ -463,10 +463,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return join(DownloadSetting.downloadPath.value, 'Archive - v2 - ${archive.gid} - $title.zip');
   }
 
-  String computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
-    String title = _computeArchiveTitle(archive.title);
+  String computeArchiveUnpackingPath(String rawTitle, int gid) {
+    String title = _computeArchiveTitle(rawTitle);
 
-    return join(DownloadSetting.downloadPath.value, 'Archive - ${archive.gid} - $title');
+    return join(DownloadSetting.downloadPath.value, 'Archive - $gid - $title');
   }
 
   void _sortArchives() {
@@ -882,7 +882,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     bool success = await extractZipArchive(
       computePackingFileDownloadPath(archive),
-      computeArchiveUnpackingPath(archive),
+      computeArchiveUnpackingPath(archive.title, archive.gid),
     );
 
     if (!success) {
@@ -945,7 +945,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       await ArchiveGroupDao.insertArchiveGroup(ArchiveGroupData(groupName: archive.groupName, sortOrder: 0));
 
       return await ArchiveDao.insertArchive(
-        ArchiveDownloadedCompanion.insert(
+            ArchiveDownloadedCompanion.insert(
               gid: Value(archive.gid),
               token: archive.token,
               title: archive.title,
@@ -1039,7 +1039,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   // DISK
 
   Future<void> _saveArchiveInfoInDisk(ArchiveDownloadedData archive) async {
-    File file = File(join(computeArchiveUnpackingPath(archive), metadataFileName));
+    File file = File(join(computeArchiveUnpackingPath(archive.title, archive.gid), metadataFileName));
     if (!await file.exists()) {
       await file.create(recursive: true);
     }
@@ -1058,7 +1058,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _deleteArchiveInDisk(ArchiveDownloadedData archive) async {
     await _deletePackingFileInDisk(archive);
 
-    Directory directory = Directory(computeArchiveUnpackingPath(archive));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive.title, archive.gid));
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }

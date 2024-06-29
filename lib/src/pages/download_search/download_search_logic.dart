@@ -97,6 +97,52 @@ class DownloadSearchLogic extends GetxController {
       translatedTagDataTable.put(tag.namespace, tag.key, tag);
     }
 
+    List<GallerySearchVO> gallerys = galleryDownloadService.gallerys
+        .map(
+          (g) => GallerySearchVO(
+            gid: g.gid,
+            token: g.token,
+            title: g.title,
+            category: g.category,
+            pageCount: g.pageCount,
+            galleryUrl: g.galleryUrl,
+            oldVersionGalleryUrl: g.oldVersionGalleryUrl,
+            uploader: g.uploader,
+            publishTime: g.publishTime,
+            insertTime: g.insertTime,
+            downloadOriginalImage: g.downloadOriginalImage,
+            priority: g.priority,
+            sortOrder: g.sortOrder,
+            groupName: g.groupName,
+            tags: tagDataString2TagDataList(g.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key)!).toList(),
+            tagRefreshTime: g.tagRefreshTime,
+          ),
+        )
+        .toList();
+    List<ArchiveSearchVO> archives = archiveDownloadService.archives.map((a) {
+      return ArchiveSearchVO(
+        gid: a.gid,
+        token: a.token,
+        title: a.title,
+        category: a.category,
+        pageCount: a.pageCount,
+        galleryUrl: a.galleryUrl,
+        coverUrl: a.coverUrl,
+        uploader: a.uploader,
+        size: a.size,
+        publishTime: a.publishTime,
+        archivePageUrl: a.archivePageUrl,
+        downloadPageUrl: a.downloadPageUrl,
+        downloadUrl: a.downloadUrl,
+        isOriginal: a.isOriginal,
+        insertTime: a.insertTime,
+        sortOrder: a.sortOrder,
+        groupName: a.groupName,
+        tags: tagDataString2TagDataList(a.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key)!).toList(),
+        tagRefreshTime: a.tagRefreshTime,
+      );
+    }).toList();
+
     if (state.searchType == DownloadSearchConfigTypeEnum.regex) {
       RegExp? regExp;
       try {
@@ -107,93 +153,70 @@ class DownloadSearchLogic extends GetxController {
         return;
       }
 
-      state.gallerys = galleryDownloadService.gallerys.where((g) {
+      state.gallerys = gallerys.where((g) {
         if (regExp!.hasMatch(g.title)) {
           return true;
         }
-
         if (!isEmptyOrNull(g.uploader) && regExp.hasMatch(g.uploader!)) {
           return true;
         }
-
-        List<TagData> tagDatas = tagDataString2TagDataList(g.tags);
-        for (TagData tagData in tagDatas) {
-          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
-
+        for (TagData tagData in g.tags) {
           if (regExp.hasMatch('${tagData.namespace}:${tagData.key}')) {
             return true;
           }
-          if (translatedTagData != null && regExp.hasMatch('${translatedTagData.translatedNamespace}:${translatedTagData.tagName}')) {
+          if (tagData.translatedNamespace != null && tagData.tagName != null && regExp.hasMatch('${tagData.translatedNamespace}:${tagData.tagName}')) {
             return true;
           }
         }
-
         return false;
       }).toList();
-
-      state.archives = archiveDownloadService.archives.where((a) {
+      state.archives = archives.where((a) {
         if (regExp!.hasMatch(a.title)) {
           return true;
         }
-
         if (!isEmptyOrNull(a.uploader) && regExp.hasMatch(a.uploader!)) {
           return true;
         }
-
-        List<TagData> tagDatas = tagDataString2TagDataList(a.tags);
-        for (TagData tagData in tagDatas) {
-          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
-
+        for (TagData tagData in a.tags) {
           if (regExp.hasMatch('${tagData.namespace}:${tagData.key}')) {
             return true;
           }
-          if (translatedTagData != null && regExp.hasMatch('${translatedTagData.translatedNamespace}:${translatedTagData.tagName}')) {
+          if (tagData.translatedNamespace != null && tagData.tagName != null && regExp.hasMatch('${tagData.translatedNamespace}:${tagData.tagName}')) {
             return true;
           }
         }
         return false;
       }).toList();
     } else {
-      state.gallerys = galleryDownloadService.gallerys.where((g) {
+      state.gallerys = gallerys.where((g) {
         if (g.title.contains(value)) {
           return true;
         }
-
         if (!isEmptyOrNull(g.uploader) && g.uploader!.contains(value)) {
           return true;
         }
-
-        List<TagData> tagDatas = tagDataString2TagDataList(g.tags);
-        for (TagData tagData in tagDatas) {
-          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
-
+        for (TagData tagData in g.tags) {
           if ('${tagData.namespace}:${tagData.key}'.contains(value)) {
             return true;
           }
-          if (translatedTagData != null && '${translatedTagData.translatedNamespace}:${translatedTagData.tagName}'.contains(value)) {
+          if (tagData.translatedNamespace != null && tagData.tagName != null && '${tagData.translatedNamespace}:${tagData.tagName}'.contains(value)) {
             return true;
           }
         }
-
         return false;
       }).toList();
-      state.archives = archiveDownloadService.archives.where((a) {
+      state.archives = archives.where((a) {
         if (a.title.contains(value)) {
           return true;
         }
-
         if (!isEmptyOrNull(a.uploader) && a.uploader!.contains(value)) {
           return true;
         }
-
-        List<TagData> tagDatas = tagDataString2TagDataList(a.tags);
-        for (TagData tagData in tagDatas) {
-          TagData? translatedTagData = translatedTagDataTable.get(tagData.namespace, tagData.key);
-
+        for (TagData tagData in a.tags) {
           if ('${tagData.namespace}:${tagData.key}'.contains(value)) {
             return true;
           }
-          if (translatedTagData != null && '${translatedTagData.translatedNamespace}:${translatedTagData.tagName}'.contains(value)) {
+          if (tagData.translatedNamespace != null && tagData.tagName != null && '${tagData.translatedNamespace}:${tagData.tagName}'.contains(value)) {
             return true;
           }
         }
@@ -212,7 +235,7 @@ class DownloadSearchLogic extends GetxController {
     storageService.write(StorageEnum.downloadSearchPageType.key, state.searchType.code);
   }
 
-  void goToGalleryReadPage(GalleryDownloadedData gallery) {
+  void goToGalleryReadPage(GallerySearchVO gallery) {
     if (!galleryDownloadService.containGallery(gallery.gid)) {
       return;
     }
@@ -241,13 +264,13 @@ class DownloadSearchLogic extends GetxController {
     }
   }
 
-  Future<void> goToArchiveReadPage(ArchiveDownloadedData archive) async {
+  Future<void> goToArchiveReadPage(ArchiveSearchVO archive) async {
     if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus != ArchiveStatus.completed) {
       return;
     }
 
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive));
+      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
       String storageKey = 'readIndexRecord::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;

@@ -265,6 +265,10 @@ class UIConfig {
   static const Color downloadPageGridViewSelectIconColor = Colors.white;
   static const Color downloadPageGridViewSelectIconBackGroundColor = Colors.black;
 
+  /// Download search page
+  static const double downloadSearchPageCoverWidth = 120;
+  static const double downloadSearchPageCoverHeight = 160;
+
   /// Search page
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;

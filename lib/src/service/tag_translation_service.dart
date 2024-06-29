@@ -168,15 +168,14 @@ class TagTranslationService extends GetxService {
     await Future.wait(futures);
   }
 
-  /// won't translate keys
   Future<List<TagData>> translateTagDatasIfNeeded(List<TagData> tags) async {
     if (!isReady) {
       return [];
     }
 
-    List<Future<TagData?>> futures = tags.map((tag) => getTagTranslation(tag.namespace, tag.key)).toList();
-    List<TagData?> translatedTagDatas = await Future.wait(futures);
-    return translatedTagDatas.whereNotNull().toList();
+    List<Future<TagData>> futures = tags.map((tag) => getTagTranslation(tag.namespace, tag.key).then((value) => value ?? tag)).toList();
+    List<TagData> translatedTagDatas = await Future.wait(futures);
+    return translatedTagDatas.toList();
   }
 
   Future<TagData?> getTagTranslation(String namespace, String key) async {

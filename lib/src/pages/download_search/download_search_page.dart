@@ -3,8 +3,11 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
+import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../../config/ui_config.dart';
 import '../../model/gallery_image.dart';
@@ -92,9 +95,9 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGallery(BuildContext context, GalleryDownloadedData gallery) {
+  Widget _buildGallery(BuildContext context, GallerySearchVO gallery) {
     return SizedBox(
-      height: 130,
+      height: 160,
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
@@ -120,7 +123,9 @@ class DownloadSearchPage extends StatelessWidget {
                           _buildGalleryUploader(gallery, context),
                         ],
                       ),
-                      const Expanded(child: SizedBox()),
+                      const SizedBox(height: 4),
+                      Expanded(child: buildTags(context,gallery.tags)),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -155,7 +160,7 @@ class DownloadSearchPage extends StatelessWidget {
     ).paddingOnly(left: 4, right: 16);
   }
 
-  Text _buildGalleryPublishTime(GalleryDownloadedData gallery, BuildContext context) {
+  Text _buildGalleryPublishTime(GallerySearchVO gallery, BuildContext context) {
     return Text(
       DateUtil.transform2LocalTimeString(gallery.publishTime),
       style: TextStyle(
@@ -165,7 +170,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryCover(GalleryDownloadedData gallery, BuildContext context) {
+  Widget _buildGalleryCover(GallerySearchVO gallery, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(
@@ -180,16 +185,16 @@ class DownloadSearchPage extends StatelessWidget {
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
             return SizedBox(
-              width: UIConfig.downloadPageCoverWidth,
-              height: UIConfig.downloadPageCoverHeight,
+              width: UIConfig.downloadSearchPageCoverWidth,
+              height: UIConfig.downloadSearchPageCoverHeight,
               child: Center(child: UIConfig.loadingAnimation(context)),
             );
           }
 
           return EHImage(
             galleryImage: image!,
-            containerWidth: UIConfig.downloadPageCoverWidth,
-            containerHeight: UIConfig.downloadPageCoverHeight,
+            containerWidth: UIConfig.downloadSearchPageCoverWidth,
+            containerHeight: UIConfig.downloadSearchPageCoverHeight,
             containerColor: UIConfig.galleryCardBackGroundColor(context),
             borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
             fit: BoxFit.fitWidth,
@@ -200,7 +205,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryTitle(GalleryDownloadedData gallery) {
+  Widget _buildGalleryTitle(GallerySearchVO gallery) {
     return Text(
       gallery.title,
       maxLines: 2,
@@ -209,7 +214,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryUploader(GalleryDownloadedData gallery, BuildContext context) {
+  Widget _buildGalleryUploader(GallerySearchVO gallery, BuildContext context) {
     if (gallery.uploader == null) {
       return const SizedBox();
     }
@@ -220,7 +225,38 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGalleryIsOriginal(BuildContext context, GalleryDownloadedData gallery) {
+  Widget buildTags(BuildContext context, List<TagData> tags) {
+    return Center(
+      child: SizedBox(
+        height: 44,
+        child: WaterfallFlow.builder(
+          scrollDirection: Axis.horizontal,
+          gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+          ),
+          itemCount: tags.length,
+          itemBuilder: (_, int index) => Container(
+            decoration: BoxDecoration(
+              color: UIConfig.ehTagBackGroundColor(context),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
+            alignment: Alignment.center,
+            child: Text(
+              tags[index].tagName ?? tags[index].key,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 11, height: 1, color: UIConfig.ehTagTextColor(context)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGalleryIsOriginal(BuildContext context, GallerySearchVO gallery) {
     bool isOriginal = gallery.downloadOriginalImage;
     if (!isOriginal) {
       return const SizedBox();
@@ -239,7 +275,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildGallerySuperResolutionLabel(BuildContext context, GalleryDownloadedData gallery) {
+  Widget _buildGallerySuperResolutionLabel(BuildContext context, GallerySearchVO gallery) {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
@@ -305,9 +341,9 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchive(BuildContext context, ArchiveDownloadedData archive) {
+  Widget _buildArchive(BuildContext context, ArchiveSearchVO archive) {
     return SizedBox(
-      height: 130,
+      height: 160,
       child: GetBuilder<ArchiveDownloadService>(
         id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
         builder: (_) {
@@ -325,9 +361,9 @@ class DownloadSearchPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(archive.title),
+                      _buildArchiveTitle(archive),
                       _buildArchiveUploader(archive, context),
-                      const Expanded(child: SizedBox()),
+                      Expanded(child: buildTags(context, archive.tags)),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -362,7 +398,7 @@ class DownloadSearchPage extends StatelessWidget {
     ).paddingOnly(left: 4, right: 16);
   }
 
-  Widget _buildArchiveCover(ArchiveDownloadedData archive, BuildContext context) {
+  Widget _buildArchiveCover(ArchiveSearchVO archive, BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => toRoute(
@@ -371,8 +407,8 @@ class DownloadSearchPage extends StatelessWidget {
       ),
       child: EHImage(
         galleryImage: GalleryImage(url: archive.coverUrl),
-        containerWidth: UIConfig.downloadPageCoverWidth,
-        containerHeight: UIConfig.downloadPageCoverHeight,
+        containerWidth: UIConfig.downloadSearchPageCoverWidth,
+        containerHeight: UIConfig.downloadSearchPageCoverHeight,
         containerColor: UIConfig.galleryCardBackGroundColor(context),
         borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
         fit: BoxFit.fitWidth,
@@ -381,7 +417,16 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveUploader(ArchiveDownloadedData archive, BuildContext context) {
+  Widget _buildArchiveTitle(ArchiveSearchVO archive) {
+    return Text(
+      archive.title,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: UIConfig.galleryCardTitleSize, height: 1.2),
+    );
+  }
+
+  Widget _buildArchiveUploader(ArchiveSearchVO archive, BuildContext context) {
     if (archive.uploader == null) {
       return const SizedBox();
     }
@@ -392,7 +437,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveIsOriginal(BuildContext context, ArchiveDownloadedData archive) {
+  Widget _buildArchiveIsOriginal(BuildContext context, ArchiveSearchVO archive) {
     bool isOriginal = archive.isOriginal;
     if (!isOriginal) {
       return const SizedBox();
@@ -411,7 +456,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveSuperResolutionLabel(BuildContext context, ArchiveDownloadedData archive) {
+  Widget _buildArchiveSuperResolutionLabel(BuildContext context, ArchiveSearchVO archive) {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
@@ -445,7 +490,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchivePublishTime(BuildContext context, ArchiveDownloadedData archive) {
+  Widget _buildArchivePublishTime(BuildContext context, ArchiveSearchVO archive) {
     return Text(
       DateUtil.transform2LocalTimeString(archive.publishTime),
       style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
@@ -459,7 +504,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveDownloadProgressText(ArchiveDownloadedData archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
+  Widget _buildArchiveDownloadProgressText(ArchiveSearchVO archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
     if (archiveDownloadInfo == null || archiveDownloadInfo.archiveStatus.code > ArchiveStatus.downloading.code) {
       return const SizedBox();
     }
@@ -473,7 +518,7 @@ class DownloadSearchPage extends StatelessWidget {
     );
   }
 
-  Widget _buildArchiveDownloadProgressIndicator(ArchiveDownloadedData archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
+  Widget _buildArchiveDownloadProgressIndicator(ArchiveSearchVO archive, ArchiveDownloadInfo? archiveDownloadInfo, BuildContext context) {
     if (archiveDownloadInfo == null || archiveDownloadInfo.archiveStatus.code > ArchiveStatus.downloading.code) {
       return const SizedBox();
     }
