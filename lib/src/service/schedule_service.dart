@@ -24,8 +24,8 @@ class ScheduleService extends GetxService {
   Future<void> onInit() async {
     super.onInit();
 
-    Timer(const Duration(seconds: 0), refreshGalleryTags);
-    Timer(const Duration(seconds: 0), refreshArchiveTags);
+    Timer(const Duration(seconds: 10), refreshGalleryTags);
+    Timer(const Duration(seconds: 10), refreshArchiveTags);
   }
 
   Future<void> refreshGalleryTags() async {
