@@ -166,7 +166,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
 
     Log.info('Pause download gallery: ${gallery.title}');
   }
@@ -213,7 +213,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     Log.info('Resume download gallery: ${gallery.title}');
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
 
     downloadGallery(gallery, resume: true);
   }
@@ -320,7 +320,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _initGalleryInfoInMemory(gallery, images: copiedImages);
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
   }
 
   Future<void> reDownloadGalleryByGid(int gid) async {
@@ -1196,7 +1196,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _initGalleryInfoInMemory(gallery);
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
 
     return true;
   }
@@ -1209,7 +1209,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     gallerys[gallerys.indexWhere((e) => e.gid == gallery.gid)] = gallery.copyWith(downloadStatusIndex: downloadStatus.index);
     galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus = downloadStatus;
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
   }
 
   Future<bool> _updateImageStatus(GalleryDownloadedData gallery, GalleryImage image, int serialNo, DownloadStatus downloadStatus) async {
@@ -1223,7 +1223,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     update(['$downloadImageId::${gallery.gid}::$serialNo', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
 
-    _saveGalleryInfoInDisk(gallery);
+    _saveGalleryMetadataInDisk(gallery);
 
     return true;
   }
@@ -1386,7 +1386,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // Disk
 
-  void _saveGalleryInfoInDisk(GalleryDownloadedData gallery) {
+  void _saveGalleryMetadataInDisk(GalleryDownloadedData gallery) {
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
     Map<String, Object> metadata = {
