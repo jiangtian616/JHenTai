@@ -1,12 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:get/get.dart';
+import 'package:drift/drift.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
+import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -17,6 +23,7 @@ import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
 import '../database/database.dart';
+import '../model/gallery.dart';
 import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
@@ -25,7 +32,7 @@ import '../utils/log.dart';
 import '../utils/uuid_util.dart';
 
 class AppUpdateService extends GetxService {
-  static const int appVersion = 10;
+  static const int appVersion = 11;
 
   static void init() {
     Get.put(AppUpdateService(), permanent: true);
@@ -86,7 +93,7 @@ class AppUpdateService extends GetxService {
   }
 
   void handleAppUpdateWhenReady(int oldVersion) {
-    Get.engine.addPostFrameCallback((_) {
+    Get.engine.addPostFrameCallback((_) async {
       if (oldVersion <= 2) {
         Log.info('Move style setting to preference setting');
 
@@ -231,6 +238,34 @@ class AppUpdateService extends GetxService {
                 ),
               );
             }
+          }
+        }
+      }
+
+      if (oldVersion <= 10) {
+        HistoryService historyService = Get.find();
+        int pageCount = await historyService.getPageCount();
+        Log.info('Migrate search config, page count: $pageCount');
+
+        for (int i = 0; i < pageCount; i++) {
+          try {
+            await Future.delayed(const Duration(seconds: 1));
+
+            List<Gallery> gallerys = await historyService.getByPageIndex(i);
+            await GalleryHistoryDao.batchUpdateHistory(
+              gallerys
+                  .map(
+                    (gallery) => GalleryHistoryCompanion(
+                      gid: Value(gallery.gid),
+                      jsonBody: Value(historyService.gallery2jsonBody(gallery)),
+                    ),
+                  )
+                  .toList(),
+            );
+
+            Log.info('Migrate search config for page index $i success!');
+          } on Exception catch (e) {
+            Log.error('Migrate search config for page index $i failed!', e);
           }
         }
       }

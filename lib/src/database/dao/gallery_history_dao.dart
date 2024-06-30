@@ -21,18 +21,26 @@ class GalleryHistoryDao {
     return appDb.into(appDb.galleryHistory).insert(history);
   }
 
-  static Future<void> batchInsertHistory(List<GalleryHistoryData> histories) {
-    return appDb.batch((batch) {
-      return batch.insertAll(appDb.galleryHistory, histories);
-    });
-  }
-
   static Future<int> replaceHistory(GalleryHistoryData history) {
     return appDb.into(appDb.galleryHistory).insertOnConflictUpdate(history);
   }
 
+  static Future<void> batchReplaceHistory(List<GalleryHistoryCompanion> histories) {
+    return appDb.batch((batch) {
+      return batch.insertAllOnConflictUpdate(appDb.galleryHistory, histories);
+    });
+  }
+
   static Future<int> updateHistory(GalleryHistoryCompanion history) {
     return (appDb.update(appDb.galleryHistory)..where((tbl) => tbl.gid.equals(history.gid.value))).write(history);
+  }
+
+  static Future<void> batchUpdateHistory(List<GalleryHistoryCompanion> histories) {
+    return appDb.batch((batch) {
+      for (var history in histories) {
+        batch.update(appDb.galleryHistory, history, where: (tbl) => tbl.gid.equals(history.gid.value));
+      }
+    });
   }
 
   static Future<int> deleteHistory(int gid) {

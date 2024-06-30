@@ -62,11 +62,11 @@ class HistoryService extends GetxController {
     Log.trace('Batch record history: $gallerys');
 
     try {
-      await GalleryHistoryDao.batchInsertHistory(
+      await GalleryHistoryDao.batchReplaceHistory(
         gallerys
             .map(
-              (gallery) => GalleryHistoryData(
-                gid: gallery.gid,
+              (gallery) => GalleryHistoryCompanion.insert(
+                gid: Value(gallery.gid),
                 jsonBody: gallery2jsonBody(gallery),
                 lastReadTime: DateTime.now().toString(),
               ),
