@@ -88,7 +88,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
 
         List<CloudConfigTypeEnum>? result = await showDialog(
           context: context,
-          builder: (_) => const EHConfigTypeSelectDialog(),
+          builder: (_) => EHConfigTypeSelectDialog(title: '${'upload2cloud'.tr}?'),
         );
 
         if (result?.isNotEmpty ?? false) {

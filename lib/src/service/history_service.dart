@@ -1,9 +1,14 @@
+import 'dart:collection';
 import 'dart:convert';
 
-import 'package:get/get.dart';
+import 'package:drift/drift.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import '../model/gallery.dart';
+import '../model/gallery_tag.dart';
 import '../utils/log.dart';
 
 class HistoryService extends GetxController {
@@ -44,7 +49,7 @@ class HistoryService extends GetxController {
       await GalleryHistoryDao.replaceHistory(
         GalleryHistoryData(
           gid: gallery.gid,
-          jsonBody: json.encode(gallery),
+          jsonBody: gallery2jsonBody(gallery),
           lastReadTime: DateTime.now().toString(),
         ),
       );
@@ -62,7 +67,7 @@ class HistoryService extends GetxController {
             .map(
               (gallery) => GalleryHistoryData(
                 gid: gallery.gid,
-                jsonBody: json.encode(gallery),
+                jsonBody: gallery2jsonBody(gallery),
                 lastReadTime: DateTime.now().toString(),
               ),
             )
@@ -82,5 +87,25 @@ class HistoryService extends GetxController {
   Future<bool> deleteAll() async {
     Log.info('Delete all historys');
     return await GalleryHistoryDao.deleteAllHistory() > 0;
+  }
+
+  String gallery2jsonBody(Gallery gallery) {
+    LinkedHashMap<String, List<GalleryTag>> thinTagsMap = LinkedHashMap();
+    gallery.tags.forEach((key, value) {
+      List<GalleryTag> thinTags = [];
+      for (var tag in value) {
+        GalleryTag thinTag = tag.copyWith();
+        thinTag.tagData = thinTag.tagData.copyWith(
+          fullTagName: const Value(null),
+          intro: const Value(null),
+          links: const Value(null),
+        );
+        thinTags.add(thinTag);
+      }
+      thinTagsMap[key] = thinTags;
+    });
+    Gallery thinGallery = gallery.copyWith(tags: thinTagsMap);
+
+    return json.encode(thinGallery);
   }
 }

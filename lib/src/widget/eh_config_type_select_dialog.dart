@@ -6,7 +6,9 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import '../utils/route_util.dart';
 
 class EHConfigTypeSelectDialog extends StatefulWidget {
-  const EHConfigTypeSelectDialog({super.key});
+  final String title;
+
+  const EHConfigTypeSelectDialog({super.key, required this.title});
 
   @override
   State<EHConfigTypeSelectDialog> createState() => _EHConfigTypeSelectDialogState();
@@ -18,7 +20,7 @@ class _EHConfigTypeSelectDialogState extends State<EHConfigTypeSelectDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('${'upload2cloud'.tr}?'),
+      title: Text(widget.title),
       contentPadding: const EdgeInsets.only(top: 24, left: 24, right: 24),
       content: Column(
         mainAxisSize: MainAxisSize.min,

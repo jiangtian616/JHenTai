@@ -18,6 +18,9 @@ class CloudConfigService extends GetxService {
     CloudConfigTypeEnum.history: '1.0.0',
   };
 
+  static const String localConfigCode = 'local';
+  static const String configFileName = 'JHenTaiConfig';
+
   final StorageService storageService = Get.find();
   final LocalBlockRuleService localBlockRuleService = Get.find();
   final HistoryService historyService = Get.find();
@@ -42,7 +45,8 @@ class CloudConfigService extends GetxService {
       ..remove(StorageEnum.securitySetting.key)
       ..remove(StorageEnum.siteSetting.key)
       ..remove(StorageEnum.superResolutionSetting.key)
-      ..remove(StorageEnum.userSetting.key);
+      ..remove(StorageEnum.userSetting.key)
+      ..removeWhere((key, value) => key.startsWith(StorageEnum.isSpreadPage.key));
 
     List<LocalBlockRule> blockRules = await localBlockRuleService.getBlockRules();
 

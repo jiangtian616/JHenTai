@@ -44,4 +44,20 @@ class GalleryTag {
   String toString() {
     return 'GalleryTag{color: $color, backgroundColor: $backgroundColor, tagData: $tagData, tagStatus: $tagStatus, voteStatus: $voteStatus}';
   }
+
+  GalleryTag copyWith({
+    Color? color,
+    Color? backgroundColor,
+    TagData? tagData,
+    EHTagStatus? tagStatus,
+    EHTagVoteStatus? voteStatus,
+  }) {
+    return GalleryTag(
+      color: color ?? this.color,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
+      tagData: tagData ?? this.tagData,
+      tagStatus: tagStatus ?? this.tagStatus,
+      voteStatus: voteStatus ?? this.voteStatus,
+    );
+  }
 }

@@ -36,4 +36,16 @@ class CloudConfig {
       ctime: DateTime.fromMillisecondsSinceEpoch(json["ctime"], isUtc: true).toLocal(),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "id": this.id,
+      "shareCode": this.shareCode,
+      "identificationCode": this.identificationCode,
+      "type": this.type.code,
+      "version": this.version,
+      "config": this.config,
+      "ctime": this.ctime.toUtc().millisecondsSinceEpoch,
+    };
+  }
 }

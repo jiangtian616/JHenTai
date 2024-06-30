@@ -1,12 +1,17 @@
+import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -15,9 +20,12 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
 import '../../../config/ui_config.dart';
+import '../../../enum/config_type_enum.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/byte_util.dart';
+import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
+import '../../../widget/eh_config_type_select_dialog.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -32,6 +40,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
   LoadingState _imageCacheLoadingState = LoadingState.idle;
   String _imageCacheSize = '...';
+
+  final CloudConfigService cloudConfigService = Get.find();
 
   @override
   void initState() {
@@ -60,6 +70,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildCheckClipboard(),
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
             _buildInNoImageMode(),
+            _buildExportData(context),
+            _buildImportData(),
           ],
         ).withListTileTheme(context),
       ),
@@ -198,6 +210,22 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
+  Widget _buildExportData(BuildContext context) {
+    return ListTile(
+      title: Text('exportData'.tr),
+      subtitle: Text('exportDataHint'.tr),
+      onTap: () => _exportData(context),
+    );
+  }
+
+  Widget _buildImportData() {
+    return ListTile(
+      title: Text('importData'.tr),
+      subtitle: Text('importDataHint'.tr),
+      onTap: () async {},
+    );
+  }
+
   Future<void> _loadingLogSize() async {
     if (_logLoadingState == LoadingState.loading) {
       return;
@@ -270,5 +298,61 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     await _getImagesCacheSize();
 
     toast('clearSuccess'.tr, isCenter: false);
+  }
+
+  Future<void> _exportData(BuildContext context) async {
+    List<CloudConfigTypeEnum>? result = await showDialog(
+      context: context,
+      builder: (_) => EHConfigTypeSelectDialog(title: 'SelectExportItems'.tr),
+    );
+
+    if (result?.isEmpty ?? true) {
+      return;
+    }
+
+    String? path;
+    try {
+      path = await FilePicker.platform.getDirectoryPath();
+    } on Exception catch (e) {
+      Log.error('Pick export path failed', e);
+      return;
+    }
+
+    if (path == null) {
+      return;
+    }
+    if (!checkPermissionForPath(path)) {
+      toast('invalidPath'.tr, isShort: false);
+      return;
+    }
+
+    Map<CloudConfigTypeEnum, String> currentConfigMap = await cloudConfigService.getCurrentConfigMap();
+    List<CloudConfig> uploadConfigs = currentConfigMap.entries.where((entry) => result!.contains(entry.key)).map((entry) {
+      return CloudConfig(
+        id: -1,
+        shareCode: CloudConfigService.localConfigCode,
+        identificationCode: CloudConfigService.localConfigCode,
+        type: entry.key,
+        version: CloudConfigService.configTypeVersionMap[entry.key] ?? '1.0.0',
+        config: entry.value,
+        ctime: DateTime.now(),
+      );
+    }).toList();
+
+    io.File file = io.File(join(path, '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json'));
+    if (await file.exists()) {
+      await file.create(recursive: true);
+    }
+
+    try {
+      await file.writeAsString(jsonEncode(uploadConfigs));
+    } on Exception catch (e) {
+      Log.error('Export data failed', e);
+      toast('internalError'.tr);
+      file.delete();
+      return;
+    }
+
+    toast('success'.tr);
   }
 }
