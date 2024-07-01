@@ -24,10 +24,10 @@ class GalleryTag {
     return {
       'color': color?.value,
       'backgroundColor': backgroundColor?.value,
-      'tagData': tagData.toJson(),
+      'tagData': tagData.toJson()..removeWhere((key, value) => value == null),
       'tagStatus': tagStatus?.index,
       'voteStatus': voteStatus?.index,
-    };
+    }..removeWhere((key, value) => value == null);
   }
 
   factory GalleryTag.fromJson(Map<String, dynamic> map) {

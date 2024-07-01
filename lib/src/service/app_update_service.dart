@@ -249,7 +249,7 @@ class AppUpdateService extends GetxService {
 
         for (int i = 0; i < pageCount; i++) {
           try {
-            await Future.delayed(const Duration(seconds: 1));
+            await Future.delayed(const Duration(milliseconds: 500));
 
             List<Gallery> gallerys = await historyService.getByPageIndex(i);
             await GalleryHistoryDao.batchUpdateHistory(
