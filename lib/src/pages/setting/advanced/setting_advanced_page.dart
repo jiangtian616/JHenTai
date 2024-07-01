@@ -41,6 +41,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _imageCacheLoadingState = LoadingState.idle;
   String _imageCacheSize = '...';
 
+  LoadingState _exportDataLoadingState = LoadingState.idle;
   final CloudConfigService cloudConfigService = Get.find();
 
   @override
@@ -214,6 +215,17 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('exportData'.tr),
       subtitle: Text('exportDataHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _exportDataLoadingState,
+            idleWidgetBuilder: () => const SizedBox(),
+            useCupertinoIndicator: true,
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 8)
+        ],
+      ),
       onTap: () => _exportData(context),
     );
   }
@@ -326,6 +338,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       return;
     }
 
+    if (_exportDataLoadingState == LoadingState.loading) {
+      return;
+    }
+    setStateSafely(() => _exportDataLoadingState = LoadingState.loading);
+
     Map<CloudConfigTypeEnum, String> currentConfigMap = await cloudConfigService.getCurrentConfigMap();
     List<CloudConfig> uploadConfigs = currentConfigMap.entries.where((entry) => result!.contains(entry.key)).map((entry) {
       return CloudConfig(
@@ -349,10 +366,12 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     } on Exception catch (e) {
       Log.error('Export data failed', e);
       toast('internalError'.tr);
+      setStateSafely(() => _exportDataLoadingState = LoadingState.error);
       file.delete();
       return;
     }
 
     toast('success'.tr);
+    setStateSafely(() => _exportDataLoadingState = LoadingState.success);
   }
 }

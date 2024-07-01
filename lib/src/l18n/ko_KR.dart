@@ -412,6 +412,10 @@ class ko_KR {
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
+      'exportData': 'Export Data',
+      'exportDataHint': 'Export configs, block rules and history',
+      'importData': 'Import Data',
+      'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',

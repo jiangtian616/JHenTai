@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -39,7 +40,10 @@ class HistoryService extends GetxController {
 
   Future<List<Gallery>> getAllHistory() async {
     List<GalleryHistoryData> historys = await GalleryHistoryDao.selectAll();
-    return historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
+    return compute(
+      (historys) => historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList(),
+      historys,
+    );
   }
 
   Future<void> record(Gallery gallery) async {

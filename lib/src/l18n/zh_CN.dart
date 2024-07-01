@@ -412,6 +412,10 @@ class zh_CN {
       'verityAppLinks4Android12': '验证应用链接（安卓12+）',
       'verityAppLinks4Android12Hint': '对于Android 12+，您需要手动添加链接到已验证链接才能在其他应用中唤起JHenTai',
       'noImageMode': '无图模式',
+      'exportData': '导出数据',
+      'exportDataHint': '导出配置、屏蔽规则与历史记录',
+      'importData': '导入数据',
+      'importDataHint': '在导入成功后应用会自动关闭以应用最新配置',
 
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
