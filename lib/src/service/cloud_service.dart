@@ -68,13 +68,13 @@ class CloudConfigService extends GetxService {
       List list = jsonDecode(config.config);
       List<LocalBlockRule> blockRules = list.map((e) => LocalBlockRule.fromJson(e)).toList();
       for (LocalBlockRule blockRule in blockRules) {
+        blockRule.id = null;
         await localBlockRuleService.upsertBlockRule(blockRule);
       }
     } else if (config.type == CloudConfigTypeEnum.history) {
       List list = jsonDecode(config.config);
       List<Gallery> histories = list.map((e) => Gallery.fromJson(e)).toList();
-      await historyService.deleteAll();
-      await historyService.batchRecord(histories);
+      await historyService.batchRecord(histories.reversed.toList());
     }
   }
 }

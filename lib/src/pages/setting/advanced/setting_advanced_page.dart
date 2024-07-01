@@ -42,6 +42,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   String _imageCacheSize = '...';
 
   LoadingState _exportDataLoadingState = LoadingState.idle;
+  LoadingState _importDataLoadingState = LoadingState.idle;
+
   final CloudConfigService cloudConfigService = Get.find();
 
   @override
@@ -72,7 +74,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
             _buildInNoImageMode(),
             _buildExportData(context),
-            _buildImportData(),
+            _buildImportData(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -230,11 +232,22 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  Widget _buildImportData() {
+  Widget _buildImportData(BuildContext context) {
     return ListTile(
       title: Text('importData'.tr),
       subtitle: Text('importDataHint'.tr),
-      onTap: () async {},
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _importDataLoadingState,
+            idleWidgetBuilder: () => const SizedBox(),
+            useCupertinoIndicator: true,
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onTap: () => _importData(context),
     );
   }
 
@@ -373,5 +386,47 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     toast('success'.tr);
     setStateSafely(() => _exportDataLoadingState = LoadingState.success);
+  }
+
+  Future<void> _importData(BuildContext context) async {
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles();
+    } on Exception catch (e) {
+      Log.error('Pick import data file failed', e);
+      return;
+    }
+
+    if (result == null) {
+      return;
+    }
+
+    if (_importDataLoadingState == LoadingState.loading) {
+      return;
+    }
+    setStateSafely(() => _importDataLoadingState = LoadingState.loading);
+
+    io.File file = io.File(result.files.first.path!);
+    String string = await file.readAsString();
+
+    try {
+      List<CloudConfig> configs = await compute<String, List<CloudConfig>>(
+        (string) => (json.decode(string) as List).map((m) => CloudConfig.fromJson(m)).toList(),
+        string,
+      );
+
+      for (CloudConfig config in configs) {
+        await cloudConfigService.importConfig(config);
+      }
+      
+      toast('success'.tr);
+      setStateSafely(() => _importDataLoadingState = LoadingState.success);
+      io.exit(0);
+    } on Exception catch (e) {
+      Log.error('Import data failed', e);
+      toast('internalError'.tr);
+      setStateSafely(() => _importDataLoadingState = LoadingState.error);
+      return;
+    }
   }
 }
