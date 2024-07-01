@@ -79,6 +79,7 @@ class HistoryService extends GetxController {
               )
               .toList(),
         );
+        await Future.delayed(const Duration(milliseconds: 200));
       }
     } on Exception catch (e) {
       Log.error('Record history failed!', e);
