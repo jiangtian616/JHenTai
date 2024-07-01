@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
 import 'package:jhentai/src/enum/storage_enum.dart';
@@ -72,7 +73,7 @@ class CloudConfigService extends GetxService {
         await localBlockRuleService.upsertBlockRule(blockRule);
       }
     } else if (config.type == CloudConfigTypeEnum.history) {
-      List list = jsonDecode(config.config);
+      List list = await compute((string) => jsonDecode(string), config.config);
       List<Gallery> histories = list.map((e) => Gallery.fromJson(e)).toList();
       await historyService.batchRecord(histories);
     }
