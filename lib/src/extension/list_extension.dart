@@ -61,4 +61,12 @@ extension ListExtension<E> on List<E> {
     }
     return null;
   }
+
+  List<List<E>> partition(int size) {
+    List<List<E>> partitions = [];
+    for (int i = 0; i < length; i += size) {
+      partitions.add(sublist(i, i + size > length ? length : i + size));
+    }
+    return partitions;
+  }
 }

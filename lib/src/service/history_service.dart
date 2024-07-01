@@ -8,6 +8,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import '../model/gallery.dart';
 import '../model/gallery_tag.dart';
 import '../utils/log.dart';
@@ -66,17 +67,19 @@ class HistoryService extends GetxController {
     Log.trace('Batch record history: $gallerys');
 
     try {
-      await GalleryHistoryDao.batchReplaceHistory(
-        gallerys
-            .map(
-              (gallery) => GalleryHistoryCompanion.insert(
-                gid: Value(gallery.gid),
-                jsonBody: gallery2jsonBody(gallery),
-                lastReadTime: DateTime.now().toString(),
-              ),
-            )
-            .toList(),
-      );
+      for (List<Gallery> partition in gallerys.partition(500)) {
+        await GalleryHistoryDao.batchReplaceHistory(
+          partition
+              .map(
+                (gallery) => GalleryHistoryCompanion.insert(
+                  gid: Value(gallery.gid),
+                  jsonBody: gallery2jsonBody(gallery),
+                  lastReadTime: DateTime.now().toString(),
+                ),
+              )
+              .toList(),
+        );
+      }
     } on Exception catch (e) {
       Log.error('Record history failed!', e);
     }

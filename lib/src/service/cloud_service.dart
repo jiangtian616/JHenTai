@@ -74,7 +74,7 @@ class CloudConfigService extends GetxService {
     } else if (config.type == CloudConfigTypeEnum.history) {
       List list = jsonDecode(config.config);
       List<Gallery> histories = list.map((e) => Gallery.fromJson(e)).toList();
-      await historyService.batchRecord(histories.reversed.toList());
+      await historyService.batchRecord(histories);
     }
   }
 }
