@@ -7,12 +7,20 @@ class GalleryHistoryDao {
   }
 
   static Future<List<GalleryHistoryData>> selectAll() {
-    return appDb.select(appDb.galleryHistory).get();
+    return (appDb.select(appDb.galleryHistory)
+          ..orderBy([
+            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.asc),
+            (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.asc),
+          ]))
+        .get();
   }
 
   static Future<List<GalleryHistoryData>> selectByPageIndex(int pageIndex, int pageSize) {
     return (appDb.select(appDb.galleryHistory)
-          ..orderBy([(tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.desc)])
+          ..orderBy([
+            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.desc),
+            (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.desc),
+          ])
           ..limit(pageSize, offset: pageIndex * pageSize))
         .get();
   }

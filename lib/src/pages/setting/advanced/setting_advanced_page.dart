@@ -391,7 +391,12 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Future<void> _importData(BuildContext context) async {
     FilePickerResult? result;
     try {
-      result = await FilePicker.platform.pickFiles();
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowCompression: false,
+        compressionQuality: 0,
+      );
     } on Exception catch (e) {
       Log.error('Pick import data file failed', e);
       return;
@@ -418,7 +423,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       for (CloudConfig config in configs) {
         await cloudConfigService.importConfig(config);
       }
-      
+
       toast('success'.tr);
       setStateSafely(() => _importDataLoadingState = LoadingState.success);
       io.exit(0);
