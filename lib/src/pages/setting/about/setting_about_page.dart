@@ -49,7 +49,7 @@ class _SettingAboutPageState extends State<SettingAboutPage> {
             onTap: () => launchUrlString(gitRepo, mode: LaunchMode.externalApplication),
           ),
           ListTile(
-            title: const Text('Telegram'),
+            title: const Text('Telegram(Chinese Mainly)'),
             subtitle: Text('telegramHint'.tr + '\n' + telegram),
             onTap: () => launchUrlString(telegram, mode: LaunchMode.externalApplication),
           ),
