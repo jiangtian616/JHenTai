@@ -4,7 +4,7 @@
 [![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
 ![star](https://img.shields.io/github/stars/jiangtian616/JHenTai)
 [![issue](https://img.shields.io/badge/chat-issue-brightgreen)](https://github.com/jiangtian616/JHenTai/issues/new)
-[![telegram](https://img.shields.io/badge/chat-telegram-brightgreen)](https://t.me/+PindoE9yvIpmOWI9)
+[![telegram](https://img.shields.io/badge/chat-telegram(Chinese_Mainly)-brightgreen)](https://t.me/+PindoE9yvIpmOWI9)
 
 # JHenTai
 
