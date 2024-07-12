@@ -16,6 +16,7 @@ import '../../../../service/archive_download_service.dart';
 import '../../../../service/super_resolution_service.dart' as srs;
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/performance_setting.dart';
+import '../../../../setting/preference_setting.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/date_util.dart';
@@ -294,7 +295,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
               ),
             Text(
-              DateUtil.transform2LocalTimeString(archive.publishTime),
+              PreferenceSetting.showUtcTime.isTrue ? archive.publishTime : DateUtil.transformUtc2LocalTimeString(archive.publishTime),
               style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
             ),
           ],

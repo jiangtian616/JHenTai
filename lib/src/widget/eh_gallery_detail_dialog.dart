@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
 import '../utils/toast_util.dart';
@@ -27,7 +29,10 @@ class EHGalleryDetailDialog extends StatelessWidget {
           _Item(name: ('japaneseTitle'.tr), value: (galleryDetail.japaneseTitle)),
           _Item(name: ('category'.tr), value: (galleryDetail.category)),
           _Item(name: ('uploader'.tr), value: (galleryDetail.uploader)),
-          _Item(name: ('publishTime'.tr), value: (galleryDetail.publishTime.toString())),
+          _Item(
+            name: ('publishTime'.tr),
+            value: (PreferenceSetting.showUtcTime.isTrue ? galleryDetail.publishTime : DateUtil.transformUtc2LocalTimeString(galleryDetail.publishTime)),
+          ),
           _Item(name: ('language'.tr), value: (galleryDetail.language)),
           _Item(name: ('pageCount'.tr), value: (galleryDetail.pageCount.toString())),
           _Item(name: ('favoriteCount'.tr), value: (galleryDetail.favoriteCount.toString())),

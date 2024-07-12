@@ -504,6 +504,7 @@ class zh_CN {
       /// preference setting page
       'showR18GImageDirectly': '标签数据中直接显示R18G图片',
       'defaultTab': '启动时默认菜单',
+      'showUtcTime': '画廊时间使用UTC展示',
 
       /// log page
       'logList': '日志列表',

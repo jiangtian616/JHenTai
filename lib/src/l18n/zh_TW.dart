@@ -505,6 +505,7 @@ class zh_TW {
       /// log page
       'logList': '日誌列表',
       'defaultTab': '啓動時默認菜單',
+      'showUtcTime': '畫廊時間使用UTC展示',
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': '從Github下載模型',

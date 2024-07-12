@@ -162,7 +162,7 @@ class DownloadSearchPage extends StatelessWidget {
 
   Text _buildGalleryPublishTime(GallerySearchVO gallery, BuildContext context) {
     return Text(
-      DateUtil.transform2LocalTimeString(gallery.publishTime),
+      DateUtil.transformUtc2LocalTimeString(gallery.publishTime),
       style: TextStyle(
         fontSize: UIConfig.galleryCardTextSize,
         color: UIConfig.galleryCardTextColor(context),
@@ -492,7 +492,7 @@ class DownloadSearchPage extends StatelessWidget {
 
   Widget _buildArchivePublishTime(BuildContext context, ArchiveSearchVO archive) {
     return Text(
-      DateUtil.transform2LocalTimeString(archive.publishTime),
+      DateUtil.transformUtc2LocalTimeString(archive.publishTime),
       style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
     );
   }

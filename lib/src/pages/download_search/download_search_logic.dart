@@ -17,7 +17,9 @@ import '../../routes/routes.dart';
 import '../../service/archive_download_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/super_resolution_service.dart';
+import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
+import '../../utils/date_util.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/table.dart' as t;
@@ -108,7 +110,7 @@ class DownloadSearchLogic extends GetxController {
             galleryUrl: g.galleryUrl,
             oldVersionGalleryUrl: g.oldVersionGalleryUrl,
             uploader: g.uploader,
-            publishTime: g.publishTime,
+            publishTime: PreferenceSetting.showUtcTime.isTrue ? g.publishTime : DateUtil.transformUtc2LocalTimeString(g.publishTime),
             insertTime: g.insertTime,
             downloadOriginalImage: g.downloadOriginalImage,
             priority: g.priority,
@@ -130,7 +132,7 @@ class DownloadSearchLogic extends GetxController {
         coverUrl: a.coverUrl,
         uploader: a.uploader,
         size: a.size,
-        publishTime: a.publishTime,
+        publishTime: PreferenceSetting.showUtcTime.isTrue ? a.publishTime : DateUtil.transformUtc2LocalTimeString(a.publishTime),
         archivePageUrl: a.archivePageUrl,
         downloadPageUrl: a.downloadPageUrl,
         downloadUrl: a.downloadUrl,

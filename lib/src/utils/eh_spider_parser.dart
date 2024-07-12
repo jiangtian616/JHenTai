@@ -434,7 +434,7 @@ class EHSpiderParser {
       rating: double.parse(map['rating']),
       language: language ?? 'Japanese',
       uploader: map['uploader'] != '(Disowned)' ? map['uploader'] : null,
-      publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(map['posted']) * 1000).toString(),
+      publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(map['posted']) * 1000, isUtc: true).toString(),
       isExpunged: map['expunged'],
       size: byte2String(map['filesize'].toDouble()),
       torrentCount: int.parse(map['torrentcount']),
@@ -471,7 +471,7 @@ class EHSpiderParser {
         rating: double.parse(item['rating']),
         language: language ?? 'Japanese',
         uploader: item['uploader'] != '(Disowned)' ? item['uploader'] : null,
-        publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(item['posted']) * 1000).toString(),
+        publishTime: DateTime.fromMillisecondsSinceEpoch(int.parse(item['posted']) * 1000, isUtc: true).toString(),
         isExpunged: item['expunged'],
         size: byte2String(item['filesize'].toDouble()),
         torrentCount: int.parse(item['torrentcount']),
@@ -1411,10 +1411,7 @@ class EHSpiderParser {
 
     /// eg: '10 March 2022, 03:49'
     String postedTimeString = RegExp(r'Posted on (.+, .+)( by:)?').firstMatch(postedTimeDesc)?.group(1) ?? '';
-    final DateTime postedUTCTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(postedTimeString).toLocal();
-    final String postedLocalTime = DateFormat('yyyy-MM-dd HH:mm').format(postedUTCTime);
-
-    return postedLocalTime;
+    return DateFormat('yyyy-MM-dd HH:mm').format(DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parse(postedTimeString));
   }
 
   static String? _parsePostedEditedTime(Element element) {
@@ -1424,10 +1421,7 @@ class EHSpiderParser {
       return null;
     }
 
-    final DateTime postedUTCTime = DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parseUtc(postedTimeString).toLocal();
-    final String postedLocalTime = DateFormat('yyyy-MM-dd HH:mm').format(postedUTCTime);
-
-    return postedLocalTime;
+    return DateFormat('yyyy-MM-dd HH:mm').format(DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parse(postedTimeString));
   }
 
   static List<GalleryThumbnail> _parseGalleryDetailsSmallThumbnails(List<Element> thumbNailElements) {

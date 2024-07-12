@@ -35,6 +35,7 @@ class PreferenceSetting {
   static RxBool launchInFullScreen = false.obs;
   static Rx<TagSearchBehaviour> tagSearchBehaviour = TagSearchBehaviour.inheritAll.obs;
   static RxBool showR18GImageDirectly = false.obs;
+  static RxBool showUtcTime = false.obs;
 
   static void init() {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('preferenceSetting');
@@ -173,6 +174,12 @@ class PreferenceSetting {
     PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
     _save();
   }
+  
+  static saveShowUtcTime(bool showUtcTime) {
+    Log.debug('saveShowUtcTime:$showUtcTime');
+    PreferenceSetting.showUtcTime.value = showUtcTime;
+    _save();
+  }
 
   static Future<void> _save() async {
     await Get.find<StorageService>().write(StorageEnum.preferenceSetting.key, _toMap());
@@ -201,6 +208,7 @@ class PreferenceSetting {
       'enableDefaultFavorite': enableDefaultFavorite.value,
       'enableDefaultTagSet': enableDefaultTagSet.value,
       'launchInFullScreen': launchInFullScreen.value,
+      'showUtcTime': showUtcTime.value,
     };
   }
 
@@ -228,5 +236,6 @@ class PreferenceSetting {
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
     enableDefaultTagSet.value = map['enableDefaultTagSet'] ?? enableDefaultTagSet.value;
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;
+    showUtcTime.value = map['showUtcTime'] ?? showUtcTime.value;
   }
 }

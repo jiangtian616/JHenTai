@@ -505,6 +505,7 @@ class pt_BR {
       /// preference setting page
       'showR18GImageDirectly': 'Show R18G Image Directly',
       'defaultTab': 'Default Tab',
+      'showUtcTime': 'Show UTC Time for Gallery',
 
       /// log page
       'logList': 'Lista de resgistro(log)',

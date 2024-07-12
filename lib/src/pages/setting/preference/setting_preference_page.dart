@@ -51,6 +51,7 @@ class SettingPreferencePage extends StatelessWidget {
               if (GetPlatform.isDesktop && StyleSetting.isInDesktopLayout) _buildLaunchInFullScreen(),
               _buildTagSearchConfig(),
               if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
+              _buildShowUtcTime(),
               _buildBlockRules(),
             ],
           ).withListTileTheme(context),
@@ -400,6 +401,14 @@ class SettingPreferencePage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildShowUtcTime() {
+    return SwitchListTile(
+      title: Text('showUtcTime'.tr),
+      value: PreferenceSetting.showUtcTime.value,
+      onChanged: PreferenceSetting.saveShowUtcTime,
     );
   }
 

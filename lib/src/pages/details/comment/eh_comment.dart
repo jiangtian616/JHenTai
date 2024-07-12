@@ -14,6 +14,8 @@ import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/details/details_page_state.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/utils/date_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
@@ -142,7 +144,7 @@ class _EHCommentHeader extends StatelessWidget {
           ),
         ),
         Text(
-          commentTime,
+          PreferenceSetting.showUtcTime.isTrue ? commentTime : DateUtil.transformUtc2LocalTimeString(commentTime),
           style: TextStyle(
             fontSize: inDetailPage ? UIConfig.commentTimeTextSizeInDetailPage : UIConfig.commentTimeTextSizeInCommentPage,
             color: UIConfig.commentTimeTextColor(context),
@@ -475,7 +477,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       children: [
         if (widget.lastEditTime?.isNotEmpty ?? false)
           Text(
-            '${'lastEditedOn'.tr}: ${widget.lastEditTime}',
+            '${'lastEditedOn'.tr}: ${PreferenceSetting.showUtcTime.isTrue ? widget.lastEditTime : DateUtil.transformUtc2LocalTimeString(widget.lastEditTime!)}',
             style: TextStyle(fontSize: UIConfig.commentLastEditTimeTextSize, color: UIConfig.commentFooterTextColor(context)),
           ),
         const Expanded(child: SizedBox()),

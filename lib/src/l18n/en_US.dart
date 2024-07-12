@@ -504,6 +504,7 @@ class en_US {
       /// preference setting page
       'showR18GImageDirectly': 'Show R18G Image Directly',
       'defaultTab': 'Default Tab',
+      'showUtcTime': 'Show UTC Time for Gallery',
 
       /// log page
       'logList': 'Log List',
