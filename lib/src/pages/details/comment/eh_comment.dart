@@ -305,15 +305,19 @@ class _EHCommentTextBody extends StatelessWidget {
 
     /// link
     if (node.localName == 'a') {
-      return WidgetSpan(
-        child: GestureDetector(
+      Widget child = Wrap(
+        children: node.nodes.map((childTag) => Text.rich(buildTag(context, childTag))).toList(),
+      );
+
+      if (!inDetailPage) {
+        child = GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _handleTapUrl(node.attributes['href'] ?? node.text),
-          child: Wrap(
-            children: node.children.map((childTag) => Text.rich(buildTag(context, childTag))).toList(),
-          ),
-        ),
-      );
+          child: child,
+        );
+      }
+
+      return WidgetSpan(child: child);
     }
 
     Log.error('Can not parse html tag: $node');
@@ -326,14 +330,14 @@ class _EHCommentTextBody extends StatelessWidget {
     Match? match = reg.firstMatch(text);
 
     if (match == null) {
-      return TextSpan(text: text, style: TextStyle(color: UIConfig.commentBodyTextColor(context)));
+      return TextSpan(text: text);
     }
 
     /// some url link doesn't be wrapped in <a href='xxx'></a>, we manually render it as a url.
     if (match.start == 0) {
       return TextSpan(
         text: match.group(0),
-        style: const TextStyle(color: UIConfig.commentLinkColor),
+        style: const TextStyle(color: UIConfig.commentLinkColor, fontSize: UIConfig.commentLinkFontSize),
         recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
         children: [_buildText(context, text.substring(match.end))],
       );
@@ -341,7 +345,6 @@ class _EHCommentTextBody extends StatelessWidget {
 
     return TextSpan(
       text: text.substring(0, match.start),
-      style: TextStyle(color: UIConfig.commentBodyTextColor(context)),
       children: [_buildText(context, text.substring(match.start))],
     );
   }

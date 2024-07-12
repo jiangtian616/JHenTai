@@ -389,7 +389,8 @@ class UIConfig {
   static const double commentScoreSizeInCommentPage = 10;
 
   static Color commentFooterTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
-
+  
+  static const double commentLinkFontSize = 12;
   static const Color commentLinkColor = Colors.blue;
 
   static const Color galleryCategoryTagTextColor = Colors.white;
