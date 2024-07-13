@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 
 import 'package:drift/native.dart';
@@ -31,6 +32,7 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 import '../model/gallery.dart';
+import '../model/gallery_history_model.dart';
 import '../service/archive_download_service.dart';
 import '../service/storage_service.dart';
 import 'dao/archive_dao.dart';
@@ -52,6 +54,7 @@ part 'database.g.dart';
     GalleryGroup,
     Image,
     GalleryHistory,
+    GalleryHistoryV2,
     TagCount,
     DioCache,
     BlockRule,
@@ -144,6 +147,7 @@ class AppDb extends _$AppDb {
             await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
             await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
             await m.createIndex(aIdxTagRefreshTime);
+            await m.createTable(galleryHistoryV2);
           }
         } on Exception catch (e) {
           Log.error(e);
@@ -180,19 +184,37 @@ class AppDb extends _$AppDb {
 
       if (Get.isRegistered<StorageService>()) {
         List<Gallery>? gallerys = Get.find<StorageService>().read<List>('history')?.map((e) => Gallery.fromJson(e)).toList();
+        
+        List<GalleryHistoryModel>? historyModels = gallerys
+            ?.map(
+              (g) => GalleryHistoryModel(
+                galleryUrl: g.galleryUrl,
+                title: g.title,
+                category: g.category,
+                coverUrl: g.cover.url,
+                pageCount: g.pageCount ?? 0,
+                rating: g.rating,
+                language: g.language ?? '',
+                uploader: g.uploader ?? '',
+                publishTime: g.publishTime,
+                isExpunged: g.isExpunged,
+                tags: g.tags.values.flattened.map((tag) => '${tag.tagData.namespace}:${tag.tagData.key}').toList(),
+              ),
+            )
+            .toList();
+        
+        List<GalleryHistoryV2Data>? historyV2Datas = historyModels
+            ?.map(
+              (h) => GalleryHistoryV2Data(
+                gid: h.galleryUrl.gid,
+                jsonBody: jsonEncode(h),
+                lastReadTime: DateTime.now().toString(),
+              ),
+            )
+            .toList();
 
-        if (gallerys != null) {
-          await appDb.transaction(() async {
-            for (Gallery g in gallerys.reversed) {
-              await GalleryHistoryDao.insertHistory(
-                GalleryHistoryData(
-                  gid: g.gid,
-                  jsonBody: json.encode(g),
-                  lastReadTime: DateTime.now().toString(),
-                ),
-              );
-            }
-          });
+        if (historyV2Datas != null) {
+          await GalleryHistoryDao.batchReplaceHistory(historyV2Datas);
         }
 
         Get.find<StorageService>().remove('history');

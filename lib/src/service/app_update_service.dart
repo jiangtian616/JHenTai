@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:drift/drift.dart';
+import 'package:collection/collection.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -12,13 +12,14 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
-import 'package:jhentai/src/service/history_service.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
+import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:path/path.dart';
 
@@ -243,26 +244,36 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 10) {
-        HistoryService historyService = Get.find();
-        int pageCount = await historyService.getPageCount();
-        Log.info('Migrate search config, page count: $pageCount');
+        int totalCount = await GalleryHistoryDao.selectTotalCountOld();
+        int pageSize = 400;
+        int pageCount = (totalCount / pageSize).ceil();
+
+        Log.info('Migrate search config, total count: $totalCount');
 
         for (int i = 0; i < pageCount; i++) {
           try {
             await Future.delayed(const Duration(milliseconds: 500));
 
-            List<Gallery> gallerys = await historyService.getByPageIndex(i);
-            await GalleryHistoryDao.batchUpdateHistory(
-              gallerys
-                  .map(
-                    (gallery) => GalleryHistoryCompanion(
-                      gid: Value(gallery.gid),
-                      jsonBody: Value(historyService.gallery2jsonBody(gallery)),
-                    ),
-                  )
-                  .toList(),
+            List<GalleryHistoryData> historys = await GalleryHistoryDao.selectByPageIndexOld(i, pageSize);
+            Map<int, Gallery> gid2GalleryMap = await IsolateService.run<List<GalleryHistoryData>, Map<int, Gallery>>(
+              (historys) => historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).groupFoldBy((g) => g.gid, (g1, e) => e),
+              historys,
             );
 
+            await GalleryHistoryDao.batchReplaceHistory(
+              historys.map(
+                (h) {
+                  return GalleryHistoryV2Data(
+                    gid: h.gid,
+                    jsonBody: jsonEncode(gallery2GalleryHistoryModel(gid2GalleryMap[h.gid]!)),
+                    lastReadTime: h.lastReadTime,
+                  );
+                },
+              ).toList(),
+            );
+
+            GalleryHistoryDao.deleteAllHistoryOld();
+            
             Log.info('Migrate search config for page index $i success!');
           } on Exception catch (e) {
             Log.error('Migrate search config for page index $i failed!', e);

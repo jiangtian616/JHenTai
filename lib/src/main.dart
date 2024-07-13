@@ -177,7 +177,7 @@ Future<void> init() async {
   SuperResolutionService.init();
 
   ReadSetting.init();
-  
+
   LocalBlockRuleService.init();
 
   if (GetPlatform.isDesktop) {
@@ -213,8 +213,8 @@ Future<void> onReady() async {
   MyTagsSetting.refreshAllOnlineTagSets();
 
   VolumeService.init();
-  
+
   CloudConfigService.init();
-  
+
   ScheduleService.init();
 }

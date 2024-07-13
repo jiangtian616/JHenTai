@@ -1,16 +1,14 @@
-import 'dart:collection';
 import 'dart:convert';
 
-import 'package:drift/drift.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/model/gallery_history_model.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import '../model/gallery.dart';
-import '../model/gallery_tag.dart';
 import '../utils/log.dart';
 
 class HistoryService extends GetxController {
@@ -34,27 +32,28 @@ class HistoryService extends GetxController {
     return totalCount == 0 ? 0 : (totalCount - 1) ~/ pageSize + 1;
   }
 
-  Future<List<Gallery>> getByPageIndex(int pageIndex) async {
-    List<GalleryHistoryData> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
-    return historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList();
+
+  Future<List<GalleryHistoryModel>> getByPageIndex(int pageIndex) async {
+    List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
+    return historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList();
   }
 
-  Future<List<Gallery>> getAllHistory() async {
-    List<GalleryHistoryData> historys = await GalleryHistoryDao.selectAll();
-    return compute(
-      (historys) => historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).toList(),
+  Future<List<GalleryHistoryModel>> getAllHistory() async {
+    List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectAll();
+    return IsolateService.run<List<GalleryHistoryV2Data>, List<GalleryHistoryModel>>(
+      (historys) => historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList(),
       historys,
     );
   }
 
-  Future<void> record(Gallery gallery) async {
-    Log.trace('Record history: ${gallery.gid}');
+  Future<void> record(GalleryHistoryModel gallery) async {
+    Log.trace('Record history: ${gallery.galleryUrl.gid}');
 
     try {
       await GalleryHistoryDao.replaceHistory(
-        GalleryHistoryData(
-          gid: gallery.gid,
-          jsonBody: gallery2jsonBody(gallery),
+        GalleryHistoryV2Data(
+          gid: gallery.galleryUrl.gid,
+          jsonBody: jsonEncode(gallery),
           lastReadTime: DateTime.now().toString(),
         ),
       );
@@ -63,17 +62,17 @@ class HistoryService extends GetxController {
     }
   }
 
-  Future<void> batchRecord(List<Gallery> gallerys) async {
+  Future<void> batchRecord(List<GalleryHistoryModel> gallerys) async {
     Log.trace('Batch record history: $gallerys');
 
     try {
-      for (List<Gallery> partition in gallerys.partition(500)) {
+      for (List<GalleryHistoryModel> partition in gallerys.partition(500)) {
         await GalleryHistoryDao.batchReplaceHistory(
           partition
               .map(
-                (gallery) => GalleryHistoryCompanion.insert(
-                  gid: Value(gallery.gid),
-                  jsonBody: gallery2jsonBody(gallery),
+                (gallery) => GalleryHistoryV2Data(
+                  gid: gallery.galleryUrl.gid,
+                  jsonBody: jsonEncode(gallery),
                   lastReadTime: DateTime.now().toString(),
                 ),
               )
@@ -95,25 +94,5 @@ class HistoryService extends GetxController {
   Future<bool> deleteAll() async {
     Log.info('Delete all historys');
     return await GalleryHistoryDao.deleteAllHistory() > 0;
-  }
-
-  String gallery2jsonBody(Gallery gallery) {
-    LinkedHashMap<String, List<GalleryTag>> thinTagsMap = LinkedHashMap();
-    gallery.tags.forEach((key, value) {
-      List<GalleryTag> thinTags = [];
-      for (var tag in value) {
-        GalleryTag thinTag = tag.copyWith();
-        thinTag.tagData = thinTag.tagData.copyWith(
-          fullTagName: const Value(null),
-          intro: const Value(null),
-          links: const Value(null),
-        );
-        thinTags.add(thinTag);
-      }
-      thinTagsMap[key] = thinTags;
-    });
-    Gallery thinGallery = gallery.copyWith(tags: thinTagsMap);
-
-    return json.encode(thinGallery);
   }
 }

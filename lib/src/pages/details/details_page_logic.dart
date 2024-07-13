@@ -244,7 +244,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     updateSafely(_judgeUpdateIds());
 
     SchedulerBinding.instance.scheduleTask(
-      () => historyService.record(state.galleryDetails!.toGallery()),
+      () => historyService.record(galleryDetail2GalleryHistoryModel(state.galleryDetails!)),
       Priority.animation,
     );
     SchedulerBinding.instance.scheduleTask(

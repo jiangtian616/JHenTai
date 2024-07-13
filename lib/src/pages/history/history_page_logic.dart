@@ -5,7 +5,9 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
 import '../../model/gallery.dart';
+import '../../model/gallery_history_model.dart';
 import '../../service/history_service.dart';
+import '../../utils/convert_util.dart';
 import '../../utils/log.dart';
 import '../../utils/route_util.dart';
 import '../base/old_base_page_logic.dart';
@@ -25,7 +27,8 @@ class HistoryPageLogic extends OldBasePageLogic {
     Log.info('Get history by page index $pageIndex');
 
     int pageCount = await historyService.getPageCount();
-    List<Gallery> gallerys = await historyService.getByPageIndex(pageIndex);
+    List<GalleryHistoryModel> galleryModels = await historyService.getByPageIndex(pageIndex);
+    List<Gallery> gallerys = galleryModels.map(galleryHistoryModel2Gallery).toList();
 
     return [
       gallerys,
