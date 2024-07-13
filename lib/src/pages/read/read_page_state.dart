@@ -22,6 +22,8 @@ class ReadPageState with ScrollStatusListerState {
   late List<GalleryThumbnail?> thumbnails;
   late List<GalleryImage?> images;
 
+  bool readyToShow = false;
+  
   late List<LoadingState> parseImageHrefsStates;
   late List<LoadingState> parseImageUrlStates;
   late List<Size?> imageContainerSizes;

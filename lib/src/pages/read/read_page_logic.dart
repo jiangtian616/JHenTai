@@ -29,7 +29,6 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../model/detail_page_info.dart';
 import '../../model/gallery_image.dart';
-import '../../model/gallery_thumbnail.dart';
 import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../service/storage_service.dart';
@@ -84,7 +83,7 @@ class ReadPageLogic extends GetxController {
   late Worker preloadListener;
 
   final EHExecutor executor = EHExecutor(
-    concurrency: 10,
+    concurrency: 100,
     rate: const Rate(10, Duration(milliseconds: 1000)),
   );
   final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
@@ -170,6 +169,11 @@ class ReadPageLogic extends GetxController {
       [ReadSetting.preloadPageCountLocal, ReadSetting.preloadPageCount, ReadSetting.preloadDistanceLocal, ReadSetting.preloadDistance],
       (_) => updateSafely([layoutId]),
     );
+
+    Timer(const Duration(milliseconds: 120), () {
+      state.readyToShow = true;
+      updateSafely([layoutId]);
+    });
   }
 
   @override
@@ -217,9 +221,7 @@ class ReadPageLogic extends GetxController {
     state.parseImageHrefsStates[index] = LoadingState.loading;
 
     /// limit the rate of parsing to decrease the lagging of build
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      executor.scheduleTask(0, () => parseImageHref(index));
-    });
+    executor.scheduleTask(0, () => parseImageHref(index));
   }
 
   Future<void> parseImageHref(int index) async {
@@ -272,7 +274,7 @@ class ReadPageLogic extends GetxController {
       return beginToParseImageHref(index);
     }
 
-    update(['$onlineImageId::$index']);
+    updateSafely(['$onlineImageId::$index']);
   }
 
   void beginToParseImageUrl(int index, bool reParse, {String? reloadKey}) {
@@ -281,9 +283,8 @@ class ReadPageLogic extends GetxController {
     }
 
     state.parseImageUrlStates[index] = LoadingState.loading;
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      executor.scheduleTask(0, () => parseImageUrl(index, reParse, reloadKey));
-    });
+
+    executor.scheduleTask(0, () => parseImageUrl(index, reParse, reloadKey));
   }
 
   Future<void> parseImageUrl(int index, bool reParse, String? reloadKey) async {
@@ -300,23 +301,23 @@ class ReadPageLogic extends GetxController {
     } on DioException catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
       state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
-      update(['$parseImageUrlStateId::$index']);
+      updateSafely(['$parseImageUrlStateId::$index']);
       return;
     } on EHParseException catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
       state.parseImageUrlErrorMsg[index] = e.message.tr;
-      update(['$parseImageUrlStateId::$index']);
+      updateSafely(['$parseImageUrlStateId::$index']);
       return;
     } on EHSiteException catch (e) {
       state.parseImageUrlStates[index] = LoadingState.error;
       state.parseImageUrlErrorMsg[index] = e.message.tr;
-      update(['$parseImageUrlStateId::$index']);
+      updateSafely(['$parseImageUrlStateId::$index']);
       return;
     }
 
     state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
-    update(['$onlineImageId::$index']);
+    updateSafely(['$onlineImageId::$index']);
   }
 
   Future<GalleryImage> requestImage(int index, bool reParse, String? reloadKey) {
@@ -442,6 +443,10 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapLeftRegion() {
+    if (!state.readyToShow) {
+      return;
+    }
+
     if (ReadSetting.disablePageTurningOnTap.isTrue) {
       return;
     }
@@ -458,6 +463,9 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapRightRegion() {
+    if (!state.readyToShow) {
+      return;
+    }
     if (ReadSetting.disablePageTurningOnTap.isTrue) {
       return;
     }

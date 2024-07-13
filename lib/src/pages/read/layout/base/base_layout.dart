@@ -30,6 +30,10 @@ abstract class BaseLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!readPageState.readyToShow) {
+      return Center(child: Container(color: UIConfig.readPageBackGroundColor));
+    }
+
     return GetBuilder<BaseLayoutLogic>(
       id: BaseLayoutLogic.pageId,
       global: false,
