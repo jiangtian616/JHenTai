@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
@@ -182,7 +182,7 @@ class PreferenceSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.preferenceSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.preferenceSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 
 import '../service/storage_service.dart';
 import '../utils/log.dart';
@@ -24,7 +24,7 @@ class PerformanceSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.performanceSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.performanceSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

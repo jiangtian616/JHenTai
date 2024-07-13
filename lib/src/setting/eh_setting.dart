@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -94,7 +94,7 @@ class EHSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.EHSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.EHSetting.key, _toMap());
   }
 
   static Future<void> _clear() async {

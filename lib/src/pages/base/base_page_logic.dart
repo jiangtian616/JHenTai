@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
@@ -375,7 +375,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${StorageEnum.searchConfig.key}: $searchConfigKey', searchConfig.toJson());
+    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.toJson());
   }
 
   Future<List<Gallery>> postHandleNewGallerys(List<Gallery> gallerys, {bool cleanDuplicate = true}) async {

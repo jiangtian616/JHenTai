@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -56,7 +56,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     searchFocusNode = FocusNode();
     searchDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
     scrollController = ScrollController();
-    int? code = storageService.read(StorageEnum.downloadSearchPageType.key);
+    int? code = storageService.read(ConfigEnum.downloadSearchPageType.key);
     if (code != null) {
       state.searchType = DownloadSearchConfigTypeEnum.fromCode(code);
     }
@@ -239,7 +239,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     state.searchType = state.searchType == DownloadSearchConfigTypeEnum.simple ? DownloadSearchConfigTypeEnum.regex : DownloadSearchConfigTypeEnum.simple;
     updateSafely([searchFieldId]);
     handleSearchFieldChanged(textEditingController.text);
-    storageService.write(StorageEnum.downloadSearchPageType.key, state.searchType.code);
+    storageService.write(ConfigEnum.downloadSearchPageType.key, state.searchType.code);
   }
 
   void goToGalleryReadPage(GallerySearchVO gallery) {

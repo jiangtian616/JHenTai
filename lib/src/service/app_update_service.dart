@@ -7,7 +7,7 @@ import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
@@ -75,8 +75,8 @@ class AppUpdateService extends GetxService {
     SearchConfig searchConfig = SearchConfig()
       ..disableAllCategories()
       ..includeNonH = true;
-    storageService.write('${StorageEnum.searchConfig.key}: DashboardPageLogic', searchConfig.toJson());
-    storageService.write('${StorageEnum.searchConfig.key}: GallerysPageLogic', searchConfig.toJson());
+    storageService.write('${ConfigEnum.searchConfig.key}: DashboardPageLogic', searchConfig.toJson());
+    storageService.write('${ConfigEnum.searchConfig.key}: GallerysPageLogic', searchConfig.toJson());
 
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
@@ -178,7 +178,7 @@ class AppUpdateService extends GetxService {
         Map<String, dynamic>? map =
             storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
         if (map != null) {
-          storageService.write('${StorageEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}', map);
+          storageService.write('${ConfigEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
       }
 

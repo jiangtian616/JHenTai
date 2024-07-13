@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';

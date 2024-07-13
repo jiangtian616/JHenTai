@@ -4,7 +4,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:local_auth/local_auth.dart';
@@ -103,7 +103,7 @@ class SecuritySetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.securitySetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.securitySetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -93,7 +93,7 @@ class FavoriteSetting {
   }
 
   static Future<void> save() async {
-    await Get.find<StorageService>().write(StorageEnum.favoriteSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.favoriteSetting.key, _toMap());
   }
 
   static Future<void> _clear() async {

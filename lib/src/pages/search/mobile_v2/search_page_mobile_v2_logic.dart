@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 
-import '../../../enum/storage_enum.dart';
+import '../../../enum/config_enum.dart';
 import '../../../model/search_config.dart';
 import '../../base/base_page_logic.dart';
 import '../mixin/search_page_logic_mixin.dart';
@@ -44,6 +44,6 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
 
   @override
   void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${StorageEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
+    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
   }
 }

@@ -1,4 +1,4 @@
-enum StorageEnum {
+enum ConfigEnum {
   ehCookie('eh_cookies'),
   searchConfig('searchConfig'),
   downloadPageGalleryType('downloadPageGalleryType'),
@@ -27,9 +27,15 @@ enum StorageEnum {
   tabBarSetting('tabBarSetting'),
   userSetting('userSetting'),
   downloadSearchPageType('downloadSearchPageType'),
+  windowFullScreen('windowFullScreen'),
+  windowMaximize('windowMaximize'),
+  windowWidth('windowWidth'),
+  windowHeight('windowHeight'),
+  leftColumnWidthRatio('leftColumnWidthRatio'),
+  dismissVersion('dismissVersion'),
   ;
 
   final String key;
 
-  const StorageEnum(this.key);
+  const ConfigEnum(this.key);
 }

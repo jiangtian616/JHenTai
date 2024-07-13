@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:jhentai/src/consts/jh_consts.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 
-import '../enum/storage_enum.dart';
+import '../enum/config_enum.dart';
 import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
@@ -14,7 +14,7 @@ class JHCookieManager extends Interceptor {
   JHCookieManager(this.storageService);
 
   List<Cookie> get ehCookies {
-    return [...(storageService.read<List?>(StorageEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
+    return [...(storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
   }
 
   @override

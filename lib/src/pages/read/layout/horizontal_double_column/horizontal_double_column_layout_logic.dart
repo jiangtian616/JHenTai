@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
@@ -171,7 +171,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (computePageIndexOfImage(imageIndex) <= state.pageController.page!.toInt()) {
       jump2ImageIndex(readPageState.readPageInfo.currentImageIndex);
     }
-    storageService.write('${StorageEnum.isSpreadPage.key}::${readPageState.readPageInfo.gid}', state.isSpreadPage);
+    storageService.write('${ConfigEnum.isSpreadPage.key}::${readPageState.readPageInfo.gid}', state.isSpreadPage);
   }
 
   int computePageCount() {

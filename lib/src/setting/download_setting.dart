@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
 import 'package:jhentai/src/utils/log.dart';
@@ -156,7 +156,7 @@ class DownloadSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.downloadSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.downloadSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 
@@ -122,7 +122,7 @@ class NetworkSetting {
   }
 
   static Future<void> _save() async {
-    await Get.find<StorageService>().write(StorageEnum.networkSetting.key, _toMap());
+    await Get.find<StorageService>().write(ConfigEnum.networkSetting.key, _toMap());
   }
 
   static Map<String, dynamic> _toMap() {

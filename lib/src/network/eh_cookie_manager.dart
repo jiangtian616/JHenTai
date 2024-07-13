@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 
-import '../enum/storage_enum.dart';
+import '../enum/config_enum.dart';
 import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
@@ -13,14 +13,14 @@ class EHCookieManager extends Interceptor {
   EHCookieManager(this.storageService);
 
   List<Cookie> get cookies {
-    return [...(storageService.read<List?>(StorageEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
+    return [...(storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
   }
 
   set cookies(List<Cookie> cookies) {
-    List<Cookie> oldCookies = (storageService.read<List?>(StorageEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList();
+    List<Cookie> oldCookies = (storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList();
     oldCookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
     oldCookies.addAll(cookies);
-    storageService.write(StorageEnum.ehCookie.key, oldCookies.map((cookie) => cookie.toString()).toList());
+    storageService.write(ConfigEnum.ehCookie.key, oldCookies.map((cookie) => cookie.toString()).toList());
   }
 
   @override
@@ -59,7 +59,7 @@ class EHCookieManager extends Interceptor {
   }
 
   void removeAllCookies() {
-    storageService.write(StorageEnum.ehCookie.key, []);
+    storageService.write(ConfigEnum.ehCookie.key, []);
   }
 
   void _saveEHCookies(Response response) {

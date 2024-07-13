@@ -18,7 +18,7 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../database/database.dart';
-import '../enum/storage_enum.dart';
+import '../enum/config_enum.dart';
 import '../model/gallery_tag.dart';
 import '../utils/log.dart';
 
@@ -78,7 +78,7 @@ class TagTranslationService extends GetxService {
     } on DioException catch (e) {
       Log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
@@ -141,8 +141,8 @@ class TagTranslationService extends GetxService {
     });
     timeStamp.value = newTimeStamp;
 
-    storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
-    storageService.write(StorageEnum.tagTranslationServiceTimestamp.key, timeStamp.value);
+    storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
+    storageService.write(ConfigEnum.tagTranslationServiceTimestamp.key, timeStamp.value);
 
     loadingState.value = LoadingState.success;
     io.File(savePath).delete();

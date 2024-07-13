@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -132,7 +133,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       return;
     }
 
-    String? dismissVersion = storageService.read(UpdateDialog.dismissVersion);
+    String? dismissVersion = storageService.read(ConfigEnum.dismissVersion.key);
     if (dismissVersion == latestVersion) {
       return;
     }

@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
@@ -34,7 +34,7 @@ class BlockingRulePageLogic extends GetxController {
     state.showGroup = !state.showGroup;
     updateSafely([bodyId]);
 
-    storageService.write(StorageEnum.displayBlockingRulesGroup.key, state.showGroup);
+    storageService.write(ConfigEnum.displayBlockingRulesGroup.key, state.showGroup);
   }
 
   void toggleDisplayGroups(String groupName) {

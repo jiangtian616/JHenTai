@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -80,14 +80,14 @@ class TagSearchOrderOptimizationService extends GetxService {
     } on DioException catch (e) {
       Log.error('Get tag order optimization data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
     if (tag == version.value) {
       Log.info('Tag order optimization data is up to date, tag: $tag');
       loadingState.value = LoadingState.success;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
       return;
     }
 
@@ -106,7 +106,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     } on DioException catch (e) {
       Log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
@@ -117,7 +117,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       Log.error('Extract tag order optimization data failed');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
@@ -134,7 +134,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       Log.error('Parse tag order optimization data failed', e);
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
@@ -142,7 +142,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       Log.error('Parse tag order optimization data failed, rows length: ${rows.length}');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
@@ -152,8 +152,8 @@ class TagSearchOrderOptimizationService extends GetxService {
     await TagCountDao.replaceTagCount(tagCountData);
     version.value = tag;
 
-    storageService.write(StorageEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
-    storageService.write(StorageEnum.tagTranslationServiceVersion.key, tag);
+    storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
+    storageService.write(ConfigEnum.tagTranslationServiceVersion.key, tag);
 
     loadingState.value = LoadingState.success;
     File(savePath).delete().ignore();

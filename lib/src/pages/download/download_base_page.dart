@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/storage_enum.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
@@ -41,7 +41,7 @@ class _DownloadPageState extends State<DownloadPage> {
             galleryType = notification.galleryType ?? galleryType;
             bodyType = notification.bodyType ?? bodyType;
           });
-          storageService.write(StorageEnum.downloadPageGalleryType.key, (notification.bodyType ?? bodyType).index);
+          storageService.write(ConfigEnum.downloadPageGalleryType.key, (notification.bodyType ?? bodyType).index);
           return true;
         },
         child: galleryType == DownloadPageGalleryType.download
