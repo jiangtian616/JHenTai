@@ -1,4 +1,5 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/storage_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -10,7 +11,9 @@ import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:throttling/throttling.dart';
 
+import '../../config/ui_config.dart';
 import '../../database/database.dart';
+import '../../mixin/update_global_gallery_status_logic_mixin.dart';
 import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../routes/routes.dart';
@@ -23,9 +26,11 @@ import '../../utils/date_util.dart';
 import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/table.dart' as t;
+import '../../widget/eh_alert_dialog.dart';
+import '../../widget/eh_download_dialog.dart';
 import 'download_search_state.dart';
 
-class DownloadSearchLogic extends GetxController {
+class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusLogicMixin {
   final DownloadSearchState state = DownloadSearchState();
 
   final String loadingStateId = 'loadingStateId';
@@ -294,5 +299,136 @@ class DownloadSearchLogic extends GetxController {
         ),
       );
     }
+  }
+
+  void onLongPressGallery(BuildContext context, GallerySearchVO gallery) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('changeGroup'.tr),
+            onPressed: () {
+              backRoute();
+              handleChangeGalleryGroup(gallery);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            onPressed: () {
+              backRoute();
+              handleRemoveGallery(gallery, context);
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+      ),
+    );
+  }
+
+  void onLongPressArchive(BuildContext context, ArchiveSearchVO archive) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => CupertinoActionSheet(
+        actions: <CupertinoActionSheetAction>[
+          CupertinoActionSheetAction(
+            child: Text('changeGroup'.tr),
+            onPressed: () {
+              backRoute();
+              handleChangeArchiveGroup(archive);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            onPressed: () {
+              handleRemoveArchive(archive);
+              backRoute();
+            },
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          child: Text('cancel'.tr),
+          onPressed: backRoute,
+        ),
+      ),
+    );
+  }
+
+  Future<void> handleChangeGalleryGroup(GallerySearchVO gallery) async {
+    String oldGroup = galleryDownloadService.galleryDownloadInfos[gallery.gid]!.group;
+
+    ({String group, bool downloadOriginalImage})? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: galleryDownloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    String newGroup = result.group;
+    if (newGroup == oldGroup) {
+      return;
+    }
+
+    await galleryDownloadService.updateGroupByGid(gallery.gid, newGroup);
+
+    update([bodyId]);
+  }
+
+  void handleRemoveGallery(GallerySearchVO gallery, BuildContext context) async {
+    bool isUpdatingDependent = galleryDownloadService.isUpdatingDependent(gallery.gid);
+
+    if (isUpdatingDependent) {
+      bool? result = await showDialog(
+        context: context,
+        builder: (_) => EHDialog(
+          title: 'delete'.tr + '?',
+          content: 'deleteUpdatingDependentHint'.tr,
+        ),
+      );
+      if (result == null || !result) {
+        return;
+      }
+    }
+
+    state.gallerys.remove(gallery);
+    galleryDownloadService.deleteGalleryByGid(gallery.gid);
+    update([bodyId]);
+    updateGlobalGalleryStatus();
+  }
+
+  Future<void> handleChangeArchiveGroup(ArchiveSearchVO archive) async {
+    String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
+
+    ({String group, bool downloadOriginalImage})? result = await Get.dialog(
+      EHDownloadDialog(
+        title: 'changeGroup'.tr,
+        currentGroup: oldGroup,
+        candidates: archiveDownloadService.allGroups,
+      ),
+    );
+
+    if (result == null) {
+      return;
+    }
+
+    String newGroup = result.group;
+    if (newGroup == oldGroup) {
+      return;
+    }
+
+    await archiveDownloadService.updateArchiveGroup(archive.gid, newGroup);
+    update([bodyId]);
+  }
+
+  Future<void> handleRemoveArchive(ArchiveSearchVO archive) async {
+    state.archives.remove(archive);
+    archiveDownloadService.deleteArchive(archive.gid);
+    update([bodyId]);
+    updateGlobalGalleryStatus();
   }
 }

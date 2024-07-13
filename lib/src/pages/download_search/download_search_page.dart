@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
-import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -113,6 +111,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToGalleryReadPage(gallery),
+                  onLongPress: () => logic.onLongPressGallery(context, gallery),
+                  onSecondaryTap: () => logic.onLongPressGallery(context, gallery),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -124,7 +124,7 @@ class DownloadSearchPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Expanded(child: buildTags(context,gallery.tags)),
+                      Expanded(child: buildTags(context, gallery.tags)),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,6 +358,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToArchiveReadPage(archive),
+                  onLongPress: () => logic.onLongPressArchive(context, archive),
+                  onSecondaryTap: () => logic.onLongPressArchive(context, archive),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
