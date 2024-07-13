@@ -5,7 +5,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
@@ -82,11 +81,14 @@ class ReadPageLogic extends GetxController {
   late Worker customBrightnessListener;
   late Worker preloadListener;
 
+  /// limit the rate of parsing to decrease the lagging of build
   final EHExecutor executor = EHExecutor(
     concurrency: 100,
     rate: const Rate(10, Duration(milliseconds: 1000)),
   );
   final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
+
+  final int normalPriority = 10000;
 
   @override
   void onReady() {
@@ -219,14 +221,14 @@ class ReadPageLogic extends GetxController {
     }
 
     state.parseImageHrefsStates[index] = LoadingState.loading;
+    updateSafely(['$parseImageHrefsStateId::$index']);
 
     /// limit the rate of parsing to decrease the lagging of build
-    executor.scheduleTask(0, () => parseImageHref(index));
+    executor.scheduleTask(normalPriority, () => parseImageHref(index));
   }
 
   Future<void> parseImageHref(int index) async {
     Log.trace('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
-    update(['$parseImageHrefsStateId::$index']);
 
     int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
 
@@ -283,13 +285,12 @@ class ReadPageLogic extends GetxController {
     }
 
     state.parseImageUrlStates[index] = LoadingState.loading;
+    updateSafely(['$parseImageUrlStateId::$index']);
 
-    executor.scheduleTask(0, () => parseImageUrl(index, reParse, reloadKey));
+    executor.scheduleTask(normalPriority, () => parseImageUrl(index, reParse, reloadKey));
   }
 
   Future<void> parseImageUrl(int index, bool reParse, String? reloadKey) async {
-    update(['$parseImageUrlStateId::$index']);
-
     GalleryImage image;
     try {
       image = await retry(
