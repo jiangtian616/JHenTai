@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 
@@ -140,7 +141,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
-      String storageKey = 'readIndexRecord::${archive.gid}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 

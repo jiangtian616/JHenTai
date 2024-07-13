@@ -31,7 +31,7 @@ class FavoriteSetting {
   static bool get inited => favoriteTagNames[0] != 'Favorite 0' || favoriteCounts[0] != -1;
 
   static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('favoriteSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.favoriteSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init FavoriteSetting success', false);
@@ -110,7 +110,7 @@ class FavoriteSetting {
       'Favorite 9',
     ];
     favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-    Get.find<StorageService>().remove('favoriteSetting');
+    Get.find<StorageService>().remove(ConfigEnum.favoriteSetting.key);
     Log.info('clear FavoriteSetting success');
   }
 

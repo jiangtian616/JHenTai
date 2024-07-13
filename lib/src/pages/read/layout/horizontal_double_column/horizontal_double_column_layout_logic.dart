@@ -20,7 +20,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void onInit() {
     super.onInit();
 
-    List<bool>? cachedIsSpreadPage = storageService.read('isSpreadPage::${readPageState.readPageInfo.gid}')?.cast<bool>();
+    List<bool>? cachedIsSpreadPage = storageService.read('${ConfigEnum.isSpreadPage.key}::${readPageState.readPageInfo.gid}')?.cast<bool>();
     if (cachedIsSpreadPage != null && cachedIsSpreadPage.length == readPageState.readPageInfo.pageCount) {
       state.isSpreadPage = cachedIsSpreadPage;
     } else {

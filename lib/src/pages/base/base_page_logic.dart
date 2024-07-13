@@ -59,7 +59,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     super.onInit();
 
     if (useSearchConfig) {
-      Map<String, dynamic>? map = storageService.read('searchConfig: $searchConfigKey');
+      Map<String, dynamic>? map = storageService.read('${ConfigEnum.searchConfig.key}: $searchConfigKey');
       if (map != null) {
         state.searchConfig = SearchConfig.fromJson(map);
       }

@@ -24,7 +24,7 @@ class EHSetting {
   static RxInt resetCost = (-1).obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('EHSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.EHSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init EHSetting success, site: $site');
@@ -100,7 +100,7 @@ class EHSetting {
   static Future<void> _clear() async {
     site.value = 'EH';
     currentConsumption.value = -1;
-    Get.find<StorageService>().remove('EHSetting');
+    Get.find<StorageService>().remove(ConfigEnum.EHSetting.key);
     Log.info('clear EHSetting success');
   }
 

@@ -6,6 +6,7 @@ enum ConfigEnum {
   displayGalleryGroups('displayGalleryGroups'),
   isSpreadPage('isSpreadPage'),
   enableSearchHistoryTranslation('enableSearchHistoryTranslation'),
+  tagTranslationServiceLoadingState('TagTranslationServiceLoadingState'),
   tagSearchOrderOptimizationServiceLoadingState('TagSearchOrderOptimizationServiceLoadingState'),
   tagTranslationServiceVersion('TagTranslationServiceVersion'),
   tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
@@ -26,6 +27,7 @@ enum ConfigEnum {
   superResolutionSetting('SuperResolutionSetting'),
   tabBarSetting('tabBarSetting'),
   userSetting('userSetting'),
+  myTagsSetting('MyTagsSetting'),
   downloadSearchPageType('downloadSearchPageType'),
   windowFullScreen('windowFullScreen'),
   windowMaximize('windowMaximize'),
@@ -33,6 +35,8 @@ enum ConfigEnum {
   windowHeight('windowHeight'),
   leftColumnWidthRatio('leftColumnWidthRatio'),
   dismissVersion('dismissVersion'),
+  galleryHistory('history'),
+  readIndexRecord('readIndexRecord'),
   ;
 
   final String key;

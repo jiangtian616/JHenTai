@@ -32,11 +32,11 @@ class WindowService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    windowWidth = storageService.read('windowWidth') ?? windowWidth;
-    windowHeight = storageService.read('windowHeight') ?? windowHeight;
-    isMaximized = storageService.read('windowMaximize') ?? false;
-    isFullScreen = storageService.read('windowFullScreen') ?? false;
-    leftColumnWidthRatio = storageService.read('leftColumnWidthRatio') ?? leftColumnWidthRatio;
+    windowWidth = storageService.read(ConfigEnum.windowWidth.key) ?? windowWidth;
+    windowHeight = storageService.read(ConfigEnum.windowHeight.key) ?? windowHeight;
+    isMaximized = storageService.read(ConfigEnum.windowMaximize.key) ?? false;
+    isFullScreen = storageService.read(ConfigEnum.windowFullScreen.key) ?? false;
+    leftColumnWidthRatio = storageService.read(ConfigEnum.leftColumnWidthRatio.key) ?? leftColumnWidthRatio;
     leftColumnWidthRatio = max(0.01, leftColumnWidthRatio);
   }
 

@@ -47,7 +47,7 @@ class NetworkSetting {
   static Set<String> get allIPs => host2IPs.values.flattened.toSet()..addAll(currentHost2IP.values);
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('networkSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.networkSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init NetworkSetting success', false);

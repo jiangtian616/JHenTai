@@ -20,7 +20,7 @@ class BlockingRulePageLogic extends GetxController {
 
   @override
   void onInit() {
-    state.showGroup = storageService.read('displayBlockingRulesGroup') ?? false;
+    state.showGroup = storageService.read(ConfigEnum.displayBlockingRulesGroup.key) ?? false;
     super.onInit();
   }
 

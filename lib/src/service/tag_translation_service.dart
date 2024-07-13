@@ -43,8 +43,8 @@ class TagTranslationService extends GetxService {
   void onInit() {
     super.onInit();
 
-    loadingState.value = LoadingState.values[storageService.read('TagTranslationServiceLoadingState') ?? 0];
-    timeStamp.value = storageService.read('TagTranslationServiceTimestamp');
+    loadingState.value = LoadingState.values[storageService.read(ConfigEnum.tagTranslationServiceLoadingState.key) ?? 0];
+    timeStamp.value = storageService.read(ConfigEnum.tagTranslationServiceTimestamp.key);
     if (isReady) {
       refresh();
     }

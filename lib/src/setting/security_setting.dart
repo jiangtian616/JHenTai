@@ -23,7 +23,7 @@ class SecuritySetting {
   static bool supportBiometricAuth = false;
 
   static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('securitySetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.securitySetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init SecuritySetting success', false);

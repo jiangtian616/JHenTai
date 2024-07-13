@@ -58,7 +58,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
   @override
   void onInit() {
     super.onInit();
-    state.enableSearchHistoryTranslation = storageService.read('enableSearchHistoryTranslation') ?? state.enableSearchHistoryTranslation;
+    state.enableSearchHistoryTranslation = storageService.read(ConfigEnum.enableSearchHistoryTranslation.key) ?? state.enableSearchHistoryTranslation;
   }
 
   @override

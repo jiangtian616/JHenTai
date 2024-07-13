@@ -8,7 +8,7 @@ class MouseSetting {
   static RxDouble wheelScrollSpeed = 5.0.obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('mouseSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.mouseSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init MouseSetting success', false);

@@ -11,6 +11,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
@@ -711,7 +712,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (archiveStatus == ArchiveStatus.completed) {
-      String storageKey = 'readIndexRecord::${archive.gid}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
@@ -1026,7 +1027,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void goToReadPage([int? forceIndex]) {
-    String storageKey = 'readIndexRecord::${state.galleryUrl.gid}';
+    String storageKey = '${ConfigEnum.readIndexRecord.key}::${state.galleryUrl.gid}';
     int readIndexRecord = storageService.read(storageKey) ?? 0;
 
     /// online
@@ -1073,7 +1074,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   int getReadIndexRecord() {
-    return storageService.read('readIndexRecord::${state.galleryUrl.gid}') ?? 0;
+    return storageService.read('${ConfigEnum.readIndexRecord.key}::${state.galleryUrl.gid}') ?? 0;
   }
 
   Future<({GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {

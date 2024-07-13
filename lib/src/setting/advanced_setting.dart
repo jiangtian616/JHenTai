@@ -13,7 +13,7 @@ class AdvancedSetting {
   static RxBool inNoImageMode = false.obs;
 
   static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('advancedSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.advancedSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init AdvancedSetting success', false);

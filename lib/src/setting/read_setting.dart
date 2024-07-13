@@ -105,7 +105,7 @@ class ReadSetting {
       readDirection.value == ReadDirection.right2leftList;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('readSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.readSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init ReadSetting success', false);
@@ -197,7 +197,7 @@ class ReadSetting {
     imageRegionWidthRatio.value = value;
     _save();
   }
-  
+
   static saveGestureRegionWidthRatio(int value) {
     Log.debug('saveGestureRegionWidthRatio:$value');
     gestureRegionWidthRatio.value = value;

@@ -61,7 +61,7 @@ class TabBarSetting {
   }
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('tabBarSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.tabBarSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init TabBarSetting success', false);
@@ -92,7 +92,7 @@ class TabBarSetting {
         isEditable: false,
       ),
     ];
-    await Get.find<StorageService>().remove('tabBarSetting');
+    await Get.find<StorageService>().remove(ConfigEnum.tabBarSetting.key);
   }
 
   static Map<String, dynamic> _toMap() {

@@ -59,7 +59,7 @@ class StyleSetting {
   static bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.styleSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init StyleSetting success', false);

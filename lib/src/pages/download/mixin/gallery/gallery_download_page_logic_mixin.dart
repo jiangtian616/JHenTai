@@ -7,6 +7,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../../../../database/database.dart';
+import '../../../../enum/config_enum.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -138,7 +139,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       openThirdPartyViewer(downloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
       SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-      String storageKey = 'readIndexRecord::${gallery.gid}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
       toRoute(

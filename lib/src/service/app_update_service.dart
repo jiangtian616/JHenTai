@@ -98,7 +98,7 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 2) {
         Log.info('Move style setting to preference setting');
 
-        Map<String, dynamic>? styleSettingMap = Get.find<StorageService>().read<Map<String, dynamic>>('styleSetting');
+        Map<String, dynamic>? styleSettingMap = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.styleSetting.key);
 
         if (styleSettingMap?['locale'] != null) {
           PreferenceSetting.saveLanguage(localeCode2Locale(styleSettingMap!['locale']));
@@ -175,8 +175,8 @@ class AppUpdateService extends GetxService {
 
         StorageService storageService = Get.find<StorageService>();
 
-        Map<String, dynamic>? map =
-            storageService.read('searchConfig: DesktopSearchPageTabLogic') ?? storageService.read('searchConfig: SearchPageMobileV2Logic');
+        Map<String, dynamic>? map = storageService.read('${ConfigEnum.searchConfig.key}: DesktopSearchPageTabLogic') ??
+            storageService.read('${ConfigEnum.searchConfig.key}: SearchPageMobileV2Logic');
         if (map != null) {
           storageService.write('${ConfigEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}', map);
         }
@@ -214,7 +214,7 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 9) {
         Log.info('Migrate local filtered tags');
 
-        Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('MyTagsSetting');
+        Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.myTagsSetting.key);
         if (map != null) {
           LocalBlockRuleService localBlockRuleService = Get.find();
           List<TagData> localTagSets = (map['localTagSets'] as List).map((e) => TagData.fromJson(e)).toList();
@@ -273,7 +273,7 @@ class AppUpdateService extends GetxService {
             );
 
             GalleryHistoryDao.deleteAllHistoryOld();
-            
+
             Log.info('Migrate search config for page index $i success!');
           } on Exception catch (e) {
             Log.error('Migrate search config for page index $i failed!', e);

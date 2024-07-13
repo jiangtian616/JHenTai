@@ -94,7 +94,7 @@ class SuperResolutionSetting {
   static RxInt gpuId = 0.obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('SuperResolutionSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.superResolutionSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init SuperResolutionSetting success', false);

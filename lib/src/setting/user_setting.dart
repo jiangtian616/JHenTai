@@ -14,7 +14,7 @@ class UserSetting {
   static RxnInt defaultTagSetNo = RxnInt();
 
   static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('userSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.userSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init UserSetting success', false);
@@ -68,7 +68,7 @@ class UserSetting {
   }
 
   static void clear() {
-    Get.find<StorageService>().remove('userSetting');
+    Get.find<StorageService>().remove(ConfigEnum.userSetting.key);
     userName.value = null;
     ipbMemberId.value = null;
     ipbPassHash.value = null;

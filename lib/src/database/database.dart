@@ -23,6 +23,7 @@ import 'package:jhentai/src/database/table/image.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/database/table/tag_count.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -183,7 +184,7 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryHistory);
 
       if (Get.isRegistered<StorageService>()) {
-        List<Gallery>? gallerys = Get.find<StorageService>().read<List>('history')?.map((e) => Gallery.fromJson(e)).toList();
+        List<Gallery>? gallerys = Get.find<StorageService>().read<List>(ConfigEnum.galleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
         
         List<GalleryHistoryModel>? historyModels = gallerys
             ?.map(
@@ -217,7 +218,7 @@ class AppDb extends _$AppDb {
           await GalleryHistoryDao.batchReplaceHistory(historyV2Datas);
         }
 
-        Get.find<StorageService>().remove('history');
+        Get.find<StorageService>().remove(ConfigEnum.galleryHistory.key);
       }
     } on Exception catch (e) {
       Log.error('Update history failed!', e);

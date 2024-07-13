@@ -29,7 +29,7 @@ class DownloadSetting {
   static RxBool restoreTasksAutomatically = false.obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('downloadSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.downloadSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init DownloadSetting success', false);

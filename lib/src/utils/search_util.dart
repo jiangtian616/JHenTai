@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -14,7 +15,7 @@ import '../setting/style_setting.dart';
 import '../widget/eh_search_config_dialog.dart';
 
 SearchConfig? loadSearchPageConfig() {
-  Map<String, dynamic>? map = Get.find<StorageService>().read('searchConfig: ${SearchPageLogicMixin.searchPageConfigKey}');
+  Map<String, dynamic>? map = Get.find<StorageService>().read('${ConfigEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}');
   if (map != null) {
     return SearchConfig.fromJson(map);
   }

@@ -29,7 +29,7 @@ class _DownloadPageState extends State<DownloadPage> {
   @override
   void initState() {
     super.initState();
-    bodyType = DownloadPageBodyType.values[storageService.read('downloadPageGalleryType') ?? 0];
+    bodyType = DownloadPageBodyType.values[storageService.read(ConfigEnum.downloadPageGalleryType.key) ?? 0];
   }
 
   @override

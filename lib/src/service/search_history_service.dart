@@ -23,7 +23,7 @@ class SearchHistoryService extends GetxService {
   Future<void> onInit() async {
     super.onInit();
 
-    List searchHistories = storageService.read('searchHistory') ?? <String>[];
+    List searchHistories = storageService.read(ConfigEnum.searchConfig.key) ?? <String>[];
     for (String searchHistory in searchHistories) {
       histories.add(
         SearchHistory(
@@ -61,7 +61,7 @@ class SearchHistoryService extends GetxService {
 
   Future<void> clearHistory() async {
     histories.clear();
-    await storageService.remove('searchHistory');
+    await storageService.remove(ConfigEnum.searchHistory.key);
   }
 
   /// find each pair and then translate, remains the parts which can't be translated

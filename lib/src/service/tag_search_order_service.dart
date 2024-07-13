@@ -45,8 +45,8 @@ class TagSearchOrderOptimizationService extends GetxService {
   void onInit() {
     super.onInit();
 
-    loadingState.value = LoadingState.values[storageService.read('TagSearchOrderOptimizationServiceLoadingState') ?? 0];
-    version.value = storageService.read('TagTranslationServiceVersion');
+    loadingState.value = LoadingState.values[storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key) ?? 0];
+    version.value = storageService.read(ConfigEnum.tagTranslationServiceVersion.key);
     if (isReady) {
       refresh();
     }

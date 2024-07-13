@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:path/path.dart';
 
 import '../../../../config/ui_config.dart';
+import '../../../../enum/config_enum.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
@@ -86,7 +87,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String storageKey = 'readIndexRecord::${gallery.title}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.title}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);

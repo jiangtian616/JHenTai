@@ -23,7 +23,7 @@ class SiteSetting {
   static RxInt thumbnailsCountPerPage = 40.obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('siteSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.siteSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init SiteSetting success', false);
@@ -89,7 +89,7 @@ class SiteSetting {
     isLargeThumbnail.value = false;
     thumbnailRows.value = 4;
     thumbnailsCountPerPage.value = 40;
-    Get.find<StorageService>().remove('siteSetting');
+    Get.find<StorageService>().remove(ConfigEnum.siteSetting.key);
     Log.info('clear SiteSetting success');
   }
 

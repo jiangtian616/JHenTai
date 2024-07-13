@@ -29,21 +29,8 @@ class StorageService extends GetxService {
     return _storage.read(key);
   }
 
-  T getKeys<T>() {
-    return _storage.getKeys();
-  }
-
   Future<void> remove(String key) async {
     _storage.remove(key);
-  }
-
-  Future<void> erase() async {
-    _storage.erase();
-  }
-
-  Map<String, dynamic>? getData() {
-    Map<String, dynamic>? datas = _storage.listenable.value;
-    return datas == null ? null : Map.of(datas);
   }
 
   static void _migrateOldConfigFile() {

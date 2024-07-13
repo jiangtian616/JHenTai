@@ -38,7 +38,7 @@ class PreferenceSetting {
   static RxBool showUtcTime = false.obs;
 
   static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('preferenceSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.preferenceSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init PreferenceSetting success', false);

@@ -8,7 +8,7 @@ class PerformanceSetting {
   static RxInt maxGalleryNum4Animation = 30.obs;
 
   static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>('performanceSetting');
+    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.performanceSetting.key);
     if (map != null) {
       _initFromMap(map);
       Log.debug('init PerformanceSetting success');

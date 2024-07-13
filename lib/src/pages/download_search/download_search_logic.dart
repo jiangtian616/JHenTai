@@ -251,7 +251,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
       SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-      String storageKey = 'readIndexRecord::${gallery.gid}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
 
       toRoute(
@@ -279,7 +279,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
-      String storageKey = 'readIndexRecord::${archive.gid}';
+      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
       int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
