@@ -52,7 +52,7 @@ Gallery galleryHistoryModel2Gallery(GalleryHistoryModel model) {
     pageCount: model.pageCount,
     rating: model.rating,
     hasRated: false,
-    language: model.language,
+    language: model.language.toLowerCase(),
     uploader: model.uploader,
     publishTime: model.publishTime,
     isExpunged: model.isExpunged,
