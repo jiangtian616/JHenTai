@@ -24,6 +24,7 @@ import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../setting/path_setting.dart';
 import '../../../../setting/read_setting.dart';
@@ -286,29 +287,33 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
       String data = File(downloadPath).readAsStringSync();
 
-      /// Sometimes we need gp to download original image, but gp is not enough, we should pause this gallery
-      if (data.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
-        Log.error('Download ${readPageState.readPageInfo.galleryTitle} image: $index failed, gp not enough');
-        toast('gpNotEnoughHint'.tr, isShort: false);
-        return;
-      }
+      EHImageException? exception = GalleryDownloadService.imageData2Exception(data);
+      Log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
 
-      /// We need a token in url to get the original image download url, expired token will leads to a failed request,
-      if (data.contains('Invalid token')) {
-        Log.warning('Invalid original image token, url: ${readPageState.images[index]!.url}');
-
-        GalleryImage image;
-        try {
-          image = await readPageLogic.requestImage(index, true, null);
-        } catch (e) {
-          Log.error('Save original image failed: $e');
-          toast('saveFailed'.tr);
+      if (exception != null) {
+        if (exception.operation == EHImageExceptionAfterOperation.pause) {
+          toast(exception.message, isShort: false);
           return;
+        } else if (exception.operation == EHImageExceptionAfterOperation.pauseAll) {
+          toast(exception.message, isShort: false);
+          return;
+        } else if (exception.operation == EHImageExceptionAfterOperation.reParse) {
+          GalleryImage image;
+          try {
+            image = await readPageLogic.requestImage(index, true, null);
+          } catch (e) {
+            Log.error('Save original image failed: $e');
+            toast('saveFailed'.tr);
+            return;
+          }
+
+          readPageState.images[index]!.originalImageUrl = image.originalImageUrl;
+
+          return saveOriginalOnlineImage(index);
         }
-
-        readPageState.images[index]!.originalImageUrl = image.originalImageUrl;
-
-        return saveOriginalOnlineImage(index);
+      } else {
+        toast('saveFailed'.tr, isShort: false);
+        return;
       }
     }
 

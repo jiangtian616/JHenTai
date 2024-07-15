@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_group_dao.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/exception/eh_image_exception.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
@@ -586,6 +587,52 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  static EHImageException? imageData2Exception(String imageFileData) {
+    if (imageFileData.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
+      return EHImageException(
+        type: EHImageExceptionType.peakHours,
+        message: 'peakHoursHint'.tr,
+        operation: EHImageExceptionAfterOperation.pause,
+      );
+    }
+
+    if (imageFileData.contains('Downloading original files of this gallery requires GP, and you do not have enough.')) {
+      return EHImageException(
+        type: EHImageExceptionType.peakHours,
+        message: 'oldGalleryHint'.tr,
+        operation: EHImageExceptionAfterOperation.pause,
+      );
+    }
+
+    if (imageFileData.contains('You have reached the image limit, and do not have sufficient GP to buy a download quota.')) {
+      return EHImageException(
+        type: EHImageExceptionType.peakHours,
+        message: 'exceedLimitHint'.tr,
+        operation: EHImageExceptionAfterOperation.pauseAll,
+      );
+    }
+
+    /// We need a token in url to get the original image download url, expired token will leads to a failed request,
+    if (imageFileData.contains('Invalid token')) {
+      return EHImageException(
+        type: EHImageExceptionType.invalidToken,
+        message: '',
+        operation: EHImageExceptionAfterOperation.reParse,
+      );
+    }
+
+    /// H@H node error
+    if (imageFileData.contains('Invalid request')) {
+      return EHImageException(
+        type: EHImageExceptionType.serverError,
+        message: '',
+        operation: EHImageExceptionAfterOperation.reParse,
+      );
+    }
+
+    return null;
+  }
+
   Future<void> _generateComicInfoInDisk(GalleryDownloadedData gallery) async {
     GalleryDetail galleryDetail;
     try {
@@ -1070,35 +1117,26 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      /// what we downloaded is not an image
-      if (gallery.downloadOriginalImage &&
-          !response.isRedirect &&
-          (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+      /// what we downloaded is not an valid image
+      if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
         String data = io.File(path).readAsStringSync();
 
-        /// Sometimes we need gp to download original image, but gp is not enough, we should pause this gallery
-        if (data.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
-          Log.error('Download ${gallery.title} image: $serialNo failed, gp not enough');
-          snack('error'.tr, 'gpNotEnoughHint'.tr, longDuration: true);
+        EHImageException? exception = imageData2Exception(data);
+        Log.error('Download ${gallery.title} image: $serialNo failed: $exception');
+
+        if (exception != null) {
+          if (exception.operation == EHImageExceptionAfterOperation.pause) {
+            snack('error'.tr, exception.message, longDuration: true);
+            return pauseDownloadGallery(gallery);
+          } else if (exception.operation == EHImageExceptionAfterOperation.pauseAll) {
+            snack('error'.tr, exception.message, longDuration: true);
+            return pauseAllDownloadGallery();
+          } else if (exception.operation == EHImageExceptionAfterOperation.reParse) {
+            return _reParseImageUrlAndDownload(gallery, serialNo);
+          }
+        } else {
+          snack('error'.tr, 'downloadFailed'.tr, longDuration: true);
           return pauseDownloadGallery(gallery);
-        }
-
-        /// We need a token in url to get the original image download url, expired token will leads to a failed request,
-        if (data.contains('Invalid token')) {
-          Log.warning('Invalid original image token, url: ${image.url}');
-          return _reParseImageUrlAndDownload(gallery, serialNo);
-        }
-      }
-
-      if (!gallery.downloadOriginalImage &&
-          !response.isRedirect &&
-          (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
-        String data = io.File(path).readAsStringSync();
-
-        /// server error
-        if (data.contains('Invalid request')) {
-          Log.warning('Invalid image data, url: ${image.url}');
-          return _reParseImageUrlAndDownload(gallery, serialNo);
         }
       }
 
