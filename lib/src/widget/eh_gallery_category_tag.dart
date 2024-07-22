@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/color_consts.dart';
 
 class EHGalleryCategoryTag extends StatelessWidget {
   final String category;
@@ -42,7 +41,7 @@ class EHGalleryCategoryTag extends StatelessWidget {
         width: width,
         padding: padding,
         decoration: BoxDecoration(
-          color: enabled ? color ?? ColorConsts.galleryCategoryColor[category] : UIConfig.galleryCategoryTagDisabledBackGroundColor(context),
+          color: enabled ? color ?? UIConfig.galleryCategoryColor[category] : UIConfig.galleryCategoryTagDisabledBackGroundColor(context),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         child: Text(category, style: enabled ? textStyle : textStyle.copyWith(color: UIConfig.galleryCategoryTagDisabledTextColor(context))),

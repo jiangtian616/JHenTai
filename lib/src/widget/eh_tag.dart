@@ -4,7 +4,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
-import '../consts/color_consts.dart';
 import '../model/gallery_tag.dart';
 
 class EHTag extends StatefulWidget {
@@ -71,7 +70,7 @@ class _EHTagState extends State<EHTag> with AnimationMixin {
       style: TextStyle(
         fontSize: 12,
         height: 1,
-        color: widget.tag.color ?? (widget.addNameSpaceColor ? ColorConsts.tagNameSpaceTextColor : UIConfig.ehTagTextColor(context)),
+        color: widget.tag.color ?? (widget.addNameSpaceColor ? UIConfig.tagNameSpaceTextColor : UIConfig.ehTagTextColor(context)),
       ),
     );
 
@@ -124,7 +123,7 @@ class _EHTagState extends State<EHTag> with AnimationMixin {
       decoration: BoxDecoration(
         color: widget.tag.backgroundColor ??
             (widget.addNameSpaceColor
-                ? ColorConsts.zhTagNameSpaceColor[widget.tag.tagData.key] ?? ColorConsts.tagNameSpaceColor[widget.tag.tagData.key]!
+                ? UIConfig.zhTagNameSpaceColor[widget.tag.tagData.key] ?? UIConfig.tagNameSpaceColor[widget.tag.tagData.key]!
                 : UIConfig.ehTagBackGroundColor(context)),
         borderRadius: BorderRadius.circular(8),
       ),

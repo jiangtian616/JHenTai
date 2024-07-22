@@ -8,7 +8,6 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
-import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_count.dart';
@@ -29,6 +28,7 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/color_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 
+import '../config/ui_config.dart';
 import '../consts/eh_consts.dart';
 import '../database/database.dart';
 import '../exception/eh_parse_exception.dart';
@@ -1305,7 +1305,7 @@ class EHSpiderParser {
       return null;
     }
     final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
-    return ColorConsts.favoriteTagIndex[color]!;
+    return UIConfig.favoriteTagIndex[color]!;
   }
 
   static int? _parseCompactGalleryFavoriteTagIndex(Element tr) {
@@ -1314,7 +1314,7 @@ class EHSpiderParser {
       return null;
     }
     final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
-    return ColorConsts.favoriteTagIndex[color]!;
+    return UIConfig.favoriteTagIndex[color]!;
   }
 
   static int? _parseExtendedGalleryFavoriteTagIndex(Element tr) {
@@ -1323,7 +1323,7 @@ class EHSpiderParser {
       return null;
     }
     final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
-    return ColorConsts.favoriteTagIndex[color]!;
+    return UIConfig.favoriteTagIndex[color]!;
   }
 
   static int? _parseThumbnailGalleryFavoriteTagIndex(Element div) {
@@ -1332,7 +1332,7 @@ class EHSpiderParser {
       return null;
     }
     final String color = RegExp(r'border-color:#(\w{3});').firstMatch(style)?.group(1) ?? '';
-    return ColorConsts.favoriteTagIndex[color]!;
+    return UIConfig.favoriteTagIndex[color]!;
   }
 
   static int? _parseFavoriteTagIndexByOffset(Document document) {

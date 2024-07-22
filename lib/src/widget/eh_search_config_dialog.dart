@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
@@ -203,7 +202,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                   _buildTag(
                     category: FavoriteSetting.favoriteTagNames[tagIndex],
                     enabled: (searchConfig.searchFavoriteCategoryIndex ?? tagIndex) == tagIndex,
-                    color: ColorConsts.favoriteTagColor[tagIndex],
+                    color: UIConfig.favoriteTagColor[tagIndex],
                     onTap: () => setState(() {
                       if (searchConfig.searchFavoriteCategoryIndex == tagIndex) {
                         searchConfig.searchFavoriteCategoryIndex = null;
@@ -215,7 +214,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                   _buildTag(
                     category: FavoriteSetting.favoriteTagNames[tagIndex + 1],
                     enabled: (searchConfig.searchFavoriteCategoryIndex ?? tagIndex + 1) == tagIndex + 1,
-                    color: ColorConsts.favoriteTagColor[tagIndex + 1],
+                    color: UIConfig.favoriteTagColor[tagIndex + 1],
                     onTap: () {
                       setState(() {
                         if (searchConfig.searchFavoriteCategoryIndex == tagIndex + 1) {

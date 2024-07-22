@@ -12,7 +12,6 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
-import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
 import '../utils/date_util.dart';
 import 'eh_image.dart';
@@ -237,7 +236,7 @@ class EHGalleryListCard extends StatelessWidget {
 
   Widget _buildDownloadIcon(BuildContext context) => Icon(Icons.downloading, size: 11, color: UIConfig.galleryCardTextColor(context));
 
-  Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 11, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]);
+  Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 11, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
 
   Text _buildPageCount(BuildContext context) =>
       Text(gallery.pageCount.toString() + 'P', style: TextStyle(fontSize: UIConfig.galleryCardTextSize, color: UIConfig.galleryCardTextColor(context)));

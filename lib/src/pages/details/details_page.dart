@@ -8,7 +8,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/color_consts.dart';
 import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -965,7 +964,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               color: disabled
                   ? UIConfig.detailsPageActionDisabledIconColor(context)
                   : favoriteTagIndex != null
-                      ? ColorConsts.favoriteTagColor[favoriteTagIndex]
+                      ? UIConfig.favoriteTagColor[favoriteTagIndex]
                       : UIConfig.detailsPageActionIconColor(context),
             ),
             text: Text(

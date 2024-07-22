@@ -11,7 +11,6 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../config/ui_config.dart';
-import '../consts/color_consts.dart';
 import '../consts/locale_consts.dart';
 import '../model/gallery.dart';
 import '../model/gallery_tag.dart';
@@ -173,13 +172,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildLanguageChip() {
     return Container(
-      decoration: BoxDecoration(color: ColorConsts.galleryCategoryColor[gallery.category]!, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: UIConfig.galleryCategoryColor[gallery.category]!, borderRadius: BorderRadius.circular(12)),
       padding: const EdgeInsets.symmetric(horizontal: 4),
       constraints: const BoxConstraints(minWidth: 12),
       child: Center(
         child: Text(
           LocaleConsts.language2Abbreviation[gallery.language] ?? '',
-          style: TextStyle(fontSize: 9, color: UIConfig.waterFallFlowCardLanguageChipTextColor(ColorConsts.galleryCategoryColor[gallery.category]!)),
+          style: TextStyle(fontSize: 9, color: UIConfig.waterFallFlowCardLanguageChipTextColor(UIConfig.galleryCategoryColor[gallery.category]!)),
         ),
       ),
     );
@@ -187,7 +186,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   Widget _buildDownloadIcon() => const Icon(Icons.download, size: 10);
 
-  Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 10, color: ColorConsts.favoriteTagColor[gallery.favoriteTagIndex!]);
+  Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 10, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
 
   Widget _buildPageCount() => Text(gallery.pageCount.toString() + 'P', style: const TextStyle(fontSize: 9));
 
