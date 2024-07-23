@@ -192,11 +192,11 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return;
     }
     Log.info('search for ${state.searchConfig.keyword}');
-    
+
     /// chinese => database
     /// other => EH api
     if (tagTranslationService.isReady) {
-      state.suggestions = await tagTranslationService.searchTags(state.searchConfig.keyword!);
+      state.suggestions = await tagTranslationService.searchTags(state.searchConfig.keyword!, limit: 100);
     } else {
       try {
         state.suggestions = await EHRequest.requestTagSuggestion(state.searchConfig.keyword!, EHSpiderParser.tagSuggestion2TagList);

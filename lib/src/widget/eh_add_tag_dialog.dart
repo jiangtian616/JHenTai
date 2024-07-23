@@ -236,7 +236,7 @@ class EHAddTagDialogLogic extends GetxController {
     updateSafely([loadingIndicatorId]);
 
     if (state.useTranslation && tagTranslationService.isReady) {
-      state.tags = await tagTranslationService.searchTags(lastKeyWord);
+      state.tags = await tagTranslationService.searchTags(lastKeyWord, limit: 100);
     } else {
       try {
         state.tags = await EHRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);

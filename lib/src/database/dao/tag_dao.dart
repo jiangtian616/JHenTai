@@ -22,8 +22,20 @@ class TagDao {
         .get();
   }
 
+  static Future<List<TagData>> searchFullTagsIncludeIntro(String namespacePattern, String keyPattern) {
+    return (appDb.select(appDb.tag)
+          ..where((tag) =>
+              (tag.namespace.like(namespacePattern) | tag.translatedNamespace.like(namespacePattern)) &
+              (tag.key.like(keyPattern) | tag.tagName.like(keyPattern) | tag.intro.like(keyPattern))))
+        .get();
+  }
+
   static Future<List<TagData>> searchTags(String pattern) {
     return (appDb.select(appDb.tag)..where((tag) => tag.key.like(pattern) | tag.tagName.like(pattern))).get();
+  }
+
+  static Future<List<TagData>> searchTagsIncludeIntro(String pattern) {
+    return (appDb.select(appDb.tag)..where((tag) => tag.key.like(pattern) | tag.tagName.like(pattern) | tag.intro.like(pattern))).get();
   }
 
   static Future<int> insertTag(TagData tag) {

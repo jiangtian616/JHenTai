@@ -185,7 +185,7 @@ class TagTranslationService extends GetxService {
     return list.isNotEmpty ? list.first : null;
   }
 
-  Future<List<TagData>> searchTags(String searchText) async {
+  Future<List<TagData>> searchTags(String searchText, {int? limit}) async {
     // xy:"ab cd ef"    xy:"ab cd ef...       (\S+?):"[-~]?([^"\s]+)"?
     // "ab cd ef"       "ab cd ef...          "[-~]?([^"\s]+)"?
     // xy:ab                                  (\S+?):[-~]?(\S+)
@@ -201,15 +201,16 @@ class TagTranslationService extends GetxService {
     String? sNamespace = lastMatch.group(1) ?? lastMatch.group(4);
     String sKey = lastMatch.group(2) ?? lastMatch.group(3) ?? lastMatch.group(5) ?? lastMatch.group(0)!;
 
-    List<TagData> tagDatas = sNamespace != null ? await TagDao.searchFullTags('%$sNamespace%', '%$sKey%') : await TagDao.searchTags('%$sKey%');
-
+    List<TagData> tagDatas;
     if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
+      tagDatas = sNamespace != null ? await TagDao.searchFullTags('%$sNamespace%', '%$sKey%') : await TagDao.searchTags('%$sKey%');
       await _sortTagDatasByFrequency(tagDatas);
     } else {
+      tagDatas = sNamespace != null ? await TagDao.searchFullTagsIncludeIntro('%$sNamespace%', '%$sKey%') : await TagDao.searchTagsIncludeIntro('%$sKey%');
       await _sortTagDatasByScore(sNamespace, sKey, tagDatas);
     }
 
-    return tagDatas;
+    return limit == null ? tagDatas : tagDatas.take(limit).toList();
   }
 
   Future<void> _sortTagDatasByFrequency(List<TagData> tagDatas) async {
@@ -248,25 +249,28 @@ class TagTranslationService extends GetxService {
     for (TagData tagData in tagDatas) {
       double score = 0;
 
-      int keyIndex = tagData.key.indexOf(sKey);
+      int keyIndex = tagData.key.toLowerCase().indexOf(sKey.toLowerCase());
       if (keyIndex != -1) {
-        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! *
-            (sKey.length) /
-            tagData.key.length *
-            (keyIndex == 0 ? 2 : 1);
+        score +=
+            namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.key.length * (keyIndex == 0 ? 2 : 1);
       }
 
-      int? tagNameIndex = tagData.tagName?.indexOf(sKey);
+      int? tagNameIndex = tagData.tagName?.toLowerCase().indexOf(sKey.toLowerCase());
       if (tagNameIndex != null && tagNameIndex != -1) {
         score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! *
-            (sKey.length) /
+            (sKey.length + 1) /
             tagData.tagName!.length *
             (tagNameIndex == 0 ? 2 : 1);
       }
-      
+
+      bool introContains = tagData.intro?.toLowerCase().contains(sKey.toLowerCase()) ?? false;
+      if (introContains) {
+        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.intro!.length * 0.5;
+      }
+
       tagDataScoreMap[tagData] = score;
     }
-    
+
     tagDatas.sort((a, b) {
       return tagDataScoreMap[b]!.compareTo(tagDataScoreMap[a]!);
     });

@@ -291,7 +291,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
   TextSpan highlightKeyword(BuildContext context, String rawText, String currentKeyword, bool isSubTitle) {
     List<TextSpan> children = <TextSpan>[];
 
-    List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
+    List<int> matchIndexes = currentKeyword.toLowerCase().allMatches(rawText.toLowerCase()).map((match) => match.start).toList();
 
     int indexHandling = 0;
     for (int index in matchIndexes) {
@@ -309,7 +309,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
 
       children.add(
         TextSpan(
-          text: currentKeyword,
+          text: rawText.substring(index, index + currentKeyword.length),
           style: TextStyle(
             fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
             color: UIConfig.searchPageSuggestionHighlightColor,

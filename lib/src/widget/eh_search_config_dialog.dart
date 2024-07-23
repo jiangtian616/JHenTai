@@ -771,7 +771,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     /// chinese => database
     /// other => EH api
     if (tagTranslationService.isReady) {
-      suggestions = await tagTranslationService.searchTags(keyword);
+      suggestions = await tagTranslationService.searchTags(keyword, limit: 100);
     } else {
       try {
         suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
