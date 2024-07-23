@@ -1,12 +1,12 @@
 import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
-import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/locale_consts.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/database/dao/tag_dao.dart';
+import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
@@ -24,6 +24,8 @@ import '../utils/log.dart';
 
 class TagTranslationService extends GetxService {
   final StorageService storageService = Get.find();
+  final ValueGetter<TagSearchOrderOptimizationService> tagSearchOrderOptimizationServiceGetter = () => Get.find<TagSearchOrderOptimizationService>();
+
   final String tagStoragePrefix = 'tagTrans::';
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
   final String savePath = join(PathSetting.getVisibleDir().path, 'tag_translation.json');
@@ -112,7 +114,7 @@ class TagTranslationService extends GetxService {
         tagList.add(TagData(
           namespace: namespace,
           key: _key,
-          translatedNamespace: LocaleConsts.tagNamespace[namespace],
+          translatedNamespace: EHNamespace.findNameSpaceFromDescOrAbbr(namespace)?.chineseDesc,
           tagName: tagName,
           fullTagName: fullTagName,
           intro: intro,
@@ -183,15 +185,34 @@ class TagTranslationService extends GetxService {
     return list.isNotEmpty ? list.first : null;
   }
 
-  Future<List<TagData>> searchTags(String keyword) async {
-    List<TagData> tagDatas = await TagDao.searchTags('%$keyword%', 200);
-    tagDatas = tagDatas.where((tag) => tag.namespace != 'rows' && tag.namespace != 'reclass').toList();
-
-    TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
-    if (!tagSearchOrderOptimizationService.isReady) {
-      return tagDatas;
+  Future<List<TagData>> searchTags(String searchText) async {
+    // xy:"ab cd ef"    xy:"ab cd ef...       (\S+?):"[-~]?([^"\s]+)"?
+    // "ab cd ef"       "ab cd ef...          "[-~]?([^"\s]+)"?
+    // xy:ab                                  (\S+?):[-~]?(\S+)
+    // abcd                                   [-~]?(\S+)
+    List<RegExpMatch> matches =
+        RegExp(r'(\S+?):"[-~]?([^"\s]+)"?|"[-~]?([^"\s]+)"?|(\S+?):[-~]?(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
+    if (matches.isEmpty) {
+      return [];
     }
 
+    RegExpMatch lastMatch = matches.last;
+
+    String? sNamespace = lastMatch.group(1) ?? lastMatch.group(4);
+    String sKey = lastMatch.group(2) ?? lastMatch.group(3) ?? lastMatch.group(5) ?? lastMatch.group(0)!;
+
+    List<TagData> tagDatas = sNamespace != null ? await TagDao.searchFullTags('%$sNamespace%', '%$sKey%') : await TagDao.searchTags('%$sKey%');
+
+    if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
+      await _sortTagDatasByFrequency(tagDatas);
+    } else {
+      await _sortTagDatasByScore(sNamespace, sKey, tagDatas);
+    }
+
+    return tagDatas;
+  }
+
+  Future<void> _sortTagDatasByFrequency(List<TagData> tagDatas) async {
     List<String> namespaceWithKeys = tagDatas.map((tag) => '${tag.namespace}:${tag.key}').toList();
     List<TagCountData> tagCountDatas = await TagCountDao.batchSelectTagCount(namespaceWithKeys);
 
@@ -203,7 +224,51 @@ class TagTranslationService extends GetxService {
     tagDatas.sort((a, b) {
       return tagCountMap[b]! - tagCountMap[a]!;
     });
+  }
 
-    return tagDatas;
+  /// https://github.com/EhTagTranslation/EhSyringe/blob/15a8ec2a8e52d8730099ec2193cf66bb0a2721ca/src/plugin/suggest.ts#L57
+  Future<void> _sortTagDatasByScore(String? sNamespace, String sKey, List<TagData> tagDatas) async {
+    Map<EHNamespace, double> namespaceScoreMap = {
+      EHNamespace.other: 10,
+      EHNamespace.female: 9,
+      EHNamespace.male: 8.5,
+      EHNamespace.mixed: 8,
+      EHNamespace.parody: 3.3,
+      EHNamespace.character: 2.8,
+      EHNamespace.artist: 2.5,
+      EHNamespace.cosplayer: 2.4,
+      EHNamespace.group: 2.2,
+      EHNamespace.language: 2,
+      EHNamespace.reclass: 1,
+      EHNamespace.temp: 0.1,
+      EHNamespace.rows: 0,
+    };
+
+    Map<TagData, double> tagDataScoreMap = {};
+    for (TagData tagData in tagDatas) {
+      double score = 0;
+
+      int keyIndex = tagData.key.indexOf(sKey);
+      if (keyIndex != -1) {
+        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! *
+            (sKey.length) /
+            tagData.key.length *
+            (keyIndex == 0 ? 2 : 1);
+      }
+
+      int? tagNameIndex = tagData.tagName?.indexOf(sKey);
+      if (tagNameIndex != null && tagNameIndex != -1) {
+        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! *
+            (sKey.length) /
+            tagData.tagName!.length *
+            (tagNameIndex == 0 ? 2 : 1);
+      }
+      
+      tagDataScoreMap[tagData] = score;
+    }
+    
+    tagDatas.sort((a, b) {
+      return tagDataScoreMap[b]!.compareTo(tagDataScoreMap[a]!);
+    });
   }
 }

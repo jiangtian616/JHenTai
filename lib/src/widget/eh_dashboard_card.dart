@@ -106,20 +106,4 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
       ],
     ).paddingSymmetric(horizontal: 8);
   }
-
-  String? _getArtistName() {
-    String namespace = Get.find<TagTranslationService>().isReady ? LocaleConsts.tagNamespace['artist']! : 'artist';
-
-    List<GalleryTag>? artistTags = widget.gallery.tags[namespace];
-
-    if (artistTags?.isEmpty ?? true) {
-      return null;
-    }
-
-    if (artistTags!.length == 1) {
-      return artistTags.first.tagData.tagName;
-    }
-
-    return '${artistTags.first.tagData.tagName}...+${artistTags.length - 1}';
-  }
 }

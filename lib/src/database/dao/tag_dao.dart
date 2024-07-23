@@ -14,11 +14,16 @@ class TagDao {
     return (appDb.select(appDb.tag)).get();
   }
 
-  static Future<List<TagData>> searchTags(String pattern, int limit) {
+  static Future<List<TagData>> searchFullTags(String namespacePattern, String keyPattern) {
     return (appDb.select(appDb.tag)
-          ..where((tag) => tag.key.like(pattern) | tag.tagName.like(pattern))
-          ..limit(limit))
+          ..where((tag) =>
+              (tag.namespace.like(namespacePattern) | tag.translatedNamespace.like(namespacePattern)) &
+              (tag.key.like(keyPattern) | tag.tagName.like(keyPattern))))
         .get();
+  }
+
+  static Future<List<TagData>> searchTags(String pattern) {
+    return (appDb.select(appDb.tag)..where((tag) => tag.key.like(pattern) | tag.tagName.like(pattern))).get();
   }
 
   static Future<int> insertTag(TagData tag) {

@@ -8,7 +8,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/consts/locale_consts.dart';
+import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
@@ -1250,7 +1250,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         tagData: TagData(
           namespace: 'rows',
           key: category,
-          tagName: PreferenceSetting.enableTagZHTranslation.isTrue ? LocaleConsts.tagNamespace[category] : null,
+          tagName: PreferenceSetting.enableTagZHTranslation.isTrue ? EHNamespace.findNameSpaceFromDescOrAbbr(category)?.chineseDesc : null,
         ),
       ),
       addNameSpaceColor: true,

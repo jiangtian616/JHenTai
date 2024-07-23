@@ -230,7 +230,7 @@ class EHAddTagDialogLogic extends GetxController {
       return;
     }
 
-    Log.info('search for ${state.keyword}');
+    Log.info('search for $lastKeyWord');
 
     state.searchLoadingState = LoadingState.loading;
     updateSafely([loadingIndicatorId]);

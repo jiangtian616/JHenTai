@@ -188,20 +188,18 @@ mixin SearchPageLogicMixin on BasePageLogic {
   }
 
   Future<void> searchTags() async {
-    Log.info('search for ${state.searchConfig.keyword}');
-
-    String keyword = state.searchConfig.keyword!.split(' ').last.trim();
-    if (keyword.isEmpty) {
+    if (state.searchConfig.keyword!.isEmpty) {
       return;
     }
-
+    Log.info('search for ${state.searchConfig.keyword}');
+    
     /// chinese => database
     /// other => EH api
     if (tagTranslationService.isReady) {
-      state.suggestions = await tagTranslationService.searchTags(keyword);
+      state.suggestions = await tagTranslationService.searchTags(state.searchConfig.keyword!);
     } else {
       try {
-        state.suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
+        state.suggestions = await EHRequest.requestTagSuggestion(state.searchConfig.keyword!, EHSpiderParser.tagSuggestion2TagList);
       } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
       }
