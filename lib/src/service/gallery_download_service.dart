@@ -1014,7 +1014,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           pauseDownloadGallery(gallery);
         }
 
-        EHRequest.removeCacheByEHUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
+        EHRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
 
         return;
       } on EHSiteException catch (e) {

@@ -56,5 +56,6 @@ class RoundRobinIpProvider implements EHIpProvider {
       _host2UnavailableIps[host] = {};
     }
     _host2UnavailableIps[host]![ip] = DateTime.now();
+    Log.info('RoundRobinIpProvider addUnavailableIp: $host -> $ip');
   }
 }

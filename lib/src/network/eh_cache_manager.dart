@@ -28,6 +28,8 @@ class EHCacheManager extends Interceptor {
     307
   ];
 
+  static const String realUriExtraKey = 'realUri';
+
   EHCacheManager({required CacheOptions options})
       : assert(options.store != null),
         _options = options,
@@ -41,6 +43,8 @@ class EHCacheManager extends Interceptor {
       handler.next(options);
       return;
     }
+
+    options.extra[realUriExtraKey] = options.uri.toString();
 
     CacheResponse? cacheResponse = await _getCacheStore(cacheOptions).get(CacheOptions.defaultCacheKeyBuilder(options));
     if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
@@ -74,7 +78,7 @@ class EHCacheManager extends Interceptor {
   }
 
   Future<void> removeCacheByUrl(String url) {
-    String cacheKey = CacheOptions.defaultCacheKeyBuilder(RequestOptions(path: url));
+    String cacheKey = CacheOptions.defaultCacheKeyBuilder(RequestOptions(extra: {EHCacheManager.realUriExtraKey: url}));
     return _store.delete(cacheKey);
   }
 
@@ -176,7 +180,7 @@ class CacheOptions {
   }
 
   static String defaultCacheKeyBuilder(RequestOptions request) {
-    return md5.convert(utf8.encode(request.uri.toString())).toString();
+    return md5.convert(utf8.encode(request.extra[EHCacheManager.realUriExtraKey])).toString();
   }
 
   Map<String, dynamic> toExtra() {
@@ -213,7 +217,7 @@ class CacheResponse {
       expireDate: DateTime.now().add(options.expire),
       headers: utf8.encode(jsonEncode(response.headers.map)),
       cacheKey: CacheOptions.defaultCacheKeyBuilder(response.requestOptions),
-      url: response.requestOptions.uri.toString(),
+      url: response.requestOptions.extra[EHCacheManager.realUriExtraKey] ?? response.requestOptions.uri.toString(),
     );
   }
 

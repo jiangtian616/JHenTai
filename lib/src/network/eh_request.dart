@@ -52,16 +52,14 @@ class EHRequest {
     ));
 
     systemProxyAddress = await getSystemProxyAddress();
-
-    _initDomainFronting();
-
     await _initProxy();
 
-    _initCookieManager();
-
+    _initCacheManager();
+    
+    _initDomainFronting();
     _initCertificateForAndroidWithOldVersion();
 
-    _initCacheManager();
+    _initCookieManager();
 
     _ehIpProvider = RoundRobinIpProvider(NetworkSetting.host2IPs);
 
@@ -193,19 +191,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<void> removeCacheByUrl(String url) {
     return _cacheManager.removeCacheByUrl(url);
-  }
-
-  static Future<void> removeCacheByEHUrl(String url) {
-    Uri uri = Uri.parse(url);
-
-    List<Future> futures = [];
-    futures.add(_cacheManager.removeCacheByUrl(uri.toString()));
-
-    NetworkSetting.host2IPs[uri.host]?.forEach((ip) {
-      futures.add(_cacheManager.removeCacheByUrl(uri.replace(host: ip).toString()));
-    });
-
-    return Future.wait(futures);
   }
 
   static Future<void> removeCacheByGalleryUrlAndPage(String galleryUrl, int pageIndex) {
