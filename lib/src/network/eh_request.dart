@@ -15,6 +15,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/network/eh_ip_provider.dart';
 import 'package:jhentai/src/network/eh_timeout_translator.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
@@ -37,9 +38,12 @@ class EHRequest {
   static late final Dio _dio;
   static late final EHCookieManager _cookieManager;
   static late final EHCacheManager _cacheManager;
+  static late final EHIpProvider _ehIpProvider;
   static late final String systemProxyAddress;
 
   static List<Cookie> get cookies => _cookieManager.cookies;
+
+  static const String domainFrontingExtraKey = 'JHDF';
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
@@ -59,6 +63,8 @@ class EHRequest {
 
     _initCacheManager();
 
+    _ehIpProvider = RoundRobinIpProvider(NetworkSetting.host2IPs);
+
     _initTimeOutTranslator();
 
     Log.debug('init EHRequest success');
@@ -75,15 +81,32 @@ class EHRequest {
 
         String rawPath = options.path;
         String host = options.uri.host;
-        if (!NetworkSetting.host2IPs.containsKey(host)) {
+        if (!_ehIpProvider.supports(host)) {
           handler.next(options);
           return;
         }
 
+        String ip = _ehIpProvider.nextIP(host);
         handler.next(options.copyWith(
-          path: rawPath.replaceFirst(host, NetworkSetting.currentHost2IP[host]!),
+          path: rawPath.replaceFirst(host, ip),
           headers: {...options.headers, 'host': host},
+          extra: options.extra..[domainFrontingExtraKey] = {'host': host, 'ip': ip},
         ));
+      },
+      onError: (DioException e, ErrorInterceptorHandler handler) {
+        if (!e.requestOptions.extra.containsKey(domainFrontingExtraKey)) {
+          handler.next(e);
+          return;
+        }
+
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.badResponse || e.type == DioExceptionType.connectionError) {
+          String host = e.requestOptions.extra[domainFrontingExtraKey]['host'];
+          String ip = e.requestOptions.extra[domainFrontingExtraKey]['ip'];
+          _ehIpProvider.addUnavailableIp(host, ip);
+          Log.info('Add unavailable host-ip: $host-$ip');
+        }
+
+        handler.next(e);
       },
     ));
   }

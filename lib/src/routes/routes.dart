@@ -50,7 +50,6 @@ import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/setting/advanced/super_resolution/setting_super_resolution_page.dart';
-import '../pages/setting/network/host_mapping/host_mapping_page.dart';
 import '../pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page.dart';
 import '../pages/setting/style/page_list_style/setting_page_list_style_page.dart';
 import '../pages/setting/style/theme_color/setting_theme_color_page.dart';
@@ -382,12 +381,6 @@ class Routes {
     EHPage(
       name: configureBlockingRules,
       page: () => ConfigureBlockingRulePage().withEscOrFifthButton2BackRightRoute(),
-      transition: defaultTransition,
-      offAllBefore: false,
-    ),
-    EHPage(
-      name: hostMapping,
-      page: () => const HostMappingPage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
       offAllBefore: false,
     ),
