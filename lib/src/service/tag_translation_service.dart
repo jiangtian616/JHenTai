@@ -190,27 +190,40 @@ class TagTranslationService extends GetxService {
     // "ab cd ef"       "ab cd ef...          "[-~]?([^"\s]+)"?
     // xy:ab                                  (\S+?):[-~]?(\S+)
     // abcd                                   [-~]?(\S+)
-    List<RegExpMatch> matches =
-        RegExp(r'(\S+?):"[-~]?([^"\s]+)"?|"[-~]?([^"\s]+)"?|(\S+?):[-~]?(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
+    List<RegExpMatch> matches = RegExp(r'(\S+?):"[-~]?([^"\s]+)"?|"[-~]?([^"\s]+)"?|(\S+?):[-~]?(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
     if (matches.isEmpty) {
       return [];
     }
 
-    RegExpMatch lastMatch = matches.last;
+    List<TagData> results = [];
 
-    String? sNamespace = lastMatch.group(1) ?? lastMatch.group(4);
-    String sKey = lastMatch.group(2) ?? lastMatch.group(3) ?? lastMatch.group(5) ?? lastMatch.group(0)!;
+    List<({String? sNamespace, String sKey})> searchList = matches.map((match) {
+      String? sNamespace = match.group(1) ?? match.group(4);
+      String sKey = match.group(2) ?? match.group(3) ?? match.group(5) ?? match.group(0)!;
+      return (sNamespace: sNamespace, sKey: sKey);
+    }).toList();
 
-    List<TagData> tagDatas;
-    if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
-      tagDatas = sNamespace != null ? await TagDao.searchFullTags('%$sNamespace%', '%$sKey%') : await TagDao.searchTags('%$sKey%');
-      await _sortTagDatasByFrequency(tagDatas);
-    } else {
-      tagDatas = sNamespace != null ? await TagDao.searchFullTagsIncludeIntro('%$sNamespace%', '%$sKey%') : await TagDao.searchTagsIncludeIntro('%$sKey%');
-      await _sortTagDatasByScore(sNamespace, sKey, tagDatas);
+    for (int i = 0; i < searchList.length; i++) {
+      String searchTextMerged = searchList.sublist(i).map((e) => '${e.sNamespace}:${e.sKey}').join(' ');
+      int colonIndex = searchTextMerged.indexOf(':');
+      String? sNameSpaceMerged = colonIndex != -1 ? searchTextMerged.substring(0, colonIndex) : null;
+      String sKeyMerged = searchTextMerged.substring(colonIndex + 1);
+
+      List<TagData> tagDatas;
+      if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
+        tagDatas = sNameSpaceMerged != null ? await TagDao.searchFullTags('%$sNameSpaceMerged%', '%$sKeyMerged%') : await TagDao.searchTags('%$sKeyMerged%');
+        await _sortTagDatasByFrequency(tagDatas);
+      } else {
+        tagDatas =
+            sNameSpaceMerged != null ? await TagDao.searchFullTagsIncludeIntro('%$sNameSpaceMerged%', '%$sKeyMerged%') : await TagDao.searchTagsIncludeIntro('%$sKeyMerged%');
+        await _sortTagDatasByScore(sNameSpaceMerged, sKeyMerged, tagDatas);
+      }
+
+      tagDatas.removeWhere(results.contains);
+      results.addAll(tagDatas);
     }
 
-    return limit == null ? tagDatas : tagDatas.take(limit).toList();
+    return limit == null ? results : results.take(limit).toList();
   }
 
   Future<void> _sortTagDatasByFrequency(List<TagData> tagDatas) async {
@@ -251,16 +264,12 @@ class TagTranslationService extends GetxService {
 
       int keyIndex = tagData.key.toLowerCase().indexOf(sKey.toLowerCase());
       if (keyIndex != -1) {
-        score +=
-            namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.key.length * (keyIndex == 0 ? 2 : 1);
+        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.key.length * (keyIndex == 0 ? 2 : 1);
       }
 
       int? tagNameIndex = tagData.tagName?.toLowerCase().indexOf(sKey.toLowerCase());
       if (tagNameIndex != null && tagNameIndex != -1) {
-        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! *
-            (sKey.length + 1) /
-            tagData.tagName!.length *
-            (tagNameIndex == 0 ? 2 : 1);
+        score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.tagName!.length * (tagNameIndex == 0 ? 2 : 1);
       }
 
       bool introContains = tagData.intro?.toLowerCase().contains(sKey.toLowerCase()) ?? false;
