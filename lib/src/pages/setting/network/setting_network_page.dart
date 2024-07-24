@@ -26,7 +26,6 @@ class SettingNetworkPage extends StatelessWidget {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildEnableDomainFronting(),
-            if (NetworkSetting.enableDomainFronting.isTrue) _buildHostMapping().fadeIn(),
             _buildProxyAddress(),
             _buildPageCacheMaxAge(),
             _buildConnectTimeout(context),
@@ -43,15 +42,6 @@ class SettingNetworkPage extends StatelessWidget {
       subtitle: Text('bypassSNIBlocking'.tr),
       value: NetworkSetting.enableDomainFronting.value,
       onChanged: NetworkSetting.saveEnableDomainFronting,
-    );
-  }
-
-  Widget _buildHostMapping() {
-    return ListTile(
-      title: Text('hostMapping'.tr),
-      subtitle: Text('hostMappingHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
-      onTap: () => toRoute(Routes.hostMapping),
     );
   }
 

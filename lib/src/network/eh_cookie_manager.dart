@@ -27,7 +27,7 @@ class EHCookieManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
-      if (NetworkSetting.currentHost2IP.containsKey(options.uri.host) || NetworkSetting.currentHost2IP.containsValue(options.uri.host)) {
+      if (NetworkSetting.allHostAndIPs.contains(options.uri.host)) {
         options.headers[HttpHeaders.cookieHeader] = CookieUtil.parse2String(cookies);
       }
       handler.next(options);
