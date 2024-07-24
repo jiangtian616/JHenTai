@@ -205,6 +205,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
         List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastPart, EHSpiderParser.tagSuggestion2TagList);
         state.suggestions = tags
             .map((t) => (
+                  searchText: lastPart,
+                  matchStart: 0,
+                  matchEnd: lastPart.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
                   score: 0.0,
                   namespaceMatch:

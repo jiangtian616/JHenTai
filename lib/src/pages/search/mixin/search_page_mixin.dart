@@ -2,7 +2,6 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
@@ -59,60 +58,57 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
   }
 
   Widget buildSearchField() {
-    return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBar,
-      child: GetBuilder<L>(
-        global: false,
-        init: logic,
-        id: logic.searchFieldId,
-        builder: (_) => SizedBox(
-          height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-          child: TextField(
-            focusNode: state.searchFieldFocusNode,
-            textInputAction: TextInputAction.search,
-            controller: TextEditingController.fromValue(
-              TextEditingValue(
-                text: state.searchConfig.keyword ?? '',
+    return GetBuilder<L>(
+      global: false,
+      init: logic,
+      id: logic.searchFieldId,
+      builder: (_) => SizedBox(
+        height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+        child: TextField(
+          focusNode: state.searchFieldFocusNode,
+          textInputAction: TextInputAction.search,
+          controller: TextEditingController.fromValue(
+            TextEditingValue(
+              text: state.searchConfig.keyword ?? '',
 
-                /// make cursor stay at last letter
-                selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
-              ),
+              /// make cursor stay at last letter
+              selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
             ),
-            style: const TextStyle(fontSize: 15),
-            textAlignVertical: TextAlignVertical.center,
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: 'search'.tr,
-              contentPadding: EdgeInsets.zero,
-              labelStyle: const TextStyle(fontSize: 15),
-              floatingLabelStyle: const TextStyle(fontSize: 10),
-              labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
-              prefixIcon: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
-              ),
-              prefixIconConstraints: BoxConstraints(
-                minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: StyleSetting.isInDesktopLayout ? 32 : 52,
-              ),
-              suffixIcon: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
-              ),
-              suffixIconConstraints: BoxConstraints(
-                minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-                minWidth: StyleSetting.isInDesktopLayout ? 24 : 40,
-              ),
-            ),
-            onTap: () {
-              if (state.bodyType == SearchPageBodyType.gallerys) {
-                state.hideSearchHistory = false;
-                logic.toggleBodyType();
-              }
-            },
-            onChanged: logic.onInputChanged,
-            onSubmitted: (_) => logic.handleClearAndRefresh(),
           ),
+          style: const TextStyle(fontSize: 15),
+          textAlignVertical: TextAlignVertical.center,
+          decoration: InputDecoration(
+            isDense: true,
+            hintText: 'search'.tr,
+            contentPadding: EdgeInsets.zero,
+            labelStyle: const TextStyle(fontSize: 15),
+            floatingLabelStyle: const TextStyle(fontSize: 10),
+            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+            prefixIcon: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
+            ),
+            prefixIconConstraints: BoxConstraints(
+              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: StyleSetting.isInDesktopLayout ? 32 : 52,
+            ),
+            suffixIcon: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
+            ),
+            suffixIconConstraints: BoxConstraints(
+              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: StyleSetting.isInDesktopLayout ? 24 : 40,
+            ),
+          ),
+          onTap: () {
+            if (state.bodyType == SearchPageBodyType.gallerys) {
+              state.hideSearchHistory = false;
+              logic.toggleBodyType();
+            }
+          },
+          onChanged: logic.onInputChanged,
+          onSubmitted: (_) => logic.handleClearAndRefresh(),
         ),
       ),
     );
@@ -277,10 +273,8 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
             minLeadingWidth: 20,
             visualDensity: const VisualDensity(vertical: -1),
             onTap: () {
-              List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
-              segments.removeLast();
-              segments.add('${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"');
-              state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
+              state.searchConfig.keyword = (state.searchConfig.keyword?.substring(0, state.suggestions[index].matchStart) ?? '') +
+                  '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"';
               state.searchFieldFocusNode.requestFocus();
               logic.update([logic.searchFieldId]);
             },
@@ -307,7 +301,8 @@ RichText highlightRawTag(BuildContext context, TagAutoCompletionMatch match, Tex
     );
   }
 
-  children.add(TextSpan(text: ' : ', style: style));
+  bool namespaceTotalMatch = match.namespaceMatch != null && match.namespaceMatch!.start == 0 && match.namespaceMatch!.end == match.tagData.namespace.length;
+  children.add(TextSpan(text: ' : ', style: namespaceTotalMatch ? highlightStyle : style));
 
   if (match.keyMatch == null) {
     children.add(TextSpan(text: match.tagData.key, style: style));
@@ -328,7 +323,7 @@ RichText highlightRawTag(BuildContext context, TagAutoCompletionMatch match, Tex
   );
 }
 
-RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch match, TextStyle? style, TextStyle? highlightStyle) {
+RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch match, TextStyle? style, TextStyle? highlightStyle, {bool singleLine = false}) {
   List<TextSpan> children = <TextSpan>[];
   if (match.tagData.translatedNamespace == null || match.tagData.tagName == null) {
     return RichText(text: TextSpan(children: children));
@@ -348,7 +343,10 @@ RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch mat
     );
   }
 
-  children.add(TextSpan(text: ' : ', style: style));
+  bool translatedNamespaceTotalMatch = match.translatedNamespaceMatch != null &&
+      match.translatedNamespaceMatch!.start == 0 &&
+      match.translatedNamespaceMatch!.end == match.tagData.translatedNamespace!.length;
+  children.add(TextSpan(text: ' : ', style: translatedNamespaceTotalMatch ? highlightStyle : style));
 
   if (match.tagNameMatch == null) {
     children.add(TextSpan(text: match.tagData.tagName!, style: style));
@@ -356,11 +354,15 @@ RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch mat
     children.addAll(
       [
         TextSpan(text: match.tagData.tagName!.substring(0, match.tagNameMatch!.start), style: style),
-        TextSpan(text: match.tagData.tagName!.substring(match.tagNameMatch!.start, match.keyMatch!.end), style: highlightStyle),
+        TextSpan(text: match.tagData.tagName!.substring(match.tagNameMatch!.start, match.tagNameMatch!.end), style: highlightStyle),
         TextSpan(text: match.tagData.tagName!.substring(match.tagNameMatch!.end), style: style),
       ],
     );
   }
 
-  return RichText(text: TextSpan(children: children));
+  return RichText(
+    text: TextSpan(children: children),
+    maxLines: singleLine ? 1 : null,
+    overflow: TextOverflow.ellipsis,
+  );
 }

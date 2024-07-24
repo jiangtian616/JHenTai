@@ -249,9 +249,14 @@ class EHAddTagDialogLogic extends GetxController {
         List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);
         state.suggestions = tags
             .map((t) => (
+                  searchText: lastKeyWord,
+                  matchStart: 0,
+                  matchEnd: lastKeyWord.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
                   score: 0.0,
-                  namespaceMatch: t.namespace.contains(lastKeyWord) ? (start: t.namespace.indexOf(lastKeyWord), end: t.namespace.indexOf(lastKeyWord) + lastKeyWord.length) : null,
+                  namespaceMatch: t.namespace.contains(lastKeyWord)
+                      ? (start: t.namespace.indexOf(lastKeyWord), end: t.namespace.indexOf(lastKeyWord) + lastKeyWord.length)
+                      : null,
                   translatedNamespaceMatch: null,
                   keyMatch: t.key.contains(lastKeyWord) ? (start: t.key.indexOf(lastKeyWord), end: t.key.indexOf(lastKeyWord) + lastKeyWord.length) : null,
                   tagNameMatch: null,

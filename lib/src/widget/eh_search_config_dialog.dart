@@ -765,9 +765,13 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
         List<EHRawTag> tags = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
         suggestions = tags
             .map((t) => (
+                  searchText: keyword,
+                  matchStart: 0,
+                  matchEnd: keyword.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
                   score: 0.0,
-                  namespaceMatch: t.namespace.contains(keyword) ? (start: t.namespace.indexOf(keyword), end: t.namespace.indexOf(keyword) + keyword.length) : null,
+                  namespaceMatch:
+                      t.namespace.contains(keyword) ? (start: t.namespace.indexOf(keyword), end: t.namespace.indexOf(keyword) + keyword.length) : null,
                   translatedNamespaceMatch: null,
                   keyMatch: t.key.contains(keyword) ? (start: t.key.indexOf(keyword), end: t.key.indexOf(keyword) + keyword.length) : null,
                   tagNameMatch: null,
@@ -864,7 +868,7 @@ class SearchSuggestionList extends StatelessWidget {
               ),
               subtitle: suggestions[index].tagData.tagName == null
                   ? null
-                  : highlightRawTag(
+                  : highlightTranslatedTag(
                       context,
                       suggestions[index],
                       TextStyle(fontSize: UIConfig.searchDialogSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
