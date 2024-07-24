@@ -155,7 +155,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 _buildLanguageSelector().marginOnly(top: 20),
                 _buildSearchExpungedGalleriesSwitch(),
                 _buildOnlySearchGallerysWithTorrentsSwitch(),
-                _buildSearchLowerTagsSwitch(),
                 _buildPageRangeSelector(),
                 _buildRatingSelector(),
                 _buildDisableFilterForLanguageSwitch(),
@@ -571,18 +570,6 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       trailing: Switch(
         value: searchConfig.onlyShowGalleriesWithTorrents,
         onChanged: (bool value) => setState(() => searchConfig.onlyShowGalleriesWithTorrents = value),
-      ),
-    );
-  }
-
-  Widget _buildSearchLowerTagsSwitch() {
-    return ListTile(
-      dense: true,
-      contentPadding: EdgeInsets.zero,
-      title: Text('searchLowPowerTags'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
-        value: searchConfig.searchLowPowerTags,
-        onChanged: (bool value) => setState(() => searchConfig.searchLowPowerTags = value),
       ),
     );
   }

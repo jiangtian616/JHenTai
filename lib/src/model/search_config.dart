@@ -34,7 +34,6 @@ class SearchConfig {
 
   bool onlySearchExpungedGalleries = false;
   bool onlyShowGalleriesWithTorrents = false;
-  bool searchLowPowerTags = false;
 
   int? pageAtLeast;
   int? pageAtMost;
@@ -65,7 +64,6 @@ class SearchConfig {
     this.language,
     this.onlySearchExpungedGalleries = false,
     this.onlyShowGalleriesWithTorrents = false,
-    this.searchLowPowerTags = false,
     this.pageAtLeast,
     this.pageAtMost,
     this.minimumRating = 1,
@@ -124,9 +122,6 @@ class SearchConfig {
       }
       if (onlyShowGalleriesWithTorrents) {
         params['f_sto'] = 'on';
-      }
-      if (searchLowPowerTags) {
-        params['f_sdt'] = 'on';
       }
 
       if (pageAtLeast != null) {
@@ -246,7 +241,6 @@ class SearchConfig {
       language: json["language"],
       onlySearchExpungedGalleries: json["searchExpungedGalleries"],
       onlyShowGalleriesWithTorrents: json["onlyShowGalleriesWithTorrents"],
-      searchLowPowerTags: json["searchLowPowerTags"],
       pageAtLeast: json["pageAtLeast"],
       pageAtMost: json["pageAtMost"],
       minimumRating: json["minimumRating"],
@@ -275,7 +269,6 @@ class SearchConfig {
       "language": language,
       "searchExpungedGalleries": onlySearchExpungedGalleries,
       "onlyShowGalleriesWithTorrents": onlyShowGalleriesWithTorrents,
-      "searchLowPowerTags": searchLowPowerTags,
       "pageAtLeast": pageAtLeast,
       "pageAtMost": pageAtMost,
       "minimumRating": minimumRating,
@@ -303,7 +296,6 @@ class SearchConfig {
     String? language,
     bool? searchExpungedGalleries,
     bool? onlyShowGalleriesWithTorrents,
-    bool? searchLowPowerTags,
     int? pageAtLeast,
     int? pageAtMost,
     int? minimumRating,
@@ -328,7 +320,6 @@ class SearchConfig {
       language: language ?? this.language,
       onlySearchExpungedGalleries: searchExpungedGalleries ?? onlySearchExpungedGalleries,
       onlyShowGalleriesWithTorrents: onlyShowGalleriesWithTorrents ?? this.onlyShowGalleriesWithTorrents,
-      searchLowPowerTags: searchLowPowerTags ?? this.searchLowPowerTags,
       pageAtLeast: pageAtLeast ?? this.pageAtLeast,
       pageAtMost: pageAtMost ?? this.pageAtMost,
       minimumRating: minimumRating ?? this.minimumRating,
@@ -341,6 +332,6 @@ class SearchConfig {
 
   @override
   String toString() {
-    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, language: $language, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, searchLowPowerTags: $searchLowPowerTags, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex}';
+    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, language: $language, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex}';
   }
 }
