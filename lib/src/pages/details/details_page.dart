@@ -37,6 +37,7 @@ import '../../setting/preference_setting.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
+import '../../utils/search_util.dart';
 import '../../utils/string_uril.dart';
 import '../../widget/eh_gallery_category_tag.dart';
 import 'details_page_logic.dart';
@@ -304,7 +305,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                     label: 'search'.tr,
                     onPressed: () {
                       ContextMenuController.removeAny();
-                      logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
+                      newSearch(
+                        keyword: editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text),
+                        forceNewRoute: true,
+                      );
                     },
                   ),
                 );
@@ -367,7 +371,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         label: 'search'.tr,
                         onPressed: () {
                           ContextMenuController.removeAny();
-                          logic.search(editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text));
+                          newSearch(
+                            keyword: editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text),
+                            forceNewRoute: true,
+                          );
                         },
                       ),
                     );
@@ -1262,7 +1269,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         .map(
           (tag) => EHTag(
             tag: tag,
-            onTap: logic.searchTag,
+            onTap: (tag) => newSearch(keyword: '${tag.tagData.namespace}:"${tag.tagData.key}\$"', forceNewRoute: true),
             onSecondaryTap: logic.showTagDialog,
             onLongPress: logic.showTagDialog,
             showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,

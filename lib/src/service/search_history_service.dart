@@ -23,7 +23,7 @@ class SearchHistoryService extends GetxService {
   Future<void> onInit() async {
     super.onInit();
 
-    List searchHistories = storageService.read(ConfigEnum.searchConfig.key) ?? <String>[];
+    List searchHistories = storageService.read(ConfigEnum.searchHistory.key) ?? <String>[];
     for (String searchHistory in searchHistories) {
       histories.add(
         SearchHistory(

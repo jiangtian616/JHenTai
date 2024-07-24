@@ -776,20 +776,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (mainTitleText.isEmpty) {
       return;
     }
-    search(
-      'title:"${(mainTitleText).replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"',
-    );
+
+    newSearch(keyword: 'title:"${(mainTitleText).replaceAll(RegExp(r'\[.*?\]|\(.*?\)|{.*?}'), '').trim()}"', forceNewRoute: true);
   }
 
   void searchUploader() {
     if (state.galleryDetails?.uploader == null && state.gallery?.uploader == null) {
       return;
     }
-    search('uploader:"${state.galleryDetails?.uploader ?? state.gallery!.uploader}"');
-  }
 
-  void search(String str) {
-    newSearch(str, true);
+    newSearch(keyword: 'uploader:"${state.galleryDetails?.uploader ?? state.gallery!.uploader}"', forceNewRoute: true);
   }
 
   Future<void> handleTapTorrent() async {
@@ -882,33 +878,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     updateGlobalGalleryStatus();
-  }
-
-  void searchTag(GalleryTag tag) {
-    if (PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritAll) {
-      return newSearch('${tag.tagData.namespace}:"${tag.tagData.key}\$"', true);
-    }
-
-    if (PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritPartially) {
-      SearchConfig searchConfig = loadSearchPageConfig() ?? SearchConfig();
-      searchConfig.keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
-      searchConfig.language = null;
-      searchConfig.includeDoujinshi = true;
-      searchConfig.includeManga = true;
-      searchConfig.includeArtistCG = true;
-      searchConfig.includeGameCg = true;
-      searchConfig.includeWestern = true;
-      searchConfig.includeNonH = true;
-      searchConfig.includeImageSet = true;
-      searchConfig.includeCosplay = true;
-      searchConfig.includeAsianPorn = true;
-      searchConfig.includeMisc = true;
-      return newSearchWithConfig(searchConfig, true);
-    }
-
-    SearchConfig searchConfig = SearchConfig();
-    searchConfig.keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
-    return newSearchWithConfig(searchConfig, true);
   }
 
   void showTagDialog(GalleryTag tag) {

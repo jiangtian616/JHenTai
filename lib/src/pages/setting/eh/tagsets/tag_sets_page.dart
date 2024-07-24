@@ -124,7 +124,7 @@ class TagSetsPage extends StatelessWidget {
                         tag: state.tags[index],
                         tagSetBackgroundColor: state.currentTagSetBackgroundColor,
                         onTap: () => logic.showBottomSheet(index, context),
-                        onLongPress: () => newSearch('${state.tags[index].tagData.namespace}:${state.tags[index].tagData.key}', true),
+                        onLongPress: () => newSearch(keyword: '${state.tags[index].tagData.namespace}:${state.tags[index].tagData.key}'),
                         onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
                         onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
                         onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),

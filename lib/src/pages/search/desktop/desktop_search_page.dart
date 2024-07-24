@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
-import 'package:jhentai/src/pages/search/mixin/new_search_argument.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
@@ -69,7 +68,10 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
                   ),
                 ),
               ),
-              IconButton(onPressed: () => logic.addNewTab(NewSearchArgument(loadImmediately: false)), icon: const Icon(Icons.add)),
+              IconButton(
+                onPressed: () => logic.addNewTab(keyword: '', loadImmediately: false),
+                icon: const Icon(Icons.add),
+              ),
             ],
           ),
         ),
@@ -268,7 +270,9 @@ class _SearchTabDivider extends StatelessWidget {
                     : rightTabIsSelected
                         ? unSelectedColor
                         : null,
-                borderRadius: !hasLeftTab || rightTabIsSelected ? const BorderRadius.only(bottomRight: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius)) : null,
+                borderRadius: !hasLeftTab || rightTabIsSelected
+                    ? const BorderRadius.only(bottomRight: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius))
+                    : null,
               ),
             ),
           ],
@@ -295,7 +299,9 @@ class _SearchTabDivider extends StatelessWidget {
                     : rightTabIsSelected
                         ? selectedColor
                         : unSelectedColor,
-                borderRadius: !hasRightTab || leftTabIsSelected ? const BorderRadius.only(bottomLeft: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius)) : null,
+                borderRadius: !hasRightTab || leftTabIsSelected
+                    ? const BorderRadius.only(bottomLeft: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius))
+                    : null,
               ),
             ),
           ],

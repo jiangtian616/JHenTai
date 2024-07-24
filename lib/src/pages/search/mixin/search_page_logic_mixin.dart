@@ -44,7 +44,6 @@ mixin SearchPageLogicMixin on BasePageLogic {
 
   @override
   String get searchConfigKey => searchPageConfigKey;
-
   static const searchPageConfigKey = 'search';
 
   final String suggestionBodyId = 'suggestionBodyId';
@@ -208,7 +207,8 @@ mixin SearchPageLogicMixin on BasePageLogic {
             .map((t) => (
                   tagData: TagData(namespace: t.namespace, key: t.key),
                   score: 0.0,
-                  namespaceMatch: t.namespace.contains(lastPart) ? (start: t.namespace.indexOf(lastPart), end: t.namespace.indexOf(lastPart) + lastPart.length) : null,
+                  namespaceMatch:
+                      t.namespace.contains(lastPart) ? (start: t.namespace.indexOf(lastPart), end: t.namespace.indexOf(lastPart) + lastPart.length) : null,
                   translatedNamespaceMatch: null,
                   keyMatch: t.key.contains(lastPart) ? (start: t.key.indexOf(lastPart), end: t.key.indexOf(lastPart) + lastPart.length) : null,
                   tagNameMatch: null,

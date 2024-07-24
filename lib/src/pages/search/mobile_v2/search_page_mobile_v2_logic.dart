@@ -24,21 +24,31 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
 
   @override
   void onReady() {
+    String? keyword;
+    SearchBehaviour searchBehaviour = PreferenceSetting.searchBehaviour.value;
+    SearchConfig? rewriteSearchConfig;
+
     if (Get.arguments is NewSearchArgument) {
       NewSearchArgument argument = Get.arguments;
 
-      if (argument.rewriteSearchConfig != null) {
-        state.searchConfig = argument.rewriteSearchConfig!.copyWith();
-      } else if (argument.keywordSearchBehaviour != null) {
-        if (argument.keywordSearchBehaviour == SearchBehaviour.inheritPartially) {
-          state.searchConfig.keyword = argument.keyword;
-          state.searchConfig.language = null;
-          state.searchConfig.enableAllCategories();
-        } else if (argument.keywordSearchBehaviour == SearchBehaviour.none) {
-          state.searchConfig = SearchConfig(keyword: argument.keyword);
-        }
-      }
+      keyword = argument.keyword;
+      searchBehaviour = argument.keywordSearchBehaviour ?? PreferenceSetting.searchBehaviour.value;
+      rewriteSearchConfig = argument.rewriteSearchConfig;
+    }
 
+    if (rewriteSearchConfig != null) {
+      state.searchConfig = rewriteSearchConfig.copyWith();
+    } else if (searchBehaviour == SearchBehaviour.inheritAll) {
+      state.searchConfig.keyword = keyword;
+    } else if (searchBehaviour == SearchBehaviour.inheritPartially) {
+      state.searchConfig.keyword = keyword;
+      state.searchConfig.language = null;
+      state.searchConfig.enableAllCategories();
+    } else if (searchBehaviour == SearchBehaviour.none) {
+      state.searchConfig = SearchConfig(keyword: keyword);
+    }
+
+    if (Get.arguments is NewSearchArgument) {
       handleClearAndRefresh();
     }
 

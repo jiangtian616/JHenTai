@@ -6,13 +6,10 @@ class NewSearchArgument {
   final SearchBehaviour? keywordSearchBehaviour;
 
   final SearchConfig? rewriteSearchConfig;
-  
-  final bool loadImmediately;
 
   const NewSearchArgument({
     this.keyword,
     this.keywordSearchBehaviour,
     this.rewriteSearchConfig,
-    required this.loadImmediately,
-  }) : assert((keywordSearchBehaviour != null) || rewriteSearchConfig != null);
+  }) : assert((keyword != null && keywordSearchBehaviour != null) || rewriteSearchConfig != null);
 }

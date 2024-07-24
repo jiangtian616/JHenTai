@@ -77,7 +77,6 @@ class Routes {
   static const String history = "/history";
   static const String download = "/download";
   static const String setting = "/setting";
-  static const String search = "/search";
   static const String desktopSearch = "/desktop_search";
   static const String mobileV2Search = "/mobile_v2_search";
   static const String downloadSearch = "/download_search";

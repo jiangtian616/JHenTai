@@ -195,7 +195,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
           if (state.inDeleteSearchHistoryMode) {
             logic.handleDeleteSearchHistory(history);
           } else {
-            newSearch(history.rawKeyword + ' ');
+            newSearch(keyword: history.rawKeyword + ' ');
           }
         },
         onLongPress: state.inDeleteSearchHistoryMode
@@ -340,7 +340,9 @@ RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch mat
     children.addAll(
       [
         TextSpan(text: match.tagData.translatedNamespace!.substring(0, match.translatedNamespaceMatch!.start), style: style),
-        TextSpan(text: match.tagData.translatedNamespace!.substring(match.translatedNamespaceMatch!.start, match.translatedNamespaceMatch!.end), style: highlightStyle),
+        TextSpan(
+            text: match.tagData.translatedNamespace!.substring(match.translatedNamespaceMatch!.start, match.translatedNamespaceMatch!.end),
+            style: highlightStyle),
         TextSpan(text: match.tagData.translatedNamespace!.substring(match.translatedNamespaceMatch!.end), style: style),
       ],
     );

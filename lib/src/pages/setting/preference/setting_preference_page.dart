@@ -373,16 +373,16 @@ class SettingPreferencePage extends StatelessWidget {
 
   Widget _buildTagSearchConfig() {
     return ListTile(
-      title: Text('tagSearchBehaviour'.tr),
+      title: Text('searchBehaviour'.tr),
       subtitle: Text(
-        PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritAll
+        PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll
             ? 'inheritAllHint'.tr
-            : PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritPartially
+            : PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially
                 ? 'inheritPartiallyHint'.tr
                 : 'noneHint'.tr,
       ),
       trailing: DropdownButton<SearchBehaviour>(
-        value: PreferenceSetting.tagSearchBehaviour.value,
+        value: PreferenceSetting.searchBehaviour.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (SearchBehaviour? newValue) => PreferenceSetting.saveTagSearchConfig(newValue!),

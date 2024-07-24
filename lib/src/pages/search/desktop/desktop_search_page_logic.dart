@@ -46,19 +46,11 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([tabBarId]);
   }
 
-  void addNewTab(NewSearchArgument argument) {
-    DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic();
-    if (argument.rewriteSearchConfig != null) {
-      newTabLogic.state.searchConfig = argument.rewriteSearchConfig!;
-    } else if (argument.keywordSearchBehaviour != null) {
-      if (argument.keywordSearchBehaviour == SearchBehaviour.inheritPartially) {
-        newTabLogic.state.searchConfig.keyword = argument.keyword;
-        newTabLogic.state.searchConfig.language = null;
-        newTabLogic.state.searchConfig.enableAllCategories();
-      } else if (argument.keywordSearchBehaviour == SearchBehaviour.none) {
-        newTabLogic.state.searchConfig = SearchConfig(keyword: argument.keyword);
-      }
-    }
+  void addNewTab({String? keyword, SearchConfig? rewriteSearchConfig, bool loadImmediately = true}) {
+    DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic(
+      NewSearchArgument(keyword: keyword, keywordSearchBehaviour: PreferenceSetting.searchBehaviour.value, rewriteSearchConfig: rewriteSearchConfig),
+      loadImmediately,
+    );
 
     state.tabLogics.add(newTabLogic);
     state.tabs.add(DesktopSearchPageTabView(key: ValueKey(newUUID()), logic: newTabLogic));
@@ -69,12 +61,6 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([pageId]);
 
     state.tabController.jumpTo(state.tabController.position.maxScrollExtent);
-
-    if (argument.loadImmediately) {
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        newTabLogic.handleClearAndRefresh();
-      });
-    }
   }
 
   void deleteTab(int index) {

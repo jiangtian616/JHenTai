@@ -33,7 +33,7 @@ class PreferenceSetting {
   static RxBool enableDefaultFavorite = false.obs;
   static RxBool enableDefaultTagSet = true.obs;
   static RxBool launchInFullScreen = false.obs;
-  static Rx<SearchBehaviour> tagSearchBehaviour = SearchBehaviour.inheritAll.obs;
+  static Rx<SearchBehaviour> searchBehaviour = SearchBehaviour.inheritAll.obs;
   static RxBool showR18GImageDirectly = false.obs;
   static RxBool showUtcTime = false.obs;
 
@@ -165,7 +165,7 @@ class PreferenceSetting {
 
   static saveTagSearchConfig(SearchBehaviour tagSearchConfig) {
     Log.debug('saveTagSearchConfig:$tagSearchConfig');
-    PreferenceSetting.tagSearchBehaviour.value = tagSearchConfig;
+    PreferenceSetting.searchBehaviour.value = tagSearchConfig;
     _save();
   }
 
@@ -204,7 +204,7 @@ class PreferenceSetting {
       'showGalleryTagVoteStatus': showGalleryTagVoteStatus.value,
       'showComments': showComments.value,
       'showAllComments': showAllComments.value,
-      'tagSearchConfig': tagSearchBehaviour.value.index,
+      'tagSearchConfig': searchBehaviour.value.index,
       'enableDefaultFavorite': enableDefaultFavorite.value,
       'enableDefaultTagSet': enableDefaultTagSet.value,
       'launchInFullScreen': launchInFullScreen.value,
@@ -232,7 +232,7 @@ class PreferenceSetting {
     showGalleryTagVoteStatus.value = map['showGalleryTagVoteStatus'] ?? showGalleryTagVoteStatus.value;
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
-    tagSearchBehaviour.value = SearchBehaviour.values[map['tagSearchConfig'] ?? SearchBehaviour.inheritAll.index];
+    searchBehaviour.value = SearchBehaviour.values[map['tagSearchConfig'] ?? SearchBehaviour.inheritAll.index];
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
     enableDefaultTagSet.value = map['enableDefaultTagSet'] ?? enableDefaultTagSet.value;
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;
