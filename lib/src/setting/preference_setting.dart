@@ -11,7 +11,7 @@ import '../utils/log.dart';
 
 enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never, always }
 
-enum TagSearchBehaviour { inheritAll, inheritPartially, none }
+enum SearchBehaviour { inheritAll, inheritPartially, none }
 
 class PreferenceSetting {
   static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
@@ -33,7 +33,7 @@ class PreferenceSetting {
   static RxBool enableDefaultFavorite = false.obs;
   static RxBool enableDefaultTagSet = true.obs;
   static RxBool launchInFullScreen = false.obs;
-  static Rx<TagSearchBehaviour> tagSearchBehaviour = TagSearchBehaviour.inheritAll.obs;
+  static Rx<SearchBehaviour> tagSearchBehaviour = SearchBehaviour.inheritAll.obs;
   static RxBool showR18GImageDirectly = false.obs;
   static RxBool showUtcTime = false.obs;
 
@@ -163,7 +163,7 @@ class PreferenceSetting {
     _save();
   }
 
-  static saveTagSearchConfig(TagSearchBehaviour tagSearchConfig) {
+  static saveTagSearchConfig(SearchBehaviour tagSearchConfig) {
     Log.debug('saveTagSearchConfig:$tagSearchConfig');
     PreferenceSetting.tagSearchBehaviour.value = tagSearchConfig;
     _save();
@@ -232,7 +232,7 @@ class PreferenceSetting {
     showGalleryTagVoteStatus.value = map['showGalleryTagVoteStatus'] ?? showGalleryTagVoteStatus.value;
     showComments.value = map['showComments'] ?? showComments.value;
     showAllComments.value = map['showAllComments'] ?? showAllComments.value;
-    tagSearchBehaviour.value = TagSearchBehaviour.values[map['tagSearchConfig'] ?? TagSearchBehaviour.inheritAll.index];
+    tagSearchBehaviour.value = SearchBehaviour.values[map['tagSearchConfig'] ?? SearchBehaviour.inheritAll.index];
     enableDefaultFavorite.value = map['enableDefaultFavorite'] ?? enableDefaultFavorite.value;
     enableDefaultTagSet.value = map['enableDefaultTagSet'] ?? enableDefaultTagSet.value;
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;

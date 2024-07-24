@@ -73,6 +73,19 @@ class SearchConfig {
     this.searchFavoriteCategoryIndex,
   });
 
+  void enableAllCategories() {
+    includeDoujinshi = true;
+    includeManga = true;
+    includeArtistCG = true;
+    includeGameCg = true;
+    includeWestern = true;
+    includeNonH = true;
+    includeImageSet = true;
+    includeCosplay = true;
+    includeAsianPorn = true;
+    includeMisc = true;
+  }
+  
   void disableAllCategories() {
     includeDoujinshi = false;
     includeManga = false;

@@ -885,11 +885,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void searchTag(GalleryTag tag) {
-    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritAll) {
+    if (PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritAll) {
       return newSearch('${tag.tagData.namespace}:"${tag.tagData.key}\$"', true);
     }
 
-    if (PreferenceSetting.tagSearchBehaviour.value == TagSearchBehaviour.inheritPartially) {
+    if (PreferenceSetting.tagSearchBehaviour.value == SearchBehaviour.inheritPartially) {
       SearchConfig searchConfig = loadSearchPageConfig() ?? SearchConfig();
       searchConfig.keyword = '${tag.tagData.namespace}:"${tag.tagData.key}\$"';
       searchConfig.language = null;

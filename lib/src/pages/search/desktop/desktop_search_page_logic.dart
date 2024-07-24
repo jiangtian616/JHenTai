@@ -1,13 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/search/desktop/desktop_search_page_state.dart';
+import 'package:jhentai/src/pages/search/mixin/new_search_argument.dart';
 
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../../setting/preference_setting.dart';
 import '../../../utils/uuid_util.dart';
 import 'desktop_search_page_tab_logic.dart';
 import 'desktop_search_page_tab_view.dart';
@@ -43,8 +46,20 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([tabBarId]);
   }
 
-  void addNewTab({String? keyword, SearchConfig? searchConfig, required bool loadImmediately}) {
+  void addNewTab(NewSearchArgument argument) {
     DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic();
+    if (argument.rewriteSearchConfig != null) {
+      newTabLogic.state.searchConfig = argument.rewriteSearchConfig!;
+    } else if (argument.keywordSearchBehaviour != null) {
+      if (argument.keywordSearchBehaviour == SearchBehaviour.inheritPartially) {
+        newTabLogic.state.searchConfig.keyword = argument.keyword;
+        newTabLogic.state.searchConfig.language = null;
+        newTabLogic.state.searchConfig.enableAllCategories();
+      } else if (argument.keywordSearchBehaviour == SearchBehaviour.none) {
+        newTabLogic.state.searchConfig = SearchConfig(keyword: argument.keyword);
+      }
+    }
+
     state.tabLogics.add(newTabLogic);
     state.tabs.add(DesktopSearchPageTabView(key: ValueKey(newUUID()), logic: newTabLogic));
 
@@ -55,17 +70,11 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
 
     state.tabController.jumpTo(state.tabController.position.maxScrollExtent);
 
-    Get.engine.addPostFrameCallback((_) {
-      if (searchConfig != null) {
-        newTabLogic.state.searchConfig = searchConfig.copyWith();
-      } else {
-        newTabLogic.state.searchConfig.keyword = keyword;
-      }
-
-      if (loadImmediately) {
+    if (argument.loadImmediately) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
         newTabLogic.handleClearAndRefresh();
-      }
-    });
+      });
+    }
   }
 
   void deleteTab(int index) {
