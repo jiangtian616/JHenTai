@@ -38,13 +38,13 @@ class EHCacheManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     CacheOptions cacheOptions = _getCacheOptions(options);
-
+    
+    options.extra[realUriExtraKey] = options.uri.toString();
+    
     if (_shouldSkipRequest(options, cacheOptions)) {
       handler.next(options);
       return;
     }
-
-    options.extra[realUriExtraKey] = options.uri.toString();
 
     CacheResponse? cacheResponse = await _getCacheStore(cacheOptions).get(CacheOptions.defaultCacheKeyBuilder(options));
     if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
