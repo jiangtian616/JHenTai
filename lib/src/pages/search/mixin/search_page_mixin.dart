@@ -15,6 +15,7 @@ import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
 import '../../../model/search_history.dart';
 import '../../../routes/routes.dart';
+import '../../../service/tag_translation_service.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/eh_tag.dart';
@@ -252,86 +253,112 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
 
   Widget buildSuggestions(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16, bottom: 600),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate(
-          state.suggestions
-              .map((tagData) => FadeIn(
-                    duration: const Duration(milliseconds: 500),
-                    child: ListTile(
-                      title: RichText(
-                          text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', state.searchConfig.keyword?.split(' ').last ?? '', false)),
-                      subtitle: tagData.tagName == null
-                          ? null
-                          : RichText(
-                              text: highlightKeyword(
-                                  context, '${tagData.namespace.tr} : ${tagData.tagName}', state.searchConfig.keyword?.split(' ').last ?? '', true),
-                            ),
-                      leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
-                      dense: true,
-                      minLeadingWidth: 20,
-                      visualDensity: const VisualDensity(vertical: -1),
-                      onTap: () {
-                        List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
-                        segments.removeLast();
-                        segments.add('${tagData.namespace}:"${tagData.key}\$"');
-                        state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
-                        state.searchFieldFocusNode.requestFocus();
-                        logic.update([logic.searchFieldId]);
-                      },
-                    ),
-                  ))
-              .toList(),
+      padding: const EdgeInsets.only(top: 16, bottom: 400),
+      sliver: SliverList.builder(
+        itemBuilder: (context, index) => FadeIn(
+          duration: const Duration(milliseconds: 400),
+          child: ListTile(
+            title: highlightRawTag(
+              context,
+              state.suggestions[index],
+              TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+              const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+            ),
+            subtitle: state.suggestions[index].tagData.tagName == null
+                ? null
+                : highlightTranslatedTag(
+                    context,
+                    state.suggestions[index],
+                    TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
+                    const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                  ),
+            leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
+            dense: true,
+            minLeadingWidth: 20,
+            visualDensity: const VisualDensity(vertical: -1),
+            onTap: () {
+              List<String> segments = state.searchConfig.keyword?.split(' ') ?? [''];
+              segments.removeLast();
+              segments.add('${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"');
+              state.searchConfig.keyword = segments.joinNewElement(' ', joinAtLast: true).join('');
+              state.searchFieldFocusNode.requestFocus();
+              logic.update([logic.searchFieldId]);
+            },
+          ),
         ),
+        itemCount: state.suggestions.length,
       ),
     );
   }
+}
 
-  /// highlight keyword in rawText
-  TextSpan highlightKeyword(BuildContext context, String rawText, String currentKeyword, bool isSubTitle) {
-    List<TextSpan> children = <TextSpan>[];
+RichText highlightRawTag(BuildContext context, TagAutoCompletionMatch match, TextStyle? style, TextStyle? highlightStyle, {bool singleLine = false}) {
+  List<TextSpan> children = <TextSpan>[];
 
-    List<int> matchIndexes = currentKeyword.toLowerCase().allMatches(rawText.toLowerCase()).map((match) => match.start).toList();
-
-    int indexHandling = 0;
-    for (int index in matchIndexes) {
-      if (index > indexHandling) {
-        children.add(
-          TextSpan(
-            text: rawText.substring(indexHandling, index),
-            style: TextStyle(
-              fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
-            ),
-          ),
-        );
-      }
-
-      children.add(
-        TextSpan(
-          text: rawText.substring(index, index + currentKeyword.length),
-          style: TextStyle(
-            fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-            color: UIConfig.searchPageSuggestionHighlightColor,
-          ),
-        ),
-      );
-
-      indexHandling = index + currentKeyword.length;
-    }
-
-    if (rawText.length > indexHandling) {
-      children.add(
-        TextSpan(
-          text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(
-            fontSize: isSubTitle ? UIConfig.searchPageSuggestionSubTitleTextSize : UIConfig.searchPageSuggestionTitleTextSize,
-            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
-          ),
-        ),
-      );
-    }
-
-    return TextSpan(children: children);
+  if (match.namespaceMatch == null) {
+    children.add(TextSpan(text: match.tagData.namespace, style: style));
+  } else {
+    children.addAll(
+      [
+        TextSpan(text: match.tagData.namespace.substring(0, match.namespaceMatch!.start), style: style),
+        TextSpan(text: match.tagData.namespace.substring(match.namespaceMatch!.start, match.namespaceMatch!.end), style: highlightStyle),
+        TextSpan(text: match.tagData.namespace.substring(match.namespaceMatch!.end), style: style),
+      ],
+    );
   }
+
+  children.add(TextSpan(text: ' : ', style: style));
+
+  if (match.keyMatch == null) {
+    children.add(TextSpan(text: match.tagData.key, style: style));
+  } else {
+    children.addAll(
+      [
+        TextSpan(text: match.tagData.key.substring(0, match.keyMatch!.start), style: style),
+        TextSpan(text: match.tagData.key.substring(match.keyMatch!.start, match.keyMatch!.end), style: highlightStyle),
+        TextSpan(text: match.tagData.key.substring(match.keyMatch!.end), style: style),
+      ],
+    );
+  }
+
+  return RichText(
+    text: TextSpan(children: children),
+    maxLines: singleLine ? 1 : null,
+    overflow: TextOverflow.ellipsis,
+  );
+}
+
+RichText highlightTranslatedTag(BuildContext context, TagAutoCompletionMatch match, TextStyle? style, TextStyle? highlightStyle) {
+  List<TextSpan> children = <TextSpan>[];
+  if (match.tagData.translatedNamespace == null || match.tagData.tagName == null) {
+    return RichText(text: TextSpan(children: children));
+  }
+
+  if (match.translatedNamespaceMatch == null) {
+    children.add(TextSpan(text: match.tagData.translatedNamespace, style: style));
+  } else {
+    children.addAll(
+      [
+        TextSpan(text: match.tagData.translatedNamespace!.substring(0, match.translatedNamespaceMatch!.start), style: style),
+        TextSpan(text: match.tagData.translatedNamespace!.substring(match.translatedNamespaceMatch!.start, match.translatedNamespaceMatch!.end), style: highlightStyle),
+        TextSpan(text: match.tagData.translatedNamespace!.substring(match.translatedNamespaceMatch!.end), style: style),
+      ],
+    );
+  }
+
+  children.add(TextSpan(text: ' : ', style: style));
+
+  if (match.tagNameMatch == null) {
+    children.add(TextSpan(text: match.tagData.tagName!, style: style));
+  } else {
+    children.addAll(
+      [
+        TextSpan(text: match.tagData.tagName!.substring(0, match.tagNameMatch!.start), style: style),
+        TextSpan(text: match.tagData.tagName!.substring(match.tagNameMatch!.start, match.keyMatch!.end), style: highlightStyle),
+        TextSpan(text: match.tagData.tagName!.substring(match.tagNameMatch!.end), style: style),
+      ],
+    );
+  }
+
+  return RichText(text: TextSpan(children: children));
 }

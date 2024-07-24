@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -20,6 +21,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:throttling/throttling.dart';
 
 import '../../../exception/eh_site_exception.dart';
+import '../../../model/eh_raw_tag.dart';
 import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
@@ -188,20 +190,33 @@ mixin SearchPageLogicMixin on BasePageLogic {
   }
 
   Future<void> searchTags() async {
-    if (state.searchConfig.keyword!.isEmpty) {
+    String keyword = state.searchConfig.keyword!;
+    if (keyword.isEmpty) {
       return;
     }
+
     Log.info('search for ${state.searchConfig.keyword}');
 
-    /// chinese => database
-    /// other => EH api
+    /// chinese => database; other => EH api
     if (tagTranslationService.isReady) {
-      state.suggestions = await tagTranslationService.searchTags(state.searchConfig.keyword!, limit: 100);
+      state.suggestions = await tagTranslationService.searchTags(keyword, limit: 100);
     } else {
+      String lastPart = keyword.split(' ').last;
       try {
-        state.suggestions = await EHRequest.requestTagSuggestion(state.searchConfig.keyword!, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastPart, EHSpiderParser.tagSuggestion2TagList);
+        state.suggestions = tags
+            .map((t) => (
+                  tagData: TagData(namespace: t.namespace, key: t.key),
+                  score: 0.0,
+                  namespaceMatch: t.namespace.contains(lastPart) ? (start: t.namespace.indexOf(lastPart), end: t.namespace.indexOf(lastPart) + lastPart.length) : null,
+                  translatedNamespaceMatch: null,
+                  keyMatch: t.key.contains(lastPart) ? (start: t.key.indexOf(lastPart), end: t.key.indexOf(lastPart) + lastPart.length) : null,
+                  tagNameMatch: null,
+                ))
+            .toList();
       } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
+        state.suggestions = [];
       }
     }
 

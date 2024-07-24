@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
+import 'package:jhentai/src/pages/search/mixin/search_page_mixin.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
@@ -19,6 +20,7 @@ import 'package:throttling/throttling.dart';
 import '../config/ui_config.dart';
 import '../consts/locale_consts.dart';
 import '../database/database.dart';
+import '../model/eh_raw_tag.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/log.dart';
@@ -48,7 +50,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   final ScrollController _suggestionScrollController = ScrollController();
 
   bool _isShowingSuggestions = false;
-  List<TagData> suggestions = [];
+  List<TagAutoCompletionMatch> suggestions = [];
   Debouncing debouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   LayerLink layerLink = LayerLink();
@@ -768,15 +770,25 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   Future<void> searchTags(String keyword) async {
     Log.info('search for ${searchConfig.keyword}');
 
-    /// chinese => database
-    /// other => EH api
+    /// chinese => database; other => EH api
     if (tagTranslationService.isReady) {
       suggestions = await tagTranslationService.searchTags(keyword, limit: 100);
     } else {
       try {
-        suggestions = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
+        suggestions = tags
+            .map((t) => (
+                  tagData: TagData(namespace: t.namespace, key: t.key),
+                  score: 0.0,
+                  namespaceMatch: t.namespace.contains(keyword) ? (start: t.namespace.indexOf(keyword), end: t.namespace.indexOf(keyword) + keyword.length) : null,
+                  translatedNamespaceMatch: null,
+                  keyMatch: t.key.contains(keyword) ? (start: t.key.indexOf(keyword), end: t.key.indexOf(keyword) + keyword.length) : null,
+                  tagNameMatch: null,
+                ))
+            .toList();
       } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
+        suggestions = [];
       }
     }
 
@@ -828,7 +840,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
 class SearchSuggestionList extends StatelessWidget {
   final String currentKeyword;
-  final List<TagData> suggestions;
+  final List<TagAutoCompletionMatch> suggestions;
   final ValueChanged<TagData> onTapSuggestion;
   final ScrollController scrollController;
 
@@ -850,78 +862,33 @@ class SearchSuggestionList extends StatelessWidget {
         shrinkWrap: true,
         controller: scrollController,
         itemBuilder: (_, index) {
-          TagData tagData = suggestions[index];
           return FadeIn(
             duration: const Duration(milliseconds: 400),
             child: ListTile(
               dense: true,
               visualDensity: const VisualDensity(vertical: -4),
               minVerticalPadding: 0,
-              title: RichText(
-                text: highlightKeyword(context, '${tagData.namespace} : ${tagData.key}', currentKeyword, false),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              title: highlightRawTag(
+                context,
+                suggestions[index],
+                TextStyle(fontSize: UIConfig.searchDialogSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+                const TextStyle(fontSize: UIConfig.searchDialogSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                singleLine: true,
               ),
-              subtitle: tagData.tagName == null
+              subtitle: suggestions[index].tagData.tagName == null
                   ? null
-                  : RichText(
-                      text: highlightKeyword(context, '${tagData.namespace.tr} : ${tagData.tagName}', currentKeyword, true),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  : highlightRawTag(
+                      context,
+                      suggestions[index],
+                      TextStyle(fontSize: UIConfig.searchDialogSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
+                      const TextStyle(fontSize: UIConfig.searchDialogSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                      singleLine: true,
                     ),
-              onTap: () => onTapSuggestion(tagData),
+              onTap: () => onTapSuggestion(suggestions[index].tagData),
             ),
           );
         },
       ),
     );
-  }
-
-  /// highlight keyword in rawText
-  TextSpan highlightKeyword(BuildContext context, String rawText, String currentKeyword, bool isSubTitle) {
-    List<TextSpan> children = <TextSpan>[];
-
-    List<int> matchIndexes = currentKeyword.allMatches(rawText).map((match) => match.start).toList();
-
-    int indexHandling = 0;
-    for (int index in matchIndexes) {
-      if (index > indexHandling) {
-        children.add(
-          TextSpan(
-            text: rawText.substring(indexHandling, index),
-            style: TextStyle(
-              fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
-              color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
-            ),
-          ),
-        );
-      }
-
-      children.add(
-        TextSpan(
-          text: currentKeyword,
-          style: TextStyle(
-            fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
-            color: UIConfig.searchPageSuggestionHighlightColor,
-          ),
-        ),
-      );
-
-      indexHandling = index + currentKeyword.length;
-    }
-
-    if (rawText.length > indexHandling) {
-      children.add(
-        TextSpan(
-          text: rawText.substring(indexHandling, rawText.length),
-          style: TextStyle(
-            fontSize: isSubTitle ? UIConfig.searchDialogSuggestionSubTitleTextSize : UIConfig.searchDialogSuggestionTitleTextSize,
-            color: isSubTitle ? UIConfig.searchPageSuggestionSubTitleColor(context) : UIConfig.searchPageSuggestionTitleColor(context),
-          ),
-        ),
-      );
-    }
-
-    return TextSpan(children: children);
   }
 }

@@ -22,6 +22,15 @@ import '../enum/config_enum.dart';
 import '../model/gallery_tag.dart';
 import '../utils/log.dart';
 
+typedef TagAutoCompletionMatch = ({
+  TagData tagData,
+  double score,
+  ({int start, int end})? namespaceMatch,
+  ({int start, int end})? translatedNamespaceMatch,
+  ({int start, int end})? keyMatch,
+  ({int start, int end})? tagNameMatch
+});
+
 class TagTranslationService extends GetxService {
   final StorageService storageService = Get.find();
   final ValueGetter<TagSearchOrderOptimizationService> tagSearchOrderOptimizationServiceGetter = () => Get.find<TagSearchOrderOptimizationService>();
@@ -185,7 +194,7 @@ class TagTranslationService extends GetxService {
     return list.isNotEmpty ? list.first : null;
   }
 
-  Future<List<TagData>> searchTags(String searchText, {int? limit}) async {
+  Future<List<TagAutoCompletionMatch>> searchTags(String searchText, {int? limit}) async {
     // xy:"ab cd ef"    xy:"ab cd ef...       (\S+?):"[-~]?([^"\s]+)"?
     // "ab cd ef"       "ab cd ef...          "[-~]?([^"\s]+)"?
     // xy:ab                                  (\S+?):[-~]?(\S+)
@@ -195,7 +204,7 @@ class TagTranslationService extends GetxService {
       return [];
     }
 
-    List<TagData> results = [];
+    List<TagAutoCompletionMatch> results = [];
 
     List<({String? sNamespace, String sKey})> searchList = matches.map((match) {
       String? sNamespace = match.group(1) ?? match.group(4);
@@ -207,26 +216,36 @@ class TagTranslationService extends GetxService {
       String searchTextMerged = searchList.sublist(i).map((e) => '${e.sNamespace}:${e.sKey}').join(' ');
       int colonIndex = searchTextMerged.indexOf(':');
       String? sNameSpaceMerged = colonIndex != -1 ? searchTextMerged.substring(0, colonIndex) : null;
+      if (EHNamespace.findNameSpaceFromDescOrAbbr(sNameSpaceMerged) != null) {
+        sNameSpaceMerged = EHNamespace.findNameSpaceFromDescOrAbbr(sNameSpaceMerged)!.desc;
+      }
       String sKeyMerged = searchTextMerged.substring(colonIndex + 1);
 
-      List<TagData> tagDatas;
-      if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
-        tagDatas = sNameSpaceMerged != null ? await TagDao.searchFullTags('%$sNameSpaceMerged%', '%$sKeyMerged%') : await TagDao.searchTags('%$sKeyMerged%');
-        await _sortTagDatasByFrequency(tagDatas);
-      } else {
-        tagDatas =
-            sNameSpaceMerged != null ? await TagDao.searchFullTagsIncludeIntro('%$sNameSpaceMerged%', '%$sKeyMerged%') : await TagDao.searchTagsIncludeIntro('%$sKeyMerged%');
-        await _sortTagDatasByScore(sNameSpaceMerged, sKeyMerged, tagDatas);
+      if (sKeyMerged.length <= 1) {
+        continue;
       }
 
-      tagDatas.removeWhere(results.contains);
-      results.addAll(tagDatas);
+      List<TagAutoCompletionMatch> matches = [];
+      if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
+        List<TagData> tagDatas = sNameSpaceMerged != null ? await TagDao.searchFullTags(sNameSpaceMerged, '%$sKeyMerged%') : await TagDao.searchTags('%$sKeyMerged%');
+        matches = await _markTagDatasByFrequency(sNameSpaceMerged, sKeyMerged, tagDatas);
+      } else {
+        List<TagData> tagDatas =
+            sNameSpaceMerged != null ? await TagDao.searchFullTagsIncludeIntro(sNameSpaceMerged, '%$sKeyMerged%') : await TagDao.searchTagsIncludeIntro('%$sKeyMerged%');
+        matches = await _markTagDatasByScore(sNameSpaceMerged, sKeyMerged, tagDatas);
+      }
+
+      matches.removeWhere((match) => results.any((result) => result.tagData == match.tagData));
+      matches.sort((a, b) {
+        return b.score.compareTo(a.score);
+      });
+      results.addAll(matches);
     }
 
     return limit == null ? results : results.take(limit).toList();
   }
 
-  Future<void> _sortTagDatasByFrequency(List<TagData> tagDatas) async {
+  Future<List<TagAutoCompletionMatch>> _markTagDatasByFrequency(String? sNamespace, String sKey, List<TagData> tagDatas) async {
     List<String> namespaceWithKeys = tagDatas.map((tag) => '${tag.namespace}:${tag.key}').toList();
     List<TagCountData> tagCountDatas = await TagCountDao.batchSelectTagCount(namespaceWithKeys);
 
@@ -235,13 +254,22 @@ class TagTranslationService extends GetxService {
       return map;
     });
 
-    tagDatas.sort((a, b) {
-      return tagCountMap[b]! - tagCountMap[a]!;
-    });
+    return tagDatas.map((tagData) {
+      int keyIndex = tagData.key.indexOf(sKey.toLowerCase());
+      int tagNameIndex = tagData.tagName?.indexOf(sKey.toLowerCase()) ?? -1;
+      return (
+        tagData: tagData,
+        score: tagCountMap[tagData]!.toDouble(),
+        namespaceMatch: sNamespace != null ? (start: 0, end: tagData.namespace.length) : null,
+        translatedNamespaceMatch: sNamespace != null ? (start: 0, end: tagData.translatedNamespace!.length) : null,
+        keyMatch: keyIndex != -1 ? (start: keyIndex, end: keyIndex + sKey.length) : null,
+        tagNameMatch: tagNameIndex != -1 ? (start: tagNameIndex, end: tagNameIndex + sKey.length) : null
+      );
+    }).toList();
   }
 
   /// https://github.com/EhTagTranslation/EhSyringe/blob/15a8ec2a8e52d8730099ec2193cf66bb0a2721ca/src/plugin/suggest.ts#L57
-  Future<void> _sortTagDatasByScore(String? sNamespace, String sKey, List<TagData> tagDatas) async {
+  Future<List<TagAutoCompletionMatch>> _markTagDatasByScore(String? sNamespace, String sKey, List<TagData> tagDatas) async {
     Map<EHNamespace, double> namespaceScoreMap = {
       EHNamespace.other: 10,
       EHNamespace.female: 9,
@@ -258,30 +286,32 @@ class TagTranslationService extends GetxService {
       EHNamespace.rows: 0,
     };
 
-    Map<TagData, double> tagDataScoreMap = {};
-    for (TagData tagData in tagDatas) {
+    return tagDatas.map((tagData) {
       double score = 0;
 
-      int keyIndex = tagData.key.toLowerCase().indexOf(sKey.toLowerCase());
+      int keyIndex = tagData.key.indexOf(sKey.toLowerCase());
       if (keyIndex != -1) {
         score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.key.length * (keyIndex == 0 ? 2 : 1);
       }
 
-      int? tagNameIndex = tagData.tagName?.toLowerCase().indexOf(sKey.toLowerCase());
-      if (tagNameIndex != null && tagNameIndex != -1) {
+      int tagNameIndex = tagData.tagName?.indexOf(sKey) ?? -1;
+      if (tagNameIndex != -1) {
         score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.tagName!.length * (tagNameIndex == 0 ? 2 : 1);
       }
 
-      bool introContains = tagData.intro?.toLowerCase().contains(sKey.toLowerCase()) ?? false;
+      bool introContains = tagData.intro?.contains(sKey.toLowerCase()) ?? false;
       if (introContains) {
         score += namespaceScoreMap[EHNamespace.findNameSpaceFromDescOrAbbr(tagData.namespace)]! * (sKey.length + 1) / tagData.intro!.length * 0.5;
       }
 
-      tagDataScoreMap[tagData] = score;
-    }
-
-    tagDatas.sort((a, b) {
-      return tagDataScoreMap[b]!.compareTo(tagDataScoreMap[a]!);
-    });
+      return (
+        tagData: tagData,
+        score: score,
+        namespaceMatch: sNamespace != null ? (start: 0, end: tagData.namespace.length) : null,
+        translatedNamespaceMatch: sNamespace != null ? (start: 0, end: tagData.translatedNamespace!.length) : null,
+        keyMatch: keyIndex != -1 ? (start: keyIndex, end: keyIndex + sKey.length) : null,
+        tagNameMatch: tagNameIndex != -1 ? (start: tagNameIndex, end: tagNameIndex + sKey.length) : null,
+      );
+    }).toList();
   }
 }

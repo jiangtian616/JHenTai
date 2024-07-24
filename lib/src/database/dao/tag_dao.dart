@@ -17,16 +17,16 @@ class TagDao {
   static Future<List<TagData>> searchFullTags(String namespacePattern, String keyPattern) {
     return (appDb.select(appDb.tag)
           ..where((tag) =>
-              (tag.namespace.like(namespacePattern) | tag.translatedNamespace.like(namespacePattern)) &
-              (tag.key.like(keyPattern) | tag.tagName.like(keyPattern))))
+              (tag.namespace.equals(namespacePattern.toLowerCase()) | tag.translatedNamespace.equals(namespacePattern)) &
+              (tag.key.like(keyPattern.toLowerCase()) | tag.tagName.like(keyPattern))))
         .get();
   }
 
   static Future<List<TagData>> searchFullTagsIncludeIntro(String namespacePattern, String keyPattern) {
     return (appDb.select(appDb.tag)
           ..where((tag) =>
-              (tag.namespace.like(namespacePattern) | tag.translatedNamespace.like(namespacePattern)) &
-              (tag.key.like(keyPattern) | tag.tagName.like(keyPattern) | tag.intro.like(keyPattern))))
+              (tag.namespace.equals(namespacePattern.toLowerCase()) | tag.translatedNamespace.equals(namespacePattern)) &
+              (tag.key.like(keyPattern.toLowerCase()) | tag.tagName.like(keyPattern) | tag.intro.like(keyPattern.toLowerCase()))))
         .get();
   }
 

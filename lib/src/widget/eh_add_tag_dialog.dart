@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/pages/search/mixin/search_page_mixin.dart';
 import 'package:throttling/throttling.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../database/database.dart';
+import '../model/eh_raw_tag.dart';
 import '../network/eh_request.dart';
 import '../service/tag_translation_service.dart';
 import '../utils/eh_spider_parser.dart';
@@ -121,27 +123,32 @@ class EHAddTagDialog extends StatelessWidget {
       id: EHAddTagDialogLogic.tagsId,
       builder: (_) => ListView.builder(
         padding: const EdgeInsets.only(top: 12),
-        itemCount: state.tags.length,
+        itemCount: state.suggestions.length,
         itemBuilder: (_, int index) => ListTile(
           dense: true,
           onTap: () {
-            logic.defaultOnTap(state.tags[index]);
+            logic.defaultOnTap(state.suggestions[index].tagData);
           },
-          title: highlightKeyword(
-            context,
-            state.tags[index].translatedNamespace == null
-                ? '${state.tags[index].namespace}:${state.tags[index].key}'
-                : '${state.tags[index].translatedNamespace}:${state.tags[index].tagName}',
-            logic.lastKeyWord ?? '',
-            false,
-          ),
-          subtitle: state.tags[index].translatedNamespace == null
-              ? null
-              : highlightKeyword(
+          title: state.suggestions[index].tagData.tagName == null
+              ? highlightRawTag(
                   context,
-                  '${state.tags[index].namespace}:${state.tags[index].key}',
-                  logic.lastKeyWord ?? '',
-                  true,
+                  state.suggestions[index],
+                  TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+                  const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                )
+              : highlightTranslatedTag(
+                  context,
+                  state.suggestions[index],
+                  TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+                  const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                ),
+          subtitle: state.suggestions[index].tagData.tagName == null
+              ? null
+              : highlightRawTag(
+                  context,
+                  state.suggestions[index],
+                  TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
+                  const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
                 ),
           trailing: const Icon(Icons.add),
         ),
@@ -236,19 +243,30 @@ class EHAddTagDialogLogic extends GetxController {
     updateSafely([loadingIndicatorId]);
 
     if (state.useTranslation && tagTranslationService.isReady) {
-      state.tags = await tagTranslationService.searchTags(lastKeyWord, limit: 100);
+      state.suggestions = await tagTranslationService.searchTags(lastKeyWord, limit: 100);
     } else {
       try {
-        state.tags = await EHRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);
+        state.suggestions = tags
+            .map((t) => (
+                  tagData: TagData(namespace: t.namespace, key: t.key),
+                  score: 0.0,
+                  namespaceMatch: t.namespace.contains(lastKeyWord) ? (start: t.namespace.indexOf(lastKeyWord), end: t.namespace.indexOf(lastKeyWord) + lastKeyWord.length) : null,
+                  translatedNamespaceMatch: null,
+                  keyMatch: t.key.contains(lastKeyWord) ? (start: t.key.indexOf(lastKeyWord), end: t.key.indexOf(lastKeyWord) + lastKeyWord.length) : null,
+                  tagNameMatch: null,
+                ))
+            .toList();
       } on DioException catch (e) {
         Log.error('Request tag suggestion failed', e);
+        state.suggestions = [];
         state.searchLoadingState = LoadingState.error;
         updateSafely([loadingIndicatorId]);
         return;
       }
     }
 
-    if (state.tags.isEmpty) {
+    if (state.suggestions.isEmpty) {
       state.searchLoadingState = LoadingState.noData;
     } else {
       state.searchLoadingState = LoadingState.success;
@@ -268,7 +286,7 @@ class EHAddTagDialogLogic extends GetxController {
 
 class EHAddTagDialogState {
   String keyword = '';
-  List<TagData> tags = [];
+  List<TagAutoCompletionMatch> suggestions = [];
 
   bool useTranslation = true;
 

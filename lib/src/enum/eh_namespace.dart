@@ -22,7 +22,7 @@ enum EHNamespace {
 
   final String? chineseDesc;
 
-  static EHNamespace? findNameSpaceFromDescOrAbbr(String desc) {
+  static EHNamespace? findNameSpaceFromDescOrAbbr(String? desc) {
     for (final EHNamespace ns in values) {
       if (ns.desc == desc || ns.abbr == desc) {
         return ns;

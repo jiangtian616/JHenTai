@@ -4,6 +4,7 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/base/base_page_state.dart';
 
 import '../../../database/database.dart';
+import '../../../service/tag_translation_service.dart';
 
 enum SearchPageBodyType { gallerys, suggestionAndHistory }
 
@@ -26,7 +27,7 @@ mixin SearchPageStateMixin on BasePageState {
 
   GalleryImagePageUrl? inputGalleryImagePageUrl;
 
-  List<TagData> suggestions = <TagData>[];
+  List<TagAutoCompletionMatch> suggestions = [];
 
   ScrollController suggestionBodyController = ScrollController();
 

@@ -8,6 +8,7 @@ import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/model/eh_raw_tag.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/model/gallery_count.dart';
@@ -920,13 +921,13 @@ class EHSpiderParser {
     return document.querySelector('#db > p')?.text ?? '';
   }
 
-  static List<TagData> tagSuggestion2TagList(Headers headers, dynamic data) {
+  static List<EHRawTag> tagSuggestion2TagList(Headers headers, dynamic data) {
     Map resp = jsonDecode(data);
     if (resp['tags'] is! Map) {
-      return <TagData>[];
+      return [];
     }
     Map tags = resp['tags'];
-    return tags.values.map((e) => TagData(namespace: e['ns'], key: e['tn'])).toList();
+    return tags.values.map((e) => EHRawTag(namespace: e['ns'], key: e['tn'])).toList();
   }
 
   static String? a404Page2GalleryDeletedHint(Headers headers, dynamic data) {
