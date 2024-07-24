@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/date_util.dart';
@@ -17,30 +18,27 @@ class EHGalleryDetailDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-      child: SimpleDialog(
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-        children: [
-          _Item(name: 'gid'.tr, value: galleryDetail.galleryUrl.gid.toString()),
-          _Item(name: 'token'.tr, value: (galleryDetail.galleryUrl.token)),
-          _Item(name: ('galleryUrl'.tr), value: (galleryDetail.galleryUrl.url)),
-          _Item(name: ('title'.tr), value: (galleryDetail.rawTitle)),
-          _Item(name: ('japaneseTitle'.tr), value: (galleryDetail.japaneseTitle)),
-          _Item(name: ('category'.tr), value: (galleryDetail.category)),
-          _Item(name: ('uploader'.tr), value: (galleryDetail.uploader)),
-          _Item(
-            name: ('publishTime'.tr),
-            value: (PreferenceSetting.showUtcTime.isTrue ? galleryDetail.publishTime : DateUtil.transformUtc2LocalTimeString(galleryDetail.publishTime)),
-          ),
-          _Item(name: ('language'.tr), value: (galleryDetail.language)),
-          _Item(name: ('pageCount'.tr), value: (galleryDetail.pageCount.toString())),
-          _Item(name: ('favoriteCount'.tr), value: (galleryDetail.favoriteCount.toString())),
-          _Item(name: ('ratingCount'.tr), value: (galleryDetail.ratingCount.toString())),
-          _Item(name: ('rating'.tr), value: (galleryDetail.realRating.toString())),
-        ],
-      ),
-    );
+    return SimpleDialog(
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+      children: [
+        _Item(name: 'gid'.tr, value: galleryDetail.galleryUrl.gid.toString()),
+        _Item(name: 'token'.tr, value: (galleryDetail.galleryUrl.token)),
+        _Item(name: ('galleryUrl'.tr), value: (galleryDetail.galleryUrl.url)),
+        _Item(name: ('title'.tr), value: (galleryDetail.rawTitle)),
+        _Item(name: ('japaneseTitle'.tr), value: (galleryDetail.japaneseTitle)),
+        _Item(name: ('category'.tr), value: (galleryDetail.category)),
+        _Item(name: ('uploader'.tr), value: (galleryDetail.uploader)),
+        _Item(
+          name: ('publishTime'.tr),
+          value: (PreferenceSetting.showUtcTime.isTrue ? galleryDetail.publishTime : DateUtil.transformUtc2LocalTimeString(galleryDetail.publishTime)),
+        ),
+        _Item(name: ('language'.tr), value: (galleryDetail.language)),
+        _Item(name: ('pageCount'.tr), value: (galleryDetail.pageCount.toString())),
+        _Item(name: ('favoriteCount'.tr), value: (galleryDetail.favoriteCount.toString())),
+        _Item(name: ('ratingCount'.tr), value: (galleryDetail.ratingCount.toString())),
+        _Item(name: ('rating'.tr), value: (galleryDetail.realRating.toString())),
+      ],
+    ).enableMouseDrag(withScrollBar: false);
   }
 }
 

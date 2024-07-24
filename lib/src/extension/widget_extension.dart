@@ -40,6 +40,13 @@ extension WidgetExtension on Widget {
       ),
     );
   }
+
+  Widget enableMouseDrag({bool withScrollBar = true}) {
+    return ScrollConfiguration(
+      behavior: withScrollBar ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+      child: this,
+    );
+  }
 }
 
 extension StateExtension on State {

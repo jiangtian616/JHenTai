@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
 import '../../../../../widget/eh_wheel_speed_controller.dart';
@@ -51,7 +52,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
             const Divider(height: 48),
             _buildHelp(context).marginOnly(),
           ],
-        ),
+        ).enableMouseDrag(withScrollBar: true),
       ),
     );
   }

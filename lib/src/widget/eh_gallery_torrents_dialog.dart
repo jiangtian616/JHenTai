@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -39,25 +40,22 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-      child: SimpleDialog(
-        title: Center(child: Text('torrent'.tr)),
-        contentPadding: const EdgeInsets.only(bottom: 12, top: 24),
-        children: [
-          LoadingStateIndicator(
-            loadingState: loadingState,
-            indicatorRadius: 16,
-            successWidgetBuilder: () => _TorrentList(galleryTorrents: galleryTorrents),
-            errorWidgetBuilder: () => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: _getTorrent,
-              child: Icon(Icons.refresh, size: 32, color: UIConfig.loadingStateIndicatorButtonColor(context)),
-            ),
+    return SimpleDialog(
+      title: Center(child: Text('torrent'.tr)),
+      contentPadding: const EdgeInsets.only(bottom: 12, top: 24),
+      children: [
+        LoadingStateIndicator(
+          loadingState: loadingState,
+          indicatorRadius: 16,
+          successWidgetBuilder: () => _TorrentList(galleryTorrents: galleryTorrents),
+          errorWidgetBuilder: () => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _getTorrent,
+            child: Icon(Icons.refresh, size: 32, color: UIConfig.loadingStateIndicatorButtonColor(context)),
           ),
-        ],
-      ),
-    );
+        ),
+      ],
+    ).enableMouseDrag(withScrollBar: false);
   }
 
   Future<void> _getTorrent() async {

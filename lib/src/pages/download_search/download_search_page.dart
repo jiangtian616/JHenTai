@@ -74,6 +74,7 @@ class DownloadSearchPage extends StatelessWidget {
         controller: logic.scrollController,
         child: CustomScrollView(
           controller: logic.scrollController,
+          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
             SliverList.separated(
               itemBuilder: (context, index) => _buildGallery(context, state.gallerys[index]),

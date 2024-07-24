@@ -187,6 +187,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         controller: state.scrollController,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           controller: state.scrollController,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
@@ -282,42 +283,39 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        return ScrollConfiguration(
-          behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-          child: SelectableText(
-            logic.mainTitleText,
-            minLines: 1,
-            maxLines: 5,
-            style: const TextStyle(
-              fontSize: UIConfig.detailsPageTitleTextSize,
-              letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
-              height: UIConfig.detailsPageTitleTextHeight,
-            ),
-            contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
-              AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
-                buttonItems: editableTextState.contextMenuButtonItems,
-                anchors: editableTextState.contextMenuAnchors,
-              );
-
-              if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
-                toolbar.buttonItems?.add(
-                  ContextMenuButtonItem(
-                    label: 'search'.tr,
-                    onPressed: () {
-                      ContextMenuController.removeAny();
-                      newSearch(
-                        keyword: editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text),
-                        forceNewRoute: true,
-                      );
-                    },
-                  ),
-                );
-              }
-
-              return toolbar;
-            },
+        return SelectableText(
+          logic.mainTitleText,
+          minLines: 1,
+          maxLines: 5,
+          style: const TextStyle(
+            fontSize: UIConfig.detailsPageTitleTextSize,
+            letterSpacing: UIConfig.detailsPageTitleLetterSpacing,
+            height: UIConfig.detailsPageTitleTextHeight,
           ),
-        );
+          contextMenuBuilder: (BuildContext context, EditableTextState editableTextState) {
+            AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
+              buttonItems: editableTextState.contextMenuButtonItems,
+              anchors: editableTextState.contextMenuAnchors,
+            );
+
+            if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
+              toolbar.buttonItems?.add(
+                ContextMenuButtonItem(
+                  label: 'search'.tr,
+                  onPressed: () {
+                    ContextMenuController.removeAny();
+                    newSearch(
+                      keyword: editableTextState.currentTextEditingValue.selection.textInside(editableTextState.currentTextEditingValue.text),
+                      forceNewRoute: true,
+                    );
+                  },
+                ),
+              );
+            }
+
+            return toolbar;
+          },
+        ).enableMouseDrag(withScrollBar: false);
       },
     );
   }

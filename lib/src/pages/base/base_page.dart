@@ -102,7 +102,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
                   key: state.pageStorageKey,
                   controller: state.scrollController,
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  scrollBehavior: ScrollConfiguration.of(context),
+                  scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
                   slivers: <Widget>[
                     buildPullDownIndicator(),
                     buildGalleryCollection(context),

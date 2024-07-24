@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
@@ -65,7 +66,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
                     controller: state.tabController,
                     shrinkWrap: true,
                     children: _buildTabs(context),
-                  ),
+                  ).enableMouseDrag(withScrollBar: false),
                 ),
               ),
               IconButton(

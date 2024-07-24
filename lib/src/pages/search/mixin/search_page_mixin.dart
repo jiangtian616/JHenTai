@@ -144,6 +144,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       child: CustomScrollView(
         key: const PageStorageKey('suggestionBody'),
         controller: state.scrollController,
+        scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
         slivers: [
           if (logic.searchHistoryService.histories.isNotEmpty) buildSearchHistory(),
           if (logic.searchHistoryService.histories.isNotEmpty) buildButtons(context),

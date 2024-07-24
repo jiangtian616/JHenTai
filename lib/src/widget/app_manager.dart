@@ -125,7 +125,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return ScrollConfiguration(
-      behavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
+      behavior: UIConfig.scrollBehaviourWithScrollBar,
       child: inBlur
           ? Blur(
               blur: 100,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_comment.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -59,7 +60,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
                 ).marginOnly(bottom: 4),
               )
               .toList(),
-        ),
+        ).enableMouseDrag(),
       ),
     );
   }

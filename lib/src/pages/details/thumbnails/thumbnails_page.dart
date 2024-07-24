@@ -71,6 +71,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
         controller: state.scrollController,
         child: CustomScrollView(
           controller: state.scrollController,
+          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
             if (state.thumbnails.isNotEmpty) _buildThumbnails(),
             _buildLoadingThumbnailIndicator(),

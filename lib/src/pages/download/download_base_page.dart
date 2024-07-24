@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
@@ -56,7 +57,7 @@ class _DownloadPageState extends State<DownloadPage> {
                     ? LocalGalleryListPage(key: const PageStorageKey('LocalGalleryListBody'))
                     : LocalGalleryGridPage(key: const PageStorageKey('LocalGalleryGridBody')),
       ),
-    );
+    ).enableMouseDrag();
   }
 }
 

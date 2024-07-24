@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
@@ -86,7 +87,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
           ],
         ).marginOnly(top: 12),
       ],
-    );
+    ).enableMouseDrag();
   }
 
   Widget _buildInfo() {
@@ -336,7 +337,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
 
     toast(watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr);
-    
+
     MyTagsSetting.refreshOnlineTagSets(tagSetNumber);
   }
 }

@@ -52,7 +52,7 @@ class _LogListPageState extends State<LogListPage> {
                 (log) => ListTile(title: Text(basename(log.path)), onTap: () => toRoute(Routes.log, arguments: log)),
               )
               .toList(),
-        ).withListTileTheme(context),
+        ).withListTileTheme(context).enableMouseDrag(withScrollBar: true),
       ),
     );
   }

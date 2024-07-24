@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
@@ -93,7 +94,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
             padding: EdgeInsets.zero,
             itemCount: widget.candidates.length,
             itemBuilder: (context, index) => _chipBuilder(context, index).marginOnly(right: 4),
-          ),
+          ).enableMouseDrag(withScrollBar: false),
         ),
       ),
     );

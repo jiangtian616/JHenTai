@@ -44,6 +44,7 @@ class DetailPreviewPage extends DetailsPage {
         controller: state.scrollController,
         child: CustomScrollView(
           controller: state.scrollController,
+          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse  ,
           slivers: [
             buildDetail(context),
             buildDivider(),
@@ -306,7 +307,7 @@ class DetailsPreviewPageState extends DetailsPageState {
           score: '+66',
           scoreDetails: ['JTMONSTER +66'],
           content: dom.Element.html('<p>Comment - This is a comment from mine, you can see the color of the uploader is different</p>'),
-          time: '2022-02-22',
+          time: '2022-02-22 12:23',
           fromMe: true,
           votedUp: true,
           votedDown: false,
@@ -317,7 +318,7 @@ class DetailsPreviewPageState extends DetailsPageState {
           score: '-666',
           scoreDetails: ['JTMONSTER -666'],
           content: dom.Element.html('<p>Comment - This is a comment from others</p>'),
-          time: '2022-02-22',
+          time: '2022-02-22 12:23',
           fromMe: false,
           votedUp: false,
           votedDown: true,
