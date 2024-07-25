@@ -390,6 +390,8 @@ class zh_CN {
       'receiveTimeout': '接收数据超时时间',
       'pageCacheMaxAge': '页面缓存时间',
       'pageCacheMaxAgeHint': '你可以通过刷新页面来更新缓存',
+      'cacheImageExpireDuration': '图片缓存时间',
+      'cacheImageExpireDurationHint': 'App启动时会自动清除过期的图片缓存',
       'oneMinute': '1 分钟',
       'tenMinute': '10 分钟',
       'oneHour': '1 小时',

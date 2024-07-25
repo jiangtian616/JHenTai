@@ -390,6 +390,8 @@ class ko_KR {
       'receiveTimeout': '수신 시간 초과',
       'pageCacheMaxAge': '페이지 캐시의 수명 최대 시간',
       'pageCacheMaxAgeHint': '새로고침 페이지 별로 캐시를 업데이트할 수 있습니다.',
+      'cacheImageExpireDuration': 'Image Cache Expiration Time',
+      'cacheImageExpireDurationHint': 'Remove image cache automatically after launching app',
       'oneMinute': '1분',
       'tenMinute': '10분',
       'oneHour': '1시간',

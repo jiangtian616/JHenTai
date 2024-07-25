@@ -389,6 +389,8 @@ class zh_TW {
       'receiveTimeout': '接收數據超時時間',
       'pageCacheMaxAge': '頁面緩存時間',
       'pageCacheMaxAgeHint': '你可以通過重整頁面來更新快取',
+      'cacheImageExpireDuration': '圖片緩存時間',
+      'cacheImageExpireDurationHint': 'App啓動時會自動清除過期的圖片緩存',
       'oneMinute': '1 分鐘',
       'tenMinute': '10 分鐘',
       'oneHour': '1 小時',

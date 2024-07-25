@@ -391,6 +391,8 @@ class pt_BR {
       'receiveTimeout': 'Tempo limite de recebimento de dados',
       'pageCacheMaxAge': 'Idade máxima do cache de página',
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
+      'cacheImageExpireDuration': 'Image Cache Expiration Time',
+      'cacheImageExpireDurationHint': 'Remove image cache automatically after launching app',
       'oneMinute': '1 Minuto',
       'tenMinute': '10 Minutos',
       'oneHour': '1 Hora',
