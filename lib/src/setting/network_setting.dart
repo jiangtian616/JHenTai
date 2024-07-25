@@ -46,7 +46,7 @@ class NetworkSetting {
     NetworkSetting.pageCacheMaxAge.value = pageCacheMaxAge;
     _save();
   }
-  
+
   static saveCacheImageExpireDuration(Duration cacheImageExpireDuration) {
     Log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
     NetworkSetting.cacheImageExpireDuration.value = cacheImageExpireDuration;
@@ -101,8 +101,8 @@ class NetworkSetting {
   }
 
   static _initFromMap(Map<String, dynamic> map) {
-    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value);
-    cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value);
+    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value.inMilliseconds);
+    cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value.inMilliseconds);
     enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
     proxyType.value = JProxyType.values[map['proxyType'] ?? proxyType.value.index];
     proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;

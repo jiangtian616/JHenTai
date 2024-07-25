@@ -40,7 +40,7 @@ class DownloadSetting {
     }
 
     _ensureDownloadDirExists();
-    // _clearTempDownloadPath();
+    _clearTempDownloadPath();
   }
 
   static saveDownloadPath(String downloadPath) {
@@ -160,7 +160,11 @@ class DownloadSetting {
 
   static void _clearTempDownloadPath() {
     try {
-      Directory(tempDownloadPath.value).deleteSync(recursive: true);
+      Directory directory = Directory(tempDownloadPath.value);
+      if (directory.existsSync()) {
+        directory.deleteSync(recursive: true);
+      }
+      Directory(tempDownloadPath.value).createSync();
     } on Exception catch (e) {
       Log.error(e);
     }
