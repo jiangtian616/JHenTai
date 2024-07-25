@@ -1,17 +1,23 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:drift/drift.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../database/database.dart';
 import '../model/gallery_metadata.dart';
+import '../utils/file_util.dart';
 import '../utils/log.dart';
 
 class ScheduleService extends GetxService {
@@ -26,6 +32,7 @@ class ScheduleService extends GetxService {
 
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
+    // Timer(const Duration(seconds: 5), clearOutdatedImageCache);
   }
 
   Future<void> refreshGalleryTags() async {
@@ -88,5 +95,17 @@ class ScheduleService extends GetxService {
       pageNo++;
       archives = await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25);
     }
+  }
+
+  Future<void> clearOutdatedImageCache() async {
+    Directory cacheImageDirectory = Directory(join((await getTemporaryDirectory()).path, cacheImageFolderName));
+
+    cacheImageDirectory.list().forEach((FileSystemEntity entity) {
+      if (entity is File && FileUtil.isImageExtension(entity.path)) {
+        if (DateTime.now().difference(entity.lastModifiedSync()) > NetworkSetting.cacheImageExpireDuration.value) {
+          entity.delete();
+        }
+      }
+    });
   }
 }

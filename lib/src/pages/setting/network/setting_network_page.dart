@@ -28,6 +28,7 @@ class SettingNetworkPage extends StatelessWidget {
             _buildEnableDomainFronting(),
             _buildProxyAddress(),
             _buildPageCacheMaxAge(),
+            _buildCacheImageExpireDuration(),
             _buildConnectTimeout(context),
             _buildReceiveTimeout(context),
           ],
@@ -63,11 +64,33 @@ class SettingNetworkPage extends StatelessWidget {
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (Duration? newValue) => NetworkSetting.savePageCacheMaxAge(newValue!),
         items: [
-          DropdownMenuItem(child: Text('oneMinute'.tr), value: const Duration(minutes: 1)),
-          DropdownMenuItem(child: Text('tenMinute'.tr), value: const Duration(minutes: 10)),
-          DropdownMenuItem(child: Text('oneHour'.tr), value: const Duration(hours: 1)),
-          DropdownMenuItem(child: Text('oneDay'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(child: Text('threeDay'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(child: Text('1m'.tr), value: const Duration(minutes: 1)),
+          DropdownMenuItem(child: Text('10m'.tr), value: const Duration(minutes: 10)),
+          DropdownMenuItem(child: Text('1h'.tr), value: const Duration(hours: 1)),
+          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCacheImageExpireDuration() {
+    return ListTile(
+      title: Text('cacheImageExpireDuration'.tr),
+      subtitle: Text('cacheImageExpireDurationHint'.tr),
+      trailing: DropdownButton<Duration>(
+        value: NetworkSetting.cacheImageExpireDuration.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (Duration? newValue) => NetworkSetting.saveCacheImageExpireDuration(newValue!),
+        items: [
+          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(child: Text('2d'.tr), value: const Duration(days: 2)),
+          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(child: Text('5d'.tr), value: const Duration(days: 5)),
+          DropdownMenuItem(child: Text('7d'.tr), value: const Duration(days: 7)),
+          DropdownMenuItem(child: Text('14d'.tr), value: const Duration(days: 14)),
+          DropdownMenuItem(child: Text('30d'.tr), value: const Duration(days: 30)),
         ],
       ),
     );

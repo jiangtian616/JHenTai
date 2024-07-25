@@ -10,6 +10,7 @@ enum JProxyType { system, http, socks5, socks4, direct }
 
 class NetworkSetting {
   static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
+  static Rx<Duration> cacheImageExpireDuration = const Duration(days: 7).obs;
   static RxBool enableDomainFronting = false.obs;
   static Rx<JProxyType> proxyType = JProxyType.system.obs;
   static RxString proxyAddress = 'localhost:1080'.obs;
@@ -43,6 +44,12 @@ class NetworkSetting {
   static savePageCacheMaxAge(Duration pageCacheMaxAge) {
     Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
     NetworkSetting.pageCacheMaxAge.value = pageCacheMaxAge;
+    _save();
+  }
+  
+  static saveCacheImageExpireDuration(Duration cacheImageExpireDuration) {
+    Log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
+    NetworkSetting.cacheImageExpireDuration.value = cacheImageExpireDuration;
     _save();
   }
 
@@ -82,6 +89,7 @@ class NetworkSetting {
   static Map<String, dynamic> _toMap() {
     return {
       'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
+      'cacheImageExpireDuration': cacheImageExpireDuration.value.inMilliseconds,
       'enableDomainFronting': enableDomainFronting.value,
       'proxyType': proxyType.value.index,
       'proxyAddress': proxyAddress.value,
@@ -94,6 +102,7 @@ class NetworkSetting {
 
   static _initFromMap(Map<String, dynamic> map) {
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value);
+    cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value);
     enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
     proxyType.value = JProxyType.values[map['proxyType'] ?? proxyType.value.index];
     proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;
