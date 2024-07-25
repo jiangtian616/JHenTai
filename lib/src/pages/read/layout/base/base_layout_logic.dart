@@ -232,8 +232,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     Share.shareFiles(
       [
-        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-            galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
       ],
       text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
@@ -252,18 +251,31 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
 
-    File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
-    await file.create(recursive: true);
-    await file.writeAsBytes(data);
-
     if (GetPlatform.isDesktop) {
-      toast('success'.tr);
-      return;
-    } else {
-      _saveFile2Album(file.path, fileName).then((_) {
+      File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
+      try {
+        await file.create(recursive: true);
+        await file.writeAsBytes(data);
         toast('saveSuccess'.tr);
-        file.delete();
-      });
+      } catch (e) {
+        Log.error('Save online image failed: $e');
+        toast('saveFailed'.tr);
+        file.delete().ignore();
+        return;
+      }
+    } else {
+      File file = File(join(DownloadSetting.tempDownloadPath.value, fileName));
+      try {
+        await file.create(recursive: true);
+        await file.writeAsBytes(data);
+        bool success = await _saveFile2Album(file.path, fileName);
+        toast(success ? 'saveSuccess'.tr : 'saveFailed'.tr);
+      } catch (e) {
+        Log.error('Save online image failed: $e');
+        toast('saveFailed'.tr);
+        file.delete().ignore();
+        return;
+      }
     }
   }
 
@@ -276,16 +288,18 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return saveOnlineImage(index);
     }
 
-    String fileName =
-        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
+    String downloadPath = join(DownloadSetting.tempDownloadPath.value, fileName);
+    File file = File(downloadPath);
 
-    String downloadPath = join(DownloadSetting.singleImageSavePath.value, fileName);
     toast('downloading'.tr);
     Response response = await EHRequest.download(url: readPageState.images[index]!.originalImageUrl!, path: downloadPath);
 
     /// what we downloaded is not an image
     if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
-      String data = File(downloadPath).readAsStringSync();
+      File file = File(downloadPath);
+      String data = file.readAsStringSync();
+      file.delete().ignore();
 
       EHImageException? exception = GalleryDownloadService.imageData2Exception(data);
       Log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
@@ -317,13 +331,19 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       }
     }
 
-    if (GetPlatform.isDesktop) {
-      toast('saveSuccess'.tr);
-    } else {
-      _saveFile2Album(downloadPath, fileName).then((_) {
+    try {
+      if (GetPlatform.isDesktop) {
+        await file.copy(join(DownloadSetting.singleImageSavePath.value, fileName));
         toast('saveSuccess'.tr);
-        File(downloadPath).delete();
-      });
+      } else {
+        bool success = await _saveFile2Album(downloadPath, fileName);
+        toast(success ? 'saveSuccess'.tr : 'saveFailed'.tr);
+      }
+    } catch (e) {
+      Log.error('Save original online image failed: $e');
+      toast('saveFailed'.tr);
+    } finally {
+      file.delete().ignore();
     }
   }
 

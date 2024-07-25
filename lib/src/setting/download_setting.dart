@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/path_setting.dart';
@@ -19,6 +20,7 @@ class DownloadSetting {
   static String defaultExtraGalleryScanPath = join(PathSetting.getVisibleDir().path, 'local_gallery');
   static RxList<String> extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
   static RxString singleImageSavePath = join(PathSetting.getVisibleDir().path, 'save').obs;
+  static RxString tempDownloadPath = join(PathSetting.tempDir.path, EHConsts.appName).obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -38,6 +40,7 @@ class DownloadSetting {
     }
 
     _ensureDownloadDirExists();
+    // _clearTempDownloadPath();
   }
 
   static saveDownloadPath(String downloadPath) {
@@ -117,7 +120,7 @@ class DownloadSetting {
     archiveDownloadIsolateCount.value = count;
     _save();
   }
-  
+
   static saveManageArchiveDownloadConcurrency(bool value) {
     Log.debug('saveManageArchiveDownloadConcurrency:$value');
     manageArchiveDownloadConcurrency.value = value;
@@ -152,6 +155,14 @@ class DownloadSetting {
           'exists': PathSetting.getVisibleDir().existsSync(),
         },
       );
+    }
+  }
+
+  static void _clearTempDownloadPath() {
+    try {
+      Directory(tempDownloadPath.value).deleteSync(recursive: true);
+    } on Exception catch (e) {
+      Log.error(e);
     }
   }
 
