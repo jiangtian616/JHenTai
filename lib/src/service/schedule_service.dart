@@ -32,7 +32,7 @@ class ScheduleService extends GetxService {
 
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
-    // Timer(const Duration(seconds: 5), clearOutdatedImageCache);
+    Timer(const Duration(seconds: 5), clearOutdatedImageCache);
   }
 
   Future<void> refreshGalleryTags() async {
@@ -100,12 +100,12 @@ class ScheduleService extends GetxService {
   Future<void> clearOutdatedImageCache() async {
     Directory cacheImageDirectory = Directory(join((await getTemporaryDirectory()).path, cacheImageFolderName));
 
+    int count = 0;
     cacheImageDirectory.list().forEach((FileSystemEntity entity) {
-      if (entity is File && FileUtil.isImageExtension(entity.path)) {
-        if (DateTime.now().difference(entity.lastModifiedSync()) > NetworkSetting.cacheImageExpireDuration.value) {
-          entity.delete();
-        }
+      if (entity is File && DateTime.now().difference(entity.lastModifiedSync()) > NetworkSetting.cacheImageExpireDuration.value) {
+        entity.delete();
+        count++;
       }
-    });
+    }).then((_) => Log.info('Clear outdated image cache success, count: $count'));
   }
 }
