@@ -10,29 +10,17 @@ import 'package:path/path.dart';
 import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../setting/download_setting.dart';
+import 'jh_service.dart';
 import 'path_service.dart';
 import 'log.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
-class LocalGallery {
-  String title;
-  String path;
-  GalleryImage cover;
-
-  LocalGallery({required this.title, required this.path, required this.cover});
-}
-
-class LocalGalleryParseResult {
-  /// has images
-  bool isLegalGalleryDir = false;
-
-  /// has subDirectory that has images
-  bool isLegalNestedGalleryDir = false;
-}
 
 /// Load galleries in download directory but is not downloaded by JHenTai
-class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
+LocalGalleryService localGalleryService = LocalGalleryService();
+
+class LocalGalleryService extends GetxController with GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String rootPath = '';
 
   LoadingState loadingState = LoadingState.idle;
@@ -45,16 +33,15 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
   List<String> get rootDirectories => path2SubDir[rootPath] ?? [];
 
-  static void init() {
-    Get.put(LocalGalleryService(), permanent: true);
-  }
-
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  Future<void> doOnInit() async {
+    Get.put(this, permanent: true);
 
     await refreshLocalGallerys();
   }
+
+  @override
+  void doOnReady() {}
 
   Future<void> refreshLocalGallerys() {
     if (loadingState == LoadingState.loading) {
@@ -222,4 +209,20 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     allGallerys.add(gallery);
     (path2GalleryDir[parentPath] ??= []).add(gallery);
   }
+}
+
+class LocalGallery {
+  String title;
+  String path;
+  GalleryImage cover;
+
+  LocalGallery({required this.title, required this.path, required this.cover});
+}
+
+class LocalGalleryParseResult {
+  /// has images
+  bool isLegalGalleryDir = false;
+
+  /// has subDirectory that has images
+  bool isLegalNestedGalleryDir = false;
 }
