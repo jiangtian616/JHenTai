@@ -198,7 +198,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildTag(
-                    category: FavoriteSetting.favoriteTagNames[tagIndex],
+                    category: favoriteSetting.favoriteTagNames[tagIndex],
                     enabled: (searchConfig.searchFavoriteCategoryIndex ?? tagIndex) == tagIndex,
                     color: UIConfig.favoriteTagColor[tagIndex],
                     onTap: () => setState(() {
@@ -210,7 +210,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                     }),
                   ),
                   _buildTag(
-                    category: FavoriteSetting.favoriteTagNames[tagIndex + 1],
+                    category: favoriteSetting.favoriteTagNames[tagIndex + 1],
                     enabled: (searchConfig.searchFavoriteCategoryIndex ?? tagIndex + 1) == tagIndex + 1,
                     color: UIConfig.favoriteTagColor[tagIndex + 1],
                     onTap: () {

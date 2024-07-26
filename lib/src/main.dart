@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  FavoriteSetting.init();
   MyTagsSetting.init();
   EHSetting.init();
 
@@ -195,7 +194,6 @@ Future<void> onReady() async {
     bean.onReady();
   }
 
-  FavoriteSetting.refresh();
   EHSetting.refresh();
   MyTagsSetting.refreshAllOnlineTagSets();
 

@@ -26,6 +26,9 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   static RxInt thumbnailsCountPerPage = 40.obs;
 
   @override
+  List<JHLifeCircleBean> get initDependencies => [userSetting];
+
+  @override
   ConfigEnum get configEnum => ConfigEnum.siteSetting;
 
   @override

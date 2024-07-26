@@ -428,8 +428,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     }
 
-    if (!FavoriteSetting.inited) {
-      FavoriteSetting.refresh();
+    if (!favoriteSetting.inited) {
+      favoriteSetting.fetchDataFromEH();
     }
 
     int? currentFavIndex = state.galleryDetails?.favoriteTagIndex ?? state.gallery?.favoriteTagIndex;
@@ -510,7 +510,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     try {
       if (operation.isDelete) {
         await EHRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
-        FavoriteSetting.decrementFavByIndex(operation.favIndex);
+        favoriteSetting.decrementFavByIndex(operation.favIndex);
         state.gallery
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
@@ -519,17 +519,15 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           ..favoriteTagName = null;
       } else {
         await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, operation.favIndex, operation.note);
-        FavoriteSetting.incrementFavByIndex(operation.favIndex);
-        FavoriteSetting.decrementFavByIndex(currentFavIndex);
+        favoriteSetting.incrementFavByIndex(operation.favIndex);
+        favoriteSetting.decrementFavByIndex(currentFavIndex);
         state.gallery
           ?..favoriteTagIndex = operation.favIndex
-          ..favoriteTagName = FavoriteSetting.favoriteTagNames[operation.favIndex];
+          ..favoriteTagName = favoriteSetting.favoriteTagNames[operation.favIndex];
         state.galleryDetails
           ?..favoriteTagIndex = operation.favIndex
-          ..favoriteTagName = FavoriteSetting.favoriteTagNames[operation.favIndex];
+          ..favoriteTagName = favoriteSetting.favoriteTagNames[operation.favIndex];
       }
-
-      FavoriteSetting.save();
     } on DioException catch (e) {
       log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg);
       snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);

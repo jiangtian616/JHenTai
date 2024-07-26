@@ -76,7 +76,7 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
             () => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ...FavoriteSetting.favoriteTagNames
+                ...favoriteSetting.favoriteTagNames
                     .mapIndexed(
                       (index, tagName) => ListTile(
                         dense: true,
@@ -88,7 +88,7 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                           style: const TextStyle(fontSize: UIConfig.favoriteDialogLeadingTextSize),
                         ),
                         trailing: Text(
-                          FavoriteSetting.favoriteCounts[index].toString(),
+                          favoriteSetting.favoriteCounts[index].toString(),
                           style: TextStyle(fontSize: UIConfig.favoriteDialogTrailingTextSize, color: UIConfig.favoriteDialogCountTextColor(context)),
                         ),
                         onTap: () {
