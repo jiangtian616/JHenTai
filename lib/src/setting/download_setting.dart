@@ -5,7 +5,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:path/path.dart';
 
 import '../service/storage_service.dart';
@@ -34,9 +34,9 @@ class DownloadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.downloadSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init DownloadSetting success', false);
+      log.debug('init DownloadSetting success', false);
     } else {
-      Log.debug('init DownloadSetting success: default', false);
+      log.debug('init DownloadSetting success: default', false);
     }
 
     _ensureDownloadDirExists();
@@ -44,49 +44,49 @@ class DownloadSetting {
   }
 
   static saveDownloadPath(String downloadPath) {
-    Log.debug('saveDownloadPath:$downloadPath');
+    log.debug('saveDownloadPath:$downloadPath');
     DownloadSetting.downloadPath.value = downloadPath;
     _save();
   }
 
   static addExtraGalleryScanPath(String newPath) {
-    Log.debug('addExtraGalleryScanPath:$newPath');
+    log.debug('addExtraGalleryScanPath:$newPath');
     extraGalleryScanPath.add(newPath);
     _save();
   }
 
   static removeExtraGalleryScanPath(String path) {
-    Log.debug('removeExtraGalleryScanPath:$path');
+    log.debug('removeExtraGalleryScanPath:$path');
     extraGalleryScanPath.remove(path);
     _save();
   }
 
   static saveSingleImageSavePath(String singleImageSavePath) {
-    Log.debug('saveSingleImageSavePath:$singleImageSavePath');
+    log.debug('saveSingleImageSavePath:$singleImageSavePath');
     DownloadSetting.singleImageSavePath.value = singleImageSavePath;
     _save();
   }
 
   static saveDownloadOriginalImageByDefault(bool value) {
-    Log.debug('saveDownloadOriginalImageByDefault:$value');
+    log.debug('saveDownloadOriginalImageByDefault:$value');
     DownloadSetting.downloadOriginalImageByDefault.value = value;
     _save();
   }
 
   static saveDefaultGalleryGroup(String? group) {
-    Log.debug('saveDefaultGalleryGroup:$group');
+    log.debug('saveDefaultGalleryGroup:$group');
     DownloadSetting.defaultGalleryGroup.value = group;
     _save();
   }
 
   static saveDefaultArchiveGroup(String? group) {
-    Log.debug('saveDefaultArchiveGroup:$group');
+    log.debug('saveDefaultArchiveGroup:$group');
     DownloadSetting.defaultArchiveGroup.value = group;
     _save();
   }
 
   static saveDownloadTaskConcurrency(int downloadTaskConcurrency) {
-    Log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
+    log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
     _save();
 
@@ -94,7 +94,7 @@ class DownloadSetting {
   }
 
   static saveMaximum(int maximum) {
-    Log.debug('saveMaximum:$maximum');
+    log.debug('saveMaximum:$maximum');
     DownloadSetting.maximum.value = maximum;
     _save();
 
@@ -102,7 +102,7 @@ class DownloadSetting {
   }
 
   static savePeriod(Duration period) {
-    Log.debug('savePeriod:$period');
+    log.debug('savePeriod:$period');
     DownloadSetting.period.value = period;
     _save();
 
@@ -110,31 +110,31 @@ class DownloadSetting {
   }
 
   static saveDownloadAllGallerysOfSamePriority(bool value) {
-    Log.debug('saveDownloadAllGallerysOfSamePriority:$value');
+    log.debug('saveDownloadAllGallerysOfSamePriority:$value');
     downloadAllGallerysOfSamePriority.value = value;
     _save();
   }
 
   static saveArchiveDownloadIsolateCount(int count) {
-    Log.debug('saveArchiveDownloadIsolateCount:$count');
+    log.debug('saveArchiveDownloadIsolateCount:$count');
     archiveDownloadIsolateCount.value = count;
     _save();
   }
 
   static saveManageArchiveDownloadConcurrency(bool value) {
-    Log.debug('saveManageArchiveDownloadConcurrency:$value');
+    log.debug('saveManageArchiveDownloadConcurrency:$value');
     manageArchiveDownloadConcurrency.value = value;
     _save();
   }
 
   static saveDeleteArchiveFileAfterDownload(bool value) {
-    Log.debug('saveDeleteArchiveFileAfterDownload:$value');
+    log.debug('saveDeleteArchiveFileAfterDownload:$value');
     deleteArchiveFileAfterDownload.value = value;
     _save();
   }
 
   static saveRestoreTasksAutomatically(bool value) {
-    Log.debug('saveRestoreTasksAutomatically:$value');
+    log.debug('saveRestoreTasksAutomatically:$value');
     restoreTasksAutomatically.value = value;
     _save();
   }
@@ -146,8 +146,8 @@ class DownloadSetting {
       Directory(singleImageSavePath.value).createSync(recursive: true);
     } on Exception catch (e) {
       toast('brokenDownloadPathHint'.tr);
-      Log.error(e);
-      Log.uploadError(
+      log.error(e);
+      log.uploadError(
         e,
         extraInfos: {
           'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
@@ -166,7 +166,7 @@ class DownloadSetting {
       }
       Directory(tempDownloadPath.value).createSync();
     } on Exception catch (e) {
-      Log.error(e);
+      log.error(e);
     }
   }
 

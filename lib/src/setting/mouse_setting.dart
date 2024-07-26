@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 
 import '../service/storage_service.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 class MouseSetting {
   static RxDouble wheelScrollSpeed = 5.0.obs;
@@ -11,14 +11,14 @@ class MouseSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.mouseSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init MouseSetting success', false);
+      log.debug('init MouseSetting success', false);
     } else {
-      Log.debug('init MouseSetting success: default', false);
+      log.debug('init MouseSetting success: default', false);
     }
   }
 
   static saveWheelScrollSpeed(double wheelScrollSpeed) {
-    Log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
+    log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
     MouseSetting.wheelScrollSpeed.value = wheelScrollSpeed;
     _save();
   }

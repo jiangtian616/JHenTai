@@ -1,16 +1,11 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 
-import '../model/gallery.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 class CloudConfigService extends GetxService {
   static Map<CloudConfigTypeEnum, String> configTypeVersionMap = {
@@ -32,7 +27,7 @@ class CloudConfigService extends GetxService {
 
   @override
   Future<void> onInit() async {
-    Log.debug('init CloudService success');
+    log.debug('init CloudService success');
 
     super.onInit();
   }

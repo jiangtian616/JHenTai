@@ -8,7 +8,7 @@ import '../../model/gallery.dart';
 import '../../model/gallery_history_model.dart';
 import '../../service/history_service.dart';
 import '../../utils/convert_util.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../utils/route_util.dart';
 import '../base/old_base_page_logic.dart';
 import 'history_page_state.dart';
@@ -24,7 +24,7 @@ class HistoryPageLogic extends OldBasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('Get history by page index $pageIndex');
+    log.info('Get history by page index $pageIndex');
 
     int pageCount = await historyService.getPageCount();
     List<GalleryHistoryModel> galleryModels = await historyService.getByPageIndex(pageIndex);

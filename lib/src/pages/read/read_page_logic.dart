@@ -33,7 +33,7 @@ import '../../network/eh_request.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 
@@ -228,7 +228,7 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> parseImageHref(int index) async {
-    Log.trace('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
+    log.trace('Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
 
     int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
 
@@ -242,7 +242,7 @@ class ReadPageLogic extends GetxController {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) => Log.error('Get thumbnails error!', (e as DioException).errorMsg),
+        onRetry: (e) => log.error('Get thumbnails error!', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
       state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
@@ -269,7 +269,7 @@ class ReadPageLogic extends GetxController {
 
     /// If we changed profile setting in EH site and have cached in JHenTai, we need to remove the cache to get the latest page info before re-parsing
     if (state.thumbnails[index] == null) {
-      Log.download(
+      log.download(
         'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
       );
       await EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
@@ -297,7 +297,7 @@ class ReadPageLogic extends GetxController {
         () => requestImage(index, reParse, reloadKey),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) => Log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioException).errorMsg),
+        onRetry: (e) => log.error('Parse gallery image failed, index: ${index.toString()}', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
@@ -568,7 +568,7 @@ class ReadPageLogic extends GetxController {
 
   void handleTapSuperResolutionButton() {
     state.useSuperResolution = !state.useSuperResolution;
-    Log.info('toggle super resolution mode: ${state.useSuperResolution}');
+    log.info('toggle super resolution mode: ${state.useSuperResolution}');
     updateSafely([topMenuId]);
     layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
   }
@@ -586,7 +586,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void toggleDisplayFirstPageAlone() {
-    Log.info('toggleDisplayFirstPageAlone->${!state.displayFirstPageAlone}');
+    log.info('toggleDisplayFirstPageAlone->${!state.displayFirstPageAlone}');
     state.displayFirstPageAlone = !state.displayFirstPageAlone;
 
     layoutLogic.toggleDisplayFirstPageAlone();

@@ -8,7 +8,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../utils/snack_util.dart';
 import '../../utils/uuid_util.dart';
 import '../../widget/jump_page_dialog.dart';
@@ -69,7 +69,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     try {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(0);
     } on DioException catch (e) {
-      Log.error('refreshGalleryFailed'.tr, e.errorMsg);
+      log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
@@ -116,7 +116,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     try {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.prevPageIndexToLoad!);
     } on DioException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.errorMsg);
+      log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
@@ -155,7 +155,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     try {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.nextPageIndexToLoad!);
     } on DioException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.errorMsg);
+      log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
@@ -199,7 +199,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     try {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(pageIndex);
     } on DioException catch (e) {
-      Log.error('refreshGalleryFailed'.tr, e.errorMsg);
+      log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);

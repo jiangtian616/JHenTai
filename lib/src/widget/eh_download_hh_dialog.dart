@@ -12,7 +12,7 @@ import '../model/gallery_hh_archive.dart';
 import '../model/gallery_hh_info.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/snack_util.dart';
 import 'eh_asset.dart';
 import 'loading_state_indicator.dart';
@@ -78,12 +78,12 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
     try {
       hhInfo = await EHRequest.get(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2HHInfo);
     } on DioException catch (e) {
-      Log.error('Get H@H download info failed', e.errorMsg);
+      log.error('Get H@H download info failed', e.errorMsg);
       snack('failed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
-      Log.error('Get H@H download info failed', e.message);
+      log.error('Get H@H download info failed', e.message);
       snack('failed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
       return;

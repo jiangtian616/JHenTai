@@ -2,7 +2,7 @@ import 'dart:io' as io;
 
 import 'package:path/path.dart';
 
-import '../utils/log.dart';
+import '../service/log.dart';
 
 extension DirectoryExtension on io.Directory {
   Future<void> copy(String toPath) async {
@@ -14,16 +14,16 @@ extension DirectoryExtension on io.Directory {
     try {
       entities = listSync(recursive: true);
     } on Exception catch (e) {
-      Log.error(e);
-      Log.uploadError(e, extraInfos: {'path': path});
+      log.error(e);
+      log.uploadError(e, extraInfos: {'path': path});
       return;
     }
 
     List<Future> futures = [];
     for (io.FileSystemEntity file in entities) {
       if (file is! io.File) {
-        Log.error('Not a file: ${file.path}');
-        Log.uploadError(Exception('Not a file'), extraInfos: {'file': file.path});
+        log.error('Not a file: ${file.path}');
+        log.uploadError(Exception('Not a file'), extraInfos: {'file': file.path});
         continue;
       }
 
@@ -35,8 +35,8 @@ extension DirectoryExtension on io.Directory {
       try {
         futures.add(file.copy(join(toPath, relative(file.path, from: path))));
       } on Exception catch (e) {
-        Log.error(e);
-        Log.uploadError(e, extraInfos: {
+        log.error(e);
+        log.uploadError(e, extraInfos: {
           'oldPath': file.path,
           'newPath': join(toPath, relative(file.path, from: path)),
         });

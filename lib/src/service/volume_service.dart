@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../utils/log.dart';
+import 'log.dart';
 
 enum VolumeEventType { volumeUp, volumeDown }
 
@@ -15,7 +15,7 @@ class VolumeService extends GetxService {
 
   static void init() {
     Get.put(VolumeService(), permanent: true);
-    Log.debug('init VolumeService success', false);
+    log.debug('init VolumeService success', false);
   }
 
   @override
@@ -41,8 +41,8 @@ class VolumeService extends GetxService {
     try {
       await methodChannel.invokeMethod('set', value);
     } on PlatformException catch (e) {
-      Log.error('Set intercept volume event error!', e);
-      Log.uploadError(e);
+      log.error('Set intercept volume event error!', e);
+      log.uploadError(e);
     }
   }
 

@@ -15,7 +15,7 @@ import '../model/eh_raw_tag.dart';
 import '../network/eh_request.dart';
 import '../service/tag_translation_service.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 import '../utils/string_uril.dart';
 import 'loading_state_indicator.dart';
@@ -238,7 +238,7 @@ class EHAddTagDialogLogic extends GetxController {
       return;
     }
 
-    Log.info('search for $lastKeyWord');
+    log.info('search for $lastKeyWord');
 
     state.searchLoadingState = LoadingState.loading;
     updateSafely([loadingIndicatorId]);
@@ -264,7 +264,7 @@ class EHAddTagDialogLogic extends GetxController {
                 ))
             .toList();
       } on DioException catch (e) {
-        Log.error('Request tag suggestion failed', e);
+        log.error('Request tag suggestion failed', e);
         state.suggestions = [];
         state.searchLoadingState = LoadingState.error;
         updateSafely([loadingIndicatorId]);

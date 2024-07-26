@@ -12,7 +12,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../exception/eh_site_exception.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 
@@ -111,12 +111,12 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     try {
       archive = await EHRequest.get(url: widget.archivePageUrl, parser: EHSpiderParser.archivePage2Archive);
     } on DioException catch (e) {
-      Log.error('getGalleryArchiveFailed'.tr, e.errorMsg);
+      log.error('getGalleryArchiveFailed'.tr, e.errorMsg);
       snack('getGalleryArchiveFailed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGalleryArchiveFailed'.tr, e.message);
+      log.error('getGalleryArchiveFailed'.tr, e.message);
       snack('getGalleryArchiveFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
       return;

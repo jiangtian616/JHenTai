@@ -20,7 +20,7 @@ import '../model/gallery_image.dart';
 import 'path_service.dart';
 import '../utils/archive_util.dart';
 import '../utils/eh_executor.dart';
-import '../utils/log.dart';
+import 'log.dart';
 import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import '../utils/table.dart' as util;
@@ -46,7 +46,7 @@ class SuperResolutionService extends GetxController {
 
   static void init() {
     Get.put(SuperResolutionService(), permanent: true);
-    Log.debug('init SuperResolutionService success', false);
+    log.debug('init SuperResolutionService success', false);
   }
 
   @override
@@ -120,22 +120,22 @@ class SuperResolutionService extends GetxController {
           },
         ),
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('Download super-resolution model failed, retry.'),
+        onRetry: (error) => log.warning('Download super-resolution model failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download super-resolution model failed after 5 times', e.errorMsg);
+      log.error('Download super-resolution model failed after 5 times', e.errorMsg);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
       return;
     }
 
-    Log.info('Super-resolution model downloaded, model: ${model.subType}');
+    log.info('Super-resolution model downloaded, model: ${model.subType}');
 
     bool success = await extractZipArchive(modelDownloadPath, extractPath);
 
     if (!success) {
-      Log.error('Unpacking Super-resolution model error!');
-      Log.uploadError(Exception('Unpacking Super-resolution model error!'));
+      log.error('Unpacking Super-resolution model error!');
+      log.uploadError(Exception('Unpacking Super-resolution model error!'));
       toast('internalError'.tr);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
@@ -221,7 +221,7 @@ class SuperResolutionService extends GetxController {
     }
 
     bool? success = superResolutionInfo.currentProcess?.kill();
-    Log.info('pause super resolution: $gid $success');
+    log.info('pause super resolution: $gid $success');
 
     superResolutionInfo.status = SuperResolutionStatus.paused;
     for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
@@ -239,7 +239,7 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    Log.info('delete super resolution: $gid');
+    log.info('delete super resolution: $gid');
 
     superResolutionInfo.currentProcess?.kill();
     superResolutionInfoTable.remove(gid, type);
@@ -312,7 +312,7 @@ class SuperResolutionService extends GetxController {
       }
 
       superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
-      Log.download('super resolve image ${rawImages[i].path} success');
+      log.download('super resolve image ${rawImages[i].path} success');
 
       /// we can't kill the process immediately on Windows
       if (get(gid, type) != null) {
@@ -325,7 +325,7 @@ class SuperResolutionService extends GetxController {
       superResolutionInfo.status = SuperResolutionStatus.success;
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
-      Log.info('super resolve success, gid:$gid');
+      log.info('super resolve success, gid:$gid');
     }
   }
 
@@ -336,7 +336,7 @@ class SuperResolutionService extends GetxController {
       try {
         File(inputAbsolutePath).copySync(outputAbsolutePath);
       } catch (e, s) {
-        Log.error('copy gif image failed', e, s);
+        log.error('copy gif image failed', e, s);
         return false;
       }
       return true;
@@ -347,14 +347,14 @@ class SuperResolutionService extends GetxController {
       process = await _callProcess(rawImage);
     } on Exception catch (e) {
       toast('internalError'.tr + e.toString(), isShort: false);
-      Log.error(e);
-      Log.uploadError(e, extraInfos: {'rawImage': rawImage});
+      log.error(e);
+      log.uploadError(e, extraInfos: {'rawImage': rawImage});
 
       return false;
     } on Error catch (e) {
       toast('internalError'.tr + e.toString(), isShort: false);
-      Log.error(e);
-      Log.uploadError(e, extraInfos: {'rawImage': rawImage});
+      log.error(e);
+      log.uploadError(e, extraInfos: {'rawImage': rawImage});
 
       return false;
     }
@@ -362,7 +362,7 @@ class SuperResolutionService extends GetxController {
     superResolutionInfo.currentProcess = process;
 
     process.stderr.listen((event) {
-      Log.trace(String.fromCharCodes(event).trim());
+      log.trace(String.fromCharCodes(event).trim());
     });
 
     int exitCode = await process.exitCode;
@@ -374,8 +374,8 @@ class SuperResolutionService extends GetxController {
 
     if (exitCode != 0) {
       toast('${'internalError'.tr} exitCode:$exitCode', isShort: false);
-      Log.error('${'internalError'.tr} exitCode:$exitCode');
-      Log.uploadError(
+      log.error('${'internalError'.tr} exitCode:$exitCode');
+      log.uploadError(
         Exception('Process Error'),
         extraInfos: {'rawImage': rawImage, 'exitCode': exitCode},
       );
@@ -387,14 +387,14 @@ class SuperResolutionService extends GetxController {
   }
 
   Future<Process> _callProcess(GalleryImage rawImage) {
-    Log.download('start to super resolve image ${rawImage.path}');
+    log.download('start to super resolve image ${rawImage.path}');
 
     String inputRelativePath = rawImage.path!;
     String outputRelativePath = computeImageOutputRelativePath(rawImage.path!);
 
     ModelType modelType = SuperResolutionSetting.model.value;
 
-    Log.trace(
+    log.trace(
       'Run: ${join(
         SuperResolutionSetting.modelDirectoryPath.value!,
         GetPlatform.isWindows
@@ -453,7 +453,7 @@ class SuperResolutionService extends GetxController {
         continue;
       }
 
-      Log.error('Try to init super-resolution info but image source not exists: $entry');
+      log.error('Try to init super-resolution info but image source not exists: $entry');
       targetEntries.add(entry);
     }
 
@@ -504,7 +504,7 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    Log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
+    log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
 
     SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
     String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
@@ -526,8 +526,8 @@ class SuperResolutionService extends GetxController {
       File imageFile = File(oldPath);
       await imageFile.copy(newPath);
     } on Exception catch (e) {
-      Log.error('copy super resolution image failed', e);
-      Log.uploadError(e);
+      log.error('copy super resolution image failed', e);
+      log.uploadError(e);
     }
 
     newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;

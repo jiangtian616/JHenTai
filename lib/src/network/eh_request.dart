@@ -23,7 +23,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/proxy_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
@@ -65,7 +65,7 @@ class EHRequest {
 
     _initTimeOutTranslator();
 
-    Log.debug('init EHRequest success');
+    log.debug('init EHRequest success');
   }
 
   static void _initDomainFronting() {
@@ -101,7 +101,7 @@ class EHRequest {
           String host = e.requestOptions.extra[domainFrontingExtraKey]['host'];
           String ip = e.requestOptions.extra[domainFrontingExtraKey]['ip'];
           _ehIpProvider.addUnavailableIp(host, ip);
-          Log.info('Add unavailable host-ip: $host-$ip');
+          log.info('Add unavailable host-ip: $host-$ip');
         }
 
         handler.next(e);

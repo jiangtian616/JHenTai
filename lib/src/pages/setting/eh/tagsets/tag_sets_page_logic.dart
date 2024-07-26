@@ -19,7 +19,7 @@ import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../model/tag_set.dart';
 import '../../../../service/tag_translation_service.dart';
 import '../../../../utils/color_util.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -56,19 +56,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       pageInfo = await EHRequest.requestMyTagsPage(tagSetNo: state.currentTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey);
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      log.error('getTagSetFailed'.tr, e.errorMsg);
       snack('getTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
+      log.error('getTagSetFailed'.tr, e.message);
       snack('getTagSetFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } catch (e) {
-      Log.error('getTagSetFailed'.tr, e.toString());
+      log.error('getTagSetFailed'.tr, e.toString());
       snack('getTagSetFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
@@ -104,19 +104,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         color: color2aRGBString(newColor),
       );
     } on DioException catch (e) {
-      Log.error('updateTagSetFailed'.tr, e.errorMsg);
+      log.error('updateTagSetFailed'.tr, e.errorMsg);
       snack('updateTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('updateTagSetFailed'.tr, e.message);
+      log.error('updateTagSetFailed'.tr, e.message);
       snack('updateTagSetFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } catch (e) {
-      Log.error('updateTagSetFailed'.tr, e.toString());
+      log.error('updateTagSetFailed'.tr, e.toString());
       snack('updateTagSetFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
@@ -173,7 +173,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
   Future<void> deleteTag(int tagSetIndex) async {
     WatchedTag tag = state.tags[tagSetIndex];
-    Log.info('Delete tag:$tag');
+    log.info('Delete tag:$tag');
 
     state.updateTagState = LoadingState.loading;
     updateSafely(['$tagId::${tag.tagId}']);
@@ -181,19 +181,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       await EHRequest.requestDeleteWatchedTag(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
     } on DioException catch (e) {
-      Log.error('deleteTagFailed'.tr, e.errorMsg);
+      log.error('deleteTagFailed'.tr, e.errorMsg);
       snack('deleteTagFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } on EHSiteException catch (e) {
-      Log.error('deleteTagFailed'.tr, e.message);
+      log.error('deleteTagFailed'.tr, e.message);
       snack('deleteTagFailed'.tr, e.message, isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } catch (e) {
-      Log.error('deleteTagFailed'.tr, e.toString());
+      log.error('deleteTagFailed'.tr, e.toString());
       snack('deleteTagFailed'.tr, e.toString(), isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
@@ -275,7 +275,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   Future<void> _updateTag(WatchedTag tag) async {
-    Log.info('Update tag:$tag');
+    log.info('Update tag:$tag');
 
     state.updateTagState = LoadingState.loading;
     updateSafely(['$tagId::${tag.tagId}']);
@@ -291,19 +291,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
         hidden: tag.hidden,
       );
     } on DioException catch (e) {
-      Log.error('updateTagFailed'.tr, e.errorMsg);
+      log.error('updateTagFailed'.tr, e.errorMsg);
       snack('updateTagFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } on EHSiteException catch (e) {
-      Log.error('updateTagFailed'.tr, e.message);
+      log.error('updateTagFailed'.tr, e.message);
       snack('updateTagFailed'.tr, e.message, isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } catch (e) {
-      Log.error('updateTagFailed'.tr, e.toString());
+      log.error('updateTagFailed'.tr, e.toString());
       snack('updateTagFailed'.tr, e.toString(), isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);

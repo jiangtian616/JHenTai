@@ -23,7 +23,7 @@ import '../database/database.dart';
 import '../model/eh_raw_tag.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import 'eh_gallery_category_tag.dart';
 
 enum EHSearchConfigDialogType { update, add, filter }
@@ -752,7 +752,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Future<void> searchTags(String keyword) async {
-    Log.info('search for ${searchConfig.keyword}');
+    log.info('search for ${searchConfig.keyword}');
 
     /// chinese => database; other => EH api
     if (tagTranslationService.isReady) {
@@ -775,7 +775,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 ))
             .toList();
       } on DioException catch (e) {
-        Log.error('Request tag suggestion failed', e);
+        log.error('Request tag suggestion failed', e);
         suggestions = [];
       }
     }

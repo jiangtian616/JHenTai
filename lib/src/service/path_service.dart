@@ -23,6 +23,9 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Directory? systemDownloadDir;
 
   @override
+  List<JHLifeCircleBean> get initDependencies => [];
+
+  @override
   Future<void> doOnInit() async {
     await Future.wait([
       getTemporaryDirectory().then((value) => tempDir = value),

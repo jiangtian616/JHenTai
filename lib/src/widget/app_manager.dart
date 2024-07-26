@@ -11,7 +11,7 @@ import '../config/ui_config.dart';
 import '../routes/routes.dart';
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 
 typedef DidChangePlatformBrightnessCallback = void Function();
@@ -151,11 +151,11 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   }
 
   void _logMemoryPressure() {
-    Log.warning('Memory pressure');
+    log.warning('Memory pressure');
   }
 
   void _onInactive() {
-    Log.debug('App is hidden');
+    log.debug('App is hidden');
 
     if (securitySetting.enableAuthOnResume.isTrue) {
       lastInactiveTime ??= DateTime.now();
@@ -167,7 +167,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   }
 
   void _onResume() {
-    Log.debug('App is shown');
+    log.debug('App is shown');
 
     if (!inBlur) {
       return;

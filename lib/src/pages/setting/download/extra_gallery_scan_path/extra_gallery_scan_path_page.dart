@@ -5,7 +5,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../utils/permission_util.dart';
 import '../../../../utils/toast_util.dart';
 
@@ -43,7 +43,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
     try {
       newPath = await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick extra path failed', e);
+      log.error('Pick extra path failed', e);
     }
     if (isEmptyOrNull(newPath)) {
       return;

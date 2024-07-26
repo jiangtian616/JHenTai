@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:path/path.dart';
 
@@ -26,10 +26,12 @@ class _LogListPageState extends State<LogListPage> {
   void initState() {
     super.initState();
 
-    Directory logDir = Directory(Log.logDirPath);
-    if (logDir.existsSync()) {
-      logs = logDir.listSync().whereType<File>().toList();
-      logs.sort((a, b) => b.path.compareTo(a.path));
+    if (log.logDirPath != null) {
+      Directory logDir = Directory(log.logDirPath!);
+      if (logDir.existsSync()) {
+        logs = logDir.listSync().whereType<File>().toList();
+        logs.sort((a, b) => b.path.compareTo(a.path));
+      }
     }
   }
 

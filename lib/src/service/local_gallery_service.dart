@@ -11,7 +11,7 @@ import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../setting/download_setting.dart';
 import 'path_service.dart';
-import '../utils/log.dart';
+import 'log.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
@@ -71,7 +71,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
 
     DateTime start = DateTime.now();
     return _loadGalleriesFromDisk().whenComplete(() {
-      Log.info(
+      log.info(
         'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
       loadingState = LoadingState.success;
@@ -95,7 +95,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   }
 
   void deleteGallery(LocalGallery gallery, String parentPath) {
-    Log.info('Delete local gallery: ${gallery.title}');
+    log.info('Delete local gallery: ${gallery.title}');
 
     Directory dir = Directory(gallery.path);
 
@@ -103,14 +103,14 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     List<File> imageFiles = dir.listSync().whereType<File>().where((image) => FileUtil.isImageExtension(image.path)).toList();
     if (allFiles.length == imageFiles.length) {
       dir.delete(recursive: true).catchError((e) {
-        Log.error('Delete local gallery error!', e);
-        Log.uploadError(e);
+        log.error('Delete local gallery error!', e);
+        log.uploadError(e);
       });
     } else {
       for (File file in imageFiles) {
         file.delete().catchError((e) {
-          Log.error('Delete local gallery error!', e);
-          Log.uploadError(e);
+          log.error('Delete local gallery error!', e);
+          log.uploadError(e);
         });
       }
     }
@@ -125,7 +125,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
     List<Future> futures = DownloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
 
     return Future.wait(futures).onError((error, stackTrace) {
-      Log.error('_loadGalleriesFromDisk failed, path: ${DownloadSetting.extraGalleryScanPath}', error, stackTrace);
+      log.error('_loadGalleriesFromDisk failed, path: ${DownloadSetting.extraGalleryScanPath}', error, stackTrace);
       return [];
     }).whenComplete(() {
       allGallerys.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));

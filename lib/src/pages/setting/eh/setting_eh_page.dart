@@ -16,7 +16,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../exception/eh_site_exception.dart';
 import '../../../setting/eh_setting.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
 
@@ -194,14 +194,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       assets = await EHRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
     } on DioException catch (e) {
-      Log.error('Get assets failed', e.errorMsg);
+      log.error('Get assets failed', e.errorMsg);
       snack('Get assets failed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      Log.error('Get assets failed', e.message);
+      log.error('Get assets failed', e.message);
       snack('Get assets failed'.tr, e.message, isShort: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
@@ -228,14 +228,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       await EHRequest.requestResetImageLimit();
     } on DioException catch (e) {
-      Log.error('Reset limit failed', e.errorMsg);
+      log.error('Reset limit failed', e.errorMsg);
       snack('Reset limit failed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      Log.error('Reset limit failed', e.message);
+      log.error('Reset limit failed', e.message);
       snack('Reset limit failed'.tr, e.message, isShort: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;

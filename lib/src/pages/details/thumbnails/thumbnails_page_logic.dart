@@ -12,7 +12,7 @@ import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/detail_page_info.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/jump_page_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
@@ -58,13 +58,13 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
         parser: EHSpiderParser.detailPage2RangeAndThumbnails,
       );
     } on DioException catch (e) {
-      Log.error('failToGetThumbnails'.tr, e.errorMsg);
+      log.error('failToGetThumbnails'.tr, e.errorMsg);
       snack('failToGetThumbnails'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('failToGetThumbnails'.tr, e.message);
+      log.error('failToGetThumbnails'.tr, e.message);
       snack('failToGetThumbnails'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);

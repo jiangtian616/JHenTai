@@ -9,7 +9,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/super_resolution_setting.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../widget/loading_state_indicator.dart';
 
 class SettingSuperResolutionPage extends StatelessWidget {
@@ -57,8 +57,8 @@ class SettingSuperResolutionPage extends StatelessWidget {
         try {
           result = await FilePicker.platform.getDirectoryPath();
         } on Exception catch (e) {
-          Log.error('Pick executable file path failed', e);
-          Log.uploadError(e);
+          log.error('Pick executable file path failed', e);
+          log.uploadError(e);
           toast('internalError'.tr);
         }
 

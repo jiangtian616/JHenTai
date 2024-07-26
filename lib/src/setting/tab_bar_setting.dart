@@ -7,7 +7,7 @@ import 'package:jhentai/src/model/tab_bar_config.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../service/storage_service.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 @JsonSerializable()
 class TabBarSetting {
@@ -30,7 +30,7 @@ class TabBarSetting {
   ].obs;
 
   static void addTab(TabBarConfig tabBarConfig) {
-    Log.info('addTab:$tabBarConfig');
+    log.info('addTab:$tabBarConfig');
     configs.add(tabBarConfig);
     _save();
   }
@@ -39,19 +39,19 @@ class TabBarSetting {
     if (configs.length == 1) {
       return;
     }
-    Log.info('removeTab:$index');
+    log.info('removeTab:$index');
     configs.removeAt(index);
     _save();
   }
 
   static void updateTab(int index, TabBarConfig tabBarConfig) {
-    Log.info('updateTab:$index');
+    log.info('updateTab:$index');
     configs[index] = tabBarConfig;
     _save();
   }
 
   static void reOrderTab(int oldIndex, int newIndex) {
-    Log.info('reOrderTab:$oldIndex-$newIndex');
+    log.info('reOrderTab:$oldIndex-$newIndex');
     if (newIndex != configs.length - 1) {
       configs.insert(newIndex, configs.removeAt(oldIndex));
     } else {
@@ -64,9 +64,9 @@ class TabBarSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.tabBarSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init TabBarSetting success', false);
+      log.debug('init TabBarSetting success', false);
     } else {
-      Log.debug('init TabBarSetting success: default', false);
+      log.debug('init TabBarSetting success: default', false);
     }
   }
 

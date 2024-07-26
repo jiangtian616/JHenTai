@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../service/storage_service.dart';
 
@@ -17,9 +17,9 @@ class UserSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.userSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init UserSetting success', false);
+      log.debug('init UserSetting success', false);
     } else {
-      Log.debug('init UserSetting success, not logged in', false);
+      log.debug('init UserSetting success, not logged in', false);
     }
   }
 
@@ -30,7 +30,7 @@ class UserSetting {
     String? avatarImgUrl,
     String? nickName,
   }) async {
-    Log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
+    log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
     UserSetting.userName.value = userName;
     UserSetting.ipbPassHash.value = ipbPassHash;
     UserSetting.ipbMemberId.value = ipbMemberId;
@@ -44,7 +44,7 @@ class UserSetting {
     String? avatarImgUrl,
     required String nickName,
   }) async {
-    Log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl $nickName');
+    log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl $nickName');
     UserSetting.userName.value = userName;
     UserSetting.avatarImgUrl.value = avatarImgUrl;
     UserSetting.nickName.value = nickName;
@@ -52,13 +52,13 @@ class UserSetting {
   }
 
   static Future<void> saveDefaultFavoriteIndex(int? index) async {
-    Log.debug('saveDefaultFavoriteIndex: $index');
+    log.debug('saveDefaultFavoriteIndex: $index');
     UserSetting.defaultFavoriteIndex.value = index;
     save();
   }
   
   static Future<void> saveDefaultTagSetNo(int? number) async {
-    Log.debug('saveDefaultTagSet: $number');
+    log.debug('saveDefaultTagSet: $number');
     UserSetting.defaultTagSetNo.value = number;
     save();
   }

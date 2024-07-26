@@ -5,7 +5,7 @@ import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../base/old_base_page_logic.dart';
 
 class RanklistPageLogic extends OldBasePageLogic {
@@ -29,7 +29,7 @@ class RanklistPageLogic extends OldBasePageLogic {
 
   @override
   Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
-    Log.info('Get ranklist data, type:${state.ranklistType.name}, pageIndex:$pageIndex');
+    log.info('Get ranklist data, type:${state.ranklistType.name}, pageIndex:$pageIndex');
 
     return await EHRequest.requestRanklistPage(
       ranklistType: state.ranklistType,

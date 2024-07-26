@@ -10,7 +10,7 @@ import 'package:jhentai/src/setting/read_setting.dart';
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../service/super_resolution_service.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/icon_text_button.dart';
 import '../../../../widget/loading_state_indicator.dart';
@@ -165,7 +165,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// failed for online mode
   Widget _failedWidgetBuilder(int index, ExtendedImageState state) {
-    Log.warning('online image widget build failed', state.lastException);
+    log.warning('online image widget build failed', state.lastException);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -361,7 +361,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// failed for local mode
   Widget _failedWidgetBuilderForLocalMode(int index, ExtendedImageState state) {
-    Log.warning('local image widget build failed', state.lastException);
+    log.warning('local image widget build failed', state.lastException);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

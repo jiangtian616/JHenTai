@@ -28,7 +28,7 @@ import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/check_util.dart';
 import '../../../setting/user_setting.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/route_util.dart';
 
 const double imageMinHeight = 100;
@@ -220,8 +220,8 @@ class _EHCommentTextBody extends StatelessWidget {
 
     /// unknown node
     if (node is! dom.Element) {
-      Log.error('Can not parse html node: $node');
-      Log.uploadError(Exception('Can not parse html node'), extraInfos: {'node': node});
+      log.error('Can not parse html node: $node');
+      log.uploadError(Exception('Can not parse html node'), extraInfos: {'node': node});
       return TextSpan(text: node.text);
     }
 
@@ -320,8 +320,8 @@ class _EHCommentTextBody extends StatelessWidget {
       return WidgetSpan(child: child);
     }
 
-    Log.error('Can not parse html tag: $node');
-    Log.uploadError(Exception('Can not parse html tag'), extraInfos: {'node': node});
+    log.error('Can not parse html tag: $node');
+    log.uploadError(Exception('Can not parse html tag'), extraInfos: {'node': node});
     return TextSpan(text: node.text);
   }
 
@@ -555,7 +555,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
   }
 
   Future<void> _doVoteComment(bool isVotingUp) async {
-    Log.info('Voting comment: ${widget.commentId}, isVotingUp: $isVotingUp');
+    log.info('Voting comment: ${widget.commentId}, isVotingUp: $isVotingUp');
 
     final DetailsPageState detailsPageState = DetailsPageLogic.current!.state;
     int? newScore;
@@ -571,11 +571,11 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
         parser: EHSpiderParser.votingCommentResponse2Score,
       );
     } on DioException catch (e) {
-      Log.error('voteCommentFailed'.tr, e.errorMsg);
+      log.error('voteCommentFailed'.tr, e.errorMsg);
       toast('${'voteCommentFailed'.tr}: ${e.errorMsg}');
       return;
     } on EHSiteException catch (e) {
-      Log.error('voteCommentFailed'.tr, e.message);
+      log.error('voteCommentFailed'.tr, e.message);
       toast('${'voteCommentFailed'.tr}: ${e.message}');
       return;
     } on CheckException catch (_) {

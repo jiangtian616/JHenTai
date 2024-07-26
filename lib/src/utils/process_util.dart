@@ -6,7 +6,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 
 import '../setting/read_setting.dart';
-import 'log.dart';
+import '../service/log.dart';
 
 void openThirdPartyViewer(String dirPath) {
   String viewerPath = ReadSetting.thirdPartyViewerPath.value!;
@@ -18,16 +18,16 @@ void openThirdPartyViewer(String dirPath) {
     runInShell: true,
   ).catchError((e) {
     toast('internalError'.tr + e.toString());
-    Log.error(e);
-    Log.uploadError(
+    log.error(e);
+    log.uploadError(
       e,
       extraInfos: {'viewerPath': viewerPath, 'dirPath': dirPath},
     );
   }).then((result) {
     if (!isEmptyOrNull(result.stderr)) {
       toast('internalError'.tr + result.stderr);
-      Log.error(result.stderr);
-      Log.uploadError(
+      log.error(result.stderr);
+      log.uploadError(
         Exception('Process Error'),
         extraInfos: {
           'viewerPath': viewerPath,

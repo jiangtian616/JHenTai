@@ -7,7 +7,7 @@ import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:path/path.dart';
 
@@ -57,7 +57,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
       supportBiometricAuth = types.isNotEmpty;
-      Log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
+      log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
     }
   }
 
@@ -65,7 +65,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   void doOnReady() {}
 
   Future<void> saveEnableBlur(bool enableBlur) async {
-    Log.debug('saveEnableBlur:$enableBlur');
+    log.debug('saveEnableBlur:$enableBlur');
     this.enableBlur.value = enableBlur;
     await save();
 
@@ -86,25 +86,25 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
 
   Future<void> savePassword(String rawPassword) async {
     String md5 = keyToMd5(rawPassword);
-    Log.debug('saveEncryptedPassword:$md5');
+    log.debug('saveEncryptedPassword:$md5');
     this.encryptedPassword.value = md5;
     await save();
   }
 
   Future<void> saveEnablePasswordAuth(bool enablePasswordAuth) async {
-    Log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
+    log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
     this.enablePasswordAuth.value = enablePasswordAuth;
     await save();
   }
 
   Future<void> saveEnableBiometricAuth(bool enableBiometricAuth) async {
-    Log.debug('saveEnableBiometricAuth:$enableBiometricAuth');
+    log.debug('saveEnableBiometricAuth:$enableBiometricAuth');
     this.enableBiometricAuth.value = enableBiometricAuth;
     await save();
   }
 
   Future<void> saveEnableAuthOnResume(bool enableAuthOnResume) async {
-    Log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
+    log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
     this.enableAuthOnResume.value = enableAuthOnResume;
     await save();
 
@@ -114,7 +114,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   Future<void> saveHideImagesInAlbum(bool hideImagesInAlbum) async {
-    Log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
+    log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
     this.hideImagesInAlbum.value = hideImagesInAlbum;
     await save();
 

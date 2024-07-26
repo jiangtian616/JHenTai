@@ -20,7 +20,7 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../utils/byte_util.dart';
-import '../utils/log.dart';
+import 'log.dart';
 import '../utils/toast_util.dart';
 
 class TagSearchOrderOptimizationService extends GetxService {
@@ -38,7 +38,7 @@ class TagSearchOrderOptimizationService extends GetxService {
 
   static void init() {
     Get.put(TagSearchOrderOptimizationService());
-    Log.debug('init TagSearchOrderOptimizationService success');
+    log.debug('init TagSearchOrderOptimizationService success');
   }
 
   @override
@@ -60,7 +60,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       return;
     }
 
-    Log.info('Refresh tag order optimization data');
+    log.info('Refresh tag order optimization data');
 
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 KB';
@@ -75,17 +75,17 @@ class TagSearchOrderOptimizationService extends GetxService {
           parser: EHSpiderParser.latestReleaseResponse2Tag,
         ),
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('Get tag order optimization data failed, retry.'),
+        onRetry: (error) => log.warning('Get tag order optimization data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Get tag order optimization data failed after 5 times', e.errorMsg);
+      log.error('Get tag order optimization data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
     if (tag == version.value) {
-      Log.info('Tag order optimization data is up to date, tag: $tag');
+      log.info('Tag order optimization data is up to date, tag: $tag');
       loadingState.value = LoadingState.success;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
       return;
@@ -101,20 +101,20 @@ class TagSearchOrderOptimizationService extends GetxService {
           onReceiveProgress: (count, total) => downloadProgress.value = byte2String(count.toDouble()),
         ),
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('Download tag order optimization data failed, retry.'),
+        onRetry: (error) => log.warning('Download tag order optimization data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download tag translation data failed after 5 times', e.errorMsg);
+      log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
-    Log.info('Download tag order optimization data success');
+    log.info('Download tag order optimization data success');
 
     List<int> bytes = await extractGZipArchive(savePath);
     if (bytes.isEmpty) {
-      Log.error('Extract tag order optimization data failed');
+      log.error('Extract tag order optimization data failed');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
@@ -131,7 +131,7 @@ class TagSearchOrderOptimizationService extends GetxService {
         bytes,
       );
     } on Exception catch (e) {
-      Log.error('Parse tag order optimization data failed', e);
+      log.error('Parse tag order optimization data failed', e);
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
@@ -139,7 +139,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     }
 
     if (rows.length < 2) {
-      Log.error('Parse tag order optimization data failed, rows length: ${rows.length}');
+      log.error('Parse tag order optimization data failed, rows length: ${rows.length}');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
@@ -157,7 +157,7 @@ class TagSearchOrderOptimizationService extends GetxService {
 
     loadingState.value = LoadingState.success;
     File(savePath).delete().ignore();
-    Log.info('Refresh tag order optimization data success');
+    log.info('Refresh tag order optimization data success');
   }
 
   Future<List<TagCountData>> batchSelectTagCount(List<String> namespaceWithKeys) {

@@ -11,7 +11,7 @@ import '../exception/eh_site_exception.dart';
 import '../model/tag_set.dart';
 import '../network/eh_request.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 class MyTagsSetting {
   static Map<int, ({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags})> onlineTags = {};
@@ -34,7 +34,7 @@ class MyTagsSetting {
       return;
     }
 
-    Log.info('refresh MyTagsSetting');
+    log.info('refresh MyTagsSetting');
 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) defaultTagSetPageInfo;
     try {
@@ -44,10 +44,10 @@ class MyTagsSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      log.error('getTagSetFailed'.tr, e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
+      log.error('getTagSetFailed'.tr, e.message);
       return;
     }
 
@@ -56,7 +56,7 @@ class MyTagsSetting {
       tagSetBackGroundColor: defaultTagSetPageInfo.tagSetBackgroundColor,
       tags: defaultTagSetPageInfo.tags,
     );
-    Log.info('refresh default tag set success, length: ${onlineTags[defaultTagSetNo]!.tags.length}');
+    log.info('refresh default tag set success, length: ${onlineTags[defaultTagSetNo]!.tags.length}');
 
     /// fetch all tag sets
     for (({int number, String name}) tagSet in defaultTagSetPageInfo.tagSets) {
@@ -72,7 +72,7 @@ class MyTagsSetting {
       return;
     }
 
-    Log.info('refreshOnlineTagSets tagSetNo: $tagSetNo');
+    log.info('refreshOnlineTagSets tagSetNo: $tagSetNo');
 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
@@ -82,10 +82,10 @@ class MyTagsSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      log.error('getTagSetFailed'.tr, e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
+      log.error('getTagSetFailed'.tr, e.message);
       return;
     }
 
@@ -94,7 +94,7 @@ class MyTagsSetting {
       tagSetBackGroundColor: pageInfo.tagSetBackgroundColor,
       tags: pageInfo.tags,
     );
-    Log.info('refresh tag set: $tagSetNo success, length: ${onlineTags[tagSetNo]!.tags.length}');
+    log.info('refresh tag set: $tagSetNo success, length: ${onlineTags[tagSetNo]!.tags.length}');
   }
 
   static ({Color? tagSetBackGroundColor, WatchedTag tag})? getOnlineTagSetByTagData(TagData tagData) {
@@ -120,6 +120,6 @@ class MyTagsSetting {
 
   static Future<void> _clearOnlineTagSets() async {
     onlineTags.clear();
-    Log.info('clear MyTagsSetting success');
+    log.info('clear MyTagsSetting success');
   }
 }

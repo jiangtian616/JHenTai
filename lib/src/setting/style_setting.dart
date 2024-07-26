@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/jh_service.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../model/jh_layout.dart';
 
@@ -109,7 +109,7 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
 
   Future<void> saveThemeMode(ThemeMode themeMode) async {
-    Log.debug('saveThemeMode:${themeMode.name}');
+    log.debug('saveThemeMode:${themeMode.name}');
     this.themeMode.value = themeMode;
     await save();
 
@@ -117,49 +117,49 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
 
   Future<void> saveLightThemeColor(Color color) async {
-    Log.debug('saveLightThemeColor:$color');
+    log.debug('saveLightThemeColor:$color');
     this.lightThemeColor.value = color;
     await save();
   }
 
   Future<void> saveDarkThemeColor(Color color) async {
-    Log.debug('saveDarkThemeColor:$color');
+    log.debug('saveDarkThemeColor:$color');
     this.darkThemeColor.value = color;
     await save();
   }
 
   Future<void> saveListMode(ListMode listMode) async {
-    Log.debug('saveListMode:${listMode.name}');
+    log.debug('saveListMode:${listMode.name}');
     this.listMode.value = listMode;
     await save();
   }
 
   Future<void> saveCrossAxisCountInWaterFallFlow(int? crossAxisCountInWaterFallFlow) async {
-    Log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
+    log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
     this.crossAxisCountInWaterFallFlow.value = crossAxisCountInWaterFallFlow;
     await save();
   }
 
   Future<void> saveCrossAxisCountInGridDownloadPageForGroup(int? crossAxisCountInGridDownloadPageForGroup) async {
-    Log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
+    log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
     this.crossAxisCountInGridDownloadPageForGroup.value = crossAxisCountInGridDownloadPageForGroup;
     await save();
   }
 
   Future<void> saveCrossAxisCountInGridDownloadPageForGallery(int? crossAxisCountInGridDownloadPageForGallery) async {
-    Log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
+    log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
     this.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
     await save();
   }
 
   Future<void> saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) async {
-    Log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
+    log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
     this.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
     await save();
   }
 
   Future<void> savePageListMode(String routeName, ListMode? listMode) async {
-    Log.debug('savePageListMode:$routeName, $listMode');
+    log.debug('savePageListMode:$routeName, $listMode');
     if (listMode == null) {
       this.pageListMode.remove(routeName);
     } else {
@@ -169,13 +169,13 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
 
   Future<void> saveMoveCover2RightSide(bool moveCover2RightSide) async {
-    Log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
+    log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
     this.moveCover2RightSide.value = moveCover2RightSide;
     await save();
   }
 
   Future<void> saveLayoutMode(LayoutMode layoutMode) async {
-    Log.debug('saveLayoutMode:${layoutMode.name}');
+    log.debug('saveLayoutMode:${layoutMode.name}');
     this.layout.value = layoutMode;
     await save();
   }

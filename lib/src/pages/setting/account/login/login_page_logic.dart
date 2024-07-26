@@ -20,7 +20,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../exception/eh_site_exception.dart';
 import '../../../../setting/eh_setting.dart';
 import '../../../../utils/cookie_util.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import 'login_page_state.dart';
@@ -99,13 +99,13 @@ class LoginPageLogic extends GetxController {
         EHSpiderParser.loginPage2UserInfoOrErrorMsg,
       );
     } on DioException catch (e) {
-      Log.error('loginFail'.tr, e.errorMsg);
+      log.error('loginFail'.tr, e.errorMsg);
       snack('loginFail'.tr, e.errorMsg ?? '');
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('loginFail'.tr, e.message);
+      log.error('loginFail'.tr, e.message);
       snack('loginFail'.tr, e.message);
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -113,7 +113,7 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userInfoOrErrorMsg['errorMsg'] != null) {
-      Log.info('Login failed by password.');
+      log.info('Login failed by password.');
       snack('loginFail'.tr, (userInfoOrErrorMsg['errorMsg'] as String).tr, isShort: true);
 
       state.loginState = LoadingState.error;
@@ -122,7 +122,7 @@ class LoginPageLogic extends GetxController {
       return EHRequest.requestLogout();
     }
 
-    Log.info('Login success by password.');
+    log.info('Login success by password.');
 
     UserSetting.saveUserInfo(
       userName: state.userName!,
@@ -179,7 +179,7 @@ class LoginPageLogic extends GetxController {
       await EHRequest.requestHomePage();
       userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioException catch (e) {
-      Log.error('loginFail'.tr, e.errorMsg);
+      log.error('loginFail'.tr, e.errorMsg);
       snack('loginFail'.tr, e.errorMsg ?? '', isShort: true);
 
       EHRequest.removeAllCookies();
@@ -188,7 +188,7 @@ class LoginPageLogic extends GetxController {
       update([loadingStateId]);
       return;
     } on Exception catch (e) {
-      Log.error('loginFail'.tr, e.toString());
+      log.error('loginFail'.tr, e.toString());
       snack('loginFail'.tr, e.toString(), isShort: true);
 
       EHRequest.removeAllCookies();
@@ -199,7 +199,7 @@ class LoginPageLogic extends GetxController {
     }
 
     if (userInfo == null) {
-      Log.info('Login failed by cookie.');
+      log.info('Login failed by cookie.');
 
       EHRequest.removeAllCookies();
 
@@ -210,7 +210,7 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    Log.info('Login success by cookie.');
+    log.info('Login success by cookie.');
 
     state.loginState = LoadingState.success;
     update([loadingStateId]);
@@ -272,7 +272,7 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    Log.info('Login success by web.');
+    log.info('Login success by web.');
     cookieLoginLoadingState = LoadingState.loading;
 
     try {
@@ -317,7 +317,7 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    Log.info('Login success by web.');
+    log.info('Login success by web.');
     cookieLoginLoadingState = LoadingState.loading;
 
     try {

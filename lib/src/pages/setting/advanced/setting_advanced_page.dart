@@ -14,7 +14,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
@@ -197,8 +197,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             data: 'package:top.jtmonster.jhentai',
           ).launch();
         } on Exception catch (e) {
-          Log.error(e);
-          Log.uploadError(e);
+          log.error(e);
+          log.uploadError(e);
           toast('error'.tr);
         }
       },
@@ -259,9 +259,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     setStateSafely(() => _logLoadingState = LoadingState.loading);
 
     try {
-      _logSize = await Log.getSize();
+      _logSize = await log.getSize();
     } catch (e) {
-      Log.error('loading log size error', e);
+      log.error('loading log size error', e);
       _logSize = '-1B';
       setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
       return;
@@ -275,7 +275,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       return;
     }
 
-    await Log.clear();
+    await log.clear();
     await _loadingLogSize();
 
     toast('clearSuccess'.tr, isCenter: false);
@@ -305,7 +305,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         join(pathService.tempDir.path, cacheImageFolderName),
       );
     } catch (e) {
-      Log.error(e);
+      log.error(e);
       _imageCacheSize = '-1B';
       setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
       return;
@@ -339,7 +339,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     try {
       path = await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick export path failed', e);
+      log.error('Pick export path failed', e);
       return;
     }
 
@@ -377,7 +377,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     try {
       await file.writeAsString(jsonEncode(uploadConfigs));
     } on Exception catch (e) {
-      Log.error('Export data failed', e);
+      log.error('Export data failed', e);
       toast('internalError'.tr);
       setStateSafely(() => _exportDataLoadingState = LoadingState.error);
       file.delete();
@@ -398,7 +398,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         compressionQuality: 0,
       );
     } on Exception catch (e) {
-      Log.error('Pick import data file failed', e);
+      log.error('Pick import data file failed', e);
       return;
     }
 
@@ -428,7 +428,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       setStateSafely(() => _importDataLoadingState = LoadingState.success);
       io.exit(0);
     } on Exception catch (e) {
-      Log.error('Import data failed', e);
+      log.error('Import data failed', e);
       toast('internalError'.tr);
       setStateSafely(() => _importDataLoadingState = LoadingState.error);
       return;

@@ -9,7 +9,7 @@ import 'package:jhentai/src/model/gallery.dart';
 
 import '../model/gallery_comment.dart';
 import '../model/gallery_tag.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 class LocalBlockRuleService extends GetxService {
   final List<LocalBlockRuleHandler> handlers = [];
@@ -44,7 +44,7 @@ class LocalBlockRuleService extends GetxService {
       CommentUserNameRegexLocalBlockRuleHandler(),
     ]);
 
-    Log.debug('init LocalBlockRuleService success');
+    log.debug('init LocalBlockRuleService success');
     super.onInit();
   }
 
@@ -67,12 +67,12 @@ class LocalBlockRuleService extends GetxService {
   }
 
   Future<({bool success, String? msg})> upsertBlockRule(LocalBlockRule rule) async {
-    Log.info('Upsert block rule: $rule');
+    log.info('Upsert block rule: $rule');
 
     LocalBlockRuleHandler handler = getHandlerByRule(rule);
     ({bool success, String? msg}) validateResult = handler.validateRule(rule);
     if (!validateResult.success) {
-      Log.info('Upsert block rule failed, result:$validateResult');
+      log.info('Upsert block rule failed, result:$validateResult');
       return validateResult;
     }
 
@@ -91,13 +91,13 @@ class LocalBlockRuleService extends GetxService {
   }
 
   Future<({bool success, String? msg})> replaceBlockRulesByGroup(String groupId, List<LocalBlockRule> rules) async {
-    Log.info('Replace block rules, groupId:$groupId, rules:$rules');
+    log.info('Replace block rules, groupId:$groupId, rules:$rules');
 
     for (LocalBlockRule rule in rules) {
       LocalBlockRuleHandler handler = getHandlerByRule(rule);
       ({bool success, String? msg}) validateResult = handler.validateRule(rule);
       if (!validateResult.success) {
-        Log.info('Replace block rule failed, rule:$rule, result:$validateResult');
+        log.info('Replace block rule failed, rule:$rule, result:$validateResult');
         return validateResult;
       }
     }
@@ -122,11 +122,11 @@ class LocalBlockRuleService extends GetxService {
   }
 
   Future<({bool success, String? msg})> removeLocalBlockRulesByGroupId(String groupId) async {
-    Log.info('Remove block rules, group id: $groupId');
+    log.info('Remove block rules, group id: $groupId');
 
     bool success = await BlockRuleDao.deleteBlockRuleByGroupId(groupId) > 0;
     if (!success) {
-      Log.error('Remove block rule failed, update database failed.');
+      log.error('Remove block rule failed, update database failed.');
       return Future.value((success: false, msg: 'Update database failed'));
     }
 
@@ -166,7 +166,7 @@ class LocalBlockRuleService extends GetxService {
         });
       });
     } catch (e) {
-      Log.error('executeRules failed, items:$items', e);
+      log.error('executeRules failed, items:$items', e);
     }
 
     return results;
@@ -471,7 +471,7 @@ abstract class RegexLocalBlockRuleHandler<ITEM> implements LocalBlockRuleHandler
       RegExp(rule.expression);
       return (success: true, msg: null);
     } on FormatException catch (e) {
-      Log.error('Invalid regex:${rule.expression}', e);
+      log.error('Invalid regex:${rule.expression}', e);
       return (success: false, msg: 'inputRegexHint'.tr);
     }
   }

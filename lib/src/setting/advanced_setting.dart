@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../service/jh_service.dart';
 
@@ -48,31 +48,31 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   void doOnReady() {}
 
   Future<void> saveEnableLogging(bool enableLogging) async {
-    Log.debug('saveEnableLogging:$enableLogging');
+    log.debug('saveEnableLogging:$enableLogging');
     this.enableLogging.value = enableLogging;
     await save();
   }
 
   Future<void> saveEnableVerboseLogging(bool enableVerboseLogging) async {
-    Log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
+    log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
     this.enableVerboseLogging.value = enableVerboseLogging;
     await save();
   }
 
   Future<void> saveEnableCheckUpdate(bool enableCheckUpdate) async {
-    Log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
+    log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
     this.enableCheckUpdate.value = enableCheckUpdate;
     await save();
   }
 
   Future<void> saveEnableCheckClipboard(bool enableCheckClipboard) async {
-    Log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
+    log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
     this.enableCheckClipboard.value = enableCheckClipboard;
     await save();
   }
 
   Future<void> saveInNoImageMode(bool inNoImageMode) async {
-    Log.debug('saveInNoImageMode:$inNoImageMode');
+    log.debug('saveInNoImageMode:$inNoImageMode');
     this.inNoImageMode.value = inNoImageMode;
     await save();
   }

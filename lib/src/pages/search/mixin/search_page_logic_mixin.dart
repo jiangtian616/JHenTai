@@ -27,7 +27,7 @@ import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
 import '../../../utils/eh_spider_parser.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/eh_alert_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
@@ -97,7 +97,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
         compressionQuality: 0,
       );
     } on Exception catch (e) {
-      Log.error('Pick file failed', e);
+      log.error('Pick file failed', e);
       return;
     }
 
@@ -105,7 +105,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return;
     }
 
-    Log.info('File search');
+    log.info('File search');
 
     state.hasSearched = true;
 
@@ -130,14 +130,14 @@ mixin SearchPageLogicMixin on BasePageLogic {
         parser: EHSpiderParser.imageLookup2RedirectUrl,
       );
     } on DioException catch (e) {
-      Log.error('fileSearchFailed'.tr, e.errorMsg);
+      log.error('fileSearchFailed'.tr, e.errorMsg);
       snack('fileSearchFailed'.tr, e.errorMsg ?? '');
       state.hasSearched = false;
       state.loadingState = LoadingState.idle;
       updateSafely();
       return;
     } on EHSiteException catch (e) {
-      Log.error('fileSearchFailed'.tr, e.message);
+      log.error('fileSearchFailed'.tr, e.message);
       snack('fileSearchFailed'.tr, e.message);
       state.hasSearched = false;
       state.loadingState = LoadingState.idle;
@@ -150,7 +150,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       rethrow;
     }
 
-    Log.info('Get redirect url success:${state.redirectUrl}');
+    log.info('Get redirect url success:${state.redirectUrl}');
     loadMore(checkLoadingState: false);
   }
 
@@ -194,7 +194,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return;
     }
 
-    Log.info('search for ${state.searchConfig.keyword}');
+    log.info('search for ${state.searchConfig.keyword}');
 
     /// chinese => database; other => EH api
     if (tagTranslationService.isReady) {
@@ -218,7 +218,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
                 ))
             .toList();
       } on DioException catch (e) {
-        Log.error('Request tag suggestion failed', e);
+        log.error('Request tag suggestion failed', e);
         state.suggestions = [];
       }
     }
@@ -248,7 +248,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek);
     }
 
-    Log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
+    log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
     return EHRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,

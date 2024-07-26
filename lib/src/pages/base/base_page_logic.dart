@@ -22,7 +22,7 @@ import '../../service/local_block_rule_service.dart';
 import '../../service/tag_translation_service.dart';
 import '../../setting/user_setting.dart';
 import '../../utils/eh_spider_parser.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../utils/route_util.dart';
 import '../../utils/snack_util.dart';
 import '../../utils/toast_util.dart';
@@ -100,13 +100,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       galleryPage = await getGalleryPage();
     } on DioException catch (e) {
-      Log.error('refreshGalleryFailed'.tr, e.errorMsg);
+      log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('refreshGalleryFailed'.tr, e.message);
+      log.error('refreshGalleryFailed'.tr, e.message);
       snack(
         'refreshGalleryFailed'.tr,
         e.message,
@@ -180,13 +180,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       galleryPage = await getGalleryPage(prevGid: state.prevGid);
     } on DioException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.errorMsg);
+      log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.message);
+      log.error('getGallerysFailed'.tr, e.message);
       snack(
         'getGallerysFailed'.tr,
         e.message,
@@ -223,13 +223,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       galleryPage = await getGalleryPage(nextGid: state.nextGid);
     } on DioException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.errorMsg);
+      log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.message);
+      log.error('getGallerysFailed'.tr, e.message);
       snack(
         'getGallerysFailed'.tr,
         e.message,
@@ -264,7 +264,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       return;
     }
 
-    Log.info('Jump page to $dateTime');
+    log.info('Jump page to $dateTime');
 
     state.gallerys.clear();
     state.loadingState = LoadingState.loading;
@@ -276,13 +276,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     try {
       galleryPage = await getGalleryPage(nextGid: state.nextGid, prevGid: state.prevGid, seek: dateTime);
     } on DioException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.errorMsg);
+      log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGallerysFailed'.tr, e.message);
+      log.error('getGallerysFailed'.tr, e.message);
       snack(
         'getGallerysFailed'.tr,
         e.message,
@@ -363,7 +363,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   void handleSecondaryTapCard(BuildContext context, Gallery gallery) async {}
 
   Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) {
-    Log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
+    log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
 
     return EHRequest.requestGalleryPage(
       prevGid: prevGid,

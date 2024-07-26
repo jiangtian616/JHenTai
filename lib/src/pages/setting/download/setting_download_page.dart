@@ -19,7 +19,7 @@ import 'package:path/path.dart';
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
 import '../../../service/gallery_download_service.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_download_dialog.dart';
@@ -325,7 +325,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     try {
       newDownloadPath ??= await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick download path failed', e);
+      log.error('Pick download path failed', e);
     }
 
     if (newDownloadPath == null || newDownloadPath == oldDownloadPath) {
@@ -349,8 +349,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       try {
         await _copyOldFiles(oldDownloadPath, newDownloadPath);
       } on Exception catch (e) {
-        Log.error('Copy files failed!', e);
-        Log.uploadError(e, extraInfos: {'oldDownloadPath': oldDownloadPath, 'newDownloadPath': newDownloadPath});
+        log.error('Copy files failed!', e);
+        log.uploadError(e, extraInfos: {'oldDownloadPath': oldDownloadPath, 'newDownloadPath': newDownloadPath});
         toast('internalError'.tr);
       }
 
@@ -361,8 +361,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
       await localGalleryService.refreshLocalGallerys();
     } on Exception catch (e) {
-      Log.error('_handleChangeDownloadPath failed!', e);
-      Log.uploadError(e);
+      log.error('_handleChangeDownloadPath failed!', e);
+      log.uploadError(e);
       toast('internalError'.tr);
     } finally {
       setState(() => changeDownloadPathState = LoadingState.idle);
@@ -408,7 +408,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     try {
       newPath = await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick single image save path failed', e);
+      log.error('Pick single image save path failed', e);
     }
 
     if (newPath == null || newPath == oldPath) {
@@ -425,7 +425,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Future<void> _restore() async {
-    Log.info('Restore download task.');
+    log.info('Restore download task.');
 
     int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
     int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restoreTasks();

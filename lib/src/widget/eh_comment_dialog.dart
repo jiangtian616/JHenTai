@@ -9,7 +9,7 @@ import '../exception/eh_site_exception.dart';
 import '../network/eh_request.dart';
 import '../pages/details/details_page_logic.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 import 'loading_state_indicator.dart';
@@ -108,12 +108,12 @@ class EHCommentDialogState extends State<EHCommentDialog> {
       }
     } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
-        Log.error('sendCommentFailed'.tr, e.errorMsg);
+        log.error('sendCommentFailed'.tr, e.errorMsg);
         snack('sendCommentFailed'.tr, e.errorMsg ?? '');
         return;
       }
     } on EHSiteException catch (e) {
-      Log.error('sendCommentFailed'.tr, e.message);
+      log.error('sendCommentFailed'.tr, e.message);
       snack('sendCommentFailed'.tr, e.message);
       return;
     } finally {

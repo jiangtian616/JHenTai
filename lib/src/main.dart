@@ -23,7 +23,6 @@ import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
-import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
@@ -34,20 +33,17 @@ import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import 'config/theme_config.dart';
 
@@ -151,8 +147,8 @@ Future<void> init() async {
       return true;
     }
 
-    Log.error('Global Error', error, stack);
-    Log.uploadError(error, stackTrace: stack);
+    log.error('Global Error', error, stack);
+    log.uploadError(error, stackTrace: stack);
     return false;
   };
 
@@ -161,8 +157,8 @@ Future<void> init() async {
       return;
     }
 
-    Log.error('Global Error', details.exception, details.stack);
-    Log.uploadError(details.exception, stackTrace: details.stack);
+    log.error('Global Error', details.exception, details.stack);
+    log.uploadError(details.exception, stackTrace: details.stack);
   };
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
@@ -172,7 +168,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  await Log.init();
   UserSetting.init();
 
   TabBarSetting.init();

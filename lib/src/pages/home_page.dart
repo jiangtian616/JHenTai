@@ -13,7 +13,7 @@ import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/version_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
@@ -129,7 +129,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
           .trim()
           .split('+')[0];
     } on Exception catch (_) {
-      Log.info('check update failed');
+      log.info('check update failed');
       return;
     }
 
@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String currentVersion = 'v${packageInfo.version}'.trim();
-    Log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
+    log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
 
     if (compareVersion(currentVersion, latestVersion) >= 0) {
       return;
@@ -212,8 +212,8 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         }
       },
       onError: (e) {
-        Log.error('ReceiveSharingIntent Error!', e);
-        Log.uploadError(e);
+        log.error('ReceiveSharingIntent Error!', e);
+        log.uploadError(e);
       },
     );
   }

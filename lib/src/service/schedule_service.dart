@@ -17,13 +17,12 @@ import 'package:path_provider/path_provider.dart';
 
 import '../database/database.dart';
 import '../model/gallery_metadata.dart';
-import '../utils/file_util.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 class ScheduleService extends GetxService {
   static void init() {
     Get.put(ScheduleService(), permanent: true);
-    Log.debug('init ScheduleService success', false);
+    log.debug('init ScheduleService success', false);
   }
 
   @override
@@ -56,9 +55,9 @@ class ScheduleService extends GetxService {
               )
               .toList(),
         );
-        Log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
+        log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
       } catch (e) {
-        Log.warning('refreshGalleryTags error, gallerys: $gallerys', e);
+        log.warning('refreshGalleryTags error, gallerys: $gallerys', e);
       }
 
       pageNo++;
@@ -87,9 +86,9 @@ class ScheduleService extends GetxService {
               )
               .toList(),
         );
-        Log.trace('refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}');
+        log.trace('refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}');
       } catch (e) {
-        Log.warning('refreshArchiveTags error, archives: $archives', e);
+        log.warning('refreshArchiveTags error, archives: $archives', e);
       }
 
       pageNo++;
@@ -106,6 +105,6 @@ class ScheduleService extends GetxService {
         entity.delete();
         count++;
       }
-    }).then((_) => Log.info('Clear outdated image cache success, count: $count'));
+    }).then((_) => log.info('Clear outdated image cache success, count: $count'));
   }
 }

@@ -6,7 +6,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 
 import '../service/jh_service.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 NetworkSetting networkSetting = NetworkSetting();
 
@@ -73,25 +73,25 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   void doOnReady() {}
 
   Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
-    Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
+    log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
     this.pageCacheMaxAge.value = pageCacheMaxAge;
     await save();
   }
 
   Future<void> saveCacheImageExpireDuration(Duration cacheImageExpireDuration) async {
-    Log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
+    log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
     this.cacheImageExpireDuration.value = cacheImageExpireDuration;
     await save();
   }
 
   Future<void> saveEnableDomainFronting(bool enableDomainFronting) async {
-    Log.debug('saveEnableDomainFronting:$enableDomainFronting');
+    log.debug('saveEnableDomainFronting:$enableDomainFronting');
     this.enableDomainFronting.value = enableDomainFronting;
     await save();
   }
 
   Future<void> saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) async {
-    Log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
+    log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
     this.proxyType.value = proxyType;
     this.proxyAddress.value = proxyAddress;
     this.proxyUsername.value = proxyUsername;
@@ -100,7 +100,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   }
 
   Future<void> saveConnectTimeout(int connectTimeout) async {
-    Log.debug('saveConnectTimeout:$connectTimeout');
+    log.debug('saveConnectTimeout:$connectTimeout');
     this.connectTimeout.value = connectTimeout;
     await save();
 
@@ -108,7 +108,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   }
 
   Future<void> saveReceiveTimeout(int receiveTimeout) async {
-    Log.debug('saveReceiveTimeout:$receiveTimeout');
+    log.debug('saveReceiveTimeout:$receiveTimeout');
     this.receiveTimeout.value = receiveTimeout;
     await save();
 

@@ -29,7 +29,7 @@ import '../pages/search/mixin/search_page_logic_mixin.dart';
 import '../setting/download_setting.dart';
 import '../setting/preference_setting.dart';
 import '../utils/locale_util.dart';
-import '../utils/log.dart';
+import 'log.dart';
 import '../utils/uuid_util.dart';
 
 class AppUpdateService extends GetxService {
@@ -88,14 +88,14 @@ class AppUpdateService extends GetxService {
 
   void handleAppUpdateWhenInit(int oldVersion) {
     try {} on Exception catch (e) {
-      Log.uploadError(e);
+      log.uploadError(e);
     }
   }
 
   void handleAppUpdateWhenReady(int oldVersion) {
     Get.engine.addPostFrameCallback((_) async {
       if (oldVersion <= 2) {
-        Log.info('Move style setting to preference setting');
+        log.info('Move style setting to preference setting');
 
         Map<String, dynamic>? styleSettingMap = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.styleSetting.key);
 
@@ -117,7 +117,7 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 3) {
-        Log.info('Rename metadata file');
+        log.info('Rename metadata file');
 
         Directory downloadDir = Directory(DownloadSetting.downloadPath.value);
         downloadDir.exists().then((exists) {
@@ -148,13 +148,13 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 4) {
-        Log.info('update local gallery path');
+        log.info('update local gallery path');
 
         DownloadSetting.removeExtraGalleryScanPath(DownloadSetting.defaultDownloadPath);
       }
 
       if (oldVersion <= 5) {
-        Log.info('update read direction setting');
+        log.info('update read direction setting');
 
         if (ReadSetting.readDirection.value == ReadDirection.left2rightSinglePageFitWidth) {
           ReadSetting.saveReadDirection(ReadDirection.left2rightDoubleColumn);
@@ -170,7 +170,7 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 6) {
-        Log.info('migrate search config');
+        log.info('migrate search config');
 
         StorageService storageService = Get.find<StorageService>();
 
@@ -182,7 +182,7 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 7) {
-        Log.info('Clear super-resulotion setting');
+        log.info('Clear super-resulotion setting');
         SuperResolutionSetting.saveModelDirectoryPath(null);
       }
 
@@ -206,12 +206,12 @@ class AppUpdateService extends GetxService {
           }
         }
 
-        Log.info('migrate cookies: $cookies');
+        log.info('migrate cookies: $cookies');
         EHRequest.storeEHCookies(cookies);
       }
 
       if (oldVersion <= 9) {
-        Log.info('Migrate local filtered tags');
+        log.info('Migrate local filtered tags');
 
         Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.myTagsSetting.key);
         if (map != null) {
@@ -247,7 +247,7 @@ class AppUpdateService extends GetxService {
         int pageSize = 400;
         int pageCount = (totalCount / pageSize).ceil();
 
-        Log.info('Migrate search config, total count: $totalCount');
+        log.info('Migrate search config, total count: $totalCount');
 
         for (int i = 0; i < pageCount; i++) {
           try {
@@ -273,9 +273,9 @@ class AppUpdateService extends GetxService {
 
             GalleryHistoryDao.deleteAllHistoryOld();
 
-            Log.info('Migrate search config for page index $i success!');
+            log.info('Migrate search config for page index $i success!');
           } on Exception catch (e) {
-            Log.error('Migrate search config for page index $i failed!', e);
+            log.error('Migrate search config for page index $i failed!', e);
           }
         }
       }

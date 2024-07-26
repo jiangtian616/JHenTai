@@ -6,7 +6,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:retry/retry.dart';
 
 import '../exception/eh_site_exception.dart';
@@ -34,9 +34,9 @@ class FavoriteSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.favoriteSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init FavoriteSetting success', false);
+      log.debug('init FavoriteSetting success', false);
     } else {
-      Log.debug('init FavoriteSetting success: default', false);
+      log.debug('init FavoriteSetting success: default', false);
     }
 
     /// listen to login and logout
@@ -55,7 +55,7 @@ class FavoriteSetting {
       return;
     }
 
-    Log.info('refresh FavoriteSetting');
+    log.info('refresh FavoriteSetting');
     try {
       await retry(
         () async {
@@ -68,14 +68,14 @@ class FavoriteSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('refresh FavoriteSetting fail', e.errorMsg);
+      log.error('refresh FavoriteSetting fail', e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      Log.error('refresh FavoriteSetting fail', e.message);
+      log.error('refresh FavoriteSetting fail', e.message);
       return;
     }
 
-    Log.info('refresh FavoriteSetting success');
+    log.info('refresh FavoriteSetting success');
   }
 
   static void incrementFavByIndex(int? index) async {
@@ -111,7 +111,7 @@ class FavoriteSetting {
     ];
     favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
     Get.find<StorageService>().remove(ConfigEnum.favoriteSetting.key);
-    Log.info('clear FavoriteSetting success');
+    log.info('clear FavoriteSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

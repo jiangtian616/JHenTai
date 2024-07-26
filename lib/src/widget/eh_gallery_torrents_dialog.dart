@@ -10,7 +10,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -70,14 +70,14 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
         EHSpiderParser.torrentPage2GalleryTorrent,
       );
     } on DioException catch (e) {
-      Log.error('getGalleryTorrentsFailed'.tr, e.errorMsg);
+      log.error('getGalleryTorrentsFailed'.tr, e.errorMsg);
       snack('getGalleryTorrentsFailed'.tr, e.errorMsg ?? '');
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGalleryTorrentsFailed'.tr, e.message);
+      log.error('getGalleryTorrentsFailed'.tr, e.message);
       snack('getGalleryTorrentsFailed'.tr, e.message);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);

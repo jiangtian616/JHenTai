@@ -4,7 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
@@ -123,11 +123,11 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
         builder: (_) => LoadingStateIndicator(
           loadingState: state.loadingState,
           errorTapCallback: () {
-            Log.info('CenterStatusIndicator errorTapCallback => loadMore');
+            log.info('CenterStatusIndicator errorTapCallback => loadMore');
             logic.loadMore();
           },
           noDataTapCallback: () {
-            Log.info('CenterStatusIndicator noDataTapCallback => loadMore');
+            log.info('CenterStatusIndicator noDataTapCallback => loadMore');
             logic.loadMore();
           },
         ),
@@ -153,7 +153,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
           builder: (_) => LoadingStateIndicator(
             loadingState: state.loadingState,
             errorTapCallback: () {
-              Log.info('LoadMoreIndicator errorTapCallback => loadMore');
+              log.info('LoadMoreIndicator errorTapCallback => loadMore');
               logic.loadMore();
             },
           ),

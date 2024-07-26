@@ -12,50 +12,53 @@ import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
 import '../exception/upload_exception.dart';
-import 'byte_util.dart';
+import 'jh_service.dart';
+import '../utils/byte_util.dart';
 
-class Log {
-  static Logger? _consoleLogger;
-  static Logger? _verboseFileLogger;
-  static Logger? _warningFileLogger;
-  static Logger? _downloadFileLogger;
+LogService log = LogService();
 
-  static LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, levelEmojis: {Level.trace: '✔ '});
-  static LogPrinter prodPrinterWithBox =
-      PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, colors: false, printTime: true, levelEmojis: {Level.trace: '✔ '});
-  static LogPrinter prodPrinterWithoutBox =
+class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  String? logDirPath;
+
+  Logger? _consoleLogger;
+  Logger? _verboseFileLogger;
+  Logger? _warningFileLogger;
+  Logger? _downloadFileLogger;
+
+  LogPrinter devPrinter = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, levelEmojis: {Level.trace: '✔ '});
+  LogPrinter prodPrinterWithBox = PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, colors: false, printTime: true, levelEmojis: {Level.trace: '✔ '});
+  LogPrinter prodPrinterWithoutBox =
       PrettyPrinter(stackTraceBeginIndex: 0, methodCount: 6, colors: false, noBoxingByDefault: true, levelEmojis: {Level.trace: '✔ '});
 
-  static late final String logDirPath;
+  @override
+  List<JHLifeCircleBean> get initDependencies => [pathService];
 
-  static Future<void> init() async {
-    logDirPath = path.join(pathService.getVisibleDir().path, 'logs');
-    if (!await Directory(logDirPath).exists()) {
-      await Directory(logDirPath).create();
-    }
-    _consoleLogger = Logger(printer: devPrinter);
-  }
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
 
   /// For actions that print params
-  static void trace(Object msg, [bool withStack = false]) {
-    _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void trace(Object msg, [bool withStack = false]) {
+    _initConsoleLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
   /// For actions that is invisible to user
-  static void debug(Object msg, [bool withStack = false]) {
-    _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void debug(Object msg, [bool withStack = false]) {
+    _initConsoleLogger().then((_) => _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
   /// For actions that is visible to user
-  static void info(Object msg, [bool withStack = false]) {
-    _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void info(Object msg, [bool withStack = false]) {
+    _initConsoleLogger().then((_) => _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
-  static void warning(Object msg, [Object? error, bool withStack = false]) {
-    _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void warning(Object msg, [Object? error, bool withStack = false]) {
+    _initConsoleLogger().then((_) => _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
 
     if (advancedSetting.enableVerboseLogging.isTrue) {
@@ -63,29 +66,29 @@ class Log {
     }
   }
 
-  static void error(Object msg, [Object? error, StackTrace? stackTrace]) {
-    _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
+  void error(Object msg, [Object? error, StackTrace? stackTrace]) {
+    _initConsoleLogger().then((_) => _consoleLogger?.e(msg, error: error, stackTrace: stackTrace));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace));
     if (advancedSetting.enableVerboseLogging.isTrue) {
       _initWarningFileLogger().then((_) => _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace));
     }
   }
 
-  static void download(Object msg) {
-    _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
+  void download(Object msg) {
+    _initConsoleLogger().then((_) => _consoleLogger?.t(msg, stackTrace: StackTrace.empty));
     if (advancedSetting.enableVerboseLogging.isTrue) {
       _initDownloadFileLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: StackTrace.empty));
     }
   }
 
-  static Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
+  Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
     /// sentry is removed
   }
 
-  static Future<String> getSize() async {
+  Future<String> getSize() async {
     return compute(
       (logDirPath) {
-        Directory logDirectory = Directory(logDirPath);
+        Directory logDirectory = Directory(logDirPath!);
         return logDirectory.exists().then<int>((exist) {
           if (!exist) {
             return 0;
@@ -98,7 +101,7 @@ class Log {
     );
   }
 
-  static Future<void> clear() async {
+  Future<void> clear() async {
     await _verboseFileLogger?.close();
     await _warningFileLogger?.close();
     await _downloadFileLogger?.close();
@@ -107,35 +110,52 @@ class Log {
     _warningFileLogger = null;
     _downloadFileLogger = null;
 
-    if (await Directory(logDirPath).exists()) {
-      await Directory(logDirPath).delete(recursive: true);
+    if (await Directory(logDirPath!).exists()) {
+      await Directory(logDirPath!).delete(recursive: true);
     }
   }
 
-  static Future<void> _initVerboseFileLogger() {
+  Future<void> _initLogDir() async {
+    if (logDirPath == null) {
+      logDirPath = path.join(pathService.getVisibleDir().path, 'logs');
+      if (!await Directory(logDirPath!).exists()) {
+        await Directory(logDirPath!).create();
+      }
+    }
+  }
+
+  Future<void> _initConsoleLogger() async {
+    _consoleLogger ??= Logger(printer: devPrinter);
+    return _consoleLogger!.init;
+  }
+
+  Future<void> _initVerboseFileLogger() async {
+    await _initLogDir();
     _verboseFileLogger ??= Logger(
       printer: HybridPrinter(prodPrinterWithBox, trace: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: EHLogFilter(),
-      output: FileOutput(file: File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
+      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
     );
     return _verboseFileLogger!.init;
   }
 
-  static Future<void> _initWarningFileLogger() {
+  Future<void> _initWarningFileLogger() async {
+    await _initLogDir();
     _warningFileLogger ??= Logger(
       level: Level.warning,
       printer: prodPrinterWithBox,
       filter: ProductionFilter(),
-      output: FileOutput(file: File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'))),
+      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'))),
     );
     return _warningFileLogger!.init;
   }
 
-  static Future<void> _initDownloadFileLogger() {
+  Future<void> _initDownloadFileLogger() async {
+    await _initLogDir();
     _downloadFileLogger ??= Logger(
       printer: prodPrinterWithoutBox,
       filter: ProductionFilter(),
-      output: FileOutput(file: File(path.join(logDirPath, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'))),
+      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'))),
     );
     return _downloadFileLogger!.init;
   }
@@ -159,15 +179,15 @@ T callWithParamsUploadIfErrorOccurs<T>(T Function() func, {dynamic params, T? de
       rethrow;
     }
 
-    Log.error('operationFailed'.tr, e);
-    Log.uploadError(e, extraInfos: {'params': params});
+    log.error('operationFailed'.tr, e);
+    log.uploadError(e, extraInfos: {'params': params});
     if (defaultValue == null) {
       throw NotUploadException(e);
     }
     return defaultValue;
   } on Error catch (e) {
-    Log.error('operationFailed'.tr, e);
-    Log.uploadError(e, extraInfos: {'params': params});
+    log.error('operationFailed'.tr, e);
+    log.uploadError(e, extraInfos: {'params': params});
     if (defaultValue == null) {
       throw NotUploadException(e);
     }

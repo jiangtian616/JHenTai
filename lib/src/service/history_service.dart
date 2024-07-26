@@ -8,7 +8,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 class HistoryService extends GetxController {
   static const String historyUpdateId = 'historyUpdateId';
@@ -21,7 +21,7 @@ class HistoryService extends GetxController {
 
   @override
   Future<void> onInit() async {
-    Log.debug('init HistoryService success');
+    log.debug('init HistoryService success');
 
     super.onInit();
   }
@@ -46,7 +46,7 @@ class HistoryService extends GetxController {
   }
 
   Future<void> record(GalleryHistoryModel gallery) async {
-    Log.trace('Record history: ${gallery.galleryUrl.gid}');
+    log.trace('Record history: ${gallery.galleryUrl.gid}');
 
     try {
       await GalleryHistoryDao.replaceHistory(
@@ -57,12 +57,12 @@ class HistoryService extends GetxController {
         ),
       );
     } on Exception catch (e) {
-      Log.error('Record history failed!', e);
+      log.error('Record history failed!', e);
     }
   }
 
   Future<void> batchRecord(List<GalleryHistoryModel> gallerys) async {
-    Log.trace('Batch record history: $gallerys');
+    log.trace('Batch record history: $gallerys');
 
     try {
       for (List<GalleryHistoryModel> partition in gallerys.partition(500)) {
@@ -80,18 +80,18 @@ class HistoryService extends GetxController {
         await Future.delayed(const Duration(milliseconds: 200));
       }
     } on Exception catch (e) {
-      Log.error('Record history failed!', e);
+      log.error('Record history failed!', e);
     }
   }
 
   Future<bool> delete(int gid) async {
-    Log.info('Delete history: $gid');
+    log.info('Delete history: $gid');
 
     return await GalleryHistoryDao.deleteHistory(gid) > 0;
   }
 
   Future<bool> deleteAll() async {
-    Log.info('Delete all historys');
+    log.info('Delete all historys');
     return await GalleryHistoryDao.deleteAllHistory() > 0;
   }
 }

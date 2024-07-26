@@ -7,7 +7,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 
@@ -27,9 +27,9 @@ class EHSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.EHSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init EHSetting success, site: $site');
+      log.debug('init EHSetting success, site: $site');
     } else {
-      Log.debug('init EHSetting success: default');
+      log.debug('init EHSetting success: default');
     }
 
     /// listen to logout
@@ -48,7 +48,7 @@ class EHSetting {
       return;
     }
 
-    Log.info('refresh EHSetting');
+    log.info('refresh EHSetting');
     refreshState.value = LoadingState.loading;
     Map<String, int> map = {};
     try {
@@ -60,11 +60,11 @@ class EHSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('refresh EHSetting fail', e.errorMsg);
+      log.error('refresh EHSetting fail', e.errorMsg);
       refreshState.value = LoadingState.error;
       return;
     } on EHSiteException catch (e) {
-      Log.error('refresh EHSetting fail', e.message);
+      log.error('refresh EHSetting fail', e.message);
       refreshState.value = LoadingState.error;
       return;
     }
@@ -74,17 +74,17 @@ class EHSetting {
     resetCost.value = map['resetCost']!;
     refreshState.value = LoadingState.idle;
     _save();
-    Log.info('refresh EHSetting success');
+    log.info('refresh EHSetting success');
   }
 
   static saveRedirect2Eh(bool redirect2Eh) {
-    Log.debug('saveRedirect2Eh:$redirect2Eh');
+    log.debug('saveRedirect2Eh:$redirect2Eh');
     EHSetting.redirect2Eh.value = redirect2Eh;
     _save();
   }
 
   static saveSite(String site) {
-    Log.debug('saveSite:$site');
+    log.debug('saveSite:$site');
     EHSetting.site.value = site;
     _save();
 
@@ -101,7 +101,7 @@ class EHSetting {
     site.value = 'EH';
     currentConsumption.value = -1;
     Get.find<StorageService>().remove(ConfigEnum.EHSetting.key);
-    Log.info('clear EHSetting success');
+    log.info('clear EHSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

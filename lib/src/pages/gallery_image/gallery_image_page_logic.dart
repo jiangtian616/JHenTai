@@ -27,7 +27,7 @@ import '../../model/tag_set.dart';
 import '../../setting/eh_setting.dart';
 import '../../setting/my_tags_setting.dart';
 import '../../setting/user_setting.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../utils/snack_util.dart';
 
 class GalleryImagePageArgument {
@@ -78,19 +78,19 @@ class GalleryImagePageLogic extends GetxController {
         parser: EHSpiderParser.imagePage2GalleryUrl,
       );
     } on DioException catch (e) {
-      Log.error('Get gallery image page info Failed', e.errorMsg, e.stackTrace);
+      log.error('Get gallery image page info Failed', e.errorMsg, e.stackTrace);
       snack('failed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } on EHSiteException catch (e) {
-      Log.error('Get gallery image page info Failed', e.message);
+      log.error('Get gallery image page info Failed', e.message);
       snack('failed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } catch (e, s) {
-      Log.error('Get gallery image page info Failed', e, s);
+      log.error('Get gallery image page info Failed', e, s);
       snack('failed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
@@ -102,19 +102,19 @@ class GalleryImagePageLogic extends GetxController {
       detailsPageInfo = await _getDetailsWithRedirectAndFallback(galleryUrl: galleryUrl);
       galleryUrl = detailsPageInfo.galleryDetails.galleryUrl;
     } on DioException catch (e) {
-      Log.error('Get gallery detail failed in image page', e.errorMsg, e.stackTrace);
+      log.error('Get gallery detail failed in image page', e.errorMsg, e.stackTrace);
       snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } on EHSiteException catch (e) {
-      Log.error('Get gallery detail failed in image page', e.message);
+      log.error('Get gallery detail failed in image page', e.message);
       snack('getGalleryDetailFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } catch (e, s) {
-      Log.error('Get gallery detail failed in image page', e, s);
+      log.error('Get gallery detail failed in image page', e, s);
       snack('getGalleryDetailFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
@@ -163,7 +163,7 @@ class GalleryImagePageLogic extends GetxController {
     /// if we can't find gallery via firstLink, try second link
     EHSiteException? firstException;
     if (firstLink != null) {
-      Log.trace('Try to find gallery via firstLink: $firstLink');
+      log.trace('Try to find gallery via firstLink: $firstLink');
       try {
         ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
           galleryUrl: firstLink.url,
@@ -172,13 +172,13 @@ class GalleryImagePageLogic extends GetxController {
         );
         return detailPageInfo;
       } on EHSiteException catch (e) {
-        Log.trace('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
+        log.trace('Can\'t find gallery, firstLink: $firstLink, reason: ${e.message}');
         firstException = e;
       }
     }
 
     try {
-      Log.trace('Try to find gallery via secondLink: $secondLink');
+      log.trace('Try to find gallery via secondLink: $secondLink');
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
         galleryUrl: secondLink.url,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
@@ -186,7 +186,7 @@ class GalleryImagePageLogic extends GetxController {
       );
       return detailPageInfo;
     } on EHSiteException catch (e) {
-      Log.trace('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
+      log.trace('Can\'t find gallery, secondLink: $secondLink, reason: ${e.message}');
       throw firstException ?? e;
     }
   }

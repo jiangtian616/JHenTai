@@ -38,7 +38,7 @@ import '../model/gallery.dart';
 import '../model/gallery_metadata.dart';
 import 'byte_util.dart';
 import 'check_util.dart';
-import 'log.dart';
+import '../service/log.dart';
 
 typedef HtmlParser<T> = T Function(Headers headers, dynamic data);
 
@@ -79,8 +79,8 @@ class EHSpiderParser {
     }
 
     if (!html.contains('No hits found')) {
-      Log.error('Parse gallery inline type failed');
-      Log.uploadError(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
+      log.error('Parse gallery inline type failed');
+      log.uploadError(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
     }
     return _compactGalleryPageDocument2GalleryPageInfo(document);
   }
@@ -532,7 +532,7 @@ class EHSpiderParser {
     }
 
     if (favoriteTagNames.length < 10 || favoriteCounts.length < 10) {
-      Log.uploadError(
+      log.uploadError(
         Exception('Favorites parsed error!'),
         extraInfos: {
           'html': html,

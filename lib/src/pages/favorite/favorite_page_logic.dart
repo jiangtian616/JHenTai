@@ -12,7 +12,7 @@ import '../../exception/eh_site_exception.dart';
 import '../../model/gallery.dart';
 import '../../model/search_config.dart';
 import '../../utils/eh_spider_parser.dart';
-import '../../utils/log.dart';
+import '../../service/log.dart';
 import '../../utils/snack_util.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../base/base_page_logic.dart';
@@ -69,13 +69,13 @@ class FavoritePageLogic extends BasePageLogic {
         return;
       }
 
-      Log.error('change favorite sort order fail', e.message);
+      log.error('change favorite sort order fail', e.message);
       snack('failed'.tr, e.message ?? '');
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('change favorite sort order fail', e.message);
+      log.error('change favorite sort order fail', e.message);
       snack('failed'.tr, e.message);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);

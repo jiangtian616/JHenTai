@@ -11,7 +11,7 @@ import '../model/tag_set.dart';
 import '../network/eh_request.dart';
 import '../setting/preference_setting.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 import 'loading_state_indicator.dart';
@@ -82,21 +82,21 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
       );
     } on DioException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.errorMsg);
+      log.error('getTagSetFailed'.tr, e.errorMsg);
       snack('getTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      Log.error('getTagSetFailed'.tr, e.message);
+      log.error('getTagSetFailed'.tr, e.message);
       snack('getTagSetFailed'.tr, e.message, isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });
       return;
     } catch (e) {
-      Log.error('getTagSetFailed'.tr, e.toString());
+      log.error('getTagSetFailed'.tr, e.toString());
       snack('getTagSetFailed'.tr, e.toString(), isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;

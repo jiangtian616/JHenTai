@@ -20,7 +20,7 @@ import 'package:retry/retry.dart';
 import '../database/database.dart';
 import '../enum/config_enum.dart';
 import '../model/gallery_tag.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 typedef TagAutoCompletionMatch = ({
   String searchText,
@@ -50,7 +50,7 @@ class TagTranslationService extends GetxService {
 
   static void init() {
     Get.put(TagTranslationService());
-    Log.debug('init TagTranslationService success', false);
+    log.debug('init TagTranslationService success', false);
   }
 
   @override
@@ -72,7 +72,7 @@ class TagTranslationService extends GetxService {
       return;
     }
 
-    Log.info('Refresh tag translation data');
+    log.info('Refresh tag translation data');
 
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 MB';
@@ -87,16 +87,16 @@ class TagTranslationService extends GetxService {
           onReceiveProgress: (count, total) => downloadProgress.value = (count / 1024 / 1024).toStringAsFixed(2) + ' MB',
         ),
         maxAttempts: 5,
-        onRetry: (error) => Log.warning('Download tag translation data failed, retry.'),
+        onRetry: (error) => log.warning('Download tag translation data failed, retry.'),
       );
     } on DioException catch (e) {
-      Log.error('Download tag translation data failed after 5 times', e.errorMsg);
+      log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
     }
 
-    Log.info('Tag translation data downloaded');
+    log.info('Tag translation data downloaded');
 
     /// format
     String json = io.File(savePath).readAsStringSync();
@@ -107,7 +107,7 @@ class TagTranslationService extends GetxService {
     List dataList = dataMap['data'] as List;
 
     if (newTimeStamp == timeStamp.value) {
-      Log.info('Tag translation data is up to date, timestamp: $timeStamp');
+      log.info('Tag translation data is up to date, timestamp: $timeStamp');
       loadingState.value = LoadingState.success;
       io.File(savePath).delete();
       return;
@@ -160,7 +160,7 @@ class TagTranslationService extends GetxService {
 
     loadingState.value = LoadingState.success;
     io.File(savePath).delete();
-    Log.info('Update tag translation database success, timestamp: $timeStamp');
+    log.info('Update tag translation database success, timestamp: $timeStamp');
   }
 
   /// won't translate keys

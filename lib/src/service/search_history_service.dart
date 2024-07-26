@@ -5,7 +5,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 
 import '../database/database.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 class SearchHistoryService extends GetxService {
   StorageService storageService = Get.find();
@@ -33,7 +33,7 @@ class SearchHistoryService extends GetxService {
       );
     }
 
-    Log.debug('init SearchHistoryService success');
+    log.debug('init SearchHistoryService success');
   }
 
   Future<void> writeHistory(String searchHistory) async {

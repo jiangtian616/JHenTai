@@ -9,7 +9,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -89,18 +89,18 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
         parser: EHSpiderParser.statPage2GalleryStats,
       );
     } on DioException catch (e) {
-      Log.error('getGalleryStatisticsFailed'.tr, e.errorMsg);
+      log.error('getGalleryStatisticsFailed'.tr, e.errorMsg);
       snack('getGalleryStatisticsFailed'.tr, e.errorMsg ?? '');
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
       if (e.type == EHSiteExceptionType.galleryDeleted) {
-        Log.error('invisible2UserWithoutDonation'.tr);
+        log.error('invisible2UserWithoutDonation'.tr);
         setStateSafely(() => loadingState = LoadingState.noData);
         return;
       }
 
-      Log.error('getGalleryStatisticsFailed'.tr, e.message);
+      log.error('getGalleryStatisticsFailed'.tr, e.message);
       snack('getGalleryStatisticsFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
       return;

@@ -9,7 +9,7 @@ import '../service/isolate_service.dart';
 import '../service/storage_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/proxy_util.dart';
 
 class JHRequest {
@@ -29,7 +29,7 @@ class JHRequest {
 
     _initCookieManager();
 
-    Log.debug('init JHRequest success');
+    log.debug('init JHRequest success');
   }
 
   static Future<void> _initProxy() async {

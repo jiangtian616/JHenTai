@@ -12,7 +12,7 @@ import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 
@@ -55,7 +55,7 @@ class DashboardPageLogic extends BasePageLogic {
       update([ranklistId]);
     }
 
-    Log.info('Get ranklist data');
+    log.info('Get ranklist data');
 
     List<dynamic> gallerysAndPageInfo;
     try {
@@ -65,13 +65,13 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getRanklistFailed'.tr, e.errorMsg);
+      log.error('getRanklistFailed'.tr, e.errorMsg);
       snack('getRanklistFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getRanklistFailed'.tr, e.message);
+      log.error('getRanklistFailed'.tr, e.message);
       snack('getRanklistFailed'.tr, e.message, isShort: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
@@ -95,7 +95,7 @@ class DashboardPageLogic extends BasePageLogic {
       update([popularListId]);
     }
 
-    Log.info('Get popular list data');
+    log.info('Get popular list data');
 
     GalleryPageInfo gallerysPage;
     try {
@@ -104,13 +104,13 @@ class DashboardPageLogic extends BasePageLogic {
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
     } on DioException catch (e) {
-      Log.error('getPopularListFailed'.tr, e.errorMsg);
+      log.error('getPopularListFailed'.tr, e.errorMsg);
       snack('getPopularListFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getPopularListFailed'.tr, e.message);
+      log.error('getPopularListFailed'.tr, e.message);
       snack('getPopularListFailed'.tr, e.message, isShort: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);

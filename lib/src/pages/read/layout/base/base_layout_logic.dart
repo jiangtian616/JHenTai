@@ -28,7 +28,7 @@ import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../service/path_service.dart';
 import '../../../../setting/read_setting.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../read_page_logic.dart';
@@ -258,7 +258,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         await file.writeAsBytes(data);
         toast('saveSuccess'.tr);
       } catch (e) {
-        Log.error('Save online image failed: $e');
+        log.error('Save online image failed: $e');
         toast('saveFailed'.tr);
         file.delete().ignore();
         return;
@@ -271,7 +271,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         bool success = await _saveFile2Album(file.path, fileName);
         toast(success ? 'saveSuccess'.tr : 'saveFailed'.tr);
       } catch (e) {
-        Log.error('Save online image failed: $e');
+        log.error('Save online image failed: $e');
         toast('saveFailed'.tr);
         file.delete().ignore();
         return;
@@ -302,7 +302,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       file.delete().ignore();
 
       EHImageException? exception = GalleryDownloadService.imageData2Exception(data);
-      Log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
+      log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
 
       if (exception != null) {
         if (exception.operation == EHImageExceptionAfterOperation.pause) {
@@ -316,7 +316,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
           try {
             image = await readPageLogic.requestImage(index, true, null);
           } catch (e) {
-            Log.error('Save original image failed: $e');
+            log.error('Save original image failed: $e');
             toast('saveFailed'.tr);
             return;
           }
@@ -340,7 +340,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         toast(success ? 'saveSuccess'.tr : 'saveFailed'.tr);
       }
     } catch (e) {
-      Log.error('Save original online image failed: $e');
+      log.error('Save original online image failed: $e');
       toast('saveFailed'.tr);
     } finally {
       file.delete().ignore();
@@ -396,7 +396,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       androidExistNotSave: false,
     );
 
-    Log.info('Save image to album: $saveResult');
+    log.info('Save image to album: $saveResult');
 
     return saveResult.isSuccess;
   }
@@ -411,7 +411,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       androidExistNotSave: false,
     );
 
-    Log.info('Save image to album: $saveResult');
+    log.info('Save image to album: $saveResult');
 
     return saveResult.isSuccess;
   }

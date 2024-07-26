@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 abstract interface class EHIpProvider {
   bool supports(String host);
@@ -56,6 +56,6 @@ class RoundRobinIpProvider implements EHIpProvider {
       _host2UnavailableIps[host] = {};
     }
     _host2UnavailableIps[host]![ip] = DateTime.now();
-    Log.info('RoundRobinIpProvider addUnavailableIp: $host -> $ip');
+    log.info('RoundRobinIpProvider addUnavailableIp: $host -> $ip');
   }
 }

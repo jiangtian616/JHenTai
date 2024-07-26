@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 
 import '../service/storage_service.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 class PerformanceSetting {
   static RxInt maxGalleryNum4Animation = 30.obs;
@@ -11,14 +11,14 @@ class PerformanceSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.performanceSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init PerformanceSetting success');
+      log.debug('init PerformanceSetting success');
     } else {
-      Log.debug('init PerformanceSetting success: default');
+      log.debug('init PerformanceSetting success: default');
     }
   }
 
   static void setMaxGalleryNum4Animation(int value) {
-    Log.debug('setMaxGalleryNum4Animation:$value');
+    log.debug('setMaxGalleryNum4Animation:$value');
     maxGalleryNum4Animation.value = value;
     _save();
   }

@@ -6,7 +6,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
-import '../../../utils/log.dart';
+import '../../../service/log.dart';
 import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
 
@@ -412,8 +412,8 @@ class SettingReadPage extends StatelessWidget {
         try {
           result = await FilePicker.platform.pickFiles();
         } on Exception catch (e) {
-          Log.error('Pick 3-rd party viewer failed', e);
-          Log.uploadError(e);
+          log.error('Pick 3-rd party viewer failed', e);
+          log.uploadError(e);
         }
 
         if (result == null || result.files.single.path == null) {

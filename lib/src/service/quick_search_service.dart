@@ -6,7 +6,7 @@ import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
-import '../utils/log.dart';
+import 'log.dart';
 import '../widget/eh_search_config_dialog.dart';
 
 const quickSearchStorageKey = 'quickSearch';
@@ -18,7 +18,7 @@ class QuickSearchService extends GetxController {
 
   static void init() {
     Get.put(QuickSearchService());
-    Log.debug('init QuickSearchService success', false);
+    log.debug('init QuickSearchService success', false);
   }
 
   @override
@@ -45,7 +45,7 @@ class QuickSearchService extends GetxController {
       }
     }
 
-    Log.info('Add quick search: $name');
+    log.info('Add quick search: $name');
 
     _storageService.write(quickSearchStorageKey, quickSearchConfigs);
 
@@ -56,7 +56,7 @@ class QuickSearchService extends GetxController {
   }
 
   void removeQuickSearch(String name) {
-    Log.info('Remove quick search: $name');
+    log.info('Remove quick search: $name');
 
     quickSearchConfigs.remove(name);
     _storageService.write(quickSearchStorageKey, quickSearchConfigs);
@@ -64,7 +64,7 @@ class QuickSearchService extends GetxController {
   }
 
   void reOrderQuickSearch(int oldIndex, int newIndex) {
-    Log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex');
+    log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex');
 
     List<MapEntry<String, SearchConfig>> entries = quickSearchConfigs.entries.toList();
 
@@ -95,7 +95,7 @@ class QuickSearchService extends GetxController {
       return;
     }
 
-    Log.info('Update quick search: ${oldConfig.key}');
+    log.info('Update quick search: ${oldConfig.key}');
     String quickSearchName = result['quickSearchName'];
     SearchConfig searchConfig = result['searchConfig'];
 

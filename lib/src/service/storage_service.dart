@@ -4,7 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:path/path.dart';
 
-import '../utils/log.dart';
+import 'log.dart';
 import 'jh_service.dart';
 
 StorageService storageService = StorageService();
@@ -52,7 +52,7 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
         oldBakFile.delete();
       }
     } on Exception catch (e) {
-      Log.uploadError(e);
+      log.uploadError(e);
     }
   }
 }

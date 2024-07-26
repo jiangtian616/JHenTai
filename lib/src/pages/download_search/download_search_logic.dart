@@ -6,7 +6,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:throttling/throttling.dart';
@@ -84,7 +84,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
   }
 
   Future<void> search(String value) async {
-    Log.info('search downloaded info: $value');
+    log.info('search downloaded info: $value');
 
     if (loadingState == LoadingState.loading) {
       return;

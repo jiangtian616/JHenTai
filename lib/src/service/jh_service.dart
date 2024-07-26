@@ -2,7 +2,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 
 import '../main.dart';
-import '../utils/log.dart';
+import 'log.dart';
 
 abstract interface class JHLifeCircleBean {
   JHLifeCircleBean() {
@@ -17,23 +17,23 @@ abstract interface class JHLifeCircleBean {
 }
 
 mixin JHLifeCircleBeanErrorCatch {
-  List<JHLifeCircleBean> get initDependencies => [];
+  List<JHLifeCircleBean> get initDependencies => [log];
 
   Future<void> onInit() async {
     try {
       await doOnInit();
-      Log.debug('Init $runtimeType success');
+      log.debug('Init $runtimeType success');
     } catch (e, stack) {
-      Log.error('Init $runtimeType failed', e, stack);
+      log.error('Init $runtimeType failed', e, stack);
     }
   }
 
   void onReady() {
     try {
       doOnReady();
-      Log.debug('OnReady $runtimeType success');
+      log.debug('OnReady $runtimeType success');
     } catch (e, stack) {
-      Log.error('OnReady $runtimeType failed', e, stack);
+      log.error('OnReady $runtimeType failed', e, stack);
     }
   }
 
@@ -54,18 +54,18 @@ mixin JHLifeCircleBeanWithConfigStorage {
         applyConfig(configString);
       }
       await doOnInit();
-      Log.debug(configString == null ? 'Init $runtimeType success with default' : 'Init $runtimeType success');
+      log.debug(configString == null ? 'Init $runtimeType success with default' : 'Init $runtimeType success');
     } catch (e, stack) {
-      Log.error('Init $runtimeType failed', e, stack);
+      log.error('Init $runtimeType failed', e, stack);
     }
   }
 
   void onReady() {
     try {
       doOnReady();
-      Log.debug('OnReady $runtimeType success');
+      log.debug('OnReady $runtimeType success');
     } catch (e, stack) {
-      Log.error('OnReady $runtimeType failed', e, stack);
+      log.error('OnReady $runtimeType failed', e, stack);
     }
   }
 
@@ -73,13 +73,13 @@ mixin JHLifeCircleBeanWithConfigStorage {
     try {
       String? configString = await localConfigService.read(configKey: configEnum);
       if (configString == null) {
-        Log.debug('Refresh $runtimeType success with default');
+        log.debug('Refresh $runtimeType success with default');
       } else {
         applyConfig(configString);
-        Log.debug('Refresh $runtimeType success');
+        log.debug('Refresh $runtimeType success');
       }
     } catch (e, stack) {
-      Log.error('Refresh $runtimeType failed', e, stack);
+      log.error('Refresh $runtimeType failed', e, stack);
     }
   }
 

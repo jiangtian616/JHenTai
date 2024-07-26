@@ -10,7 +10,7 @@ import 'package:retry/retry.dart';
 import '../exception/eh_site_exception.dart';
 import '../model/profile.dart';
 import '../service/storage_service.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 class SiteSetting {
   static RxBool preferJapaneseTitle = true.obs;
@@ -26,9 +26,9 @@ class SiteSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.siteSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init SiteSetting success', false);
+      log.debug('init SiteSetting success', false);
     } else {
-      Log.debug('init SiteSetting success: default', false);
+      log.debug('init SiteSetting success: default', false);
     }
 
     /// listen to login and logout
@@ -46,7 +46,7 @@ class SiteSetting {
       return;
     }
 
-    Log.info('refresh SiteSetting');
+    log.info('refresh SiteSetting');
 
     ({
       bool preferJapaneseTitle,
@@ -62,10 +62,10 @@ class SiteSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('refresh SiteSetting fail', e.errorMsg);
+      log.error('refresh SiteSetting fail', e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      Log.error('refresh SiteSetting fail', e.message);
+      log.error('refresh SiteSetting fail', e.message);
       return;
     }
 
@@ -75,7 +75,7 @@ class SiteSetting {
     thumbnailRows.value = settings.thumbnailRows;
     thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
 
-    Log.info('refresh SiteSetting success');
+    log.info('refresh SiteSetting success');
     _save();
   }
 
@@ -90,7 +90,7 @@ class SiteSetting {
     thumbnailRows.value = 4;
     thumbnailsCountPerPage.value = 40;
     Get.find<StorageService>().remove(ConfigEnum.siteSetting.key);
-    Log.info('clear SiteSetting success');
+    log.info('clear SiteSetting success');
   }
 
   static Map<String, dynamic> _toMap() {

@@ -12,7 +12,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../exception/eh_site_exception.dart';
 import '../setting/favorite_setting.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/route_util.dart';
 import '../utils/snack_util.dart';
 
@@ -177,7 +177,7 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
     }
     setState(() => _loadingState = LoadingState.loading);
 
-    Log.info('Get gallery favorite info');
+    log.info('Get gallery favorite info');
     GalleryNote note;
     try {
       note = await widget.initNoteFuture!();
@@ -189,17 +189,17 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
         _loadingState = LoadingState.success;
       });
     } on DioException catch (e) {
-      Log.error('getGalleryFavoriteInfoFailed'.tr, e.errorMsg);
+      log.error('getGalleryFavoriteInfoFailed'.tr, e.errorMsg);
       snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
-      Log.error('getGalleryFavoriteInfoFailed'.tr, e.message);
+      log.error('getGalleryFavoriteInfoFailed'.tr, e.message);
       snack('getGalleryFavoriteInfoFailed'.tr, e.message, isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;
     } catch (e, s) {
-      Log.error('getGalleryFavoriteInfoFailed'.tr, e, s);
+      log.error('getGalleryFavoriteInfoFailed'.tr, e, s);
       snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;

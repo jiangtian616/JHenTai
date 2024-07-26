@@ -13,7 +13,7 @@ import '../../../../model/profile.dart';
 import '../../../../network/eh_request.dart';
 import '../../../../setting/site_setting.dart';
 import '../../../../utils/eh_spider_parser.dart';
-import '../../../../utils/log.dart';
+import '../../../../service/log.dart';
 
 class SettingEHProfilePage extends StatefulWidget {
   const SettingEHProfilePage({super.key});
@@ -97,13 +97,13 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      Log.error('Load profile fail', e.errorMsg);
+      log.error('Load profile fail', e.errorMsg);
       setState(() {
         loadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      Log.error('Load profile fail', e.message);
+      log.error('Load profile fail', e.message);
       setState(() {
         loadingState = LoadingState.error;
       });

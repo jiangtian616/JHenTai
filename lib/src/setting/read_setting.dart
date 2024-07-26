@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../service/storage_service.dart';
 
@@ -108,200 +108,200 @@ class ReadSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.readSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init ReadSetting success', false);
+      log.debug('init ReadSetting success', false);
     } else {
-      Log.debug('init ReadSetting success: default', false);
+      log.debug('init ReadSetting success: default', false);
     }
   }
 
   static saveEnableImmersiveMode(bool value) {
-    Log.debug('saveEnableImmersiveMode:$value');
+    log.debug('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
     _save();
   }
 
   static saveKeepScreenAwakeWhenReading(bool value) {
-    Log.debug('saveKeepScreenAwakeWhenReading:$value');
+    log.debug('saveKeepScreenAwakeWhenReading:$value');
     keepScreenAwakeWhenReading.value = value;
     _save();
   }
 
   static saveEnableCustomReadBrightness(bool value) {
-    Log.debug('saveEnableCustomReadBrightness:$value');
+    log.debug('saveEnableCustomReadBrightness:$value');
     enableCustomReadBrightness.value = value;
     _save();
   }
 
   static saveCustomBrightness(int value) {
-    Log.debug('saveCustomBrightness:$value');
+    log.debug('saveCustomBrightness:$value');
     customBrightness.value = value;
     _save();
   }
 
   static saveImageSpace(int value) {
-    Log.debug('saveImageSpace:$value');
+    log.debug('saveImageSpace:$value');
     imageSpace.value = value;
     _save();
   }
 
   static saveShowThumbnails(bool value) {
-    Log.debug('saveShowThumbnails:$value');
+    log.debug('saveShowThumbnails:$value');
     showThumbnails.value = value;
     _save();
   }
 
   static saveShowScrollBar(bool value) {
-    Log.debug('saveShowScrollBar:$value');
+    log.debug('saveShowScrollBar:$value');
     showScrollBar.value = value;
     _save();
   }
 
   static saveShowStatusInfo(bool value) {
-    Log.debug('saveShowStatusInfo:$value');
+    log.debug('saveShowStatusInfo:$value');
     showStatusInfo.value = value;
     _save();
   }
 
   static saveAutoModeInterval(double value) {
-    Log.debug('saveAutoModeInterval:$value');
+    log.debug('saveAutoModeInterval:$value');
     autoModeInterval.value = value;
     _save();
   }
 
   static saveAutoModeStyle(AutoModeStyle value) {
-    Log.debug('saveAutoModeStyle:${value.name}');
+    log.debug('saveAutoModeStyle:${value.name}');
     autoModeStyle.value = value;
     _save();
   }
 
   static saveDeviceDirection(DeviceDirection value) {
-    Log.debug('saveDeviceDirection:${value.name}');
+    log.debug('saveDeviceDirection:${value.name}');
     deviceDirection.value = value;
     _save();
   }
 
   static saveReadDirection(ReadDirection value) {
-    Log.debug('saveReadDirection:${value.name}');
+    log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
     _save();
   }
 
   static saveNotchOptimization(bool value) {
-    Log.debug('saveNotchOptimization:$value');
+    log.debug('saveNotchOptimization:$value');
     notchOptimization.value = value;
     _save();
   }
 
   static saveImageRegionWidthRatio(int value) {
-    Log.debug('saveImageRegionWidthRatio:$value');
+    log.debug('saveImageRegionWidthRatio:$value');
     imageRegionWidthRatio.value = value;
     _save();
   }
 
   static saveGestureRegionWidthRatio(int value) {
-    Log.debug('saveGestureRegionWidthRatio:$value');
+    log.debug('saveGestureRegionWidthRatio:$value');
     gestureRegionWidthRatio.value = value;
     _save();
   }
 
   static saveUseThirdPartyViewer(bool value) {
-    Log.debug('saveUseThirdPartyViewer:$value');
+    log.debug('saveUseThirdPartyViewer:$value');
     useThirdPartyViewer.value = value;
     _save();
   }
 
   static saveThirdPartyViewerPath(String? value) {
-    Log.debug('saveThirdPartyViewerPath:$value');
+    log.debug('saveThirdPartyViewerPath:$value');
     thirdPartyViewerPath.value = value;
     _save();
   }
 
   static saveEnablePageTurnByVolumeKeys(bool value) {
-    Log.debug('saveEnablePageTurnByVolumeKeys:$value');
+    log.debug('saveEnablePageTurnByVolumeKeys:$value');
     enablePageTurnByVolumeKeys.value = value;
     _save();
   }
 
   static saveEnablePageTurnAnime(bool value) {
-    Log.debug('saveEnablePageTurnAnime:$value');
+    log.debug('saveEnablePageTurnAnime:$value');
     enablePageTurnAnime.value = value;
     _save();
   }
 
   static saveEnableDoubleTapToScaleUp(bool value) {
-    Log.debug('saveEnableDoubleTapToScaleUp:$value');
+    log.debug('saveEnableDoubleTapToScaleUp:$value');
     enableDoubleTapToScaleUp.value = value;
     _save();
   }
 
   static saveEnableTapDragToScaleUp(bool value) {
-    Log.debug('saveEnableTapDragToScaleUp:$value');
+    log.debug('saveEnableTapDragToScaleUp:$value');
     enableTapDragToScaleUp.value = value;
     _save();
   }
 
   static saveEnableBottomMenu(bool value) {
-    Log.debug('saveEnableBottomMenu:$value');
+    log.debug('saveEnableBottomMenu:$value');
     enableBottomMenu.value = value;
     _save();
   }
 
   static saveTurnPageMode(TurnPageMode value) {
-    Log.debug('saveTurnPageMode:${value.name}');
+    log.debug('saveTurnPageMode:${value.name}');
     turnPageMode.value = value;
     _save();
   }
 
   static savePreloadDistance(int value) {
-    Log.debug('savePreloadDistance:$value');
+    log.debug('savePreloadDistance:$value');
     preloadDistance.value = value;
     _save();
   }
 
   static savePreloadDistanceLocal(int value) {
-    Log.debug('savePreloadDistanceLocal:$value');
+    log.debug('savePreloadDistanceLocal:$value');
     preloadDistanceLocal.value = value;
     _save();
   }
 
   static savePreloadPageCount(int value) {
-    Log.debug('savePreloadPageCount:$value');
+    log.debug('savePreloadPageCount:$value');
     preloadPageCount.value = value;
     _save();
   }
 
   static savePreloadPageCountLocal(int value) {
-    Log.debug('savePreloadPageCountLocal:$value');
+    log.debug('savePreloadPageCountLocal:$value');
     preloadPageCountLocal.value = value;
     _save();
   }
 
   static saveDisplayFirstPageAlone(bool value) {
-    Log.debug('saveDisplayFirstPageAlone:$value');
+    log.debug('saveDisplayFirstPageAlone:$value');
     displayFirstPageAlone.value = value;
     _save();
   }
 
   static saveReverseTurnPageDirection(bool value) {
-    Log.debug('saveReverseTurnPageDirection:$value');
+    log.debug('saveReverseTurnPageDirection:$value');
     reverseTurnPageDirection.value = value;
     _save();
   }
 
   static saveDisablePageTurningOnTap(bool value) {
-    Log.debug('saveDisablePageTurningOnTap:$value');
+    log.debug('saveDisablePageTurningOnTap:$value');
     disablePageTurningOnTap.value = value;
     _save();
   }
 
   static saveEnableMaxImageKilobyte(bool value) {
-    Log.debug('saveEnableMaxImageKilobyte:$value');
+    log.debug('saveEnableMaxImageKilobyte:$value');
     enableMaxImageKilobyte.value = value;
     _save();
   }
 
   static saveMaxImageKilobyte(int value) {
-    Log.debug('saveMaxImageKilobyte:$value');
+    log.debug('saveMaxImageKilobyte:$value');
     maxImageKilobyte.value = value;
     _save();
   }

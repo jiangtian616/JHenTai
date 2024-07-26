@@ -28,7 +28,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
 import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:path/path.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -73,7 +73,7 @@ class AppDb extends _$AppDb {
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (Migrator m, int from, int to) async {
-        Log.warning('Database version: $from -> $to');
+        log.warning('Database version: $from -> $to');
         if (from > to) {
           return;
         }
@@ -156,8 +156,8 @@ class AppDb extends _$AppDb {
             await m.createTable(localConfig);
           }
         } on Exception catch (e) {
-          Log.error(e);
-          Log.uploadError(e, extraInfos: {'from': from, 'to': to});
+          log.error(e);
+          log.uploadError(e, extraInfos: {'from': from, 'to': to});
           throw NotUploadException(e);
         }
       },
@@ -179,8 +179,8 @@ class AppDb extends _$AppDb {
         }
       });
     } on Exception catch (e) {
-      Log.error('Update archive failed!', e);
-      Log.uploadError(e);
+      log.error('Update archive failed!', e);
+      log.uploadError(e);
     }
   }
 
@@ -226,8 +226,8 @@ class AppDb extends _$AppDb {
         Get.find<StorageService>().remove(ConfigEnum.galleryHistory.key);
       }
     } on Exception catch (e) {
-      Log.error('Update history failed!', e);
-      Log.uploadError(e);
+      log.error('Update history failed!', e);
+      log.uploadError(e);
     }
   }
 
@@ -239,8 +239,8 @@ class AppDb extends _$AppDb {
       Set<String> galleryGroups = (await GalleryDao.selectOldGallerys()).map((g) => g.groupName ?? 'default'.tr).toSet();
       Set<String> archiveGroups = (await ArchiveDao.selectOldArchives()).map((g) => g.groupName ?? 'default'.tr).toSet();
 
-      Log.info('Migrate gallery groups: $galleryGroups');
-      Log.info('Migrate archive groups: $archiveGroups');
+      log.info('Migrate gallery groups: $galleryGroups');
+      log.info('Migrate archive groups: $archiveGroups');
 
       await appDb.transaction(() async {
         for (String groupName in galleryGroups) {
@@ -251,8 +251,8 @@ class AppDb extends _$AppDb {
         }
       });
     } on Exception catch (e) {
-      Log.error('Create Group Table failed!', e);
-      Log.uploadError(e);
+      log.error('Create Group Table failed!', e);
+      log.uploadError(e);
     }
   }
 
@@ -285,8 +285,8 @@ class AppDb extends _$AppDb {
         }
       });
     } on Exception catch (e) {
-      Log.error('Migrate super resolution info failed!', e);
-      Log.uploadError(e);
+      log.error('Migrate super resolution info failed!', e);
+      log.uploadError(e);
     }
   }
 
@@ -350,8 +350,8 @@ class AppDb extends _$AppDb {
         }
       });
     } catch (e) {
-      Log.error('Migrate downloaded info failed!', e);
-      Log.uploadError(e);
+      log.error('Migrate downloaded info failed!', e);
+      log.uploadError(e);
     }
   }
 

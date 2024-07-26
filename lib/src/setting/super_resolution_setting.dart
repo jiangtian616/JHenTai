@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../service/storage_service.dart';
 
@@ -97,26 +97,26 @@ class SuperResolutionSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.superResolutionSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init SuperResolutionSetting success', false);
+      log.debug('init SuperResolutionSetting success', false);
     } else {
-      Log.debug('init SuperResolutionSetting success: default', false);
+      log.debug('init SuperResolutionSetting success: default', false);
     }
   }
 
   static saveModelDirectoryPath(String? modelDirectoryPath) {
-    Log.debug('saveModelDirectoryPath:$modelDirectoryPath');
+    log.debug('saveModelDirectoryPath:$modelDirectoryPath');
     SuperResolutionSetting.modelDirectoryPath.value = modelDirectoryPath;
     _save();
   }
 
   static saveModel(ModelType model) {
-    Log.debug('saveModel:$model');
+    log.debug('saveModel:$model');
     SuperResolutionSetting.model.value = model;
     _save();
   }
 
   static saveGpuId(int gpuId) {
-    Log.debug('saveGpuId:$gpuId');
+    log.debug('saveGpuId:$gpuId');
     SuperResolutionSetting.gpuId.value = gpuId;
     _save();
   }

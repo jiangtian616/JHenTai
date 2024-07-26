@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import '../database/database.dart';
 
@@ -53,7 +53,7 @@ class EHCacheManager extends Interceptor {
         return handler.next(options);
       }
 
-      Log.trace('cache hit: ${options.uri.toString()}');
+      log.trace('cache hit: ${options.uri.toString()}');
       cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
       return handler.resolve(cacheResponse.toResponse(options), true);
     }
@@ -71,7 +71,7 @@ class EHCacheManager extends Interceptor {
     try {
       await _saveResponse(response, cacheOptions);
     } on Exception catch (e) {
-      Log.error('save cache failed', e);
+      log.error('save cache failed', e);
     }
 
     handler.next(response);

@@ -7,7 +7,7 @@ import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 import 'package:throttling/throttling.dart';
 
-import '../utils/log.dart';
+import 'log.dart';
 
 class WindowService extends GetxService {
   final StorageService storageService = Get.find<StorageService>();
@@ -48,7 +48,7 @@ class WindowService extends GetxService {
     columnResizedDebouncing.debounce(() {
       leftColumnWidthRatio = max(0.01, infoList[0].percentage);
 
-      Log.info('Resize left column ratio to: $leftColumnWidthRatio');
+      log.info('Resize left column ratio to: $leftColumnWidthRatio');
       storageService.write(ConfigEnum.leftColumnWidthRatio.key, leftColumnWidthRatio);
     });
   }
@@ -58,7 +58,7 @@ class WindowService extends GetxService {
       windowWidth = fullScreenWidth;
       windowHeight = screenHeight;
 
-      Log.info('Resize window to: $windowWidth x $windowHeight');
+      log.info('Resize window to: $windowWidth x $windowHeight');
 
       storageService.write(ConfigEnum.windowWidth.key, windowWidth);
       storageService.write(ConfigEnum.windowHeight.key, windowHeight);
@@ -66,14 +66,14 @@ class WindowService extends GetxService {
   }
 
   void saveMaximizeWindow(bool isMaximized) {
-    Log.info(isMaximized ? 'Maximized window' : 'Restored window');
+    log.info(isMaximized ? 'Maximized window' : 'Restored window');
 
     this.isMaximized = isMaximized;
     storageService.write(ConfigEnum.windowMaximize.key, isMaximized);
   }
 
   void saveFullScreen(bool isFullScreen) {
-    Log.info(isFullScreen ? 'Enter full screen' : 'Leave full screen');
+    log.info(isFullScreen ? 'Enter full screen' : 'Leave full screen');
 
     this.isFullScreen = isFullScreen;
     storageService.write(ConfigEnum.windowFullScreen.key, isFullScreen);

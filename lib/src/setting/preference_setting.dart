@@ -7,7 +7,7 @@ import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
 import '../service/storage_service.dart';
 import '../utils/locale_util.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 
 enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never, always }
 
@@ -41,14 +41,14 @@ class PreferenceSetting {
     Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.preferenceSetting.key);
     if (map != null) {
       _initFromMap(map);
-      Log.debug('init PreferenceSetting success', false);
+      log.debug('init PreferenceSetting success', false);
     } else {
-      Log.debug('init PreferenceSetting success: default', false);
+      log.debug('init PreferenceSetting success: default', false);
     }
   }
 
   static saveLanguage(Locale locale) async {
-    Log.debug('saveLanguage:$locale');
+    log.debug('saveLanguage:$locale');
     PreferenceSetting.locale.value = locale;
     _save();
     Get.updateLocale(locale);
@@ -56,127 +56,127 @@ class PreferenceSetting {
   }
 
   static saveDefaultTab(TabBarIconNameEnum defaultTab) {
-    Log.debug('saveDefaultTab:$defaultTab');
+    log.debug('saveDefaultTab:$defaultTab');
     PreferenceSetting.defaultTab.value = defaultTab;
     _save();
   }
 
   static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
-    Log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
+    log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
     PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
     _save();
   }
 
   static saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) {
-    Log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
+    log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
     PreferenceSetting.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
     _save();
   }
 
   static saveSimpleDashboardMode(bool simpleDashboardMode) {
-    Log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
+    log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
     PreferenceSetting.simpleDashboardMode.value = simpleDashboardMode;
     _save();
   }
 
   static saveHideBottomBar(bool hideBottomBar) {
-    Log.debug('saveHideBottomBar:$hideBottomBar');
+    log.debug('saveHideBottomBar:$hideBottomBar');
     PreferenceSetting.hideBottomBar.value = hideBottomBar;
     _save();
   }
 
   static savePreloadGalleryCover(bool preloadGalleryCover) {
-    Log.debug('savePreloadGalleryCover:$preloadGalleryCover');
+    log.debug('savePreloadGalleryCover:$preloadGalleryCover');
     PreferenceSetting.preloadGalleryCover.value = preloadGalleryCover;
     _save();
   }
 
   static saveEnableSwipeBackGesture(bool enableSwipeBackGesture) {
-    Log.debug('saveEnableSwipeBackGesture:$enableSwipeBackGesture');
+    log.debug('saveEnableSwipeBackGesture:$enableSwipeBackGesture');
     PreferenceSetting.enableSwipeBackGesture.value = enableSwipeBackGesture;
     _save();
   }
 
   static saveEnableLeftMenuDrawerGesture(bool enableLeftMenuDrawerGesture) {
-    Log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
+    log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
     PreferenceSetting.enableLeftMenuDrawerGesture.value = enableLeftMenuDrawerGesture;
     _save();
   }
 
   static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
-    Log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
+    log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
     PreferenceSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
     _save();
   }
 
   static saveDrawerGestureEdgeWidth(int drawerGestureEdgeWidth) {
-    Log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
+    log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
     PreferenceSetting.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
     _save();
   }
 
   static saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) {
-    Log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
+    log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
     PreferenceSetting.hideScroll2TopButton.value = hideScroll2TopButton;
     _save();
   }
 
   static saveShowAllGalleryTitles(bool showAllGalleryTitles) {
-    Log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
+    log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
     PreferenceSetting.showAllGalleryTitles.value = showAllGalleryTitles;
     _save();
   }
 
   static saveShowGalleryTagVoteStatus(bool showGalleryTagVoteStatus) {
-    Log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
+    log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
     PreferenceSetting.showGalleryTagVoteStatus.value = showGalleryTagVoteStatus;
     _save();
   }
 
   static saveShowComments(bool showComments) {
-    Log.debug('saveShowComments:$showComments');
+    log.debug('saveShowComments:$showComments');
     PreferenceSetting.showComments.value = showComments;
     _save();
   }
 
   static saveShowAllComments(bool showAllComments) {
-    Log.debug('saveShowAllComments:$showAllComments');
+    log.debug('saveShowAllComments:$showAllComments');
     PreferenceSetting.showAllComments.value = showAllComments;
     _save();
   }
 
   static saveEnableDefaultFavorite(bool enableDefaultFavorite) {
-    Log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
+    log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
     PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
     _save();
   }
 
   static saveEnableDefaultTagSet(bool enableDefaultTagSet) {
-    Log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
+    log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
     PreferenceSetting.enableDefaultTagSet.value = enableDefaultTagSet;
     _save();
   }
 
   static saveLaunchInFullScreen(bool launchInFullScreen) {
-    Log.debug('saveLaunchInFullScreen:$launchInFullScreen');
+    log.debug('saveLaunchInFullScreen:$launchInFullScreen');
     PreferenceSetting.launchInFullScreen.value = launchInFullScreen;
     _save();
   }
 
   static saveTagSearchConfig(SearchBehaviour tagSearchConfig) {
-    Log.debug('saveTagSearchConfig:$tagSearchConfig');
+    log.debug('saveTagSearchConfig:$tagSearchConfig');
     PreferenceSetting.searchBehaviour.value = tagSearchConfig;
     _save();
   }
 
   static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
-    Log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
+    log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
     PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
     _save();
   }
   
   static saveShowUtcTime(bool showUtcTime) {
-    Log.debug('saveShowUtcTime:$showUtcTime');
+    log.debug('saveShowUtcTime:$showUtcTime');
     PreferenceSetting.showUtcTime.value = showUtcTime;
     _save();
   }

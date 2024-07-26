@@ -24,7 +24,7 @@ import '../config/ui_config.dart';
 import '../database/database.dart';
 import '../network/eh_request.dart';
 import '../setting/user_setting.dart';
-import '../utils/log.dart';
+import '../service/log.dart';
 import '../utils/snack_util.dart';
 import '../utils/string_uril.dart';
 import 'loading_state_indicator.dart';
@@ -216,7 +216,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   }
 
   Future<bool> _doVote({required bool isVotingUp}) async {
-    Log.info('Vote for tag:${widget.tagData.key}, isVotingUp: $isVotingUp');
+    log.info('Vote for tag:${widget.tagData.key}, isVotingUp: $isVotingUp');
 
     String? errMsg;
     try {
@@ -235,7 +235,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       } else {
         voteDownState = LoadingState.error;
       }
-      Log.error('voteTagFailed'.tr, e.message);
+      log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message ?? '');
       return false;
     } on EHSiteException catch (e) {
@@ -244,7 +244,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       } else {
         voteDownState = LoadingState.error;
       }
-      Log.error('voteTagFailed'.tr, e.message);
+      log.error('voteTagFailed'.tr, e.message);
       snack('voteTagFailed'.tr, e.message);
       return false;
     }
@@ -293,7 +293,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   }
 
   Future<void> _doAddNewTagSet(int tagSetNumber, bool watch) async {
-    Log.info('Add new watched tag: ${widget.tagData.namespace}:${widget.tagData.key},tagSetNumber:$tagSetNumber, watch:$watch');
+    log.info('Add new watched tag: ${widget.tagData.namespace}:${widget.tagData.key},tagSetNumber:$tagSetNumber, watch:$watch');
 
     if (watch) {
       addWatchedTagState = LoadingState.loading;
@@ -311,7 +311,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         parser: EHSpiderParser.addTagSetResponse2Result,
       );
     } on DioException catch (e) {
-      Log.error('addNewTagSetFailed'.tr, e.errorMsg);
+      log.error('addNewTagSetFailed'.tr, e.errorMsg);
       toast('${'addNewTagSetFailed'.tr}: ${e.errorMsg}', isShort: false);
 
       if (watch) {

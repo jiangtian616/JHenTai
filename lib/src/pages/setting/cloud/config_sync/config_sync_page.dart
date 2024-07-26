@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,11 +14,9 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import 'package:jhentai/src/utils/byte_util.dart';
-import 'package:jhentai/src/utils/log.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_config_type_select_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -117,11 +114,11 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
         _loadingState = LoadingState.success;
       });
     } on DioException catch (e) {
-      Log.error('requestListConfig error: $e');
+      log.error('requestListConfig error: $e');
       snack('failed'.tr, e.errorMsg ?? '');
       setStateSafely(() => _loadingState = LoadingState.error);
     } catch (e) {
-      Log.error('requestListConfig error: $e');
+      log.error('requestListConfig error: $e');
       snack('failed'.tr, e.toString());
       setStateSafely(() {
         _loadingState = LoadingState.error;
@@ -176,7 +173,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
     try {
       path = await FilePicker.platform.getDirectoryPath();
     } on Exception catch (e) {
-      Log.error('Pick download config path failed', e);
+      log.error('Pick download config path failed', e);
     }
 
     if (path == null) {
@@ -202,7 +199,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
       await cloudConfigService.importConfig(config);
       toast('success'.tr);
     } on Exception catch (e) {
-      Log.error('importConfig error: $e');
+      log.error('importConfig error: $e');
       toast('failed'.tr);
     }
   }
@@ -222,12 +219,12 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
         parser: JHResponseParser.api2Success,
       );
     } on DioException catch (e) {
-      Log.error('requestDeleteConfig error: $e');
+      log.error('requestDeleteConfig error: $e');
       snack('failed'.tr, e.errorMsg ?? '');
       setStateSafely(() => _loadingState = LoadingState.error);
       return;
     } catch (e) {
-      Log.error('requestDeleteConfig error: $e');
+      log.error('requestDeleteConfig error: $e');
       snack('failed'.tr, e.toString());
       setStateSafely(() => _loadingState = LoadingState.error);
       return;
@@ -263,12 +260,12 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
         parser: JHResponseParser.api2Success,
       );
     } on DioException catch (e) {
-      Log.error('requestUploadConfig error: $e');
+      log.error('requestUploadConfig error: $e');
       snack('failed'.tr, e.errorMsg ?? '');
       setStateSafely(() => _loadingState = LoadingState.error);
       return;
     } catch (e) {
-      Log.error('requestUploadConfig error: $e');
+      log.error('requestUploadConfig error: $e');
       snack('failed'.tr, e.toString());
       setStateSafely(() => _loadingState = LoadingState.error);
       return;
