@@ -114,7 +114,7 @@ class LoginPageLogic extends GetxController {
 
     if (userInfoOrErrorMsg['errorMsg'] != null) {
       Log.info('Login failed by password.');
-      snack('loginFail'.tr, (userInfoOrErrorMsg['errorMsg'] as String).tr, longDuration: true);
+      snack('loginFail'.tr, (userInfoOrErrorMsg['errorMsg'] as String).tr, isShort: true);
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -180,7 +180,7 @@ class LoginPageLogic extends GetxController {
       userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioException catch (e) {
       Log.error('loginFail'.tr, e.errorMsg);
-      snack('loginFail'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('loginFail'.tr, e.errorMsg ?? '', isShort: true);
 
       EHRequest.removeAllCookies();
 
@@ -189,7 +189,7 @@ class LoginPageLogic extends GetxController {
       return;
     } on Exception catch (e) {
       Log.error('loginFail'.tr, e.toString());
-      snack('loginFail'.tr, e.toString(), longDuration: true);
+      snack('loginFail'.tr, e.toString(), isShort: true);
 
       EHRequest.removeAllCookies();
 

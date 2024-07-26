@@ -70,7 +70,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(0);
     } on DioException catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.errorMsg);
-      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
@@ -117,7 +117,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.prevPageIndexToLoad!);
     } on DioException catch (e) {
       Log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
@@ -156,7 +156,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.nextPageIndexToLoad!);
     } on DioException catch (e) {
       Log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -200,7 +200,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       gallerysAndPageInfo = await getGallerysAndPageInfoByPage(pageIndex);
     } on DioException catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.errorMsg);
-      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;

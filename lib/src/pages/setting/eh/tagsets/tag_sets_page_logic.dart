@@ -57,19 +57,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       pageInfo = await EHRequest.requestMyTagsPage(tagSetNo: state.currentTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey);
     } on DioException catch (e) {
       Log.error('getTagSetFailed'.tr, e.errorMsg);
-      snack('getTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
-      snack('getTagSetFailed'.tr, e.message, longDuration: true);
+      snack('getTagSetFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } catch (e) {
       Log.error('getTagSetFailed'.tr, e.toString());
-      snack('getTagSetFailed'.tr, e.toString(), longDuration: true);
+      snack('getTagSetFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
@@ -105,19 +105,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       );
     } on DioException catch (e) {
       Log.error('updateTagSetFailed'.tr, e.errorMsg);
-      snack('updateTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('updateTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('updateTagSetFailed'.tr, e.message);
-      snack('updateTagSetFailed'.tr, e.message, longDuration: true);
+      snack('updateTagSetFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
     } catch (e) {
       Log.error('updateTagSetFailed'.tr, e.toString());
-      snack('updateTagSetFailed'.tr, e.toString(), longDuration: true);
+      snack('updateTagSetFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([titleId, tagSetId, bodyId]);
       return;
@@ -182,19 +182,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       await EHRequest.requestDeleteWatchedTag(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
     } on DioException catch (e) {
       Log.error('deleteTagFailed'.tr, e.errorMsg);
-      snack('deleteTagFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('deleteTagFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } on EHSiteException catch (e) {
       Log.error('deleteTagFailed'.tr, e.message);
-      snack('deleteTagFailed'.tr, e.message, longDuration: true);
+      snack('deleteTagFailed'.tr, e.message, isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } catch (e) {
       Log.error('deleteTagFailed'.tr, e.toString());
-      snack('deleteTagFailed'.tr, e.toString(), longDuration: true);
+      snack('deleteTagFailed'.tr, e.toString(), isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
@@ -292,19 +292,19 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
       );
     } on DioException catch (e) {
       Log.error('updateTagFailed'.tr, e.errorMsg);
-      snack('updateTagFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('updateTagFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } on EHSiteException catch (e) {
       Log.error('updateTagFailed'.tr, e.message);
-      snack('updateTagFailed'.tr, e.message, longDuration: true);
+      snack('updateTagFailed'.tr, e.message, isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;
     } catch (e) {
       Log.error('updateTagFailed'.tr, e.toString());
-      snack('updateTagFailed'.tr, e.toString(), longDuration: true);
+      snack('updateTagFailed'.tr, e.toString(), isShort: true);
       state.updateTagState = LoadingState.error;
       updateSafely(['$tagId::${tag.tagId}']);
       return;

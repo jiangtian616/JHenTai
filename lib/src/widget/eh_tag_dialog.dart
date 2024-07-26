@@ -256,7 +256,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
 
     if (!isEmptyOrNull(errMsg)) {
-      snack('voteTagFailed'.tr, errMsg!, longDuration: true);
+      snack('voteTagFailed'.tr, errMsg!, isShort: true);
       return false;
     } else {
       toast('success'.tr);

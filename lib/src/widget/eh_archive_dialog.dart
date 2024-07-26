@@ -121,13 +121,13 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       setStateSafely(() => loadingState = LoadingState.error);
       return;
     } on Exception catch (_) {
-      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, longDuration: true);
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, isShort: true);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }
       return;
     } on Error catch (_) {
-      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, longDuration: true);
+      snack('getGalleryArchiveFailed'.tr, 'parseGalleryArchiveFailed'.tr, isShort: true);
       if (mounted) {
         setState(() => loadingState = LoadingState.error);
       }

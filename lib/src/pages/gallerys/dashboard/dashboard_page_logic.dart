@@ -66,13 +66,13 @@ class DashboardPageLogic extends BasePageLogic {
       );
     } on DioException catch (e) {
       Log.error('getRanklistFailed'.tr, e.errorMsg);
-      snack('getRanklistFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getRanklistFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('getRanklistFailed'.tr, e.message);
-      snack('getRanklistFailed'.tr, e.message, longDuration: true);
+      snack('getRanklistFailed'.tr, e.message, isShort: true);
       state.ranklistLoadingState = LoadingState.error;
       update([ranklistId]);
       return;
@@ -105,13 +105,13 @@ class DashboardPageLogic extends BasePageLogic {
       );
     } on DioException catch (e) {
       Log.error('getPopularListFailed'.tr, e.errorMsg);
-      snack('getPopularListFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getPopularListFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('getPopularListFailed'.tr, e.message);
-      snack('getPopularListFailed'.tr, e.message, longDuration: true);
+      snack('getPopularListFailed'.tr, e.message, isShort: true);
       state.popularLoadingState = LoadingState.error;
       update([popularListId]);
       return;

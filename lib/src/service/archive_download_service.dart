@@ -592,15 +592,15 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       if (e.response!.data is String && e.response!.data.contains('You have clocked too many downloaded bytes on this gallery')) {
         Log.download('${'410Hints'.tr} Archive: ${archive.title}');
-        snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', longDuration: true);
+        snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', isShort: true);
         return pauseDownloadArchive(archive.gid, needReUnlock: true);
       } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
         Log.download('IP quota exhausted! Archive: ${archive.title}');
-        snack('archiveError'.tr, 'IP quota exhausted!', longDuration: true);
+        snack('archiveError'.tr, 'IP quota exhausted!', isShort: true);
         return pauseDownloadArchive(archive.gid, needReUnlock: true);
       } else if (e.response!.data is String && e.response!.data.contains('Expired or invalid session')) {
         Log.download('Expired or invalid session! Archive: ${archive.title}');
-        snack('archiveError'.tr, 'Expired or invalid session!', longDuration: true);
+        snack('archiveError'.tr, 'Expired or invalid session!', isShort: true);
         return pauseDownloadArchive(archive.gid);
       } else {
         Log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
@@ -706,7 +706,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return await _unlock(archive);
     } on EHSiteException catch (e) {
       Log.download('Unlock archive error, reason: ${e.message}');
-      snack('archiveError'.tr, e.message, longDuration: true);
+      snack('archiveError'.tr, e.message, isShort: true);
 
       if (e.shouldPauseAllDownloadTasks) {
         return pauseAllDownloadArchive();
@@ -757,7 +757,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return await _unlock(archive);
     } on EHSiteException catch (e) {
       Log.download('Parsing archive download page url failed, reason: ${e.message}');
-      snack('archiveError'.tr, e.message, longDuration: true);
+      snack('archiveError'.tr, e.message, isShort: true);
 
       if (e.shouldPauseAllDownloadTasks) {
         return pauseAllDownloadArchive();
@@ -811,7 +811,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return await _getDownloadUrl(archive);
     } on EHSiteException catch (e) {
       Log.download('Download error, reason: ${e.message}');
-      snack('archiveError'.tr, e.message, longDuration: true);
+      snack('archiveError'.tr, e.message, isShort: true);
 
       if (e.shouldPauseAllDownloadTasks) {
         return pauseAllDownloadArchive();
@@ -894,21 +894,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           /// too many download thread will cause 410
           else if (response?.statusCode == 429) {
             Log.download('${'429Hints'.tr} Archive: ${archive.title}');
-            snack('archiveError'.tr, '429Hints'.tr, longDuration: true);
+            snack('archiveError'.tr, '429Hints'.tr, isShort: true);
             return await pauseDownloadArchive(archive.gid);
           } else {
             Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $e');
-            snack('archiveError'.tr, e.error.toString(), longDuration: true);
+            snack('archiveError'.tr, e.error.toString(), isShort: true);
             return pauseDownloadArchive(archive.gid);
           }
         } else {
           Log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $e');
-          snack('archiveError'.tr, e.error.toString(), longDuration: true);
+          snack('archiveError'.tr, e.error.toString(), isShort: true);
           return pauseDownloadArchive(archive.gid);
         }
       } on Exception catch (e) {
         Log.download('Failed to download archive ${archive.title}, reason: $e');
-        snack('archiveError'.tr, e.toString(), longDuration: true);
+        snack('archiveError'.tr, e.toString(), isShort: true);
         archiveDownloadInfo.downloadCompleter = null;
         return pauseDownloadArchive(archive.gid);
       }
@@ -936,7 +936,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     if (!success) {
       Log.error('Unpacking archive error!');
       Log.uploadError(Exception('Unpacking error!'), extraInfos: {'archive': archive});
-      snack('unpackingArchiveError'.tr, '${'failedToDealWith'.tr}:${archive.title}', longDuration: true);
+      snack('unpackingArchiveError'.tr, '${'failedToDealWith'.tr}:${archive.title}', isShort: true);
 
       archiveDownloadInfo.archiveStatus = ArchiveStatus.downloading;
       await archiveDownloadInfo.downloadTask!.dispose();

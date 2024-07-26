@@ -83,21 +83,21 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
       );
     } on DioException catch (e) {
       Log.error('getTagSetFailed'.tr, e.errorMsg);
-      snack('getTagSetFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
       Log.error('getTagSetFailed'.tr, e.message);
-      snack('getTagSetFailed'.tr, e.message, longDuration: true);
+      snack('getTagSetFailed'.tr, e.message, isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });
       return;
     } catch (e) {
       Log.error('getTagSetFailed'.tr, e.toString());
-      snack('getTagSetFailed'.tr, e.toString(), longDuration: true);
+      snack('getTagSetFailed'.tr, e.toString(), isShort: true);
       setStateSafely(() {
         _loadingState = LoadingState.error;
       });

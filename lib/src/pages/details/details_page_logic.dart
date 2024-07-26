@@ -203,7 +203,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       detailPageInfo = await _getDetailsWithRedirectAndFallback(useCache: useCacheIfAvailable);
     } on DioException catch (e) {
       Log.error('Get Gallery Detail Failed', e.errorMsg, e.stackTrace);
-      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -215,7 +215,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       Log.error('Get Gallery Detail Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -223,7 +223,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     } catch (e, s) {
       Log.error('Get Gallery Detail Failed', e, s);
-      snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -269,7 +269,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
     } on DioException catch (e) {
       Log.error('Get Gallery Metadata Failed', e.errorMsg);
-      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -277,7 +277,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     } on EHSiteException catch (e) {
       Log.error('Get Gallery Metadata Failed', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -285,7 +285,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       return;
     } catch (e, s) {
       Log.error('Get Gallery Metadata Failed', e, s);
-      snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       if (refreshPageImmediately) {
         updateSafely([loadingStateId]);
@@ -324,19 +324,19 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
     } on DioException catch (e) {
       Log.error('failToGetThumbnails'.tr, e.errorMsg);
-      snack('failToGetThumbnails'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('failToGetThumbnails'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
     } on EHSiteException catch (e) {
       Log.error('failToGetThumbnails'.tr, e.message);
-      snack('failToGetThumbnails'.tr, e.message, longDuration: true);
+      snack('failToGetThumbnails'.tr, e.message, isShort: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
     } catch (e, s) {
       Log.error('failToGetThumbnails'.tr, e, s);
-      snack('failToGetThumbnails'.tr, e.toString(), longDuration: true);
+      snack('failToGetThumbnails'.tr, e.toString(), isShort: true);
       state.loadingThumbnailsState = LoadingState.error;
       updateSafely([loadingThumbnailsStateId]);
       return;
@@ -452,19 +452,19 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           );
         } on DioException catch (e) {
           Log.error('getGalleryFavoriteInfoFailed'.tr, e.errorMsg);
-          snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', longDuration: true);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', isShort: true);
           state.favoriteState = LoadingState.error;
           updateSafely([favoriteId]);
           return;
         } on EHSiteException catch (e) {
           Log.error('getGalleryFavoriteInfoFailed'.tr, e.message);
-          snack('getGalleryFavoriteInfoFailed'.tr, e.message, longDuration: true);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.message, isShort: true);
           state.favoriteState = LoadingState.error;
           updateSafely([favoriteId]);
           return;
         } catch (e, s) {
           Log.error('getGalleryFavoriteInfoFailed'.tr, e, s);
-          snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), longDuration: true);
+          snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), isShort: true);
           state.favoriteState = LoadingState.error;
           updateSafely([favoriteId]);
           return;
@@ -532,19 +532,19 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       FavoriteSetting.save();
     } on DioException catch (e) {
       Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg);
-      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
     } on EHSiteException catch (e) {
       Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message);
-      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, longDuration: true);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.message, isShort: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
     } catch (e, s) {
       Log.error(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e, s);
-      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.toString(), longDuration: true);
+      snack(operation.isDelete ? 'removeFavoriteFailed'.tr : 'favoriteGalleryFailed'.tr, e.toString(), isShort: true);
       state.favoriteState = LoadingState.error;
       updateSafely([favoriteId]);
       return;
@@ -934,7 +934,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (!isEmptyOrNull(errMsg)) {
-      snack('addTagFailed'.tr, errMsg!, longDuration: true);
+      snack('addTagFailed'.tr, errMsg!, isShort: true);
       return;
     } else {
       toast('addTagSuccess'.tr);

@@ -190,17 +190,17 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
       });
     } on DioException catch (e) {
       Log.error('getGalleryFavoriteInfoFailed'.tr, e.errorMsg);
-      snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGalleryFavoriteInfoFailed'.tr, e.errorMsg ?? '', isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;
     } on EHSiteException catch (e) {
       Log.error('getGalleryFavoriteInfoFailed'.tr, e.message);
-      snack('getGalleryFavoriteInfoFailed'.tr, e.message, longDuration: true);
+      snack('getGalleryFavoriteInfoFailed'.tr, e.message, isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;
     } catch (e, s) {
       Log.error('getGalleryFavoriteInfoFailed'.tr, e, s);
-      snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), longDuration: true);
+      snack('getGalleryFavoriteInfoFailed'.tr, e.toString(), isShort: true);
       setState(() => _loadingState = LoadingState.error);
       return;
     }

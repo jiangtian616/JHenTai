@@ -254,7 +254,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
             preventDuplicates: false,
           );
         },
-        longDuration: true,
+        isShort: true,
       );
     } else if (galleryImagePageUrl != null) {
       snack(
@@ -271,7 +271,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
             offAllBefore: false,
           );
         },
-        longDuration: true,
+        isShort: true,
       );
     }
   }

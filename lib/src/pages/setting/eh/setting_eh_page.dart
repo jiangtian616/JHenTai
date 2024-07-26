@@ -195,14 +195,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
       assets = await EHRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
     } on DioException catch (e) {
       Log.error('Get assets failed', e.errorMsg);
-      snack('Get assets failed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('Get assets failed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
       Log.error('Get assets failed', e.message);
-      snack('Get assets failed'.tr, e.message, longDuration: true);
+      snack('Get assets failed'.tr, e.message, isShort: true);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
@@ -229,14 +229,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
       await EHRequest.requestResetImageLimit();
     } on DioException catch (e) {
       Log.error('Reset limit failed', e.errorMsg);
-      snack('Reset limit failed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('Reset limit failed'.tr, e.errorMsg ?? '', isShort: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
       Log.error('Reset limit failed', e.message);
-      snack('Reset limit failed'.tr, e.message, longDuration: true);
+      snack('Reset limit failed'.tr, e.message, isShort: true);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });

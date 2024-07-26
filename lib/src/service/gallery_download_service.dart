@@ -258,11 +258,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       newGalleryDetail = detailPageInfo.galleryDetails;
     } on DioException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.errorMsg}');
-      snack('updateGalleryError'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('updateGalleryError'.tr, e.errorMsg ?? '', isShort: true);
       return;
     } on EHSiteException catch (e) {
       Log.info('${'updateGalleryError'.tr}, reason: ${e.message}');
-      snack('updateGalleryError'.tr, e.message, longDuration: true);
+      snack('updateGalleryError'.tr, e.message, isShort: true);
       pauseAllDownloadGallery();
       return;
     }
@@ -930,7 +930,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         );
       } on EHSiteException catch (e) {
         Log.download('Parse image href error, reason: ${e.message}, gallery url: ${gallery.galleryUrl}');
-        snack('error'.tr, e.message, longDuration: true);
+        snack('error'.tr, e.message, isShort: true);
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
         } else {
@@ -1006,7 +1006,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         );
       } on EHParseException catch (e) {
         Log.download('Parse image url error, reason: ${e.message.tr}');
-        snack('error'.tr, e.message.tr, longDuration: true);
+        snack('error'.tr, e.message.tr, isShort: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
@@ -1019,7 +1019,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       } on EHSiteException catch (e) {
         Log.download('Parse image url error, reason: ${e.message.tr}');
-        snack('error'.tr, e.message.tr, longDuration: true);
+        snack('error'.tr, e.message.tr, isShort: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
@@ -1107,7 +1107,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return _reParseImageUrlAndDownload(gallery, serialNo);
       } on EHSiteException catch (e) {
         Log.download('Download Error, reason: ${e.message}');
-        snack('error'.tr, e.message, longDuration: true);
+        snack('error'.tr, e.message, isShort: true);
 
         if (e.shouldPauseAllDownloadTasks) {
           pauseAllDownloadGallery();
@@ -1126,16 +1126,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
         if (exception != null) {
           if (exception.operation == EHImageExceptionAfterOperation.pause) {
-            snack('error'.tr, exception.message, longDuration: true);
+            snack('error'.tr, exception.message, isShort: true);
             return pauseDownloadGallery(gallery);
           } else if (exception.operation == EHImageExceptionAfterOperation.pauseAll) {
-            snack('error'.tr, exception.message, longDuration: true);
+            snack('error'.tr, exception.message, isShort: true);
             return pauseAllDownloadGallery();
           } else if (exception.operation == EHImageExceptionAfterOperation.reParse) {
             return _reParseImageUrlAndDownload(gallery, serialNo);
           }
         } else {
-          snack('error'.tr, 'downloadFailed'.tr, longDuration: true);
+          snack('error'.tr, 'downloadFailed'.tr, isShort: true);
           return pauseDownloadGallery(gallery);
         }
       }

@@ -79,19 +79,19 @@ class GalleryImagePageLogic extends GetxController {
       );
     } on DioException catch (e) {
       Log.error('Get gallery image page info Failed', e.errorMsg, e.stackTrace);
-      snack('failed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('failed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } on EHSiteException catch (e) {
       Log.error('Get gallery image page info Failed', e.message);
-      snack('failed'.tr, e.message, longDuration: true);
+      snack('failed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } catch (e, s) {
       Log.error('Get gallery image page info Failed', e, s);
-      snack('failed'.tr, e.toString(), longDuration: true);
+      snack('failed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
@@ -103,19 +103,19 @@ class GalleryImagePageLogic extends GetxController {
       galleryUrl = detailsPageInfo.galleryDetails.galleryUrl;
     } on DioException catch (e) {
       Log.error('Get gallery detail failed in image page', e.errorMsg, e.stackTrace);
-      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } on EHSiteException catch (e) {
       Log.error('Get gallery detail failed in image page', e.message);
-      snack('getGalleryDetailFailed'.tr, e.message, longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.message, isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;
     } catch (e, s) {
       Log.error('Get gallery detail failed in image page', e, s);
-      snack('getGalleryDetailFailed'.tr, e.toString(), longDuration: true);
+      snack('getGalleryDetailFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely();
       return;

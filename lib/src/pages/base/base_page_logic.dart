@@ -101,7 +101,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage();
     } on DioException catch (e) {
       Log.error('refreshGalleryFailed'.tr, e.errorMsg);
-      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
@@ -110,7 +110,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       snack(
         'refreshGalleryFailed'.tr,
         e.message,
-        longDuration: true,
+        isShort: true,
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
       state.refreshState = LoadingState.error;
@@ -181,7 +181,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(prevGid: state.prevGid);
     } on DioException catch (e) {
       Log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
@@ -190,7 +190,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       snack(
         'getGallerysFailed'.tr,
         e.message,
-        longDuration: true,
+        isShort: true,
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
       state.loadingState = prevState;
@@ -224,7 +224,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(nextGid: state.nextGid);
     } on DioException catch (e) {
       Log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -233,7 +233,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       snack(
         'getGallerysFailed'.tr,
         e.message,
-        longDuration: true,
+        isShort: true,
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
       state.loadingState = LoadingState.error;
@@ -277,7 +277,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       galleryPage = await getGalleryPage(nextGid: state.nextGid, prevGid: state.prevGid, seek: dateTime);
     } on DioException catch (e) {
       Log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', longDuration: true);
+      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -286,7 +286,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       snack(
         'getGallerysFailed'.tr,
         e.message,
-        longDuration: true,
+        isShort: true,
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
       state.loadingState = LoadingState.error;
