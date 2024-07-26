@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  SiteSetting.init();
   FavoriteSetting.init();
   MyTagsSetting.init();
   EHSetting.init();
@@ -197,7 +196,6 @@ Future<void> onReady() async {
   }
 
   FavoriteSetting.refresh();
-  SiteSetting.refresh();
   EHSetting.refresh();
   MyTagsSetting.refreshAllOnlineTagSets();
 

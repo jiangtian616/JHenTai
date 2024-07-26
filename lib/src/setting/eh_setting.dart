@@ -90,7 +90,7 @@ class EHSetting {
 
     EHRequest.storeEHCookies([Cookie('sp', site)]);
 
-    SiteSetting.refresh();
+    siteSetting.fetchDataFromEH();
   }
 
   static Future<void> _save() async {

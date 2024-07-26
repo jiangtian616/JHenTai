@@ -54,9 +54,9 @@ mixin JHLifeCircleBeanWithConfigStorage {
         applyConfig(configString);
       }
       await doOnInit();
-      log.debug(configString == null ? 'Init $runtimeType success with default' : 'Init $runtimeType success');
+      log.debug(configString == null ? 'Init $runtimeType config success with default' : 'Init $runtimeType config success');
     } catch (e, stack) {
-      log.error('Init $runtimeType failed', e, stack);
+      log.error('Init $runtimeType config failed', e, stack);
     }
   }
 
@@ -73,13 +73,13 @@ mixin JHLifeCircleBeanWithConfigStorage {
     try {
       String? configString = await localConfigService.read(configKey: configEnum);
       if (configString == null) {
-        log.debug('Refresh $runtimeType success with default');
+        log.debug('Refresh $runtimeType config success with default');
       } else {
         applyConfig(configString);
-        log.debug('Refresh $runtimeType success');
+        log.debug('Refresh $runtimeType config success');
       }
     } catch (e, stack) {
-      log.error('Refresh $runtimeType failed', e, stack);
+      log.error('Refresh $runtimeType config failed', e, stack);
     }
   }
 
@@ -88,6 +88,7 @@ mixin JHLifeCircleBeanWithConfigStorage {
   }
 
   Future<bool> clear() {
+    log.debug('Clear $runtimeType config');
     return localConfigService.delete(configKey: configEnum);
   }
 

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
@@ -9,44 +11,73 @@ import 'package:retry/retry.dart';
 
 import '../exception/eh_site_exception.dart';
 import '../model/profile.dart';
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../service/log.dart';
 
-class SiteSetting {
+SiteSetting siteSetting = SiteSetting();
+
+class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
   static RxBool preferJapaneseTitle = true.obs;
 
-  /// unused now
   static Rx<FrontPageDisplayType> frontPageDisplayType = FrontPageDisplayType.compact.obs;
 
   static RxBool isLargeThumbnail = false.obs;
   static RxInt thumbnailRows = 4.obs;
   static RxInt thumbnailsCountPerPage = 40.obs;
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.siteSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init SiteSetting success', false);
-    } else {
-      log.debug('init SiteSetting success: default', false);
-    }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.siteSetting;
 
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    preferJapaneseTitle.value = map['preferJapaneseTitle'] ?? true;
+    frontPageDisplayType.value = FrontPageDisplayType.values[map['frontPageDisplayType']];
+    isLargeThumbnail.value = map['isLargeThumbnail'];
+    thumbnailRows.value = map['thumbnailRows'];
+    thumbnailsCountPerPage.value = map['thumbnailsCountPerPage'];
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'preferJapaneseTitle': preferJapaneseTitle.value,
+      'frontPageDisplayType': frontPageDisplayType.value.index,
+      'isLargeThumbnail': isLargeThumbnail.value,
+      'thumbnailRows': thumbnailRows.value,
+      'thumbnailsCountPerPage': thumbnailsCountPerPage.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {
     /// listen to login and logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
-        refresh();
+        fetchDataFromEH();
       } else {
-        _clear();
+        preferJapaneseTitle.value = true;
+        frontPageDisplayType.value = FrontPageDisplayType.compact;
+        isLargeThumbnail.value = false;
+        thumbnailRows.value = 4;
+        thumbnailsCountPerPage.value = 40;
+        super.clear();
       }
     });
   }
 
-  static Future<void> refresh() async {
+  @override
+  void doOnReady() {
+    fetchDataFromEH();
+  }
+
+  Future<void> fetchDataFromEH() async {
     if (!userSetting.hasLoggedIn()) {
       return;
     }
 
-    log.info('refresh SiteSetting');
+    log.info('Fetch site setting from EH');
 
     ({
       bool preferJapaneseTitle,
@@ -62,53 +93,21 @@ class SiteSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      log.error('refresh SiteSetting fail', e.errorMsg);
+      log.error('Fetch site setting from EH fail', e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      log.error('refresh SiteSetting fail', e.message);
+      log.error('Fetch site setting from EH fail', e.message);
       return;
     }
+
+    log.info('Fetch site setting from EH success');
 
     preferJapaneseTitle.value = settings.preferJapaneseTitle;
     frontPageDisplayType.value = settings.frontPageDisplayType;
     isLargeThumbnail.value = settings.isLargeThumbnail;
     thumbnailRows.value = settings.thumbnailRows;
     thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
-
-    log.info('refresh SiteSetting success');
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.siteSetting.key, _toMap());
-  }
-
-  static Future<void> _clear() async {
-    preferJapaneseTitle.value = true;
-    frontPageDisplayType.value = FrontPageDisplayType.compact;
-    isLargeThumbnail.value = false;
-    thumbnailRows.value = 4;
-    thumbnailsCountPerPage.value = 40;
-    Get.find<StorageService>().remove(ConfigEnum.siteSetting.key);
-    log.info('clear SiteSetting success');
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'preferJapaneseTitle': preferJapaneseTitle.value,
-      'frontPageDisplayType': frontPageDisplayType.value.index,
-      'isLargeThumbnail': isLargeThumbnail.value,
-      'thumbnailRows': thumbnailRows.value,
-      'thumbnailsCountPerPage': thumbnailsCountPerPage.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
-    preferJapaneseTitle.value = map['preferJapaneseTitle'] ?? true;
-    frontPageDisplayType.value = FrontPageDisplayType.values[map['frontPageDisplayType']];
-    isLargeThumbnail.value = map['isLargeThumbnail'];
-    thumbnailRows.value = map['thumbnailRows'];
-    thumbnailsCountPerPage.value = map['thumbnailsCountPerPage'];
+    await save();
   }
 }
 

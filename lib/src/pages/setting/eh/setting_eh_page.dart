@@ -121,7 +121,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
           },
         );
 
-        SiteSetting.refresh();
+        siteSetting.fetchDataFromEH();
       },
     );
   }
