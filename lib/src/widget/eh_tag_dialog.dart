@@ -83,7 +83,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
             _buildVoteDownButton(),
             _buildWatchTagButton(),
             _buildHideTagButton(),
-            if (UserSetting.hasLoggedIn()) _buildGoToTagSetsButton(),
+            if (userSetting.hasLoggedIn()) _buildGoToTagSetsButton(),
           ],
         ).marginOnly(top: 12),
       ],
@@ -191,7 +191,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   }
 
   Future<bool> vote({required bool isVotingUp}) async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return false;
     }
@@ -223,7 +223,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       errMsg = await EHRequest.voteTag(
         widget.gid,
         widget.token,
-        UserSetting.ipbMemberId.value!,
+        userSetting.ipbMemberId.value!,
         widget.apikey,
         '${widget.tagData.namespace}:${widget.tagData.key}',
         isVotingUp,
@@ -265,7 +265,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
   }
 
   Future<bool> handleAddWatchedTag(bool watch, {required bool useDefault}) async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return false;
     }
@@ -274,8 +274,8 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       return true;
     }
 
-    if (useDefault && PreferenceSetting.enableDefaultTagSet.isTrue && UserSetting.defaultTagSetNo.value != null) {
-      _doAddNewTagSet(UserSetting.defaultTagSetNo.value!, watch);
+    if (useDefault && PreferenceSetting.enableDefaultTagSet.isTrue && userSetting.defaultTagSetNo.value != null) {
+      _doAddNewTagSet(userSetting.defaultTagSetNo.value!, watch);
       return true;
     }
 
@@ -285,7 +285,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
 
     if (result.remember == true) {
-      UserSetting.saveDefaultTagSetNo(result.tagSetNo);
+      userSetting.saveDefaultTagSetNo(result.tagSetNo);
     }
 
     _doAddNewTagSet(result.tagSetNo, watch);

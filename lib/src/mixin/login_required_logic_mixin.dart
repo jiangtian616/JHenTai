@@ -5,7 +5,7 @@ import '../utils/toast_util.dart';
 
 mixin LoginRequiredMixin {
   bool checkLogin() {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return false;
     }

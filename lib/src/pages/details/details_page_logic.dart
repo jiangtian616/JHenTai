@@ -365,7 +365,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           title: 'chooseGroup'.tr,
           currentGroup: DownloadSetting.defaultGalleryGroup.value,
           candidates: downloadService.allGroups,
-          showDownloadOriginalImageCheckBox: UserSetting.hasLoggedIn(),
+          showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
           downloadOriginalImage: DownloadSetting.downloadOriginalImageByDefault.value,
         ),
       );
@@ -435,13 +435,13 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     int? currentFavIndex = state.galleryDetails?.favoriteTagIndex ?? state.gallery?.favoriteTagIndex;
 
     ({bool isDelete, int favIndex, String note, bool remember}) operation;
-    if (useDefault && UserSetting.defaultFavoriteIndex.value != null) {
+    if (useDefault && userSetting.defaultFavoriteIndex.value != null) {
       state.favoriteState = LoadingState.loading;
       updateSafely([favoriteId]);
 
       /// need to get current favorite note if we have favorite this gallery and we are not unfavoriting it.
       GalleryNote? galleryNote;
-      if (currentFavIndex != null && currentFavIndex != UserSetting.defaultFavoriteIndex.value) {
+      if (currentFavIndex != null && currentFavIndex != userSetting.defaultFavoriteIndex.value) {
         log.info('Get gallery favorite info: ${state.galleryUrl.gid}');
         try {
           galleryNote = await EHRequest.requestPopupPage<GalleryNote>(
@@ -472,8 +472,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       operation = (
-        isDelete: currentFavIndex == UserSetting.defaultFavoriteIndex.value,
-        favIndex: UserSetting.defaultFavoriteIndex.value!,
+        isDelete: currentFavIndex == userSetting.defaultFavoriteIndex.value,
+        favIndex: userSetting.defaultFavoriteIndex.value!,
         note: galleryNote?.note ?? '',
         remember: false,
       );
@@ -502,7 +502,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (operation.remember == true) {
-      UserSetting.saveDefaultFavoriteIndex(operation.favIndex);
+      userSetting.saveDefaultFavoriteIndex(operation.favIndex);
     }
 
     log.info('Favorite gallery: ${state.galleryUrl.gid}');
@@ -594,7 +594,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       ratingInfo = await EHRequest.requestSubmitRating(
         state.galleryUrl.gid,
         state.galleryUrl.token,
-        UserSetting.ipbMemberId.value!,
+        userSetting.ipbMemberId.value!,
         state.apikey!,
         (rating * 2).toInt(),
         EHSpiderParser.galleryRatingResponse2RatingInfo,
@@ -646,7 +646,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// new download
     if (archiveStatus == null) {
-      if (!UserSetting.hasLoggedIn()) {
+      if (!userSetting.hasLoggedIn()) {
         showLoginToast();
         return;
       }
@@ -736,7 +736,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapHH() async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return;
     }
@@ -913,7 +913,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       errMsg = await EHRequest.voteTag(
         state.galleryUrl.gid,
         state.galleryUrl.token,
-        UserSetting.ipbMemberId.value!,
+        userSetting.ipbMemberId.value!,
         state.apikey!,
         newTag,
         true,
@@ -1062,8 +1062,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
     } else {
       /// fallback to EX site only if user has logged in
-      firstLink = UserSetting.hasLoggedIn() ? state.galleryUrl : null;
-      secondLink = UserSetting.hasLoggedIn() ? state.galleryUrl.copyWith(isEH: false) : state.galleryUrl;
+      firstLink = userSetting.hasLoggedIn() ? state.galleryUrl : null;
+      secondLink = userSetting.hasLoggedIn() ? state.galleryUrl.copyWith(isEH: false) : state.galleryUrl;
     }
 
     /// if we can't find gallery via firstLink, try second link

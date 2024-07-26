@@ -243,7 +243,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         'galleryUrlDetected'.tr,
         '${'galleryUrlDetectedHint'.tr}: ${galleryUrl.url}',
         onPressed: () {
-          if (!galleryUrl.isEH && !UserSetting.hasLoggedIn()) {
+          if (!galleryUrl.isEH && !userSetting.hasLoggedIn()) {
             showLoginToast();
             return;
           }
@@ -261,7 +261,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         'galleryUrlDetected'.tr,
         '${'galleryUrlDetectedHint'.tr}: ${galleryImagePageUrl.url}',
         onPressed: () {
-          if (!galleryImagePageUrl.isEH && !UserSetting.hasLoggedIn()) {
+          if (!galleryImagePageUrl.isEH && !userSetting.hasLoggedIn()) {
             showLoginToast();
             return;
           }

@@ -30,7 +30,7 @@ class SettingPage extends StatelessWidget {
               title: Text('account'.tr),
               onTap: () => toRoute(Routes.settingPrefix + 'account'),
             ),
-            if (UserSetting.hasLoggedIn())
+            if (userSetting.hasLoggedIn())
               ListTile(
                 leading: const Icon(Icons.mood),
                 title: Text('EH'.tr),

@@ -20,8 +20,8 @@ class MyTagsSetting {
 
   static void init() {
     /// listen to login and logout
-    ever(UserSetting.ipbMemberId, (v) {
-      if (UserSetting.hasLoggedIn()) {
+    ever(userSetting.ipbMemberId, (v) {
+      if (userSetting.hasLoggedIn()) {
         refreshAllOnlineTagSets();
       } else {
         _clearOnlineTagSets();
@@ -30,7 +30,7 @@ class MyTagsSetting {
   }
 
   static Future<void> refreshAllOnlineTagSets() async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       return;
     }
 
@@ -68,7 +68,7 @@ class MyTagsSetting {
   }
 
   static Future<void> refreshOnlineTagSets(int tagSetNo) async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       return;
     }
 

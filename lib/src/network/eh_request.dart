@@ -281,7 +281,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   static Future<void> requestLogout() async {
     removeAllCookies();
-    UserSetting.clear();
+    userSetting.clear();
     if (GetPlatform.isDesktop) {
       Directory directory = Directory(join(pathService.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName));
       if (await directory.exists()) {

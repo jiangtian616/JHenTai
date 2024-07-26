@@ -1,100 +1,31 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 
-class UserSetting {
-  static RxnString userName = RxnString();
-  static RxnInt ipbMemberId = RxnInt();
-  static RxnString ipbPassHash = RxnString();
-  static RxnString avatarImgUrl = RxnString();
-  static RxnString nickName = RxnString();
-  static RxnInt defaultFavoriteIndex = RxnInt();
-  static RxnInt defaultTagSetNo = RxnInt();
+UserSetting userSetting = UserSetting();
 
-  static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.userSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init UserSetting success', false);
-    } else {
-      log.debug('init UserSetting success, not logged in', false);
-    }
-  }
+class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxnString userName = RxnString();
+  RxnInt ipbMemberId = RxnInt();
+  RxnString ipbPassHash = RxnString();
+  RxnString avatarImgUrl = RxnString();
+  RxnString nickName = RxnString();
+  RxnInt defaultFavoriteIndex = RxnInt();
+  RxnInt defaultTagSetNo = RxnInt();
 
-  static Future<void> saveUserInfo({
-    required String userName,
-    required int ipbMemberId,
-    required String ipbPassHash,
-    String? avatarImgUrl,
-    String? nickName,
-  }) async {
-    log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
-    UserSetting.userName.value = userName;
-    UserSetting.ipbPassHash.value = ipbPassHash;
-    UserSetting.ipbMemberId.value = ipbMemberId;
-    UserSetting.avatarImgUrl.value = avatarImgUrl;
-    UserSetting.nickName.value = nickName;
-    save();
-  }
+  bool hasLoggedIn() => ipbMemberId.value != null;
 
-  static Future<void> saveUserNameAndAvatarAndNickName({
-    required String userName,
-    String? avatarImgUrl,
-    required String nickName,
-  }) async {
-    log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl $nickName');
-    UserSetting.userName.value = userName;
-    UserSetting.avatarImgUrl.value = avatarImgUrl;
-    UserSetting.nickName.value = nickName;
-    save();
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.userSetting;
 
-  static Future<void> saveDefaultFavoriteIndex(int? index) async {
-    log.debug('saveDefaultFavoriteIndex: $index');
-    UserSetting.defaultFavoriteIndex.value = index;
-    save();
-  }
-  
-  static Future<void> saveDefaultTagSetNo(int? number) async {
-    log.debug('saveDefaultTagSet: $number');
-    UserSetting.defaultTagSetNo.value = number;
-    save();
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static bool hasLoggedIn() {
-    return ipbMemberId.value != null;
-  }
-
-  static void clear() {
-    Get.find<StorageService>().remove(ConfigEnum.userSetting.key);
-    userName.value = null;
-    ipbMemberId.value = null;
-    ipbPassHash.value = null;
-    avatarImgUrl.value = null;
-    nickName.value = null;
-    defaultFavoriteIndex.value = null;
-    defaultTagSetNo.value = null;
-  }
-
-  static Future<void> save() async {
-    await Get.find<StorageService>().write(ConfigEnum.userSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'userName': userName.value,
-      'ipbMemberId': ipbMemberId.value,
-      'ipbPassHash': ipbPassHash.value,
-      'avatarImgUrl': avatarImgUrl.value,
-      'nickName': nickName.value,
-      'defaultFavoriteIndex': defaultFavoriteIndex.value,
-      'defaultTagSetNo': defaultTagSetNo.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     userName = RxnString(map['userName']);
     ipbMemberId = RxnInt(map['ipbMemberId']);
     ipbPassHash = RxnString(map['ipbPassHash']);
@@ -102,5 +33,77 @@ class UserSetting {
     nickName = RxnString(map['nickName']);
     defaultFavoriteIndex = RxnInt(map['defaultFavoriteIndex']);
     defaultTagSetNo = RxnInt(map['defaultTagSetNo']);
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'userName': userName.value,
+      'ipbMemberId': ipbMemberId.value,
+      'ipbPassHash': ipbPassHash.value,
+      'avatarImgUrl': avatarImgUrl.value,
+      'nickName': nickName.value,
+      'defaultFavoriteIndex': defaultFavoriteIndex.value,
+      'defaultTagSetNo': defaultTagSetNo.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveUserInfo({
+    required String userName,
+    required int ipbMemberId,
+    required String ipbPassHash,
+    String? avatarImgUrl,
+    String? nickName,
+  }) async {
+    log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
+    this.userName.value = userName;
+    this.ipbPassHash.value = ipbPassHash;
+    this.ipbMemberId.value = ipbMemberId;
+    this.avatarImgUrl.value = avatarImgUrl;
+    this.nickName.value = nickName;
+    await save();
+  }
+
+  Future<void> saveUserNameAndAvatarAndNickName({
+    required String userName,
+    String? avatarImgUrl,
+    required String nickName,
+  }) async {
+    log.debug('saveUserNameAndAvatar:$userName $avatarImgUrl $nickName');
+    this.userName.value = userName;
+    this.avatarImgUrl.value = avatarImgUrl;
+    this.nickName.value = nickName;
+    await save();
+  }
+
+  Future<void> saveDefaultFavoriteIndex(int? index) async {
+    log.debug('saveDefaultFavoriteIndex: $index');
+    this.defaultFavoriteIndex.value = index;
+    await save();
+  }
+
+  Future<void> saveDefaultTagSetNo(int? number) async {
+    log.debug('saveDefaultTagSet: $number');
+    this.defaultTagSetNo.value = number;
+    await save();
+  }
+
+  @override
+  Future<bool> clear() async {
+    bool success = await super.clear();
+    userName.value = null;
+    ipbMemberId.value = null;
+    ipbPassHash.value = null;
+    avatarImgUrl.value = null;
+    nickName.value = null;
+    defaultFavoriteIndex.value = null;
+    defaultTagSetNo.value = null;
+    return success;
   }
 }

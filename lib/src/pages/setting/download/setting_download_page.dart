@@ -124,7 +124,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       title: Text('downloadOriginalImageByDefault'.tr),
       value: DownloadSetting.downloadOriginalImageByDefault.value,
       onChanged: (value) {
-        if (!UserSetting.hasLoggedIn()) {
+        if (!userSetting.hasLoggedIn()) {
           toast('needLoginToOperate'.tr);
           return;
         }

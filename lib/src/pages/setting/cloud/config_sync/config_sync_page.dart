@@ -71,7 +71,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
               ).withListTileTheme(context),
         errorTapCallback: _refresh,
       ),
-      floatingActionButton: UserSetting.hasLoggedIn() ? _buildFloatingActionButton(context) : null,
+      floatingActionButton: userSetting.hasLoggedIn() ? _buildFloatingActionButton(context) : null,
     );
   }
 
@@ -100,7 +100,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
       return;
     }
 
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       setStateSafely(() => _loadingState = LoadingState.success);
       return;
     }

@@ -40,8 +40,8 @@ class FavoriteSetting {
     }
 
     /// listen to login and logout
-    ever(UserSetting.ipbMemberId, (v) {
-      if (UserSetting.hasLoggedIn()) {
+    ever(userSetting.ipbMemberId, (v) {
+      if (userSetting.hasLoggedIn()) {
         refresh();
       } else {
         _clear();
@@ -51,7 +51,7 @@ class FavoriteSetting {
 
   static Future<void> refresh() async {
     /// only refresh when logged in
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       return;
     }
 

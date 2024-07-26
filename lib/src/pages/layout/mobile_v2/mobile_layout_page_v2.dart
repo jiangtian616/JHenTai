@@ -154,14 +154,14 @@ class EHUserAvatar extends StatelessWidget {
             child: CircleAvatar(
               radius: 32,
               backgroundColor: UIConfig.loginAvatarBackGroundColor(context),
-              foregroundImage: UserSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(UserSetting.avatarImgUrl.value!, cache: true) : null,
+              foregroundImage: userSetting.avatarImgUrl.value != null ? ExtendedNetworkImageProvider(userSetting.avatarImgUrl.value!, cache: true) : null,
               child:
-                  Icon(UserSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor(context), size: 32),
+                  Icon(userSetting.hasLoggedIn() ? Icons.face_retouching_natural : Icons.face, color: UIConfig.loginAvatarForeGroundColor(context), size: 32),
             ),
           ),
-          title: Text(UserSetting.nickName.value ?? UserSetting.userName.value ?? 'tap2Login'.tr),
+          title: Text(userSetting.nickName.value ?? userSetting.userName.value ?? 'tap2Login'.tr),
           onTap: () {
-            if (!UserSetting.hasLoggedIn()) {
+            if (!userSetting.hasLoggedIn()) {
               toRoute(Routes.login);
               return;
             }

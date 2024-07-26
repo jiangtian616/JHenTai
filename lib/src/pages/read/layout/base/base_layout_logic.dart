@@ -146,7 +146,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
               saveOnlineImage(index);
             },
           ),
-          if (readPageState.images[index]!.originalImageUrl != null && UserSetting.hasLoggedIn())
+          if (readPageState.images[index]!.originalImageUrl != null && userSetting.hasLoggedIn())
             CupertinoActionSheetAction(
               child: Text('${'save'.tr}(${'originalImage'.tr})'),
               onPressed: () async {
@@ -284,7 +284,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    if (readPageState.images[index]!.originalImageUrl == null || !UserSetting.hasLoggedIn()) {
+    if (readPageState.images[index]!.originalImageUrl == null || !userSetting.hasLoggedIn()) {
       return saveOnlineImage(index);
     }
 

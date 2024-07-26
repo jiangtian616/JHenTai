@@ -282,7 +282,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
     try {
       await EHRequest.requestUpdateWatchedTag(
-        apiuid: UserSetting.ipbMemberId.value!,
+        apiuid: userSetting.ipbMemberId.value!,
         apikey: state.apikey,
         tagId: tag.tagId,
         tagColor: color2aRGBString(tag.backgroundColor),

@@ -66,7 +66,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   }
 
   Future<void> _handleTapAddCommentButton() async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return;
     }
@@ -115,7 +115,7 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
   }
 
   Future<void> _handleTapUpdateCommentButton(int commentId) async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return;
     }

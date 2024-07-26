@@ -124,7 +124,7 @@ class LoginPageLogic extends GetxController {
 
     log.info('Login success by password.');
 
-    UserSetting.saveUserInfo(
+    userSetting.saveUserInfo(
       userName: state.userName!,
       ipbMemberId: userInfoOrErrorMsg['ipbMemberId'],
       ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
@@ -134,7 +134,7 @@ class LoginPageLogic extends GetxController {
       userInfoOrErrorMsg['ipbMemberId'],
       EHSpiderParser.forumPage2UserInfo,
     ).then((userInfo) {
-      UserSetting.saveUserNameAndAvatarAndNickName(
+      userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],
         nickName: userInfo['nickName']!,
@@ -218,7 +218,7 @@ class LoginPageLogic extends GetxController {
     if (useEXSite) {
       EHSetting.site.value = 'EX';
     }
-    UserSetting.saveUserInfo(
+    userSetting.saveUserInfo(
       userName: userInfo['userName']!,
       ipbMemberId: int.parse(state.ipbMemberId!),
       ipbPassHash: state.ipbPassHash!,
@@ -283,7 +283,7 @@ class LoginPageLogic extends GetxController {
       String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
       /// temporary name
-      UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+      userSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
       webview.close();
       toast('loginSuccess'.tr);
@@ -294,7 +294,7 @@ class LoginPageLogic extends GetxController {
 
       /// get username and avatar
       Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-      UserSetting.saveUserNameAndAvatarAndNickName(
+      userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],
         nickName: userInfo['nickName']!,
@@ -328,7 +328,7 @@ class LoginPageLogic extends GetxController {
       String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
 
       /// temporary name
-      UserSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
+      userSetting.saveUserInfo(userName: 'EHUser'.tr, ipbMemberId: ipbMemberId, ipbPassHash: ipbPassHash);
 
       toast('loginSuccess'.tr);
       untilRoute(
@@ -338,7 +338,7 @@ class LoginPageLogic extends GetxController {
 
       /// get username and avatar
       Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
-      UserSetting.saveUserNameAndAvatarAndNickName(
+      userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],
         nickName: userInfo['nickName']!,

@@ -987,7 +987,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             reloadKey: reloadKey,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && UserSetting.hasLoggedIn()
+            parser: gallery.downloadOriginalImage && userSetting.hasLoggedIn()
                 ? EHSpiderParser.imagePage2OriginalGalleryImage
                 : EHSpiderParser.imagePage2GalleryImage,
           ),

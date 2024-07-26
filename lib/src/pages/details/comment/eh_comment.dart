@@ -544,7 +544,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
   }
 
   Future<bool?> _handleVotingComment(bool isVotingUp) async {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return null;
     }
@@ -564,7 +564,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       newScore = await EHRequest.voteComment(
         detailsPageState.galleryDetails?.galleryUrl.gid ?? detailsPageState.gallery!.gid,
         detailsPageState.galleryDetails?.galleryUrl.token ?? detailsPageState.gallery!.token,
-        UserSetting.ipbMemberId.value!,
+        userSetting.ipbMemberId.value!,
         detailsPageState.apikey!,
         widget.commentId,
         isVotingUp,

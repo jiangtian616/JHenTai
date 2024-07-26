@@ -168,8 +168,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  UserSetting.init();
-
   TabBarSetting.init();
   WindowService.init();
 

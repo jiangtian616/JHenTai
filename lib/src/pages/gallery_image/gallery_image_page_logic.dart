@@ -156,8 +156,8 @@ class GalleryImagePageLogic extends GetxController {
       }
     } else {
       /// fallback to EX site only if user has logged in
-      firstLink = UserSetting.hasLoggedIn() ? galleryUrl : null;
-      secondLink = UserSetting.hasLoggedIn() ? galleryUrl.copyWith(isEH: false) : galleryUrl;
+      firstLink = userSetting.hasLoggedIn() ? galleryUrl : null;
+      secondLink = userSetting.hasLoggedIn() ? galleryUrl.copyWith(isEH: false) : galleryUrl;
     }
 
     /// if we can't find gallery via firstLink, try second link

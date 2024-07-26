@@ -42,7 +42,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!UserSetting.hasLoggedIn()) {
+    if (!userSetting.hasLoggedIn()) {
       return const SizedBox();
     }
     return Scaffold(

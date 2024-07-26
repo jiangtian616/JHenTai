@@ -18,8 +18,8 @@ class SettingAccountPage extends StatelessWidget {
         () => ListView(
           padding: const EdgeInsets.only(top: 12),
           children: [
-            if (!UserSetting.hasLoggedIn()) _buildLogin(),
-            if (UserSetting.hasLoggedIn()) ...[
+            if (!userSetting.hasLoggedIn()) _buildLogin(),
+            if (userSetting.hasLoggedIn()) ...[
               _buildLogout(context).marginOnly(bottom: 12),
               _buildCookiePage(),
             ],
@@ -39,7 +39,7 @@ class SettingAccountPage extends StatelessWidget {
 
   Widget _buildLogout(BuildContext context) {
     return ListTile(
-      title: Text('${'youHaveLoggedInAs'.tr}${UserSetting.nickName.value ?? UserSetting.userName.value!}'),
+      title: Text('${'youHaveLoggedInAs'.tr}${userSetting.nickName.value ?? userSetting.userName.value!}'),
       onTap: () => Get.dialog(const LogoutDialog()),
       trailing: IconButton(
         icon: const Icon(Icons.logout),
