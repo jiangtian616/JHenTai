@@ -47,8 +47,8 @@ class EHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: Duration(milliseconds: NetworkSetting.connectTimeout.value),
-      receiveTimeout: Duration(milliseconds: NetworkSetting.receiveTimeout.value),
+      connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
+      receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
     ));
 
     systemProxyAddress = await getSystemProxyAddress();
@@ -72,7 +72,7 @@ class EHRequest {
     /// domain fronting interceptor
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (RequestOptions options, RequestInterceptorHandler handler) {
-        if (NetworkSetting.enableDomainFronting.isFalse) {
+        if (networkSetting.enableDomainFronting.isFalse) {
           handler.next(options);
           return;
         }
@@ -112,7 +112,7 @@ class EHRequest {
   static Future<void> _initProxy() async {
     SocksProxy.initProxy(
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
-        return NetworkSetting.allIPs.contains(host);
+        return networkSetting.allIPs.contains(host);
       },
       findProxy: await findProxySettingFunc(() => systemProxyAddress),
     );
@@ -166,7 +166,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     _cacheManager = EHCacheManager(
       options: CacheOptions(
         policy: CachePolicy.disable,
-        expire: NetworkSetting.pageCacheMaxAge.value,
+        expire: networkSetting.pageCacheMaxAge.value,
         store: SqliteCacheStore(appDb: appDb),
       ),
     );
@@ -216,7 +216,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static ProxyConfig? currentProxyConfig() {
-    switch (NetworkSetting.proxyType.value) {
+    switch (networkSetting.proxyType.value) {
       case JProxyType.system:
         if (systemProxyAddress.trim().isEmpty) {
           return null;
@@ -228,23 +228,23 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       case JProxyType.http:
         return ProxyConfig(
           type: ProxyType.http,
-          address: NetworkSetting.proxyAddress.value,
-          username: NetworkSetting.proxyUsername.value,
-          password: NetworkSetting.proxyPassword.value,
+          address: networkSetting.proxyAddress.value,
+          username: networkSetting.proxyUsername.value,
+          password: networkSetting.proxyPassword.value,
         );
       case JProxyType.socks5:
         return ProxyConfig(
           type: ProxyType.socks5,
-          address: NetworkSetting.proxyAddress.value,
-          username: NetworkSetting.proxyUsername.value,
-          password: NetworkSetting.proxyPassword.value,
+          address: networkSetting.proxyAddress.value,
+          username: networkSetting.proxyUsername.value,
+          password: networkSetting.proxyPassword.value,
         );
       case JProxyType.socks4:
         return ProxyConfig(
           type: ProxyType.socks4,
-          address: NetworkSetting.proxyAddress.value,
-          username: NetworkSetting.proxyUsername.value,
-          password: NetworkSetting.proxyPassword.value,
+          address: networkSetting.proxyAddress.value,
+          username: networkSetting.proxyUsername.value,
+          password: networkSetting.proxyPassword.value,
         );
       case JProxyType.direct:
         return ProxyConfig(
@@ -990,7 +990,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static Exception _convertExceptionIfGalleryDeleted(DioException e) {
-    if (e.response?.statusCode == 404 && NetworkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
+    if (e.response?.statusCode == 404 && networkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
       String? errMessage = EHSpiderParser.a404Page2GalleryDeletedHint(e.response!.headers, e.response!.data);
       if (!isEmptyOrNull(errMessage)) {
         return EHSiteException(
@@ -1005,7 +1005,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   static void _emitEHExceptionIfFailed(Response response) {
-    if (!NetworkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
+    if (!networkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
       return;
     }
 

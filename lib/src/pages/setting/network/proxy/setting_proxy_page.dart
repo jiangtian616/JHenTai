@@ -13,10 +13,10 @@ class SettingProxyPage extends StatefulWidget {
 }
 
 class _SettingProxyPageState extends State<SettingProxyPage> {
-  JProxyType proxyType = NetworkSetting.proxyType.value;
-  String proxyAddress = NetworkSetting.proxyAddress.value;
-  String? proxyUsername = NetworkSetting.proxyUsername.value;
-  String? proxyPassword = NetworkSetting.proxyPassword.value;
+  JProxyType proxyType = networkSetting.proxyType.value;
+  String proxyAddress = networkSetting.proxyAddress.value;
+  String? proxyUsername = networkSetting.proxyUsername.value;
+  String? proxyPassword = networkSetting.proxyPassword.value;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
-              NetworkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
+              networkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
               toast('success'.tr);
             },
           ),
@@ -53,7 +53,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       title: Text('proxyType'.tr),
       trailing: Obx(
         () => DropdownButton<JProxyType>(
-          value: NetworkSetting.proxyType.value,
+          value: networkSetting.proxyType.value,
           alignment: Alignment.center,
           items: [
             DropdownMenuItem(child: Text('systemProxy'.tr), value: JProxyType.system),
@@ -64,7 +64,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           ],
           onChanged: (JProxyType? value) {
             proxyType = value!;
-            NetworkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
+            networkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
           },
         ),
       ),
@@ -77,14 +77,14 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       trailing: SizedBox(
         width: 150,
         child: TextField(
-          controller: TextEditingController(text: NetworkSetting.proxyAddress.value),
+          controller: TextEditingController(text: networkSetting.proxyAddress.value),
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyAddress = value,
-          enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 
@@ -94,14 +94,14 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       trailing: SizedBox(
         width: 150,
         child: TextField(
-          controller: TextEditingController(text: NetworkSetting.proxyUsername.value),
+          controller: TextEditingController(text: networkSetting.proxyUsername.value),
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyUsername = value,
-          enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 
@@ -111,15 +111,15 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       trailing: SizedBox(
         width: 150,
         child: TextField(
-          controller: TextEditingController(text: NetworkSetting.proxyPassword.value),
+          controller: TextEditingController(text: networkSetting.proxyPassword.value),
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyPassword = value,
           obscureText: true,
-          enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: NetworkSetting.proxyType.value != JProxyType.system && NetworkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 }

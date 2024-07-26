@@ -26,7 +26,7 @@ class EHCookieManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
-      if (NetworkSetting.allHostAndIPs.contains(options.uri.host)) {
+      if (networkSetting.allHostAndIPs.contains(options.uri.host)) {
         options.headers[HttpHeaders.cookieHeader] = CookieUtil.parse2String(cookies);
       }
       handler.next(options);
@@ -68,7 +68,7 @@ class EHCookieManager extends Interceptor {
       return;
     }
 
-    if (NetworkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
+    if (networkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
       List<Cookie> cookies = cookieStrs.map(Cookie.fromSetCookieValue).map((cookie) => Cookie(cookie.name, cookie.value)).toList();
       storeEHCookies(cookies);
     }

@@ -28,16 +28,16 @@ Future<String> getSystemProxyAddress() async {
 Future<String Function(Uri)> findProxySettingFunc(ValueGetter<String> systemProxyAddress) async {
   String configProxyAddress() {
     String configAddress;
-    if (isEmptyOrNull(NetworkSetting.proxyUsername.value?.trim()) && isEmptyOrNull(NetworkSetting.proxyPassword.value?.trim())) {
-      configAddress = NetworkSetting.proxyAddress.value;
+    if (isEmptyOrNull(networkSetting.proxyUsername.value?.trim()) && isEmptyOrNull(networkSetting.proxyPassword.value?.trim())) {
+      configAddress = networkSetting.proxyAddress.value;
     } else {
-      configAddress = '${NetworkSetting.proxyUsername.value ?? ''}:${NetworkSetting.proxyPassword.value ?? ''}@${NetworkSetting.proxyAddress.value}';
+      configAddress = '${networkSetting.proxyUsername.value ?? ''}:${networkSetting.proxyPassword.value ?? ''}@${networkSetting.proxyAddress.value}';
     }
     return configAddress;
   }
 
   return (_) {
-    switch (NetworkSetting.proxyType.value) {
+    switch (networkSetting.proxyType.value) {
       case JProxyType.system:
         return isEmptyOrNull(systemProxyAddress.call()) ? 'DIRECT' : 'PROXY ${systemProxyAddress.call()}; DIRECT';
       case JProxyType.http:

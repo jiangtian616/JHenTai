@@ -19,8 +19,8 @@ class JHRequest {
 
   static Future<void> init() async {
     _dio = Dio(BaseOptions(
-      connectTimeout: Duration(milliseconds: NetworkSetting.connectTimeout.value),
-      receiveTimeout: Duration(milliseconds: NetworkSetting.receiveTimeout.value),
+      connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
+      receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
     ));
 
     systemProxyAddress = await getSystemProxyAddress();
@@ -35,7 +35,7 @@ class JHRequest {
   static Future<void> _initProxy() async {
     SocksProxy.initProxy(
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
-        return NetworkSetting.allIPs.contains(host);
+        return networkSetting.allIPs.contains(host);
       },
       findProxy: await findProxySettingFunc(() => systemProxyAddress),
     );

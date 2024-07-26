@@ -11,9 +11,9 @@ import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
 
 class SettingNetworkPage extends StatelessWidget {
-  final TextEditingController proxyAddressController = TextEditingController(text: NetworkSetting.proxyAddress.value);
-  final TextEditingController connectTimeoutController = TextEditingController(text: NetworkSetting.connectTimeout.value.toString());
-  final TextEditingController receiveTimeoutController = TextEditingController(text: NetworkSetting.receiveTimeout.value.toString());
+  final TextEditingController proxyAddressController = TextEditingController(text: networkSetting.proxyAddress.value);
+  final TextEditingController connectTimeoutController = TextEditingController(text: networkSetting.connectTimeout.value.toString());
+  final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -41,8 +41,8 @@ class SettingNetworkPage extends StatelessWidget {
     return SwitchListTile(
       title: Text('enableDomainFronting'.tr),
       subtitle: Text('bypassSNIBlocking'.tr),
-      value: NetworkSetting.enableDomainFronting.value,
-      onChanged: NetworkSetting.saveEnableDomainFronting,
+      value: networkSetting.enableDomainFronting.value,
+      onChanged: networkSetting.saveEnableDomainFronting,
     );
   }
 
@@ -59,10 +59,10 @@ class SettingNetworkPage extends StatelessWidget {
       title: Text('pageCacheMaxAge'.tr),
       subtitle: Text('pageCacheMaxAgeHint'.tr),
       trailing: DropdownButton<Duration>(
-        value: NetworkSetting.pageCacheMaxAge.value,
+        value: networkSetting.pageCacheMaxAge.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) => NetworkSetting.savePageCacheMaxAge(newValue!),
+        onChanged: (Duration? newValue) => networkSetting.savePageCacheMaxAge(newValue!),
         items: [
           DropdownMenuItem(child: Text('1m'.tr), value: const Duration(minutes: 1)),
           DropdownMenuItem(child: Text('10m'.tr), value: const Duration(minutes: 10)),
@@ -79,10 +79,10 @@ class SettingNetworkPage extends StatelessWidget {
       title: Text('cacheImageExpireDuration'.tr),
       subtitle: Text('cacheImageExpireDurationHint'.tr),
       trailing: DropdownButton<Duration>(
-        value: NetworkSetting.cacheImageExpireDuration.value,
+        value: networkSetting.cacheImageExpireDuration.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) => NetworkSetting.saveCacheImageExpireDuration(newValue!),
+        onChanged: (Duration? newValue) => networkSetting.saveCacheImageExpireDuration(newValue!),
         items: [
           DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
           DropdownMenuItem(child: Text('2d'.tr), value: const Duration(days: 2)),
@@ -122,7 +122,7 @@ class SettingNetworkPage extends StatelessWidget {
               if (value == null) {
                 return;
               }
-              NetworkSetting.saveConnectTimeout(value);
+              networkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
@@ -157,7 +157,7 @@ class SettingNetworkPage extends StatelessWidget {
               if (value == null) {
                 return;
               }
-              NetworkSetting.saveReceiveTimeout(value);
+              networkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),

@@ -169,9 +169,9 @@ class CacheOptions {
 
   static const _extraKey = '@cache_options@';
 
-  static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: NetworkSetting.pageCacheMaxAge.value);
+  static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.pageCacheMaxAge.value);
 
-  static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: NetworkSetting.pageCacheMaxAge.value);
+  static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.pageCacheMaxAge.value);
 
   const CacheOptions({this.policy = CachePolicy.cache, required this.expire, this.store});
 

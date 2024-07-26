@@ -82,7 +82,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     _completer.complete(true);
 
     isolateCountListener = ever(DownloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
-    proxyConfigListener = everAll([NetworkSetting.proxyAddress, NetworkSetting.proxyUsername, NetworkSetting.proxyPassword], (_) => _onProxyConfigChange());
+    proxyConfigListener = everAll([networkSetting.proxyAddress, networkSetting.proxyUsername, networkSetting.proxyPassword], (_) => _onProxyConfigChange());
 
     if (DownloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();

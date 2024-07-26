@@ -1,23 +1,25 @@
+import 'dart:convert';
+
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../utils/log.dart';
 
-enum JProxyType { system, http, socks5, socks4, direct }
+NetworkSetting networkSetting = NetworkSetting();
 
-class NetworkSetting {
-  static Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
-  static Rx<Duration> cacheImageExpireDuration = const Duration(days: 7).obs;
-  static RxBool enableDomainFronting = false.obs;
-  static Rx<JProxyType> proxyType = JProxyType.system.obs;
-  static RxString proxyAddress = 'localhost:1080'.obs;
-  static RxnString proxyUsername = RxnString();
-  static RxnString proxyPassword = RxnString();
-  static RxInt connectTimeout = 6000.obs;
-  static RxInt receiveTimeout = 6000.obs;
+class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
+  Rx<Duration> cacheImageExpireDuration = const Duration(days: 7).obs;
+  RxBool enableDomainFronting = false.obs;
+  Rx<JProxyType> proxyType = JProxyType.system.obs;
+  RxString proxyAddress = 'localhost:1080'.obs;
+  RxnString proxyUsername = RxnString();
+  RxnString proxyPassword = RxnString();
+  RxInt connectTimeout = 6000.obs;
+  RxInt receiveTimeout = 6000.obs;
 
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238'],
@@ -27,80 +29,20 @@ class NetworkSetting {
     'forums.e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238'],
   };
 
-  static Set<String> get allHostAndIPs => host2IPs.keys.toSet()..addAll(allIPs);
+  Set<String> get allHostAndIPs => host2IPs.keys.toSet()..addAll(allIPs);
 
-  static Set<String> get allIPs => host2IPs.values.flattened.toSet();
+  Set<String> get allIPs => host2IPs.values.flattened.toSet();
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.networkSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      Log.debug('init NetworkSetting success', false);
-    } else {
-      Log.debug('init NetworkSetting success: default', false);
-    }
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.networkSetting;
 
-  static savePageCacheMaxAge(Duration pageCacheMaxAge) {
-    Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
-    NetworkSetting.pageCacheMaxAge.value = pageCacheMaxAge;
-    _save();
-  }
+  @override
+  void doOnReady() {}
 
-  static saveCacheImageExpireDuration(Duration cacheImageExpireDuration) {
-    Log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
-    NetworkSetting.cacheImageExpireDuration.value = cacheImageExpireDuration;
-    _save();
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static saveEnableDomainFronting(bool enableDomainFronting) {
-    Log.debug('saveEnableDomainFronting:$enableDomainFronting');
-    NetworkSetting.enableDomainFronting.value = enableDomainFronting;
-    _save();
-  }
-
-  static saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) {
-    Log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
-    NetworkSetting.proxyType.value = proxyType;
-    NetworkSetting.proxyAddress.value = proxyAddress;
-    NetworkSetting.proxyUsername.value = proxyUsername;
-    NetworkSetting.proxyPassword.value = proxyPassword;
-    _save();
-  }
-
-  static saveConnectTimeout(int connectTimeout) {
-    Log.debug('saveConnectTimeout:$connectTimeout');
-    NetworkSetting.connectTimeout.value = connectTimeout;
-    EHRequest.setConnectTimeout(connectTimeout);
-    _save();
-  }
-
-  static saveReceiveTimeout(int receiveTimeout) {
-    Log.debug('saveReceiveTimeout:$receiveTimeout');
-    NetworkSetting.receiveTimeout.value = receiveTimeout;
-    EHRequest.setReceiveTimeout(receiveTimeout);
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.networkSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
-      'cacheImageExpireDuration': cacheImageExpireDuration.value.inMilliseconds,
-      'enableDomainFronting': enableDomainFronting.value,
-      'proxyType': proxyType.value.index,
-      'proxyAddress': proxyAddress.value,
-      'proxyUsername': proxyUsername.value,
-      'proxyPassword': proxyPassword.value,
-      'connectTimeout': connectTimeout.value,
-      'receiveTimeout': receiveTimeout.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value.inMilliseconds);
     cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value.inMilliseconds);
     enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
@@ -111,4 +53,64 @@ class NetworkSetting {
     connectTimeout.value = map['connectTimeout'] ?? connectTimeout.value;
     receiveTimeout.value = map['receiveTimeout'] ?? receiveTimeout.value;
   }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
+      'cacheImageExpireDuration': cacheImageExpireDuration.value.inMilliseconds,
+      'enableDomainFronting': enableDomainFronting.value,
+      'proxyType': proxyType.value.index,
+      'proxyAddress': proxyAddress.value,
+      'proxyUsername': proxyUsername.value,
+      'proxyPassword': proxyPassword.value,
+      'connectTimeout': connectTimeout.value,
+      'receiveTimeout': receiveTimeout.value,
+    });
+  }
+
+  Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
+    Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
+    this.pageCacheMaxAge.value = pageCacheMaxAge;
+    await save();
+  }
+
+  Future<void> saveCacheImageExpireDuration(Duration cacheImageExpireDuration) async {
+    Log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
+    this.cacheImageExpireDuration.value = cacheImageExpireDuration;
+    await save();
+  }
+
+  Future<void> saveEnableDomainFronting(bool enableDomainFronting) async {
+    Log.debug('saveEnableDomainFronting:$enableDomainFronting');
+    this.enableDomainFronting.value = enableDomainFronting;
+    await save();
+  }
+
+  Future<void> saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) async {
+    Log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
+    this.proxyType.value = proxyType;
+    this.proxyAddress.value = proxyAddress;
+    this.proxyUsername.value = proxyUsername;
+    this.proxyPassword.value = proxyPassword;
+    await save();
+  }
+
+  Future<void> saveConnectTimeout(int connectTimeout) async {
+    Log.debug('saveConnectTimeout:$connectTimeout');
+    this.connectTimeout.value = connectTimeout;
+    await save();
+    
+    EHRequest.setConnectTimeout(connectTimeout);
+  }
+
+  Future<void> saveReceiveTimeout(int receiveTimeout) async {
+    Log.debug('saveReceiveTimeout:$receiveTimeout');
+    this.receiveTimeout.value = receiveTimeout;
+    await save();
+    
+    EHRequest.setReceiveTimeout(receiveTimeout);
+  }
 }
+
+enum JProxyType { system, http, socks5, socks4, direct }
