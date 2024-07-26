@@ -167,7 +167,5 @@ Future<void> onReady() async {
     bean.onReady();
   }
 
-  CloudConfigService.init();
-
   ScheduleService.init();
 }

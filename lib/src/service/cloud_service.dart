@@ -5,9 +5,12 @@ import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 
+import 'jh_service.dart';
 import 'log.dart';
 
-class CloudConfigService extends GetxService {
+CloudConfigService cloudConfigService = CloudConfigService();
+
+class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static Map<CloudConfigTypeEnum, String> configTypeVersionMap = {
     CloudConfigTypeEnum.settings: '1.0.0',
     CloudConfigTypeEnum.blockRules: '1.0.0',
@@ -21,16 +24,11 @@ class CloudConfigService extends GetxService {
   final LocalBlockRuleService localBlockRuleService = Get.find();
   final HistoryService historyService = Get.find();
 
-  static Future<void> init() async {
-    Get.put(CloudConfigService(), permanent: true);
-  }
+  @override
+  Future<void> doOnInit() async {}
 
   @override
-  Future<void> onInit() async {
-    log.debug('init CloudService success');
-
-    super.onInit();
-  }
+  void doOnReady() {}
 
   Future<Map<CloudConfigTypeEnum, String>> getCurrentConfigMap() async {
     return {};
